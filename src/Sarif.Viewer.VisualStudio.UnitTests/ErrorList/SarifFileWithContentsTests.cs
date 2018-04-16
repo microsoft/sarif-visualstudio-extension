@@ -65,14 +65,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             new Result
                             {
                                 RuleId = "C0001",
-                                Message = "Error 1",
+                                Message = new Message { Text = "Error 1" },
                                 Locations = new List<Location>
                                 {
                                     new Location
                                     {
                                         AnalysisTarget = new PhysicalLocation
                                         {
-                                            Uri = new Uri("file:///item.cpp")
+                                            FileLocation = new FileLocation
+                                            {
+                                                Uri = new Uri(@"file:///item.cpp", UriKind.Relative)
+                                            }
                                         }
                                     }
                                 }

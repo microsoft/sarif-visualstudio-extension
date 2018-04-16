@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.Windows;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Moq;
-using System.Collections.Generic;
-using System.Windows;
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
@@ -512,7 +512,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_SetVerbosity_Essential()
         {
             CallTree tree = CreateCallTree();
-            tree.SetVerbosity(AnnotatedCodeLocationImportance.Essential);
+            tree.SetVerbosity(CodeFlowLocationImportance.Essential);
 
             tree.TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
             tree.TopLevelNodes[0].Children[0].Visibility.Should().Be(Visibility.Collapsed);
@@ -526,7 +526,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_SetVerbosity_Important()
         {
             CallTree tree = CreateCallTree();
-            tree.SetVerbosity(AnnotatedCodeLocationImportance.Important);
+            tree.SetVerbosity(CodeFlowLocationImportance.Important);
 
             tree.TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
             tree.TopLevelNodes[0].Children[0].Visibility.Should().Be(Visibility.Visible);
@@ -540,7 +540,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_SetVerbosity_Unimportant()
         {
             CallTree tree = CreateCallTree();
-            tree.SetVerbosity(AnnotatedCodeLocationImportance.Unimportant);
+            tree.SetVerbosity(CodeFlowLocationImportance.Unimportant);
 
             tree.TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
             tree.TopLevelNodes[0].Children[0].Visibility.Should().Be(Visibility.Visible);
@@ -552,42 +552,40 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
 
         private CallTree CreateCallTree()
         {
-            var codeFlow = new CodeFlow
-            {
-                Locations = new List<AnnotatedCodeLocation>
+            var codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
                 {
-                    new AnnotatedCodeLocation
+                    new CodeFlowLocation
                     {
-                        Kind = AnnotatedCodeLocationKind.Call,
-                        Importance = AnnotatedCodeLocationImportance.Unimportant,
+                        Kind = CodeFlowLocationKind.Call,
+                        Importance = CodeFlowLocationImportance.Unimportant,
                     },
-                    new AnnotatedCodeLocation
+                    new CodeFlowLocation
                     {
-                        Kind = AnnotatedCodeLocationKind.Declaration,
-                        Importance = AnnotatedCodeLocationImportance.Important,
+                        Kind = CodeFlowLocationKind.Declaration,
+                        Importance = CodeFlowLocationImportance.Important,
                     },
-                    new AnnotatedCodeLocation
+                    new CodeFlowLocation
                     {
-                        Kind = AnnotatedCodeLocationKind.Declaration,
-                        Importance = AnnotatedCodeLocationImportance.Essential,
+                        Kind = CodeFlowLocationKind.Declaration,
+                        Importance = CodeFlowLocationImportance.Essential,
                     },
-                    new AnnotatedCodeLocation
+                    new CodeFlowLocation
                     {
-                        Kind = AnnotatedCodeLocationKind.CallReturn,
-                        Importance = AnnotatedCodeLocationImportance.Unimportant,
+                        Kind = CodeFlowLocationKind.CallReturn,
+                        Importance = CodeFlowLocationImportance.Unimportant,
                     },
-                    new AnnotatedCodeLocation
+                    new CodeFlowLocation
                     {
-                        Kind = AnnotatedCodeLocationKind.Declaration,
-                        Importance = AnnotatedCodeLocationImportance.Unimportant,
+                        Kind = CodeFlowLocationKind.Declaration,
+                        Importance = CodeFlowLocationImportance.Unimportant,
                     },
-                    new AnnotatedCodeLocation
+                    new CodeFlowLocation
                     {
-                        Kind = AnnotatedCodeLocationKind.Declaration,
-                        Importance = AnnotatedCodeLocationImportance.Essential,
+                        Kind = CodeFlowLocationKind.Declaration,
+                        Importance = CodeFlowLocationImportance.Essential,
                     }
                 }
-            };
+            );
 
             var mockToolWindow = new Mock<IToolWindow>();
             mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));

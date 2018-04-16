@@ -117,23 +117,29 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            if (run.ConfigurationNotifications != null)
+            if (run.Invocations != null)
             {
-                foreach (Notification configurationNotification in run.ConfigurationNotifications)
+                foreach (var invocation in run.Invocations)
                 {
-                    var sarifError = new SarifErrorListItem(run, configurationNotification, logFilePath, projectNameCache);
-                    sarifErrors.Add(sarifError);
-                }
-            }
-
-            if (run.ToolNotifications != null)
-            {
-                foreach (Notification toolNotification in run.ToolNotifications)
-                {
-                    if (toolNotification.Level != NotificationLevel.Note)
+                    if (invocation.ConfigurationNotifications != null)
                     {
-                        var sarifError = new SarifErrorListItem(run, toolNotification, logFilePath, projectNameCache);
-                        sarifErrors.Add(sarifError);
+                        foreach (Notification configurationNotification in invocation.ConfigurationNotifications)
+                        {
+                            var sarifError = new SarifErrorListItem(run, configurationNotification, logFilePath, projectNameCache);
+                            sarifErrors.Add(sarifError);
+                        }
+                    }
+
+                    if (invocation.ToolNotifications != null)
+                    {
+                        foreach (Notification toolNotification in invocation.ToolNotifications)
+                        {
+                            if (toolNotification.Level != NotificationLevel.Note)
+                            {
+                                var sarifError = new SarifErrorListItem(run, toolNotification, logFilePath, projectNameCache);
+                                sarifErrors.Add(sarifError);
+                            }
+                        }
                     }
                 }
             }

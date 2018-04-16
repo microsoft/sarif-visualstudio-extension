@@ -119,7 +119,15 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="Sarif, Version=1.7.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Sdk.1.7.5\lib\net452\Sarif.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\SarifSdk\Sarif.dll</HintPath>
+    </Reference>
+    <Reference Include="Sarif.Converters, Version=1.7.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\SarifSdk\Sarif.Converters.dll</HintPath>
+    </Reference>
+    <Reference Include="Sarif.Driver">
+      <HintPath>..\..\SarifSdk\Sarif.Driver.dll</HintPath>
     </Reference>
     <Reference Include="StreamJsonRpc, Version=1.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\StreamJsonRpc.1.3.23\lib\net45\StreamJsonRpc.dll</HintPath>

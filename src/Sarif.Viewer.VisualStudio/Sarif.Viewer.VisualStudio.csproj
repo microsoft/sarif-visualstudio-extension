@@ -64,6 +64,8 @@
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
     <Compile Include="Models\CallTreeNode.cs" />
+    <Compile Include="Models\CodeFlowLocationCollection.cs" />
+    <Compile Include="Models\CodeFlowLocationModel.cs" />
     <Compile Include="Models\FileDetailsModel.cs" />
     <Compile Include="Models\FixOffsetList.cs" />
     <Compile Include="Models\InvocationModel.cs" />
@@ -93,7 +95,7 @@
     <Compile Include="Sarif\IPropertyBagHolder.extensions.cs" />
     <Compile Include="Models\RuleModel.cs" />
     <Compile Include="Models\ToolModel.cs" />
-    <Compile Include="Sarif\AnnotatedCodeLocation.extensions.cs" />
+    <Compile Include="Sarif\CodeFlowLocation.extensions.cs" />
     <Compile Include="Sarif\Region.extensions.cs" />
     <Compile Include="Sarif\ResultLevel.extensions.cs" />
     <Compile Include="Sarif\Result.extensions.cs" />
@@ -116,8 +118,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="ErrorList\ErrorListService.cs" />
     <Compile Include="Guids.cs" />
-    <Compile Include="Models\AnnotatedCodeLocationModel.cs" />
-    <Compile Include="Models\AnnotatedCodeLocationCollection.cs" />
     <Compile Include="OpenLogFileCommands.cs" />
     <Compile Include="ProjectHelper.cs" />
     <Compile Include="ProjectKind.cs" />
@@ -337,13 +337,16 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="Sarif, Version=1.7.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Sdk.1.7.5\lib\net452\Sarif.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\SarifSdk\Sarif.dll</HintPath>
     </Reference>
     <Reference Include="Sarif.Converters, Version=1.7.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Converters.1.7.5\lib\net452\Sarif.Converters.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\SarifSdk\Sarif.Converters.dll</HintPath>
     </Reference>
     <Reference Include="Sarif.Driver, Version=1.7.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Driver.1.7.5\lib\net452\Sarif.Driver.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\SarifSdk\Sarif.Driver.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
