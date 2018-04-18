@@ -553,39 +553,38 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         private CallTree CreateCallTree()
         {
             var codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
+            {
+                new CodeFlowLocation
                 {
-                    new CodeFlowLocation
-                    {
-                        Kind = CodeFlowLocationKind.Call,
-                        Importance = CodeFlowLocationImportance.Unimportant,
-                    },
-                    new CodeFlowLocation
-                    {
-                        Kind = CodeFlowLocationKind.Declaration,
-                        Importance = CodeFlowLocationImportance.Important,
-                    },
-                    new CodeFlowLocation
-                    {
-                        Kind = CodeFlowLocationKind.Declaration,
-                        Importance = CodeFlowLocationImportance.Essential,
-                    },
-                    new CodeFlowLocation
-                    {
-                        Kind = CodeFlowLocationKind.CallReturn,
-                        Importance = CodeFlowLocationImportance.Unimportant,
-                    },
-                    new CodeFlowLocation
-                    {
-                        Kind = CodeFlowLocationKind.Declaration,
-                        Importance = CodeFlowLocationImportance.Unimportant,
-                    },
-                    new CodeFlowLocation
-                    {
-                        Kind = CodeFlowLocationKind.Declaration,
-                        Importance = CodeFlowLocationImportance.Essential,
-                    }
+                    NestingLevel = 0,
+                    Importance = CodeFlowLocationImportance.Unimportant,
+                },
+                new CodeFlowLocation
+                {
+                    NestingLevel = 1,
+                    Importance = CodeFlowLocationImportance.Important,
+                },
+                new CodeFlowLocation
+                {
+                    NestingLevel = 1,
+                    Importance = CodeFlowLocationImportance.Essential,
+                },
+                new CodeFlowLocation
+                {
+                    NestingLevel = 1,
+                    Importance = CodeFlowLocationImportance.Unimportant,
+                },
+                new CodeFlowLocation
+                {
+                    NestingLevel = 0,
+                    Importance = CodeFlowLocationImportance.Unimportant,
+                },
+                new CodeFlowLocation
+                {
+                    NestingLevel = 0,
+                    Importance = CodeFlowLocationImportance.Essential,
                 }
-            );
+            });
 
             var mockToolWindow = new Mock<IToolWindow>();
             mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));

@@ -19,9 +19,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             var model = new CodeFlowLocationCollection(codeFlow.Message.Text);
 
-            if (codeFlow.Locations != null)
+            if (codeFlow.ThreadFlows?[0]?.Locations != null)
             {
-                foreach (CodeFlowLocation location in codeFlow.Locations)
+                foreach (CodeFlowLocation location in codeFlow.ThreadFlows[0].Locations)
                 {
                     // TODO we are not yet properly hardened against locationless
                     // code locations (and what this means is also in flux as
@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
         public static CallTree ToCallTree(this CodeFlow codeFlow)
         {
-            if (codeFlow.Locations?.Count == 0)
+            if (codeFlow.ThreadFlows?[0]?.Locations?.Count == 0)
             {
                 return null;
             }

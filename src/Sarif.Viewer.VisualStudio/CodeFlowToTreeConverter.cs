@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 
@@ -11,10 +12,46 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
     {
         internal static List<CallTreeNode> Convert(CodeFlow codeFlow)
         {
-            int currentCodeFlowIndex = -1;
-            int nestingLevel = 0;
+            var root = new CallTreeNode { Children = new List<CallTreeNode>() };
+            ThreadFlow threadFlow = codeFlow.ThreadFlows?[0];
 
-            return GetChildren(codeFlow, ref currentCodeFlowIndex, ref nestingLevel, null);
+            if (threadFlow != null)
+            {
+                int lastNestingLevel = 0;
+                CallTreeNode lastParent = root;
+
+                foreach (CodeFlowLocation location in threadFlow.Locations)
+                {
+                    var newNode = new CallTreeNode
+                    {
+                        Location = location,
+                        Children = new List<CallTreeNode>()
+                    };
+
+                    if (location.NestingLevel > lastNestingLevel)
+                    {
+                        // Previous node was a call
+                        lastParent = lastParent.Children.Last();
+                        lastParent.Kind = CallTreeNodeKind.Call;
+                    }
+                    else if (location.NestingLevel < lastNestingLevel)
+                    {
+                        // Previous node was a return
+                        CallTreeNode node = lastParent.Children.Last(); // Get the last node we created
+                        node.Kind = CallTreeNodeKind.Call;
+                        lastParent = node.Parent.Parent;
+                    }
+
+                    newNode.Parent = lastParent;
+                    lastParent.Children.Add(newNode);
+                    lastNestingLevel = location.NestingLevel;
+                }
+
+                root.Children.ForEach(n => n.Parent = null);
+            }
+
+            return root.Children;
+            //return GetChildren(codeFlow, ref currentCodeFlowIndex, ref nestingLevel, null);
         }
 
         private static List<CallTreeNode> GetChildren(CodeFlow codeFlow, ref int currentCodeFlowIndex, ref int nestingLevel, CallTreeNode parent)
@@ -37,7 +74,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         {
                             Location = codeFlowLocation,
                             Children = new List<CallTreeNode>(),
-                            Parent = parent
+                            Parent = parent,
+                            Kind = CallTreeNodeKind.Return
                         });
                         foundCallReturn = true;
                         nestingLevel--;
@@ -48,7 +86,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         var newNode = new CallTreeNode
                         {
                             Location = codeFlowLocation,
-                            Parent = parent
+                            Parent = parent,
+                            Kind = CallTreeNodeKind.Call
                         };
                         newNode.Children = GetChildren(codeFlow, ref currentCodeFlowIndex, ref nestingLevel, newNode);
                         children.Add(newNode);

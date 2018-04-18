@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Windows;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
@@ -145,7 +144,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
             {
                 new CodeFlowLocation
                 {
-                    NestingLevel = 0,
+                    NestingLevel = 0, // Call
                     Importance = CodeFlowLocationImportance.Unimportant,
                 },
                 new CodeFlowLocation
@@ -160,7 +159,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
                 new CodeFlowLocation
                 {
-                    NestingLevel = 1,
+                    NestingLevel = 1, // Return
                     Importance = CodeFlowLocationImportance.Unimportant,
                 },
                 new CodeFlowLocation
@@ -175,7 +174,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
                 new CodeFlowLocation
                 {
-                    NestingLevel = 0,
+                    NestingLevel = 0, // Call
                     Importance = CodeFlowLocationImportance.Unimportant,
                 },
                 new CodeFlowLocation
@@ -185,12 +184,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
                 new CodeFlowLocation
                 {
-                    NestingLevel = 1,
+                    NestingLevel = 1, // Return
                     Importance = CodeFlowLocationImportance.Unimportant,
                 },
                 new CodeFlowLocation
                 {
-                    NestingLevel = 0,
+                    NestingLevel = 0, // Call
                     Importance = CodeFlowLocationImportance.Unimportant,
                 },
                 new CodeFlowLocation

@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 model.LogicalLocation = codeFlowLocation.Location.FullyQualifiedLogicalName;
             }
 
-            model.Kind = codeFlowLocation.Kind.ToString();
+            model.Kind = "NODE_KIND";
             model.IsEssential = codeFlowLocation.Importance == CodeFlowLocationImportance.Essential;
 
             return model;

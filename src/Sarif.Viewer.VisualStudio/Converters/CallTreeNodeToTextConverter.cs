@@ -13,14 +13,9 @@ namespace Microsoft.Sarif.Viewer.Converters
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             var node = value as CallTreeNode;
-            if (node != null)
-            {
-                return MakeDisplayString(node);
-            }
-            else
-            {
-                return string.Empty;
-            }
+            return node != null ?
+                MakeDisplayString(node) :
+                string.Empty;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -51,22 +46,18 @@ namespace Microsoft.Sarif.Viewer.Converters
                 }
                 else
                 {
-                    switch (codeFlowLocation.Kind)
+                    switch (node.Kind)
                     {
-                        case CodeFlowLocationKind.Call:
-                            string callee = codeFlowLocation.Target;
-                            text = !string.IsNullOrEmpty(callee) ? callee : Resources.UnknownCalleeMessage;
+                        case CallTreeNodeKind.Call:
+                            string callee;
+                            
+                            text = codeFlowLocation.TryGetProperty("target", out callee) ?
+                                        callee :
+                                        Resources.UnknownCalleeMessage;
                             break;
 
-                        case CodeFlowLocationKind.CallReturn:
+                        case CallTreeNodeKind.Return:
                             text = Resources.ReturnMessage;
-                            break;
-
-                        default:
-                            if (codeFlowLocation.Kind != default(CodeFlowLocationKind))
-                            {
-                                text = codeFlowLocation.Kind.ToString();
-                            }
                             break;
                     }
                 }
