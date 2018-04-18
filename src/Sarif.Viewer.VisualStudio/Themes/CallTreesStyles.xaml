@@ -7,7 +7,7 @@
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/DefaultStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <converters:CallTreeNodeToTextConverter x:Key="CallTreeToTextConverter" />
+    <converters:CallTreeNodeToTextConverter x:Key="CallTreeNodeToTextConverter" />
 
     <Style x:Key="ToolBarTrayStyle" TargetType="ToolBarTray">
         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>

@@ -26,11 +26,10 @@ namespace Microsoft.Sarif.Viewer.Converters
         private static string MakeDisplayString(CallTreeNode node)
         {
             // Use the following preferences for the CallTreeNode text.
-            // 1. AnnotatedCodeLocation.Message
-            // 2. AnnotatedCodeLocation.Snippet
+            // 1. CodeFlowLocation.Location.Message.Text
+            // 2. CodeFlowLocation.Location.PhysicalLocation.Region.Snippet.Text
             // 3. Callee for calls
             // 4. "Return" for returns
-            // 5. AnnotatedCodeLocation.Kind
             string text = string.Empty;
 
             CodeFlowLocation codeFlowLocation = node.Location;
