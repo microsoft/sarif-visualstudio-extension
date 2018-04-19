@@ -35,11 +35,11 @@ namespace Microsoft.Sarif.Viewer.Converters
             CodeFlowLocation codeFlowLocation = node.Location;
             if (codeFlowLocation != null)
             {
-                if (!String.IsNullOrEmpty(codeFlowLocation.Location?.Message?.Text))
+                if (!String.IsNullOrWhiteSpace(codeFlowLocation.Location?.Message?.Text))
                 {
                     text = codeFlowLocation.Location.Message.Text;
                 }
-                else if (!String.IsNullOrEmpty(codeFlowLocation.Location?.PhysicalLocation?.Region?.Snippet?.Text))
+                else if (!String.IsNullOrWhiteSpace(codeFlowLocation.Location?.PhysicalLocation?.Region?.Snippet?.Text))
                 {
                     text = codeFlowLocation.Location.PhysicalLocation.Region.Snippet.Text.Trim();
                 }
