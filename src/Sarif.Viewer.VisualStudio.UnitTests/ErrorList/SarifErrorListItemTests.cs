@@ -86,12 +86,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
-                {
-                    Rules = new Dictionary<string, Rule>
-                    {
-                    }
-                }
+                Resources = new CodeAnalysis.Sarif.Resources() { }
             };
 
             var item = MakeErrorListItem(run, result);
@@ -100,7 +95,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifErrorListItem_WhenResultRefersToRuleWithNoMessageFormats_ContainsBlankMessage()
+        public void SarifErrorListItem_WhenResultRefersToRuleWithNoMessageStrings_ContainsBlankMessage()
         {
             var result = new Result
             {
@@ -166,7 +161,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifErrorListItem_WhenResultRefersToExistingMessageFormat_ContainsExpectedMessage()
+        public void SarifErrorListItem_WhenResultRefersToExistingMessageString_ContainsExpectedMessage()
         {
             var result = new Result
             {

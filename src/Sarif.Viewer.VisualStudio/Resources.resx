@@ -128,6 +128,9 @@
   <data name="ConfirmDownloadDialog_Title" xml:space="preserve">
     <value>Confirm Download</value>
   </data>
+  <data name="ContinuingCallTreeNodeMessage" xml:space="preserve">
+    <value>Continuing</value>
+  </data>
   <data name="FileOpenFail_DialogCaption" xml:space="preserve">
     <value>Open File</value>
   </data>
@@ -160,5 +163,8 @@
   <data name="UnknownCalleeMessage" xml:space="preserve">
     <value>&lt;unknown callee&gt;</value>
     <comment>Displayed on a call tree "Call" node with no callee</comment>
+  </data>
+  <data name="UnknownToolName" xml:space="preserve">
+    <value>Unknown</value>
   </data>
 </root>

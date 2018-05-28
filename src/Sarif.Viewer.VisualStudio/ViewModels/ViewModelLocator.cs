@@ -101,19 +101,16 @@ namespace Microsoft.Sarif.Viewer.ViewModels
 
                     new CallTreeNode
                     {
-                        Kind = CallTreeNodeKind.Call,
                         Location = new CodeFlowLocation(),
                         Children = new List<CallTreeNode>
                         {
                             new CallTreeNode
                             {
-                                Kind = CallTreeNodeKind.Return,
                                 Location = new CodeFlowLocation()
                             }
                         }
                     }
                 }, SarifViewerPackage.SarifToolWindow));
-            viewModel.CallTrees[0].TopLevelNodes[1].Location.SetProperty("target", "my_func");
 
             StackCollection stack1 = new StackCollection("Stack A1");
             stack1.Add(new StackFrameModel()
