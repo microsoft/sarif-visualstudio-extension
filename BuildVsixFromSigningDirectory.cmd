@@ -32,8 +32,8 @@ xcopy /Y %SigningDirectory%\net461\Microsoft.Sarif.Viewer.dll %ArchiveDirectory%
 del /Q %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.vsix
 
 :: This command will only output to a file with a .zip extension
-powershell Compress-Archive -Path %ArchiveDirectory%\* -CompressionLevel Fastest -DestinationPath %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.zip
-pushd %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio
+powershell Compress-Archive -Path %ArchiveDirectory%\* -CompressionLevel Fastest -DestinationPath %SigningDirectory%\Microsoft.Sarif.Viewer.zip
+pushd %SigningDirectory%
 rename Microsoft.Sarif.Viewer.zip Microsoft.Sarif.Viewer.vsix
 popd
 
