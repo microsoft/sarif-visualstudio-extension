@@ -92,7 +92,7 @@ function New-SigningDirectory {
     }
 
     foreach ($project in $Projects.NewProduct) {
-        $projectBinDirectory = (Get-ProjectBinDirectory $project, $configuration)
+        $projectBinDirectory = (Get-ProjectBinDirectory $project $configuration)
 
         foreach ($framework in $Frameworks.All) {
             $sourceDirectory = "$projectBinDirectory\$framework"
