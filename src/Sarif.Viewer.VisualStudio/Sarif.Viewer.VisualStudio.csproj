@@ -49,9 +49,11 @@
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="DelegateCommandBase.cs" />
     <Compile Include="ErrorList\ErrorListCommand.cs" />
+    <Compile Include="ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
     <Compile Include="KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="Controls\BindableTextBlock.cs" />
+    <Compile Include="LoadSarifLogService.cs" />
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
     <Compile Include="Models\CallTreeNode.cs" />
@@ -71,6 +73,7 @@
     </Compile>
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
+    <Compile Include="SLoadSarifLogService.cs" />
     <Compile Include="TelemetryEvent.cs" />
     <Compile Include="TelemetryProvider.cs" />
     <Compile Include="Uri.extensions.cs" />
