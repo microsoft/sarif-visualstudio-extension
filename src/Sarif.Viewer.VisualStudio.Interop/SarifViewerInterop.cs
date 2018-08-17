@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
@@ -23,17 +24,12 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// <summary>
         /// Gets the Visual Studio shell instance object.
         /// </summary>
-        public IVsShell VsShell { get; private set; }
-
-        /// <summary>
-        /// Gets the unique identifier string of the SARIF Viewer package.
-        /// </summary>
-        public static readonly string ViewerExtensionGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
+        public IVsShell VsShell { get; }
 
         /// <summary>
         /// Gets the unique identifier of the SARIF Viewer package.
         /// </summary>
-        public static readonly Guid ViewerExtensionGuid = new Guid(ViewerExtensionGuidString);
+        public static readonly Guid ViewerExtensionGuid = new Guid("b97edb99-282e-444c-8f53-7de237f2ec5e");
 
         #region Private properties for lazy initialization
         private Assembly ViewerExtensionAssembly
@@ -67,12 +63,9 @@ namespace Microsoft.Sarif.Viewer.Interop
         }
         #endregion
 
-        private SarifViewerInterop() { }
-
         /// <summary>
         /// Initializes a new instance of the SarifViewerInterop class.
         /// </summary>
-        /// <param name="vsShell"></param>
         public SarifViewerInterop(IVsShell vsShell)
         {
             VsShell = vsShell ?? throw new ArgumentNullException(nameof(vsShell));
@@ -104,38 +97,36 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Opens the specified SARIF log file in the SARIF Viewer extension.
         /// </summary>
         /// <param name="path">The path of the log file.</param>
-        public async Task OpenSarifLogAsync(string path)
+        public async Task<bool> OpenSarifLogAsync(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentNullException(nameof(path));
             }
 
-            if (!IsViewerExtensionInstalled)
+            bool result = false;
+
+            if (IsViewerExtensionInstalled && (IsViewerExtensionLoaded || LoadViewerExtension() != null))
             {
-                return;
-            }
+                // Get the service interface type
+                Type[] types = ViewerExtensionAssembly.GetTypes();
+                Type sarifLoadServiceInterface = types.Where(t => t.Name == ViewerServiceInterfaceName).FirstOrDefault();
 
-            if (!IsViewerExtensionLoaded)
-            {
-                LoadViewerExtension();
-            }
-
-            // Get the service interface type
-            Type[] types = ViewerExtensionAssembly.GetTypes();
-            Type sarifLoadServiceInterface = types.Where(t => t.Name == ViewerServiceInterfaceName).FirstOrDefault();
-
-            if (sarifLoadServiceInterface != null)
-            {
-                // Get a service reference
-                dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifLoadServiceInterface);
-
-                if (sarifLoadService != null)
+                if (sarifLoadServiceInterface != null)
                 {
-                    // Call the service API
-                    sarifLoadService.LoadSarifLog(path);
+                    // Get a service reference
+                    dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifLoadServiceInterface);
+
+                    if (sarifLoadService != null)
+                    {
+                        // Call the service API
+                        sarifLoadService.LoadSarifLog(path);
+                        result = true;
+                    }
                 }
             }
+
+            return result;
         }
 
         /// <summary>
@@ -164,12 +155,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             Guid serviceGuid = ViewerExtensionGuid;
             int result;
 
-            if (0 == VsShell.IsPackageInstalled(ref serviceGuid, out result) && result == 1)
-            {
-                return true;
-            }
-
-            return false;
+            return VsShell.IsPackageInstalled(ref serviceGuid, out result) == 0 && result == 1;
         }
 
         private bool IsExtensionLoaded()
@@ -179,12 +165,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             Guid serviceGuid = ViewerExtensionGuid;
             IVsPackage package;
 
-            if (0 == VsShell.IsPackageLoaded(ref serviceGuid, out package) && package != null)
-            {
-                return true;
-            }
-
-            return false;
+            return VsShell.IsPackageLoaded(ref serviceGuid, out package) == 0 && package != null;
         }
     }
 }
