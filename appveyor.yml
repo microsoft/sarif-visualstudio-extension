@@ -16,7 +16,7 @@ install:
 configuration:
   - Release
 
-build-script:
+build_script:
   - ps: .\scripts\BuildAndTest.ps1 -NoTest -NoPackage -NoPublish -NoSigningDirectory -Configuration Release
 
 after_build:
