@@ -8,7 +8,7 @@ branches:
     - master
     - develop
 
-platform: Any CPU
+platform: AnyCPU
 
 install:
   - ps: .\dotnet-install.ps1 --version 2.0.0
