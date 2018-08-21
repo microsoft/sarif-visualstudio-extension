@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             if (fileChange.Replacements != null)
             {
                 model.FilePath = fileChange.FileLocation.Uri.IsAbsoluteUri ?
-                    fileChange.FileLocation.Uri.AbsoluteUri :
+                    fileChange.FileLocation.Uri.LocalPath :
                     fileChange.FileLocation.Uri.OriginalString;
 
                 foreach (Replacement replacement in fileChange.Replacements)
