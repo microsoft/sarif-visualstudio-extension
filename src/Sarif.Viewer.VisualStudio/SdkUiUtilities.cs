@@ -1086,10 +1086,10 @@ namespace Microsoft.Sarif.Viewer
             var inlines = new List<Inline>();
 
             MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
-            int start = 0;
 
             if (matches.Count > 0)
             {
+                int start = 0;
                 Group group = null;
 
                 foreach (Match match in matches)
@@ -1120,12 +1120,12 @@ namespace Microsoft.Sarif.Viewer
 
                     start = match.Index + match.Length;
                 }
-            }
 
-            if (start < message.Length)
-            {
-                // Add the plain text segment after the last link
-                inlines.Add(new Run(UnescapeBrackets(message.Substring(start))));
+                if (start < message.Length)
+                {
+                    // Add the plain text segment after the last link
+                    inlines.Add(new Run(UnescapeBrackets(message.Substring(start))));
+                }
             }
 
             return inlines;
