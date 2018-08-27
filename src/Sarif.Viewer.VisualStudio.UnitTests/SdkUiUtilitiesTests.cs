@@ -41,14 +41,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             string message = @"The quick \[brown fox\] jumps over the lazy dog.";
 
-            var expected = new List<Inline>
-            {
-                new Run("The quick [brown fox] jumps over the lazy dog.")
-            };
-
+            // Because there are no embedded links, we shouldn't get anything back
             var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
 
-            VerifyTextRun(expected[0], actual[0]);
+            actual.Count.Should().Be(0);
         }
 
         [Fact]
