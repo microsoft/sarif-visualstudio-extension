@@ -7,10 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows.Forms;
 using EnvDTE;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.CodeAnalysis.Sarif.Readers;
+using Microsoft.CodeAnalysis.Sarif.VersionOne;
+using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -22,13 +25,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     public class ErrorListService
     {
+        private const int IDYES = 6;
+        private const int IDNO = 7;
+        private const int IDCANCEL = 2;
+
         public static readonly ErrorListService Instance = new ErrorListService();
 
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
-            SarifLog log;
+            SarifLog log = null;
 
-            JsonSerializerSettings settings = new JsonSerializerSettings()
+            JsonSerializerSettings settingsV2 = new JsonSerializerSettings()
             {
                 ContractResolver = SarifContractResolver.Instance,
             };
@@ -38,6 +45,78 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
                 logText = File.ReadAllText(filePath);
+
+                if (logText.Contains(@"""version"": ""1.0.0"""))
+                {
+                    // They're opening a v1 log, so we need to transform it
+                    // Ask if they'd like to save the v2 log
+                    int response = VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                                                                   Resources.TransformV1_DialogMessage,
+                                                                   null, // title
+                                                                   OLEMSGICON.OLEMSGICON_QUERY,
+                                                                   OLEMSGBUTTON.OLEMSGBUTTON_YESNOCANCEL,
+                                                                   OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+
+                    if (response == IDCANCEL)
+                    {
+                        return;
+                    }
+
+                    JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
+                    {
+                        ContractResolver = SarifContractResolverVersionOne.Instance,
+                    };
+
+                    SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
+                    var transformer = new SarifVersionOneToCurrentVisitor();
+                    transformer.VisitSarifLogVersionOne(v1Log);
+                    log = transformer.SarifLog;
+
+                    if (response == IDYES)
+                    {
+                        // Prompt for a location to save the transformed log
+                        var saveFileDialog = new SaveFileDialog();
+
+                        saveFileDialog.Title = Resources.SaveTransformedV1Log_DialogTitle;
+                        saveFileDialog.Filter = "SARIF log files (*.sarif)|*.sarif";
+                        saveFileDialog.RestoreDirectory = true;
+
+                        filePath = Path.GetFileNameWithoutExtension(filePath) + ".v2.sarif";
+                        saveFileDialog.FileName = Path.GetFileName(filePath);
+                        saveFileDialog.InitialDirectory = Path.GetDirectoryName(filePath);
+
+                        if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                        {
+                            return;
+                        }
+
+                        filePath = saveFileDialog.FileName;
+                        string error = null;
+
+                        try
+                        {
+                            File.WriteAllText(filePath, JsonConvert.SerializeObject(log, settingsV2));
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            error = string.Format(Resources.SaveTransformedV1LogFail_Access_DialogMessage, filePath);
+                        }
+                        catch (IOException ex)
+                        {
+                            error = string.Format(Resources.SaveTransformedV1LogFail_General_Dialog, ex.Message);
+                        }
+
+                        if (error != null)
+                        {
+                            VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                                                            error,
+                                                            null, // title
+                                                            OLEMSGICON.OLEMSGICON_CRITICAL,
+                                                            OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                            OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                        }
+                    }
+                }
             }
             else
             {
@@ -61,7 +140,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            log = JsonConvert.DeserializeObject<SarifLog>(logText, settings);
+            if (log == null)
+            {
+                log = JsonConvert.DeserializeObject<SarifLog>(logText, settingsV2);
+            }
+
             ProcessSarifLog(log, filePath, solution);
 
             SarifTableDataSource.Instance.BringToFront();
