@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
                 logText = File.ReadAllText(filePath);
-                string pattern = @"""version"":\s*""1.0.0""";
+                string pattern = @"""version""\s*:\s*""1.0.0""";
                 Match match = Regex.Match(logText, pattern, RegexOptions.Compiled | RegexOptions.Multiline);
 
                 if (match.Success)
