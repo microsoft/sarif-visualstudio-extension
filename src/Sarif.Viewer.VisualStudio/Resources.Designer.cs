@@ -199,7 +199,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The log file you have opened is SARIF version 1. We will automatically transform this file to SARIF version 2. Would you like to save the transformed log file?.
+        ///   Looks up a localized string similar to The log file you have opened is SARIF version 1. This file will be automatically transform to SARIF version 2. Would you like to save the transformed file?.
         /// </summary>
         public static string TransformV1_DialogMessage {
             get {

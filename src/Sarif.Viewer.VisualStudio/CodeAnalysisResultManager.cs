@@ -28,8 +28,6 @@ namespace Microsoft.Sarif.Viewer
         internal const int E_FAIL = unchecked((int)0x80004005);
         internal const uint VSCOOKIE_NIL = 0;
         internal const int S_OK = 0;
-        internal const int IDCANCEL = 2;
-        internal const int IDYES = 6;
         private const string AllowedDownloadHostsFileName = "AllowedDownloadHosts.json";
         private const string TemporaryFileDirectoryName = "SarifViewer";
         private readonly string TemporaryFilePath;
