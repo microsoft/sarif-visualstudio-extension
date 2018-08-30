@@ -169,7 +169,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Message.Should().Be(string.Empty);
         }
         
-        [Fact(Skip = "Requires SDK changes not yet published to NuGet (issue #22)")]
+        [Fact]
         public void SarifErrorListItem_WhenResultRefersToExistingMessageString_ContainsExpectedMessage()
         {
             var result = new Result
