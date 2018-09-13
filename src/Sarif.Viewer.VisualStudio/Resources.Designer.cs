@@ -172,6 +172,42 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Save Transformed Log File.
+        /// </summary>
+        public static string SaveTransformedV1Log_DialogTitle {
+            get {
+                return ResourceManager.GetString("SaveTransformedV1Log_DialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The log file couldn&apos;t be saved because access to the path &apos;{0}&apos; was denied..
+        /// </summary>
+        public static string SaveTransformedV1LogFail_Access_DialogMessage {
+            get {
+                return ResourceManager.GetString("SaveTransformedV1LogFail_Access_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The log file couldn&apos;t be saved: {0}.
+        /// </summary>
+        public static string SaveTransformedV1LogFail_General_Dialog {
+            get {
+                return ResourceManager.GetString("SaveTransformedV1LogFail_General_Dialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The log file you have opened is SARIF version 1. This file will be automatically transform to SARIF version 2. Would you like to save the transformed file?.
+        /// </summary>
+        public static string TransformV1_DialogMessage {
+            get {
+                return ResourceManager.GetString("TransformV1_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;unknown callee&gt;.
         /// </summary>
         public static string UnknownCalleeMessage {
@@ -183,7 +219,7 @@ namespace Microsoft.Sarif.Viewer {
         /// <summary>
         ///   Looks up a localized string similar to Unknown.
         /// </summary>
-        internal static string UnknownToolName {
+        public static string UnknownToolName {
             get {
                 return ResourceManager.GetString("UnknownToolName", resourceCulture);
             }

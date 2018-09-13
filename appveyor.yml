@@ -7,13 +7,8 @@ branches:
   only:
     - master
     - develop
-    - sarif-v1
 
-before_build:
-  - '"%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd.bat"'
-  - ps: .\scripts\BeforeBuild.ps1
-
-platform: Any CPU
+platform: AnyCPU
 
 install:
   - ps: .\dotnet-install.ps1 --version 2.0.0
@@ -21,8 +16,8 @@ install:
 configuration:
   - Release
 
-build:
-  project: src/Sarif.Viewer.VisualStudio.sln
+build_script:
+  - ps: .\scripts\BuildAndTest.ps1 -NoTest -NoPackage -NoPublish -NoSigningDirectory -Configuration Release
 
 after_build:
   - ps: .\scripts\Run-Tests.ps1 -Configuration Release -AppVeyor

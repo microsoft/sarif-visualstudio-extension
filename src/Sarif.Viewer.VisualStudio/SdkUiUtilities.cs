@@ -1122,7 +1122,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            if (start < message.Length)
+            if (inlines.Count > 0 && start < message.Length)
             {
                 // Add the plain text segment after the last link
                 inlines.Add(new Run(UnescapeBrackets(message.Substring(start))));

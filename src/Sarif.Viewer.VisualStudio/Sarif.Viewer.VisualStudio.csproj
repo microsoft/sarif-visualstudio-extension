@@ -49,9 +49,11 @@
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="DelegateCommandBase.cs" />
     <Compile Include="ErrorList\ErrorListCommand.cs" />
+    <Compile Include="ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
     <Compile Include="KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="Controls\BindableTextBlock.cs" />
+    <Compile Include="LoadSarifLogService.cs" />
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
     <Compile Include="Models\CallTreeNode.cs" />
@@ -71,6 +73,7 @@
     </Compile>
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
+    <Compile Include="SLoadSarifLogService.cs" />
     <Compile Include="TelemetryEvent.cs" />
     <Compile Include="TelemetryProvider.cs" />
     <Compile Include="Uri.extensions.cs" />
@@ -288,19 +291,19 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.58\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="Sarif, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Sdk.2.0.0-csd.1\lib\net461\Sarif.dll</HintPath>
+      <HintPath>..\packages\Sarif.Sdk.2.0.0-csd.1.0.3\lib\net461\Sarif.dll</HintPath>
     </Reference>
     <Reference Include="Sarif.Converters, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Converters.2.0.0-csd.1\lib\net461\Sarif.Converters.dll</HintPath>
+      <HintPath>..\packages\Sarif.Converters.2.0.0-csd.1.0.3\lib\net461\Sarif.Converters.dll</HintPath>
     </Reference>
     <Reference Include="Sarif.Driver, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Driver.2.0.0-csd.1\lib\net461\Sarif.Driver.dll</HintPath>
+      <HintPath>..\packages\Sarif.Driver.2.0.0-csd.1.0.3\lib\net461\Sarif.Driver.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -459,21 +462,4 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
-  <!--
-  The VSIX build targets in Microsoft.VsSDK.targets exclude certain assemblies from the VSIX,
-  because VS provides them at runtime. But if your VSIX requires a later version than the
-  one provided by VS, it fails at runtime. For now, the only know workaround is to override
-  one of the targets defined in Microsoft.VsSDK.targets, and add the required assemblies
-  back into the list of items included in the VSIX.
-
-  See: https://social.msdn.microsoft.com/Forums/en-US/4196345b-036d-479e-a6b5-b2b20f266329/vsix-newtonsoft-isnt-in-package-vs155-suppress-package?forum=vsx
-  -->
-  <Target Name="ValidateVsixParts" DependsOnTargets="$(ValidateVsixPartsDependsOn)">
-    <ItemGroup>
-      <VSIXSourceItem Include="..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll" />
-      <VSIXSourceItem Include="..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll" />
-    </ItemGroup>
-    <ValidateVsixParts Condition="'$(BypassVsixValidation)' != 'true'" Manifest="$(IntermediateVsixManifest)" Files="@(VSIXSourceItem)">
-    </ValidateVsixParts>
-  </Target>
 </Project>

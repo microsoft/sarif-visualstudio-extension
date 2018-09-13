@@ -160,6 +160,20 @@
   <data name="RuleLookup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Data\RuleLookup.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="SaveTransformedV1LogFail_Access_DialogMessage" xml:space="preserve">
+    <value>The log file couldn't be saved because access to the path '{0}' was denied.</value>
+    <comment>{0} will be the full file path</comment>
+  </data>
+  <data name="SaveTransformedV1LogFail_General_Dialog" xml:space="preserve">
+    <value>The log file couldn't be saved: {0}</value>
+    <comment>{0} will be the exception message</comment>
+  </data>
+  <data name="SaveTransformedV1Log_DialogTitle" xml:space="preserve">
+    <value>Save Transformed Log File</value>
+  </data>
+  <data name="TransformV1_DialogMessage" xml:space="preserve">
+    <value>The log file you have opened is SARIF version 1. This file will be automatically transform to SARIF version 2. Would you like to save the transformed file?</value>
+  </data>
   <data name="UnknownCalleeMessage" xml:space="preserve">
     <value>&lt;unknown callee&gt;</value>
     <comment>Displayed on a call tree "Call" node with no callee</comment>

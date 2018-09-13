@@ -23,8 +23,7 @@ $Frameworks.All = ($Frameworks.Library + $Frameworks.Application | Select -Uniqu
 $Projects = @{}
 
 # Projects built with the VS 2017 project system.
-$Projects.NewLibrary = @(
-    )
+$Projects.NewLibrary = @("Sarif.Viewer.VisualStudio.Interop")
 
 $Projects.NewApplication = @(
     )
