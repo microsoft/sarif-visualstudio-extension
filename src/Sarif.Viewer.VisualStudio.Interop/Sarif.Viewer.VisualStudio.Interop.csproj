@@ -2,7 +2,7 @@
 
   <PropertyGroup Label="AssemblyAttributes">
     <AssemblyTitle>SARIF Viewer Interop Library</AssemblyTitle>
-    <Description>Provides a simple API that allows Visual Studio extensions to easily consume services exposed by the Microsoft SARIF Viewer extension.</Description>
+    <Description>Provides an API that allows Visual Studio extensions to consume services exposed by the Microsoft SARIF Viewer extension.</Description>
   </PropertyGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), build.props))\build.props" />
