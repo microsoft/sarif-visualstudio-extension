@@ -144,6 +144,21 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 throw new NotImplementedException();
             }
+
+            public bool DirectoryExists(string path)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerable<string> GetDirectoriesInDirectory(string path)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IEnumerable<string> GetFilesInDirectory(string path, string searchPattern)
+            {
+                throw new NotImplementedException();
+            }
             #endregion
         }
     }
