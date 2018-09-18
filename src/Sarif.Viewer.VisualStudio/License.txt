@@ -1,4 +1,4 @@
-SARIF Viewer ver. 1.0
+SARIF Viewer ver. 2.0
 Copyright (c) Microsoft Corporation
 All rights reserved. 
 MIT License
