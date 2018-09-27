@@ -5,7 +5,7 @@
         <DisplayName>Microsoft SARIF Viewer</DisplayName>
         <Description xml:space="preserve">Visual Studio Static Analysis Results Interchange Format (SARIF) log file viewer</Description>
         <License>License.txt</License>
-        <Icon>Triskele.ico</Icon>
+        <Icon>icon.png</Icon>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0,16.0)" />
