@@ -133,6 +133,10 @@
     <Content Include="App.config">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="Data\RuleLookup.json" />
     <Content Include="overview.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
