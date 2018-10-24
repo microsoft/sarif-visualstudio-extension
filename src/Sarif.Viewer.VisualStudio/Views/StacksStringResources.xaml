@@ -4,10 +4,7 @@
 
     <system:String x:Key="Stacks_GridViewColumn_Header_Message_Text">Message</system:String>
     <system:String x:Key="Stacks_GridViewColumn_Header_Location_Text">Location</system:String>
-    <system:String x:Key="Stacks_Frame_Module_Text_FormatString">{0}!</system:String>
-    <system:String x:Key="Stacks_Frame_FullyQualifiedLogicalName_Text_FormatString">{0}!</system:String>
-    <system:String x:Key="Stacks_Frame_Line_Text_FormatString">Line {0}</system:String>
-    <system:String x:Key="Stacks_Frame_Column_Text_FormatString">, Col {0}</system:String>
-    <system:String x:Key="keykeykey">StringString</system:String>
- 
+    <system:String x:Key="Stacks_GridViewColumn_Header_File_Text">File</system:String>
+    <system:String x:Key="Stacks_GridViewColumn_Header_Line_Text">Line</system:String>
+
 </ResourceDictionary>

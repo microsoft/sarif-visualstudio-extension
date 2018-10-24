@@ -150,5 +150,13 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             }
         }
+
+        public string FullyQualifiedLocation
+        {
+            get
+            {
+                return $"{Module}!{FullyQualifiedLogicalName}";
+            }
+        }
     }
 }
