@@ -22,10 +22,10 @@
                       Style="{StaticResource StackFrameListViewStyle}">
                 <ListView.Resources>
                     <Style TargetType="GridViewColumnHeader">
-                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
-                        <Setter Property="VerticalContentAlignment" Value="Center"/>
                         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
                         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="GridViewColumnHeader">
@@ -33,18 +33,17 @@
                                         <Border Name="GridViewHeaderBorder"
                                                 Style="{StaticResource GridViewHeaderBorderStyle}">
                                             <ContentPresenter Name="HeaderContent"
-                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                               RecognizesAccessKey="True"
                                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                               Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
                                         </Border>
                                         <Thumb x:Name="PART_HeaderGripper"
                                                Style="{StaticResource GridViewColumnHeaderGripperStyle}" />
                                     </Grid>
                                     <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver"
-                                                 Value="True">
+                                        <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="GridViewHeaderBorder"
                                                     Property="Background"
                                                     Value="{DynamicResource {x:Static vs_shell:HeaderColors.MouseOverBrushKey}}"/>
@@ -77,10 +76,13 @@
                                                 <GridViewRowPresenter Grid.RowSpan="2" 
                                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
                                                                       SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                <Grid.InputBindings>
+                                                    <MouseBinding Gesture="LeftDoubleClick"
+                                                                  Command="{Binding NavigateCommand}"/>
+                                                </Grid.InputBindings>
                                             </Grid>
                                         </Border>
                                     </Border>
-
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter Property="Background" Value="Transparent" />

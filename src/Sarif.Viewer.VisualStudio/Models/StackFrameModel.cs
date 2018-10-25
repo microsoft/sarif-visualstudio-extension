@@ -14,6 +14,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private int _offset;
         private string _fullyQualifiedLogicalName;
         private string _module;
+        private DelegateCommand _navigateCommand;
 
         public string Message
         {
@@ -157,6 +158,25 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return $"{Module}!{FullyQualifiedLogicalName}";
             }
+        }
+
+        public DelegateCommand NavigateCommand
+        {
+            get
+            {
+                _navigateCommand = _navigateCommand ?? new DelegateCommand(Navigate);
+                return _navigateCommand;
+            }
+            set
+            {
+                _navigateCommand = value;
+            }
+        }
+
+        private void Navigate()
+        {
+            this.NavigateTo();
+            this.ApplySelectionSourceFileHighlighting();
         }
     }
 }
