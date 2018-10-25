@@ -433,7 +433,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     string path = new Uri(_remappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
 
-                    if (File.Exists(path))
+                    if (_fileSystem.FileExists(path))
                     {
                         return path;
                     }
