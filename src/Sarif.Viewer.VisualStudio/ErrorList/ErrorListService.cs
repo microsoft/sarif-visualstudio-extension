@@ -167,6 +167,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (Run run in sarifLog.Runs)
             {
+                CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
+
                 // run.tool is required, add one if it's missing
                 if (run.Tool == null)
                 {

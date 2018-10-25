@@ -258,6 +258,11 @@ namespace Microsoft.Sarif.Viewer
             return S_OK;
         }
 
+        public void CacheUriBasePaths(Run run)
+        {
+            _remappedUriBasePaths = run.OriginalUriBaseIds as Dictionary<string, Uri>;
+        }
+
         public bool TryRebaselineAllSarifErrors(string uriBaseId, string originalFilename)
         {
             if (CurrentSarifResult == null)
@@ -426,7 +431,12 @@ namespace Microsoft.Sarif.Viewer
 
                 if (_remappedUriBasePaths.ContainsKey(uriBaseId))
                 {
-                    return new Uri(_remappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+                    string path = new Uri(_remappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+
+                    if (File.Exists(path))
+                    {
+                        return path;
+                    }
                 }
             }
 
