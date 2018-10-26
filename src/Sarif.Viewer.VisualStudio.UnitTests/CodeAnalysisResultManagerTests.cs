@@ -199,7 +199,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void CodeAnalysisResultManager_GetRebaselinedFileName_WhenUriBaseIdIsFoundInDictionary_ReturnsRebaselinedPath()
+        public void CodeAnalysisResultManager_GetRebaselinedFileName_WhenUriBaseIdIsFoundInDictionaryAndFileExists_ReturnsRebaselinedPath()
         {
             // Arrange.
             const string UriBasePath = @"file:///C:/Code/sarif-sdk/";
@@ -208,6 +208,37 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             this.rebaselinedFileName = RebaselinedFileName;
             this.existingFiles.Add(RebaselinedFileName);
+
+            var target = new CodeAnalysisResultManager(
+                this.fileSystem,
+                this.FakePromptForResolvedPath);
+
+            // Cache the run.originalUriBaseIds dictionary
+            Run run = new Run
+            {
+                OriginalUriBaseIds = new Dictionary<string, Uri>
+                {
+                    { "SDXROOT", new Uri(UriBasePath) }
+                }
+            };
+            target.CacheUriBasePaths(run);
+
+            // Act.
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: "SDXROOT", pathFromLogFile: FileNameInLogFile);
+
+            // Assert.
+            actualRebaselinedFileName.Should().Be(RebaselinedFileName);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetRebaselinedFileName_WhenUriBaseIdIsFoundInDictionaryAndFileDoesntExist_ReturnsRebaselinedPath()
+        {
+            // Arrange.
+            const string UriBasePath = @"file:///C:/Code/sarif-sdk/";
+            const string FileNameInLogFile = @"/src/Sarif/Notes.cs";
+            const string RebaselinedFileName = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+
+            this.rebaselinedFileName = RebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
                 this.fileSystem,
