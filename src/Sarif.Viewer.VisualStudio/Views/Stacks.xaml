@@ -22,8 +22,6 @@
                       Style="{StaticResource StackFrameListViewStyle}">
                 <ListView.Resources>
                     <Style TargetType="GridViewColumnHeader">
-                        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
-                        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"/>
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
                         <Setter Property="VerticalContentAlignment" Value="Center"/>
                         <Setter Property="Template">
@@ -36,6 +34,7 @@
                                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                               RecognizesAccessKey="True"
                                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                              TextElement.Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"
                                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                               Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
                                         </Border>
@@ -100,6 +99,7 @@
                                             </MultiTrigger.Conditions>
 
                                             <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:TreeViewColors.SelectedItemInactiveBrushKey}}" />
+                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:TreeViewColors.SelectedItemInactiveTextBrushKey}}" />
                                         </MultiTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

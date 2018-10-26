@@ -6,13 +6,6 @@
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/DefaultStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <Style x:Key="StacksComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarGradientBeginBrushKey}}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:CommonControlsColors.ComboBoxBorderBrushKey}}"/>
-        <Setter Property="Margin" Value="5"/>
-        <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ComboBoxTextBrushKey}}"/>
-    </Style>
-
     <Style x:Key="StackFrameListViewStyle" TargetType="ListView">
         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -29,7 +22,6 @@
 
     <Style x:Key="GridViewHeaderBorderPresenterStyle" TargetType="ContentPresenter">
         <Setter Property="Margin" Value="0,0,0,1"/>
-        <Setter Property="TextElement.Foreground" Value="White"/>
     </Style>
 
     <Style x:Key="GridViewColumnHeaderGripperStyle" TargetType="Thumb">
