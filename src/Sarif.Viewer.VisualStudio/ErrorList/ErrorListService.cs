@@ -123,6 +123,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         }
                     }
                 }
+                else
+                {
+                    // They're opening a v2 log, so send it through the pre-release compat transformer
+                    logText = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText);
+                }
             }
             else
             {
