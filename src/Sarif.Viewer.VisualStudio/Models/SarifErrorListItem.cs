@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -23,7 +24,8 @@ namespace Microsoft.Sarif.Viewer
         private InvocationModel _invocation;
         private string _selectedTab;
         private DelegateCommand _openLogFileCommand;
-        ResultTextMarker _lineMarker;
+        private ObservableCollection<XamlDoc.Inline> _messageInlines;
+        private ResultTextMarker _lineMarker;
 
         internal SarifErrorListItem()
         {
@@ -181,7 +183,32 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
+                if (_messageInlines == null)
+                {
+                    _messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
+                }
+
+                return _messageInlines;
+            }
+        }
+
+        [Browsable(false)]
+        public bool HasEmbeddedLinks
+        {
+            get
+            {
+                return MessageInlines.Any();
+            }
+        }
+
+        [Browsable(false)]
+        public bool HasDetailsContent
+        {
+            get
+            {
+                return !HasEmbeddedLinks &&
+                    !string.IsNullOrWhiteSpace(Message) &&
+                    Message.Trim() != ShortMessage.Trim();
             }
         }
 
