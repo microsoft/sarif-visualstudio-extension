@@ -86,7 +86,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else if (columnName == StandardTableKeyNames.FullText)
                 {
-                    if (!string.IsNullOrEmpty(error.Message) && error.Message.Trim() != error.ShortMessage.Trim())
+                    if (error.HasDetailsContent)
                     {
                         content = SdkUIUtilities.UnescapeBrackets(error.Message);
                     }

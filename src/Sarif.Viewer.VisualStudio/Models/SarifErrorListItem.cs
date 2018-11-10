@@ -40,8 +40,8 @@ namespace Microsoft.Sarif.Viewer
         {
             IRule rule;
             run.TryGetRule(result.RuleId, out rule);
-            Message = result.GetMessageText(rule, concise: false);
-            ShortMessage = result.GetMessageText(rule, concise: true);
+            Message = result.GetMessageText(rule, concise: false).Trim();
+            ShortMessage = result.GetMessageText(rule, concise: true).Trim();
             FileName = result.GetPrimaryTargetFile();
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
@@ -118,8 +118,8 @@ namespace Microsoft.Sarif.Viewer
             IRule rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
-            Message = notification.Message.Text;
-            ShortMessage = notification.Message.Text;
+            Message = notification.Message.Text.Trim();
+            ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
             LogFilePath = logFilePath;
             FileName = notification.PhysicalLocation?.FileLocation?.Uri.LocalPath ?? run.Tool.FullName;
             ProjectName = projectNameCache.GetName(FileName);
@@ -208,7 +208,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 return !HasEmbeddedLinks &&
                     !string.IsNullOrWhiteSpace(Message) &&
-                    Message.Trim() != ShortMessage.Trim();
+                    Message != ShortMessage;
             }
         }
 
