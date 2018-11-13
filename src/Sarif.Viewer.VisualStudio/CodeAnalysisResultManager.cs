@@ -318,7 +318,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            // Update all the paths in this result set
+            // Update all the paths in this run
             RemapFileNames(runId, originalFilename, rebaselinedFile);
             return true;
         }
