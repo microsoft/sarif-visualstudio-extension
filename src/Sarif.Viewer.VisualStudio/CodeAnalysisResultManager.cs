@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer
         private List<Tuple<string, string>> _remappedPathPrefixes;
         private Dictionary<string, NewLineIndex> _fileToNewLineIndexMap;
         private List<string> _allowedDownloadHosts;
-        private IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
+        private IDictionary<string, IList<SarifErrorListItem>> _sarifErrors = new Dictionary<string, IList<SarifErrorListItem>>();
         private IVsRunningDocumentTable _runningDocTable;
 
         private readonly IFileSystem _fileSystem;
@@ -56,7 +56,7 @@ namespace Microsoft.Sarif.Viewer
             _fileSystem = fileSystem;
             _promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? PromptForResolvedPath;
 
-            this.SarifErrors = new List<SarifErrorListItem>();
+            this.SarifErrors = new Dictionary<string, IList<SarifErrorListItem>>();
             _remappedUriBasePaths = new Dictionary<string, Uri>();
             _remappedPathPrefixes = new List<Tuple<string, string>>();
             _fileToNewLineIndexMap = new Dictionary<string, NewLineIndex>();
@@ -85,7 +85,7 @@ namespace Microsoft.Sarif.Viewer
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
-        public IList<SarifErrorListItem> SarifErrors
+        public IDictionary<string, IList<SarifErrorListItem>> SarifErrors
         {
             get
             {
@@ -319,7 +319,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // Update all the paths in this result set
-            RemapFileNames(originalFilename, rebaselinedFile);
+            RemapFileNames(runId, originalFilename, rebaselinedFile);
             return true;
         }
 
@@ -501,9 +501,9 @@ namespace Microsoft.Sarif.Viewer
             throw new NotImplementedException();
         }
 
-        internal void RemapFileNames(string originalPath, string remappedPath)
+        internal void RemapFileNames(string runId, string originalPath, string remappedPath)
         {
-            foreach (SarifErrorListItem sarifError in SarifErrors)
+            foreach (SarifErrorListItem sarifError in SarifErrors[runId])
             {
                 sarifError.RemapFilePath(originalPath, remappedPath);
             }
@@ -624,9 +624,12 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (SarifErrors != null)
                 {
-                    foreach (SarifErrorListItem sarifError in SarifErrors)
+                    foreach (string key in SarifErrors.Keys)
                     {
-                        sarifError.AttachToDocument(documentName, (long)docCookie, pFrame);
+                        foreach (SarifErrorListItem sarifError in SarifErrors[key])
+                        {
+                            sarifError.AttachToDocument(documentName, (long)docCookie, pFrame);
+                        }
                     }
                 }
             }
@@ -639,9 +642,12 @@ namespace Microsoft.Sarif.Viewer
         {
             if (SarifErrors != null)
             {
-                foreach (SarifErrorListItem sarifError in SarifErrors)
+                foreach (string key in SarifErrors.Keys)
                 {
-                    sarifError.DetachFromDocument((long)docCookie);
+                    foreach (SarifErrorListItem sarifError in SarifErrors[key])
+                    {
+                        sarifError.DetachFromDocument((long)docCookie);
+                    }
                 }
             }
         }

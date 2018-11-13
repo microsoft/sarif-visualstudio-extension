@@ -249,11 +249,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            foreach (var error in sarifErrors)
-            {
-                CodeAnalysisResultManager.Instance.SarifErrors.Add(error);
-            }
-
+            CodeAnalysisResultManager.Instance.SarifErrors.Add(run.InstanceGuid, sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
             return sarifErrors.Count;
         }
