@@ -167,6 +167,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (Run run in sarifLog.Runs)
             {
+                // Make sure each run has a uid which we'll use to silo cached data
+                if (string.IsNullOrWhiteSpace(run.InstanceGuid))
+                {
+                    run.InstanceGuid = Guid.NewGuid().ToString();
+                }
+
                 // run.tool is required, add one if it's missing
                 if (run.Tool == null)
                 {
@@ -204,7 +210,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
             var projectNameCache = new ProjectNameCache(solution);
 
-            StoreFileDetails(run.Files);
+            CodeAnalysisResultManager.Instance.FileDetails.Add(run.InstanceGuid, new Dictionary<string, FileDetailsModel>());
+            StoreFileDetails(run.InstanceGuid, run.Files);
 
             if (run.Results != null)
             {
@@ -286,7 +293,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
       
-        private void StoreFileDetails(IDictionary<string, FileData> files)
+        private void StoreFileDetails(string runId, IDictionary<string, FileData> files)
         {
             if (files == null)
             {
@@ -308,7 +315,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     EnsureHashExists(file.Value);
                     var fileDetails = new FileDetailsModel(file.Value);
-                    CodeAnalysisResultManager.Instance.FileDetails.Add(key.ToPath(), fileDetails);
+                    CodeAnalysisResultManager.Instance.FileDetails[runId].Add(key.ToPath(), fileDetails);
                 }
             }
         }

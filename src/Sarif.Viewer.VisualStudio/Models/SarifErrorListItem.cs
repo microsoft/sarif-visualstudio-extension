@@ -17,6 +17,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public class SarifErrorListItem : NotifyPropertyChangedObject
     {
+        private string _runId;
         private string _fileName;
         private ToolModel _tool;
         private RuleModel _rule;
@@ -36,6 +37,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
+            _runId = run.InstanceGuid;
             IRule rule;
             run.TryGetRule(result.RuleId, out rule);
             Message = result.GetMessageText(rule, concise: false);
@@ -113,6 +115,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
+            _runId = run.InstanceGuid;
             IRule rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
@@ -402,7 +405,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, Region, FileName);
+                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, _runId, Region, FileName);
                 }
 
                 return _lineMarker;

@@ -26,6 +26,7 @@ namespace Microsoft.Sarif.Viewer
         public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; //Gray
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
+        private string m_runId;
         private Region m_region; 
         private IServiceProvider m_serviceProvider;
         private TrackingTagSpan<TextMarkerTag> m_marker;
@@ -43,7 +44,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// fullFilePath may be null for global issues.
         /// </summary>
-        public ResultTextMarker(IServiceProvider serviceProvider, Region region, string fullFilePath)
+        public ResultTextMarker(IServiceProvider serviceProvider, string runId, Region region, string fullFilePath)
         {
             if (serviceProvider == null)
             {
@@ -56,6 +57,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             m_serviceProvider = serviceProvider;
+            m_runId = runId;
             m_region = region;
             FullFilePath = fullFilePath;
             Color = DEFAULT_SELECTION_COLOR;
@@ -67,7 +69,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (!File.Exists(this.FullFilePath))
             {
-                if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(this.UriBaseId, this.FullFilePath))
+                if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(m_runId, this.UriBaseId, this.FullFilePath))
                 {
                     return null;
                 }

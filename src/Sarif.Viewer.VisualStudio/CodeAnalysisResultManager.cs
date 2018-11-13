@@ -67,7 +67,7 @@ namespace Microsoft.Sarif.Viewer
             TemporaryFilePath = Path.Combine(TemporaryFilePath, TemporaryFileDirectoryName);
         }
 
-        private System.IServiceProvider ServiceProvider
+        private IServiceProvider ServiceProvider
         {
             get
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public IDictionary<string, FileDetailsModel> FileDetails { get; } = new Dictionary<string, FileDetailsModel>();
+        public IDictionary<string, Dictionary<string, FileDetailsModel>> FileDetails { get; } = new Dictionary<string, Dictionary<string, FileDetailsModel>>();
 
         SarifErrorListItem m_currentSarifError;
         public SarifErrorListItem CurrentSarifResult
@@ -258,7 +258,7 @@ namespace Microsoft.Sarif.Viewer
             return S_OK;
         }
 
-        public bool TryRebaselineAllSarifErrors(string uriBaseId, string originalFilename)
+        public bool TryRebaselineAllSarifErrors(string runId, string uriBaseId, string originalFilename)
         {
             if (CurrentSarifResult == null)
             {
@@ -267,10 +267,10 @@ namespace Microsoft.Sarif.Viewer
 
             string rebaselinedFile = null;
 
-            if (FileDetails.ContainsKey(originalFilename))
+            if (FileDetails[runId].ContainsKey(originalFilename))
             {
                 // File contents embedded in SARIF.
-                rebaselinedFile = CreateFileFromContents(originalFilename);
+                rebaselinedFile = CreateFileFromContents(runId, originalFilename);
             }
             else
             {
@@ -324,9 +324,9 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
-        internal string CreateFileFromContents(string fileName)
+        internal string CreateFileFromContents(string runId, string fileName)
         {
-            var fileData = FileDetails[fileName];
+            var fileData = FileDetails[runId][fileName];
 
             string finalPath = TemporaryFilePath;
 
@@ -369,11 +369,11 @@ namespace Microsoft.Sarif.Viewer
                 _fileSystem.SetAttributes(finalPath, FileAttributes.ReadOnly);
             }
 
-            if (!FileDetails.ContainsKey(finalPath))
+            if (!FileDetails[runId].ContainsKey(finalPath))
             {
                 // Add another key to our file data object, so that we can
                 // find it if the user closes the window and reopens it.
-                FileDetails.Add(finalPath, fileData);
+                FileDetails[runId].Add(finalPath, fileData);
             }
 
             return finalPath;
