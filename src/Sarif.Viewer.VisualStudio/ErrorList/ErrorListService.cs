@@ -30,11 +30,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        private static JsonSerializerSettings SettingsV2 = new JsonSerializerSettings()
-        {
-            ContractResolver = SarifContractResolver.Instance
-        };
-
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
             SarifLog log = null;
@@ -119,7 +114,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     output.Dispose();
 
                     logText = sb.ToString();
-                    log = JsonConvert.DeserializeObject<SarifLog>(logText, SettingsV2);
+                    log = JsonConvert.DeserializeObject<SarifLog>(logText);
 
                     if (response == MessageDialogCommand.Yes)
                     {
@@ -182,7 +177,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private static void SaveLogFile(string filePath, SarifLog log)
         {
-            SaveLogFile(filePath, JsonConvert.SerializeObject(log, SettingsV2));
+            SaveLogFile(filePath, JsonConvert.SerializeObject(log));
         }
 
         private static void SaveLogFile(string filePath, string logText)
