@@ -48,9 +48,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if ((index >= 0) && (index < _errors.Count))
             {
+                SarifErrorListItem error = _errors[index];
+
                 if (columnName == StandardTableKeyNames2.TextInlines)
                 {
-                    string message = _errors[index].Message;
+                    string message = error.Message;
                     List<Inline> inlines = SdkUIUtilities.GetMessageInlines(message, index, ErrorListInlineLink_Click);
 
                     if (inlines.Count > 0)
@@ -64,7 +66,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else if (columnName == StandardTableKeyNames.ErrorCategory)
                 {
-                    var error = _errors[index];
                     content = error.Category;
                 }
                 else if (columnName == StandardTableKeyNames.Line)
@@ -72,31 +73,31 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     // The error list assumes the line number provided will be zero based and adds one before displaying the value.
                     // i.e. if we pass 5, the error list will display 6. 
                     // Subtract one from the line number so the error list displays the correct value.
-                    int lineNumber = _errors[index].LineNumber - 1;
+                    int lineNumber = error.LineNumber - 1;
                     content = lineNumber;
                 }
                 else if (columnName == StandardTableKeyNames.Column)
                 {
-                    content = _errors[index].ColumnNumber;
+                    content = error.ColumnNumber;
                 }
                 else if (columnName == StandardTableKeyNames.Text)
                 {
-                    content = SdkUIUtilities.UnescapeBrackets(_errors[index].ShortMessage);
+                    content = SdkUIUtilities.UnescapeBrackets(error.ShortMessage);
                 }
                 else if (columnName == StandardTableKeyNames.FullText)
                 {
-                    if (!string.IsNullOrEmpty(_errors[index].Message) && _errors[index].Message.Trim() != _errors[index].ShortMessage.Trim())
+                    if (error.HasDetailsContent)
                     {
-                        content = SdkUIUtilities.UnescapeBrackets(_errors[index].Message);
+                        content = SdkUIUtilities.UnescapeBrackets(error.Message);
                     }
                 }
                 else if (columnName == StandardTableKeyNames.ErrorSeverity)
                 {
-                    content = GetSeverity(_errors[index].Level);
+                    content = GetSeverity(error.Level);
                 }
                 else if (columnName == StandardTableKeyNames.Priority)
                 {
-                    content = GetSeverity(_errors[index].Level) == __VSERRORCATEGORY.EC_ERROR
+                    content = GetSeverity(error.Level) == __VSERRORCATEGORY.EC_ERROR
                         ? vsTaskPriority.vsTaskPriorityHigh
                         : vsTaskPriority.vsTaskPriorityMedium;
                 }
@@ -106,24 +107,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else if (columnName == StandardTableKeyNames.BuildTool)
                 {
-                    content = _errors[index].Tool.Name;
+                    content = error.Tool.Name;
                 }
                 else if (columnName == StandardTableKeyNames.ErrorCode)
                 {
-                    SarifErrorListItem error = _errors[index];
-
                     if (error.Rule != null)
                     {
-                        content = _errors[index].Rule.Id;
+                        content = error.Rule.Id;
                     }
                 }
                 else if (columnName == StandardTableKeyNames.ProjectName)
                 {
-                    content = _errors[index].ProjectName;
+                    content = error.ProjectName;
                 }
                 else if (columnName == StandardTableKeyNames.HelpLink)
                 {
-                    var error = _errors[index];
                     string url = null;
                     if (!string.IsNullOrEmpty(error.HelpLink))
                     {
@@ -137,7 +135,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else if (columnName == StandardTableKeyNames.ErrorCodeToolTip)
                 {
-                    var error = _errors[index];
                     if (error.Rule != null)
                     {
                         content = error.Rule.Id + ":" + error.Rule.Name;
@@ -145,7 +142,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else if (columnName == "suppressionstate")
                 {
-                    var error = _errors[index];
                     content = error.SuppressionStates != SuppressionStates.None ? "Suppressed" : "Active";
                 }
             }
@@ -229,7 +225,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             var error = _errors[index];
 
-            return (!string.IsNullOrEmpty(error.Message)) && (error.Message.Trim() != error.ShortMessage.Trim());
+            return error.HasDetailsContent;
         }
 
         public bool TryCreateDetailsContent(int index, out FrameworkElement expandedContent)
@@ -238,12 +234,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             expandedContent = null;
 
-            if (string.IsNullOrWhiteSpace(error.Message))
-            {
-                return false;
-            }
-
-            if (error.Message.Trim() == error.ShortMessage.Trim())
+            if (!error.HasDetailsContent)
             {
                 return false;
             }
