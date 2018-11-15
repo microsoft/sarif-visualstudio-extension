@@ -34,11 +34,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             SarifLog log = null;
 
-            JsonSerializerSettings settingsV2 = new JsonSerializerSettings()
-            {
-                ContractResolver = SarifContractResolver.Instance,
-            };
-
             string logText;
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
@@ -97,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                         try
                         {
-                            File.WriteAllText(filePath, JsonConvert.SerializeObject(log, settingsV2));
+                            File.WriteAllText(filePath, JsonConvert.SerializeObject(log));
                         }
                         catch (UnauthorizedAccessException)
                         {
@@ -153,7 +148,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (log == null)
             {
-                log = JsonConvert.DeserializeObject<SarifLog>(logText, settingsV2);
+                log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
             ProcessSarifLog(log, filePath, solution);
@@ -260,11 +255,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             if (file.Hashes == null)
             {
-                file.Hashes = new List<Hash>();
+                file.Hashes = new Dictionary<string, string>();
             }
             
-            var hasSha256Hash = file.Hashes.Any(x => x.Algorithm == "sha-256");
-            if (!hasSha256Hash)
+            if (!file.Hashes.ContainsKey("sha-256"))
             {
                 byte[] data = null;
                 if (file.Contents?.Binary != null)
@@ -279,7 +273,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (data != null)
                 {
                     string hashString = GenerateHash(data);
-                    file.Hashes.Add(new Hash(hashString, "sha-256"));
+                    file.Hashes.Add("sha-256", hashString);
                 }
             }
         }
