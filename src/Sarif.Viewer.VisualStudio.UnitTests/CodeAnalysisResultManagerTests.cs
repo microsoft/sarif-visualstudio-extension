@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Moq;
@@ -44,14 +45,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
 
+            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+
             this.rebaselinedFileName = RebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
+            RunDataCache dataCache = new RunDataCache(RunId);
+            target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile);
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualRebaselinedFileName.Should().Be(RebaselinedFileName);
@@ -72,6 +77,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string SecondFileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif.UnitTests\JsonTests.cs";
             const string SecondRebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif.UnitTests\JsonTests.cs";
 
+            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+
             this.existingFiles.Add(SecondRebaselinedFileName);
 
             this.rebaselinedFileName = FirstRebaselinedFileName;
@@ -79,15 +86,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 this.fileSystem, 
                 this.FakePromptForResolvedPath);
+            RunDataCache dataCache = new RunDataCache(RunId);
+            target.RunDataCaches.Add(RunId, dataCache);
 
             // First, rebase a file to prime the list of mappings.
-            target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile);
+            target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile, dataCache: dataCache);
 
             // The first time, we prompt the user for the name of the file to rebaseline to.
             this.numPrompts.Should().Be(1);
 
             // Act: Rebaseline a second file with the same prefix.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile);
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualRebaselinedFileName.Should().Be(SecondRebaselinedFileName);
@@ -109,14 +118,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif\HashData.cs";
 
+            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+
             this.rebaselinedFileName = RebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
+            RunDataCache dataCache = new RunDataCache(RunId);
+            target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile);
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualRebaselinedFileName.Should().Be(FileNameInLogFile);
@@ -131,15 +144,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // Arrange.
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
 
+            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+
             // The user does not select a file in the File Open dialog:
             this.rebaselinedFileName = null;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
+            RunDataCache dataCache = new RunDataCache(RunId);
+            target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile);
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualRebaselinedFileName.Should().Be(FileNameInLogFile);
@@ -155,14 +172,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"D:\Code\sarif-sdk\src\Sarif\Notes.cs";
 
+            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+
             this.rebaselinedFileName = RebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
+            RunDataCache dataCache = new RunDataCache(RunId);
+            target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile);
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualRebaselinedFileName.Should().Be(RebaselinedFileName);
@@ -180,14 +201,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"C:\Users\Mary\Code\sarif-sdk\src\Sarif\Notes.cs";
 
+            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+
             this.rebaselinedFileName = RebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
+            RunDataCache dataCache = new RunDataCache(RunId);
+            target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile);
+            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualRebaselinedFileName.Should().Be(RebaselinedFileName);

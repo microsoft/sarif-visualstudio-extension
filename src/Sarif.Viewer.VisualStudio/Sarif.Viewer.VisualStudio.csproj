@@ -71,6 +71,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
     <Compile Include="SLoadSarifLogService.cs" />

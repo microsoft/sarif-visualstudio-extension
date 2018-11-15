@@ -99,8 +99,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 case ClearSarifResultsCommandId:
                     SarifTableDataSource.Instance.CleanAllErrors();
-                    CodeAnalysisResultManager.Instance.SarifErrors.Clear();
-                    CodeAnalysisResultManager.Instance.FileDetails.Clear();
+                    CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
                     break;
             }
         }

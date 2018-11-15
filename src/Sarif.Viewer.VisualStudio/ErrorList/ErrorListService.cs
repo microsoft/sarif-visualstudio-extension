@@ -160,8 +160,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             // Clear previous data
             SarifTableDataSource.Instance.CleanAllErrors();
-            CodeAnalysisResultManager.Instance.SarifErrors.Clear();
-            CodeAnalysisResultManager.Instance.FileDetails.Clear();
+            CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
 
             bool hasResults = false;
 
@@ -207,10 +206,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
+            RunDataCache dataCacahe = new RunDataCache(run.InstanceGuid);
+            CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.InstanceGuid, dataCacahe);
+            CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
+
             var projectNameCache = new ProjectNameCache(solution);
 
-            CodeAnalysisResultManager.Instance.FileDetails.Add(run.InstanceGuid, new Dictionary<string, FileDetailsModel>());
             StoreFileDetails(run.InstanceGuid, run.Files);
 
             if (run.Results != null)
@@ -249,7 +251,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            CodeAnalysisResultManager.Instance.SarifErrors.Add(run.InstanceGuid, sarifErrors);
+            (dataCacahe.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
             return sarifErrors.Count;
         }
@@ -311,7 +313,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     EnsureHashExists(file.Value);
                     var fileDetails = new FileDetailsModel(file.Value);
-                    CodeAnalysisResultManager.Instance.FileDetails[runId].Add(key.ToPath(), fileDetails);
+                    CodeAnalysisResultManager.Instance.RunDataCaches[runId].FileDetails.Add(key.ToPath(), fileDetails);
                 }
             }
         }
