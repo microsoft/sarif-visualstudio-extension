@@ -9,6 +9,7 @@ using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using XamlDoc = System.Windows.Documents;
@@ -384,9 +385,21 @@ namespace Microsoft.Sarif.Viewer
 
         internal void OpenLogFile()
         {
-            if (LogFilePath != null && System.IO.File.Exists(LogFilePath))
+            if (LogFilePath != null)
             {
-                SarifViewerPackage.Dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
+                if (File.Exists(LogFilePath))
+                {
+                    SarifViewerPackage.Dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
+                }
+                else
+                {
+                    VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                                                    string.Format(Resources.OpenLogFileFail_DilogMessage, LogFilePath),
+                                                    null, // title
+                                                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                }
             }
         }
 
