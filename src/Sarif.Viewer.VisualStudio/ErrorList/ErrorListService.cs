@@ -35,6 +35,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifLog log = null;
 
             string logText;
+            string outputPath = null;
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
@@ -66,20 +67,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     if (response == MessageDialogCommand.Yes)
                     {
                         // Prompt for a location to save the transformed log.
-                        filePath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
+                        outputPath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
 
-                        if (string.IsNullOrEmpty(filePath))
+                        if (string.IsNullOrEmpty(outputPath))
                         {
                             return;
                         }
                     }
-                    else
-                    {
-                        // Save to a temp file.
-                        filePath = Path.GetTempFileName() + ".sarif";
-                    }
 
-                    SaveLogFile(filePath, log);
+                    logText = JsonConvert.SerializeObject(log);
                 }
                 else
                 {
@@ -114,35 +110,28 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     output.Dispose();
 
                     logText = sb.ToString();
-                    log = JsonConvert.DeserializeObject<SarifLog>(logText);
 
                     if (response == MessageDialogCommand.Yes)
                     {
                         // Prompt for a location to save the converted log.
-                        string saveFilePath = PromptForFileSaveLocation(Resources.SaveConvertedLog_DialogTitle, filePath);
-                        
-                        if (!string.IsNullOrEmpty(saveFilePath))
-                        {
-                            // The user chose a location.
-                            filePath = saveFilePath;
-                        }
-                        else
-                        {
-                            // Save to a temp file.
-                            filePath = Path.GetTempFileName() + ".sarif";
-                        }
+                        outputPath = PromptForFileSaveLocation(Resources.SaveConvertedLog_DialogTitle, filePath);
                     }
-                    else
-                    {
-                        // Save to a temp file.
-                        filePath = Path.GetTempFileName() + ".sarif";
-                    }
-
-                    SaveLogFile(filePath, logText);
                 }
             }
 
-            ProcessSarifLog(log, filePath, solution);
+            if (string.IsNullOrEmpty(outputPath))
+            {
+                outputPath = Path.GetTempFileName() + ".sarif";
+            }
+
+            SaveLogFile(outputPath, logText);
+
+            if (log == null)
+            {
+                log = JsonConvert.DeserializeObject<SarifLog>(logText);
+            }
+
+            ProcessSarifLog(log, outputPath, solution);
 
             SarifTableDataSource.Instance.BringToFront();
         }
