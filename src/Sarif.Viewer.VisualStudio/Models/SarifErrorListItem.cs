@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using XamlDoc = System.Windows.Documents;
@@ -23,7 +25,8 @@ namespace Microsoft.Sarif.Viewer
         private InvocationModel _invocation;
         private string _selectedTab;
         private DelegateCommand _openLogFileCommand;
-        ResultTextMarker _lineMarker;
+        private ObservableCollection<XamlDoc.Inline> _messageInlines;
+        private ResultTextMarker _lineMarker;
 
         internal SarifErrorListItem()
         {
@@ -38,8 +41,8 @@ namespace Microsoft.Sarif.Viewer
         {
             IRule rule;
             run.TryGetRule(result.RuleId, out rule);
-            Message = result.GetMessageText(rule, concise: false);
-            ShortMessage = result.GetMessageText(rule, concise: true);
+            Message = result.GetMessageText(rule, concise: false).Trim();
+            ShortMessage = result.GetMessageText(rule, concise: true).Trim();
             FileName = result.GetPrimaryTargetFile();
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
@@ -58,13 +61,13 @@ namespace Microsoft.Sarif.Viewer
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
 
-            if (string.IsNullOrWhiteSpace(run.InstanceGuid))
+            if (string.IsNullOrWhiteSpace(run.Id?.InstanceGuid))
             {
                 WorkingDirectory = Path.Combine(Path.GetTempPath(), run.GetHashCode().ToString());
             }
             else
             {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.InstanceGuid);
+                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.Id.InstanceGuid);
             }
 
             if (result.Locations != null)
@@ -116,8 +119,8 @@ namespace Microsoft.Sarif.Viewer
             IRule rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
-            Message = notification.Message.Text;
-            ShortMessage = notification.Message.Text;
+            Message = notification.Message.Text.Trim();
+            ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
             LogFilePath = logFilePath;
             FileName = notification.PhysicalLocation?.FileLocation?.Uri.LocalPath ?? run.Tool.FullName;
             ProjectName = projectNameCache.GetName(FileName);
@@ -129,13 +132,13 @@ namespace Microsoft.Sarif.Viewer
             Rule.DefaultLevel = notification.Level.ToString();
             Invocation = run.Invocations?[0]?.ToInvocationModel();
 
-            if (string.IsNullOrWhiteSpace(run.InstanceGuid))
+            if (string.IsNullOrWhiteSpace(run.Id?.InstanceGuid))
             {
                 WorkingDirectory = Path.Combine(Path.GetTempPath(), run.GetHashCode().ToString());
             }
             else
             {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.InstanceGuid);
+                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.Id.InstanceGuid);
             }
         }
 
@@ -181,7 +184,32 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
+                if (_messageInlines == null)
+                {
+                    _messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
+                }
+
+                return _messageInlines;
+            }
+        }
+
+        [Browsable(false)]
+        public bool HasEmbeddedLinks
+        {
+            get
+            {
+                return MessageInlines.Any();
+            }
+        }
+
+        [Browsable(false)]
+        public bool HasDetailsContent
+        {
+            get
+            {
+                return !HasEmbeddedLinks &&
+                    !string.IsNullOrWhiteSpace(Message) &&
+                    Message != ShortMessage;
             }
         }
 
@@ -384,9 +412,21 @@ namespace Microsoft.Sarif.Viewer
 
         internal void OpenLogFile()
         {
-            if (LogFilePath != null && System.IO.File.Exists(LogFilePath))
+            if (LogFilePath != null)
             {
-                SarifViewerPackage.Dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
+                if (File.Exists(LogFilePath))
+                {
+                    SarifViewerPackage.Dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
+                }
+                else
+                {
+                    VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                                                    string.Format(Resources.OpenLogFileFail_DilogMessage, LogFilePath),
+                                                    null, // title
+                                                    OLEMSGICON.OLEMSGICON_CRITICAL,
+                                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                }
             }
         }
 
