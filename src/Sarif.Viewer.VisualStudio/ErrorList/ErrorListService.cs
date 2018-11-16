@@ -30,16 +30,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        private static JsonSerializerSettings SettingsV2 = new JsonSerializerSettings()
-        {
-            ContractResolver = SarifContractResolver.Instance
-        };
-
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
             SarifLog log = null;
 
             string logText;
+            string outputPath = null;
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
@@ -71,20 +67,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     if (response == MessageDialogCommand.Yes)
                     {
                         // Prompt for a location to save the transformed log.
-                        filePath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
+                        outputPath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
 
-                        if (string.IsNullOrEmpty(filePath))
+                        if (string.IsNullOrEmpty(outputPath))
                         {
                             return;
                         }
                     }
-                    else
-                    {
-                        // Save to a temp file.
-                        filePath = Path.GetTempFileName() + ".sarif";
-                    }
 
-                    SaveLogFile(filePath, log);
+                    logText = JsonConvert.SerializeObject(log);
+                }
+                else
+                {
+                    // They're opening a v2 log, so send it through the pre-release compat transformer
+                    logText = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText);
                 }
             }
             else
@@ -114,35 +110,28 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     output.Dispose();
 
                     logText = sb.ToString();
-                    log = JsonConvert.DeserializeObject<SarifLog>(logText, SettingsV2);
 
                     if (response == MessageDialogCommand.Yes)
                     {
                         // Prompt for a location to save the converted log.
-                        string saveFilePath = PromptForFileSaveLocation(Resources.SaveConvertedLog_DialogTitle, filePath);
-                        
-                        if (!string.IsNullOrEmpty(saveFilePath))
-                        {
-                            // The user chose a location.
-                            filePath = saveFilePath;
-                        }
-                        else
-                        {
-                            // Save to a temp file.
-                            filePath = Path.GetTempFileName() + ".sarif";
-                        }
+                        outputPath = PromptForFileSaveLocation(Resources.SaveConvertedLog_DialogTitle, filePath);
                     }
-                    else
-                    {
-                        // Save to a temp file.
-                        filePath = Path.GetTempFileName() + ".sarif";
-                    }
-
-                    SaveLogFile(filePath, logText);
                 }
             }
 
-            ProcessSarifLog(log, filePath, solution);
+            if (string.IsNullOrEmpty(outputPath))
+            {
+                outputPath = Path.GetTempFileName() + ".sarif";
+            }
+
+            SaveLogFile(outputPath, logText);
+
+            if (log == null)
+            {
+                log = JsonConvert.DeserializeObject<SarifLog>(logText);
+            }
+
+            ProcessSarifLog(log, outputPath, solution);
 
             SarifTableDataSource.Instance.BringToFront();
         }
@@ -177,7 +166,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private static void SaveLogFile(string filePath, SarifLog log)
         {
-            SaveLogFile(filePath, JsonConvert.SerializeObject(log, SettingsV2));
+            SaveLogFile(filePath, JsonConvert.SerializeObject(log));
         }
 
         private static void SaveLogFile(string filePath, string logText)
@@ -311,11 +300,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             if (file.Hashes == null)
             {
-                file.Hashes = new List<Hash>();
+                file.Hashes = new Dictionary<string, string>();
             }
             
-            var hasSha256Hash = file.Hashes.Any(x => x.Algorithm == "sha-256");
-            if (!hasSha256Hash)
+            if (!file.Hashes.ContainsKey("sha-256"))
             {
                 byte[] data = null;
                 if (file.Contents?.Binary != null)
@@ -330,7 +318,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (data != null)
                 {
                     string hashString = GenerateHash(data);
-                    file.Hashes.Add(new Hash(hashString, "sha-256"));
+                    file.Hashes.Add("sha-256", hashString);
                 }
             }
         }
