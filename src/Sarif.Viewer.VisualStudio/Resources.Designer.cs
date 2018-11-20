@@ -99,6 +99,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The log file you have opened will be converted to SARIF. Would you like to save the converted file?.
+        /// </summary>
+        public static string ConvertNonSarifLog_DialogMessage {
+            get {
+                return ResourceManager.GetString("ConvertNonSarifLog_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open File.
         /// </summary>
         public static string FileOpenFail_DialogCaption {
@@ -153,6 +162,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The log file &apos;{0}&apos; was not found..
+        /// </summary>
+        public static string OpenLogFileFail_DilogMessage {
+            get {
+                return ResourceManager.GetString("OpenLogFileFail_DilogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Return.
         /// </summary>
         public static string ReturnMessage {
@@ -172,29 +190,38 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Save Transformed Log File.
+        ///   Looks up a localized string similar to Save Converted Log File.
         /// </summary>
-        public static string SaveTransformedV1Log_DialogTitle {
+        public static string SaveConvertedLog_DialogTitle {
             get {
-                return ResourceManager.GetString("SaveTransformedV1Log_DialogTitle", resourceCulture);
+                return ResourceManager.GetString("SaveConvertedLog_DialogTitle", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The log file couldn&apos;t be saved because access to the path &apos;{0}&apos; was denied..
         /// </summary>
-        public static string SaveTransformedV1LogFail_Access_DialogMessage {
+        public static string SaveLogFail_Access_DialogMessage {
             get {
-                return ResourceManager.GetString("SaveTransformedV1LogFail_Access_DialogMessage", resourceCulture);
+                return ResourceManager.GetString("SaveLogFail_Access_DialogMessage", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The log file couldn&apos;t be saved: {0}.
         /// </summary>
-        public static string SaveTransformedV1LogFail_General_Dialog {
+        public static string SaveLogFail_General_Dialog {
             get {
-                return ResourceManager.GetString("SaveTransformedV1LogFail_General_Dialog", resourceCulture);
+                return ResourceManager.GetString("SaveLogFail_General_Dialog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Transformed Log File.
+        /// </summary>
+        public static string SaveTransformedV1Log_DialogTitle {
+            get {
+                return ResourceManager.GetString("SaveTransformedV1Log_DialogTitle", resourceCulture);
             }
         }
         
