@@ -55,13 +55,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
                                     },
-                                    Hashes = new List<Hash>
+                                    Hashes = new Dictionary<string, string>
                                     {
-                                        new Hash
-                                        {
-                                            Algorithm = "sha-256",
-                                            Value = ExpectedHashValue1
-                                        }
+                                        { "sha-256", ExpectedHashValue1 }
                                     }
                                 }
                             },
@@ -74,13 +70,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
                                     },
-                                    Hashes = new List<Hash>
+                                    Hashes = new Dictionary<string, string>
                                     {
-                                        new Hash
-                                        {
-                                            Algorithm = "sha-256",
-                                            Value = ExpectedHashValue2
-                                        }
+                                        { "sha-256", ExpectedHashValue2 }
                                     }
                                 }
                             },
@@ -105,13 +97,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
                                         Text = ExpectedContents2
                                     },
-                                    Hashes = new List<Hash>
+                                    Hashes = new Dictionary<string, string>
                                     {
-                                        new Hash
-                                        {
-                                            Algorithm = "sha-256",
-                                            Value = ExpectedHashValue2
-                                        }
+                                        { "sha-256", ExpectedHashValue2 }
                                     }
                                 }
                             },
@@ -146,13 +134,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         Text = ExpectedContents2
                                     },
-                                    Hashes = new List<Hash>
+                                    Hashes = new Dictionary<string, string>
                                     {
-                                        new Hash
-                                        {
-                                            Algorithm = "sha-256",
-                                            Value = ExpectedHashValue1
-                                        }
+                                        { "sha-256", ExpectedHashValue1 }
                                     }
                                 }
                             }

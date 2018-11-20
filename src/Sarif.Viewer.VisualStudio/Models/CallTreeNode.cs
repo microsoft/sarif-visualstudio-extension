@@ -212,14 +212,6 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public int? Step
-        {
-            get
-            {
-                return Location?.Step;
-            }
-        }
-
         [Category("Location")]
         [DisplayName("Source file")]
         public string SourceFile
