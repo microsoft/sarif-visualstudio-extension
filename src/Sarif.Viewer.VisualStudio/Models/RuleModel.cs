@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using Microsoft.CodeAnalysis.Sarif;
+
 namespace Microsoft.Sarif.Viewer.Models
 {
     public class RuleModel : NotifyPropertyChangedObject
@@ -8,9 +11,9 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _id;
         private string _name;
         private string _category;
-        private string _defaultLevel;
         private string _description;
         private string _helpUri;
+        private RuleConfigurationDefaultLevel _defaultLevel;
 
         public string Id
         {
@@ -76,7 +79,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public string DefaultLevel
+        public RuleConfigurationDefaultLevel DefaultLevel
         {
             get
             {
@@ -89,6 +92,23 @@ namespace Microsoft.Sarif.Viewer.Models
                     _defaultLevel = value;
                     NotifyPropertyChanged(nameof(DefaultLevel));
                 }
+            }
+        }
+
+        public ResultLevel ResultLevel
+        {
+            get
+            {
+                ResultLevel level = ResultLevel.Warning;
+
+                if (DefaultLevel != RuleConfigurationDefaultLevel.None)
+                {
+                    string defaultLevel = DefaultLevel.ToString();
+
+                    level = (ResultLevel)Enum.Parse(typeof(ResultLevel), defaultLevel);
+                }
+
+                return level;
             }
         }
 

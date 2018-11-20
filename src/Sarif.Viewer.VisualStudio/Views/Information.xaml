@@ -39,12 +39,10 @@
 
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
-                           Visibility="{Binding Rule.DefaultLevel, Converter={StaticResource StringToVisibilityConverter}}"
-                           Text="{StaticResource Information_Property_RuleDefaultLevel_Text_String}"
+                           Text="{StaticResource Information_Property_RuleLevel_Text_String}"
                            Style="{StaticResource PropertyKey}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="1"
-                           Visibility="{Binding Rule.DefaultLevel, Converter={StaticResource StringToVisibilityConverter}}"
                            Text="{Binding Rule.DefaultLevel}"
                            Style="{StaticResource PropertyValue}" />
                 <TextBlock Grid.Row="2"

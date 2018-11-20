@@ -27,6 +27,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     Name = rule.Name?.Text,
                     Category = rule.GetCategory(),
                     Description = rule.FullDescription?.Text,
+                    DefaultLevel = rule.Configuration != null ?
+                                    rule.Configuration.DefaultLevel :
+                                    RuleConfigurationDefaultLevel.Warning, // Default level
                     HelpUri = rule.HelpUri?.AbsoluteUri
                 };
             }
