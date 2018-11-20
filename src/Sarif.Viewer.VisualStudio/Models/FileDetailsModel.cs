@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
-using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis.Sarif;
 
@@ -16,7 +15,12 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public FileDetailsModel(FileData fileData)
         {
-            Sha256Hash = fileData.Hashes.First(x => x.Algorithm == "sha-256").Value;
+            string sha256Hash;
+            if (fileData.Hashes.TryGetValue("sha-256", out sha256Hash))
+            {
+                Sha256Hash = sha256Hash;
+            }
+
             _fileContent = fileData.Contents;
             _decodedContents = new Lazy<string>(DecodeContents);
         }

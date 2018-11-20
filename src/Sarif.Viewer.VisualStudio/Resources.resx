@@ -131,6 +131,9 @@
   <data name="ContinuingCallTreeNodeMessage" xml:space="preserve">
     <value>Continuing</value>
   </data>
+  <data name="ConvertNonSarifLog_DialogMessage" xml:space="preserve">
+    <value>The log file you have opened will be converted to SARIF. Would you like to save the converted file?</value>
+  </data>
   <data name="FileOpenFail_DialogCaption" xml:space="preserve">
     <value>Open File</value>
   </data>
@@ -152,6 +155,10 @@
     <value>SARIF Explorer found no results in analysis log '{0}'.</value>
     <comment>{0} will be the name of the file that was opened</comment>
   </data>
+  <data name="OpenLogFileFail_DilogMessage" xml:space="preserve">
+    <value>The log file '{0}' was not found.</value>
+    <comment>{0} will be the full file path</comment>
+  </data>
   <data name="ReturnMessage" xml:space="preserve">
     <value>Return</value>
     <comment>Displayed on a call tree "CallReturn" node</comment>
@@ -160,11 +167,14 @@
   <data name="RuleLookup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Data\RuleLookup.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="SaveTransformedV1LogFail_Access_DialogMessage" xml:space="preserve">
+  <data name="SaveConvertedLog_DialogTitle" xml:space="preserve">
+    <value>Save Converted Log File</value>
+  </data>
+  <data name="SaveLogFail_Access_DialogMessage" xml:space="preserve">
     <value>The log file couldn't be saved because access to the path '{0}' was denied.</value>
     <comment>{0} will be the full file path</comment>
   </data>
-  <data name="SaveTransformedV1LogFail_General_Dialog" xml:space="preserve">
+  <data name="SaveLogFail_General_Dialog" xml:space="preserve">
     <value>The log file couldn't be saved: {0}</value>
     <comment>{0} will be the exception message</comment>
   </data>
