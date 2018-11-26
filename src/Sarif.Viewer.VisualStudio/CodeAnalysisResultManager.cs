@@ -37,11 +37,7 @@ namespace Microsoft.Sarif.Viewer
         private uint m_updateSolutionEventsCookie;
         private uint m_solutionEventsCookie;
         private uint m_runningDocTableEventsCookie;
-        //private Dictionary<string, Uri> _remappedUriBasePaths;
-        //private List<Tuple<string, string>> _remappedPathPrefixes;
-        //private Dictionary<string, NewLineIndex> _fileToNewLineIndexMap;
         private List<string> _allowedDownloadHosts;
-        //private IDictionary<string, IList<SarifErrorListItem>> _sarifErrors = new Dictionary<string, IList<SarifErrorListItem>>();
         private IVsRunningDocumentTable _runningDocTable;
 
         private readonly IFileSystem _fileSystem;
@@ -57,10 +53,6 @@ namespace Microsoft.Sarif.Viewer
             _fileSystem = fileSystem;
             _promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? PromptForResolvedPath;
 
-            //this.SarifErrors = new Dictionary<string, IList<SarifErrorListItem>>();
-            //_remappedUriBasePaths = new Dictionary<string, Uri>();
-            //_remappedPathPrefixes = new List<Tuple<string, string>>();
-            //_fileToNewLineIndexMap = new Dictionary<string, NewLineIndex>();
             _allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
 
             // Get temporary path for embedded files.
@@ -87,26 +79,6 @@ namespace Microsoft.Sarif.Viewer
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
         public IDictionary<string, RunDataCache> RunDataCaches { get; } = new Dictionary<string, RunDataCache>();
-
-        //public IDictionary<string, IList<SarifErrorListItem>> SarifErrors
-        //{
-        //    get
-        //    {
-        //        return _sarifErrors;
-        //    }
-        //    //set
-        //    //{
-        //    //    if (!SarifViewerPackage.IsUnitTesting)
-        //    //    {
-        //    //        // Since we have a new set of Results in the Error List, clear all source code highlighting.
-        //    //        DetachFromAllDocuments();
-        //    //    }
-
-        //    //    _sarifErrors = value;
-        //    //}
-        //}
-
-        //public IDictionary<string, Dictionary<string, FileDetailsModel>> FileDetails { get; } = new Dictionary<string, Dictionary<string, FileDetailsModel>>();
 
         SarifErrorListItem m_currentSarifError;
         public SarifErrorListItem CurrentSarifResult
@@ -267,7 +239,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (source != null)
             {
-                var target = RunDataCaches[run.InstanceGuid].RemappedUriBasePaths as Dictionary<string, Uri>;
+                var target = RunDataCaches[run.Id.InstanceGuid].OriginalUriBasePaths as Dictionary<string, Uri>;
                 // This line assumes an empty dictionary
                 source.ToList().ForEach(x => target.Add(x.Key, x.Value));
             }
@@ -436,7 +408,12 @@ namespace Microsoft.Sarif.Viewer
         {
             Uri relativeUri = null;
 
-            if (!String.IsNullOrEmpty(uriBaseId) && Uri.TryCreate(pathFromLogFile, UriKind.Relative, out relativeUri))
+            if (!string.IsNullOrEmpty(uriBaseId) && !dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
+            {
+
+            }
+
+            if (!string.IsNullOrEmpty(uriBaseId) && Uri.TryCreate(pathFromLogFile, UriKind.Relative, out relativeUri))
             {
                 // If the relative file path is relative to an unknown root,
                 // we need to strip the leading slash, so that we can relate
@@ -767,6 +744,7 @@ namespace Microsoft.Sarif.Viewer
         // Expose the path prefix remappings to unit tests.
         internal Tuple<string, string>[] GetRemappedPathPrefixes()
         {
+            // Unit tests will only create one cache.
             return RunDataCaches.Values.First().RemappedPathPrefixes.ToArray();
         }
     }

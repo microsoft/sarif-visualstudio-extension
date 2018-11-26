@@ -343,6 +343,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         private static SarifErrorListItem MakeErrorListItem(Run run, Result result)
         {
+            if (run.Id == null)
+            {
+                run.Id = new RunAutomationDetails();
+            }
+
+            if (string.IsNullOrWhiteSpace(run.Id.InstanceGuid))
+            {
+                run.Id.InstanceGuid = Guid.NewGuid().ToString();
+            }
+
             return new SarifErrorListItem(
                 run,
                 result,

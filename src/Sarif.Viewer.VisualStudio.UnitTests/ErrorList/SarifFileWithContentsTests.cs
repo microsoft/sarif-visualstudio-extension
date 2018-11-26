@@ -38,7 +38,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     new Run
                     {
-                        InstanceGuid = RunId,
+                        Id = new RunAutomationDetails
+                        {
+                            InstanceGuid = RunId
+                        },
                         Tool = new Tool
                         {
                             Name = "Test",

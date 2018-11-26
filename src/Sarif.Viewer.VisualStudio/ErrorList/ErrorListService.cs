@@ -30,11 +30,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        private static JsonSerializerSettings SettingsV2 = new JsonSerializerSettings()
-        {
-            ContractResolver = SarifContractResolver.Instance
-        };
-
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
             SarifLog log = null;
@@ -217,9 +212,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (Run run in sarifLog.Runs)
             {
                 // Make sure each run has a uid which we'll use to silo cached data
-                if (string.IsNullOrWhiteSpace(run.InstanceGuid))
+
+                if (run.Id == null)
                 {
-                    run.InstanceGuid = Guid.NewGuid().ToString();
+                    run.Id = new RunAutomationDetails();
+                }
+
+                if (string.IsNullOrWhiteSpace(run.Id.InstanceGuid))
+                {
+                    run.Id.InstanceGuid = Guid.NewGuid().ToString();
                 }
 
                 // run.tool is required, add one if it's missing
@@ -256,14 +257,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
-            RunDataCache dataCacahe = new RunDataCache(run.InstanceGuid);
-            CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.InstanceGuid, dataCacahe);
+            RunDataCache dataCacahe = new RunDataCache(run.Id.InstanceGuid);
+            CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.Id.InstanceGuid, dataCacahe);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
             var projectNameCache = new ProjectNameCache(solution);
 
-            StoreFileDetails(run.InstanceGuid, run.Files);
+            StoreFileDetails(run.Id.InstanceGuid, run.Files);
 
             if (run.Results != null)
             {

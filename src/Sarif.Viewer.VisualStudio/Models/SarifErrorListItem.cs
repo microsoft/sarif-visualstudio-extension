@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            _runId = run.InstanceGuid;
+            _runId = run.Id.InstanceGuid;
             IRule rule;
             run.TryGetRule(result.RuleId, out rule);
             Message = result.GetMessageText(rule, concise: false).Trim();
@@ -118,7 +118,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            _runId = run.InstanceGuid;
+            _runId = run.Id.InstanceGuid;
             IRule rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
