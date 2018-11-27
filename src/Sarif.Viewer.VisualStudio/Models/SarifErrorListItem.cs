@@ -62,15 +62,7 @@ namespace Microsoft.Sarif.Viewer
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-
-            if (string.IsNullOrWhiteSpace(run.Id?.InstanceGuid))
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.GetHashCode().ToString());
-            }
-            else
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.Id.InstanceGuid);
-            }
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId);
 
             if (result.Locations != null)
             {
@@ -125,7 +117,7 @@ namespace Microsoft.Sarif.Viewer
             Message = notification.Message.Text.Trim();
             ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
             LogFilePath = logFilePath;
-            FileName = notification.PhysicalLocation?.FileLocation?.Uri.LocalPath ?? run.Tool.FullName;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.PhysicalLocation?.FileLocation, _runId) ?? run.Tool.FullName;
             ProjectName = projectNameCache.GetName(FileName);
 
             Locations.Add(new ThreadFlowLocationModel() { FilePath = FileName });
@@ -134,15 +126,7 @@ namespace Microsoft.Sarif.Viewer
             Rule = rule.ToRuleModel(ruleId);
             Rule.DefaultLevel = notification.Level.ToString();
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-
-            if (string.IsNullOrWhiteSpace(run.Id?.InstanceGuid))
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.GetHashCode().ToString());
-            }
-            else
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.Id.InstanceGuid);
-            }
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId);
         }
 
         [Browsable(false)]

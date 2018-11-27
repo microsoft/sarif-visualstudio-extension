@@ -80,6 +80,18 @@ namespace Microsoft.Sarif.Viewer
 
         public IDictionary<string, RunDataCache> RunDataCaches { get; } = new Dictionary<string, RunDataCache>();
 
+        public string CurrentRunId { get; set; }
+
+        public RunDataCache CurrentRunDataCache
+        {
+            get
+            {
+                RunDataCache dataCache;
+                RunDataCaches.TryGetValue(CurrentRunId, out dataCache);
+                return dataCache;
+            }
+        }
+
         SarifErrorListItem m_currentSarifError;
         public SarifErrorListItem CurrentSarifResult
         {
@@ -239,7 +251,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (source != null)
             {
-                var target = RunDataCaches[run.Id.InstanceGuid].OriginalUriBasePaths as Dictionary<string, Uri>;
+                var target = CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
                 // This line assumes an empty dictionary
                 source.ToList().ForEach(x => target.Add(x.Key, x.Value));
             }
@@ -407,11 +419,6 @@ namespace Microsoft.Sarif.Viewer
         internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
         {
             Uri relativeUri = null;
-
-            if (!string.IsNullOrEmpty(uriBaseId) && !dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
-            {
-
-            }
 
             if (!string.IsNullOrEmpty(uriBaseId) && Uri.TryCreate(pathFromLogFile, UriKind.Relative, out relativeUri))
             {

@@ -10,7 +10,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class CodeFlowExtensions
     {
-        public static ThreadFlowLocationCollection ToThreadFlowLocationCollection (this CodeFlow codeFlow)
+        public static ThreadFlowLocationCollection ToThreadFlowLocationCollection(this CodeFlow codeFlow)
         {
             if (codeFlow == null)
             {

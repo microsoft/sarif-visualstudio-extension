@@ -8,7 +8,6 @@ using System.IO;
 using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {

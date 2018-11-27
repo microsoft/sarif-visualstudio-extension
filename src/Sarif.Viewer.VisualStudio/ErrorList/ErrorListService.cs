@@ -240,6 +240,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
+            // We are finished processing the runs, so null this property out.
+            // Any subsequent attempt to use it is invalid.
+            CodeAnalysisResultManager.Instance.CurrentRunId = null;
+
             if (!hasResults)
             {
                 VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
@@ -257,6 +261,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
+            CodeAnalysisResultManager.Instance.CurrentRunId = run.Id.InstanceGuid;
             RunDataCache dataCacahe = new RunDataCache(run.Id.InstanceGuid);
             CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.Id.InstanceGuid, dataCacahe);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
@@ -264,7 +269,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             var projectNameCache = new ProjectNameCache(solution);
 
-            StoreFileDetails(run.Id.InstanceGuid, run.Files);
+            StoreFileDetails(run.Files);
 
             if (run.Results != null)
             {
@@ -341,7 +346,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
       
-        private void StoreFileDetails(string runId, IDictionary<string, FileData> files)
+        private void StoreFileDetails(IDictionary<string, FileData> files)
         {
             if (files == null)
             {
@@ -363,7 +368,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     EnsureHashExists(file.Value);
                     var fileDetails = new FileDetailsModel(file.Value);
-                    CodeAnalysisResultManager.Instance.RunDataCaches[runId].FileDetails.Add(key.ToPath(), fileDetails);
+                    CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(key.ToPath(), fileDetails);
                 }
             }
         }

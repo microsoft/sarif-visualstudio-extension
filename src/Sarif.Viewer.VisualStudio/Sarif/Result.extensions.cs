@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Sarif
@@ -33,6 +34,12 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return string.Join(Environment.NewLine, messageLines);
         }
 
+        /// <summary>
+        /// Gets the path of the primary target file for the given result.
+        /// This method should only be called while the runs are being processed.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public static string GetPrimaryTargetFile(this Result result)
         {
             if (result == null)
@@ -46,10 +53,20 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
 
             Location primaryLocation = result.Locations[0];
+            RunDataCache dataCache = CodeAnalysisResultManager.Instance.CurrentRunDataCache;
 
             if (primaryLocation.PhysicalLocation?.FileLocation != null)
             {
-                return primaryLocation.PhysicalLocation.FileLocation.Uri.ToPath();
+                Uri uri = primaryLocation.PhysicalLocation.FileLocation.Uri;
+                string uriBaseId = primaryLocation.PhysicalLocation.FileLocation.UriBaseId;
+
+                if (!string.IsNullOrEmpty(uriBaseId) && dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
+                {
+                    Uri baseUri = dataCache.OriginalUriBasePaths[uriBaseId];
+                    uri = new Uri(baseUri, uri);
+                }
+
+                return uri.ToPath();
             }
             else if (primaryLocation.FullyQualifiedLogicalName != null)
             {

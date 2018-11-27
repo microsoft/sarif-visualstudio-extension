@@ -125,6 +125,11 @@ namespace Microsoft.Sarif.Viewer
 
         internal string RunId { get; }
 
+        public CodeLocationObject()
+        {
+            RunId = CodeAnalysisResultManager.Instance.CurrentRunId;
+        }
+
         public void NavigateTo(bool usePreviewPane = true)
         {
             LineMarker?.NavigateTo(usePreviewPane);
@@ -184,7 +189,6 @@ namespace Microsoft.Sarif.Viewer
 
             AttachToDocumentWorker(frame, docCookie, LineMarker);
         }
-
 
         /// <summary>
         /// Check that current <paramref name="marker"/> point to correct line position 
