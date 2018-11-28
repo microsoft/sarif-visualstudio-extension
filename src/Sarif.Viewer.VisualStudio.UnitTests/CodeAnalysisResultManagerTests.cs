@@ -52,7 +52,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache(RunId);
+            RunDataCache dataCache = new RunDataCache();
             target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
@@ -86,7 +86,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 this.fileSystem, 
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache(RunId);
+            RunDataCache dataCache = new RunDataCache();
             target.RunDataCaches.Add(RunId, dataCache);
 
             // First, rebase a file to prime the list of mappings.
@@ -125,7 +125,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache(RunId);
+            RunDataCache dataCache = new RunDataCache();
             target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
@@ -152,7 +152,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache(RunId);
+            RunDataCache dataCache = new RunDataCache();
             target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
@@ -179,7 +179,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache(RunId);
+            RunDataCache dataCache = new RunDataCache();
             target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.
@@ -208,7 +208,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache(RunId);
+            RunDataCache dataCache = new RunDataCache();
             target.RunDataCaches.Add(RunId, dataCache);
 
             // Act.

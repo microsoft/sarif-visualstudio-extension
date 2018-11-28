@@ -262,8 +262,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
             CodeAnalysisResultManager.Instance.CurrentRunId = run.Id.InstanceGuid;
-            RunDataCache dataCacahe = new RunDataCache(run.Id.InstanceGuid);
-            CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.Id.InstanceGuid, dataCacahe);
+            RunDataCache dataCache = new RunDataCache();
+            CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.Id.InstanceGuid, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
@@ -307,7 +307,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            (dataCacahe.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
+            (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
             return sarifErrors.Count;
         }
