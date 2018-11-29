@@ -29,12 +29,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         public static readonly ErrorListService Instance = new ErrorListService();
-
-        private static JsonSerializerSettings SettingsV2 = new JsonSerializerSettings()
-        {
-            ContractResolver = SarifContractResolver.Instance
-        };
-
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
             SarifLog log = null;
