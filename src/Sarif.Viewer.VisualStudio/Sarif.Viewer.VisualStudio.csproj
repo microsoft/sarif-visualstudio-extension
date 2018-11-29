@@ -86,7 +86,6 @@
     <Compile Include="Sarif\StackFrame.extensions.cs" />
     <Compile Include="Sarif\Stack.extensions.cs" />
     <Compile Include="Sarif\CodeFlow.extensions.cs" />
-    <Compile Include="Sarif\IPropertyBagHolder.extensions.cs" />
     <Compile Include="Models\RuleModel.cs" />
     <Compile Include="Models\ToolModel.cs" />
     <Compile Include="Sarif\ThreadFlowLocation.extensions.cs" />

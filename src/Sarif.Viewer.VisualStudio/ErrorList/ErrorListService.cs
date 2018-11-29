@@ -29,6 +29,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         public static readonly ErrorListService Instance = new ErrorListService();
+
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
             SarifLog log = null;
