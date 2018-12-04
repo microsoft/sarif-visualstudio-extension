@@ -436,6 +436,13 @@ namespace Microsoft.Sarif.Viewer
                     pathFromLogFile = new Uri(dataCache.RemappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
                 }
                 else if (dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
+                {
+                    pathFromLogFile = new Uri(dataCache.OriginalUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+                }
+
+                if (_fileSystem.FileExists(pathFromLogFile))
+                {
+                    return pathFromLogFile;
                 }
             }
 
