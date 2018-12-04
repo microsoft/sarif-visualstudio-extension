@@ -57,8 +57,8 @@
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
     <Compile Include="Models\CallTreeNode.cs" />
-    <Compile Include="Models\ThreadFlowLocationCollection.cs" />
-    <Compile Include="Models\ThreadFlowLocationModel.cs" />
+    <Compile Include="Models\LocationCollection.cs" />
+    <Compile Include="Models\LocationModel.cs" />
     <Compile Include="Models\FileDetailsModel.cs" />
     <Compile Include="Models\FixOffsetList.cs" />
     <Compile Include="Models\InvocationModel.cs" />

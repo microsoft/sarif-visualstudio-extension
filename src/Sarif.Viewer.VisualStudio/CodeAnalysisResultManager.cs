@@ -247,13 +247,13 @@ namespace Microsoft.Sarif.Viewer
 
         public void CacheUriBasePaths(Run run)
         {
-            var source = run.OriginalUriBaseIds as Dictionary<string, Uri>;
+            var source = run.OriginalUriBaseIds as Dictionary<string, FileLocation>;
 
             if (source != null)
             {
                 var target = CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
                 // This line assumes an empty dictionary
-                source.ToList().ForEach(x => target.Add(x.Key, x.Value));
+                source.ToList().ForEach(x => target.Add(x.Key, x.Value.Uri));
             }
         }
 
@@ -265,12 +265,12 @@ namespace Microsoft.Sarif.Viewer
             }
 
             RunDataCache dataCache = RunDataCaches[runId];
-            string rebaselinedFile = null;
+            string rebaselinedFileName = null;
 
             if (dataCache.FileDetails.ContainsKey(originalFilename))
             {
                 // File contents embedded in SARIF.
-                rebaselinedFile = CreateFileFromContents(dataCache.FileDetails, originalFilename);
+                rebaselinedFileName = CreateFileFromContents(dataCache.FileDetails, originalFilename);
             }
             else
             {
@@ -303,23 +303,23 @@ namespace Microsoft.Sarif.Viewer
 
                     if (allow)
                     {
-                        rebaselinedFile = DownloadFile(originalFilename);
+                        rebaselinedFileName = DownloadFile(originalFilename);
                     }
                 }
                 else
                 {
                     // User needs to locate file.
-                    rebaselinedFile = GetRebaselinedFileName(uriBaseId, originalFilename, dataCache);
+                    rebaselinedFileName = GetRebaselinedFileName(uriBaseId, originalFilename, dataCache);
                 }
 
-                if (String.IsNullOrEmpty(rebaselinedFile) || originalFilename.Equals(rebaselinedFile, StringComparison.OrdinalIgnoreCase))
+                if (String.IsNullOrEmpty(rebaselinedFileName) || originalFilename.Equals(rebaselinedFileName, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
             }
 
             // Update all the paths in this run
-            RemapFileNames(dataCache.SarifErrors, originalFilename, rebaselinedFile);
+            RemapFileNames(dataCache.SarifErrors, originalFilename, rebaselinedFileName);
             return true;
         }
 
@@ -418,6 +418,7 @@ namespace Microsoft.Sarif.Viewer
         // Internal rather than private for unit testability.
         internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
         {
+            string originalPath = pathFromLogFile;
             Uri relativeUri = null;
 
             if (!string.IsNullOrEmpty(uriBaseId) && Uri.TryCreate(pathFromLogFile, UriKind.Relative, out relativeUri))
@@ -432,7 +433,9 @@ namespace Microsoft.Sarif.Viewer
 
                 if (dataCache.RemappedUriBasePaths.ContainsKey(uriBaseId))
                 {
-                    return new Uri(dataCache.RemappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+                    pathFromLogFile = new Uri(dataCache.RemappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+                }
+                else if (dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
                 }
             }
 
@@ -465,7 +468,7 @@ namespace Microsoft.Sarif.Viewer
             string originalPrefix = fullPathFromLogFile.Substring(0, fullPathFromLogFile.Length - commonSuffix.Length);
             string resolvedPrefix = resolvedPath.Substring(0, resolvedPath.Length - commonSuffix.Length);
 
-            int uriBaseIdEndIndex = resolvedPath.IndexOf(pathFromLogFile.Replace("/", @"\"));
+            int uriBaseIdEndIndex = resolvedPath.IndexOf(originalPath.Replace("/", @"\"));
 
             if (relativeUri != null && uriBaseIdEndIndex >= 0)
             {

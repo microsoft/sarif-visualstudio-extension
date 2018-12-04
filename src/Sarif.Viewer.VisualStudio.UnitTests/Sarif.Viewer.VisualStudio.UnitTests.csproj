@@ -246,7 +246,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Compile Include="Sarif\Result.extensionsTests.cs" />
     <None Include="TestData\FixModel\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

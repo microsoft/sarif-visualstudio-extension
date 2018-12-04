@@ -61,31 +61,31 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FileName = @"C:\Temp\Foo.exe",
             };
 
-            viewModel.Locations.Add(new ThreadFlowLocationModel
+            viewModel.Locations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(11, 1, 11, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
             });
 
-            viewModel.Locations.Add(new ThreadFlowLocationModel
+            viewModel.Locations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(12, 1, 12, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new ThreadFlowLocationModel
+            viewModel.RelatedLocations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(21, 1, 21, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new ThreadFlowLocationModel
+            viewModel.RelatedLocations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(22, 1, 22, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new ThreadFlowLocationModel
+            viewModel.RelatedLocations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(23, 1, 23, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
