@@ -240,9 +240,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            // We are finished processing the runs, so null this property out.
-            // Any subsequent attempt to use it is invalid.
-            CodeAnalysisResultManager.Instance.CurrentRunId = null;
+            // We are finished processing the runs, so make this property inavalid.
+            CodeAnalysisResultManager.Instance.CurrentRunId = -1;
 
             if (!hasResults)
             {
@@ -261,9 +260,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
-            CodeAnalysisResultManager.Instance.CurrentRunId = run.Id.InstanceGuid;
             RunDataCache dataCache = new RunDataCache();
-            CodeAnalysisResultManager.Instance.RunDataCaches.Add(run.Id.InstanceGuid, dataCache);
+            CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 

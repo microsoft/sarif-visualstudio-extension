@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
 
-            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+            const int RunId = 1;
 
             this.rebaselinedFileName = RebaselinedFileName;
 
@@ -77,7 +77,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string SecondFileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif.UnitTests\JsonTests.cs";
             const string SecondRebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif.UnitTests\JsonTests.cs";
 
-            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+            const int RunId = 1;
 
             this.existingFiles.Add(SecondRebaselinedFileName);
 
@@ -118,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif\HashData.cs";
 
-            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+            const int RunId = 1;
 
             this.rebaselinedFileName = RebaselinedFileName;
 
@@ -144,7 +144,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // Arrange.
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
 
-            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+            const int RunId = 1;
 
             // The user does not select a file in the File Open dialog:
             this.rebaselinedFileName = null;
@@ -172,7 +172,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"D:\Code\sarif-sdk\src\Sarif\Notes.cs";
 
-            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+            const int RunId = 1;
 
             this.rebaselinedFileName = RebaselinedFileName;
 
@@ -201,7 +201,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
             const string RebaselinedFileName = @"C:\Users\Mary\Code\sarif-sdk\src\Sarif\Notes.cs";
 
-            const string RunId = "faf71237-d00d-456c-855e-f179759f5f21";
+            const int RunId = 1;
 
             this.rebaselinedFileName = RebaselinedFileName;
 

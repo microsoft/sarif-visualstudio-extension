@@ -1142,7 +1142,7 @@ namespace Microsoft.Sarif.Viewer
             return s.Replace(@"\[", "[").Replace(@"\]", "]");
         }
 
-        internal static string GetFileLocationPath(FileLocation fileLocation, string runId)
+        internal static string GetFileLocationPath(FileLocation fileLocation, int runId)
         {
             string path = null;
 

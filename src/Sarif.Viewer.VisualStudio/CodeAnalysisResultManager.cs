@@ -78,9 +78,9 @@ namespace Microsoft.Sarif.Viewer
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
-        public IDictionary<string, RunDataCache> RunDataCaches { get; } = new Dictionary<string, RunDataCache>();
+        public IDictionary<int, RunDataCache> RunDataCaches { get; } = new Dictionary<int, RunDataCache>();
 
-        public string CurrentRunId { get; set; }
+        public int CurrentRunId { get; set; } = 0;
 
         public RunDataCache CurrentRunDataCache
         {
@@ -257,7 +257,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public bool TryRebaselineAllSarifErrors(string runId, string uriBaseId, string originalFilename)
+        public bool TryRebaselineAllSarifErrors(int runId, string uriBaseId, string originalFilename)
         {
             if (CurrentSarifResult == null)
             {
@@ -324,7 +324,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
-        internal string CreateFileFromContents(string runId, string fileName)
+        internal string CreateFileFromContents(int runId, string fileName)
         {
             return CreateFileFromContents(RunDataCaches[runId].FileDetails, fileName);
         }
@@ -640,7 +640,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (RunDataCaches != null)
                 {
-                    foreach (string key in RunDataCaches.Keys)
+                    foreach (int key in RunDataCaches.Keys)
                     {
                         foreach (SarifErrorListItem sarifError in RunDataCaches[key].SarifErrors)
                         {
@@ -658,7 +658,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (RunDataCaches != null)
             {
-                foreach (string key in RunDataCaches.Keys)
+                foreach (int key in RunDataCaches.Keys)
                 {
                     foreach (SarifErrorListItem sarifError in RunDataCaches[key].SarifErrors)
                     {

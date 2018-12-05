@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [Collection("SarifObjectTests")]
     public class SarifFileWithContentsTests
     {
-        private const string RunId = "7e479292-452c-49fe-9e30-6a86bbdc7487";
+        private const int RunId = 1;
         private const string Key1 = "/item.cpp#fragment";
         private const string Key2 = "/binary.cpp";
         private const string Key3 = "/text.cpp";
@@ -38,10 +38,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     new Run
                     {
-                        Id = new RunAutomationDetails
-                        {
-                            InstanceGuid = RunId
-                        },
                         Tool = new Tool
                         {
                             Name = "Test",

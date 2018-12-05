@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        internal string RunId { get; }
+        internal int RunId { get; }
 
         public CodeLocationObject()
         {

@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public class SarifErrorListItem : NotifyPropertyChangedObject
     {
-        private string _runId;
+        private int _runId;
         private string _fileName;
         private ToolModel _tool;
         private RuleModel _rule;
@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            _runId = run.Id.InstanceGuid;
+            _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             IRule rule;
             run.TryGetRule(result.RuleId, out rule);
             Message = result.GetMessageText(rule, concise: false).Trim();
@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId);
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
 
             if (result.Locations != null)
             {
@@ -110,7 +110,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            _runId = run.Id.InstanceGuid;
+            _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             IRule rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
@@ -125,7 +125,7 @@ namespace Microsoft.Sarif.Viewer
             Rule = rule.ToRuleModel(ruleId);
             Rule.DefaultLevel = notification.Level.ToString();
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId);
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
         }
 
         [Browsable(false)]
