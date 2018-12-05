@@ -17,9 +17,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [Collection("SarifObjectTests")]
     public class MultipleRunsPerSarifTests
     {
-        private const string RunId1 = "6baa4563-7229-4183-a888-dfa4baabeba2";
-        private const string RunId2 = "26c76dfa-0372-4d6c-a025-b9d95d37655e";
-
         public MultipleRunsPerSarifTests()
         {
             var testLog = new SarifLog
@@ -28,10 +25,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     new Run
                     {
-                        Id = new RunAutomationDetails
-                        {
-                            InstanceGuid = RunId1
-                        },
                         Tool = new Tool
                         {
                             Name = "Test",
@@ -61,10 +54,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     },
                     new Run
                     {
-                        Id = new RunAutomationDetails
-                        {
-                            InstanceGuid = RunId2
-                        },
                         Tool = new Tool
                         {
                             Name = "Test",

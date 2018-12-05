@@ -211,18 +211,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (Run run in sarifLog.Runs)
             {
-                // Make sure each run has a uid which we'll use to silo cached data
-
-                if (run.Id == null)
-                {
-                    run.Id = new RunAutomationDetails();
-                }
-
-                if (string.IsNullOrWhiteSpace(run.Id.InstanceGuid))
-                {
-                    run.Id.InstanceGuid = Guid.NewGuid().ToString();
-                }
-
                 // run.tool is required, add one if it's missing
                 if (run.Tool == null)
                 {
