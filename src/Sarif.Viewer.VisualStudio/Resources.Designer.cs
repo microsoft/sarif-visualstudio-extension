@@ -108,6 +108,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An error occurred downloading the source file..
+        /// </summary>
+        public static string DownloadFail_DialogMessage {
+            get {
+                return ResourceManager.GetString("DownloadFail_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open File.
         /// </summary>
         public static string FileOpenFail_DialogCaption {

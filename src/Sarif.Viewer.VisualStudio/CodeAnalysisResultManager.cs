@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
 
@@ -274,9 +275,12 @@ namespace Microsoft.Sarif.Viewer
             }
             else
             {
+                Uri baseUri = null;
                 Uri uri = null;
 
-                if (Uri.TryCreate(originalFilename, UriKind.Absolute, out uri) && uri.IsHttpScheme())
+                if (dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out baseUri)
+                    && Uri.TryCreate(baseUri, originalFilename, out uri)
+                    && uri.IsHttpScheme())
                 {
                     bool allow = _allowedDownloadHosts.Contains(uri.Host);
 
@@ -303,7 +307,20 @@ namespace Microsoft.Sarif.Viewer
 
                     if (allow)
                     {
-                        rebaselinedFileName = DownloadFile(originalFilename);
+                        try
+                        {
+                            rebaselinedFileName = DownloadFile(uri.ToString());
+                        }
+                        catch (WebException wex)
+                        {
+                            VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                                       Resources.DownloadFail_DialogMessage + Environment.NewLine + wex.Message,
+                                       null, // title
+                                       OLEMSGICON.OLEMSGICON_CRITICAL,
+                                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                            return false;
+                        }
                     }
                 }
                 else
