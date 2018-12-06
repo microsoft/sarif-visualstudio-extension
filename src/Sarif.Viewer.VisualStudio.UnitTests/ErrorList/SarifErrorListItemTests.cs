@@ -336,6 +336,58 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Message.Should().Be(string.Empty);
         }
 
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_MultipleSentences()
+        {
+            string s1 = "The quick brown fox.";
+            string s2 = "Jumps over the lazy dog.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = $"{s1} {s2}"
+                }
+            };
+
+            var item = MakeErrorListItem(result);
+            item.Message.Should().Be($"{s1} {s2}");
+            item.ShortMessage.Should().Be(s1);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_NoTrailingPeriod()
+        {
+            string s1 = "The quick brown fox";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1
+                }
+            };
+
+            var item = MakeErrorListItem(result);
+            item.Message.Should().Be(s1);
+            item.ShortMessage.Should().Be(s1);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_HasEmbeddedLinks_MultipleSentencesWithEmbeddedLinks()
+        {
+            string s1 = "The quick [brown](1) fox.";
+            string s2 = "Jumps over the [lazy](2) dog.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = $"{s1} {s2}"
+                }
+            };
+
+            var item = MakeErrorListItem(result);
+            item.HasEmbeddedLinks.Should().BeTrue();
+        }
+
         private static SarifErrorListItem MakeErrorListItem(Result result)
         {
             return MakeErrorListItem(new Run(), result);

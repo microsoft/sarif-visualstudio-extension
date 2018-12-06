@@ -26,6 +26,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     Id = rule.Id,
                     Name = rule.Name?.Text,
                     Description = rule.FullDescription?.Text,
+                    DefaultLevel = rule.Configuration != null ?
+                                    rule.Configuration.DefaultLevel :
+                                    RuleConfigurationDefaultLevel.Warning, // Default level
                     HelpUri = rule.HelpUri?.AbsoluteUri
                 };
             }
