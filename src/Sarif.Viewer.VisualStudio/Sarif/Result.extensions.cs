@@ -77,5 +77,18 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
         }
+
+        public static string GetCategory(this Result result)
+        {
+            switch (result.BaselineState)
+            {
+                case BaselineState.New: { return nameof(BaselineState.New); }
+                case BaselineState.Absent: { return nameof(BaselineState.Absent); }
+                case BaselineState.Existing: { return nameof(BaselineState.Existing); }
+
+                default: { return nameof(BaselineState.None); }
+            }
+            throw new InvalidOperationException();
+        }
     }
 }

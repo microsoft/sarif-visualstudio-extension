@@ -43,13 +43,20 @@ namespace Microsoft.Sarif.Viewer
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             IRule rule;
             run.TryGetRule(result.RuleId, out rule);
+            Tool = run.Tool.ToToolModel();
+            Rule = rule.ToRuleModel(result.RuleId);
+            Invocation = run.Invocations?[0]?.ToInvocationModel();
             Message = result.GetMessageText(rule, concise: false).Trim();
             ShortMessage = result.GetMessageText(rule, concise: true).Trim();
+            if (!Message.EndsWith("."))
+            {
+                ShortMessage = ShortMessage.TrimEnd('.');
+            }
             FileName = result.GetPrimaryTargetFile();
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
-            Level = result.Level;
+            Level = result.Level != ResultLevel.Default ? result.Level : Rule.ResultLevel;
             SuppressionStates = result.SuppressionStates;
             LogFilePath = logFilePath;
 
@@ -116,6 +123,10 @@ namespace Microsoft.Sarif.Viewer
             run.TryGetRule(ruleId, out rule);
             Message = notification.Message.Text.Trim();
             ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
+            if (!Message.EndsWith("."))
+            {
+                ShortMessage = ShortMessage.TrimEnd('.');
+            }
             LogFilePath = logFilePath;
             FileName = SdkUIUtilities.GetFileLocationPath(notification.PhysicalLocation?.FileLocation, _runId) ?? run.Tool.FullName;
             ProjectName = projectNameCache.GetName(FileName);
@@ -123,7 +134,7 @@ namespace Microsoft.Sarif.Viewer
 
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(ruleId);
-            Rule.DefaultLevel = notification.Level.ToString();
+            Rule.DefaultLevel = (RuleConfigurationDefaultLevel)Enum.Parse(typeof(ResultLevel), notification.Level.ToString());
             Invocation = run.Invocations?[0]?.ToInvocationModel();
             WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
         }

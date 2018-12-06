@@ -1,60 +1,46 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/DefaultStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <Style x:Key="ItemsControlStyle" TargetType="ItemsControl">
-        <Setter Property="Margin" Value="0,10,0,0"/>
-    </Style>
-
-    <Style x:Key="ItemPanelStyle" TargetType="DockPanel">
-        <Setter Property="LastChildFill" Value="False"/>
-    </Style>
-    
-    <Style x:Key="ItemsControlContentPresenterStyle" TargetType="ContentPresenter">
-        <Setter Property="DockPanel.Dock" Value="Top"/>
-    </Style>
-
-    <Style x:Key="TreeViewStyle" TargetType="TreeView">
-        <Setter Property="Background" Value="Transparent"/>
+    <Style x:Key="StackFrameListViewStyle" TargetType="ListView">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="DockPanel.Dock" Value="Top"/>
+        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="Padding" Value="-2,1,-2,0"/>
     </Style>
 
-    <Style x:Key="TreeViewItemListViewStyle" TargetType="ListView">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Height" Value="Auto"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="Margin" Value="0,5,0,0"/>
-        <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled"/>
+    <Style x:Key="GridViewHeaderBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:HeaderColors.SeparatorLineBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Padding" Value="4,3,2,1"/>
     </Style>
 
-    <Style x:Key="ListViewItemBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{Binding Background, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius" Value="0"/>
-        <Setter Property="Padding" Value="2"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    <Style x:Key="GridViewHeaderBorderPresenterStyle" TargetType="ContentPresenter">
+        <Setter Property="Margin" Value="0,0,0,1"/>
     </Style>
 
-    <Style x:Key="ListViewItemInnerBorderStyle" TargetType="Border">
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius" Value="0"/>
+    <Style x:Key="GridViewColumnHeaderGripperStyle" TargetType="Thumb">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.SeparatorLineBrushKey}}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border Padding="{TemplateBinding Padding}"
+                            Background="Transparent">
+                        <Rectangle Fill="{TemplateBinding Background}"
+                                   HorizontalAlignment="Center"
+                                   Width="3"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
-    <Style x:Key="ListViewItemInnerBorderHighlightRectangleStyle" TargetType="Rectangle">
-        <Setter Property="Fill" Value="Transparent"/>
-        <Setter Property="Visibility" Value="Collapsed"/>
-    </Style>
-
-    <Style x:Key="ListViewItemInnerBorderRowPresenterStyle" TargetType="GridViewRowPresenter">
-        <Setter Property="SnapsToDevicePixels" Value="{Binding SnapsToDevicePixels, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"/>
-        <Setter Property="VerticalAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"/>
-    </Style>
-    
 </ResourceDictionary>

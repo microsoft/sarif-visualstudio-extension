@@ -52,7 +52,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 Id = "CA1823",
                 Name = "Avoid unused private fields",
                 HelpUri = "http://aka.ms/analysis/ca1823",
-                DefaultLevel = "Unknown"
+                DefaultLevel = RuleConfigurationDefaultLevel.None
             };
 
             viewModel.Invocation = new InvocationModel()
