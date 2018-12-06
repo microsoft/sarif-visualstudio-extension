@@ -299,6 +299,7 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="Sarif, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
       <HintPath>..\packages\Sarif.Sdk.2.0.0-csd.2.beta.2018-10-10\lib\net461\Sarif.dll</HintPath>
     </Reference>
@@ -343,6 +344,7 @@
       <HintPath>..\packages\System.Console.4.0.0-rc2-24027\lib\net46\System.Console.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Design" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
@@ -355,6 +357,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -372,6 +375,10 @@
     <Page Include="Controls\InternetHyperlink.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VsDropDown.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\CallTreesStyles.xaml">
       <SubType>Designer</SubType>

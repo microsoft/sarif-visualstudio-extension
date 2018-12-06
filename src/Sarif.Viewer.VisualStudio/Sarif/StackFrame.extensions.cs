@@ -25,6 +25,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 Region region = physicalLocation.Region;
                 if (region != null)
                 {
+                    model.Region = region;
                     model.Line = region.StartLine;
                     model.Column = region.StartColumn;
                 }

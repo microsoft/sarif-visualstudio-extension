@@ -14,6 +14,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private int _offset;
         private string _fullyQualifiedLogicalName;
         private string _module;
+        private DelegateCommand _navigateCommand;
 
         public string Message
         {
@@ -43,6 +44,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._line = value;
                     NotifyPropertyChanged("Line");
+                    NotifyPropertyChanged("FullyQualifiedLocation");
                 }
             }
         }
@@ -131,6 +133,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._fullyQualifiedLogicalName = value;
                     NotifyPropertyChanged("FullyQualifiedLogicalName");
+                    NotifyPropertyChanged("FullyQualifiedLocation");
                 }
             }
         }
@@ -147,8 +150,50 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._module = value;
                     NotifyPropertyChanged("Module");
+                    NotifyPropertyChanged("FullyQualifiedLocation");
                 }
             }
+        }
+
+        public string FullyQualifiedLocation
+        {
+            get
+            {
+                string val = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(Module))
+                {
+                    val += Module + "!";
+                }
+
+                val += FullyQualifiedLogicalName;
+
+                if (Line > 0)
+                {
+                    val += " Line " + Line;
+                }
+
+                return val;
+            }
+        }
+
+        public DelegateCommand NavigateCommand
+        {
+            get
+            {
+                _navigateCommand = _navigateCommand ?? new DelegateCommand(Navigate);
+                return _navigateCommand;
+            }
+            set
+            {
+                _navigateCommand = value;
+            }
+        }
+
+        private void Navigate()
+        {
+            this.NavigateTo();
+            this.ApplySelectionSourceFileHighlighting();
         }
     }
 }

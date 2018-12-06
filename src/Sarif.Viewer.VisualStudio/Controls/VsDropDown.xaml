@@ -1,0 +1,193 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+                    xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">
+
+    <Style x:Key="VsDropDownItemStyle" TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ComboBoxItemTextBrushKey}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border x:Name="itemBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="4,3,4,3">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="itemBorder" Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ComboBoxItemMouseOverBackgroundBrushKey}}" />
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ComboBoxItemMouseOverTextBrushKey}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VsDropDownStyle" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownTextBrushKey}}"/>
+        <Setter Property="IsEditable" Value="False"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource VsDropDownItemStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid x:Name="templateRoot" SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition MinWidth="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}" Width="0"/>
+                        </Grid.ColumnDefinitions>
+                        <Popup x:Name="PART_Popup"
+                               AllowsTransparency="True"
+                               Grid.ColumnSpan="2"
+                               IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                               Margin="1"
+                               PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}"
+                               Placement="Bottom">
+                            <themes:SystemDropShadowChrome x:Name="shadow"
+                                                           Color="Transparent"
+                                                           MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                                           MinWidth="{Binding ActualWidth, ElementName=templateRoot}">
+                                <Border x:Name="DropDownBorder"
+                                        Background="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownPopupBackgroundBeginBrushKey}}"
+                                        BorderBrush="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownPopupBorderBrushKey}}"
+                                        BorderThickness="1">
+                                    <ScrollViewer x:Name="DropDownScrollViewer">
+                                        <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
+                                            <Canvas x:Name="canvas"
+                                                    HorizontalAlignment="Left"
+                                                    Height="0"
+                                                    VerticalAlignment="Top"
+                                                    Width="0">
+                                                <Rectangle x:Name="OpaqueRect"
+                                                           Fill="{Binding Background, ElementName=DropDownBorder}"
+                                                           Height="{Binding ActualHeight, ElementName=DropDownBorder}"
+                                                           Width="{Binding ActualWidth, ElementName=DropDownBorder}">
+                                                </Rectangle>
+                                            </Canvas>
+                                            <ItemsPresenter x:Name="ItemsPresenter"
+                                                            KeyboardNavigation.DirectionalNavigation="Contained"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </Grid>
+                                    </ScrollViewer>
+                                </Border>
+                            </themes:SystemDropShadowChrome>
+                        </Popup>
+                        <ToggleButton x:Name="toggleButton"
+                                      Background="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownBackgroundBrushKey}}"
+                                      BorderBrush="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownBorderBrushKey}}"
+                                      BorderThickness="1"
+                                      Grid.ColumnSpan="2"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Style>
+                                <Style TargetType="{x:Type ToggleButton}">
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                    <Setter Property="IsTabStop" Value="False"/>
+                                    <Setter Property="Focusable" Value="False"/>
+                                    <Setter Property="ClickMode" Value="Press"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                                <Border x:Name="templateRoot"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        SnapsToDevicePixels="True">
+                                                    <Border x:Name="arrowButton"
+                                                            Background="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownBorderBrushKey}}"
+                                                            BorderBrush="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownBorderBrushKey}}"
+                                                            BorderThickness="1,0,0,0"
+                                                            HorizontalAlignment="Right"
+                                                            Margin="0"
+                                                            Padding="0,0,1,0"
+                                                            SnapsToDevicePixels="True"
+                                                            Width="{DynamicResource {x:Static SystemParameters.VerticalScrollBarWidthKey}}">
+                                                        <Path x:Name="arrowGlyph"
+                                                              Data="M0,0L3,3 6,0z"
+                                                              Fill="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownGlyphBrushKey}}"
+                                                              HorizontalAlignment="Center"
+                                                              Margin="0"
+                                                              VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseOverBackgroundBeginBrushKey}}"/>
+                                                        <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseOverBorderBrushKey}}"/>
+                                                        <Setter TargetName="arrowButton" Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownButtonMouseOverBackgroundBrushKey}}"/>
+                                                        <Setter TargetName="arrowButton" Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownButtonMouseOverSeparatorBrushKey}}"/>
+                                                        <Setter TargetName="arrowGlyph" Property="Fill" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseOverGlyphBrushKey}}"/>
+                                                    </Trigger>
+
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseDownBackgroundBrushKey}}"/>
+                                                        <Setter TargetName="arrowButton" Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownButtonMouseDownBackgroundBrushKey}}"/>
+                                                        <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseDownBorderBrushKey}}"/>
+                                                        <Setter TargetName="arrowButton" Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownButtonMouseDownSeparatorBrushKey}}"/>
+                                                        <Setter TargetName="arrowGlyph" Property="Fill" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseDownGlyphBrushKey}}"/>
+                                                    </Trigger>
+
+                                                    <Trigger Property="IsEnabled" Value="False">
+                                                        <Setter TargetName="templateRoot" Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownDisabledBackgroundBrushKey}}"/>
+                                                        <Setter TargetName="templateRoot" Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownDisabledBorderBrushKey}}"/>
+                                                        <Setter TargetName="arrowButton" Property="Background" Value="Transparent"/>
+                                                        <Setter TargetName="arrowButton" Property="BorderBrush" Value="Transparent"/>
+                                                        <Setter TargetName="arrowGlyph" Property="Fill" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownDisabledGlyphBrushKey}}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                        <ContentPresenter x:Name="contentPresenter"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          IsHitTestVisible="False"
+                                          Margin="{TemplateBinding Padding}"
+                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasDropShadow" SourceName="PART_Popup" Value="True">
+                            <Setter Property="Margin" TargetName="shadow" Value="0,0,5,5"/>
+                            <Setter Property="Color" TargetName="shadow" Value="#71000000"/>
+                        </Trigger>
+                        <Trigger Property="HasItems" Value="False">
+                            <Setter Property="Height" TargetName="DropDownBorder" Value="95"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsGrouping" Value="True"/>
+                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+                        </MultiTrigger>
+                        <Trigger Property="CanContentScroll" SourceName="DropDownScrollViewer" Value="False">
+                            <Setter Property="Canvas.Top" TargetName="OpaqueRect" Value="{Binding VerticalOffset, ElementName=DropDownScrollViewer}"/>
+                            <Setter Property="Canvas.Left" TargetName="OpaqueRect" Value="{Binding HorizontalOffset, ElementName=DropDownScrollViewer}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseOverTextBrushKey}}"/>
+            </Trigger>
+            <Trigger Property="IsDropDownOpen" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownMouseDownTextBrushKey}}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.DropDownDisabledTextBrushKey}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>
