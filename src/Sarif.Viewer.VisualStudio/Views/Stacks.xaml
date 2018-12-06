@@ -112,15 +112,12 @@
                         <GridViewColumn Header="{StaticResource Stacks_GridViewColumn_Header_Message_Text}"
                                         DisplayMemberBinding="{Binding Message}"
                                         Width="130" />
-                        <GridViewColumn Header="{StaticResource Stacks_GridViewColumn_Header_Location_Text}"
+                        <GridViewColumn Header="{StaticResource Stacks_GridViewColumn_Header_Name_Text}"
                                         DisplayMemberBinding="{Binding FullyQualifiedLocation}"
                                         Width="200" />
                         <GridViewColumn Header="{StaticResource Stacks_GridViewColumn_Header_File_Text}"
                                         DisplayMemberBinding="{Binding FileName}"
                                         Width="120" />
-                        <GridViewColumn Header="{StaticResource Stacks_GridViewColumn_Header_Line_Text}"
-                                        DisplayMemberBinding="{Binding Line}"
-                                        Width="50" />
                     </GridView>
                 </ListView.View>
             </ListView>

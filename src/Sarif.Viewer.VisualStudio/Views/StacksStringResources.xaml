@@ -3,8 +3,7 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="Stacks_GridViewColumn_Header_Message_Text">Message</system:String>
-    <system:String x:Key="Stacks_GridViewColumn_Header_Location_Text">Location</system:String>
+    <system:String x:Key="Stacks_GridViewColumn_Header_Name_Text">Name</system:String>
     <system:String x:Key="Stacks_GridViewColumn_Header_File_Text">File</system:String>
-    <system:String x:Key="Stacks_GridViewColumn_Header_Line_Text">Line</system:String>
 
 </ResourceDictionary>

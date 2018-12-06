@@ -44,6 +44,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._line = value;
                     NotifyPropertyChanged("Line");
+                    NotifyPropertyChanged("FullyQualifiedLocation");
                 }
             }
         }
@@ -132,6 +133,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._fullyQualifiedLogicalName = value;
                     NotifyPropertyChanged("FullyQualifiedLogicalName");
+                    NotifyPropertyChanged("FullyQualifiedLocation");
                 }
             }
         }
@@ -148,6 +150,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._module = value;
                     NotifyPropertyChanged("Module");
+                    NotifyPropertyChanged("FullyQualifiedLocation");
                 }
             }
         }
@@ -156,7 +159,21 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return $"{Module}!{FullyQualifiedLogicalName}";
+                string val = string.Empty;
+
+                if (!string.IsNullOrWhiteSpace(Module))
+                {
+                    val += Module + "!";
+                }
+
+                val += FullyQualifiedLogicalName;
+
+                if (Line > 0)
+                {
+                    val += " Line " + Line;
+                }
+
+                return val;
             }
         }
 
