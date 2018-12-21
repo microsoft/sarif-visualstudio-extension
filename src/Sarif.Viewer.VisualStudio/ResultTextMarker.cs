@@ -88,8 +88,10 @@ namespace Microsoft.Sarif.Viewer
 
                 // Navigate the caret to the desired location. Text span uses 0-based indexes
                 TextSpan ts;
-                ts.iEndLine = ts.iStartLine = sourceLocation.StartLine - 1;
-                ts.iEndIndex = ts.iStartIndex = Math.Max(sourceLocation.StartColumn - 1, 0);
+                ts.iStartLine = sourceLocation.StartLine - 1;
+                ts.iEndLine = sourceLocation.EndLine - 1;
+                ts.iStartIndex = Math.Max(sourceLocation.StartColumn, 0);
+                ts.iEndIndex = Math.Max(sourceLocation.EndColumn, 0);
 
                 textView.EnsureSpanVisible(ts);
                 textView.SetSelection(ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex);
@@ -105,27 +107,9 @@ namespace Microsoft.Sarif.Viewer
         /// </returns>
         public Region GetSourceLocation()
         {
-            Region sourceLocation = new Region()
-            {
-                ByteOffset = _region.ByteOffset,
-                StartColumn = _region.StartColumn,
-                EndColumn = _region.EndColumn,
-                StartLine = _region.StartLine,
-                EndLine = _region.EndLine
-            };
-                
+            Region sourceLocation = _region.DeepClone();                
             SaveCurrentTrackingData(sourceLocation);
             return sourceLocation;
-        }
-
-        /// <summary>
-        /// Save current tracking data to stored source location. 
-        /// If user will change, save, close and after that open document which has tracking data 
-        /// this class will not loose place where code exists.
-        /// </summary>
-        public void SaveCurrentTrackingData()
-        {
-            SaveCurrentTrackingData(_region);
         }
 
         /// <summary>
@@ -229,6 +213,13 @@ namespace Microsoft.Sarif.Viewer
             // For these cases, this event has nothing to do with this item
             if (CanAttachToDocument(documentName, docCookie, frame))
             {
+                Uri uri;
+                if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
+                {
+                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+                    _region = regionsCache.PopulateTextRegionProperties(_region, uri, true);
+                }
+
                 AttachToDocumentWorker(frame, docCookie);
             }
         }
@@ -338,11 +329,11 @@ namespace Microsoft.Sarif.Viewer
         /// Highlight the source code on a particular line
         /// </summary>
         private static void AttachMarkerToTextView(IWpfTextView textView, long docCookie, ResultTextMarker marker,
-            int line, int column, int endLine, int endColumn)
+            int startLine, int startColumn, int endLine, int endColumn)
         {
             // If for some reason the start line is not correct, just skip the highlighting
             ITextSnapshot textSnapshot = textView.TextSnapshot;
-            if (line > textSnapshot.LineCount)
+            if (startLine > textSnapshot.LineCount)
             {
                 return;
             }
@@ -353,20 +344,20 @@ namespace Microsoft.Sarif.Viewer
             try
             {
                 // Fix up the end line number if it's inconsistent
-                if (endLine <= 0 || endLine < line)
+                if (endLine <= 0 || endLine < startLine)
                 {
-                    endLine = line;
+                    endLine = startLine;
                 }
 
                 bool coerced = false;
 
                 // Calculate the start and end marker bound. Adjust for the column values if
                 // the values don't make sense. Make sure we handle the case of empty file correctly
-                ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(Math.Max(line - 1, 0));
+                ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(Math.Max(startLine - 1, 0));
                 ITextSnapshotLine endTextLine = textSnapshot.GetLineFromLineNumber(Math.Max(endLine - 1, 0));
-                if (column <= 0 || column >= startTextLine.Length)
+                if (startColumn <= 0 || startColumn >= startTextLine.Length)
                 {
-                    column = 1;
+                    startColumn = 1;
                     coerced = true;
                 }
 
@@ -380,15 +371,15 @@ namespace Microsoft.Sarif.Viewer
                 // If we are highlighting just one line and the column values don't make
                 // sense or we corrected one or more of them, then simply mark the
                 // entire line
-                if (endLine == line && (coerced || column >= endColumn))
+                if (endLine == startLine && (coerced || startColumn >= endColumn))
                 {
-                    column = 1;
+                    startColumn = 1;
                     endColumn = endTextLine.Length;
                 }
 
                 // Create a span with the calculated markers
-                markerStart = startTextLine.Start.Position + column - 1;
-                markerEnd = endTextLine.Start.Position + endColumn;
+                markerStart = startTextLine.Start.Position + startColumn - 1;
+                markerEnd = endTextLine.Start.Position + endColumn - 1;
                 spanToColor = Span.FromBounds(markerStart, markerEnd);
 
                 marker.AddTracking(textView, textSnapshot, docCookie, spanToColor);

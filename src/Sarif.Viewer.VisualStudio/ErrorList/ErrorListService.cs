@@ -248,7 +248,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
-            RunDataCache dataCache = new RunDataCache();
+            RunDataCache dataCache = new RunDataCache(run);
             CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
