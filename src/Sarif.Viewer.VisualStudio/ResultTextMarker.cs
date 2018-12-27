@@ -81,7 +81,6 @@ namespace Microsoft.Sarif.Viewer
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
                 Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
-                Region.ByteLength = 666;
             }
 
             IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(SarifViewerPackage.ServiceProvider, this.FullFilePath, usePreviewPane);
