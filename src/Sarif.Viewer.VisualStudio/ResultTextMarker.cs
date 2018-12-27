@@ -27,7 +27,6 @@ namespace Microsoft.Sarif.Viewer
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
         private int _runId;
-        private Region _region; 
         private IServiceProvider _serviceProvider;
         private TrackingTagSpan<TextMarkerTag> _marker;
         private SimpleTagger<TextMarkerTag> _tagger;
@@ -37,6 +36,7 @@ namespace Microsoft.Sarif.Viewer
 
         public string FullFilePath { get; set; }
         public string UriBaseId { get; set; }
+        public Region Region { get; set; }
         public string Color { get; set; }
 
         public event EventHandler RaiseRegionSelected;
@@ -58,7 +58,7 @@ namespace Microsoft.Sarif.Viewer
 
             _serviceProvider = serviceProvider;
             _runId = runId;
-            _region = region;
+            Region = region;
             FullFilePath = fullFilePath;
             Color = DEFAULT_SELECTION_COLOR;
         }
@@ -73,6 +73,15 @@ namespace Microsoft.Sarif.Viewer
                 {
                     return null;
                 }
+            }
+
+            Uri uri;
+            if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
+            {
+                // Fill out the region's properties
+                FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+                Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
+                Region.ByteLength = 666;
             }
 
             IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(SarifViewerPackage.ServiceProvider, this.FullFilePath, usePreviewPane);
@@ -107,7 +116,7 @@ namespace Microsoft.Sarif.Viewer
         /// </returns>
         public Region GetSourceLocation()
         {
-            Region sourceLocation = _region.DeepClone();                
+            Region sourceLocation = Region.DeepClone();                
             SaveCurrentTrackingData(sourceLocation);
             return sourceLocation;
         }
@@ -213,13 +222,6 @@ namespace Microsoft.Sarif.Viewer
             // For these cases, this event has nothing to do with this item
             if (CanAttachToDocument(documentName, docCookie, frame))
             {
-                Uri uri;
-                if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
-                {
-                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
-                    _region = regionsCache.PopulateTextRegionProperties(_region, uri, true);
-                }
-
                 AttachToDocumentWorker(frame, docCookie);
             }
         }

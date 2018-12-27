@@ -28,6 +28,9 @@ namespace Microsoft.Sarif.Viewer
         private DelegateCommand _openLogFileCommand;
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
+        private long _documentCookie;
+        private string _documentName;
+        private IVsWindowFrame _windowFrame;
 
         internal SarifErrorListItem()
         {
@@ -452,6 +455,11 @@ namespace Microsoft.Sarif.Viewer
 
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
+            DetachFromDocument(_documentCookie);
+
+            var uri = new Uri(remappedPath, UriKind.Absolute);
+            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+
             if (FileName.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
             {
                 FileName = remappedPath;
@@ -462,6 +470,7 @@ namespace Microsoft.Sarif.Viewer
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
                     location.FilePath = remappedPath;
+                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
                 }
             }
 
@@ -470,6 +479,7 @@ namespace Microsoft.Sarif.Viewer
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
                     location.FilePath = remappedPath;
+                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
                 }
             }
 
@@ -491,6 +501,7 @@ namespace Microsoft.Sarif.Viewer
                             current.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                         {
                             current.FilePath = remappedPath;
+                            current.Region = regionsCache.PopulateTextRegionProperties(current.Region, uri, true);
                         }
                     }
                     catch (ArgumentException)
@@ -514,6 +525,7 @@ namespace Microsoft.Sarif.Viewer
                     if (stackFrame.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                     {
                         stackFrame.FilePath = remappedPath;
+                        stackFrame.Region = regionsCache.PopulateTextRegionProperties(stackFrame.Region, uri, true);
                     }
                 }
             }
@@ -528,20 +540,38 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
             }
+
+            AttachToDocument();
         }
 
-        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame pFrame)
+        /// <summary>
+        /// Attaches to the document using the specified properties, which are also cached.
+        /// </summary>
+        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame windowFrame)
         {
-            LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+            // Cache the document info so we can detach and reattach later.
+            _documentName = documentName;
+            _documentCookie = docCookie;
+            _windowFrame = windowFrame;
+
+            AttachToDocument();
+        }
+
+        /// <summary>
+        /// Attaches to the document using cached properties.
+        /// </summary>
+        internal void AttachToDocument()
+        {
+            LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
 
             foreach (LocationModel location in Locations)
             {
-                location.LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+                location.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
             }
 
             foreach (LocationModel location in RelatedLocations)
             {
-                location.LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+                location.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
             }
 
             foreach (CallTree callTree in CallTrees)
@@ -557,9 +587,9 @@ namespace Microsoft.Sarif.Viewer
                 {
                     CallTreeNode current = nodesToProcess.Pop();
 
-                    if (current.LineMarker?.CanAttachToDocument(documentName, docCookie, pFrame) == true)
+                    if (current.LineMarker?.CanAttachToDocument(_documentName, _documentCookie, _windowFrame) == true)
                     {
-                        current.LineMarker?.AttachToDocument(documentName, (long)docCookie, pFrame);
+                        current.LineMarker?.AttachToDocument(_documentName, (long)_documentCookie, _windowFrame);
                         current.ApplyDefaultSourceFileHighlighting();
                     }
 
@@ -574,7 +604,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (StackFrameModel stackFrame in stackCollection)
                 {
-                    stackFrame.LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+                    stackFrame.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
                 }
             }
         }

@@ -48,6 +48,12 @@ namespace Microsoft.Sarif.Viewer
                 if (value != _region)
                 {
                     _region = value;
+
+                    if (LineMarker != null)
+                    {
+                        LineMarker.Region = _region;
+                    }
+
                     NotifyPropertyChanged("Region");
                 }
             }
