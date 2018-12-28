@@ -144,9 +144,9 @@
                                                 <TextBlock>
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
-                                                <TextBlock Visibility="{Binding Location, Converter={StaticResource StringToVisibilityConverter}}"
+                                                <TextBlock Visibility="{Binding LocationDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
                                                            Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding Location, Mode=OneWay}" />
+                                                    <Run Text="{Binding LocationDisplayString, Mode=OneWay}" />
                                                 </TextBlock>
                                             </WrapPanel>
                                         </DataTemplate>
