@@ -205,8 +205,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             // Clear previous data
             SarifTableDataSource.Instance.CleanAllErrors();
-            CodeAnalysisResultManager.Instance.SarifErrors.Clear();
-            CodeAnalysisResultManager.Instance.FileDetails.Clear();
+            CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
 
             bool hasResults = false;
 
@@ -229,6 +228,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
+            // We are finished processing the runs, so make this property inavalid.
+            CodeAnalysisResultManager.Instance.CurrentRunId = -1;
+
             if (!hasResults)
             {
                 VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
@@ -246,7 +248,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
+            RunDataCache dataCache = new RunDataCache();
+            CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
+            CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
+
             var projectNameCache = new ProjectNameCache(solution);
 
             StoreFileDetails(run.Files);
@@ -287,11 +293,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            foreach (var error in sarifErrors)
-            {
-                CodeAnalysisResultManager.Instance.SarifErrors.Add(error);
-            }
-
+            (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
             return sarifErrors.Count;
         }
@@ -352,7 +354,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     EnsureHashExists(file.Value);
                     var fileDetails = new FileDetailsModel(file.Value);
-                    CodeAnalysisResultManager.Instance.FileDetails.Add(key.ToPath(), fileDetails);
+                    CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(key.ToPath(), fileDetails);
                 }
             }
         }

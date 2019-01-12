@@ -6,13 +6,13 @@ using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class ThreadFlowLocationCollection : ObservableCollection<ThreadFlowLocationModel>
+    public class LocationCollection : ObservableCollection<LocationModel>
     {
         private string _message;
-        private ThreadFlowLocationModel _selectedItem;
-        private DelegateCommand<ThreadFlowLocationModel> _selectedCommand;
+        private LocationModel _selectedItem;
+        private DelegateCommand<LocationModel> _selectedCommand;
 
-        public ThreadFlowLocationCollection(string message)
+        public LocationCollection(string message)
         {
             this._message = message;
         }
@@ -34,7 +34,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public ThreadFlowLocationModel SelectedItem
+        public LocationModel SelectedItem
         {
             get
             {
@@ -48,13 +48,13 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public DelegateCommand<ThreadFlowLocationModel> SelectedCommand
+        public DelegateCommand<LocationModel> SelectedCommand
         {
             get
             {
                 if (_selectedCommand == null)
                 {
-                    _selectedCommand = new DelegateCommand<ThreadFlowLocationModel>(l => SelectionChanged(l));
+                    _selectedCommand = new DelegateCommand<LocationModel>(l => SelectionChanged(l));
                 }
 
                 return _selectedCommand;
@@ -65,7 +65,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        private void SelectionChanged(ThreadFlowLocationModel selectedItem)
+        private void SelectionChanged(LocationModel selectedItem)
         {
             selectedItem.NavigateTo();
             selectedItem.ApplySelectionSourceFileHighlighting();

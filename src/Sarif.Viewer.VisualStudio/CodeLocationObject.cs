@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
                 // Not all locations have regions. Don't try to mark the locations that don't.
                 if (_lineMarker == null && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, Region, FilePath);
+                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, RunId, Region, FilePath);
                 }
 
                 return _lineMarker;
@@ -123,6 +123,13 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        internal int RunId { get; }
+
+        public CodeLocationObject()
+        {
+            RunId = CodeAnalysisResultManager.Instance.CurrentRunId;
+        }
+
         public void NavigateTo(bool usePreviewPane = true)
         {
             LineMarker?.NavigateTo(usePreviewPane);
@@ -182,7 +189,6 @@ namespace Microsoft.Sarif.Viewer
 
             AttachToDocumentWorker(frame, docCookie, LineMarker);
         }
-
 
         /// <summary>
         /// Check that current <paramref name="marker"/> point to correct line position 

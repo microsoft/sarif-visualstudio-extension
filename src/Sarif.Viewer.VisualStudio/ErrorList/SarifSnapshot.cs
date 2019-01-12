@@ -161,7 +161,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 SarifErrorListItem sarifResult = _errors[Convert.ToInt32(data.Item1)];
 
-                ThreadFlowLocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == data.Item2).FirstOrDefault();
+                LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == data.Item2).FirstOrDefault();
 
                 if (location != null)
                 {

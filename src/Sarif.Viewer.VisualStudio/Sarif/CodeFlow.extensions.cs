@@ -10,14 +10,14 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class CodeFlowExtensions
     {
-        public static ThreadFlowLocationCollection ToThreadFlowLocationCollection (this CodeFlow codeFlow)
+        public static LocationCollection ToThreadFlowLocationCollection(this CodeFlow codeFlow)
         {
             if (codeFlow == null)
             {
                 return null;
             }
 
-            var model = new ThreadFlowLocationCollection(codeFlow.Message.Text);
+            var model = new LocationCollection(codeFlow.Message.Text);
 
             if (codeFlow.ThreadFlows?[0]?.Locations != null)
             {
@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     // far as SARIF producers). For now we skip these.
                     if (location.Location?.PhysicalLocation == null) { continue; }
 
-                    model.Add(location.ToThreadFlowLocationModel());
+                    model.Add(location.ToLocationModel());
                 }
             }
 
