@@ -114,7 +114,9 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 // Not all locations have regions. Don't try to mark the locations that don't.
-                if (_lineMarker == null && Region != null)
+                if (_lineMarker == null
+                    && Region != null
+                    && SarifViewerPackage.ServiceProvider != null)
                 {
                     _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, RunId, Region, FilePath);
                     _lineMarker.RaiseRegionSelected += RegionSelected;
