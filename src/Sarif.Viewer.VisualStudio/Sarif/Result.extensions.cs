@@ -12,27 +12,6 @@ namespace Microsoft.Sarif.Viewer.Sarif
     {
         const string NOTARGETFILEPATH = "NOTARGETFILEPATH";
 
-        public static string FormatForVisualStudio(this Result result, IRule rule)
-        {
-            var messageLines = new List<string>();
-            foreach (var location in result.Locations)
-            {
-                Uri uri = location.PhysicalLocation.FileLocation.Uri;
-                string path = uri.IsFile ? uri.LocalPath : uri.ToString();
-                messageLines.Add(
-                    string.Format(
-                        CultureInfo.InvariantCulture, "{0}{1}: {2} {3}: {4}",
-                        path,
-                        location.PhysicalLocation.Region.FormatForVisualStudio(),
-                        result.Level.FormatForVisualStudio(),
-                        result.RuleId,
-                        result.GetMessageText(rule)
-                        ));
-            }
-
-            return string.Join(Environment.NewLine, messageLines);
-        }
-
         public static string GetPrimaryTargetFile(this Result result)
         {
             if (result == null)

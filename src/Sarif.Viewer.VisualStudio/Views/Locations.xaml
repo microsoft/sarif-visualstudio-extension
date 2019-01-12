@@ -73,9 +73,9 @@
                                                 <TextBlock Style="{StaticResource LocationTextBaseStyle}">
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
-                                                <TextBlock Visibility="{Binding LocationDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
+                                                <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
                                                            Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding LocationDisplayString, Mode=OneWay}" />
+                                                    <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
                                                 </TextBlock>
                                             </WrapPanel>
                                         </DataTemplate>
@@ -144,9 +144,9 @@
                                                 <TextBlock>
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
-                                                <TextBlock Visibility="{Binding LocationDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
+                                                <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
                                                            Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding LocationDisplayString, Mode=OneWay}" />
+                                                    <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
                                                 </TextBlock>
                                             </WrapPanel>
                                         </DataTemplate>

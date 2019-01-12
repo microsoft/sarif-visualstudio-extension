@@ -59,7 +59,6 @@ namespace Microsoft.Sarif.Viewer
             _serviceProvider = serviceProvider;
             _runId = runId;
             Region = region;
-
             FullFilePath = fullFilePath;
             Color = DEFAULT_SELECTION_COLOR;
         }

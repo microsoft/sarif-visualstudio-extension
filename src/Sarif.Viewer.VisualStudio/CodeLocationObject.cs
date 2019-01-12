@@ -55,7 +55,18 @@ namespace Microsoft.Sarif.Viewer
                     }
 
                     NotifyPropertyChanged("Region");
+                    NotifyPropertyChanged("RegionDisplayString");
                 }
+            }
+        }
+
+        public string RegionDisplayString
+        {
+            get
+            {
+                // If startLine is zero, we haven't populated the region yet.
+                // Since startLine is always part of this string, we avoid invalid strings like "(0)".
+                return Region != null && Region.StartLine > 0 ? Region.FormatForVisualStudio() : null;
             }
         }
 
