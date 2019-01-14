@@ -99,9 +99,10 @@ namespace Microsoft.Sarif.Viewer.Models
                     text = Path.GetFileName(FilePath) + " ";
                 }
 
-                if (Location?.Location?.PhysicalLocation?.Region != null)
+                Region region = Location?.Location?.PhysicalLocation?.Region;
+                if (region != null && region.StartLine > 0)
                 {
-                    text += Location.Location.PhysicalLocation.Region.FormatForVisualStudio();
+                    text += region.FormatForVisualStudio();
                 }
 
                 return text;
@@ -113,7 +114,9 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 // Not all locations have regions. Don't try to mark the locations that don't.
-                if (_lineMarker == null && Region != null)
+                if (_lineMarker == null
+                    && Region != null
+                    && SarifViewerPackage.ServiceProvider != null)
                 {
                     _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, RunId, Region, FilePath);
                     _lineMarker.RaiseRegionSelected += RegionSelected;

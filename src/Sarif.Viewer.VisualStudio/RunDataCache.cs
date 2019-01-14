@@ -22,6 +22,8 @@ namespace Microsoft.Sarif.Viewer
 
         public IDictionary<string, NewLineIndex> FileToNewLineIndexMap { get; } = new Dictionary<string, NewLineIndex>();
 
+        public FileRegionsCache FileRegionsCache { get; }
+
         public IList<SarifErrorListItem> SarifErrors {
             get
             {
@@ -37,6 +39,13 @@ namespace Microsoft.Sarif.Viewer
 
                 _sarifErrors = value;
             }
+        }
+
+        public RunDataCache() { }
+
+        public RunDataCache(Run run)
+        {
+            FileRegionsCache = new FileRegionsCache(run);
         }
     }
 }

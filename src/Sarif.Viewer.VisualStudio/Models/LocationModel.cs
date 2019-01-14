@@ -105,6 +105,5 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public int Index { get; set; }
         public bool IsSelected { get; set; }
-        public string LocationDisplayString { get { return Region.FormatForVisualStudio(); } }
     }
 }
