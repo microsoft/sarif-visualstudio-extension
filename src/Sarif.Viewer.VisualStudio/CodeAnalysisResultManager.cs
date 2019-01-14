@@ -107,7 +107,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private void ClearCurrentMarkers()
+        public void ClearCurrentMarkers()
         {
             if (CurrentSarifResult != null)
             {

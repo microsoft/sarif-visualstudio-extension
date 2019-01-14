@@ -204,6 +204,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution)
         {
             // Clear previous data
+            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
             SarifTableDataSource.Instance.CleanAllErrors();
             CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
 
