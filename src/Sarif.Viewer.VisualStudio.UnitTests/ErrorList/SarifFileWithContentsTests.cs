@@ -43,100 +43,107 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             Name = "Test",
                             SemanticVersion = "1.0"
                         },
-                        Files = new Dictionary<string, FileData>
+                        Files = new List<FileData>
                         {
+                            new FileData
                             {
-                                "file:///item.cpp#fragment",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue1 }
-                                    }
+                                    Uri = new Uri("file:///item.cpp#fragment")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue1 }
                                 }
                             },
+                            new FileData
                             {
-                                "file:///binary.cpp",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue2 }
-                                    }
+                                    Uri = new Uri("file:///binary.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
                                 }
                             },
+                            new FileData
                             {
-                                "file:///text.cpp",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ExpectedContents1
-                                    }
+                                    Uri = new Uri("file:///text.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Text = ExpectedContents1
                                 }
                             },
+                            new FileData
                             {
-                                "file:///both.cpp",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
-                                        Text = ExpectedContents2
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue2 }
-                                    }
+                                    Uri = new Uri("file:///both.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
+                                    Text = ExpectedContents2
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
                                 }
                             },
+                            new FileData
                             {
-                                "file:///emptybinary.cpp",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = ""
-                                    }
+                                    Uri = new Uri("file:///emptybinary.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Binary = ""
                                 }
                             },
+                            new FileData
                             {
-                                "file:///emptytext.cpp",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ""
-                                    }
+                                    Uri = new Uri("file:///emptytext.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Text = ""
                                 }
                             },
+                            new FileData
                             {
-                                "file:///existinghash.cpp",
-                                new FileData
+                                FileLocation = new FileLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ExpectedContents2
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue1 }
-                                    }
+                                    Uri = new Uri("file:///existinghash.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new FileContent()
+                                {
+                                    Text = ExpectedContents2
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue1 }
                                 }
                             }
                         },

@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis.Sarif;
 using Newtonsoft.Json.Linq;
@@ -40,10 +42,8 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             if (run?.Resources?.Rules != null && ruleId != null)
             {
-                Rule concreteRule = null;
-                run.Resources.Rules.TryGetValue(ruleId, out concreteRule);
-
-                rule = concreteRule;
+                List<Rule> rules = run.Resources.Rules as List<Rule>;
+                rule = rules.Where(r => r.Id == ruleId).FirstOrDefault();
             }
             else if (ruleId != null)
             {
@@ -67,12 +67,13 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     {
                         rule = new Rule(
                             ruleId,
+                            null,
                             ruleName,
                             shortDescription: null,
                             fullDescription: null,
-                            configuration: null,
                             messageStrings: null,
                             richMessageStrings: null,
+                            configuration: null,
                             helpUri: helpUri,
                             help: null, // PREfast rules don't need a "help" property; they all have online documentation.
                             properties: null);

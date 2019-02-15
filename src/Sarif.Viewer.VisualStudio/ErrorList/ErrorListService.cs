@@ -80,7 +80,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 else
                 {
                     // They're opening a v2 log, so send it through the pre-release compat transformer
-                    logText = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText);
+                    PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, true, Formatting.Indented, out logText);
                 }
             }
             else
@@ -333,7 +333,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
       
-        private void StoreFileDetails(IDictionary<string, FileData> files)
+        private void StoreFileDetails(IList<FileData> files)
         {
             if (files == null)
             {
@@ -342,20 +342,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (var file in files)
             {
-                Uri key;
-                var isValid = Uri.TryCreate(file.Key, UriKind.RelativeOrAbsolute, out key);
-
-                if (!isValid)
+                Uri uri = file.FileLocation.Uri;
+                if (uri != null)
                 {
-                    continue;
-                }
-
-                var contents = file.Value.Contents;
-                if (contents != null)
-                {
-                    EnsureHashExists(file.Value);
-                    var fileDetails = new FileDetailsModel(file.Value);
-                    CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(key.ToPath(), fileDetails);
+                    if (file.Contents != null)
+                    {
+                        EnsureHashExists(file);
+                        var fileDetails = new FileDetailsModel(file);
+                        CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(uri.ToPath(), fileDetails);
+                    }
                 }
             }
         }

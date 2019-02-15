@@ -113,14 +113,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Resources = new CodeAnalysis.Sarif.Resources()
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Rules = new List<Rule>
                     {
+                        new Rule
                         {
-                            "TST0001",
-                            new Rule
-                            {
-                                Id = "TST0001"
-                            }
+                            Id = "TST0001"
                         }
                     }
                 }
@@ -147,17 +144,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Resources = new CodeAnalysis.Sarif.Resources()
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Rules = new List<Rule>
                     {
+                        new Rule
                         {
-                            "TST0001",
-                            new Rule
+                            Id = "TST0001",
+                            MessageStrings = new Dictionary<string, string>
                             {
-                                Id = "TST0001",
-                                MessageStrings = new Dictionary<string, string>
-                                {
-                                    { "realFormatId", "The message" }
-                                }
+                                { "realFormatId", "The message" }
                             }
                         }
                     }
@@ -189,17 +183,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Resources = new CodeAnalysis.Sarif.Resources()
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Rules = new List<Rule>
                     {
+                        new Rule
                         {
-                            "TST0001",
-                            new Rule
+                            Id = "TST0001",
+                            MessageStrings = new Dictionary<string, string>
                             {
-                                Id = "TST0001",
-                                MessageStrings = new Dictionary<string, string>
-                                {
-                                    { "greeting", "Hello, {0}!" }
-                                }
+                                { "greeting", "Hello, {0}!" }
                             }
                         }
                     }
@@ -255,21 +246,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result
             {
-                RuleId = "TST0001-1"
+                RuleId = "TST0001"
             };
 
             var run = new Run
             {
                 Resources = new CodeAnalysis.Sarif.Resources()
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Rules = new List<Rule>
                     {
+                        new Rule
                         {
-                            "TST0001-1",
-                            new Rule
-                            {
-                                Id = "TST0001"
-                            }
+                            Id = "TST0001"
                         }
                     }
                 }
@@ -292,7 +280,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Resources = new CodeAnalysis.Sarif.Resources()
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Rules = new List<Rule>
                     {
                         // No metadata for rule TST0001.
                     }
@@ -318,14 +306,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Resources = new CodeAnalysis.Sarif.Resources()
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Rules = new List<Rule>
                     {
+                        new Rule
                         {
-                            "TST0001",
-                            new Rule
-                            {
-                                Id = "TST0001"
-                            }
+                            Id = "TST0001"
                         }
                     }
                 }
