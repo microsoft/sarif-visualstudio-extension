@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class FileChangeModel : NotifyPropertyChangedObject
+    public class ArtifactChangeModel : NotifyPropertyChangedObject
     {
         private string _filePath;
         private ObservableCollection<ReplacementModel> _replacements;
 
-        public FileChangeModel()
+        public ArtifactChangeModel()
         {
             this._replacements = new ObservableCollection<ReplacementModel>();
         }

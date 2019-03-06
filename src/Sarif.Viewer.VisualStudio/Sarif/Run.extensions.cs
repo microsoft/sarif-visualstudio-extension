@@ -36,19 +36,19 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
         }
 
-        public static bool TryGetRule(this Run run, string ruleId, out IRule rule)
+        public static bool TryGetRule(this Run run, string ruleId, out ReportingDescriptor reportingDescriptor)
         {
-            rule = null;
+            reportingDescriptor = null;
 
-            if (run?.Resources?.Rules != null && ruleId != null)
+            if (run?.Tool?.Driver?.RuleDescriptors != null && ruleId != null)
             {
-                List<Rule> rules = run.Resources.Rules as List<Rule>;
-                rule = rules.Where(r => r.Id == ruleId).FirstOrDefault();
+                List<ReportingDescriptor> rules = run.Tool.Driver.RuleDescriptors as List<ReportingDescriptor>;
+                reportingDescriptor = rules.Where(r => r.Id == ruleId).FirstOrDefault();
             }
             else if (ruleId != null)
             {
                 // No rule in log file. 
-                // If the rule is a PREfast rule. create a "fake" rule using the external rule metadata file.
+                // If the rule is a PREfast rule, create a "fake" rule using the external rule metadata file.
                 if (RuleMetadata[ruleId] != null)
                 {
                     Message ruleName = null;
@@ -65,15 +65,14 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
                     if (ruleName != null || helpUri != null)
                     {
-                        rule = new Rule(
+                        reportingDescriptor = new ReportingDescriptor(
                             ruleId,
                             null,
                             ruleName,
                             shortDescription: null,
                             fullDescription: null,
                             messageStrings: null,
-                            richMessageStrings: null,
-                            configuration: null,
+                            defaultConfiguration: null,
                             helpUri: helpUri,
                             help: null, // PREfast rules don't need a "help" property; they all have online documentation.
                             properties: null);
@@ -81,17 +80,17 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 }
             }
 
-            return rule != null;
+            return reportingDescriptor != null;
         }
 
         public static string GetToolName(this Run run)
         {
-            if (run == null || run.Tool == null)
+            if (run?.Tool?.Driver == null)
             {
                 return null;
             }
 
-            return run.Tool.FullName ?? run.Tool.Name;
+            return run.Tool.Driver.FullName ?? run.Tool.Driver.Name;
         }
     }
 }

@@ -27,8 +27,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
                         },
                         Results = new List<Result>
                         {
@@ -42,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         PhysicalLocation = new PhysicalLocation
                                         {
-                                            FileLocation = new FileLocation
+                                            ArtifactLocation = new ArtifactLocation
                                             {
                                                 Uri = new Uri("file:///item1.cpp")
                                             }
@@ -56,8 +59,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
                         },
                         Results = new List<Result>
                         {
@@ -71,7 +77,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         PhysicalLocation = new PhysicalLocation
                                         {
-                                            FileLocation = new FileLocation
+                                            ArtifactLocation = new ArtifactLocation
                                             {
                                                 Uri = new Uri("file:///item2.cpp")
                                             }
@@ -89,7 +95,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         PhysicalLocation = new PhysicalLocation
                                         {
-                                            FileLocation = new FileLocation
+                                            ArtifactLocation = new ArtifactLocation
                                             {
                                                 Uri = new Uri("file:///item3.cpp")
                                             }

@@ -40,19 +40,22 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
-                        },
-                        Files = new List<FileData>
-                        {
-                            new FileData
+                            Driver = new ToolComponent
                             {
-                                FileLocation = new FileLocation
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
+                        },
+                        Artifacts = new List<Artifact>
+                        {
+                            new Artifact
+                            {
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///item.cpp#fragment")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
                                 },
@@ -61,14 +64,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     { "sha-256", ExpectedHashValue1 }
                                 }
                             },
-                            new FileData
+                            new Artifact
                             {
-                                FileLocation = new FileLocation
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///binary.cpp")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
                                 },
@@ -77,26 +80,26 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     { "sha-256", ExpectedHashValue2 }
                                 }
                             },
-                            new FileData
+                            new Artifact
                             {
-                                FileLocation = new FileLocation
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///text.cpp")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Text = ExpectedContents1
                                 }
                             },
-                            new FileData
+                            new Artifact
                             {
-                                FileLocation = new FileLocation
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///both.cpp")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
                                     Text = ExpectedContents2
@@ -106,38 +109,38 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     { "sha-256", ExpectedHashValue2 }
                                 }
                             },
-                            new FileData
+                            new Artifact
                             {
-                                FileLocation = new FileLocation
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///emptybinary.cpp")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Binary = ""
                                 }
                             },
-                            new FileData
+                            new Artifact
                             {
-                                FileLocation = new FileLocation
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///emptytext.cpp")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Text = ""
                                 }
                             },
-                            new FileData
+                            new Artifact
                             {
-                                FileLocation = new FileLocation
+                                Location = new ArtifactLocation
                                 {
                                     Uri = new Uri("file:///existinghash.cpp")
                                 },
                                 MimeType = "text/x-c",
-                                Contents = new FileContent()
+                                Contents = new ArtifactContent()
                                 {
                                     Text = ExpectedContents2
                                 },
@@ -151,8 +154,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             new Result
                             {
-                                AnalysisTarget = new
-                                FileLocation
+                                AnalysisTarget = new ArtifactLocation
                                 {
                                     Uri = new Uri(@"file:///item.cpp")
                                 },

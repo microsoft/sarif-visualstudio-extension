@@ -6,22 +6,22 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class FileChangeExtensions
+    static class ArtifactChangeExtensions
     {
-        public static FileChangeModel ToFileChangeModel(this FileChange fileChange)
+        public static ArtifactChangeModel ToArtifactChangeModel(this ArtifactChange fileChange)
         {
             if (fileChange == null)
             {
                 return null;
             }
 
-            FileChangeModel model = new FileChangeModel();
+            ArtifactChangeModel model = new ArtifactChangeModel();
 
             if (fileChange.Replacements != null)
             {
-                model.FilePath = fileChange.FileLocation.Uri.IsAbsoluteUri ?
-                    fileChange.FileLocation.Uri.LocalPath :
-                    fileChange.FileLocation.Uri.OriginalString;
+                model.FilePath = fileChange.ArtifactLocation.Uri.IsAbsoluteUri ?
+                    fileChange.ArtifactLocation.Uri.LocalPath :
+                    fileChange.ArtifactLocation.Uri.OriginalString;
 
                 foreach (Replacement replacement in fileChange.Replacements)
                 {

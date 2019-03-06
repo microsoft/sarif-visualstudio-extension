@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
-            IRule rule;
+            ReportingDescriptor rule;
             run.TryGetRule(result.RuleId, out rule);
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
@@ -59,7 +59,7 @@ namespace Microsoft.Sarif.Viewer
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
-            Level = result.Level != ResultLevel.Default ? result.Level : Rule.ResultLevel;
+            Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
             SuppressionStates = result.SuppressionStates;
             LogFilePath = logFilePath;
 
@@ -121,7 +121,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
-            IRule rule;
+            ReportingDescriptor rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
             Message = notification.Message.Text.Trim();
@@ -130,14 +130,14 @@ namespace Microsoft.Sarif.Viewer
             {
                 ShortMessage = ShortMessage.TrimEnd('.');
             }
+            Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.PhysicalLocation?.FileLocation, _runId) ?? run.Tool.FullName;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.PhysicalLocation?.ArtifactLocation, _runId) ?? run.Tool.Driver.FullName;
             ProjectName = projectNameCache.GetName(FileName);
             Locations.Add(new LocationModel() { FilePath = FileName });
 
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(ruleId);
-            Rule.DefaultLevel = (RuleConfigurationDefaultLevel)Enum.Parse(typeof(ResultLevel), notification.Level.ToString());
             Invocation = run.Invocations?[0]?.ToInvocationModel();
             WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
         }
@@ -226,7 +226,7 @@ namespace Microsoft.Sarif.Viewer
         public string Category { get; set; }
 
         [ReadOnly(true)]
-        public ResultLevel Level { get; set; }
+        public FailureLevel Level { get; set; }
 
         [Browsable(false)]
         public string HelpLink { get; set; }
@@ -532,7 +532,7 @@ namespace Microsoft.Sarif.Viewer
 
             foreach (FixModel fixModel in Fixes)
             {
-                foreach (FileChangeModel fileChangeModel in fixModel.FileChanges)
+                foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
                 {
                     if (fileChangeModel.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                     {
