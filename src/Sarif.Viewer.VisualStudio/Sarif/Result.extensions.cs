@@ -24,9 +24,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             Location primaryLocation = result.Locations[0];
 
-            if (primaryLocation.PhysicalLocation?.FileLocation != null)
+            if (primaryLocation.PhysicalLocation?.ArtifactLocation != null)
             {
-                return primaryLocation.PhysicalLocation.FileLocation.Uri.ToPath();
+                return primaryLocation.PhysicalLocation.ArtifactLocation.Uri.ToPath();
             }
             else if (primaryLocation.FullyQualifiedLogicalName != null)
             {
@@ -61,7 +61,8 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 case BaselineState.New: { return nameof(BaselineState.New); }
                 case BaselineState.Absent: { return nameof(BaselineState.Absent); }
-                case BaselineState.Existing: { return nameof(BaselineState.Existing); }
+                case BaselineState.Unchanged: { return nameof(BaselineState.Unchanged); }
+                case BaselineState.Updated: { return nameof(BaselineState.Updated); }
 
                 default: { return nameof(BaselineState.None); }
             }

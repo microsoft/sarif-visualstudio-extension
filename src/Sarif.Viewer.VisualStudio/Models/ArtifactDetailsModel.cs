@@ -7,21 +7,21 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class FileDetailsModel
+    public class ArtifactDetailsModel
     {
-        private FileContent _fileContent;
+        private ArtifactContent _artifactContent;
         
         private readonly Lazy<string> _decodedContents;
 
-        public FileDetailsModel(FileData fileData)
+        public ArtifactDetailsModel(Artifact artifact)
         {
             string sha256Hash;
-            if (fileData.Hashes.TryGetValue("sha-256", out sha256Hash))
+            if (artifact.Hashes.TryGetValue("sha-256", out sha256Hash))
             {
                 Sha256Hash = sha256Hash;
             }
 
-            _fileContent = fileData.Contents;
+            _artifactContent = artifact.Contents;
             _decodedContents = new Lazy<string>(DecodeContents);
         }
 
@@ -34,15 +34,15 @@ namespace Microsoft.Sarif.Viewer.Models
 
         private string DecodeContents()
         {
-            string content = _fileContent.Text;
+            string content = _artifactContent.Text;
 
             if (content == null)
             {
-                byte[] data = Convert.FromBase64String(_fileContent.Binary);
+                byte[] data = Convert.FromBase64String(_artifactContent.Binary);
                 content = Encoding.UTF8.GetString(data);
             }
 
-            _fileContent = null; // Clear _fileContent to save memory.
+            _artifactContent = null; // Clear _fileContent to save memory.
             return content;
         }
     }

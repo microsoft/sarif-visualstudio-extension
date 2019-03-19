@@ -17,10 +17,10 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             ToolModel model = new ToolModel()
             {
-                Name = tool.Name,
-                FullName = tool.FullName,
-                Version = tool.Version,
-                SemanticVersion = tool.SemanticVersion,
+                Name = tool.Driver?.Name,
+                FullName = tool.Driver?.FullName,
+                Version = tool.Driver?.Version,
+                SemanticVersion = tool.Driver?.SemanticVersion
             };
 
             return model;

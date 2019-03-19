@@ -17,11 +17,11 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             FixModel model = new FixModel(fix.Description?.Text, new FileSystem());
 
-            if (fix.FileChanges != null)
+            if (fix.Changes != null)
             {
-                foreach (FileChange fileChange in fix.FileChanges)
+                foreach (ArtifactChange change in fix.Changes)
                 {
-                    model.FileChanges.Add(fileChange.ToFileChangeModel());
+                    model.ArtifactChanges.Add(change.ToArtifactChangeModel());
                 }
             }
 

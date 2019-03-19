@@ -14,17 +14,17 @@ namespace Microsoft.Sarif.Viewer.Sarif
             var model = new LocationModel();
             PhysicalLocation physicalLocation = location.PhysicalLocation;
 
-            if (physicalLocation?.FileLocation != null)
+            if (physicalLocation?.ArtifactLocation != null)
             {
                 model.Id = physicalLocation.Id;
                 model.Region = physicalLocation.Region;
 
-                Uri uri = physicalLocation.FileLocation.Uri;
+                Uri uri = physicalLocation.ArtifactLocation.Uri;
 
                 if (uri != null)
                 {
                     model.FilePath = uri.ToPath();
-                    model.UriBaseId = physicalLocation.FileLocation.UriBaseId;
+                    model.UriBaseId = physicalLocation.ArtifactLocation.UriBaseId;
                 }
             }
 

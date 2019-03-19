@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer.Models
     public class FixModel : NotifyPropertyChangedObject
     {
         protected string _description;
-        protected ObservableCollection<FileChangeModel> _fileChanges;
+        protected ObservableCollection<ArtifactChangeModel> _artifactChanges;
         protected DelegateCommand<FixModel> _previewFixCommand;
         protected DelegateCommand<FixModel> _applyFixCommand;
         protected static Dictionary<string, FixOffsetList> s_sourceFileFixLedger = null;
@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             this._description = description;
             this._fileSystem = fileSystem;
-            this._fileChanges = new ObservableCollection<FileChangeModel>();
+            this._artifactChanges = new ObservableCollection<ArtifactChangeModel>();
 
             LoadFixLedger();
         }
@@ -46,11 +46,11 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public ObservableCollection<FileChangeModel> FileChanges
+        public ObservableCollection<ArtifactChangeModel> ArtifactChanges
         {
             get
             {
-                return _fileChanges;
+                return _artifactChanges;
             }
         }
 
@@ -122,7 +122,7 @@ namespace Microsoft.Sarif.Viewer.Models
             HashSet<string> files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Gather the list of files for the fix.
-            foreach (var fileChanges in selectedFix.FileChanges)
+            foreach (var fileChanges in selectedFix.ArtifactChanges)
             {
                 files.Add(fileChanges.FilePath);
             }
@@ -133,8 +133,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     List<ReplacementModel> replacements = new List<ReplacementModel>();
 
-                    var fileChanges = selectedFix.FileChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
-                    foreach (FileChangeModel fileChange in fileChanges)
+                    var fileChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
+                    foreach (ArtifactChangeModel fileChange in fileChanges)
                     {
                         replacements.AddRange(fileChange.Replacements);
                     }
@@ -164,7 +164,7 @@ namespace Microsoft.Sarif.Viewer.Models
             HashSet<string> files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Gather the list of files for the fix.
-            foreach (var fileChanges in selectedFix.FileChanges)
+            foreach (var fileChanges in selectedFix.ArtifactChanges)
             {
                 files.Add(fileChanges.FilePath.ToLower());
             }
@@ -175,8 +175,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     List<ReplacementModel> replacements = new List<ReplacementModel>();
 
-                    var fileChanges = selectedFix.FileChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
-                    foreach (FileChangeModel fileChange in fileChanges)
+                    var fileChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
+                    foreach (ArtifactChangeModel fileChange in fileChanges)
                     {
                         replacements.AddRange(fileChange.Replacements);
                     }

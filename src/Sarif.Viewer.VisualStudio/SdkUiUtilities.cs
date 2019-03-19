@@ -1142,16 +1142,16 @@ namespace Microsoft.Sarif.Viewer
             return s.Replace(@"\[", "[").Replace(@"\]", "]");
         }
 
-        internal static string GetFileLocationPath(FileLocation fileLocation, int runId)
+        internal static string GetFileLocationPath(ArtifactLocation artifactLocation, int runId)
         {
             string path = null;
 
-            if (fileLocation?.Uri != null)
+            if (artifactLocation?.Uri != null)
             {
                 RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunDataCaches[runId];
 
-                Uri uri = fileLocation.Uri;
-                string uriBaseId = fileLocation.UriBaseId;
+                Uri uri = artifactLocation.Uri;
+                string uriBaseId = artifactLocation.UriBaseId;
 
                 if (!string.IsNullOrEmpty(uriBaseId) && dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
                 {

@@ -27,9 +27,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             replacements.Add(new ReplacementModel() { Offset = 233, DeletedLength = 3, InsertedString = "img" });
             replacements.ForEach(rm => rm.InsertedBytes = Encoding.UTF8.GetBytes(rm.InsertedString));
 
-            var changeModel = new FileChangeModel() { FilePath = @"C:\source\index.html" };
+            var changeModel = new ArtifactChangeModel() { FilePath = @"C:\source\index.html" };
             replacements.ForEach(r => changeModel.Replacements.Add(r));
-            fixModel.FileChanges.Add(changeModel);
+            fixModel.ArtifactChanges.Add(changeModel);
 
             return fixModel;
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             actual.Should().Equal(expected);
 
             dummy.FixLedger.Count.Should().Be(1);
-            SortedList<int, int> offsets = dummy.FixLedger[dummy.FileChanges[0].FilePath.ToLower()].Offsets;
+            SortedList<int, int> offsets = dummy.FixLedger[dummy.ArtifactChanges[0].FilePath.ToLower()].Offsets;
             offsets.Count.Should().Be(3);
 
             offsets.Keys[0].Should().Be(191);

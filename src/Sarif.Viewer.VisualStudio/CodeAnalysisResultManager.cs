@@ -248,7 +248,7 @@ namespace Microsoft.Sarif.Viewer
 
         public void CacheUriBasePaths(Run run)
         {
-            var source = run.OriginalUriBaseIds as Dictionary<string, FileLocation>;
+            var source = run.OriginalUriBaseIds as Dictionary<string, ArtifactLocation>;
 
             if (source != null)
             {
@@ -347,7 +347,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
-        internal string CreateFileFromContents(IDictionary<string, FileDetailsModel> fileDetailsDictionary, string fileName)
+        internal string CreateFileFromContents(IDictionary<string, ArtifactDetailsModel> fileDetailsDictionary, string fileName)
         {
             var fileData = fileDetailsDictionary[fileName];
 

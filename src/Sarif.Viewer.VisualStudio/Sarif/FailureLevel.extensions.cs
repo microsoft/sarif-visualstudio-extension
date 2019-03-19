@@ -5,16 +5,16 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class ResultLevelExtensions
+    static class FailureLevelExtensions
     {
-        public static string FormatForVisualStudio(this ResultLevel level)
+        public static string FormatForVisualStudio(this FailureLevel level)
         {
             switch (level)
             {
-                case ResultLevel.Error:
+                case FailureLevel.Error:
                     return "error";
 
-                case ResultLevel.Warning:
+                case FailureLevel.Warning:
                     return "warning";
 
                 default:

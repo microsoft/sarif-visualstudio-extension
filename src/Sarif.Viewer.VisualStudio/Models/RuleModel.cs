@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _category;
         private string _description;
         private string _helpUri;
-        private RuleConfigurationDefaultLevel _defaultLevel;
+        private FailureLevel _defaultFailureLevel;
 
         public string Id
         {
@@ -79,33 +79,33 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public RuleConfigurationDefaultLevel DefaultLevel
+        public FailureLevel DefaultFailureLevel
         {
             get
             {
-                return _defaultLevel;
+                return _defaultFailureLevel;
             }
             set
             {
-                if (value != _defaultLevel)
+                if (value != _defaultFailureLevel)
                 {
-                    _defaultLevel = value;
-                    NotifyPropertyChanged(nameof(DefaultLevel));
+                    _defaultFailureLevel = value;
+                    NotifyPropertyChanged(nameof(DefaultFailureLevel));
                 }
             }
         }
 
-        public ResultLevel ResultLevel
+        public FailureLevel FailureLevel
         {
             get
             {
-                ResultLevel level = ResultLevel.Warning;
+                FailureLevel level = FailureLevel.Warning;
 
-                if (DefaultLevel != RuleConfigurationDefaultLevel.None)
+                if (DefaultFailureLevel != FailureLevel.None)
                 {
-                    string defaultLevel = DefaultLevel.ToString();
+                    string defaultLevel = DefaultFailureLevel.ToString();
 
-                    level = (ResultLevel)Enum.Parse(typeof(ResultLevel), defaultLevel);
+                    level = (FailureLevel)Enum.Parse(typeof(FailureLevel), defaultLevel);
                 }
 
                 return level;

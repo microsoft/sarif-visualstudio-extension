@@ -38,9 +38,9 @@ namespace Microsoft.Sarif.Viewer.Models
                     // source location and highlight the line.
                     Region = value.Location.PhysicalLocation.Region;
 
-                    if (value.Location.PhysicalLocation.FileLocation?.Uri != null)
+                    if (value.Location.PhysicalLocation.ArtifactLocation?.Uri != null)
                     {
-                        FilePath = value.Location.PhysicalLocation.FileLocation.Uri.ToPath();
+                        FilePath = value.Location.PhysicalLocation.ArtifactLocation.Uri.ToPath();
                     }
                 }
                 else
@@ -220,7 +220,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                Uri sourceUrl = Location?.Location?.PhysicalLocation?.FileLocation?.Uri;
+                Uri sourceUrl = Location?.Location?.PhysicalLocation?.ArtifactLocation?.Uri;
 
                 if (sourceUrl != null)
                 {

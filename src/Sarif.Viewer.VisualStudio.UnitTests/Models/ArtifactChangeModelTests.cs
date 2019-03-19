@@ -11,37 +11,37 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
 {
-    public class FileChangeModelTests
+    public class ArtifactChangeModelTests
     {
         [Fact]
-        public void FileChangeModel_FromFileChange_LocalPath()
+        public void ArtifactChangeModel_FromArtifactChange_LocalPath()
         {
-            FileChange fileChange = new FileChange
+            ArtifactChange change = new ArtifactChange
             {
-                FileLocation = new FileLocation
+                ArtifactLocation = new ArtifactLocation
                 {
                     Uri = new Uri("file://C:/src/tools/util.cs", UriKind.RelativeOrAbsolute)
                 },
                 Replacements = new List<Replacement>()
             };
 
-            FileChangeModel model = fileChange.ToFileChangeModel();
+            ArtifactChangeModel model = change.ToArtifactChangeModel();
             model.FilePath.Should().Be(@"C:\src\tools\util.cs");
         }
 
         [Fact]
-        public void FileChangeModel_FromFileChange_RelativePath()
+        public void ArtifactChangeModel_FromArtifactChange_RelativePath()
         {
-            FileChange fileChange = new FileChange
+            ArtifactChange change = new ArtifactChange
             {
-                FileLocation = new FileLocation
+                ArtifactLocation = new ArtifactLocation
                 {
                     Uri = new Uri(@"\src\tools\util.cs", UriKind.RelativeOrAbsolute)
                 },
                 Replacements = new List<Replacement>()
             };
 
-            FileChangeModel model = fileChange.ToFileChangeModel();
+            ArtifactChangeModel model = change.ToArtifactChangeModel();
             model.FilePath.Should().Be(@"\src\tools\util.cs");
         }
     }

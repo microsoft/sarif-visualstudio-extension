@@ -89,7 +89,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources() { }
+                Tool = new Tool()
             };
 
             var item = MakeErrorListItem(run, result);
@@ -111,17 +111,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
+                Tool = new Tool
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Driver = new ToolComponent
                     {
+                        RuleDescriptors = new List<ReportingDescriptor>
+                    {
+                        new ReportingDescriptor
                         {
-                            "TST0001",
-                            new Rule
-                            {
-                                Id = "TST0001"
-                            }
+                            Id = "TST0001"
                         }
+                    }
                     }
                 }
             };
@@ -145,18 +145,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
+                Tool = new Tool
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Driver = new ToolComponent
                     {
+                        RuleDescriptors = new List<ReportingDescriptor>
                         {
-                            "TST0001",
-                            new Rule
+                            new ReportingDescriptor
                             {
                                 Id = "TST0001",
-                                MessageStrings = new Dictionary<string, string>
+                                MessageStrings = new Dictionary<string, MultiformatMessageString>
                                 {
-                                    { "realFormatId", "The message" }
+                                    { "realFormatId", new MultiformatMessageString { Text = "The message" } }
                                 }
                             }
                         }
@@ -187,18 +187,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
+                Tool = new Tool
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Driver = new ToolComponent
                     {
+                        RuleDescriptors = new List<ReportingDescriptor>
                         {
-                            "TST0001",
-                            new Rule
+                            new ReportingDescriptor
                             {
                                 Id = "TST0001",
-                                MessageStrings = new Dictionary<string, string>
+                                MessageStrings = new Dictionary<string, MultiformatMessageString>
                                 {
-                                    { "greeting", "Hello, {0}!" }
+                                    { "greeting", new MultiformatMessageString { Text = "Hello, {0}!" } }
                                 }
                             }
                         }
@@ -220,11 +220,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     new Fix
                     {
-                        FileChanges = new[]
+                        Changes = new[]
                         {
-                            new FileChange
+                            new ArtifactChange
                             {
-                                FileLocation = new FileLocation
+                                ArtifactLocation = new ArtifactLocation
                                 {
                                     Uri = new Uri("path/to/file.html", UriKind.Relative)
                                 },
@@ -247,7 +247,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var item = MakeErrorListItem(result);
 
-            item.Fixes[0].FileChanges[0].FilePath.Should().Be("path/to/file.html");
+            item.Fixes[0].ArtifactChanges[0].FilePath.Should().Be("path/to/file.html");
         }
 
         [Fact]
@@ -255,18 +255,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result
             {
-                RuleId = "TST0001-1"
+                RuleId = "TST0001"
             };
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
+                Tool = new Tool
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Driver = new ToolComponent
                     {
+                        RuleDescriptors = new List<ReportingDescriptor>
                         {
-                            "TST0001-1",
-                            new Rule
+                            new ReportingDescriptor
                             {
                                 Id = "TST0001"
                             }
@@ -290,11 +290,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
+                Tool = new Tool
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Driver = new ToolComponent
                     {
-                        // No metadata for rule TST0001.
+                        RuleDescriptors = new List<ReportingDescriptor>
+                        {
+                            // No metadata for rule TST0001.
+                        }
                     }
                 }
             };
@@ -316,13 +319,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var run = new Run
             {
-                Resources = new CodeAnalysis.Sarif.Resources()
+                Tool = new Tool
                 {
-                    Rules = new Dictionary<string, Rule>
+                    Driver = new ToolComponent
                     {
+                        RuleDescriptors = new List<ReportingDescriptor>
                         {
-                            "TST0001",
-                            new Rule
+                            new ReportingDescriptor
                             {
                                 Id = "TST0001"
                             }

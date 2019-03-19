@@ -62,7 +62,7 @@
                                 </TreeViewItem.Header>
                             </TreeViewItem>
                             <TreeView.Resources>
-                                <HierarchicalDataTemplate DataType="{x:Type models:FileChangeModel}"
+                                <HierarchicalDataTemplate DataType="{x:Type models:ArtifactChangeModel}"
                                                           ItemsSource="{Binding Replacements}">
                                     <TextBlock Text="{Binding FileName}"
                                                Style="{StaticResource PropertyValue}" />

@@ -40,103 +40,113 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
                         },
-                        Files = new Dictionary<string, FileData>
+                        Artifacts = new List<Artifact>
                         {
+                            new Artifact
                             {
-                                "file:///item.cpp#fragment",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue1 }
-                                    }
+                                    Uri = new Uri("file:///item.cpp#fragment")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue1 }
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///binary.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue2 }
-                                    }
+                                    Uri = new Uri("file:///binary.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///text.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ExpectedContents1
-                                    }
+                                    Uri = new Uri("file:///text.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Text = ExpectedContents1
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///both.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
-                                        Text = ExpectedContents2
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue2 }
-                                    }
+                                    Uri = new Uri("file:///both.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
+                                    Text = ExpectedContents2
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///emptybinary.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = ""
-                                    }
+                                    Uri = new Uri("file:///emptybinary.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = ""
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///emptytext.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ""
-                                    }
+                                    Uri = new Uri("file:///emptytext.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Text = ""
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///existinghash.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ExpectedContents2
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue1 }
-                                    }
+                                    Uri = new Uri("file:///existinghash.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Text = ExpectedContents2
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue1 }
                                 }
                             }
                         },
@@ -144,8 +154,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             new Result
                             {
-                                AnalysisTarget = new
-                                FileLocation
+                                AnalysisTarget = new ArtifactLocation
                                 {
                                     Uri = new Uri(@"file:///item.cpp")
                                 },

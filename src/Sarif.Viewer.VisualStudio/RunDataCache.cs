@@ -12,7 +12,7 @@ namespace Microsoft.Sarif.Viewer
     {
         private IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
 
-        public IDictionary<string, FileDetailsModel> FileDetails { get; } = new Dictionary<string, FileDetailsModel>();
+        public IDictionary<string, ArtifactDetailsModel> FileDetails { get; } = new Dictionary<string, ArtifactDetailsModel>();
 
         public IDictionary<string, Uri> RemappedUriBasePaths { get; } = new Dictionary<string, Uri>();
 
