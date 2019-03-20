@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class RuleExtensions
     {
-        public static RuleModel ToRuleModel(this IRule rule, string defaultRuleId)
+        public static RuleModel ToRuleModel(this ReportingDescriptor rule, string defaultRuleId)
         {
             RuleModel model;
 
@@ -17,6 +17,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 model = new RuleModel()
                 {
                     Id = defaultRuleId,
+                    DefaultFailureLevel = FailureLevel.Warning
                 };
             }
             else
@@ -25,8 +26,10 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 {
                     Id = rule.Id,
                     Name = rule.Name?.Text,
-                    Category = rule.GetCategory(),
                     Description = rule.FullDescription?.Text,
+                    DefaultFailureLevel = rule.DefaultConfiguration != null ?
+                                    rule.DefaultConfiguration.Level :
+                                    FailureLevel.Warning, // Default level
                     HelpUri = rule.HelpUri?.AbsoluteUri
                 };
             }

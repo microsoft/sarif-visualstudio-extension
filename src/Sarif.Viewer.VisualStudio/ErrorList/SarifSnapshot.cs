@@ -161,7 +161,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 SarifErrorListItem sarifResult = _errors[Convert.ToInt32(data.Item1)];
 
-                ThreadFlowLocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == data.Item2).FirstOrDefault();
+                LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == data.Item2).FirstOrDefault();
 
                 if (location != null)
                 {
@@ -182,21 +182,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private __VSERRORCATEGORY GetSeverity(ResultLevel level)
+        private __VSERRORCATEGORY GetSeverity(FailureLevel level)
         {
             switch (level)
             {
-                case ResultLevel.Error:
+                case FailureLevel.Error:
                 {
                     return __VSERRORCATEGORY.EC_ERROR;
                 }
-                case ResultLevel.Warning:
+                case FailureLevel.Warning:
                 {
                     return __VSERRORCATEGORY.EC_WARNING;
                 }
-                case ResultLevel.NotApplicable:
-                case ResultLevel.Pass:
-                case ResultLevel.Note:
+                case FailureLevel.None:
+                case FailureLevel.Note:
                 {
                     return __VSERRORCATEGORY.EC_MESSAGE;
                 }

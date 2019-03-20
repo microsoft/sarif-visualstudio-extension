@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -26,8 +27,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
                         },
                         Results = new List<Result>
                         {
@@ -41,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         PhysicalLocation = new PhysicalLocation
                                         {
-                                            FileLocation = new FileLocation
+                                            ArtifactLocation = new ArtifactLocation
                                             {
                                                 Uri = new Uri("file:///item1.cpp")
                                             }
@@ -55,8 +59,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
                         },
                         Results = new List<Result>
                         {
@@ -70,9 +77,27 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         PhysicalLocation = new PhysicalLocation
                                         {
-                                            FileLocation = new FileLocation
+                                            ArtifactLocation = new ArtifactLocation
                                             {
                                                 Uri = new Uri("file:///item2.cpp")
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            new Result
+                            {
+                                RuleId = "C0003",
+                                Message = new Message { Text = "Error 3" },
+                                Locations = new List<Location>
+                                {
+                                    new Location
+                                    {
+                                        PhysicalLocation = new PhysicalLocation
+                                        {
+                                            ArtifactLocation = new ArtifactLocation
+                                            {
+                                                Uri = new Uri("file:///item3.cpp")
                                             }
                                         }
                                     }
@@ -91,8 +116,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var hasFirstError = SarifTableDataSource.Instance.HasErrors("/item1.cpp");
             var hasSecondError = SarifTableDataSource.Instance.HasErrors("/item2.cpp");
+            var hasThirdError = SarifTableDataSource.Instance.HasErrors("/item3.cpp");
 
-            var hasBothErrors = hasFirstError && hasSecondError;
+            var hasBothErrors = hasFirstError && hasSecondError && hasThirdError;
 
             hasBothErrors.Should().BeTrue();
         }
@@ -100,9 +126,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void ErrorList_WithMultipleRuns_ManagerHasAllRows()
         {
-            var errorCount = CodeAnalysisResultManager.Instance.SarifErrors.Count;
+            var errorCount = CodeAnalysisResultManager.Instance.RunDataCaches.Sum(c => c.Value.SarifErrors.Count);
 
-            errorCount.Should().Be(2);
+            errorCount.Should().Be(3);
         }
     }
 }

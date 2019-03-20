@@ -8,7 +8,6 @@ using System.IO;
 using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -39,9 +38,9 @@ namespace Microsoft.Sarif.Viewer.Models
                     // source location and highlight the line.
                     Region = value.Location.PhysicalLocation.Region;
 
-                    if (value.Location.PhysicalLocation.FileLocation?.Uri != null)
+                    if (value.Location.PhysicalLocation.ArtifactLocation?.Uri != null)
                     {
-                        FilePath = value.Location.PhysicalLocation.FileLocation.Uri.ToPath();
+                        FilePath = value.Location.PhysicalLocation.ArtifactLocation.Uri.ToPath();
                     }
                 }
                 else
@@ -100,9 +99,10 @@ namespace Microsoft.Sarif.Viewer.Models
                     text = Path.GetFileName(FilePath) + " ";
                 }
 
-                if (Location?.Location?.PhysicalLocation?.Region != null)
+                Region region = Location?.Location?.PhysicalLocation?.Region;
+                if (region != null && region.StartLine > 0)
                 {
-                    text += Location.Location.PhysicalLocation.Region.FormatForVisualStudio();
+                    text += region.FormatForVisualStudio();
                 }
 
                 return text;
@@ -114,9 +114,11 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 // Not all locations have regions. Don't try to mark the locations that don't.
-                if (_lineMarker == null && Region != null)
+                if (_lineMarker == null
+                    && Region != null
+                    && SarifViewerPackage.ServiceProvider != null)
                 {
-                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, Region, FilePath);
+                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, RunId, Region, FilePath);
                     _lineMarker.RaiseRegionSelected += RegionSelected;
                 }
 
@@ -218,7 +220,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                Uri sourceUrl = Location?.Location?.PhysicalLocation?.FileLocation?.Uri;
+                Uri sourceUrl = Location?.Location?.PhysicalLocation?.ArtifactLocation?.Uri;
 
                 if (sourceUrl != null)
                 {

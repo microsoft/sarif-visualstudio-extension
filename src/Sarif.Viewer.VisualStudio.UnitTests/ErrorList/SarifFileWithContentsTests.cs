@@ -16,6 +16,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [Collection("SarifObjectTests")]
     public class SarifFileWithContentsTests
     {
+        private const int RunId = 1;
         private const string Key1 = "/item.cpp#fragment";
         private const string Key2 = "/binary.cpp";
         private const string Key3 = "/text.cpp";
@@ -39,103 +40,113 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Tool = new Tool
                         {
-                            Name = "Test",
-                            SemanticVersion = "1.0"
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0"
+                            }
                         },
-                        Files = new Dictionary<string, FileData>
+                        Artifacts = new List<Artifact>
                         {
+                            new Artifact
                             {
-                                "file:///item.cpp#fragment",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue1 }
-                                    }
+                                    Uri = new Uri("file:///item.cpp#fragment")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhpcyBpcyBhIHRlc3QgZmlsZS4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue1 }
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///binary.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue2 }
-                                    }
+                                    Uri = new Uri("file:///binary.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///text.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ExpectedContents1
-                                    }
+                                    Uri = new Uri("file:///text.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Text = ExpectedContents1
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///both.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
-                                        Text = ExpectedContents2
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue2 }
-                                    }
+                                    Uri = new Uri("file:///both.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
+                                    Text = ExpectedContents2
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///emptybinary.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Binary = ""
-                                    }
+                                    Uri = new Uri("file:///emptybinary.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = ""
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///emptytext.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ""
-                                    }
+                                    Uri = new Uri("file:///emptytext.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Text = ""
                                 }
                             },
+                            new Artifact
                             {
-                                "file:///existinghash.cpp",
-                                new FileData
+                                Location = new ArtifactLocation
                                 {
-                                    MimeType = "text/x-c",
-                                    Contents = new FileContent()
-                                    {
-                                        Text = ExpectedContents2
-                                    },
-                                    Hashes = new Dictionary<string, string>
-                                    {
-                                        { "sha-256", ExpectedHashValue1 }
-                                    }
+                                    Uri = new Uri("file:///existinghash.cpp")
+                                },
+                                MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Text = ExpectedContents2
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue1 }
                                 }
                             }
                         },
@@ -143,8 +154,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             new Result
                             {
-                                AnalysisTarget = new
-                                FileLocation
+                                AnalysisTarget = new ArtifactLocation
                                 {
                                     Uri = new Uri(@"file:///item.cpp")
                                 },
@@ -166,7 +176,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_SavesContents()
         {
-            var fileDetails = CodeAnalysisResultManager.Instance.FileDetails;
+            var fileDetails = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails;
 
             fileDetails.Should().ContainKey(Key1);
         }
@@ -174,7 +184,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_DecodesBinaryContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key2];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key2];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -184,8 +194,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_OpensEmbeddedBinaryFile()
         {
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(Key2);
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key2];
+            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(RunId, Key2);
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key2];
             var fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -195,7 +205,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_DecodesTextContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key3];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key3];
             var contents = fileDetail.GetContents();
 
             contents.Should().Be(ExpectedContents1);
@@ -204,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_DecodesBinaryContentsWithText()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key4];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key4];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -214,7 +224,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyBinaryContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key5];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key5];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -224,7 +234,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyTextContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key6];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key6];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -234,7 +244,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesExistingHash()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key7];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key7];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
@@ -244,7 +254,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_GeneratesHash()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.FileDetails[Key1];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key1];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class ThreadFlowLocationModel : CodeLocationObject
+    public class LocationModel : CodeLocationObject
     {
         private string _message;
         private string _logicalLocation;
@@ -105,6 +105,5 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public int Index { get; set; }
         public bool IsSelected { get; set; }
-        public string Location { get { return Region.FormatForVisualStudio(); } }
     }
 }

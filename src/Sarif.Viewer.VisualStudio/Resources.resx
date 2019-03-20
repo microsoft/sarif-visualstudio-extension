@@ -134,6 +134,9 @@
   <data name="ConvertNonSarifLog_DialogMessage" xml:space="preserve">
     <value>The log file you have opened will be converted to SARIF. Would you like to save the converted file?</value>
   </data>
+  <data name="DownloadFail_DialogMessage" xml:space="preserve">
+    <value>An error occurred downloading the source file.</value>
+  </data>
   <data name="FileOpenFail_DialogCaption" xml:space="preserve">
     <value>Open File</value>
   </data>

@@ -80,7 +80,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 else
                 {
                     // They're opening a v2 log, so send it through the pre-release compat transformer
-                    logText = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText);
+                    PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
                 }
             }
             else
@@ -204,9 +204,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution)
         {
             // Clear previous data
+            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
             SarifTableDataSource.Instance.CleanAllErrors();
-            CodeAnalysisResultManager.Instance.SarifErrors.Clear();
-            CodeAnalysisResultManager.Instance.FileDetails.Clear();
+            CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
 
             bool hasResults = false;
 
@@ -217,17 +217,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     run.Tool = new Tool
                     {
-                        Name = Resources.UnknownToolName
+                        Driver = new ToolComponent
+                        {
+                            Name = Resources.UnknownToolName
+                        }
                     };
                 }
 
                 TelemetryProvider.WriteEvent(TelemetryEvent.LogFileRunCreatedByToolName,
-                                             TelemetryProvider.CreateKeyValuePair("ToolName", run.Tool.Name));
+                                             TelemetryProvider.CreateKeyValuePair("ToolName", run.Tool.Driver.Name));
                 if (Instance.WriteRunToErrorList(run, logFilePath, solution) > 0)
                 {
                     hasResults = true;
                 }
             }
+
+            // We are finished processing the runs, so make this property inavalid.
+            CodeAnalysisResultManager.Instance.CurrentRunId = -1;
 
             if (!hasResults)
             {
@@ -246,10 +252,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
         {
+            RunDataCache dataCache = new RunDataCache(run);
+            CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
+            CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
+
             var projectNameCache = new ProjectNameCache(solution);
 
-            StoreFileDetails(run.Files);
+            StoreFileDetails(run.Artifacts);
 
             if (run.Results != null)
             {
@@ -277,7 +287,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         foreach (Notification toolNotification in invocation.ToolNotifications)
                         {
-                            if (toolNotification.Level != NotificationLevel.Note)
+                            if (toolNotification.Level != FailureLevel.Note)
                             {
                                 var sarifError = new SarifErrorListItem(run, toolNotification, logFilePath, projectNameCache);
                                 sarifErrors.Add(sarifError);
@@ -287,38 +297,34 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            foreach (var error in sarifErrors)
-            {
-                CodeAnalysisResultManager.Instance.SarifErrors.Add(error);
-            }
-
+            (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
             return sarifErrors.Count;
         }
 
-        private void EnsureHashExists(FileData file)
+        private void EnsureHashExists(Artifact artifact)
         {
-            if (file.Hashes == null)
+            if (artifact.Hashes == null)
             {
-                file.Hashes = new Dictionary<string, string>();
+                artifact.Hashes = new Dictionary<string, string>();
             }
             
-            if (!file.Hashes.ContainsKey("sha-256"))
+            if (!artifact.Hashes.ContainsKey("sha-256"))
             {
                 byte[] data = null;
-                if (file.Contents?.Binary != null)
+                if (artifact.Contents?.Binary != null)
                 {
-                    data = Convert.FromBase64String(file.Contents.Binary);
+                    data = Convert.FromBase64String(artifact.Contents.Binary);
                 }
-                else if (file.Contents?.Text != null)
+                else if (artifact.Contents?.Text != null)
                 {
-                    data = Encoding.UTF8.GetBytes(file.Contents.Text);
+                    data = Encoding.UTF8.GetBytes(artifact.Contents.Text);
                 }
 
                 if (data != null)
                 {
                     string hashString = GenerateHash(data);
-                    file.Hashes.Add("sha-256", hashString);
+                    artifact.Hashes.Add("sha-256", hashString);
                 }
             }
         }
@@ -330,29 +336,24 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
       
-        private void StoreFileDetails(IDictionary<string, FileData> files)
+        private void StoreFileDetails(IList<Artifact> artifacts)
         {
-            if (files == null)
+            if (artifacts == null)
             {
                 return;
             }
 
-            foreach (var file in files)
+            foreach (var file in artifacts)
             {
-                Uri key;
-                var isValid = Uri.TryCreate(file.Key, UriKind.RelativeOrAbsolute, out key);
-
-                if (!isValid)
+                Uri uri = file.Location.Uri;
+                if (uri != null)
                 {
-                    continue;
-                }
-
-                var contents = file.Value.Contents;
-                if (contents != null)
-                {
-                    EnsureHashExists(file.Value);
-                    var fileDetails = new FileDetailsModel(file.Value);
-                    CodeAnalysisResultManager.Instance.FileDetails.Add(key.ToPath(), fileDetails);
+                    if (file.Contents != null)
+                    {
+                        EnsureHashExists(file);
+                        var fileDetails = new ArtifactDetailsModel(file);
+                        CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(uri.ToPath(), fileDetails);
+                    }
                 }
             }
         }

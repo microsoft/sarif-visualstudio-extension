@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                             Region = new Region
                             {
                                 StartLine = 42,
-                                Snippet = new FileContent
+                                Snippet = new ArtifactContent
                                 {
                                     Text = snippet
                                 }
@@ -114,7 +114,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                             Region = new Region
                             {
                                 StartLine = 42,
-                                Snippet = new FileContent
+                                Snippet = new ArtifactContent
                                 {
                                     Text = snippet
                                 }
@@ -148,7 +148,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                             Region = new Region
                             {
                                 StartLine = 42,
-                                Snippet = new FileContent
+                                Snippet = new ArtifactContent
                                 {
                                     Text = snippet
                                 }

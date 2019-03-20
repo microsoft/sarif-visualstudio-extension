@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using Microsoft.CodeAnalysis.Sarif;
+
 namespace Microsoft.Sarif.Viewer.Models
 {
     public class RuleModel : NotifyPropertyChangedObject
@@ -8,9 +11,9 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _id;
         private string _name;
         private string _category;
-        private string _defaultLevel;
         private string _description;
         private string _helpUri;
+        private FailureLevel _defaultFailureLevel;
 
         public string Id
         {
@@ -76,19 +79,36 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public string DefaultLevel
+        public FailureLevel DefaultFailureLevel
         {
             get
             {
-                return _defaultLevel;
+                return _defaultFailureLevel;
             }
             set
             {
-                if (value != _defaultLevel)
+                if (value != _defaultFailureLevel)
                 {
-                    _defaultLevel = value;
-                    NotifyPropertyChanged(nameof(DefaultLevel));
+                    _defaultFailureLevel = value;
+                    NotifyPropertyChanged(nameof(DefaultFailureLevel));
                 }
+            }
+        }
+
+        public FailureLevel FailureLevel
+        {
+            get
+            {
+                FailureLevel level = FailureLevel.Warning;
+
+                if (DefaultFailureLevel != FailureLevel.None)
+                {
+                    string defaultLevel = DefaultFailureLevel.ToString();
+
+                    level = (FailureLevel)Enum.Parse(typeof(FailureLevel), defaultLevel);
+                }
+
+                return level;
             }
         }
 

@@ -2,8 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Sarif
@@ -11,27 +9,6 @@ namespace Microsoft.Sarif.Viewer.Sarif
     static class ResultExtensions
     {
         const string NOTARGETFILEPATH = "NOTARGETFILEPATH";
-
-        public static string FormatForVisualStudio(this Result result, IRule rule)
-        {
-            var messageLines = new List<string>();
-            foreach (var location in result.Locations)
-            {
-                Uri uri = location.PhysicalLocation.FileLocation.Uri;
-                string path = uri.IsFile ? uri.LocalPath : uri.ToString();
-                messageLines.Add(
-                    string.Format(
-                        CultureInfo.InvariantCulture, "{0}{1}: {2} {3}: {4}",
-                        path,
-                        location.PhysicalLocation.Region.FormatForVisualStudio(),
-                        result.Level.FormatForVisualStudio(),
-                        result.RuleId,
-                        result.GetMessageText(rule)
-                        ));
-            }
-
-            return string.Join(Environment.NewLine, messageLines);
-        }
 
         public static string GetPrimaryTargetFile(this Result result)
         {
@@ -47,9 +24,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             Location primaryLocation = result.Locations[0];
 
-            if (primaryLocation.PhysicalLocation?.FileLocation != null)
+            if (primaryLocation.PhysicalLocation?.ArtifactLocation != null)
             {
-                return primaryLocation.PhysicalLocation.FileLocation.Uri.ToPath();
+                return primaryLocation.PhysicalLocation.ArtifactLocation.Uri.ToPath();
             }
             else if (primaryLocation.FullyQualifiedLogicalName != null)
             {
@@ -76,6 +53,20 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 return null;
             }
+        }
+
+        public static string GetCategory(this Result result)
+        {
+            switch (result.BaselineState)
+            {
+                case BaselineState.New: { return nameof(BaselineState.New); }
+                case BaselineState.Absent: { return nameof(BaselineState.Absent); }
+                case BaselineState.Unchanged: { return nameof(BaselineState.Unchanged); }
+                case BaselineState.Updated: { return nameof(BaselineState.Updated); }
+
+                default: { return nameof(BaselineState.None); }
+            }
+            throw new InvalidOperationException();
         }
     }
 }

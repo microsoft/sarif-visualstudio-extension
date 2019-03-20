@@ -13,13 +13,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using EnvDTE;
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Newtonsoft.Json;
+using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -1069,7 +1070,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="message">The message to process.</param>
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
-        internal static List<Inline> GetInlinesForErrorMessage(string message)
+        internal static List<XamlDoc.Inline> GetInlinesForErrorMessage(string message)
         {
             return GetMessageInlines(message, -1, null);
         }
@@ -1081,9 +1082,9 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="index">The index of the error item</param>
         /// <param name="clickHandler">A delegate for the Hyperlink.Click event.</param>
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
-        internal static List<Inline> GetMessageInlines(string message, int index, RoutedEventHandler clickHandler)
+        internal static List<XamlDoc.Inline> GetMessageInlines(string message, int index, RoutedEventHandler clickHandler)
         {
-            var inlines = new List<Inline>();
+            var inlines = new List<XamlDoc.Inline>();
 
             MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
             int start = 0;
@@ -1097,17 +1098,17 @@ namespace Microsoft.Sarif.Viewer
                     group = match.Groups["link"];
 
                     // Add the plain text segment between the end of the last group and the current link
-                    inlines.Add(new Run(UnescapeBrackets(message.Substring(start, group.Index - 1 - start))));
+                    inlines.Add(new XamlDoc.Run(UnescapeBrackets(message.Substring(start, group.Index - 1 - start))));
 
                     if (clickHandler != null)
                     {
-                        var link = new Hyperlink();
+                        var link = new XamlDoc.Hyperlink();
 
                         // Stash the error index and relative link id
                         link.Tag = new Tuple<int, int>(index, Convert.ToInt32(match.Groups["index"].Value));
 
                         // Set the hyperlink text
-                        link.Inlines.Add(new Run($"{group.Value}"));
+                        link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));
                         link.Click += clickHandler;
 
                         inlines.Add(link);
@@ -1115,7 +1116,7 @@ namespace Microsoft.Sarif.Viewer
                     else
                     {
                         // Add the link text as plain text
-                        inlines.Add(new Run($"{group.Value}"));
+                        inlines.Add(new XamlDoc.Run($"{group.Value}"));
                     }
 
                     start = match.Index + match.Length;
@@ -1125,7 +1126,7 @@ namespace Microsoft.Sarif.Viewer
             if (inlines.Count > 0 && start < message.Length)
             {
                 // Add the plain text segment after the last link
-                inlines.Add(new Run(UnescapeBrackets(message.Substring(start))));
+                inlines.Add(new XamlDoc.Run(UnescapeBrackets(message.Substring(start))));
             }
 
             return inlines;
@@ -1139,6 +1140,29 @@ namespace Microsoft.Sarif.Viewer
         internal static string UnescapeBrackets(string s)
         {
             return s.Replace(@"\[", "[").Replace(@"\]", "]");
+        }
+
+        internal static string GetFileLocationPath(ArtifactLocation artifactLocation, int runId)
+        {
+            string path = null;
+
+            if (artifactLocation?.Uri != null)
+            {
+                RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunDataCaches[runId];
+
+                Uri uri = artifactLocation.Uri;
+                string uriBaseId = artifactLocation.UriBaseId;
+
+                if (!string.IsNullOrEmpty(uriBaseId) && dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
+                {
+                    Uri baseUri = dataCache.OriginalUriBasePaths[uriBaseId];
+                    uri = new Uri(baseUri, uri);
+                }
+
+                path = uri.LocalPath;
+            }
+
+            return path;
         }
     }
 }

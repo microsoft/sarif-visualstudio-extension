@@ -19,6 +19,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public class SarifErrorListItem : NotifyPropertyChangedObject
     {
+        private int _runId;
         private string _fileName;
         private ToolModel _tool;
         private RuleModel _rule;
@@ -27,11 +28,14 @@ namespace Microsoft.Sarif.Viewer
         private DelegateCommand _openLogFileCommand;
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
+        private long _documentCookie;
+        private string _documentName;
+        private IVsWindowFrame _windowFrame;
 
         internal SarifErrorListItem()
         {
-            Locations = new ThreadFlowLocationCollection(string.Empty);
-            RelatedLocations = new ThreadFlowLocationCollection(string.Empty);
+            Locations = new LocationCollection(string.Empty);
+            RelatedLocations = new LocationCollection(string.Empty);
             CallTrees = new CallTreeCollection();
             Stacks = new ObservableCollection<StackCollection>();
             Fixes = new ObservableCollection<FixModel>();
@@ -39,15 +43,23 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            IRule rule;
+            _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
+            ReportingDescriptor rule;
             run.TryGetRule(result.RuleId, out rule);
+            Tool = run.Tool.ToToolModel();
+            Rule = rule.ToRuleModel(result.RuleId);
+            Invocation = run.Invocations?[0]?.ToInvocationModel();
             Message = result.GetMessageText(rule, concise: false).Trim();
             ShortMessage = result.GetMessageText(rule, concise: true).Trim();
+            if (!Message.EndsWith("."))
+            {
+                ShortMessage = ShortMessage.TrimEnd('.');
+            }
             FileName = result.GetPrimaryTargetFile();
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
-            Level = result.Level;
+            Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
             SuppressionStates = result.SuppressionStates;
             LogFilePath = logFilePath;
 
@@ -60,21 +72,13 @@ namespace Microsoft.Sarif.Viewer
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-
-            if (string.IsNullOrWhiteSpace(run.Id?.InstanceGuid))
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.GetHashCode().ToString());
-            }
-            else
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.Id.InstanceGuid);
-            }
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
 
             if (result.Locations != null)
             {
                 foreach (Location location in result.Locations)
                 {
-                    Locations.Add(location.ToThreadFlowLocationModel());
+                    Locations.Add(location.ToLocationModel());
                 }
             }
 
@@ -82,7 +86,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (Location location in result.RelatedLocations)
                 {
-                    RelatedLocations.Add(location.ToThreadFlowLocationModel());
+                    RelatedLocations.Add(location.ToLocationModel());
                 }
             }
 
@@ -116,30 +120,26 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            IRule rule;
+            _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
+            ReportingDescriptor rule;
             string ruleId = notification.RuleId ?? notification.Id;
             run.TryGetRule(ruleId, out rule);
             Message = notification.Message.Text.Trim();
             ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
+            if (!Message.EndsWith("."))
+            {
+                ShortMessage = ShortMessage.TrimEnd('.');
+            }
+            Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = notification.PhysicalLocation?.FileLocation?.Uri.LocalPath ?? run.Tool.FullName;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.PhysicalLocation?.ArtifactLocation, _runId) ?? run.Tool.Driver.FullName;
             ProjectName = projectNameCache.GetName(FileName);
-
-            Locations.Add(new ThreadFlowLocationModel() { FilePath = FileName });
+            Locations.Add(new LocationModel() { FilePath = FileName });
 
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(ruleId);
-            Rule.DefaultLevel = notification.Level.ToString();
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-
-            if (string.IsNullOrWhiteSpace(run.Id?.InstanceGuid))
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.GetHashCode().ToString());
-            }
-            else
-            {
-                WorkingDirectory = Path.Combine(Path.GetTempPath(), run.Id.InstanceGuid);
-            }
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
         }
 
         [Browsable(false)]
@@ -226,7 +226,7 @@ namespace Microsoft.Sarif.Viewer
         public string Category { get; set; }
 
         [ReadOnly(true)]
-        public ResultLevel Level { get; set; }
+        public FailureLevel Level { get; set; }
 
         [Browsable(false)]
         public string HelpLink { get; set; }
@@ -302,10 +302,10 @@ namespace Microsoft.Sarif.Viewer
         }
 
         [Browsable(false)]
-        public ThreadFlowLocationCollection Locations { get; }
+        public LocationCollection Locations { get; }
 
         [Browsable(false)]
-        public ThreadFlowLocationCollection RelatedLocations { get; }
+        public LocationCollection RelatedLocations { get; }
 
         [Browsable(false)]
         public CallTreeCollection CallTrees { get; }
@@ -361,12 +361,12 @@ namespace Microsoft.Sarif.Viewer
         {
             LineMarker?.RemoveHighlightMarker();
 
-            foreach (ThreadFlowLocationModel location in Locations)
+            foreach (LocationModel location in Locations)
             {
                 location.LineMarker?.RemoveHighlightMarker();
             }
 
-            foreach (ThreadFlowLocationModel location in RelatedLocations)
+            foreach (LocationModel location in RelatedLocations)
             {
                 location.LineMarker?.RemoveHighlightMarker();
             }
@@ -442,7 +442,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, Region, FileName);
+                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, _runId, Region, FileName);
                 }
 
                 return _lineMarker;
@@ -455,24 +455,31 @@ namespace Microsoft.Sarif.Viewer
 
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
+            DetachFromDocument(_documentCookie);
+
+            var uri = new Uri(remappedPath, UriKind.Absolute);
+            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+
             if (FileName.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
             {
                 FileName = remappedPath;
             }
 
-            foreach (ThreadFlowLocationModel location in Locations)
+            foreach (LocationModel location in Locations)
             {
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
                     location.FilePath = remappedPath;
+                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
                 }
             }
 
-            foreach (ThreadFlowLocationModel location in RelatedLocations)
+            foreach (LocationModel location in RelatedLocations)
             {
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
                     location.FilePath = remappedPath;
+                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
                 }
             }
 
@@ -494,6 +501,7 @@ namespace Microsoft.Sarif.Viewer
                             current.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                         {
                             current.FilePath = remappedPath;
+                            current.Region = regionsCache.PopulateTextRegionProperties(current.Region, uri, true);
                         }
                     }
                     catch (ArgumentException)
@@ -517,13 +525,14 @@ namespace Microsoft.Sarif.Viewer
                     if (stackFrame.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                     {
                         stackFrame.FilePath = remappedPath;
+                        stackFrame.Region = regionsCache.PopulateTextRegionProperties(stackFrame.Region, uri, true);
                     }
                 }
             }
 
             foreach (FixModel fixModel in Fixes)
             {
-                foreach (FileChangeModel fileChangeModel in fixModel.FileChanges)
+                foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
                 {
                     if (fileChangeModel.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                     {
@@ -531,20 +540,38 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
             }
+
+            AttachToDocument();
         }
 
-        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame pFrame)
+        /// <summary>
+        /// Attaches to the document using the specified properties, which are also cached.
+        /// </summary>
+        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame windowFrame)
         {
-            LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+            // Cache the document info so we can detach and reattach later.
+            _documentName = documentName;
+            _documentCookie = docCookie;
+            _windowFrame = windowFrame;
 
-            foreach (ThreadFlowLocationModel location in Locations)
+            AttachToDocument();
+        }
+
+        /// <summary>
+        /// Attaches to the document using cached properties.
+        /// </summary>
+        internal void AttachToDocument()
+        {
+            LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
+
+            foreach (LocationModel location in Locations)
             {
-                location.LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+                location.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
             }
 
-            foreach (ThreadFlowLocationModel location in RelatedLocations)
+            foreach (LocationModel location in RelatedLocations)
             {
-                location.LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+                location.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
             }
 
             foreach (CallTree callTree in CallTrees)
@@ -560,9 +587,9 @@ namespace Microsoft.Sarif.Viewer
                 {
                     CallTreeNode current = nodesToProcess.Pop();
 
-                    if (current.LineMarker?.CanAttachToDocument(documentName, docCookie, pFrame) == true)
+                    if (current.LineMarker?.CanAttachToDocument(_documentName, _documentCookie, _windowFrame) == true)
                     {
-                        current.LineMarker?.AttachToDocument(documentName, (long)docCookie, pFrame);
+                        current.LineMarker?.AttachToDocument(_documentName, (long)_documentCookie, _windowFrame);
                         current.ApplyDefaultSourceFileHighlighting();
                     }
 
@@ -577,7 +604,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (StackFrameModel stackFrame in stackCollection)
                 {
-                    stackFrame.LineMarker?.AttachToDocument(documentName, docCookie, pFrame);
+                    stackFrame.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
                 }
             }
         }
@@ -586,12 +613,12 @@ namespace Microsoft.Sarif.Viewer
         {
             LineMarker?.DetachFromDocument(docCookie);
 
-            foreach (ThreadFlowLocationModel location in Locations)
+            foreach (LocationModel location in Locations)
             {
                 location.LineMarker?.DetachFromDocument(docCookie);
             }
 
-            foreach (ThreadFlowLocationModel location in RelatedLocations)
+            foreach (LocationModel location in RelatedLocations)
             {
                 location.LineMarker?.DetachFromDocument(docCookie);
             }

@@ -52,7 +52,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 Id = "CA1823",
                 Name = "Avoid unused private fields",
                 HelpUri = "http://aka.ms/analysis/ca1823",
-                DefaultLevel = "Unknown"
+                DefaultFailureLevel = FailureLevel.None
             };
 
             viewModel.Invocation = new InvocationModel()
@@ -61,34 +61,34 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FileName = @"C:\Temp\Foo.exe",
             };
 
-            viewModel.Locations.Add(new Models.ThreadFlowLocationModel()
+            viewModel.Locations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Region = new Region(11, 1, 11, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
+                Region = new Region(11, 1, 11, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.Locations.Add(new Models.ThreadFlowLocationModel()
+            viewModel.Locations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Region = new Region(12, 1, 12, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
+                Region = new Region(12, 1, 12, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new Models.ThreadFlowLocationModel()
+            viewModel.RelatedLocations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Region = new Region(21, 1, 21, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
+                Region = new Region(21, 1, 21, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new Models.ThreadFlowLocationModel()
+            viewModel.RelatedLocations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Region = new Region(22, 1, 22, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
+                Region = new Region(22, 1, 22, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new Models.ThreadFlowLocationModel()
+            viewModel.RelatedLocations.Add(new LocationModel
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Region = new Region(23, 1, 23, 2, 0, 0, 0, 0, snippet: null, message: null, properties: null),
+                Region = new Region(23, 1, 23, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
             viewModel.CallTrees.Add(new CallTree(
@@ -142,7 +142,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
             viewModel.Stacks.Add(stack1);
 
             FixModel fix1 = new FixModel("Replace *.Close() with *.Dispose().", new FileSystem());
-            FileChangeModel fileChange11 = new FileChangeModel();
+            ArtifactChangeModel fileChange11 = new ArtifactChangeModel();
             fileChange11.FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs";
             fileChange11.Replacements.Add(new ReplacementModel()
             {
@@ -150,7 +150,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 DeletedLength = ".Close()".Length,
                 InsertedString = ".Dispose()",
             });
-            fix1.FileChanges.Add(fileChange11);
+            fix1.ArtifactChanges.Add(fileChange11);
             viewModel.Fixes.Add(fix1);
 
             return viewModel;

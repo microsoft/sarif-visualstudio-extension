@@ -57,13 +57,13 @@
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
     <Compile Include="Models\CallTreeNode.cs" />
-    <Compile Include="Models\ThreadFlowLocationCollection.cs" />
-    <Compile Include="Models\ThreadFlowLocationModel.cs" />
-    <Compile Include="Models\FileDetailsModel.cs" />
+    <Compile Include="Models\LocationCollection.cs" />
+    <Compile Include="Models\LocationModel.cs" />
+    <Compile Include="Models\ArtifactDetailsModel.cs" />
     <Compile Include="Models\FixOffsetList.cs" />
     <Compile Include="Models\InvocationModel.cs" />
     <Compile Include="Models\ReplacementModel.cs" />
-    <Compile Include="Models\FileChangeModel.cs" />
+    <Compile Include="Models\ArtifactChangeModel.cs" />
     <Compile Include="Models\FixModel.cs" />
     <Compile Include="ProjectNameCache.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -71,6 +71,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
     <Compile Include="SLoadSarifLogService.cs" />
@@ -81,17 +82,16 @@
       <DependentUpon>SarifToolWindowControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Sarif\Replacement.extensions.cs" />
-    <Compile Include="Sarif\FileChange.extensions.cs" />
+    <Compile Include="Sarif\ArtifactChange.extensions.cs" />
     <Compile Include="Sarif\Fix.extensions.cs" />
     <Compile Include="Sarif\StackFrame.extensions.cs" />
     <Compile Include="Sarif\Stack.extensions.cs" />
     <Compile Include="Sarif\CodeFlow.extensions.cs" />
-    <Compile Include="Sarif\IPropertyBagHolder.extensions.cs" />
     <Compile Include="Models\RuleModel.cs" />
     <Compile Include="Models\ToolModel.cs" />
     <Compile Include="Sarif\ThreadFlowLocation.extensions.cs" />
     <Compile Include="Sarif\Region.extensions.cs" />
-    <Compile Include="Sarif\ResultLevel.extensions.cs" />
+    <Compile Include="Sarif\FailureLevel.extensions.cs" />
     <Compile Include="Sarif\Result.extensions.cs" />
     <Compile Include="Sarif\Location.extensions.cs" />
     <Compile Include="Sarif\Rule.extensions.cs" />
@@ -300,14 +300,15 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="Sarif, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Sdk.2.0.0-csd.2.beta.2018-10-10\lib\net461\Sarif.dll</HintPath>
+      <HintPath>..\packages\Sarif.Sdk.2.0.0-csd.2.beta.2019-01-24.1\lib\net461\Sarif.dll</HintPath>
     </Reference>
     <Reference Include="Sarif.Converters, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Converters.2.0.0-csd.2.beta.2018-10-10\lib\net461\Sarif.Converters.dll</HintPath>
+      <HintPath>..\packages\Sarif.Converters.2.0.0-csd.2.beta.2019-01-24.1\lib\net461\Sarif.Converters.dll</HintPath>
     </Reference>
     <Reference Include="Sarif.Driver, Version=2.0.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Driver.2.0.0-csd.2.beta.2018-10-10\lib\net461\Sarif.Driver.dll</HintPath>
+      <HintPath>..\packages\Sarif.Driver.2.0.0-csd.2.beta.2019-01-09\lib\net461\Sarif.Driver.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -344,6 +345,7 @@
       <HintPath>..\packages\System.Console.4.0.0-rc2-24027\lib\net46\System.Console.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Design" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.4.5.0\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
@@ -356,6 +358,7 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +376,10 @@
     <Page Include="Controls\InternetHyperlink.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\VsDropDown.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\CallTreesStyles.xaml">
       <SubType>Designer</SubType>
