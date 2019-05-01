@@ -142,7 +142,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else if (columnName == "suppressionstate")
                 {
-                    content = error.SuppressionStates != SuppressionStates.None ? "Suppressed" : "Active";
+                    content = error.SuppressionState != SuppressionState.None ? "Suppressed" : "Active";
                 }
             }
 

@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             if (physicalLocation?.ArtifactLocation != null)
             {
-                model.Id = physicalLocation.Id;
+                model.Id = location.Id;
                 model.Region = physicalLocation.Region;
 
                 Uri uri = physicalLocation.ArtifactLocation.Uri;
@@ -29,7 +29,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
 
             model.Message = location.Message?.Text;
-            model.LogicalLocation = location.FullyQualifiedLogicalName;
+            model.LogicalLocation = location.LogicalLocation?.FullyQualifiedName;
 
             return model;
         }

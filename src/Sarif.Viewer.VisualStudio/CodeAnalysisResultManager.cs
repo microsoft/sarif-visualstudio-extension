@@ -260,7 +260,7 @@ namespace Microsoft.Sarif.Viewer
 
         public bool TryRebaselineAllSarifErrors(int runId, string uriBaseId, string originalFilename)
         {
-            if (CurrentSarifResult == null)
+            if (CurrentSarifResult == null || string.IsNullOrWhiteSpace(uriBaseId))
             {
                 return false;
             }
