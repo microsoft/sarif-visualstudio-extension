@@ -82,7 +82,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message
                 {
-                    MessageId = "nonExistentMessageId"
+                    Id = "nonExistentMessageId"
                 },
                 RuleId = "TST0001"
             };
@@ -104,7 +104,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message
                 {
-                    MessageId = "nonExistentMessageId"
+                    Id = "nonExistentMessageId"
                 },
                 RuleId = "TST0001"
             };
@@ -115,7 +115,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Driver = new ToolComponent
                     {
-                        RuleDescriptors = new List<ReportingDescriptor>
+                        Rules = new List<ReportingDescriptor>
                     {
                         new ReportingDescriptor
                         {
@@ -138,7 +138,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message
                 {
-                    MessageId = "nonExistentFormatId"
+                    Id = "nonExistentFormatId"
                 },
                 RuleId = "TST0001"
             };
@@ -149,7 +149,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Driver = new ToolComponent
                     {
-                        RuleDescriptors = new List<ReportingDescriptor>
+                        Rules = new List<ReportingDescriptor>
                         {
                             new ReportingDescriptor
                             {
@@ -181,7 +181,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         "Mary"
                     },
-                    MessageId = "greeting"
+                    Id = "greeting"
                 }
             };
 
@@ -191,7 +191,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Driver = new ToolComponent
                     {
-                        RuleDescriptors = new List<ReportingDescriptor>
+                        Rules = new List<ReportingDescriptor>
                         {
                             new ReportingDescriptor
                             {
@@ -220,7 +220,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     new Fix
                     {
-                        Changes = new[]
+                        ArtifactChanges = new[]
                         {
                             new ArtifactChange
                             {
@@ -264,7 +264,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Driver = new ToolComponent
                     {
-                        RuleDescriptors = new List<ReportingDescriptor>
+                        Rules = new List<ReportingDescriptor>
                         {
                             new ReportingDescriptor
                             {
@@ -294,7 +294,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Driver = new ToolComponent
                     {
-                        RuleDescriptors = new List<ReportingDescriptor>
+                        Rules = new List<ReportingDescriptor>
                         {
                             // No metadata for rule TST0001.
                         }
@@ -323,7 +323,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Driver = new ToolComponent
                     {
-                        RuleDescriptors = new List<ReportingDescriptor>
+                        Rules = new List<ReportingDescriptor>
                         {
                             new ReportingDescriptor
                             {

@@ -12,11 +12,15 @@ namespace Microsoft.Sarif.Viewer.Sarif
         {
             StackFrameModel model = new StackFrameModel();
 
-            model.Address = stackFrame.Address;
-            model.FullyQualifiedLogicalName = stackFrame.Location?.FullyQualifiedLogicalName;
+            model.FullyQualifiedLogicalName = stackFrame.Location.LogicalLocation.FullyQualifiedName;
             model.Message = stackFrame.Location?.Message?.Text;
             model.Module = stackFrame.Module;
-            model.Offset = stackFrame.Offset;
+
+            if (stackFrame.Location?.PhysicalLocation?.Address != null)
+            {
+                model.Address = stackFrame.Location.PhysicalLocation.Address.AbsoluteAddress;
+                model.Offset = stackFrame.Location.PhysicalLocation.Address.OffsetFromParent ?? 0;
+            }
 
             PhysicalLocation physicalLocation = stackFrame.Location?.PhysicalLocation;
             if (physicalLocation?.ArtifactLocation != null)

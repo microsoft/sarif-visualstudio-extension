@@ -40,9 +40,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
         {
             reportingDescriptor = null;
 
-            if (run?.Tool?.Driver?.RuleDescriptors != null && ruleId != null)
+            if (run?.Tool?.Driver?.Rules != null && ruleId != null)
             {
-                List<ReportingDescriptor> rules = run.Tool.Driver.RuleDescriptors as List<ReportingDescriptor>;
+                List<ReportingDescriptor> rules = run.Tool.Driver.Rules as List<ReportingDescriptor>;
                 reportingDescriptor = rules.Where(r => r.Id == ruleId).FirstOrDefault();
             }
             else if (ruleId != null)
@@ -51,10 +51,10 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 // If the rule is a PREfast rule, create a "fake" rule using the external rule metadata file.
                 if (RuleMetadata[ruleId] != null)
                 {
-                    Message ruleName = null;
+                    string ruleName = null;
                     if (RuleMetadata[ruleId]["heading"] != null)
                     {
-                        ruleName = new Message { Text = RuleMetadata[ruleId]["heading"].Value<string>() };
+                        ruleName = RuleMetadata[ruleId]["heading"].Value<string>();
                     }
 
                     Uri helpUri = null;
@@ -69,12 +69,16 @@ namespace Microsoft.Sarif.Viewer.Sarif
                             ruleId,
                             null,
                             ruleName,
+                            null,
+                            ruleName,
+                            null,
                             shortDescription: null,
                             fullDescription: null,
                             messageStrings: null,
                             defaultConfiguration: null,
                             helpUri: helpUri,
                             help: null, // PREfast rules don't need a "help" property; they all have online documentation.
+                            relationships: null,
                             properties: null);
                     }
                 }

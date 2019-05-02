@@ -28,9 +28,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 return primaryLocation.PhysicalLocation.ArtifactLocation.Uri.ToPath();
             }
-            else if (primaryLocation.FullyQualifiedLogicalName != null)
+            else if (primaryLocation.LogicalLocation?.FullyQualifiedName != null)
             {
-                return primaryLocation.FullyQualifiedLogicalName;
+                return primaryLocation.LogicalLocation.FullyQualifiedName;
             }
 
             return string.Empty;
