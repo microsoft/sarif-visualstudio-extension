@@ -137,9 +137,6 @@
     <Reference Include="Sarif, Version=2.1.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
       <HintPath>..\packages\Sarif.Sdk.2.1.0-rtm.0\lib\net461\Sarif.dll</HintPath>
     </Reference>
-    <Reference Include="Sarif.Converters, Version=2.1.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Converters.2.1.0-rtm.0\lib\net461\Sarif.Converters.dll</HintPath>
-    </Reference>
     <Reference Include="Sarif.Driver, Version=2.1.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
       <HintPath>..\packages\Sarif.Driver.2.1.0-rtm.0\lib\net461\Sarif.Driver.dll</HintPath>
     </Reference>
