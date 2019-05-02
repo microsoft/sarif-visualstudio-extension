@@ -274,18 +274,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 foreach (var invocation in run.Invocations)
                 {
-                    if (invocation.ConfigurationNotifications != null)
+                    if (invocation.ToolConfigurationNotifications != null)
                     {
-                        foreach (Notification configurationNotification in invocation.ConfigurationNotifications)
+                        foreach (Notification configurationNotification in invocation.ToolConfigurationNotifications)
                         {
                             var sarifError = new SarifErrorListItem(run, configurationNotification, logFilePath, projectNameCache);
                             sarifErrors.Add(sarifError);
                         }
                     }
 
-                    if (invocation.ToolNotifications != null)
+                    if (invocation.ToolExecutionNotifications != null)
                     {
-                        foreach (Notification toolNotification in invocation.ToolNotifications)
+                        foreach (Notification toolNotification in invocation.ToolExecutionNotifications)
                         {
                             if (toolNotification.Level != FailureLevel.Note)
                             {

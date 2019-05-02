@@ -60,7 +60,9 @@ namespace Microsoft.Sarif.Viewer
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
             Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
-            SuppressionStates = result.SuppressionStates;
+            SuppressionState = (result.Suppressions != null && result.Suppressions.Count > 0) ?
+                result.Suppressions[0].State :
+                SuppressionState.None;
             LogFilePath = logFilePath;
 
             if (Region != null)
@@ -122,7 +124,17 @@ namespace Microsoft.Sarif.Viewer
         {
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             ReportingDescriptor rule;
-            string ruleId = notification.RuleId ?? notification.Id;
+            string ruleId = null;
+
+            if (notification.AssociatedRule != null)
+            {
+                ruleId = notification.AssociatedRule.Id;
+            }
+            else if (notification.Descriptor != null)
+            {
+                ruleId = notification.Descriptor.Id;
+            }
+
             run.TryGetRule(ruleId, out rule);
             Message = notification.Message.Text.Trim();
             ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
@@ -132,7 +144,7 @@ namespace Microsoft.Sarif.Viewer
             }
             Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.PhysicalLocation?.ArtifactLocation, _runId) ?? run.Tool.Driver.FullName;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? run.Tool.Driver.FullName;
             ProjectName = projectNameCache.GetName(FileName);
             Locations.Add(new LocationModel() { FilePath = FileName });
 
@@ -231,9 +243,9 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string HelpLink { get; set; }
 
-        [DisplayName("Suppression states")]
+        [DisplayName("Suppression state")]
         [ReadOnly(true)]
-        public SuppressionStates SuppressionStates { get; set; }
+        public SuppressionState SuppressionState { get; set; }
 
         [DisplayName("Log file")]
         [ReadOnly(true)]

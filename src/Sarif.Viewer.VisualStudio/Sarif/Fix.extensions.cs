@@ -17,9 +17,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             FixModel model = new FixModel(fix.Description?.Text, new FileSystem());
 
-            if (fix.Changes != null)
+            if (fix.ArtifactChanges != null)
             {
-                foreach (ArtifactChange change in fix.Changes)
+                foreach (ArtifactChange change in fix.ArtifactChanges)
                 {
                     model.ArtifactChanges.Add(change.ToArtifactChangeModel());
                 }
