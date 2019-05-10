@@ -345,7 +345,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (var file in artifacts)
             {
-                Uri uri = file.Location.Uri;
+                Uri uri = file.Location?.Uri;
                 if (uri != null)
                 {
                     if (file.Contents != null)
