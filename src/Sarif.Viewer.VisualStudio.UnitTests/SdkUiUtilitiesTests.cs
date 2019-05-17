@@ -153,7 +153,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifSnapshot_GetMessageEmbeddedLinkInlines_WebLink()
         {
-            string url = "http://sarifweb.azurewebsites.net";
+            string url = "http://example.com";
             string message = $"The quick [brown fox]({url}) jumps over the lazy dog.";
 
             var link = new Hyperlink();
