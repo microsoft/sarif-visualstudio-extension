@@ -37,6 +37,28 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifSnapshot_GetMessageEmbeddedLinkInlines_InvalidLink()
+        {
+            string message = @"The quick [brown fox](some text) jumps over the lazy dog.";
+
+            var expected = new List<Inline>
+            {
+                new Run("The quick "),
+                new Run("brown fox"),
+                new Run(" jumps over the lazy dog.")
+            };
+
+            var actual = SdkUIUtilities.GetInlinesForErrorMessage(message);
+
+            actual.Count.Should().Be(expected.Count);
+
+            for (int i = 0; i < actual.Count; i++)
+            {
+                VerifyTextRun(expected[i], actual[i]);
+            }
+        }
+
+        [Fact]
         public void SarifSnapshot_GetMessageEmbeddedLinkInlines_ZeroLinksEscapedBrackets()
         {
             string message = @"The quick \[brown fox\] jumps over the lazy dog.";
@@ -53,7 +75,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick [brown fox](1) jumps over the lazy dog.";
 
             var link = new Hyperlink();
-            link.Tag = new Tuple<int, int>(1, 1);
+            link.Tag = new Tuple<int, object>(1, 1);
             link.Inlines.Add(new Run("brown fox"));
 
             var expected = new List<Inline>
@@ -78,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick [brown fox](1) jumps over the [lazy dog](2)";
 
             var link1 = new Hyperlink();
-            link1.Tag = new Tuple<int, int>(1, 1);
+            link1.Tag = new Tuple<int, object>(1, 1);
             link1.Inlines.Add(new Run("brown fox"));
 
             var link2 = new Hyperlink();
@@ -109,7 +131,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick [brown fox](1) jumps over the \[lazy dog\].";
 
             var link = new Hyperlink();
-            link.Tag = new Tuple<int, int>(1, 1);
+            link.Tag = new Tuple<int, object>(1, 1);
             link.Inlines.Add(new Run("brown fox"));
 
             var expected = new List<Inline>
@@ -117,6 +139,32 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new Run("The quick "),
                 link,
                 new Run(" jumps over the [lazy dog].")
+            };
+
+            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+
+            actual.Count.Should().Be(expected.Count);
+
+            VerifyTextRun(expected[0], actual[0]);
+            VerifyHyperlink(expected[1], actual[1]);
+            VerifyTextRun(expected[2], actual[2]);
+        }
+
+        [Fact]
+        public void SarifSnapshot_GetMessageEmbeddedLinkInlines_WebLink()
+        {
+            string url = "http://sarifweb.azurewebsites.net";
+            string message = $"The quick [brown fox]({url}) jumps over the lazy dog.";
+
+            var link = new Hyperlink();
+            link.Tag = new Tuple<int, object>(1, new Uri(url, UriKind.Absolute));
+            link.Inlines.Add(new Run("brown fox"));
+
+            var expected = new List<Inline>
+            {
+                new Run("The quick "),
+                link,
+                new Run(" jumps over the lazy dog.")
             };
 
             var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
@@ -143,8 +191,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             actualLink.Inlines.Count.Should().Be(expectedLink.Inlines.Count);
             (actualLink.Inlines.FirstInline as Run).Text.Should().Be((expectedLink.Inlines.FirstInline as Run).Text);
-            Tuple<int, int> tagActual = actualLink.Tag as Tuple<int, int>;
-            Tuple<int, int> tagExpected = actualLink.Tag as Tuple<int, int>;
+            Tuple<int, object> tagActual = actualLink.Tag as Tuple<int, object>;
+            Tuple<int, object> tagExpected = actualLink.Tag as Tuple<int, object>;
             tagActual.Item1.Should().Be(tagExpected.Item1);
             tagActual.Item2.Should().Be(tagExpected.Item2);
         }
