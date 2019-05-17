@@ -31,11 +31,11 @@ namespace Microsoft.Sarif.Viewer
         private static string[] s_ruleSetDirectories;
         private static string s_builtInRuleSetDirectory;
         private static string s_plugInsDirectory;
-        private static readonly Guid s_appIdUsesIsolatedCLR = new System.Guid("{074a44d3-1d9d-406c-9f91-c2a4982b1974}");
-        internal static readonly Guid s_enviornmentThemeCategory = new System.Guid("624ed9c3-bdfd-41fa-96c3-7c824ea32e3d");
+        private static readonly Guid s_appIdUsesIsolatedCLR = new Guid("{074a44d3-1d9d-406c-9f91-c2a4982b1974}");
+        internal static readonly Guid s_enviornmentThemeCategory = new Guid("624ed9c3-bdfd-41fa-96c3-7c824ea32e3d");
 
-        // Embedded link format: [link text](n) where n is a non-negative integer
-        private const string EmbeddedLinkPattern = @"\[(?<link>[^\\\]]+)\]\((?<index>\d+)\)";
+        // Embedded link format: [link text](n|uri) where n is a non-negative integer, or uri is an absolute URL
+        private const string EmbeddedLinkPattern = @"\[(?<text>[^\\\]]+)\]\((?<target>[^)]+)\)";
 
         internal const string RuleSetFileExtension = ".ruleset";
         /// <summary>
@@ -1095,27 +1095,53 @@ namespace Microsoft.Sarif.Viewer
 
                 foreach (Match match in matches)
                 {
-                    group = match.Groups["link"];
+                    group = match.Groups["text"];
 
-                    // Add the plain text segment between the end of the last group and the current link
+                    // Add the plain text segment between the end of the last group and the current link.
                     inlines.Add(new XamlDoc.Run(UnescapeBrackets(message.Substring(start, group.Index - 1 - start))));
+                    object target = null;
 
                     if (clickHandler != null)
                     {
-                        var link = new XamlDoc.Hyperlink();
+                        string targetText = match.Groups["target"].Value;
+                        int id;
 
-                        // Stash the error index and relative link id
-                        link.Tag = new Tuple<int, int>(index, Convert.ToInt32(match.Groups["index"].Value));
+                        if (int.TryParse(targetText, out id))
+                        {
+                            target = id;
+                        }
+                        else
+                        {
+                            Uri uri;
 
-                        // Set the hyperlink text
-                        link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));
-                        link.Click += clickHandler;
+                            if (Uri.TryCreate(targetText, UriKind.Absolute, out uri))
+                            {
+                                // It's a valid absolute URL.
+                                // Call Uri.ToString in case normalization was performed by Uri.TryCreate.
+                                // We are stashing the string because that's what Process.Start takes as input.
+                                target = uri.ToString();
+                            }
+                        }
 
-                        inlines.Add(link);
+                        if (target != null)
+                        {
+                            var link = new XamlDoc.Hyperlink();
+
+                            // Stash the error index and relativeLocation.id or web URL. This is used in SarifSnapshot.ErrorListInlineLink_Click.
+                            link.Tag = new Tuple<int, object>(index, target);
+
+                            // Set the hyperlink text
+                            link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));
+                            link.Click += clickHandler;
+
+                            inlines.Add(link);
+                        }
                     }
-                    else
+                    
+                    if (target == null)
                     {
-                        // Add the link text as plain text
+                        // Either we don't have a click handler, or the target text wasn't a valid int or Uri.
+                        // Add the link text as plain text.
                         inlines.Add(new XamlDoc.Run($"{group.Value}"));
                     }
 

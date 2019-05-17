@@ -11,6 +11,7 @@ using EnvDTE;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Imaging.Interop;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
@@ -155,29 +156,37 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (hyperLink != null)
             {
-                Tuple<int, int> data = hyperLink.Tag as Tuple<int, int>;
+                Tuple<int, object> data = hyperLink.Tag as Tuple<int, object>;
                 // data.Item1 = index of SarifErrorListItem
-                // data.Item2 = id of related location to link
+                // data.Item2 = id of related location to link, or absolute URL string
 
                 SarifErrorListItem sarifResult = _errors[Convert.ToInt32(data.Item1)];
 
-                LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == data.Item2).FirstOrDefault();
-
-                if (location != null)
+                if (data.Item2 is int)
                 {
-                    // Set the current sarif error in the manager so we track code locations.
-                    CodeAnalysisResultManager.Instance.CurrentSarifResult = sarifResult;
+                    int id = (int)data.Item2;
+                    LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
 
-                    SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
-
-                    if (sarifResult.HasDetails)
+                    if (location != null)
                     {
-                        // Setting the DataContext to null (above) forces the TabControl to select the appropriate tab.
-                        SarifViewerPackage.SarifToolWindow.Control.DataContext = sarifResult;
-                    }
+                        // Set the current sarif error in the manager so we track code locations.
+                        CodeAnalysisResultManager.Instance.CurrentSarifResult = sarifResult;
 
-                    location.NavigateTo(false);
-                    location.ApplyDefaultSourceFileHighlighting();
+                        SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
+
+                        if (sarifResult.HasDetails)
+                        {
+                            // Setting the DataContext to null (above) forces the TabControl to select the appropriate tab.
+                            SarifViewerPackage.SarifToolWindow.Control.DataContext = sarifResult;
+                        }
+
+                        location.NavigateTo(false);
+                        location.ApplyDefaultSourceFileHighlighting();
+                    }
+                }
+                else if (data.Item2 is string)
+                {
+                    System.Diagnostics.Process.Start(data.Item2.ToString());
                 }
             }
         }
