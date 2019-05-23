@@ -79,8 +79,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else
                 {
-                    // They're opening a v2 log, so send it through the pre-release compat transformer
-                    PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
+                    // They're opening a v2 log; check to see if it's the version we are referencing.
+                    pattern = $@"""version""\s*:\s*""{VersionConstants.StableSarifVersion}""";
+                    match = Regex.Match(logText, pattern, RegexOptions.Compiled | RegexOptions.Multiline);
+
+                    if (!match.Success)
+                    {
+                        // It's an older v2 version, so send it through the pre-release compat transformer
+                        log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
+                    }
                 }
             }
             else
