@@ -29,6 +29,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         public static readonly ErrorListService Instance = new ErrorListService();
+        private const string VersionRegexPattern = @"\""version\"":\s*\""(?<version>[\d.]+)\""";
 
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
@@ -36,58 +37,102 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             string logText;
             string outputPath = null;
+            bool saveOutputFile = true;
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
                 logText = File.ReadAllText(filePath);
-                string pattern = @"""version""\s*:\s*""1.0.0""";
-                Match match = Regex.Match(logText, pattern, RegexOptions.Compiled | RegexOptions.Multiline);
-
-                if (match.Success)
+                Match match;
+                
+                // Get the schema version of the unmodified input log
+                using (StringReader reader = new StringReader(logText))
                 {
-                    // They're opening a v1 log, so we need to transform it.
-                    // Ask if they'd like to save the v2 log.
-                    MessageDialogCommand response = PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage);
+                    // Read the first 100 characters.
+                    char[] buffer = new char[100];
+                    reader.ReadBlock(buffer, 0, buffer.Length);
+                    match = Regex.Match(new string(buffer), VersionRegexPattern, RegexOptions.Compiled);
+                }
 
-                    if (response == MessageDialogCommand.Cancel)
+                if (match?.Success == true)
+                {
+                    string inputVersion = match.Groups["version"].Value;
+
+                    if (inputVersion == "1.0.0")
                     {
-                        return;
-                    }
+                        // They're opening a v1 log, so we need to transform it.
+                        // Ask if they'd like to save the v2 log.
+                        MessageDialogCommand response = PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage);
 
-                    JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
-                    {
-                        ContractResolver = SarifContractResolverVersionOne.Instance
-                    };
-
-                    SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
-                    var transformer = new SarifVersionOneToCurrentVisitor();
-                    transformer.VisitSarifLogVersionOne(v1Log);
-                    log = transformer.SarifLog;
-
-                    if (response == MessageDialogCommand.Yes)
-                    {
-                        // Prompt for a location to save the transformed log.
-                        outputPath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
-
-                        if (string.IsNullOrEmpty(outputPath))
+                        if (response == MessageDialogCommand.Cancel)
                         {
                             return;
                         }
-                    }
 
-                    logText = JsonConvert.SerializeObject(log);
+                        JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
+                        {
+                            ContractResolver = SarifContractResolverVersionOne.Instance
+                        };
+
+                        SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
+                        var transformer = new SarifVersionOneToCurrentVisitor();
+                        transformer.VisitSarifLogVersionOne(v1Log);
+                        log = transformer.SarifLog;
+
+                        if (response == MessageDialogCommand.Yes)
+                        {
+                            // Prompt for a location to save the transformed log.
+                            outputPath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
+
+                            if (string.IsNullOrEmpty(outputPath))
+                            {
+                                return;
+                            }
+                        }
+
+                        logText = JsonConvert.SerializeObject(log);
+                    }
+                    else if (inputVersion != VersionConstants.StableSarifVersion)
+                    {
+                        // It's an older v2 version, so send it through the pre-release compat transformer.
+                        // Ask if they'd like to save the transformed log.
+                        MessageDialogCommand response = PromptToSaveProcessedLog(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion));
+
+                        if (response == MessageDialogCommand.Cancel)
+                        {
+                            return;
+                        }
+
+                        log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
+
+                        if (response == MessageDialogCommand.Yes)
+                        {
+                            // Prompt for a location to save the transformed log.
+                            outputPath = PromptForFileSaveLocation(Resources.SaveTransformedPrereleaseV2Log_DialogTitle, filePath);
+
+                            if (string.IsNullOrEmpty(outputPath))
+                            {
+                                return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Since we didn't do any pre-processing, we don't need to write to a temp location.
+                        outputPath = filePath;
+                        saveOutputFile = false;
+                    }
                 }
                 else
                 {
-                    // They're opening a v2 log; check to see if it's the version we are referencing.
-                    pattern = $@"""version""\s*:\s*""{VersionConstants.StableSarifVersion}""";
-                    match = Regex.Match(logText, pattern, RegexOptions.Compiled | RegexOptions.Multiline);
-
-                    if (!match.Success)
-                    {
-                        // It's an older v2 version, so send it through the pre-release compat transformer
-                        log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
-                    }
+                    // The version property wasn't found within the first 100 characters.
+                    // Per the spec, it should appear first in the sarifLog object.
+                    VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                                                    Resources.VersionPropertyNotFound_DialogTitle,
+                                                    null, // title
+                                                    OLEMSGICON.OLEMSGICON_QUERY,
+                                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    return;
                 }
             }
             else
@@ -131,7 +176,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 outputPath = Path.GetTempFileName() + ".sarif";
             }
 
-            SaveLogFile(outputPath, logText);
+            if (saveOutputFile)
+            {
+                SaveLogFile(outputPath, logText);
+            }
 
             if (log == null)
             {
@@ -158,13 +206,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             var saveFileDialog = new SaveFileDialog();
 
-            saveFileDialog.Title = Resources.SaveTransformedV1Log_DialogTitle;
+            saveFileDialog.Title = dialogTitle;
             saveFileDialog.Filter = "SARIF log files (*.sarif)|*.sarif";
             saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.InitialDirectory = Path.GetDirectoryName(inputFilePath);
 
             inputFilePath = Path.GetFileNameWithoutExtension(inputFilePath) + ".v2.sarif";
             saveFileDialog.FileName = Path.GetFileName(inputFilePath);
-            saveFileDialog.InitialDirectory = Path.GetDirectoryName(inputFilePath);
 
             return saveFileDialog.ShowDialog() == DialogResult.OK ?
                 saveFileDialog.FileName :
