@@ -47,8 +47,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 // Get the schema version of the unmodified input log
                 using (StringReader reader = new StringReader(logText))
                 {
-                    // Read the first 100 characters.
-                    char[] buffer = new char[100];
+                    // Read the first 200 characters.
+                    char[] buffer = new char[200];
                     reader.ReadBlock(buffer, 0, buffer.Length);
                     match = Regex.Match(new string(buffer), VersionRegexPattern, RegexOptions.Compiled);
                 }
