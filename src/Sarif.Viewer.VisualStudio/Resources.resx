@@ -188,7 +188,7 @@
     <value>Save Transformed Log File</value>
   </data>
   <data name="TransformPrereleaseV2_DialogMessage" xml:space="preserve">
-    <value>The log file you have opened is formatted with a pre-release SARIF version 2 schema. This file will be automatically transformed to SARIF version {0}. Would you like to save the transformed file?</value>
+    <value>The log file you have opened conforms to a pre-release SARIF version 2 schema. This file will be automatically transformed to SARIF version {0}. Would you like to save the transformed file?</value>
     <comment>{0} will be the referenced SARIF schema version, e.g. 2.1.0</comment>
   </data>
   <data name="TransformV1_DialogMessage" xml:space="preserve">
@@ -202,6 +202,6 @@
     <value>Unknown</value>
   </data>
   <data name="VersionPropertyNotFound_DialogTitle" xml:space="preserve">
-    <value>The sarifLog.version property was not found at the beginning of the sarifLog object. Per the SARIF specification, the version property should appear first.</value>
+    <value>The SARIF specification recommends that the version property appear at the beginning of the log file. This log file does not conform to that recommendation.</value>
   </data>
 </root>

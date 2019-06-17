@@ -244,7 +244,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The log file you have opened is formatted with a pre-release SARIF version 2 schema. This file will be automatically transformed to SARIF version {0}. Would you like to save the transformed file?.
+        ///   Looks up a localized string similar to The log file you have opened conforms to a pre-release SARIF version 2 schema. This file will be automatically transformed to SARIF version {0}. Would you like to save the transformed file?.
         /// </summary>
         public static string TransformPrereleaseV2_DialogMessage {
             get {
@@ -280,7 +280,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The sarifLog.version property was not found at the beginning of the sarifLog object. Per the SARIF specification, the version property should appear first..
+        ///   Looks up a localized string similar to The SARIF specification recommends that the version property appear at the beginning of the log file. This log file does not conform to that recommendation..
         /// </summary>
         public static string VersionPropertyNotFound_DialogTitle {
             get {

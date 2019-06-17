@@ -30,6 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
         private const string VersionRegexPattern = @"\""version\"":\s*\""(?<version>[\d.]+)\""";
+        const int HeadSegmentLength = 200;
 
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
@@ -42,22 +43,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
                 logText = File.ReadAllText(filePath);
-                Match match;
-                
-                // Get the schema version of the unmodified input log
-                using (StringReader reader = new StringReader(logText))
-                {
-                    // Read the first 200 characters.
-                    char[] buffer = new char[200];
-                    reader.ReadBlock(buffer, 0, buffer.Length);
-                    match = Regex.Match(new string(buffer), VersionRegexPattern, RegexOptions.Compiled);
-                }
 
-                if (match?.Success == true)
+                // Get the schema version of the unmodified input log
+                string headSegment = logText.Substring(0, HeadSegmentLength);
+                Match match = Regex.Match(headSegment, VersionRegexPattern, RegexOptions.Compiled);                
+
+                if (match.Success)
                 {
                     string inputVersion = match.Groups["version"].Value;
 
-                    if (inputVersion == "1.0.0")
+                    if (inputVersion == SarifUtilities.V1_0_0)
                     {
                         // They're opening a v1 log, so we need to transform it.
                         // Ask if they'd like to save the v2 log.
