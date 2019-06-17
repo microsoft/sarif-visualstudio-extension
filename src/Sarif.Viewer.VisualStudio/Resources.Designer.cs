@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -228,6 +228,15 @@ namespace Microsoft.Sarif.Viewer {
         /// <summary>
         ///   Looks up a localized string similar to Save Transformed Log File.
         /// </summary>
+        public static string SaveTransformedPrereleaseV2Log_DialogTitle {
+            get {
+                return ResourceManager.GetString("SaveTransformedPrereleaseV2Log_DialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Save Transformed Log File.
+        /// </summary>
         public static string SaveTransformedV1Log_DialogTitle {
             get {
                 return ResourceManager.GetString("SaveTransformedV1Log_DialogTitle", resourceCulture);
@@ -235,7 +244,16 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The log file you have opened is SARIF version 1. This file will be automatically transform to SARIF version 2. Would you like to save the transformed file?.
+        ///   Looks up a localized string similar to The log file you have opened conforms to a pre-release SARIF version 2 schema. This file will be automatically transformed to SARIF version {0}. Would you like to save the transformed file?.
+        /// </summary>
+        public static string TransformPrereleaseV2_DialogMessage {
+            get {
+                return ResourceManager.GetString("TransformPrereleaseV2_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The log file you have opened is SARIF version 1. This file will be automatically transformed to SARIF version 2. Would you like to save the transformed file?.
         /// </summary>
         public static string TransformV1_DialogMessage {
             get {
@@ -258,6 +276,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string UnknownToolName {
             get {
                 return ResourceManager.GetString("UnknownToolName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The SARIF specification recommends that the version property appear at the beginning of the log file. This log file does not conform to that recommendation..
+        /// </summary>
+        public static string VersionPropertyNotFound_DialogTitle {
+            get {
+                return ResourceManager.GetString("VersionPropertyNotFound_DialogTitle", resourceCulture);
             }
         }
     }
