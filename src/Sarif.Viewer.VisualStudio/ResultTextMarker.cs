@@ -66,7 +66,6 @@ namespace Microsoft.Sarif.Viewer
         internal IVsWindowFrame NavigateTo(bool usePreviewPane)
         {
             // Fall back to the file and line number
-
             if (!File.Exists(this.FullFilePath))
             {
                 if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(_runId, this.UriBaseId, this.FullFilePath))

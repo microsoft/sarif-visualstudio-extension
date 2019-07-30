@@ -260,7 +260,7 @@ namespace Microsoft.Sarif.Viewer
 
         public bool TryRebaselineAllSarifErrors(int runId, string uriBaseId, string originalFilename)
         {
-            if (CurrentSarifResult == null || string.IsNullOrWhiteSpace(uriBaseId))
+            if (CurrentSarifResult == null)
             {
                 return false;
             }
@@ -373,6 +373,12 @@ namespace Microsoft.Sarif.Viewer
                 if (fileName.StartsWith("/") || fileName.StartsWith("\\"))
                 {
                     fileName = fileName.Substring(1);
+                }
+
+                Uri uri = new Uri(fileName);
+                if (uri.IsAbsoluteUri && !uri.IsFile)
+                {
+                    fileName = Guid.NewGuid().ToString();
                 }
 
                 // Combine all paths into the final.
