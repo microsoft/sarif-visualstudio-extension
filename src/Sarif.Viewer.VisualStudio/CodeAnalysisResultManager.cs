@@ -375,8 +375,11 @@ namespace Microsoft.Sarif.Viewer
                     fileName = fileName.Substring(1);
                 }
 
-                Uri uri = new Uri(fileName);
-                if (uri.IsAbsoluteUri && !uri.IsFile)
+                // In this code path, we are working with a non-file system URI
+                // where the log file contains embedded SARIF content
+                if (Uri.TryCreate(fileName, UriKind.RelativeOrAbsolute, out Uri uri) &&
+                    uri.IsAbsoluteUri &&
+                    !uri.IsFile)
                 {
                     fileName = Guid.NewGuid().ToString();
                 }

@@ -24,6 +24,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         private const string Key5 = "/emptybinary.cpp";
         private const string Key6 = "/emptytext.cpp";
         private const string Key7 = "/existinghash.cpp";
+        private const string Key8 = "https://example.com/nonFileUriWIthEmbeddedContents";
         private const string ExpectedContents1 = "This is a test file.";
         private const string ExpectedContents2 = "The quick brown fox jumps over the lazy dog.";
         private const string ExpectedHashValue1 = "HashValue";
@@ -71,6 +72,21 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     Uri = new Uri("file:///binary.cpp")
                                 },
                                 MimeType = "text/x-c",
+                                Contents = new ArtifactContent()
+                                {
+                                    Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
+                                },
+                                Hashes = new Dictionary<string, string>
+                                {
+                                    { "sha-256", ExpectedHashValue2 }
+                                }
+                            },
+                            new Artifact
+                            {
+                                Location = new ArtifactLocation
+                                {
+                                    Uri = new Uri(Key8)
+                                },
                                 Contents = new ArtifactContent()
                                 {
                                     Binary = "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4="
@@ -202,6 +218,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             fileText.Should().Be(ExpectedContents2);
         }
 
+        [Fact]
+        public void SarifFileWithContents_OpensEmbeddedNonFileUriBinaryFile()
+        {
+            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(RunId, Key8);
+            var fileDetail = CodeAnalysisResultManager.Instance.RunDataCaches[RunId].FileDetails[Key8];
+            var fileText = File.ReadAllText(rebaselinedFile);
+
+            fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
+            fileText.Should().Be(ExpectedContents2);
+        }
+       
         [Fact]
         public void SarifFileWithContents_DecodesTextContents()
         {
