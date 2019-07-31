@@ -159,6 +159,26 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 throw new NotImplementedException();
             }
+
+            public Stream OpenRead(string path)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Stream Create(string path)
+            {
+                throw new NotImplementedException();
+            }
+
+            public DirectoryInfo CreateDirectory(string path)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void DeleteDirectory(string path, bool recursive = false)
+            {
+                throw new NotImplementedException();
+            }
             #endregion
         }
     }
