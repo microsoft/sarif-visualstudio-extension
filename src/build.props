@@ -20,7 +20,7 @@
     <Product Condition=" '$(Product)' == '' ">Microsoft SARIF Viewer for Visual Studio</Product>
     <Copyright Condition=" '$(Copyright)' == '' ">© Microsoft Corporation. All rights reserved.</Copyright>
     <VersionPrefix Condition=" '$(VersionPrefix)' == ''">2.1.0</VersionPrefix>
-    <VersionSuffix Condition=" '$(VersionSuffix)' == ''">rtm.0</VersionSuffix>
+    <VersionSuffix Condition=" '$(VersionSuffix)' == ''">rtm.4</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup Label="Build">
