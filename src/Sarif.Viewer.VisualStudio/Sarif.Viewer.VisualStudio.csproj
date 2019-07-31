@@ -304,8 +304,9 @@
     <Reference Include="Sarif, Version=2.1.9.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
       <HintPath>..\packages\Sarif.Sdk.2.1.9\lib\net461\Sarif.dll</HintPath>
     </Reference>
-    <Reference Include="Sarif.Converters, Version=2.1.2.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Converters.2.1.2\lib\net461\Sarif.Converters.dll</HintPath>
+    <Reference Include="Sarif.Converters, Version=2.1.9.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sarif.Converters.2.1.9\lib\net461\Sarif.Converters.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Sarif.Driver, Version=2.1.9.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
       <HintPath>..\packages\Sarif.Driver.2.1.9\lib\net461\Sarif.Driver.dll</HintPath>
