@@ -21,3 +21,6 @@
 * FEATURE: add support for embedded hyperlinks in the error list that point to web URLs
 * Updated SDK compatibility with [v2.1.0-rtm.2](https://www.nuget.org/packages/Sarif.Sdk/2.1.2)
 * Optimized file loading, transform, and SARIF version check logic
+
+## **v2.1.3** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Some valid SARIF files would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/98
