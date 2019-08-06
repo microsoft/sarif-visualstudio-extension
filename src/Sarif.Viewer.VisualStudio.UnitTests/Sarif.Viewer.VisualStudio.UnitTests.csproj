@@ -216,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeAnalysisResultManagerTests.cs" />
+    <Compile Include="ErrorList\ErrorListServiceTests.cs" />
     <Compile Include="ErrorList\MultipleRunsPerSarifTests.cs" />
     <Compile Include="ErrorList\SarifErrorListItemTests.cs" />
     <Compile Include="ErrorList\SarifFileWithContentsTests.cs" />
@@ -227,6 +228,7 @@
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="SdkUIUtilitiesTests.cs" />
     <Compile Include="TelemetryProviderTests.cs" />
+    <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UriExtensionsTests.cs" />
     <Compile Include="CallTreeTraversalTests.cs" />
