@@ -26,4 +26,4 @@
 * BUGFIX: Some valid SARIF files would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/98
 
 ## **v2.1.4** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: Some valid SARIF files would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/98
+* BUGFIX: SARIF files with empty URI properties would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/85
