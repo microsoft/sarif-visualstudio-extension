@@ -27,3 +27,6 @@
 
 ## **v2.1.4** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: SARIF files with empty URI properties would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/85
+
+## **v2.1.5** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: The open file dialog did not offer an "All files" ("*.*") option. https://github.com/microsoft/sarif-visualstudio-extension/issues/104
