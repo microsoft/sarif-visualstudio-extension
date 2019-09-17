@@ -30,3 +30,6 @@
 
 ## **v2.1.5** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: The open file dialog did not offer an "All files" ("*.*") option. https://github.com/microsoft/sarif-visualstudio-extension/issues/104
+
+## **v2.1.6** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: The viewer crashed when navigating to a result with relative path and no `uriBaseId`. https://github.com/microsoft/sarif-visualstudio-extension/issues/106
