@@ -37,6 +37,7 @@
     <PackageRequireLicenseAcceptance Condition=" '$(PackageRequireLicenseAcceptance)' == '' ">false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/Microsoft/sarif-sdk</PackageProjectUrl>
+    <PackageIcon Condition=" '$(PackageIcon)' == '' ">icon.png</PackageIcon>
     <PackageIconUrl Condition=" '$(PackageIconUrl)' == '' ">https://go.microsoft.com/fwlink/?linkid=2008860</PackageIconUrl>
     <!--
     Don't complain about SemVer 2.0.0-compatible version strings.
@@ -44,5 +45,9 @@
     -->
     <NoWarn>NU5105</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="icon.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
 </Project>

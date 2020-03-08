@@ -398,6 +398,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         private static SarifErrorListItem MakeErrorListItem(Run run, Result result)
         {
+            result.Run = run;
             return new SarifErrorListItem(
                 run,
                 result,

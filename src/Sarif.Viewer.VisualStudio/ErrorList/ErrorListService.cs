@@ -315,6 +315,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 foreach (Result result in run.Results)
                 {
+                    result.Run = run;
                     var sarifError = new SarifErrorListItem(run, result, logFilePath, projectNameCache);
                     sarifErrors.Add(sarifError);
                 }

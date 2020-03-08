@@ -53,12 +53,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 var manager = TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, StandardTableColumnDefinitions.DetailsExpander,
-                    StandardTableColumnDefinitions.ErrorSeverity, StandardTableColumnDefinitions.ErrorCode,
-                    StandardTableColumnDefinitions.ErrorSource, StandardTableColumnDefinitions.BuildTool,
-                    StandardTableColumnDefinitions.ErrorRank, StandardTableColumnDefinitions.ErrorCategory,
-                    StandardTableColumnDefinitions.Text, StandardTableColumnDefinitions.DocumentName,
-                    StandardTableColumnDefinitions.Line, StandardTableColumnDefinitions.Column);
+                manager.AddSource(this, 
+                    StandardTableColumnDefinitions.DetailsExpander,
+                    StandardTableColumnDefinitions.ErrorSeverity, 
+                    StandardTableColumnDefinitions.ErrorCode,
+                    StandardTableColumnDefinitions.ErrorSource, 
+                    StandardTableColumnDefinitions.BuildTool,
+                    StandardTableColumnDefinitions.ErrorRank, 
+                    StandardTableColumnDefinitions.ErrorCategory,
+                    StandardTableColumnDefinitions.Text, 
+                    StandardTableColumnDefinitions.DocumentName,
+                    StandardTableColumnDefinitions.Line, 
+                    StandardTableColumnDefinitions.Column);
+
+                var errorlistProvider = compositionService.GetService<ErrorListProvider>();
+                errorlistProvider.BringToFront();
             }
         }
 

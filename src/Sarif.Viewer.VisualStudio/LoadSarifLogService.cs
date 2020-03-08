@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.CodeAnalysis.Sarif.Converters;
-using Microsoft.Sarif.Viewer.ErrorList; 
+using Microsoft.Sarif.Viewer.ErrorList;
 
 namespace Microsoft.Sarif.Viewer
 {

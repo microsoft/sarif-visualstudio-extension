@@ -141,9 +141,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         content = error.Rule.Id + ":" + error.Rule.Name;
                     }
                 }
-                else if (columnName == "suppressionstate")
+                else if (columnName == "suppressionstate" ||
+                         columnName == "suppression")
                 {
-                    content = error.SuppressionState != SuppressionState.None ? "Suppressed" : "Active";
+                    content = error.VSSuppressionState.ToString();
                 }
             }
 
