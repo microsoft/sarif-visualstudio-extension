@@ -35,8 +35,18 @@ namespace Microsoft.Sarif.Viewer
         internal static readonly Guid s_enviornmentThemeCategory = new Guid("624ed9c3-bdfd-41fa-96c3-7c824ea32e3d");
 
         // Embedded link format: [link text](n|uri) where n is a non-negative integer, or uri is an absolute URL
-        private const string EmbeddedLinkPattern = @"\[(?<text>[^\\\]]+)\]\((?<target>[^)]+)\)";
-
+        private const string EmbeddedLinkPattern =
+@"
+\[
+    (?<text>
+        [^\]]+
+    )
+\]
+\(
+    (?<target>
+        [^)]+
+    )
+\)";
         internal const string RuleSetFileExtension = ".ruleset";
         /// <summary>
         /// Default Rule Set for Express SKU, it is used by VS and VB projects
@@ -1086,7 +1096,7 @@ namespace Microsoft.Sarif.Viewer
         {
             var inlines = new List<XamlDoc.Inline>();
 
-            MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnorePatternWhitespace);
             int start = 0;
 
             if (matches.Count > 0)
