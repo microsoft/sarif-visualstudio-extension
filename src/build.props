@@ -19,7 +19,7 @@
     <Company Condition=" '$(Company)' == '' ">Microsoft</Company>
     <Product Condition=" '$(Product)' == '' ">Microsoft SARIF Viewer for Visual Studio</Product>
     <Copyright Condition=" '$(Copyright)' == '' ">© Microsoft Corporation. All rights reserved.</Copyright>
-    <VersionPrefix Condition=" '$(VersionPrefix)' == ''">2.1.0</VersionPrefix>
+    <VersionPrefix Condition=" '$(VersionPrefix)' == ''">2.1.4</VersionPrefix>
     <VersionSuffix Condition=" '$(VersionSuffix)' == ''">rtm.4</VersionSuffix>
   </PropertyGroup>
 
@@ -39,6 +39,7 @@
     <PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/Microsoft/sarif-sdk</PackageProjectUrl>
     <PackageIcon Condition=" '$(PackageIcon)' == '' ">icon.png</PackageIcon>
     <PackageIconUrl Condition=" '$(PackageIconUrl)' == '' ">https://go.microsoft.com/fwlink/?linkid=2008860</PackageIconUrl>
+    <PackageIcon Condition=" '$(PackageIcon)' == '' ">triskelion.png</PackageIcon>
     <!--
     Don't complain about SemVer 2.0.0-compatible version strings.
     See https://github.com/NuGet/Home/issues/4687#issuecomment-393302779.
@@ -48,6 +49,7 @@
 
   <ItemGroup>
     <None Include="icon.png" Pack="true" PackagePath="\"/>
+    <None Include="..\..\triskelion.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

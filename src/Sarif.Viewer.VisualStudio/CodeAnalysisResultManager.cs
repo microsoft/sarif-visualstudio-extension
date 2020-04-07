@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer
         private readonly IFileSystem _fileSystem;
 
         internal delegate string PromptForResolvedPathDelegate(string pathFromLogFile);
-        PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
+        readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         // This ctor is internal rather than private for unit test purposes.
         internal CodeAnalysisResultManager(
@@ -87,8 +87,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                RunDataCache dataCache;
-                RunDataCaches.TryGetValue(CurrentRunId, out dataCache);
+                RunDataCaches.TryGetValue(CurrentRunId, out RunDataCache dataCache);
                 return dataCache;
             }
         }
@@ -248,9 +247,7 @@ namespace Microsoft.Sarif.Viewer
 
         public void CacheUriBasePaths(Run run)
         {
-            var source = run.OriginalUriBaseIds as Dictionary<string, ArtifactLocation>;
-
-            if (source != null)
+            if (run.OriginalUriBaseIds is Dictionary<string, ArtifactLocation> source)
             {
                 var target = CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
                 // This line assumes an empty dictionary
@@ -275,11 +272,10 @@ namespace Microsoft.Sarif.Viewer
             }
             else
             {
-                Uri baseUri = null;
-                Uri uri = null;
 
-                if (dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out baseUri)
-                    && Uri.TryCreate(baseUri, originalFilename, out uri)
+                if (uriBaseId != null
+                    && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
+                    && Uri.TryCreate(baseUri, originalFilename, out Uri uri)
                     && uri.IsHttpScheme())
                 {
                     bool allow = _allowedDownloadHosts.Contains(uri.Host);
@@ -287,12 +283,11 @@ namespace Microsoft.Sarif.Viewer
                     // File needs to be downloaded, prompt for confirmation if host is not already allowed
                     if (!allow)
                     {
-                        bool alwaysAllow;
                         MessageDialogCommand result = MessageDialog.Show(Resources.ConfirmDownloadDialog_Title,
                                                                          string.Format(Resources.ConfirmDownloadDialog_Message, uri),
                                                                          MessageDialogCommandSet.YesNo,
                                                                          string.Format(Resources.ConfirmDownloadDialog_CheckboxLabel, uri.Host),
-                                                                         out alwaysAllow);
+                                                                         out bool alwaysAllow);
 
                         if (result != MessageDialogCommand.No)
                         {
@@ -697,21 +692,18 @@ namespace Microsoft.Sarif.Viewer
         // Detaches the SARIF results from all documents.
         public void DetachFromAllDocuments()
         {
-            IEnumRunningDocuments documentsEnumerator;
-
             if (_runningDocTable != null)
             {
-                _runningDocTable.GetRunningDocumentsEnum(out documentsEnumerator);
+                _runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator);
 
                 if (documentsEnumerator != null)
                 {
                     uint requestedCount = 1;
-                    uint actualCount;
                     uint[] cookies = new uint[requestedCount];
 
                     while (true)
                     {
-                        documentsEnumerator.Next(requestedCount, cookies, out actualCount);
+                        documentsEnumerator.Next(requestedCount, cookies, out uint actualCount);
                         if (actualCount == 0)
                         {
                             // There are no more documents to process.
@@ -731,21 +723,16 @@ namespace Microsoft.Sarif.Viewer
             IVsRunningDocumentTable runningDocTable = SdkUIUtilities.GetService<SVsRunningDocumentTable, IVsRunningDocumentTable>(ServiceProvider);
             if (runningDocTable != null)
             {
-                uint grfRDTFlags;
-                uint dwReadLocks;
-                uint dwEditLocks;
-                IVsHierarchy pHier;
-                uint itemId;
                 IntPtr docData = IntPtr.Zero;
                 try
                 {
                     int hr = runningDocTable.GetDocumentInfo(docCookie,
-                                            out grfRDTFlags,
-                                            out dwReadLocks,
-                                            out dwEditLocks,
+                                            out uint grfRDTFlags,
+                                            out uint dwReadLocks,
+                                            out uint dwEditLocks,
                                             out documentName,
-                                            out pHier,
-                                            out itemId,
+                                            out IVsHierarchy pHier,
+                                            out uint itemId,
                                             out docData);
 
                 }

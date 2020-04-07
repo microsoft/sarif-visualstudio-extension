@@ -253,7 +253,9 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
 
-                OpenFileDialog openFileDialog = new OpenFileDialog();
+                filter += "|All files (*.*)|*.*";
+
+                 OpenFileDialog openFileDialog = new OpenFileDialog();
 
                 openFileDialog.Title = title;
                 openFileDialog.Filter = filter;

@@ -29,8 +29,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         public static readonly ErrorListService Instance = new ErrorListService();
-        private const string VersionRegexPattern = @"\""version\"":\s*\""(?<version>[\d.]+)\""";
-        const int HeadSegmentLength = 200;
 
         public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
         {
@@ -44,10 +42,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 logText = File.ReadAllText(filePath);
 
-                // Get the schema version of the unmodified input log
-                string headSegment = logText.Substring(0, HeadSegmentLength);
-                Match match = Regex.Match(headSegment, VersionRegexPattern, RegexOptions.Compiled);                
-
+                Match match = MatchVersionProperty(logText);
                 if (match.Success)
                 {
                     string inputVersion = match.Groups["version"].Value;
@@ -184,6 +179,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ProcessSarifLog(log, outputPath, solution);
 
             SarifTableDataSource.Instance.BringToFront();
+        }
+
+        private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
+        private const int HeadSegmentLength = 200;
+
+        internal static Match MatchVersionProperty(string logText)
+        {
+            int headSegmentLength = Math.Min(logText.Length, HeadSegmentLength);
+            string headSegment = logText.Substring(0, headSegmentLength);
+            return Regex.Match(headSegment, VersionRegexPattern, RegexOptions.Compiled);
         }
 
         private static MessageDialogCommand PromptToSaveProcessedLog(string dialogMessage)

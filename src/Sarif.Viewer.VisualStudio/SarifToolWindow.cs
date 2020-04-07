@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Replaces the collection of objects who's values are displayed in the Properties window.
+        /// Replaces the collection of objects whose values are displayed in the Properties window.
         /// </summary>
         /// <param name="items"></param>
         public void UpdateSelectionList(params object[] items)
