@@ -166,6 +166,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     int id = (int)data.Item2;
                     LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
+                    if (location == null)
+                    {
+                        location = sarifResult.Locations.Where(l => l.Id == id).FirstOrDefault();
+                    }
 
                     if (location != null)
                     {
