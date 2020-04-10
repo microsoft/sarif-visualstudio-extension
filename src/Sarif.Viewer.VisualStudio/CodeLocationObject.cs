@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -149,7 +150,22 @@ namespace Microsoft.Sarif.Viewer
 
         public void NavigateTo(bool usePreviewPane = true)
         {
-            LineMarker?.NavigateTo(usePreviewPane);
+            if (LineMarker != null)
+            {
+                LineMarker?.NavigateTo(usePreviewPane);
+            }
+            else
+            {
+                if (!File.Exists(this.FilePath))
+                {
+                    CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(RunId, this.UriBaseId, this.FilePath);
+                }
+
+                if (File.Exists(this.FilePath))
+                {
+                    SdkUIUtilities.OpenDocument(SarifViewerPackage.ServiceProvider, this.FilePath, usePreviewPane);
+                }
+            }
         }
 
         public void ApplyDefaultSourceFileHighlighting()
