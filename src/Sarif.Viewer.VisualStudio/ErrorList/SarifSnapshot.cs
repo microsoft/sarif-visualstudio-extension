@@ -162,9 +162,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 SarifErrorListItem sarifResult = _errors[Convert.ToInt32(data.Item1)];
 
-                if (data.Item2 is int)
+                if (data.Item2 is int id)
                 {
-                    int id = (int)data.Item2;
                     LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
                     if (location == null)
                     {
