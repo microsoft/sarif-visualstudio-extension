@@ -63,6 +63,8 @@ namespace Microsoft.Sarif.Viewer
             Color = DEFAULT_SELECTION_COLOR;
         }
 
+        // This method is called when you click an inline link, with an integer target, which
+        // points to a Location object that has a region associated with it.
         internal IVsWindowFrame NavigateTo(bool usePreviewPane)
         {
             // Before anything else, see if this is an external link we should open in the browser.

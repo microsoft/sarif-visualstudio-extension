@@ -156,6 +156,9 @@ namespace Microsoft.Sarif.Viewer
             }
             else
             {
+                // The user clicked an inline link with an integer target, which points to
+                // a Location object that does NOT have a region associated with it.
+
                 // Before anything else, see if this is an external link we should open in the browser.
                 if (Uri.TryCreate(this.FilePath, UriKind.Absolute, out Uri uri))
                 {
