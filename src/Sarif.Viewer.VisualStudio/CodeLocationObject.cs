@@ -156,6 +156,16 @@ namespace Microsoft.Sarif.Viewer
             }
             else
             {
+                // Before anything else, see if this is an external link we should open in the browser.
+                if (Uri.TryCreate(this.FilePath, UriKind.Absolute, out Uri uri))
+                {
+                    if (!uri.IsFile)
+                    {
+                        System.Diagnostics.Process.Start(uri.OriginalString);
+                        return;
+                    }
+                }
+
                 if (!File.Exists(this.FilePath))
                 {
                     CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(RunId, this.UriBaseId, this.FilePath);
