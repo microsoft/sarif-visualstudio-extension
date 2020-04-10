@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -149,7 +150,35 @@ namespace Microsoft.Sarif.Viewer
 
         public void NavigateTo(bool usePreviewPane = true)
         {
-            LineMarker?.NavigateTo(usePreviewPane);
+            if (LineMarker != null)
+            {
+                LineMarker?.NavigateTo(usePreviewPane);
+            }
+            else
+            {
+                // The user clicked an inline link with an integer target, which points to
+                // a Location object that does NOT have a region associated with it.
+
+                // Before anything else, see if this is an external link we should open in the browser.
+                if (Uri.TryCreate(this.FilePath, UriKind.Absolute, out Uri uri))
+                {
+                    if (!uri.IsFile)
+                    {
+                        System.Diagnostics.Process.Start(uri.OriginalString);
+                        return;
+                    }
+                }
+
+                if (!File.Exists(this.FilePath))
+                {
+                    CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(RunId, this.UriBaseId, this.FilePath);
+                }
+
+                if (File.Exists(this.FilePath))
+                {
+                    SdkUIUtilities.OpenDocument(SarifViewerPackage.ServiceProvider, this.FilePath, usePreviewPane);
+                }
+            }
         }
 
         public void ApplyDefaultSourceFileHighlighting()
