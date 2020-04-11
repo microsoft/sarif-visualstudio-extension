@@ -38,7 +38,7 @@
                             <DockPanel>
                                 <ListBox ItemsSource="{Binding Locations}"
                                          SelectedItem="{Binding Locations.SelectedItem, Mode=TwoWay}"
-                                         ItemContainerStyle="{StaticResource ListBoxItemContainerStyl}"
+                                         ItemContainerStyle="{StaticResource ListBoxItemContainerStyle}"
                                          Style="{StaticResource TreeViewItemListBoxStyle}">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -110,7 +110,7 @@
                             <DockPanel Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
                                 <ListBox ItemsSource="{Binding RelatedLocations}"
                                          SelectedItem="{Binding RelatedLocations.SelectedItem, Mode=TwoWay}"
-                                         ItemContainerStyle="{StaticResource ListBoxItemContainerStyl}"
+                                         ItemContainerStyle="{StaticResource ListBoxItemContainerStyle}"
                                          Style="{StaticResource TreeViewItemListBoxStyle}">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>

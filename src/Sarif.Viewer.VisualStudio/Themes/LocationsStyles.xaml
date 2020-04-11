@@ -39,7 +39,7 @@
         <Setter Property="LastChildFill" Value="False"/>
     </Style>
 
-    <Style x:Key="ListBoxItemContainerStyl" TargetType="ListBoxItem">
+    <Style x:Key="ListBoxItemContainerStyle" TargetType="ListBoxItem">
         <Setter Property="DockPanel.Dock" Value="Bottom" />
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
