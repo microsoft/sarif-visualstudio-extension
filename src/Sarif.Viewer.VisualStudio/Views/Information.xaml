@@ -43,7 +43,7 @@
                            Style="{StaticResource PropertyKey}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="1"
-                           Text="{Binding Rule.DefaultLevel}"
+                           Text="{Binding Rule.DefaultFailureLevel}"
                            Style="{StaticResource PropertyValue}" />
                 <TextBlock Grid.Row="2"
                            Grid.Column="0"
