@@ -139,14 +139,21 @@
                                                                    Style="{StaticResource ListBoxItemToolTipRegionTextStyle}">
                                                             <Run Text="{Binding Region.StartColumn, Mode=OneWay, StringFormat={StaticResource Locations_ListBoxItem_ToolTip_RegionStartColumn_Text_FormatString}}" />
                                                         </TextBlock>
+                                                        <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
+                                                            <Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
+                                                        </TextBlock>
                                                     </WrapPanel>
                                                 </WrapPanel.ToolTip>
-                                                <TextBlock>
+                                                <TextBlock Style="{StaticResource LocationTextStyle}">
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
                                                 <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
                                                            Style="{StaticResource LocationTextStyle}">
                                                     <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}"
+                                                           Style="{StaticResource LocationTextStyleNoMargin}">
+                                                    <Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
                                                 </TextBlock>
                                             </WrapPanel>
                                         </DataTemplate>
