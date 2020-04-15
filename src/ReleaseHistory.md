@@ -5,6 +5,7 @@
 * BUGFIX: Display locations and related locations in the correct order in the Locations tab.
 * BUGFIX: Display default rule level in the Info tab. [#92](https://github.com/microsoft/sarif-visualstudio-extension/issues/92)
 * BUGFIX: Navigate to inline links with integer targets even if the target location has no region.
+* BUGFIX: Ensure trailing slash on `originalUriBaseIds`. [#127](https://github.com/microsoft/sarif-visualstudio-extension/issues/127)
 
 ## **v2.1.8** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Make embedded links with a slash in the anchor text work. [#118](https://github.com/microsoft/sarif-visualstudio-extension/issues/118)
