@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -29,36 +30,43 @@ namespace Microsoft.Sarif.Viewer
 
         internal static bool IsVCProject(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return IsProjectKind(project, VC_PROJECT_GUID);
         }
 
         internal static bool IsVBProject(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return IsProjectKind(project, VB_PROJECT_GUID);
         }
 
         internal static bool IsCSharpProject(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return IsProjectKind(project, CSHARP_PROJECT_GUID);
         }
 
         internal static bool IsWebProject(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return IsProjectKind(project, WEB_PROJECT_GUID);
         }
 
         internal static bool IsSolutionFolderProject(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return IsProjectKind(project, SOLUTIONFOLDER_PROJECT_GUID);
         }
 
         internal static bool IsMiscellaneousFilesProject(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return IsProjectKind(project, MISCFILES_PROJECT_GUID);
         }
 
         internal static bool IsVCProjectWithCLRSupport(Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             bool result = false;
             if (IsVCProject(project))
             {
@@ -84,26 +92,31 @@ namespace Microsoft.Sarif.Viewer
 
         internal static bool IsProjectKind(Project project, Guid projectKindGuid)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return projectKindGuid == new Guid(project.Kind);
         }
 
         internal static bool IsVCProjectItem(ProjectItem projectItem)
-        {    
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return GetProjectItemLanguage(projectItem) == VC_PROJECTITEM_GUID;
         }
 
         internal static bool IsVBProjectItem(ProjectItem projectItem)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return GetProjectItemLanguage(projectItem) == VB_PROJECTITEM_GUID;
         }
 
         internal static bool IsCSharpProjectItem(ProjectItem projectItem)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             return GetProjectItemLanguage(projectItem) == CSHARP_PROJECTITEM_GUID;
         }
 
         internal static bool IsSupportedForAspProjectItem(EnvDTE.ProjectItem projectItem)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             Guid langGuid = GetProjectItemLanguage(projectItem);
             bool supportedForAsp = (langGuid == CSHARP_PROJECTITEM_GUID || langGuid == VB_PROJECTITEM_GUID || langGuid == Guid.Empty);
             return supportedForAsp;
@@ -111,6 +124,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal static Guid GetProjectItemLanguage(ProjectItem projectItem)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             FileCodeModel fileCodeModel = projectItem.FileCodeModel;
             if (fileCodeModel == null)
                 return Guid.Empty;
@@ -120,6 +134,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal static ProjectItem FindProjectItem(ProjectItems projectItems, string lookupName)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             int count = projectItems.Count;
 
             for (int i = 1; i <= count; i++)
@@ -137,6 +152,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal static string GetProjectFullPath(EnvDTE.Project project)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             string projectFullPath = null;
 
             if (project != null)

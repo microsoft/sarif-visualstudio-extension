@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.VisualStudio.Shell;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -42,6 +43,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
             set
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 _selectedItem = value;
 
                 this.SelectionChanged(value);
@@ -52,6 +54,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (_selectedCommand == null)
                 {
                     _selectedCommand = new DelegateCommand<LocationModel>(l => SelectionChanged(l));
@@ -67,6 +70,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         private void SelectionChanged(LocationModel selectedItem)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             selectedItem.NavigateTo();
             selectedItem.ApplySelectionSourceFileHighlighting();
         }

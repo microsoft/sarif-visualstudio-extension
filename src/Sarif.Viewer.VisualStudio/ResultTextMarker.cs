@@ -7,6 +7,7 @@ using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -67,6 +68,7 @@ namespace Microsoft.Sarif.Viewer
         // points to a Location object that has a region associated with it.
         internal IVsWindowFrame NavigateTo(bool usePreviewPane)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             // Before anything else, see if this is an external link we should open in the browser.
             Uri uri;
             if (Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
@@ -229,6 +231,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void AttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             // For these cases, this event has nothing to do with this item
             if (CanAttachToDocument(documentName, docCookie, frame))
             {
@@ -238,6 +241,7 @@ namespace Microsoft.Sarif.Viewer
 
         private IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             // Get the document view from the window frame, then get the text view
             object docView;
             int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
@@ -263,6 +267,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         private void AttachToDocumentWorker(IVsWindowFrame frame, long docCookie)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             var sourceLocation = this.GetSourceLocation();
             int line = sourceLocation.StartLine;
 
@@ -427,6 +432,8 @@ namespace Microsoft.Sarif.Viewer
             if (_tagger == null)
             {
                 IComponentModel componentModel = (IComponentModel)_serviceProvider.GetService(typeof(SComponentModel));
+                if (componentModel == null) { return; }
+
                 ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
 
                 // Get a SimpleTagger over the buffer to color
