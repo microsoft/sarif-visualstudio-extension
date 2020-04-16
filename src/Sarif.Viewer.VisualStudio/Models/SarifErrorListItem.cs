@@ -79,20 +79,22 @@ namespace Microsoft.Sarif.Viewer
             Invocation = run.Invocations?[0]?.ToInvocationModel();
             WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
 
-            if (result.Locations != null)
+            if (result.Locations?.Any() == true)
             {
-                foreach (Location location in result.Locations)
+                // Adding in reverse order will make them display in the correct order in the UI.
+                for (int i = result.Locations.Count - 1; i >= 0; --i)
                 {
-                    Locations.Add(location.ToLocationModel());
+                    Locations.Add(result.Locations[i].ToLocationModel());
                 }
             }
 
-            if (result.RelatedLocations != null)
+            if (result.RelatedLocations?.Any() == true)
             {
-                foreach (Location location in result.RelatedLocations)
+                for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
                 {
-                    RelatedLocations.Add(location.ToLocationModel());
+                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel());
                 }
+
             }
 
             if (result.CodeFlows != null)

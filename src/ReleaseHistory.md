@@ -1,19 +1,22 @@
 # SARIF Viewer Visual Studio extension Release History
 
+## **v2.1.8** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Make embedded links with a slash in the anchor text work. [#118](https://github.com/microsoft/sarif-visualstudio-extension/issues/118)
+
 ## **v2.1.7** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: Don't claim support for VS 2015. https://github.com/microsoft/sarif-visualstudio-extension/issues/110
+* BUGFIX: Don't claim support for VS 2015. [#110](https://github.com/microsoft/sarif-visualstudio-extension/issues/110)
 
 ## **v2.1.6** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: The viewer crashed when navigating to a result with relative path and no `uriBaseId`. https://github.com/microsoft/sarif-visualstudio-extension/issues/106
+* BUGFIX: The viewer crashed when navigating to a result with relative path and no `uriBaseId`. [#106](https://github.com/microsoft/sarif-visualstudio-extension/issues/106)
 
 ## **v2.1.5** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: The open file dialog did not offer an "All files" ("*.*") option. https://github.com/microsoft/sarif-visualstudio-extension/issues/104
+* BUGFIX: The open file dialog did not offer an "All files" ("*.*") option. [#104](https://github.com/microsoft/sarif-visualstudio-extension/issues/104)
 
 ## **v2.1.4** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: SARIF files with empty URI properties would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/85
+* BUGFIX: SARIF files with empty URI properties would not open in the viewer. [#85](https://github.com/microsoft/sarif-visualstudio-extension/issues/85)
 
 ## **v2.1.3** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: Some valid SARIF files would not open in the viewer. https://github.com/microsoft/sarif-visualstudio-extension/issues/98
+* BUGFIX: Some valid SARIF files would not open in the viewer. [#98](https://github.com/microsoft/sarif-visualstudio-extension/issues/98)
 
 ## **v2.1.2** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: add support for embedded hyperlinks in the error list that point to web URLs

@@ -85,6 +85,8 @@ function New-NuGetPackages($configuration, $projects) {
     if ($versionSuffix)
     {
         $version = "$versionPrefix-$versionSuffix"
+    } else {
+        $version = $versionPrefix
     }
 
     # We can build the NuGet packages for library projects directly from their
