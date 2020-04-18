@@ -66,8 +66,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     StandardTableColumnDefinitions.Line, 
                     StandardTableColumnDefinitions.Column);
 
-                var errorlistProvider = compositionService.GetService<ErrorListProvider>();
-                errorlistProvider.BringToFront();
+                // The following line throws the exception:
+                //
+                // Expected 1 export(s) with contract name Microsoft.VisualStudio.Shell.ErrorListProvider
+                // but found 0 after applying appropriate constraints.
+                //
+                //var errorlistProvider = compositionService.GetService<ErrorListProvider>();
+                //errorlistProvider.BringToFront();
             }
         }
 

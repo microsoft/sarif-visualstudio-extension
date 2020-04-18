@@ -139,7 +139,7 @@ namespace Microsoft.Sarif.Viewer
         /// IVsEditorFactory.CreateEditorInstance. If the environment is unable to instantiate the document data 
         /// in that editor, it will find the editor with the next highest priority and attempt to so that same 
         /// thing. 
-        /// NOTE: The priority of our editor is 32 as mentioned in the attributes on the package class.
+        /// NOTE: The priority of our editor is specified in the ProvideEditorExtension attribute on the package class.
         /// 
         /// Since our editor supports opening only a single view for an instance of the document data, if we 
         /// are requested to open document data that is already instantiated in another editor, or even our 
@@ -165,7 +165,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>HRESULT result code. S_OK if the method succeeds.</returns>
         /// <remarks>
         /// Attribute usage according to FxCop rule regarding SecurityAction requirements (LinkDemand).
-        /// This method do use SecurityAction.Demand action instead of LinkDemand because it overrides method without LinkDemand
+        /// This method uses SecurityAction.Demand action instead of LinkDemand because it overrides method without LinkDemand
         /// see "Demand vs. LinkDemand" article in MSDN for more details.
         /// </remarks>
         [EnvironmentPermission(SecurityAction.Demand, Unrestricted = true)]
