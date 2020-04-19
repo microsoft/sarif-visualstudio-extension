@@ -97,8 +97,10 @@ namespace Microsoft.Sarif.Viewer
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
-        protected override Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
             OpenLogFileCommands.Initialize(this);
             base.Initialize();
 
@@ -130,7 +132,7 @@ namespace Microsoft.Sarif.Viewer
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
 
-            return Task.FromResult<object>(null);
+            return;
         }
 
         #endregion
