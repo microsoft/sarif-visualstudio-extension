@@ -222,6 +222,34 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             remappedPathPrefixes[0].Item2.Should().Be(@"C:\Users\Mary");
         }
 
+        [Fact]
+        public void CodeAnalysisResultManager_CacheUriBasePaths_EnsuresTrailingSlash()
+        {
+            var run = new Run
+            {
+                OriginalUriBaseIds = new Dictionary<string, ArtifactLocation>
+                {
+                    ["HAS_SLASH"] = new ArtifactLocation
+                    {
+                        Uri = new Uri("file:///C:/code/myProject/src/")
+                    },
+                    ["NO_SLASH"] = new ArtifactLocation
+                    {
+                        Uri = new Uri("file:///C:/code/myProject/test")
+                    }
+                }
+            };
+
+            var resultManager = new CodeAnalysisResultManager(fileSystem: null, promptForResolvedPathDelegate: null);
+
+            RunDataCache dataCache = new RunDataCache(run);
+            resultManager.RunDataCaches.Add(++resultManager.CurrentRunId, dataCache);
+            resultManager.CacheUriBasePaths(run);
+
+            resultManager.CurrentRunDataCache.OriginalUriBasePaths["HAS_SLASH"].Should().Be("file:///C:/code/myProject/src/");
+            resultManager.CurrentRunDataCache.OriginalUriBasePaths["NO_SLASH"].Should().Be("file:///C:/code/myProject/test/");
+        }
+
         private string FakePromptForResolvedPath(string fullPathFromLogFile)
         {
             ++this.numPrompts;
