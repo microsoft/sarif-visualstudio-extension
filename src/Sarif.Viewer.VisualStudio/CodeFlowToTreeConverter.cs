@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
 
                     if (artifactLocation != null)
                     {
-                        Uri uri = location.Location.PhysicalLocation?.ArtifactLocation?.Uri;
+                        Uri uri = location.Location?.PhysicalLocation?.ArtifactLocation?.Uri;
 
                         if (uri == null && artifactLocation.Index > -1)
                         {
