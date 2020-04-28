@@ -251,7 +251,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 var target = CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
                 // This line assumes an empty dictionary
-                source.ToList().ForEach(x => target.Add(x.Key, x.Value.Uri));
+                source.ToList().ForEach(x => target.Add(x.Key, x.Value.Uri.WithTrailingSlash()));
             }
         }
 
