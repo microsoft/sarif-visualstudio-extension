@@ -63,8 +63,21 @@ namespace Microsoft.Sarif.Viewer
             Color = DEFAULT_SELECTION_COLOR;
         }
 
+        // This method is called when you click an inline link, with an integer target, which
+        // points to a Location object that has a region associated with it.
         internal IVsWindowFrame NavigateTo(bool usePreviewPane)
         {
+            // Before anything else, see if this is an external link we should open in the browser.
+            Uri uri;
+            if (Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
+            {
+                if (!uri.IsFile)
+                {
+                    System.Diagnostics.Process.Start(uri.OriginalString);
+                    return null;
+                }
+            }
+
             // Fall back to the file and line number
             if (!File.Exists(this.FullFilePath))
             {
@@ -74,7 +87,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
             
-            if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
+            if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;

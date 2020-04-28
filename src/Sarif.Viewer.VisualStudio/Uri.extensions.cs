@@ -40,5 +40,15 @@ namespace Microsoft.Sarif.Viewer.Sarif
         {
             return s_httpSchemes.Contains(uri.Scheme);
         }
+
+        public static Uri WithTrailingSlash(this Uri uri)
+        {
+            const string Slash = "/";
+
+            string uriString = uri.ToString();
+            if (!uriString.EndsWith(Slash)) { uriString += Slash; }
+
+            return new Uri(uriString);
+        }
     }
 }

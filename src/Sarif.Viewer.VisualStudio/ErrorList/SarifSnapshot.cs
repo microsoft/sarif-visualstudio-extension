@@ -162,10 +162,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 SarifErrorListItem sarifResult = _errors[Convert.ToInt32(data.Item1)];
 
-                if (data.Item2 is int)
+                if (data.Item2 is int id)
                 {
-                    int id = (int)data.Item2;
+                    // The user clicked an inline link with an integer target. Look for a Location object
+                    // whose Id property matches that integer. The spec says that might be _any_ Location
+                    // object under the current result. At present, we only support Location objects that
+                    // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
+                    // look in Result.CodeFlows or Result.Stacks.
                     LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
+                    if (location == null)
+                    {
+                        location = sarifResult.Locations.Where(l => l.Id == id).FirstOrDefault();
+                    }
 
                     if (location != null)
                     {
