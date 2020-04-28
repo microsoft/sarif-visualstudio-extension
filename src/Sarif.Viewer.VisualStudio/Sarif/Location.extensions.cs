@@ -9,7 +9,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class LocationExtensions
     {
-        public static LocationModel ToLocationModel(this Location location)
+        public static LocationModel ToLocationModel(this Location location, Run run)
         {
             var model = new LocationModel();
             PhysicalLocation physicalLocation = location.PhysicalLocation;
@@ -20,6 +20,12 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 model.Region = physicalLocation.Region;
 
                 Uri uri = physicalLocation.ArtifactLocation.Uri;
+
+                int artifactIndex = physicalLocation.ArtifactLocation.Index;
+                if (uri == null && artifactIndex > -1)
+                {
+                    uri = run.Artifacts[artifactIndex].Location.Uri;
+                }
 
                 if (uri != null)
                 {
