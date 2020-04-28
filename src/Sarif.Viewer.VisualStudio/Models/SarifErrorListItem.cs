@@ -44,8 +44,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
-            ReportingDescriptor rule;
-            run.TryGetRule(result.RuleId, out rule);
+            ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
@@ -55,7 +54,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 ShortMessage = ShortMessage.TrimEnd('.');
             }
-            FileName = result.GetPrimaryTargetFile();
+            FileName = result.GetPrimaryTargetFile(run);
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
@@ -81,7 +80,7 @@ namespace Microsoft.Sarif.Viewer
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = result.Locations.Count - 1; i >= 0; --i)
                 {
-                    Locations.Add(result.Locations[i].ToLocationModel());
+                    Locations.Add(result.Locations[i].ToLocationModel(run));
                 }
             }
 
@@ -89,7 +88,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
                 {
-                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel());
+                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run));
                 }
 
             }
@@ -98,7 +97,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTrees.Add(codeFlow.ToCallTree());
+                    CallTrees.Add(codeFlow.ToCallTree(run));
                 }
 
                 CallTrees.Verbosity = 100;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
@@ -9,7 +10,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
 {
     internal static class CodeFlowToTreeConverter
     {
-        internal static List<CallTreeNode> Convert(CodeFlow codeFlow)
+        internal static List<CallTreeNode> Convert(CodeFlow codeFlow, Run run)
         {
             var root = new CallTreeNode { Children = new List<CallTreeNode>() };
             ThreadFlow threadFlow = codeFlow.ThreadFlows?[0];
@@ -22,6 +23,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
 
                 foreach (ThreadFlowLocation location in threadFlow.Locations)
                 {
+                    ArtifactLocation artifactLocation = location.Location.PhysicalLocation?.ArtifactLocation;
+
+                    if (artifactLocation != null)
+                    {
+                        Uri uri = location.Location.PhysicalLocation?.ArtifactLocation?.Uri;
+
+                        if (uri == null && artifactLocation.Index > -1)
+                        {
+                            artifactLocation.Uri = run.Artifacts[artifactLocation.Index].Location.Uri;
+                        }
+                    }
+
                     var newNode = new CallTreeNode
                     {
                         Location = location,

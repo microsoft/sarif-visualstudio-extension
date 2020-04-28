@@ -589,7 +589,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
             var mockToolWindow = new Mock<IToolWindow>();
             mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow), mockToolWindow.Object);
+            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null), mockToolWindow.Object);
 
             return callTree;
         }

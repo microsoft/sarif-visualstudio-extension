@@ -10,7 +10,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
     {
         const string NOTARGETFILEPATH = "NOTARGETFILEPATH";
 
-        public static string GetPrimaryTargetFile(this Result result)
+        public static string GetPrimaryTargetFile(this Result result, Run run)
         {
             if (result == null)
             {
@@ -26,7 +26,20 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             if (primaryLocation.PhysicalLocation?.ArtifactLocation != null)
             {
-                return primaryLocation.PhysicalLocation.ArtifactLocation.Uri.ToPath();
+                Uri uri = primaryLocation.PhysicalLocation.ArtifactLocation.Uri;
+
+                if (uri == null)
+                {
+                    ArtifactLocation artifactLocation = primaryLocation.PhysicalLocation.ArtifactLocation;
+
+                    if (artifactLocation.Index > -1)
+                    {
+                        artifactLocation = run.Artifacts[artifactLocation.Index].Location;
+                        uri = artifactLocation.Uri;
+                    }
+                }
+
+                return uri.ToPath();
             }
             else if (primaryLocation.LogicalLocation?.FullyQualifiedName != null)
             {
