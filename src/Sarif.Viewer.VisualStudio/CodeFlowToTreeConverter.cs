@@ -23,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
 
                 foreach (ThreadFlowLocation location in threadFlow.Locations)
                 {
-                    ArtifactLocation artifactLocation = location.Location?.PhysicalLocation?.ArtifactLocation;
+                    ArtifactLocation artifactLocation = location.Location.PhysicalLocation?.ArtifactLocation;
 
                     if (artifactLocation != null)
                     {
