@@ -2,6 +2,7 @@
 
 ## **v2.1.9** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: Display messages for locations and related locations in the Locations tab.
+* FEATURE: Updated to Sarif SDK 2.2.5
 * BUGFIX: Display locations and related locations in the correct order in the Locations tab.
 * BUGFIX: Display default rule level in the Info tab. [#92](https://github.com/microsoft/sarif-visualstudio-extension/issues/92)
 * BUGFIX: Navigate to inline links with integer targets even if the target location has no region.
