@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,7 +15,8 @@ namespace Microsoft.Sarif.Viewer.Interop
     public class SarifViewerInterop
     {
         private static readonly string ViewerAssemblyFileName = "Microsoft.Sarif.Viewer";
-        private static readonly string ViewerServiceInterfaceName = "SLoadSarifLogService";
+        private static readonly string ViewerLoadServiceInterfaceName = "SLoadSarifLogService";
+        private static readonly string ViewerCloseServiceInterfaceName = "SCloseSarifLogService";
         private bool? _isViewerExtensionInstalled;
         private bool? _isViewerExtensionLoaded;
         private Assembly _viewerExtensionAssembly;
@@ -110,7 +112,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             {
                 // Get the service interface type
                 Type[] types = ViewerExtensionAssembly.GetTypes();
-                Type sarifLoadServiceInterface = types.Where(t => t.Name == ViewerServiceInterfaceName).FirstOrDefault();
+                Type sarifLoadServiceInterface = types.Where(t => t.Name == ViewerLoadServiceInterfaceName).FirstOrDefault();
 
                 if (sarifLoadServiceInterface != null)
                 {
@@ -121,6 +123,67 @@ namespace Microsoft.Sarif.Viewer.Interop
                     {
                         // Call the service API
                         sarifLoadService.LoadSarifLog(path);
+                        result = true;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Closes the specified SARIF log files in the SARIF Viewer extension.
+        /// </summary>
+        /// <param name="paths">The paths to the log files.</param>
+        public async Task<bool> CloseSarifLogAsync(IEnumerable<string> paths)
+        {
+            bool result = false;
+
+            if (IsViewerExtensionInstalled && (IsViewerExtensionLoaded || LoadViewerExtension() != null))
+            {
+                // Get the service interface type
+                Type[] types = ViewerExtensionAssembly.GetTypes();
+                Type sarifCloseServiceInterface = types.Where(t => t.Name == ViewerCloseServiceInterfaceName).FirstOrDefault();
+
+                if (sarifCloseServiceInterface != null)
+                {
+                    // Get a service reference
+                    dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifCloseServiceInterface);
+
+                    if (sarifLoadService != null)
+                    {
+                        // Call the service API
+                        sarifLoadService.CloseSarifLog(paths);
+                        result = true;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Closes all SARIF logs opened in the viewer.
+        /// </summary>
+        public async Task<bool> CloseAllSarifLogsAsync()
+        {
+            bool result = false;
+
+            if (IsViewerExtensionInstalled && (IsViewerExtensionLoaded || LoadViewerExtension() != null))
+            {
+                // Get the service interface type
+                Type[] types = ViewerExtensionAssembly.GetTypes();
+                Type sarifCloseServiceInterface = types.Where(t => t.Name == ViewerCloseServiceInterfaceName).FirstOrDefault();
+
+                if (sarifCloseServiceInterface != null)
+                {
+                    // Get a service reference
+                    dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifCloseServiceInterface);
+
+                    if (sarifLoadService != null)
+                    {
+                        // Call the service API
+                        sarifLoadService.CloseAllSarifLogs();
                         result = true;
                     }
                 }

@@ -181,6 +181,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifTableDataSource.Instance.BringToFront();
         }
 
+        /// <summary>
+        /// Closes the specified SARIF log in the viewer.
+        /// </summary>
+        /// <param name="paths">The complete path to the SARIF log file.</param>
+        public static void CloseSarifLogs(IEnumerable<string> paths)
+        {
+            SarifTableDataSource.Instance.CleanErrors(paths);
+        }
+
+        /// <summary>
+        /// Closes all SARIF logs opened in the viewer.
+        /// </summary>
+        public static void CloseAllSarifLogs()
+        {
+            SarifTableDataSource.Instance.CleanAllErrors();
+        }
+
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
         private const int HeadSegmentLength = 200;
 
