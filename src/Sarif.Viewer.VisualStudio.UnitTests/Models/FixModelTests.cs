@@ -34,7 +34,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             return fixModel;
         }
 
-        [Fact(Skip = "Fails for unless test deployment is clean.")]
+        [Fact(Skip = "Fails unless test deployment is clean.")]
         public void FixModel_ApplyFix()
         {
             // Arrange
