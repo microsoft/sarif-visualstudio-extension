@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None);
+                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade);
             }
             catch (InvalidCastException) { }
         }

@@ -176,7 +176,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            ProcessSarifLog(log, outputPath, solution);
+            ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions);
 
             SarifTableDataSource.Instance.BringToFront();
         }
@@ -273,7 +273,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution)
+        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution, bool showMessageOnNoResults)
         {
             // Clear previous data
             CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
@@ -307,7 +307,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // We are finished processing the runs, so make this property inavalid.
             CodeAnalysisResultManager.Instance.CurrentRunId = -1;
 
-            if (!hasResults)
+            if (!hasResults && showMessageOnNoResults)
             {
                 VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
                                                 string.Format(Resources.NoResults_DialogMessage, logFilePath),
