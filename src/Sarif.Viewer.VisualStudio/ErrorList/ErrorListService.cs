@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
+        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None, bool promptOnLogConversions = true)
         {
             SarifLog log = null;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         // They're opening a v1 log, so we need to transform it.
                         // Ask if they'd like to save the v2 log.
-                        MessageDialogCommand response = PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage);
+                        MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage) : MessageDialogCommand.No;
 
                         if (response == MessageDialogCommand.Cancel)
                         {
@@ -85,7 +85,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         // It's an older v2 version, so send it through the pre-release compat transformer.
                         // Ask if they'd like to save the transformed log.
-                        MessageDialogCommand response = PromptToSaveProcessedLog(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion));
+                        MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)) : MessageDialogCommand.No;
 
                         if (response == MessageDialogCommand.Cancel)
                         {
@@ -129,7 +129,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 // They're opening a non-SARIF log, so we need to convert it.
                 // Ask if they'd like to save the converted log.
-                MessageDialogCommand response = PromptToSaveProcessedLog(Resources.ConvertNonSarifLog_DialogMessage);
+                MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(Resources.ConvertNonSarifLog_DialogMessage) : MessageDialogCommand.No;
 
                 if (response == MessageDialogCommand.Cancel)
                 {

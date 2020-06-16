@@ -99,97 +99,96 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Opens the specified SARIF log file in the SARIF Viewer extension.
         /// </summary>
         /// <param name="path">The path of the log file.</param>
-        public async Task<bool> OpenSarifLogAsync(string path)
+        public Task<bool> OpenSarifLogAsync(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentNullException(nameof(path));
             }
 
-            bool result = false;
-
-            if (IsViewerExtensionInstalled && (IsViewerExtensionLoaded || LoadViewerExtension() != null))
+            return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
             {
-                // Get the service interface type
-                Type[] types = ViewerExtensionAssembly.GetTypes();
-                Type sarifLoadServiceInterface = types.Where(t => t.Name == ViewerLoadServiceInterfaceName).FirstOrDefault();
+                service.LoadSarifLogs(path);
+                return true;
+            });
+        }
 
-                if (sarifLoadServiceInterface != null)
-                {
-                    // Get a service reference
-                    dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifLoadServiceInterface);
+        /// <summary>
+        /// Loads the specified SARIF logs in the viewer.
+        /// </summary>
+        /// <param name="paths">The complete path to the SARIF log files.</param>
+        public Task<bool> OpenSarifLogAsync(IEnumerable<string> paths)
+        {
+            return this.OpenSarifLogAsync(paths, promptOnLogConversions: true);
+        }
 
-                    if (sarifLoadService != null)
-                    {
-                        // Call the service API
-                        sarifLoadService.LoadSarifLog(path);
-                        result = true;
-                    }
-                }
-            }
-
-            return result;
+        /// <summary>
+        /// Loads the specified SARIF logs in the viewer.
+        /// </summary>
+        /// <param name="paths">The complete path to the SARIF log files.</param>
+        /// <param name="promptOnLogConversions">Specifies whether the viewer should prompt if a SARIF log needs to be converted.</param>
+        /// <remarks>
+        /// Reasons for SARIF log file conversion include a conversion from a tool's log to SARIF, or a the SARIF schema version is not the latest version.
+        /// </remarks>
+        public Task<bool> OpenSarifLogAsync(IEnumerable<string> paths, bool promptOnLogConversions)
+        {
+            return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
+            {
+                service.LoadSarifLogs(paths, promptOnLogConversions);
+                return true;
+            });
         }
 
         /// <summary>
         /// Closes the specified SARIF log files in the SARIF Viewer extension.
         /// </summary>
         /// <param name="paths">The paths to the log files.</param>
-        public async Task<bool> CloseSarifLogAsync(IEnumerable<string> paths)
+        public Task<bool> CloseSarifLogAsync(IEnumerable<string> paths)
         {
-            bool result = false;
-
-            if (IsViewerExtensionInstalled && (IsViewerExtensionLoaded || LoadViewerExtension() != null))
+            return this.CallServiceApiAsync(ViewerCloseServiceInterfaceName, (service) =>
             {
-                // Get the service interface type
-                Type[] types = ViewerExtensionAssembly.GetTypes();
-                Type sarifCloseServiceInterface = types.Where(t => t.Name == ViewerCloseServiceInterfaceName).FirstOrDefault();
-
-                if (sarifCloseServiceInterface != null)
-                {
-                    // Get a service reference
-                    dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifCloseServiceInterface);
-
-                    if (sarifLoadService != null)
-                    {
-                        // Call the service API
-                        sarifLoadService.CloseSarifLog(paths);
-                        result = true;
-                    }
-                }
-            }
-
-            return result;
+                service.CloseSarifLog(paths);
+                return true;
+            });
         }
 
         /// <summary>
         /// Closes all SARIF logs opened in the viewer.
         /// </summary>
-        public async Task<bool> CloseAllSarifLogsAsync()
+        public Task<bool> CloseAllSarifLogsAsync()
         {
-            bool result = false;
-
-            if (IsViewerExtensionInstalled && (IsViewerExtensionLoaded || LoadViewerExtension() != null))
+            return this.CallServiceApiAsync(ViewerCloseServiceInterfaceName, (service) =>
             {
-                // Get the service interface type
-                Type[] types = ViewerExtensionAssembly.GetTypes();
-                Type sarifCloseServiceInterface = types.Where(t => t.Name == ViewerCloseServiceInterfaceName).FirstOrDefault();
+                service.CloseAllSarifLogs();
+                return true;
+            });
+        }
 
-                if (sarifCloseServiceInterface != null)
-                {
-                    // Get a service reference
-                    dynamic sarifLoadService = await ServiceProvider.GetGlobalServiceAsync(sarifCloseServiceInterface);
-
-                    if (sarifLoadService != null)
-                    {
-                        // Call the service API
-                        sarifLoadService.CloseAllSarifLogs();
-                        result = true;
-                    }
-                }
+        private async Task<bool> CallServiceApiAsync(string serviceInterfaceName, Func<dynamic, bool> action)
+        {
+            if (!IsViewerExtensionInstalled || (IsViewerExtensionLoaded && LoadViewerExtension() == null))
+            {
+                return false;
             }
 
-            return result;
+            // Get the service interface type
+            Type[] types = ViewerExtensionAssembly.GetTypes();
+            Type serviceType = types.Where(t => t.Name == serviceInterfaceName).FirstOrDefault();
+
+            if (serviceType == null)
+            {
+                return false;
+            }
+
+            // Get a service reference
+            dynamic serviceInterface = await ServiceProvider.GetGlobalServiceAsync(serviceType);
+
+            if (serviceInterface == null)
+            {
+                return false;
+            }
+
+            return action(serviceInterface);
         }
 
         /// <summary>

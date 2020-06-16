@@ -50,6 +50,7 @@
     <Compile Include="DelegateCommandBase.cs" />
     <Compile Include="ErrorList\ErrorListCommand.cs" />
     <Compile Include="ICloseSarifLogService.cs" />
+    <Compile Include="ILoadSarifLogService2.cs" />
     <Compile Include="ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
     <Compile Include="KeyValuePairPropertyDescriptor.cs" />
