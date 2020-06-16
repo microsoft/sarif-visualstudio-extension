@@ -11,6 +11,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService, ILoadSarifLogService2
     {
+        /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -21,13 +22,16 @@ namespace Microsoft.Sarif.Viewer
             ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade);
         }
 
+        /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
             ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true);
         }
 
+        /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths) => this.LoadSarifLogs(paths, promptOnSchemaUpgrade: false);
 
+        /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
             if (!paths.Any())

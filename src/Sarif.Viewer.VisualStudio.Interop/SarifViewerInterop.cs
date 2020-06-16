@@ -175,7 +175,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             Type[] types = ViewerExtensionAssembly.GetTypes();
             Type serviceType = types.Where(t => t.Name == serviceInterfaceName).FirstOrDefault();
 
-            if (serviceType == null)
+            if (serviceType == default)
             {
                 return false;
             }

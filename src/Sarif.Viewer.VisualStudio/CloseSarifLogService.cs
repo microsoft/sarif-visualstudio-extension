@@ -11,31 +11,16 @@ namespace Microsoft.Sarif.Viewer
 {
     public class CloseSarifLogService : SCloseSarifLogService, ICloseSarifLogService
     {
-        /// <summary>
-        /// Closes all SARIF logs opened in the viewer.
-        /// </summary>
+        /// <inheritdoc/>
         public void CloseAllSarifLogs()
         {
             ErrorListService.CloseAllSarifLogs();
         }
 
-        /// <summary>
-        /// Closes the specified SARIF log in the viewer.
-        /// </summary>
-        /// <param name="paths">The complete path to the SARIF log file.</param>
+        /// <inheritdoc/>
         public void CloseSarifLogs(IEnumerable<string> paths)
         {
             ErrorListService.CloseSarifLogs(paths);
-        }
-
-        public void LoadSarifLog(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return;
-            }
-
-            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None);
         }
     }
 }
