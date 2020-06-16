@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     DefaultFailureLevel = rule.DefaultConfiguration != null ?
                                     rule.DefaultConfiguration.Level :
                                     FailureLevel.Warning, // Default level
-                    HelpUri = rule.HelpUri?.AbsoluteUri
+                    HelpUri = rule.HelpUri?.IsAbsoluteUri == true ? rule.HelpUri.AbsoluteUri : null
                 };
             }
 
