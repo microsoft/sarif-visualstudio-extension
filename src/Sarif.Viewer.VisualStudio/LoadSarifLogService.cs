@@ -18,11 +18,7 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            try
-            {
-                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade);
-            }
-            catch (InvalidCastException) { }
+            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade);
         }
 
         public void LoadSarifLog(string path)
@@ -39,7 +35,7 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            foreach (var path in paths)
+            foreach (string path in paths)
             {
                 this.LoadSarifLog(path, promptOnSchemaUpgrade);
             }

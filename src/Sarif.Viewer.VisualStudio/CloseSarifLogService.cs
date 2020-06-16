@@ -30,14 +30,12 @@ namespace Microsoft.Sarif.Viewer
 
         public void LoadSarifLog(string path)
         {
-            if (!string.IsNullOrWhiteSpace(path))
+            if (string.IsNullOrWhiteSpace(path))
             {
-                try
-                {
-                    ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None);
-                }
-                catch (InvalidCastException) { }
+                return;
             }
+
+            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None);
         }
     }
 }
