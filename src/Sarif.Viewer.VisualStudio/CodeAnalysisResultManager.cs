@@ -471,7 +471,16 @@ namespace Microsoft.Sarif.Viewer
             // make rebaseline from existing data
             foreach (Tuple<string, string> remapping in dataCache.RemappedPathPrefixes)
             {
-                string remapped = pathFromLogFile.Replace(remapping.Item1, remapping.Item2);
+                string remapped;
+                if (!string.IsNullOrEmpty(remapping.Item1))
+                {
+                    remapped = pathFromLogFile.Replace(remapping.Item1, remapping.Item2);
+                }
+                else
+                {
+                    remapped = Path.Combine(remapping.Item2, pathFromLogFile);
+                }
+
                 if (_fileSystem.FileExists(remapped))
                 {
                     return remapped;
@@ -484,8 +493,20 @@ namespace Microsoft.Sarif.Viewer
                 return pathFromLogFile;
             }
 
-            string fullPathFromLogFile = Path.GetFullPath(pathFromLogFile);
-            string commonSuffix = GetCommonSuffix(fullPathFromLogFile, resolvedPath);
+            string fullPathFromLogFile = pathFromLogFile;
+            if (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out Uri absoluteUri))
+            {
+                fullPathFromLogFile = Path.GetFullPath(pathFromLogFile);
+            }
+            else
+            {
+                if (!fullPathFromLogFile.StartsWith("/"))
+                {
+                    fullPathFromLogFile = "/" + fullPathFromLogFile;
+                }
+            }
+
+            string commonSuffix = GetCommonSuffix(fullPathFromLogFile.Replace("/", @"\"), resolvedPath);
             if (commonSuffix == null)
             {
                 return pathFromLogFile;
@@ -625,7 +646,7 @@ namespace Microsoft.Sarif.Viewer
             int firstSuffixOffset = firstPath.Length;
             int secondSuffixOffset = secondPath.Length;
 
-            while (firstSuffixOffset >= 0 && secondSuffixOffset >= 0)
+            while (firstSuffixOffset > 0 && secondSuffixOffset > 0)
             {
                 firstSuffixOffset = firstPath.LastIndexOf('\\', firstSuffixOffset - 1);
                 secondSuffixOffset = secondPath.LastIndexOf('\\', secondSuffixOffset - 1);

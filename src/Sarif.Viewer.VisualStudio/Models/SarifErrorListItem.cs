@@ -97,7 +97,11 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTrees.Add(codeFlow.ToCallTree(run));
+                    CallTree callTree = codeFlow.ToCallTree(run);
+                    if (callTree != null)
+                    {
+                        CallTrees.Add(callTree);
+                    }
                 }
 
                 CallTrees.Verbosity = 100;
@@ -145,7 +149,7 @@ namespace Microsoft.Sarif.Viewer
             }
             Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? run.Tool.Driver.FullName;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? "";
             ProjectName = projectNameCache.GetName(FileName);
             Locations.Add(new LocationModel() { FilePath = FileName });
 

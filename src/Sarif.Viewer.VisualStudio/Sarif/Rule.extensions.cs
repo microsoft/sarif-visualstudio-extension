@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 model = new RuleModel()
                 {
-                    Id = rule.Id,
+                    Id = defaultRuleId,
                     Name = rule.Name,
                     Description = rule.FullDescription?.Text,
                     DefaultFailureLevel = rule.DefaultConfiguration != null ?
