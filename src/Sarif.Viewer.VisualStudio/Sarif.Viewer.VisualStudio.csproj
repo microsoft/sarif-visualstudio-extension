@@ -50,10 +50,13 @@
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="DelegateCommandBase.cs" />
     <Compile Include="ErrorList\ErrorListCommand.cs" />
+    <Compile Include="ICloseSarifLogService.cs" />
+    <Compile Include="ILoadSarifLogService2.cs" />
     <Compile Include="ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
     <Compile Include="KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="Controls\BindableTextBlock.cs" />
+    <Compile Include="CloseSarifLogService.cs" />
     <Compile Include="LoadSarifLogService.cs" />
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
+    <Compile Include="SCloseSarifLogService.cs" />
     <Compile Include="SLoadSarifLogService.cs" />
     <Compile Include="TelemetryEvent.cs" />
     <Compile Include="TelemetryProvider.cs" />
@@ -162,8 +166,8 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="CommandLine, Version=2.5.0.0, Culture=neutral, PublicKeyToken=5a870481e358d379, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommandLineParser.2.5.0\lib\net461\CommandLine.dll</HintPath>
+    <Reference Include="CommandLine, Version=2.7.82.0, Culture=neutral, PublicKeyToken=5a870481e358d379, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineParser.2.7.82\lib\net461\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.7.1.1\lib\net45\CsvHelper.dll</HintPath>
@@ -296,21 +300,20 @@
       <HintPath>..\packages\Microsoft.VisualStudio.Validation.15.3.58\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="PresentationFramework.Aero2" />
-    <Reference Include="Sarif, Version=2.1.13.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Sdk.2.1.13\lib\net461\Sarif.dll</HintPath>
+    <Reference Include="Sarif, Version=2.2.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sarif.Sdk.2.2.5\lib\net461\Sarif.dll</HintPath>
     </Reference>
-    <Reference Include="Sarif.Converters, Version=2.1.13.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Converters.2.1.13\lib\net461\Sarif.Converters.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Sarif.Converters, Version=2.2.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sarif.Converters.2.2.5\lib\net461\Sarif.Converters.dll</HintPath>
     </Reference>
-    <Reference Include="Sarif.Driver, Version=2.1.13.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sarif.Driver.2.1.13\lib\net461\Sarif.Driver.dll</HintPath>
+    <Reference Include="Sarif.Driver, Version=2.2.5.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sarif.Driver.2.2.5\lib\net461\Sarif.Driver.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>

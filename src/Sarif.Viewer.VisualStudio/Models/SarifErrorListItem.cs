@@ -45,8 +45,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
-            ReportingDescriptor rule;
-            run.TryGetRule(result.RuleId, out rule);
+            ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
@@ -56,14 +55,14 @@ namespace Microsoft.Sarif.Viewer
             {
                 ShortMessage = ShortMessage.TrimEnd('.');
             }
-            FileName = result.GetPrimaryTargetFile();
+            FileName = result.GetPrimaryTargetFile(run);
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
             Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
-            SuppressionState = (result.Suppressions != null && result.Suppressions.Count > 0) ?
-                result.Suppressions[0].State :
-                SuppressionState.None;
+            SuppressionStatus = (result.Suppressions != null && result.Suppressions.Count > 0) ?
+                result.Suppressions[0].Status :
+                SuppressionStatus.None;
             LogFilePath = logFilePath;
 
             if (Region != null)
@@ -82,7 +81,7 @@ namespace Microsoft.Sarif.Viewer
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = result.Locations.Count - 1; i >= 0; --i)
                 {
-                    Locations.Add(result.Locations[i].ToLocationModel());
+                    Locations.Add(result.Locations[i].ToLocationModel(run));
                 }
             }
 
@@ -90,7 +89,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
                 {
-                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel());
+                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run));
                 }
 
             }
@@ -99,7 +98,11 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTrees.Add(codeFlow.ToCallTree());
+                    CallTree callTree = codeFlow.ToCallTree(run);
+                    if (callTree != null)
+                    {
+                        CallTrees.Add(callTree);
+                    }
                 }
 
                 CallTrees.Verbosity = 100;
@@ -148,7 +151,7 @@ namespace Microsoft.Sarif.Viewer
             }
             Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? run.Tool.Driver.FullName;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? "";
             ProjectName = projectNameCache.GetName(FileName);
             Locations.Add(new LocationModel() { FilePath = FileName });
 
@@ -247,9 +250,9 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string HelpLink { get; set; }
 
-        [DisplayName("Suppression state")]
+        [DisplayName("Suppression status")]
         [ReadOnly(true)]
-        public SuppressionState SuppressionState { get; set; }
+        public SuppressionStatus SuppressionStatus { get; set; }
 
         [DisplayName("Log file")]
         [ReadOnly(true)]

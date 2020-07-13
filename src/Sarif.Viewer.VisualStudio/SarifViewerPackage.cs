@@ -31,6 +31,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideEditorExtension(typeof(SarifEditorFactory), ".sarif", 128)]
     [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     [ProvideService(typeof(SLoadSarifLogService))]
+    [ProvideService(typeof(SCloseSarifLogService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         public static DTE2 Dte;
@@ -138,7 +139,17 @@ namespace Microsoft.Sarif.Viewer
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
-            return (typeof(SLoadSarifLogService) == serviceType) ? new LoadSarifLogService() : null;
+            if (typeof(SLoadSarifLogService) == serviceType)
+            {
+                return new LoadSarifLogService();
+            }
+
+            if (typeof(SCloseSarifLogService) == serviceType)
+            {
+                return new CloseSarifLogService();
+            }
+
+            return null;
         }
     }
 }
