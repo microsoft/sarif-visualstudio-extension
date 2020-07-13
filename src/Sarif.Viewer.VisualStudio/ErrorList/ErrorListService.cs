@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None)
+        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None, bool promptOnLogConversions = true)
         {
             SarifLog log = null;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         // They're opening a v1 log, so we need to transform it.
                         // Ask if they'd like to save the v2 log.
-                        MessageDialogCommand response = PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage);
+                        MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage) : MessageDialogCommand.No;
 
                         if (response == MessageDialogCommand.Cancel)
                         {
@@ -85,7 +85,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         // It's an older v2 version, so send it through the pre-release compat transformer.
                         // Ask if they'd like to save the transformed log.
-                        MessageDialogCommand response = PromptToSaveProcessedLog(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion));
+                        MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)) : MessageDialogCommand.No;
 
                         if (response == MessageDialogCommand.Cancel)
                         {
@@ -129,7 +129,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 // They're opening a non-SARIF log, so we need to convert it.
                 // Ask if they'd like to save the converted log.
-                MessageDialogCommand response = PromptToSaveProcessedLog(Resources.ConvertNonSarifLog_DialogMessage);
+                MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(Resources.ConvertNonSarifLog_DialogMessage) : MessageDialogCommand.No;
 
                 if (response == MessageDialogCommand.Cancel)
                 {
@@ -176,9 +176,26 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            ProcessSarifLog(log, outputPath, solution);
+            ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions);
 
             SarifTableDataSource.Instance.BringToFront();
+        }
+
+        /// <summary>
+        /// Closes the specified SARIF log in the viewer.
+        /// </summary>
+        /// <param name="paths">The complete path to the SARIF log file.</param>
+        public static void CloseSarifLogs(IEnumerable<string> paths)
+        {
+            SarifTableDataSource.Instance.CleanErrors(paths);
+        }
+
+        /// <summary>
+        /// Closes all SARIF logs opened in the viewer.
+        /// </summary>
+        public static void CloseAllSarifLogs()
+        {
+            SarifTableDataSource.Instance.CleanAllErrors();
         }
 
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
@@ -256,7 +273,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution)
+        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution, bool showMessageOnNoResults)
         {
             // Clear previous data
             CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
@@ -290,7 +307,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // We are finished processing the runs, so make this property inavalid.
             CodeAnalysisResultManager.Instance.CurrentRunId = -1;
 
-            if (!hasResults)
+            if (!hasResults && showMessageOnNoResults)
             {
                 VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
                                                 string.Format(Resources.NoResults_DialogMessage, logFilePath),

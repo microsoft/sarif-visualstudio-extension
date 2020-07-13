@@ -24,13 +24,13 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 model = new RuleModel()
                 {
-                    Id = rule.Id,
+                    Id = defaultRuleId,
                     Name = rule.Name,
                     Description = rule.FullDescription?.Text,
                     DefaultFailureLevel = rule.DefaultConfiguration != null ?
                                     rule.DefaultConfiguration.Level :
                                     FailureLevel.Warning, // Default level
-                    HelpUri = rule.HelpUri?.AbsoluteUri
+                    HelpUri = rule.HelpUri?.IsAbsoluteUri == true ? rule.HelpUri.AbsoluteUri : null
                 };
             }
 

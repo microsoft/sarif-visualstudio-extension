@@ -8,10 +8,10 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class ThreadFlowLocationExtensions
     {
-        public static LocationModel ToLocationModel(this ThreadFlowLocation threadFlowLocation)
+        public static LocationModel ToLocationModel(this ThreadFlowLocation threadFlowLocation, Run run)
         {
             var model = threadFlowLocation.Location != null
-                ? threadFlowLocation.Location.ToLocationModel()
+                ? threadFlowLocation.Location.ToLocationModel(run)
                 : new LocationModel();
 
             model.IsEssential = threadFlowLocation.Importance == ThreadFlowLocationImportance.Essential;
