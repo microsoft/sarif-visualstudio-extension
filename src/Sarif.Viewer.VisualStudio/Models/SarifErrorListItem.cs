@@ -43,6 +43,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();
@@ -127,6 +128,7 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             ReportingDescriptor rule;
             string ruleId = null;
@@ -307,6 +309,7 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 _selectedTab = value;
 
                 // If a new tab is selected, remove all the the markers for the
@@ -472,6 +475,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             DetachFromDocument(_documentCookie);
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
@@ -566,6 +570,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame windowFrame)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             // Cache the document info so we can detach and reattach later.
             _documentName = documentName;
             _documentCookie = docCookie;
@@ -579,6 +584,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         internal void AttachToDocument()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
 
             foreach (LocationModel location in Locations)

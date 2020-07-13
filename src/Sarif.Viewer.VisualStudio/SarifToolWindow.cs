@@ -39,6 +39,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public SarifToolWindow() : base(null)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             this.Caption = "SARIF Explorer";
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
@@ -52,6 +53,7 @@ namespace Microsoft.Sarif.Viewer
 
         public void Show()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             ((IVsWindowFrame)Frame).Show();
         }
 
@@ -59,6 +61,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (_trackSelection == null)
                 {
                     _trackSelection = GetService(typeof(STrackSelection)) as ITrackSelection;
@@ -73,6 +76,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void ApplySelection()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             ITrackSelection track = TrackSelection;
             if (track != null)
             {
@@ -86,6 +90,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="items"></param>
         public void UpdateSelectionList(params object[] items)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             _selectionContainer = new SelectionContainer(true, false);
             _selectionContainer.SelectableObjects = items;
             _selectionContainer.SelectedObjects = items;
@@ -97,6 +102,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void ResetSelection()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             UpdateSelectionList(Control?.DataContext);
         }
     }

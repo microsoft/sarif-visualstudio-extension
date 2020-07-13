@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -19,6 +20,7 @@ namespace Microsoft.Sarif.Viewer
 
         public string GetName(string fileName)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             SetName(fileName);
 
             return projectNames[fileName];
@@ -26,6 +28,7 @@ namespace Microsoft.Sarif.Viewer
 
         private void SetName(string fileName)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             if (projectNames.ContainsKey(fileName))
             {
                 return;
