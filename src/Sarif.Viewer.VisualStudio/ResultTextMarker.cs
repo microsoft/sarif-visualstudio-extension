@@ -68,6 +68,7 @@ namespace Microsoft.Sarif.Viewer
         // points to a Location object that has a region associated with it.
         internal IVsWindowFrame NavigateTo(bool usePreviewPane)
         {
+            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             // Before anything else, see if this is an external link we should open in the browser.
             Uri uri;
@@ -111,8 +112,8 @@ namespace Microsoft.Sarif.Viewer
                 TextSpan ts;
                 ts.iStartLine = sourceLocation.StartLine - 1;
                 ts.iEndLine = sourceLocation.EndLine - 1;
-                ts.iStartIndex = Math.Max(sourceLocation.StartColumn, 0);
-                ts.iEndIndex = Math.Max(sourceLocation.EndColumn, 0);
+                ts.iStartIndex = Math.Max(sourceLocation.StartColumn - 1, 0);
+                ts.iEndIndex = Math.Max(sourceLocation.EndColumn - 1, 0);
 
                 textView.EnsureSpanVisible(ts);
                 textView.SetSelection(ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex);
@@ -231,6 +232,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void AttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
         {
+            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             // For these cases, this event has nothing to do with this item
             if (CanAttachToDocument(documentName, docCookie, frame))
@@ -241,6 +243,7 @@ namespace Microsoft.Sarif.Viewer
 
         private IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
         {
+            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             // Get the document view from the window frame, then get the text view
             object docView;
@@ -267,6 +270,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         private void AttachToDocumentWorker(IVsWindowFrame frame, long docCookie)
         {
+            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             var sourceLocation = this.GetSourceLocation();
             int line = sourceLocation.StartLine;

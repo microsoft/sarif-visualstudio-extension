@@ -12,6 +12,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class CallTreeTraversalTests
     {
+        public CallTreeTraversalTests()
+        {
+            SarifViewerPackage.IsUnitTesting = true;
+        }
+
         [Fact]
         public void SelectPreviousNextCommandsTest()
         {
