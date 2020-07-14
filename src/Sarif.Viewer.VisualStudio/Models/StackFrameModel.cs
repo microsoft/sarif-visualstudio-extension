@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.VisualStudio.Shell;
 using System.IO;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -192,6 +193,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         private void Navigate()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             this.NavigateTo();
             this.ApplySelectionSourceFileHighlighting();
         }

@@ -129,6 +129,7 @@ namespace Microsoft.Sarif.Viewer
             _sarifEditorFactory = new SarifEditorFactory();
             RegisterEditorFactory(_sarifEditorFactory);
 
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
