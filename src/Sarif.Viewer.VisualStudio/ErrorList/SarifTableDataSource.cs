@@ -70,18 +70,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     StandardTableColumnDefinitions.Line, 
                     StandardTableColumnDefinitions.Column);
 
-                // The following line throws the exception:
-                //
-                // Expected 1 export(s) with contract name Microsoft.VisualStudio.Shell.ErrorListProvider
-                // but found 0 after applying appropriate constraints.
-                //
-                // Did you mean to call this class's own BringToFront message? And why? That method is
-                // already called from ErrorListService.ProcessLogFile, and the Error List window
-                // does come to the front it another window (for example, Output) was previously
-                // showing.
-                //
-                //var errorlistProvider = compositionService.GetService<ErrorListProvider>();
-                //errorlistProvider.BringToFront();
             }
         }
 

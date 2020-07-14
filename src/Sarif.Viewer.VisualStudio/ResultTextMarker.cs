@@ -68,7 +68,6 @@ namespace Microsoft.Sarif.Viewer
         // points to a Location object that has a region associated with it.
         internal IVsWindowFrame NavigateTo(bool usePreviewPane)
         {
-            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             // Before anything else, see if this is an external link we should open in the browser.
             Uri uri;
@@ -232,7 +231,6 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void AttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
         {
-            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             // For these cases, this event has nothing to do with this item
             if (CanAttachToDocument(documentName, docCookie, frame))
@@ -243,7 +241,6 @@ namespace Microsoft.Sarif.Viewer
 
         private IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
         {
-            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             // Get the document view from the window frame, then get the text view
             object docView;
@@ -270,7 +267,6 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         private void AttachToDocumentWorker(IVsWindowFrame frame, long docCookie)
         {
-            SarifViewerPackage.SwitchToMainThread();
             ThreadHelper.ThrowIfNotOnUIThread();
             var sourceLocation = this.GetSourceLocation();
             int line = sourceLocation.StartLine;
