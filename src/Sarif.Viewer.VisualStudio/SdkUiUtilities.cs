@@ -1094,6 +1094,26 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
         internal static List<XamlDoc.Inline> GetMessageInlines(string message, int index, RoutedEventHandler clickHandler)
         {
+            List<XamlDoc.Inline> inlines = null;
+            if (!ThreadHelper.CheckAccess() && !SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD001
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    inlines = GetMessageInlinesHelper(message, index, clickHandler);
+                });
+#pragma warning disable VSTHRD001
+            }
+            else
+            {
+                inlines = GetMessageInlinesHelper(message, index, clickHandler);
+            }
+            return inlines;
+        }
+
+        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, int index, RoutedEventHandler clickHandler)
+        {
             var inlines = new List<XamlDoc.Inline>();
 
             MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnorePatternWhitespace);

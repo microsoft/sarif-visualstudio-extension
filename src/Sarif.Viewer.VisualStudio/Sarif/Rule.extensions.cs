@@ -4,6 +4,8 @@
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 
+using System;
+
 namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class RuleExtensions
@@ -11,12 +13,19 @@ namespace Microsoft.Sarif.Viewer.Sarif
         public static RuleModel ToRuleModel(this ReportingDescriptor rule, string defaultRuleId)
         {
             RuleModel model;
+            string ruleId = defaultRuleId;
+
+            if (Guid.TryParse(ruleId, out Guid result) && !(string.IsNullOrEmpty(rule.Name)))
+            {
+                ruleId = rule.Name;
+            }
+
 
             if (rule == null)
             {
                 model = new RuleModel()
                 {
-                    Id = defaultRuleId,
+                    Id = ruleId,
                     DefaultFailureLevel = FailureLevel.Warning
                 };
             }
@@ -24,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 model = new RuleModel()
                 {
-                    Id = defaultRuleId,
+                    Id = ruleId,
                     Name = rule.Name,
                     Description = rule.FullDescription?.Text,
                     DefaultFailureLevel = rule.DefaultConfiguration != null ?
