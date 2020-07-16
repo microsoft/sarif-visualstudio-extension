@@ -111,8 +111,8 @@ namespace Microsoft.Sarif.Viewer
                 TextSpan ts;
                 ts.iStartLine = sourceLocation.StartLine - 1;
                 ts.iEndLine = sourceLocation.EndLine - 1;
-                ts.iStartIndex = Math.Max(sourceLocation.StartColumn, 0);
-                ts.iEndIndex = Math.Max(sourceLocation.EndColumn, 0);
+                ts.iStartIndex = Math.Max(sourceLocation.StartColumn - 1, 0);
+                ts.iEndIndex = Math.Max(sourceLocation.EndColumn - 1, 0);
 
                 textView.EnsureSpanVisible(ts);
                 textView.SetSelection(ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex);

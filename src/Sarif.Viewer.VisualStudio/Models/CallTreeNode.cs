@@ -222,14 +222,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                Uri sourceUrl = Location?.Location?.PhysicalLocation?.ArtifactLocation?.Uri;
-
-                if (sourceUrl != null)
-                {
-                    return Path.GetFileName(sourceUrl.LocalPath);
-                }
-
-                return null;
+                return FilePath;
             }
         }
 

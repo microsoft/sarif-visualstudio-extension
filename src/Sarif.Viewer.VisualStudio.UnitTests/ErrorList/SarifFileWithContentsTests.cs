@@ -33,6 +33,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         public SarifFileWithContentsTests()
         {
+            SarifViewerPackage.IsUnitTesting = true;
             var testLog = new SarifLog
             {
                 Runs = new List<Run>

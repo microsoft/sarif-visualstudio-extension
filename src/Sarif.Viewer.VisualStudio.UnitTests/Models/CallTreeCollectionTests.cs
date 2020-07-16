@@ -12,6 +12,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
 {
     public class CallTreeCollectionTests
     {
+        public CallTreeCollectionTests()
+        {
+            SarifViewerPackage.IsUnitTesting = true;
+        }
+
         [Fact]
         public void CallTreeCollection_ExpandAll()
         {

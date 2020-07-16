@@ -37,6 +37,7 @@
     <PackageRequireLicenseAcceptance Condition=" '$(PackageRequireLicenseAcceptance)' == '' ">false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/Microsoft/sarif-sdk</PackageProjectUrl>
+    <PackageIcon Condition=" '$(PackageIcon)' == '' ">icon.png</PackageIcon>
     <PackageIconUrl Condition=" '$(PackageIconUrl)' == '' ">https://go.microsoft.com/fwlink/?linkid=2008860</PackageIconUrl>
     <PackageIcon Condition=" '$(PackageIcon)' == '' ">triskelion.png</PackageIcon>
     <!--
@@ -47,7 +48,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\triskelion.png" Pack="true" PackagePath="\"/>
+    <None Include="$(PackageIcon)" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

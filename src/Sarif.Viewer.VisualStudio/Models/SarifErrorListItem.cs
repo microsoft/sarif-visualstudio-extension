@@ -60,9 +60,12 @@ namespace Microsoft.Sarif.Viewer
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
             Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
-            SuppressionStatus = (result.Suppressions != null && result.Suppressions.Count > 0) ?
-                result.Suppressions[0].Status :
-                SuppressionStatus.None;
+
+            if (result.Suppressions?.Count > 0)
+            {
+                VSSuppressionState = VSSuppressionState.Suppressed;
+            }
+            
             LogFilePath = logFilePath;
 
             if (Region != null)
@@ -252,7 +255,7 @@ namespace Microsoft.Sarif.Viewer
 
         [DisplayName("Suppression status")]
         [ReadOnly(true)]
-        public SuppressionStatus SuppressionStatus { get; set; }
+        public VSSuppressionState VSSuppressionState { get; set; }
 
         [DisplayName("Log file")]
         [ReadOnly(true)]
