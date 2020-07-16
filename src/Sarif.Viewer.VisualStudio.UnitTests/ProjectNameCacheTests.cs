@@ -10,6 +10,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class ProjectNameCacheTests
     {
+        public ProjectNameCacheTests()
+        {
+            SarifViewerPackage.IsUnitTesting = true;
+        }
+
         private const string FileName = "SomeFile.cs";
         private const string ProjectName = "SomeProject";
 

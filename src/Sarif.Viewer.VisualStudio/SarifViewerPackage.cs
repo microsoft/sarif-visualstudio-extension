@@ -100,8 +100,6 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-
             OpenLogFileCommands.Initialize(this);
             base.Initialize();
 
@@ -129,6 +127,7 @@ namespace Microsoft.Sarif.Viewer
             _sarifEditorFactory = new SarifEditorFactory();
             RegisterEditorFactory(_sarifEditorFactory);
 
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);

@@ -154,6 +154,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void ErrorListInlineLink_Click(object sender, RoutedEventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             Hyperlink hyperLink = sender as Hyperlink;
 
             if (hyperLink != null)
