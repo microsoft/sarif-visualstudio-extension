@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
+
 using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -237,10 +239,16 @@ namespace Microsoft.Sarif.Viewer.Models
                         thisDelta -= replacement.DeletedLength;
                     }
 
-                    if (replacement.InsertedBytes.Length > 0)
+                    if (replacement.InsertedBytes?.Length > 0)
                     {
                         bytes.InsertRange(offset, replacement.InsertedBytes);
                         thisDelta += replacement.InsertedBytes.Length;
+                    }
+                    else if (replacement.InsertedString?.Length > 0)
+                    {
+                        byte[] toInsert = Encoding.UTF8.GetBytes(replacement.InsertedString);
+                        bytes.InsertRange(offset, toInsert);
+                        thisDelta += toInsert.Length;
                     }
 
                     // If it's a preview, don't record the offset changes
