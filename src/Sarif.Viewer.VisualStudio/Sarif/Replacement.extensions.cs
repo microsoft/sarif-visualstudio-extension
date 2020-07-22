@@ -18,15 +18,16 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             ReplacementModel model = new ReplacementModel();
 
-            model.DeletedLength = replacement.DeletedRegion.ByteLength;
-            model.Offset = replacement.DeletedRegion.ByteOffset;
-
             if (!string.IsNullOrWhiteSpace(replacement.InsertedContent?.Text))
             {
+                model.DeletedLength = replacement.DeletedRegion.CharLength;
+                model.Offset = replacement.DeletedRegion.CharOffset;
                 model.InsertedString = replacement.InsertedContent.Text;
             }
             else if (replacement.InsertedContent?.Binary != null)
             {
+                model.DeletedLength = replacement.DeletedRegion.ByteLength;
+                model.Offset = replacement.DeletedRegion.ByteOffset;
                 model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
             }
 
