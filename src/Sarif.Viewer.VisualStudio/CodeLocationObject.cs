@@ -151,7 +151,13 @@ namespace Microsoft.Sarif.Viewer
 
         public void NavigateTo(bool usePreviewPane = true)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
+
             if (LineMarker != null)
             {
                 LineMarker?.NavigateTo(usePreviewPane);

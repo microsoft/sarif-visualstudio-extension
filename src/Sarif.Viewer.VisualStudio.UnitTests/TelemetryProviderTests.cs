@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
-    public class TelemetryProviderTests
+    public class TelemetryProviderTests : SarifViewerPackageUnitTests
     {
         private Mock<ITelemetryChannel> InitializeTelemetryProvider()
         {

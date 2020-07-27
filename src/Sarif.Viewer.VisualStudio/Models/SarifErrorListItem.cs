@@ -43,7 +43,12 @@ namespace Microsoft.Sarif.Viewer
 
         public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
             _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
             ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();

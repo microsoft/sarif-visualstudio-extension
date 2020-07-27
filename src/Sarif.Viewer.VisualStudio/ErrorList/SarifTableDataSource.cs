@@ -26,10 +26,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private SarifTableDataSource()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (!SarifViewerPackage.IsUnitTesting)
             {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
                 Initialize();
             }
         }

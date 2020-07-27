@@ -26,7 +26,13 @@ namespace Microsoft.Sarif.Viewer.Models
             }
             set
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
+                if (!SarifViewerPackage.IsUnitTesting)
+                {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                    ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+                }
+
                 if (_verbosity != value)
                 {
                     _verbosity = value;
@@ -95,7 +101,13 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
+                if (!SarifViewerPackage.IsUnitTesting)
+                {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                    ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+                }
+
                 if (_intelligentExpandCommand == null)
                 {
                     _intelligentExpandCommand = new DelegateCommand(() =>
@@ -130,7 +142,12 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void IntelligentExpand()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
             foreach (CallTree callTree in this)
             {
                 CallTreeNode selectedItem = callTree.SelectedItem;
@@ -151,7 +168,13 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void SelectVisibleNode()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
+
             foreach (CallTree callTree in this)
             {
                 if (callTree.SelectedItem != null && callTree.SelectedItem.Visibility != System.Windows.Visibility.Visible)

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
-    public class SdkUIUtilitiesTests
+    public class SdkUIUtilitiesTests : SarifViewerPackageUnitTests
     {
         private void Hyperlink_Click(object sender, RoutedEventArgs e) { }
 

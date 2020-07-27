@@ -10,13 +10,8 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
-    public class CallTreeTraversalTests
+    public class CallTreeTraversalTests : SarifViewerPackageUnitTests
     {
-        public CallTreeTraversalTests()
-        {
-            SarifViewerPackage.IsUnitTesting = true;
-        }
-
         [Fact]
         public void SelectPreviousNextCommandsTest()
         {

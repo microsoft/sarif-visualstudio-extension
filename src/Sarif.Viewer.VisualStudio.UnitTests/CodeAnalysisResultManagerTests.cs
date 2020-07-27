@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
-    public class CodeAnalysisResultManagerTests
+    public class CodeAnalysisResultManagerTests : SarifViewerPackageUnitTests
     {
         private IFileSystem fileSystem;
 
@@ -25,8 +25,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         public CodeAnalysisResultManagerTests()
         {
-            SarifViewerPackage.IsUnitTesting = true;
-
             this.existingFiles = new List<string>();
 
             var mockFileSystem = new Mock<IFileSystem>();

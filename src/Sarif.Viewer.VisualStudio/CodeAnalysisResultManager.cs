@@ -259,7 +259,13 @@ namespace Microsoft.Sarif.Viewer
 
         public bool TryRebaselineAllSarifErrors(int runId, string uriBaseId, string originalFilename)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
+
             if (CurrentSarifResult == null)
             {
                 return false;
