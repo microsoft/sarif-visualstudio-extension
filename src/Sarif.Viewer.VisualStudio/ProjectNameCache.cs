@@ -20,15 +20,26 @@ namespace Microsoft.Sarif.Viewer
 
         public string GetName(string fileName)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            SetName(fileName);
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
 
+            SetName(fileName);
             return projectNames[fileName];
         }
 
         private void SetName(string fileName)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            }
+
             if (projectNames.ContainsKey(fileName))
             {
                 return;

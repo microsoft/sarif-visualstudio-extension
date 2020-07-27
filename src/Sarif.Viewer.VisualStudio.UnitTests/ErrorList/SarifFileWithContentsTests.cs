@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     // will load in parallel, which causes issues with static collections.
     // Production code will only load one SARIF file at a time.
     [Collection("SarifObjectTests")]
-    public class SarifFileWithContentsTests
+    public class SarifFileWithContentsTests : SarifViewerPackageUnitTests
     {
         private const int RunId = 1;
         private const string Key1 = "/item.cpp#fragment";
@@ -33,7 +33,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         public SarifFileWithContentsTests()
         {
-            SarifViewerPackage.IsUnitTesting = true;
             var testLog = new SarifLog
             {
                 Runs = new List<Run>
