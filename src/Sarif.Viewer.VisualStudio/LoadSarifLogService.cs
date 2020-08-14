@@ -19,13 +19,13 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade);
+            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade, cleanErrors: true);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
-            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true);
+            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
         }
 
         /// <inheritdoc/>
@@ -39,9 +39,16 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
+            var cleanErrors = true;
             foreach (string path in paths)
             {
-                this.LoadSarifLog(path, promptOnSchemaUpgrade);
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    continue;
+                }
+
+                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: false, cleanErrors: cleanErrors);
+                cleanErrors = false;
             }
         }
     }

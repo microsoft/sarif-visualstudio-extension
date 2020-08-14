@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             InitializeTestEnvironment();
             CodeAnalysisResultManager.Instance.CurrentRunId = 0;
 
-            ErrorListService.ProcessSarifLog(sarifLog, "", null, showMessageOnNoResults: true);
+            ErrorListService.ProcessSarifLog(sarifLog, "", null, showMessageOnNoResults: true, cleanErrors: true);
         }
     }
 }
