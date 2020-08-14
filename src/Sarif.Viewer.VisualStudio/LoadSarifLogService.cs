@@ -34,19 +34,9 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            if (!paths.Any())
-            {
-                return;
-            }
-
             var cleanErrors = true;
-            foreach (string path in paths)
+            foreach (string path in paths.Where((path) => !string.IsNullOrEmpty(path)))
             {
-                if (string.IsNullOrWhiteSpace(path))
-                {
-                    continue;
-                }
-
                 ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: false, cleanErrors: cleanErrors);
                 cleanErrors = false;
             }
