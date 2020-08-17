@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat = ToolFormat.None, bool promptOnLogConversions = true)
+        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
         {
             SarifLog log = null;
 
@@ -176,7 +176,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions);
+            ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors);
 
             SarifTableDataSource.Instance.BringToFront();
         }
@@ -273,12 +273,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution, bool showMessageOnNoResults)
+        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution, bool showMessageOnNoResults, bool cleanErrors)
         {
             // Clear previous data
-            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
-            SarifTableDataSource.Instance.CleanAllErrors();
-            CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
+            if (cleanErrors)
+            {
+                CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
+                SarifTableDataSource.Instance.CleanAllErrors();
+                CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
+                CodeAnalysisResultManager.Instance.CurrentRunId = -1;
+            }
 
             bool hasResults = false;
 
@@ -303,9 +307,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     hasResults = true;
                 }
             }
-
-            // We are finished processing the runs, so make this property inavalid.
-            CodeAnalysisResultManager.Instance.CurrentRunId = -1;
 
             if (!hasResults && showMessageOnNoResults)
             {

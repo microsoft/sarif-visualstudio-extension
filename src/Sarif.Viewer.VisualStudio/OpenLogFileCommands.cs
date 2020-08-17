@@ -279,7 +279,7 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                ErrorListService.ProcessLogFile(logFile, SarifViewerPackage.Dte.Solution, toolFormat);
+                ErrorListService.ProcessLogFile(logFile, SarifViewerPackage.Dte.Solution, toolFormat, promptOnLogConversions: true, cleanErrors: true);
             }
             catch (InvalidOperationException)
             {

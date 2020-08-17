@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -205,7 +206,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 TelemetryProvider.WriteEvent(TelemetryEvent.LogFileOpenedByEditor,
                                              TelemetryProvider.CreateKeyValuePair("Format", "SARIF"));
-                ErrorListService.ProcessLogFile(pszMkDocument, SarifViewerPackage.Dte.Solution);
+                ErrorListService.ProcessLogFile(pszMkDocument, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
             }
 
             return VSConstants.S_OK;

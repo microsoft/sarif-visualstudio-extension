@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.Sarif.Converters;
@@ -19,13 +18,13 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade);
+            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnSchemaUpgrade, cleanErrors: true);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
-            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true);
+            ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
         }
 
         /// <inheritdoc/>
@@ -34,14 +33,11 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            if (!paths.Any())
+            var cleanErrors = true;
+            foreach (string path in paths.Where((path) => !string.IsNullOrEmpty(path)))
             {
-                return;
-            }
-
-            foreach (string path in paths)
-            {
-                this.LoadSarifLog(path, promptOnSchemaUpgrade);
+                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: false, cleanErrors: cleanErrors);
+                cleanErrors = false;
             }
         }
     }
