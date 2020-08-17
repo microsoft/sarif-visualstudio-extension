@@ -1,5 +1,8 @@
 # SARIF Viewer Visual Studio extension Release History
 
+## **v2.1.10** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Ensure "load logs" API shows results from all log files. [#163](https://github.com/microsoft/sarif-visualstudio-extension/issues/163)
+
 ## **v2.1.9** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: Open and close multiple SARIF files at once.
 * FEATURE: Display messages for locations and related locations in the Locations tab.
