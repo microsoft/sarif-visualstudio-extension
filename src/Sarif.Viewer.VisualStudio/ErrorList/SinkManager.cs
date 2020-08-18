@@ -9,13 +9,12 @@ using System.Collections.Generic;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    class SinkManager : IDisposable
+    internal class SinkManager : IDisposable
     {
         private readonly ITableDataSink _sink;
-        private SarifTableDataSource _errorList;
-        private List<SarifSnapshot> _snapshots = new List<SarifSnapshot>();
+        private readonly SarifTableDataSource _errorList;
 
-        internal SinkManager(SarifTableDataSource errorList, ITableDataSink sink)
+        public SinkManager(SarifTableDataSource errorList, ITableDataSink sink)
         {
             _sink = sink;
             _errorList = errorList;
@@ -23,44 +22,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             errorList.AddSinkManager(this);
         }
 
-        internal void Clear()
+        public void Clear()
         {
-            _sink.RemoveAllSnapshots();
+            _sink.RemoveAllEntries();
             SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
         }
 
-        internal void UpdateSink(IEnumerable<SarifSnapshot> snapshots)
+        public void AddEntries(IReadOnlyList<SarifResultTableEntry> tableEntries)
         {
-            foreach (var snapshot in snapshots)
-            {
-                var existing = _snapshots.FirstOrDefault(s => s.FilePath == snapshot.FilePath);
-
-                if (existing != null)
-                {
-                    _snapshots.Remove(existing);
-                    _sink.ReplaceSnapshot(existing, snapshot);
-                }
-                else
-                {
-                    _sink.AddSnapshot(snapshot);
-                }
-
-                _snapshots.Add(snapshot);
-            }
+            _sink.AddEntries(tableEntries, removeAllEntries: true);
         }
 
-        internal void RemoveSnapshots(IEnumerable<string> files)
+        public void RemoveEntries(IReadOnlyList<SarifResultTableEntry> entries)
         {
-            foreach (string file in files)
-            {
-                var existing = _snapshots.FirstOrDefault(s => s.FilePath == file);
-
-                if (existing != null)
-                {
-                    _snapshots.Remove(existing);
-                    _sink.RemoveSnapshot(existing);
-                }
-            }
+            _sink.RemoveEntries(entries);
         }
 
         public void Dispose()

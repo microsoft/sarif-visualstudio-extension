@@ -12,11 +12,11 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    class SarifTableDataSource : ITableDataSource
+    internal class SarifTableDataSource : ITableDataSource
     {
         private static SarifTableDataSource _instance;
         private readonly List<SinkManager> _managers = new List<SinkManager>();
-        private static Dictionary<string, SarifSnapshot> _snapshots = new Dictionary<string, SarifSnapshot>();
+        private Dictionary<string, List<SarifResultTableEntry>> _logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
 
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
@@ -58,18 +58,25 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 var manager = TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, 
-                    StandardTableColumnDefinitions.DetailsExpander,
-                    StandardTableColumnDefinitions.ErrorSeverity, 
-                    StandardTableColumnDefinitions.ErrorCode,
-                    StandardTableColumnDefinitions.ErrorSource, 
-                    StandardTableColumnDefinitions.BuildTool,
-                    StandardTableColumnDefinitions.ErrorRank, 
-                    StandardTableColumnDefinitions.ErrorCategory,
-                    StandardTableColumnDefinitions.Text, 
-                    StandardTableColumnDefinitions.DocumentName,
-                    StandardTableColumnDefinitions.Line, 
-                    StandardTableColumnDefinitions.Column);
+                manager.AddSource(this,
+                    StandardTableKeyNames2.TextInlines,
+                    StandardTableKeyNames.DocumentName,
+                    StandardTableKeyNames.ErrorCategory,
+                    StandardTableKeyNames.Line,
+                    StandardTableKeyNames.Column,
+                    StandardTableKeyNames.Text,
+                    StandardTableKeyNames.FullText,
+                    StandardTableKeyNames.ErrorSeverity,
+                    StandardTableKeyNames.Priority,
+                    StandardTableKeyNames.ErrorSource,
+                    StandardTableKeyNames.BuildTool,
+                    StandardTableKeyNames.ErrorCode,
+                    StandardTableKeyNames.ProjectName,
+                    StandardTableKeyNames.HelpLink,
+                    StandardTableKeyNames.ErrorCodeToolTip,
+                    "suppressionstatus",
+                    "suppressionstate",
+                    "suppression");
 
             }
         }
@@ -133,7 +140,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 foreach (var manager in _managers)
                 {
-                    manager.UpdateSink(_snapshots.Values);
+                    manager.AddEntries(_logFileToTableEntries.Values.SelectMany((snapshots) => snapshots).ToList());
                 }
             }
         }
@@ -141,52 +148,54 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public void AddErrors(IEnumerable<SarifErrorListItem> errors)
         {
             if (errors == null)
-                return;
-            
-            foreach (var fileErrorGroup in errors.GroupBy(t => t.FileName ?? ""))
-            {                
-                var snapshot = new SarifSnapshot(fileErrorGroup.Key, fileErrorGroup);
-                _snapshots[fileErrorGroup.Key] = snapshot;
-            }
-
-            UpdateAllSinks();
-        }
-
-        public void CleanErrors(IEnumerable<string> files)
-        {
-            foreach (string file in files)
             {
-                if (_snapshots.ContainsKey(file))
-                {
-                    _snapshots[file].Dispose();
-                    _snapshots.Remove(file);
-                }
+                return;
             }
+
+            var tableEntries = errors.Select((error) => new SarifResultTableEntry(error));
 
             lock (_managers)
             {
                 foreach (var manager in _managers)
                 {
-                    manager.RemoveSnapshots(files);
+                    manager.AddEntries(tableEntries.ToList());
                 }
             }
 
-            UpdateAllSinks();
+            foreach (var tableEntry in tableEntries)
+            {
+                if (this._logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out var logFileTableEntryList))
+                {
+                    logFileTableEntryList.Add(tableEntry);
+                }
+                else
+                {
+                    this._logFileToTableEntries.Add(tableEntry.Error.LogFilePath, new List<SarifResultTableEntry> { tableEntry });
+                }
+            }
+        }
+
+        public void ClearErrorsForLogFiles(IEnumerable<string> logFiles)
+        {
+            foreach (string logFile in logFiles)
+            {
+                if (_logFileToTableEntries.ContainsKey(logFile))
+                {
+                    lock (_managers)
+                    {
+                        foreach (var manager in _managers)
+                        {
+                            manager.RemoveEntries(this._logFileToTableEntries[logFile]);
+                        }
+                    }
+
+                    _logFileToTableEntries.Remove(logFile);
+                }
+            }
         }
 
         public void CleanAllErrors()
         {
-            foreach (string file in _snapshots.Keys)
-            {
-                var snapshot = _snapshots[file];
-                if (snapshot != null)
-                {
-                    snapshot.Dispose();
-                }
-            }
-
-            _snapshots.Clear();
-
             lock (_managers)
             {
                 foreach (var manager in _managers)
@@ -194,6 +203,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     manager.Clear();
                 }
             }
+
+            _logFileToTableEntries.Clear();
         }
 
         public void BringToFront()
@@ -203,12 +214,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public bool HasErrors()
         {
-            return _snapshots.Count > 0;
+            return _logFileToTableEntries.Count > 0;
         }
 
         public bool HasErrors(string fileName)
         {
-            return _snapshots.ContainsKey(fileName);
+            return _logFileToTableEntries.Values.Any((errorList) => errorList.Any((error) => error.Error.FileName.Equals(fileName, StringComparison.Ordinal)));
         }
     }
 }

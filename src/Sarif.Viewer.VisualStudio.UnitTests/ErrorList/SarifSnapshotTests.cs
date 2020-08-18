@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Xunit;
@@ -19,10 +18,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifErrorListItem errorItem = new SarifErrorListItem();
             errorItem.LineNumber = lineNumber;
 
-            SarifSnapshot snapshot = new SarifSnapshot(String.Empty, new List<SarifErrorListItem>() { errorItem });
+            var tableEntry = new SarifResultTableEntry(errorItem);
 
             Object value;
-            snapshot.TryGetValue(0, "line", out value).Should().Be(true);
+            tableEntry.TryGetValue("line", out value).Should().Be(true);
             value.Should().Be(lineNumber - 1);
         }
 
@@ -31,10 +30,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             SarifErrorListItem errorItem = new SarifErrorListItem();
 
-            SarifSnapshot snapshot = new SarifSnapshot(String.Empty, new List<SarifErrorListItem>() { errorItem });
+            var tableEntry = new SarifResultTableEntry(errorItem);
 
             Object value;
-            snapshot.TryGetValue(0, "line", out value).Should().Be(true);
+            tableEntry.TryGetValue("line", out value).Should().Be(true);
             value.Should().Be(-1);
         }
 
@@ -46,10 +45,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifErrorListItem errorItem = new SarifErrorListItem();
             errorItem.LineNumber = lineNumber;
 
-            SarifSnapshot snapshot = new SarifSnapshot(String.Empty, new List<SarifErrorListItem>() { errorItem });
+            var tableEntry = new SarifResultTableEntry(errorItem);
 
             Object value;
-            snapshot.TryGetValue(0, "line", out value).Should().Be(true);
+            tableEntry.TryGetValue("line", out value).Should().Be(true);
             value.Should().Be(lineNumber - 1);
         }
     }
