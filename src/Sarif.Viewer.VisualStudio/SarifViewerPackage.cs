@@ -28,7 +28,6 @@ namespace Microsoft.Sarif.Viewer
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideEditorExtension(typeof(SarifEditorFactory), ".sarif", 128)]
     [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
@@ -36,8 +35,6 @@ namespace Microsoft.Sarif.Viewer
     {
         public static DTE2 Dte;
         public static IServiceProvider ServiceProvider;
-
-        private SarifEditorFactory _sarifEditorFactory;
 
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
@@ -123,9 +120,6 @@ namespace Microsoft.Sarif.Viewer
             };
             TelemetryProvider.Initialize(configuration);
             TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
-
-            _sarifEditorFactory = new SarifEditorFactory();
-            RegisterEditorFactory(_sarifEditorFactory);
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             CodeAnalysisResultManager.Instance.Register();
