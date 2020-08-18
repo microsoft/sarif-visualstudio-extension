@@ -43,6 +43,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return _errors[index];
         }
 
+        public IEnumerable<SarifErrorListItem> Errors { get => this._errors; }
+
         public override bool TryGetValue(int index, string columnName, out object content)
         {
             content = null;

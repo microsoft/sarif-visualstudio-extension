@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private static SarifTableDataSource _instance;
         private readonly List<SinkManager> _managers = new List<SinkManager>();
-        private static Dictionary<string, SarifSnapshot> _snapshots = new Dictionary<string, SarifSnapshot>();
+        private Dictionary<string, SarifSnapshot> _sourceFileToErrorSnapshots = new Dictionary<string, SarifSnapshot>();
 
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
@@ -133,7 +133,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 foreach (var manager in _managers)
                 {
-                    manager.UpdateSink(_snapshots.Values);
+                    manager.UpdateSink(_sourceFileToErrorSnapshots.Values);
                 }
             }
         }
@@ -146,20 +146,24 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (var fileErrorGroup in errors.GroupBy(t => t.FileName ?? ""))
             {                
                 var snapshot = new SarifSnapshot(fileErrorGroup.Key, fileErrorGroup);
-                _snapshots[fileErrorGroup.Key] = snapshot;
+                _sourceFileToErrorSnapshots[fileErrorGroup.Key] = snapshot;
             }
 
             UpdateAllSinks();
+        }
+
+        public void ClearErrorsForLogFiles(IEnumerable<string> logFiles)
+        {
         }
 
         public void CleanErrors(IEnumerable<string> files)
         {
             foreach (string file in files)
             {
-                if (_snapshots.ContainsKey(file))
+                if (_sourceFileToErrorSnapshots.ContainsKey(file))
                 {
-                    _snapshots[file].Dispose();
-                    _snapshots.Remove(file);
+                    _sourceFileToErrorSnapshots[file].Dispose();
+                    _sourceFileToErrorSnapshots.Remove(file);
                 }
             }
 
@@ -176,16 +180,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public void CleanAllErrors()
         {
-            foreach (string file in _snapshots.Keys)
+            foreach (string file in _sourceFileToErrorSnapshots.Keys)
             {
-                var snapshot = _snapshots[file];
+                var snapshot = _sourceFileToErrorSnapshots[file];
                 if (snapshot != null)
                 {
                     snapshot.Dispose();
                 }
             }
 
-            _snapshots.Clear();
+            _sourceFileToErrorSnapshots.Clear();
 
             lock (_managers)
             {
@@ -203,12 +207,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public bool HasErrors()
         {
-            return _snapshots.Count > 0;
+            return _sourceFileToErrorSnapshots.Count > 0;
         }
 
         public bool HasErrors(string fileName)
         {
-            return _snapshots.ContainsKey(fileName);
+            return _sourceFileToErrorSnapshots.ContainsKey(fileName);
         }
     }
 }
