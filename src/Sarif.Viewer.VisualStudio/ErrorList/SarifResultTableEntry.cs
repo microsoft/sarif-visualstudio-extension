@@ -15,11 +15,110 @@
 
     internal sealed class SarifResultTableEntry : ITableEntry
     {
+        private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
+
+        public static readonly string[] SupportedColumns = new[]
+        {
+            StandardTableKeyNames2.TextInlines,
+            StandardTableKeyNames.DocumentName,
+            StandardTableKeyNames.ErrorCategory,
+            StandardTableKeyNames.Line,
+            StandardTableKeyNames.Column,
+            StandardTableKeyNames.Text,
+            StandardTableKeyNames.FullText,
+            StandardTableKeyNames.ErrorSeverity,
+            StandardTableKeyNames.Priority,
+            StandardTableKeyNames.ErrorSource,
+            StandardTableKeyNames.BuildTool,
+            StandardTableKeyNames.ErrorCode,
+            StandardTableKeyNames.ProjectName,
+            StandardTableKeyNames.HelpLink,
+            StandardTableKeyNames.ErrorCodeToolTip,
+            "suppressionstatus",
+            "suppressionstate",
+            "suppression"
+        };
 
         public SarifResultTableEntry(SarifErrorListItem error)
         {
             this.Identity = error.GetHashCode();
             this.Error = error;
+
+            // Set the data that's fast to retrieve into the dictionary of values.
+            this.columnKeyToContent[StandardTableKeyNames.DocumentName] = this.Error.FileName;
+            this.columnKeyToContent[StandardTableKeyNames.ErrorCategory] = this.Error.Category;
+
+            // The error list assumes the line number provided will be zero based and adds one before displaying the value.
+            // i.e. if we pass 5, the error list will display 6. 
+            // Subtract one from the line number so the error list displays the correct value.
+            this.columnKeyToContent[StandardTableKeyNames.Line] = this.Error.LineNumber - 1;
+
+            this.columnKeyToContent[StandardTableKeyNames.Column] = this.Error.ColumnNumber;
+            this.columnKeyToContent[StandardTableKeyNames.ErrorSeverity] = GetSeverity(this.Error.Level);
+            this.columnKeyToContent[StandardTableKeyNames.Priority] = GetSeverity(this.Error.Level) == __VSERRORCATEGORY.EC_ERROR
+                    ? vsTaskPriority.vsTaskPriorityHigh
+                    : vsTaskPriority.vsTaskPriorityMedium;
+            this.columnKeyToContent[StandardTableKeyNames.ErrorSource] = ErrorSource.Build;
+            this.columnKeyToContent[StandardTableKeyNames.BuildTool] = this.Error.Tool?.Name;
+
+            if (this.Error.Rule != null)
+            {
+                this.columnKeyToContent[StandardTableKeyNames.ErrorCode] = this.Error.Rule.Id;
+                this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = this.Error.Rule.Id + ":" + this.Error.Rule.Name;
+            }
+
+            this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
+
+            var superssionState = this.Error.VSSuppressionState.ToString();
+            this.columnKeyToContent["suppressionstatus"] = superssionState;
+            this.columnKeyToContent["suppressionstate"] = superssionState;
+            this.columnKeyToContent["suppression"] = superssionState;
+
+            // Anything that's a bit more complex, we will make a "lazy" value and evaluate
+            // it when it's asked for.
+            this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
+            {
+                string message = this.Error.Message;
+                var inlines = SdkUIUtilities.GetMessageInlines(message, this.ErrorListInlineLink_Click);
+
+                if (inlines.Count > 0)
+                {
+                    return inlines;
+                }
+
+                return null;
+            });
+
+            this.columnKeyToContent[StandardTableKeyNames.Text] = new Lazy<object>(() =>
+            {
+                return SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage);
+            });
+
+            this.columnKeyToContent[StandardTableKeyNames.FullText] = new Lazy<object>(() =>
+            {
+                if (this.Error.HasDetailsContent)
+                {
+                    return SdkUIUtilities.UnescapeBrackets(this.Error.Message);
+                }
+
+                return null;
+            });
+
+            this.columnKeyToContent[StandardTableKeyNames.HelpLink] = new Lazy<object>(() =>
+            {
+                string url = null;
+                if (!string.IsNullOrEmpty(this.Error.HelpLink))
+                {
+                    url = this.Error.HelpLink;
+                }
+
+                if (url != null)
+                {
+                    return Uri.EscapeUriString(url);
+                }
+
+                return null;
+            });
         }
 
         public SarifErrorListItem Error { get; }
@@ -30,146 +129,13 @@
 
         public bool TryGetValue(string keyName, out object content)
         {
-            if (keyName == StandardTableKeyNames2.TextInlines)
+            if (this.columnKeyToContent.TryGetValue(keyName, out content))
             {
-                string message = this.Error.Message;
-                var inlines = SdkUIUtilities.GetMessageInlines(message, 0, ErrorListInlineLink_Click);
-
-                if (inlines.Count > 0)
+                if (content is Lazy<object> lazyContent)
                 {
-                    content = inlines;
-                    return true;
+                    content = lazyContent.Value;
                 }
 
-                content = null;
-                return false;
-            }
-            
-            if (keyName == StandardTableKeyNames.DocumentName)
-            {
-                content = this.Error.FileName;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.ErrorCategory)
-            {
-                content = this.Error.Category;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.Line)
-            {
-                // The error list assumes the line number provided will be zero based and adds one before displaying the value.
-                // i.e. if we pass 5, the error list will display 6. 
-                // Subtract one from the line number so the error list displays the correct value.
-                int lineNumber = this.Error.LineNumber - 1;
-                content = lineNumber;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.Column)
-            {
-                content = this.Error.ColumnNumber;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.Text)
-            {
-                content = SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage);
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.FullText)
-            {
-                if (this.Error.HasDetailsContent)
-                {
-                    content = SdkUIUtilities.UnescapeBrackets(this.Error.Message);
-                    return true;
-                }
-
-                content = null;
-                return false;
-            }
-
-            if (keyName == StandardTableKeyNames.ErrorSeverity)
-            {
-                content = GetSeverity(this.Error.Level);
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.Priority)
-            {
-                content = GetSeverity(this.Error.Level) == __VSERRORCATEGORY.EC_ERROR
-                    ? vsTaskPriority.vsTaskPriorityHigh
-                    : vsTaskPriority.vsTaskPriorityMedium;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.ErrorSource)
-            {
-                content = ErrorSource.Build;
-                return true;
-            }
-
-            else if (keyName == StandardTableKeyNames.BuildTool)
-            {
-                content = this.Error.Tool.Name;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.ErrorCode)
-            {
-                if (this.Error.Rule != null)
-                {
-                    content = this.Error.Rule.Id;
-                    return true;
-                }
-
-                content = null;
-                return false;
-            }
-
-            if (keyName == StandardTableKeyNames.ProjectName)
-            {
-                content = this.Error.ProjectName;
-                return true;
-            }
-
-            if (keyName == StandardTableKeyNames.HelpLink)
-            {
-                string url = null;
-                if (!string.IsNullOrEmpty(this.Error.HelpLink))
-                {
-                    url = this.Error.HelpLink;
-                }
-
-                if (url != null)
-                {
-                    content = Uri.EscapeUriString(url);
-                    return true;
-                }
-
-                content = null;
-                return false;
-            }
-            
-            if (keyName == StandardTableKeyNames.ErrorCodeToolTip)
-            {
-                if (this.Error.Rule != null)
-                {
-                    content = this.Error.Rule.Id + ":" + this.Error.Rule.Name;
-                    return true;
-                }
-
-                content = null;
-                return false;
-            }
-            
-            if (keyName == "suppressionstatus" ||
-                     keyName == "suppressionstate" ||
-                     keyName == "suppression")
-            {
-                content = this.Error.VSSuppressionState.ToString();
                 return true;
             }
 
@@ -179,7 +145,7 @@
 
         public bool TrySetValue(string keyName, object content) => false;
 
-        private __VSERRORCATEGORY GetSeverity(FailureLevel level)
+        private static __VSERRORCATEGORY GetSeverity(FailureLevel level)
         {
             switch (level)
             {
@@ -207,13 +173,13 @@
 
             if (hyperLink != null)
             {
-                Tuple<int, object> data = hyperLink.Tag as Tuple<int, object>;
+                var data = hyperLink.Tag as object;
                 // data.Item1 = index of SarifErrorListItem
                 // data.Item2 = id of related location to link, or absolute URL string
 
                 SarifErrorListItem sarifResult = this.Error;
 
-                if (data.Item2 is int id)
+                if (data is int id)
                 {
                     // The user clicked an inline link with an integer target. Look for a Location object
                     // whose Id property matches that integer. The spec says that might be _any_ Location
@@ -243,9 +209,15 @@
                         location.ApplyDefaultSourceFileHighlighting();
                     }
                 }
-                else if (data.Item2 is string)
+                // This is super dangerous! We are launching URIs for SARIF logs
+                // that can point to anything.
+                else if (data is string uriAsString)
                 {
-                    System.Diagnostics.Process.Start(data.Item2.ToString());
+                    System.Diagnostics.Process.Start(uriAsString);
+                }
+                else if (data is Uri uri)
+                {
+                    System.Diagnostics.Process.Start(uri.ToString());
                 }
             }
         }

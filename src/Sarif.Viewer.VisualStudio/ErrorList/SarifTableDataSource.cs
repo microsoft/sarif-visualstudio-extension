@@ -3,20 +3,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
+using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    internal class SarifTableDataSource : ITableDataSource
+    internal class SarifTableDataSource : ITableDataSource, IDisposable
     {
         private static SarifTableDataSource _instance;
-        private readonly List<SinkManager> _managers = new List<SinkManager>();
-        private Dictionary<string, List<SarifResultTableEntry>> _logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+        private readonly ReaderWriterLockSlimWrapper sinkManagerLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private readonly List<SinkManager> sinkManagers = new List<SinkManager>();
+
+        private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
 
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
@@ -58,26 +64,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 var manager = TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this,
-                    StandardTableKeyNames2.TextInlines,
-                    StandardTableKeyNames.DocumentName,
-                    StandardTableKeyNames.ErrorCategory,
-                    StandardTableKeyNames.Line,
-                    StandardTableKeyNames.Column,
-                    StandardTableKeyNames.Text,
-                    StandardTableKeyNames.FullText,
-                    StandardTableKeyNames.ErrorSeverity,
-                    StandardTableKeyNames.Priority,
-                    StandardTableKeyNames.ErrorSource,
-                    StandardTableKeyNames.BuildTool,
-                    StandardTableKeyNames.ErrorCode,
-                    StandardTableKeyNames.ProjectName,
-                    StandardTableKeyNames.HelpLink,
-                    StandardTableKeyNames.ErrorCodeToolTip,
-                    "suppressionstatus",
-                    "suppressionstate",
-                    "suppression");
-
+                manager.AddSource(this, SarifResultTableEntry.SupportedColumns);
             }
         }
 
@@ -116,33 +103,33 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public void AddSinkManager(SinkManager manager)
         {
-            // This call can, in theory, happen from any thread so be appropriately thread safe.
-            // In practice, it will probably be called only once from the UI thread (by the error list tool window).
-            lock (_managers)
+            using (this.sinkManagerLock.EnterWriteLock())
             {
-                _managers.Add(manager);
+                sinkManagers.Add(manager);
             }
         }
 
         public void RemoveSinkManager(SinkManager manager)
         {
-            // This call can, in theory, happen from any thread so be appropriately thread safe.
-            // In practice, it will probably be called only once from the UI thread (by the error list tool window).
-            lock (_managers)
+            using (this.sinkManagerLock.EnterWriteLock())
             {
-                _managers.Remove(manager);
+                sinkManagers.Remove(manager);
             }
         }
 
         public void UpdateAllSinks()
         {
-            lock (_managers)
+            this.CallSinkManagers((sinkManager) =>
             {
-                foreach (var manager in _managers)
+                IImmutableList<SarifResultTableEntry> entriesToNotify;
+
+                using (this.tableEntriesLock.EnterReadLock())
                 {
-                    manager.AddEntries(_logFileToTableEntries.Values.SelectMany((snapshots) => snapshots).ToList());
+                    entriesToNotify = logFileToTableEntries.Values.SelectMany((tableEtnris) => tableEtnris).ToImmutableList();
                 }
-            }
+
+                sinkManager.AddEntries(entriesToNotify);
+            });
         }
 
         public void AddErrors(IEnumerable<SarifErrorListItem> errors)
@@ -152,59 +139,56 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            var tableEntries = errors.Select((error) => new SarifResultTableEntry(error));
+            var tableEntries = errors.Select((error) => new SarifResultTableEntry(error)).ToImmutableList();
 
-            lock (_managers)
+            this.CallSinkManagers((sinkManager) =>
             {
-                foreach (var manager in _managers)
-                {
-                    manager.AddEntries(tableEntries.ToList());
-                }
-            }
+                sinkManager.AddEntries(tableEntries);
+            });
 
-            foreach (var tableEntry in tableEntries)
+
+            using (this.tableEntriesLock.EnterWriteLock())
             {
-                if (this._logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out var logFileTableEntryList))
+                foreach (var tableEntry in tableEntries)
                 {
-                    logFileTableEntryList.Add(tableEntry);
-                }
-                else
-                {
-                    this._logFileToTableEntries.Add(tableEntry.Error.LogFilePath, new List<SarifResultTableEntry> { tableEntry });
+                    if (this.logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out var logFileTableEntryList))
+                    {
+                        logFileTableEntryList.Add(tableEntry);
+                    }
+                    else
+                    {
+                        this.logFileToTableEntries.Add(tableEntry.Error.LogFilePath, new List<SarifResultTableEntry> { tableEntry });
+                    }
                 }
             }
         }
 
         public void ClearErrorsForLogFiles(IEnumerable<string> logFiles)
         {
-            foreach (string logFile in logFiles)
-            {
-                if (_logFileToTableEntries.ContainsKey(logFile))
-                {
-                    lock (_managers)
-                    {
-                        foreach (var manager in _managers)
-                        {
-                            manager.RemoveEntries(this._logFileToTableEntries[logFile]);
-                        }
-                    }
+            IImmutableList<SarifResultTableEntry> entriesToRemove;
 
-                    _logFileToTableEntries.Remove(logFile);
-                }
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                entriesToRemove = this.logFileToTableEntries.
+                    Where((logFileToTableEntry) => logFiles.Contains(logFileToTableEntry.Key)).
+                    SelectMany((logFileToTableEntry) => logFileToTableEntry.Value).
+                    ToImmutableList();
             }
+
+            this.CallSinkManagers((sinkManager) =>
+            {
+                sinkManager.RemoveEntries(entriesToRemove);
+            });
         }
 
         public void CleanAllErrors()
         {
-            lock (_managers)
+            this.CallSinkManagers((sinkManager) =>
             {
-                foreach (var manager in _managers)
-                {
-                    manager.Clear();
-                }
-            }
+                sinkManager.Clear();
+            });
 
-            _logFileToTableEntries.Clear();
+            logFileToTableEntries.Clear();
         }
 
         public void BringToFront()
@@ -214,12 +198,40 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public bool HasErrors()
         {
-            return _logFileToTableEntries.Count > 0;
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                return logFileToTableEntries.Count > 0;
+            }
         }
 
         public bool HasErrors(string fileName)
         {
-            return _logFileToTableEntries.Values.Any((errorList) => errorList.Any((error) => error.Error.FileName.Equals(fileName, StringComparison.Ordinal)));
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                return logFileToTableEntries.Values.Any((errorList) => errorList.Any((error) => error.Error.FileName.Equals(fileName, StringComparison.Ordinal)));
+            }
+        }
+
+        private void CallSinkManagers(Action<SinkManager> action)
+        {
+            IReadOnlyList<SinkManager> sinkManagers;
+            using (this.sinkManagerLock.EnterReadLock())
+            {
+                sinkManagers = this.sinkManagers.ToImmutableArray();
+            }
+
+            foreach (var sinkManager in sinkManagers)
+            {
+                action(sinkManager);
+            }
+        }
+
+        public void Dispose()
+        {
+            // The wrapper class for the locks does not dispose the inner locks which are indeed
+            // disposable.
+            this.tableEntriesLock.InnerLock.Dispose();
+            this.sinkManagerLock.InnerLock.Dispose();
         }
     }
 }
