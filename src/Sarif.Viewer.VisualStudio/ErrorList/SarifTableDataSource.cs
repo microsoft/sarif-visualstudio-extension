@@ -23,6 +23,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
         private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+        private bool disposedValue;
 
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
@@ -126,7 +127,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 using (this.tableEntriesLock.EnterReadLock())
                 {
-                    entriesToNotify = logFileToTableEntries.Values.SelectMany((tableEtnris) => tableEtnris).ToImmutableList();
+                    entriesToNotify = logFileToTableEntries.Values.SelectMany((tableEntries) => tableEntries).ToImmutableList();
                 }
 
                 sinkManager.AddEntries(entriesToNotify);
@@ -227,12 +228,25 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.tableEntriesLock.InnerLock.Dispose();
+                    this.sinkManagerLock.InnerLock.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
         public void Dispose()
         {
-            // The wrapper class for the locks does not dispose the inner locks which are indeed
-            // disposable.
-            this.tableEntriesLock.InnerLock.Dispose();
-            this.sinkManagerLock.InnerLock.Dispose();
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

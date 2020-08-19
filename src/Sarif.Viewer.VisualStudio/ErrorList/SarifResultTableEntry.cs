@@ -17,8 +17,7 @@
     {
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
-        public static readonly string[] SupportedColumns = new[]
-        {
+        public static readonly string[] SupportedColumns = {
             StandardTableKeyNames2.TextInlines,
             StandardTableKeyNames.DocumentName,
             StandardTableKeyNames.ErrorCategory,
@@ -169,56 +168,50 @@
         private void ErrorListInlineLink_Click(object sender, RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Hyperlink hyperLink = sender as Hyperlink;
-
-            if (hyperLink != null)
+            if (!(sender is Hyperlink hyperLink))
             {
-                var data = hyperLink.Tag as object;
-                // data.Item1 = index of SarifErrorListItem
-                // data.Item2 = id of related location to link, or absolute URL string
+                return;
+            }
 
-                SarifErrorListItem sarifResult = this.Error;
-
-                if (data is int id)
+            if (hyperLink.Tag is int id)
+            {
+                // The user clicked an inline link with an integer target. Look for a Location object
+                // whose Id property matches that integer. The spec says that might be _any_ Location
+                // object under the current result. At present, we only support Location objects that
+                // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
+                // look in Result.CodeFlows or Result.Stacks.
+                LocationModel location = this.Error.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
+                if (location == null)
                 {
-                    // The user clicked an inline link with an integer target. Look for a Location object
-                    // whose Id property matches that integer. The spec says that might be _any_ Location
-                    // object under the current result. At present, we only support Location objects that
-                    // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
-                    // look in Result.CodeFlows or Result.Stacks.
-                    LocationModel location = sarifResult.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
-                    if (location == null)
+                    location = this.Error.Locations.Where(l => l.Id == id).FirstOrDefault();
+                }
+
+                if (location != null)
+                {
+                    // Set the current sarif error in the manager so we track code locations.
+                    CodeAnalysisResultManager.Instance.CurrentSarifResult = this.Error;
+
+                    SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
+
+                    if (this.Error.HasDetails)
                     {
-                        location = sarifResult.Locations.Where(l => l.Id == id).FirstOrDefault();
+                        // Setting the DataContext to null (above) forces the TabControl to select the appropriate tab.
+                        SarifViewerPackage.SarifToolWindow.Control.DataContext = this.Error;
                     }
 
-                    if (location != null)
-                    {
-                        // Set the current sarif error in the manager so we track code locations.
-                        CodeAnalysisResultManager.Instance.CurrentSarifResult = sarifResult;
-
-                        SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
-
-                        if (sarifResult.HasDetails)
-                        {
-                            // Setting the DataContext to null (above) forces the TabControl to select the appropriate tab.
-                            SarifViewerPackage.SarifToolWindow.Control.DataContext = sarifResult;
-                        }
-
-                        location.NavigateTo(false);
-                        location.ApplyDefaultSourceFileHighlighting();
-                    }
+                    location.NavigateTo(false);
+                    location.ApplyDefaultSourceFileHighlighting();
                 }
-                // This is super dangerous! We are launching URIs for SARIF logs
-                // that can point to anything.
-                else if (data is string uriAsString)
-                {
-                    System.Diagnostics.Process.Start(uriAsString);
-                }
-                else if (data is Uri uri)
-                {
-                    System.Diagnostics.Process.Start(uri.ToString());
-                }
+            }
+            // This is super dangerous! We are launching URIs for SARIF logs
+            // that can point to anything.
+            else if (hyperLink.Tag is string uriAsString)
+            {
+                System.Diagnostics.Process.Start(uriAsString);
+            }
+            else if (hyperLink.Tag is Uri uri)
+            {
+                System.Diagnostics.Process.Start(uri.ToString());
             }
         }
     }
