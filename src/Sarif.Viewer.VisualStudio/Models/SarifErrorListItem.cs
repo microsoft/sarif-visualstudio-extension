@@ -151,15 +151,18 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out rule);
-            Message = notification.Message.Text.Trim();
-            ShortMessage = ExtensionMethods.GetFirstSentence(notification.Message.Text);
+            Message = notification.Message.Text?.Trim() ?? string.Empty;
+            ShortMessage = ExtensionMethods.GetFirstSentence(Message);
+
+            // This is not locale friendly.
             if (!Message.EndsWith("."))
             {
                 ShortMessage = ShortMessage.TrimEnd('.');
             }
+
             Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? "";
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? string.Empty; ;
             ProjectName = projectNameCache.GetName(FileName);
             Locations.Add(new LocationModel() { FilePath = FileName });
 

@@ -46,9 +46,12 @@ namespace Microsoft.Sarif.Viewer.Sarif
             const string Slash = "/";
 
             string uriString = uri.ToString();
-            if (!uriString.EndsWith(Slash)) { uriString += Slash; }
+            if (uriString.EndsWith(Slash))
+            {
+                return uri;
+            }
 
-            return new Uri(uriString);
+            return new Uri(uriString, uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
         }
     }
 }
