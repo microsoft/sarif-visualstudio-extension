@@ -220,7 +220,7 @@
     <Compile Include="ErrorList\MultipleRunsPerSarifTests.cs" />
     <Compile Include="ErrorList\SarifErrorListItemTests.cs" />
     <Compile Include="ErrorList\SarifFileWithContentsTests.cs" />
-    <Compile Include="ErrorList\SarifSnapshotTests.cs" />
+    <Compile Include="ErrorList\SarifResultEntryTests.cs" />
     <Compile Include="Models\CallTreeCollectionTests.cs" />
     <Compile Include="Models\CallTreeTests.cs" />
     <Compile Include="Models\ArtifactChangeModelTests.cs" />
