@@ -184,10 +184,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <summary>
         /// Closes the specified SARIF log in the viewer.
         /// </summary>
-        /// <param name="paths">The complete path to the SARIF log file.</param>
-        public static void CloseSarifLogs(IEnumerable<string> paths)
+        /// <param name="logFiles">The complete path to the SARIF log file.</param>
+        public static void CloseSarifLogs(IEnumerable<string> logFiles)
         {
-            SarifTableDataSource.Instance.CleanErrors(paths);
+            SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
         }
 
         /// <summary>

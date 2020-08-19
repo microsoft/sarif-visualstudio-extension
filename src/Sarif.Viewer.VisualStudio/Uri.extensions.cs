@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return uri;
             }
 
-            return new Uri(uriString, uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
+            return new Uri(uriString.ToString() + Slash, uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
         }
     }
 }
