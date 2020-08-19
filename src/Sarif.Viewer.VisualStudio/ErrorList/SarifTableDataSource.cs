@@ -92,6 +92,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public string DisplayName
         {
+            // This should be in the RESX file.
             get { return Constants.VSIX_NAME; }
         }
 
