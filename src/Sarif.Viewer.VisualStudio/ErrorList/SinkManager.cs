@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public void AddEntries(IReadOnlyList<SarifResultTableEntry> tableEntries)
         {
-            _sink.AddEntries(tableEntries, removeAllEntries: true);
+            _sink.AddEntries(tableEntries);
         }
 
         public void RemoveEntries(IReadOnlyList<SarifResultTableEntry> entries)
