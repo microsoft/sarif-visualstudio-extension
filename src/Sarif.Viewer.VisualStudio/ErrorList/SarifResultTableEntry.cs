@@ -12,6 +12,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using Microsoft.VisualStudio.Shell.TableManager;
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Windows;
     using System.Windows.Documents;
@@ -20,7 +21,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
-        public static readonly string[] SupportedColumns = {
+        public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new [] {
             StandardTableKeyNames2.TextInlines,
             StandardTableKeyNames.DocumentName,
             StandardTableKeyNames.ErrorCategory,
@@ -39,7 +40,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             "suppressionstatus",
             "suppressionstate",
             "suppression"
-        };
+        });
 
         public SarifResultTableEntry(SarifErrorListItem error)
         {
