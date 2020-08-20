@@ -98,12 +98,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public IDisposable Subscribe(ITableDataSink sink)
         {
-            var sarifTableDataSourceSink = new SarifTableDataSink(sink);
-            sarifTableDataSourceSink.Disposed += this.TableSink_Disposed;
+            var sarifTableDataSink = new SarifTableDataSink(sink);
+            sarifTableDataSink.Disposed += this.TableSink_Disposed;
 
             using (this.sinksLock.EnterWriteLock())
             {
-                sinks.Add(sarifTableDataSourceSink);
+                sinks.Add(sarifTableDataSink);
             }
 
             IImmutableList<SarifResultTableEntry> entriesToNotify;
@@ -113,9 +113,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 entriesToNotify = logFileToTableEntries.Values.SelectMany((tableEntries) => tableEntries).ToImmutableList();
             }
 
-            sarifTableDataSourceSink.AddEntries(entriesToNotify);
+            sarifTableDataSink.AddEntries(entriesToNotify);
 
-            return sarifTableDataSourceSink;
+            return sarifTableDataSink;
         }
         #endregion
 
