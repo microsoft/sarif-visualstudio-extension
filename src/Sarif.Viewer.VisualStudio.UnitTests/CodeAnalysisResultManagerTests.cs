@@ -234,6 +234,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     ["NO_SLASH"] = new ArtifactLocation
                     {
                         Uri = new Uri("file:///C:/code/myProject/test")
+                    },
+                    ["NO_SLASH_RELATIVE"] = new ArtifactLocation
+                    {
+                        Uri = new Uri("code/myProject/test", UriKind.Relative)
                     }
                 }
             };
@@ -246,6 +250,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["HAS_SLASH"].Should().Be("file:///C:/code/myProject/src/");
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["NO_SLASH"].Should().Be("file:///C:/code/myProject/test/");
+            resultManager.CurrentRunDataCache.OriginalUriBasePaths["NO_SLASH_RELATIVE"].Should().Be("code/myProject/test/");
         }
 
         private string FakePromptForResolvedPath(string fullPathFromLogFile)

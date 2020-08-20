@@ -33,11 +33,10 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            var cleanErrors = true;
             foreach (string path in paths.Where((path) => !string.IsNullOrEmpty(path)))
             {
-                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: false, cleanErrors: cleanErrors);
-                cleanErrors = false;
+                // We should not clean errors here, if the user wants to clear errors, they can call the close log service (ICloseSarifLogService::CloseAllSarifLogs)
+                ErrorListService.ProcessLogFile(path, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: false, cleanErrors: false);
             }
         }
     }

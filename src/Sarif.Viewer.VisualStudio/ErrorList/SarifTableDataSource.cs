@@ -3,20 +3,27 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
+using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    class SarifTableDataSource : ITableDataSource
+    internal class SarifTableDataSource : ITableDataSource, IDisposable
     {
         private static SarifTableDataSource _instance;
-        private readonly List<SinkManager> _managers = new List<SinkManager>();
-        private static Dictionary<string, SarifSnapshot> _snapshots = new Dictionary<string, SarifSnapshot>();
+        private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private readonly List<SarifTableDataSink> sinks = new List<SarifTableDataSink>();
+
+        private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+        private bool disposedValue;
 
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
@@ -57,20 +64,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         { compositionService.GetService<ITableControlEventProcessorProvider>() };
                 }
 
-                var manager = TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, 
-                    StandardTableColumnDefinitions.DetailsExpander,
-                    StandardTableColumnDefinitions.ErrorSeverity, 
-                    StandardTableColumnDefinitions.ErrorCode,
-                    StandardTableColumnDefinitions.ErrorSource, 
-                    StandardTableColumnDefinitions.BuildTool,
-                    StandardTableColumnDefinitions.ErrorRank, 
-                    StandardTableColumnDefinitions.ErrorCategory,
-                    StandardTableColumnDefinitions.Text, 
-                    StandardTableColumnDefinitions.DocumentName,
-                    StandardTableColumnDefinitions.Line, 
-                    StandardTableColumnDefinitions.Column);
-
+                ITableManager manager = TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
+                manager.AddSource(this, SarifResultTableEntry.SupportedColumns);
             }
         }
 
@@ -98,117 +93,181 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public string DisplayName
         {
-            get { return Constants.VSIX_NAME; }
+            get { return Resources.ErrorListTableDataSourceDisplayName; }
         }
 
         public IDisposable Subscribe(ITableDataSink sink)
         {
-            return new SinkManager(this, sink);
+            var sarifTableDataSink = new SarifTableDataSink(sink);
+            sarifTableDataSink.Disposed += this.TableSink_Disposed;
+
+            using (this.sinksLock.EnterWriteLock())
+            {
+                sinks.Add(sarifTableDataSink);
+            }
+
+            IImmutableList<SarifResultTableEntry> entriesToNotify;
+
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                entriesToNotify = logFileToTableEntries.Values.SelectMany((tableEntries) => tableEntries).ToImmutableList();
+            }
+
+            sarifTableDataSink.AddEntries(entriesToNotify);
+
+            return sarifTableDataSink;
         }
         #endregion
-
-        public void AddSinkManager(SinkManager manager)
-        {
-            // This call can, in theory, happen from any thread so be appropriately thread safe.
-            // In practice, it will probably be called only once from the UI thread (by the error list tool window).
-            lock (_managers)
-            {
-                _managers.Add(manager);
-            }
-        }
-
-        public void RemoveSinkManager(SinkManager manager)
-        {
-            // This call can, in theory, happen from any thread so be appropriately thread safe.
-            // In practice, it will probably be called only once from the UI thread (by the error list tool window).
-            lock (_managers)
-            {
-                _managers.Remove(manager);
-            }
-        }
-
-        public void UpdateAllSinks()
-        {
-            lock (_managers)
-            {
-                foreach (var manager in _managers)
-                {
-                    manager.UpdateSink(_snapshots.Values);
-                }
-            }
-        }
 
         public void AddErrors(IEnumerable<SarifErrorListItem> errors)
         {
             if (errors == null)
+            {
                 return;
-            
-            foreach (var fileErrorGroup in errors.GroupBy(t => t.FileName ?? ""))
-            {                
-                var snapshot = new SarifSnapshot(fileErrorGroup.Key, fileErrorGroup);
-                _snapshots[fileErrorGroup.Key] = snapshot;
             }
 
-            UpdateAllSinks();
+            var tableEntries = errors.Select((error) => new SarifResultTableEntry(error)).ToImmutableList();
+
+            this.CallSinks(sink =>sink.AddEntries(tableEntries));
+
+            using (this.tableEntriesLock.EnterWriteLock())
+            {
+                foreach (var tableEntry in tableEntries)
+                {
+                    if (this.logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out var logFileTableEntryList))
+                    {
+                        logFileTableEntryList.Add(tableEntry);
+                    }
+                    else
+                    {
+                        this.logFileToTableEntries.Add(tableEntry.Error.LogFilePath, new List<SarifResultTableEntry> { tableEntry });
+                    }
+                }
+            }
         }
 
-        public void CleanErrors(IEnumerable<string> files)
+        public void ClearErrorsForLogFiles(IEnumerable<string> logFiles)
         {
-            foreach (string file in files)
+            IImmutableList<SarifResultTableEntry> entriesToRemove;
+
+            using (this.tableEntriesLock.EnterWriteLock())
             {
-                if (_snapshots.ContainsKey(file))
+                IEnumerable<KeyValuePair<string, List<SarifResultTableEntry>>> logFileToTabkeEntriesToRemove = this.logFileToTableEntries.
+                    Where((logFileToTableEntry) => logFiles.Contains(logFileToTableEntry.Key)).ToList();
+
+                entriesToRemove = logFileToTabkeEntriesToRemove.SelectMany((logFileToTableEntry) => logFileToTableEntry.Value).
+                    ToImmutableList();
+
+                foreach (var logFilesToRemove in logFileToTabkeEntriesToRemove)
                 {
-                    _snapshots[file].Dispose();
-                    _snapshots.Remove(file);
+                    this.logFileToTableEntries.Remove(logFilesToRemove.Key);
                 }
             }
 
-            lock (_managers)
-            {
-                foreach (var manager in _managers)
-                {
-                    manager.RemoveSnapshots(files);
-                }
-            }
-
-            UpdateAllSinks();
+            this.CallSinks(sink => sink.RemoveEntries(entriesToRemove));
         }
 
         public void CleanAllErrors()
         {
-            foreach (string file in _snapshots.Keys)
-            {
-                var snapshot = _snapshots[file];
-                if (snapshot != null)
-                {
-                    snapshot.Dispose();
-                }
-            }
+            this.CallSinks(sink => sink.RemoveAllEntries());
 
-            _snapshots.Clear();
-
-            lock (_managers)
+            using (this.tableEntriesLock.EnterWriteLock())
             {
-                foreach (var manager in _managers)
-                {
-                    manager.Clear();
-                }
+                this.logFileToTableEntries.Clear();
             }
         }
 
-        public void BringToFront()
+        /// <summary>
+        /// Used for unit testing.
+        /// </summary>
+        /// <returns>
+        /// Returns true if there are any entries in the table.
+        /// </returns>
+        internal bool HasErrors()
         {
-            SarifViewerPackage.Dte.ExecuteCommand("View.ErrorList");
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                return logFileToTableEntries.Count > 0;
+            }
         }
 
-        public bool HasErrors()
+        /// <summary>
+        /// Used for unit testing.
+        /// </summary>
+        /// <returns>
+        /// Returns true if there are any entries in the table for the specified source file.
+        /// </returns>
+        internal bool HasErrors(string sourceFileName)
         {
-            return _snapshots.Count > 0;
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                return logFileToTableEntries.Values.Any((errorList) => errorList.Any((error) => error.Error.FileName.Equals(sourceFileName, StringComparison.Ordinal)));
+            }
         }
 
-        public bool HasErrors(string fileName)
+        private void CallSinks(Action<SarifTableDataSink> action)
         {
-            return _snapshots.ContainsKey(fileName);
+            IReadOnlyList<SarifTableDataSink> sinkManagers;
+            using (this.sinksLock.EnterReadLock())
+            {
+                sinkManagers = this.sinks.ToImmutableArray();
+            }
+
+            foreach (var sinkManager in sinkManagers)
+            {
+                action(sinkManager);
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                disposedValue = true;
+
+                if (disposing)
+                {
+                    using (this.sinksLock.EnterWriteLock())
+                    {
+                        this.sinks.Clear();
+                    }
+
+                    using (this.tableEntriesLock.EnterWriteLock())
+                    {
+                        this.logFileToTableEntries.Clear();
+                    }
+
+                    // Visual Studio's wrapper does not dispose the locks
+                    // it holds internally. We are still responsible for disposing them.
+                    this.tableEntriesLock.InnerLock.Dispose();
+                    this.sinksLock.InnerLock.Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void TableSink_Disposed(object sender, EventArgs e)
+        {
+            if (disposedValue)
+            {
+                return;
+            }
+
+            if (sender is SarifTableDataSink sarifTableDataSourceSink)
+            {
+                sarifTableDataSourceSink.Disposed -= this.TableSink_Disposed;
+
+                using (this.sinksLock.EnterWriteLock())
+                {
+                    sinks.Remove(sarifTableDataSourceSink);
+                }
+            }
         }
     }
 }

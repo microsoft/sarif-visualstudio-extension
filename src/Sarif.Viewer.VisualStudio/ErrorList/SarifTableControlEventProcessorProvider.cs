@@ -118,18 +118,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             bool TryGetSarifResult(ITableEntryHandle entryHandle, out SarifErrorListItem sarifResult)
             {
-                ITableEntriesSnapshot entrySnapshot;
-                int entryIndex;
                 sarifResult = default(SarifErrorListItem);
 
-                if (entryHandle.TryGetSnapshot(out entrySnapshot, out entryIndex))
+                if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && tableEntry is SarifResultTableEntry sarifResultTableEntry)
                 {
-                    var snapshot = entrySnapshot as SarifSnapshot;
-
-                    if (snapshot != null)
-                    {
-                        sarifResult = snapshot.GetItem(entryIndex);
-                    }
+                    sarifResult = sarifResultTableEntry.Error;
                 }
 
                 return sarifResult != null;

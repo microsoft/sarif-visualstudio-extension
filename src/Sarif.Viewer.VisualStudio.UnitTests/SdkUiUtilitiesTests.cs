@@ -66,7 +66,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick \[brown fox\] jumps over the lazy dog.";
 
             // Because there are no embedded links, we shouldn't get anything back
-            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
 
             actual.Count.Should().Be(0);
         }
@@ -77,7 +77,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick [brown fox](1) jumps over the lazy dog.";
 
             var link = new Hyperlink();
-            link.Tag = new Tuple<int, object>(1, 1);
+            link.Tag = 1;
             link.Inlines.Add(new Run("brown fox"));
 
             var expected = new List<Inline>
@@ -87,7 +87,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new Run(" jumps over the lazy dog.")
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -102,11 +102,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick [brown fox](1) jumps over the [lazy dog](2)";
 
             var link1 = new Hyperlink();
-            link1.Tag = new Tuple<int, object>(1, 1);
+            link1.Tag = 1;
             link1.Inlines.Add(new Run("brown fox"));
 
             var link2 = new Hyperlink();
-            link2.Tag = new Tuple<int, int>(1, 2);
+            link2.Tag = 2;
             link2.Inlines.Add(new Run("lazy dog"));
 
             var expected = new List<Inline>
@@ -117,7 +117,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 link2
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -133,7 +133,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = @"The quick [brown fox](1) jumps over the \[lazy dog\].";
 
             var link = new Hyperlink();
-            link.Tag = new Tuple<int, object>(1, 1);
+            link.Tag = 1;
             link.Inlines.Add(new Run("brown fox"));
 
             var expected = new List<Inline>
@@ -143,7 +143,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new Run(" jumps over the [lazy dog].")
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -159,7 +159,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = $"The quick [brown fox]({url}) jumps over the lazy dog.";
 
             var link = new Hyperlink();
-            link.Tag = new Tuple<int, object>(1, new Uri(url, UriKind.Absolute));
+            link.Tag = new Uri(url, UriKind.Absolute);
             link.Inlines.Add(new Run("brown fox"));
 
             var expected = new List<Inline>
@@ -169,7 +169,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new Run(" jumps over the lazy dog.")
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -185,7 +185,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string message = $@"The file [..\directory\file.cpp]({url}) has a problem.";
 
             var link = new Hyperlink();
-            link.Tag = new Tuple<int, object>(1, new Uri(url, UriKind.Absolute));
+            link.Tag = new Uri(url, UriKind.Absolute);
             link.Inlines.Add(new Run(@"..\directory\file.cpp"));
 
             var expected = new List<Inline>
@@ -195,7 +195,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new Run(" has a problem.")
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, index: 1, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -219,10 +219,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             actualLink.Inlines.Count.Should().Be(expectedLink.Inlines.Count);
             (actualLink.Inlines.FirstInline as Run).Text.Should().Be((expectedLink.Inlines.FirstInline as Run).Text);
-            Tuple<int, object> tagActual = actualLink.Tag as Tuple<int, object>;
-            Tuple<int, object> tagExpected = actualLink.Tag as Tuple<int, object>;
-            tagActual.Item1.Should().Be(tagExpected.Item1);
-            tagActual.Item2.Should().Be(tagExpected.Item2);
+            actual.Tag.Should().Be(expected.Tag);
         }
     }
 }

@@ -178,16 +178,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors);
 
-            SarifTableDataSource.Instance.BringToFront();
+            SarifViewerPackage.Dte.ExecuteCommand("View.ErrorList");
+
         }
 
         /// <summary>
         /// Closes the specified SARIF log in the viewer.
         /// </summary>
-        /// <param name="paths">The complete path to the SARIF log file.</param>
-        public static void CloseSarifLogs(IEnumerable<string> paths)
+        /// <param name="logFiles">The complete path to the SARIF log file.</param>
+        public static void CloseSarifLogs(IEnumerable<string> logFiles)
         {
-            SarifTableDataSource.Instance.CleanErrors(paths);
+            SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
         }
 
         /// <summary>
@@ -224,7 +225,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             var saveFileDialog = new SaveFileDialog();
 
             saveFileDialog.Title = dialogTitle;
-            saveFileDialog.Filter = "SARIF log files (*.sarif)|*.sarif";
+            saveFileDialog.Filter = Resources.SaveDialogFileFilter;
             saveFileDialog.RestoreDirectory = true;
             saveFileDialog.InitialDirectory = Path.GetDirectoryName(inputFilePath);
 

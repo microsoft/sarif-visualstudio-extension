@@ -253,7 +253,15 @@ namespace Microsoft.Sarif.Viewer
             {
                 var target = CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
                 // This line assumes an empty dictionary
-                source.ToList().ForEach(x => target.Add(x.Key, x.Value.Uri.WithTrailingSlash()));
+                source.ToList().ForEach(x =>
+                {
+                    if (x.Value.Uri != null)
+                    {
+                        // The URI is not required.
+                        // The SARIF producer has chosen not to specify a URI. See §3.14.14, NOTE 1, for an explanation.
+                        target.Add(x.Key, x.Value.Uri.WithTrailingSlash());
+                    }
+                }) ;
             }
         }
 
