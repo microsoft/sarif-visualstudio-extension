@@ -120,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 sarifResult = default(SarifErrorListItem);
 
-                if (entryHandle.TryGetEntry(out var tableEntry) && tableEntry is SarifResultTableEntry sarifResultTableEntry)
+                if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && tableEntry is SarifResultTableEntry sarifResultTableEntry)
                 {
                     sarifResult = sarifResultTableEntry.Error;
                 }

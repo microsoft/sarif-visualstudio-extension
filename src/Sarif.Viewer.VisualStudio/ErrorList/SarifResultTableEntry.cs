@@ -1,4 +1,7 @@
-﻿namespace Microsoft.Sarif.Viewer.ErrorList
+﻿// Copyright (c) Microsoft. All rights reserved. 
+// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+
+namespace Microsoft.Sarif.Viewer.ErrorList
 {
     using EnvDTE;
     using Microsoft.CodeAnalysis.Sarif;
@@ -63,15 +66,18 @@
             if (this.Error.Rule != null)
             {
                 this.columnKeyToContent[StandardTableKeyNames.ErrorCode] = this.Error.Rule.Id;
-                this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = this.Error.Rule.Id + ":" + this.Error.Rule.Name;
+                if (!string.IsNullOrEmpty(this.Error.Rule.Name))
+                {
+                    this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = this.Error.Rule.Id + "." + this.Error.Rule.Name;
+                }
             }
 
             this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
 
-            var superssionState = this.Error.VSSuppressionState.ToString();
-            this.columnKeyToContent["suppressionstatus"] = superssionState;
-            this.columnKeyToContent["suppressionstate"] = superssionState;
-            this.columnKeyToContent["suppression"] = superssionState;
+            var supressionState = this.Error.VSSuppressionState.ToString();
+            this.columnKeyToContent["suppressionstatus"] = supressionState;
+            this.columnKeyToContent["suppressionstate"] = supressionState;
+            this.columnKeyToContent["suppression"] = supressionState;
 
             // Anything that's a bit more complex, we will make a "lazy" value and evaluate
             // it when it's asked for.
@@ -105,18 +111,7 @@
 
             this.columnKeyToContent[StandardTableKeyNames.HelpLink] = new Lazy<object>(() =>
             {
-                string url = null;
-                if (!string.IsNullOrEmpty(this.Error.HelpLink))
-                {
-                    url = this.Error.HelpLink;
-                }
-
-                if (url != null)
-                {
-                    return Uri.EscapeUriString(url);
-                }
-
-                return null;
+                return !string.IsNullOrEmpty(this.Error.HelpLink) ? Uri.EscapeUriString(this.Error.HelpLink) : null;
             });
         }
 
@@ -188,7 +183,7 @@
 
                 if (location != null)
                 {
-                    // Set the current sarif error in the manager so we track code locations.
+                    // Set the current SARIF error in the manager so we track code locations.
                     CodeAnalysisResultManager.Instance.CurrentSarifResult = this.Error;
 
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
@@ -205,6 +200,7 @@
             }
             // This is super dangerous! We are launching URIs for SARIF logs
             // that can point to anything.
+            // https://github.com/microsoft/sarif-visualstudio-extension/issues/171
             else if (hyperLink.Tag is string uriAsString)
             {
                 System.Diagnostics.Process.Start(uriAsString);

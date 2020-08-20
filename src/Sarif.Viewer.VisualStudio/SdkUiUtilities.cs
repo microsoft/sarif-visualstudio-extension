@@ -1171,6 +1171,7 @@ namespace Microsoft.Sarif.Viewer
                         {
                             // This is super dangerous! We are launching URIs for SARIF logs
                             // that can point to anything.
+                            // https://github.com/microsoft/sarif-visualstudio-extension/issues/171
                             target = uri;
                         }
 
@@ -1178,7 +1179,7 @@ namespace Microsoft.Sarif.Viewer
                         {
                             var link = new XamlDoc.Hyperlink();
 
-                            // Stash relativeLocation.id or web URL. This is used in SarifSnapshot.ErrorListInlineLink_Click.
+                            // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
                             link.Tag = target;
 
                             // Set the hyperlink text

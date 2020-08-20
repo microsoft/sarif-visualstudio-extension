@@ -178,7 +178,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors);
 
-            SarifTableDataSource.Instance.BringToFront();
+            SarifViewerPackage.Dte.ExecuteCommand("View.ErrorList");
+
         }
 
         /// <summary>
@@ -224,8 +225,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             var saveFileDialog = new SaveFileDialog();
 
             saveFileDialog.Title = dialogTitle;
-            // This should come from the RESX file.
-            saveFileDialog.Filter = "SARIF log files (*.sarif)|*.sarif";
+            saveFileDialog.Filter = Resources.SaveDialogFileFilter;
             saveFileDialog.RestoreDirectory = true;
             saveFileDialog.InitialDirectory = Path.GetDirectoryName(inputFilePath);
 

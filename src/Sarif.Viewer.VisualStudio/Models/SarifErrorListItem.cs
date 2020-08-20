@@ -162,7 +162,7 @@ namespace Microsoft.Sarif.Viewer
 
             Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? string.Empty; ;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? string.Empty;
             ProjectName = projectNameCache.GetName(FileName);
             Locations.Add(new LocationModel() { FilePath = FileName });
 
