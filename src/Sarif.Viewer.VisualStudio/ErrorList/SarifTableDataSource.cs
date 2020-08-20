@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private static SarifTableDataSource _instance;
         private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private readonly List<SarifTableDataSourceSink> sinks = new List<SarifTableDataSourceSink>();
+        private readonly List<SarifTableDataSink> sinks = new List<SarifTableDataSink>();
 
         private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
         private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
@@ -98,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public IDisposable Subscribe(ITableDataSink sink)
         {
-            var sarifTableDataSourceSink = new SarifTableDataSourceSink(sink);
+            var sarifTableDataSourceSink = new SarifTableDataSink(sink);
             sarifTableDataSourceSink.Disposed += this.TableSink_Disposed;
 
             using (this.sinksLock.EnterWriteLock())
@@ -128,11 +128,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             var tableEntries = errors.Select((error) => new SarifResultTableEntry(error)).ToImmutableList();
 
-            this.CallSinks((sink) =>
-            {
-                sink.AddEntries(tableEntries);
-            });
-
+            this.CallSinks(sink =>sink.AddEntries(tableEntries));
 
             using (this.tableEntriesLock.EnterWriteLock())
             {
@@ -157,7 +153,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             using (this.tableEntriesLock.EnterWriteLock())
             {
                 IEnumerable<KeyValuePair<string, List<SarifResultTableEntry>>> logFileToTabkeEntriesToRemove = this.logFileToTableEntries.
-                    Where((logFileToTableEntry) => logFiles.Contains(logFileToTableEntry.Key));
+                    Where((logFileToTableEntry) => logFiles.Contains(logFileToTableEntry.Key)).ToList();
 
                 entriesToRemove = logFileToTabkeEntriesToRemove.SelectMany((logFileToTableEntry) => logFileToTableEntry.Value).
                     ToImmutableList();
@@ -168,18 +164,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            this.CallSinks((sinkManager) =>
-            {
-                sinkManager.RemoveEntries(entriesToRemove);
-            });
+            this.CallSinks(sink => sink.RemoveEntries(entriesToRemove));
         }
 
         public void CleanAllErrors()
         {
-            this.CallSinks((sinkManager) =>
-            {
-                sinkManager.RemoveAllEntries();
-            });
+            this.CallSinks(sink => sink.RemoveAllEntries());
 
             using (this.tableEntriesLock.EnterWriteLock())
             {
@@ -215,9 +205,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private void CallSinks(Action<SarifTableDataSourceSink> action)
+        private void CallSinks(Action<SarifTableDataSink> action)
         {
-            IReadOnlyList<SarifTableDataSourceSink> sinkManagers;
+            IReadOnlyList<SarifTableDataSink> sinkManagers;
             using (this.sinksLock.EnterReadLock())
             {
                 sinkManagers = this.sinks.ToImmutableArray();
@@ -269,7 +259,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            if (sender is SarifTableDataSourceSink sarifTableDataSourceSink)
+            if (sender is SarifTableDataSink sarifTableDataSourceSink)
             {
                 sarifTableDataSourceSink.Disposed -= this.TableSink_Disposed;
 

@@ -66,10 +66,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (this.Error.Rule != null)
             {
                 this.columnKeyToContent[StandardTableKeyNames.ErrorCode] = this.Error.Rule.Id;
-                if (!string.IsNullOrEmpty(this.Error.Rule.Name))
-                {
-                    this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = this.Error.Rule.Id + "." + this.Error.Rule.Name;
-                }
+                this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = string.IsNullOrEmpty(this.Error.Rule.Name) ?
+                    this.Error.Rule.Id : this.Error.Rule.Id + "." + this.Error.Rule.Name;
             }
 
             this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
