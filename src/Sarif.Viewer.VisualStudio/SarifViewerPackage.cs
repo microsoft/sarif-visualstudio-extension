@@ -61,10 +61,18 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.ThrowIfNotOnUIThread();
                 IVsPackage package;
                 IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
-                if (vsShell == null ||
-                    (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
-                    vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK) ||
-                    !(package is Package vsPackage))
+                if (vsShell == null)
+                {
+                    return null;
+                }
+                   
+                if (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
+                    vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK)
+                {
+                    return null;
+                }
+                   
+                if(!(package is Package vsPackage))
                 {
                     return null;
                 }
