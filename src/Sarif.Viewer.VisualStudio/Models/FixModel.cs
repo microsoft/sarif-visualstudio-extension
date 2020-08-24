@@ -7,8 +7,10 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-
+using EnvDTE;
+using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -151,12 +153,14 @@ namespace Microsoft.Sarif.Viewer.Models
 
                         File.WriteAllBytes(previewFilePath, fixedFile.ToArray());
 
-                        SarifViewerPackage.Dte.ExecuteCommand("Tools.DiffFiles",
-                                                              $"\"{file}\" " +
-                                                              $"\"{previewFilePath}\" " +
-                                                              $"\"{Resources.FixPreviewWindow_OriginalFileTitle}\" " +
-                                                              $"\"{Resources.FixPreviewWindow_PreviewFixedFileTitle}\"");
-                    }
+                        var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
+
+                        dte.ExecuteCommand("Tools.DiffFiles",
+                                            $"\"{file}\" " +
+                                            $"\"{previewFilePath}\" " +
+                                            $"\"{Resources.FixPreviewWindow_OriginalFileTitle}\" " +
+                                            $"\"{Resources.FixPreviewWindow_PreviewFixedFileTitle}\"");
+}
                 }
             }
         }

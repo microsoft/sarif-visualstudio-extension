@@ -13,6 +13,9 @@ using EnvDTE;
 using EnvDTE80;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.VisualStudio.Shell;
+using System.Runtime.CompilerServices;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -33,13 +36,14 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(SCloseSarifLogService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
-        public static DTE2 Dte;
-        public static IServiceProvider ServiceProvider;
+        private DTE2 Dte;
+        private IServiceProvider ServiceProvider;
 
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
+        public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
 
@@ -64,11 +68,26 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                SarifViewerPackage package = SarifViewerPackage.ServiceProvider as SarifViewerPackage;
+                ThreadHelper.ThrowIfNotOnUIThread();
+                IVsShell vsShell = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
+                if (vsShell == null)
+                {
+                    return null;
+                }
 
-                SarifToolWindow toolWindow = package?.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
+                IVsPackage package;
+                if (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
+                    vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK)
+                {
+                    return null;
+                }
 
-                return toolWindow;
+                if (!(package is Package vsPackage))
+                {
+                    return null;
+                }
+
+                return vsPackage.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
             }
         }
 

@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using EnvDTE;
+using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -381,7 +383,16 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_openLogFileCommand == null)
                 {
-                    _openLogFileCommand = new DelegateCommand(() => OpenLogFile());
+                    _openLogFileCommand = new DelegateCommand(() =>
+                    {
+                        // For now this is being done on the UI thread
+                        // and is only required due to the message box being shown below.
+                        // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+                        // is fixed.
+                        ThreadHelper.ThrowIfNotOnUIThread();
+
+                        OpenLogFile();
+                    });
                 }
 
                 return _openLogFileCommand;
@@ -443,15 +454,22 @@ namespace Microsoft.Sarif.Viewer
 
         internal void OpenLogFile()
         {
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (LogFilePath != null)
             {
                 if (File.Exists(LogFilePath))
                 {
-                    SarifViewerPackage.Dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
+                    var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
+                    dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
                 }
                 else
                 {
-                    VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                     string.Format(Resources.OpenLogFileFail_DilogMessage, LogFilePath),
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -473,7 +491,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, _runId, Region, FileName);
+                    _lineMarker = new ResultTextMarker(_runId, Region, FileName);
                 }
 
                 return _lineMarker;

@@ -3,6 +3,8 @@
 
 using System;
 using System.ComponentModel.Composition;
+using EnvDTE;
+using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ContentTypes;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -55,7 +57,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.TryGetFileNameFromTextView(textView, out var filename))
             {
-                ErrorListService.ProcessLogFile(filename, SarifViewerPackage.Dte.Solution, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false);
+                ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false);
             }
         }
 

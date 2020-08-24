@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using EnvDTE;
+using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.CodeAnalysis.Sarif.Readers;
@@ -30,8 +31,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        public static void ProcessLogFile(string filePath, Solution solution, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
+        public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
         {
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             SarifLog log = null;
 
             string logText;
@@ -116,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     // The version property wasn't found within the first 100 characters.
                     // Per the spec, it should appear first in the sarifLog object.
-                    VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                     Resources.VersionPropertyNotFound_DialogTitle,
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_QUERY,
@@ -176,10 +183,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            ProcessSarifLog(log, outputPath, solution, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors);
+            ProcessSarifLog(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors);
 
-            SarifViewerPackage.Dte.ExecuteCommand("View.ErrorList");
-
+            if (AsyncPackage.GetGlobalService(typeof(DTE)) is DTE2 dte)
+            {
+                dte.ExecuteCommand("View.ErrorList");
+            }
         }
 
         /// <summary>
@@ -211,7 +220,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private static MessageDialogCommand PromptToSaveProcessedLog(string dialogMessage)
         {
-            int result = VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            int result = VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                          dialogMessage,
                                                          null, // title
                                                          OLEMSGICON.OLEMSGICON_QUERY,
@@ -239,11 +254,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private static void SaveLogFile(string filePath, SarifLog log)
         {
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             SaveLogFile(filePath, JsonConvert.SerializeObject(log));
         }
 
         private static void SaveLogFile(string filePath, string logText)
         {
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             string error = null;
 
             try
@@ -265,7 +292,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (error != null)
             {
-                VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                 error,
                                                 null, // title
                                                 OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -274,7 +301,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, Solution solution, bool showMessageOnNoResults, bool cleanErrors)
+        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors)
         {
             // Clear previous data
             if (cleanErrors)
@@ -303,7 +330,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 TelemetryProvider.WriteEvent(TelemetryEvent.LogFileRunCreatedByToolName,
                                              TelemetryProvider.CreateKeyValuePair("ToolName", run.Tool.Driver.Name));
-                if (Instance.WriteRunToErrorList(run, logFilePath, solution) > 0)
+                if (Instance.WriteRunToErrorList(run, logFilePath) > 0)
                 {
                     hasResults = true;
                 }
@@ -311,12 +338,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (!hasResults && showMessageOnNoResults)
             {
-                VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
-                                                string.Format(Resources.NoResults_DialogMessage, logFilePath),
-                                                null, // title
-                                                OLEMSGICON.OLEMSGICON_INFO,
-                                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                ThreadHelper.JoinableTaskFactory.Run(async ()  =>
+               {
+                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                   VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                                                   string.Format(Resources.NoResults_DialogMessage, logFilePath),
+                                                   null, // title
+                                                   OLEMSGICON.OLEMSGICON_INFO,
+                                                   OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                   OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+               });
             }
         }
 
@@ -324,14 +355,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
         }
 
-        private int WriteRunToErrorList(Run run, string logFilePath, Solution solution)
+        private int WriteRunToErrorList(Run run, string logFilePath)
         {
             RunDataCache dataCache = new RunDataCache(run);
             CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
-            var projectNameCache = new ProjectNameCache(solution);
+            var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
+
+            var projectNameCache = new ProjectNameCache(dte?.Solution);
 
             StoreFileDetails(run.Artifacts);
 

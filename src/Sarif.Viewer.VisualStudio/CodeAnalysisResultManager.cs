@@ -61,22 +61,6 @@ namespace Microsoft.Sarif.Viewer
             TemporaryFilePath = Path.Combine(TemporaryFilePath, TemporaryFileDirectoryName);
         }
 
-        private IServiceProvider ServiceProvider
-        {
-            get
-            {
-                return SarifViewerPackage.ServiceProvider;
-            }
-        }
-
-        private SarifViewerPackage Package
-        {
-            get
-            {
-                return (SarifViewerPackage)SarifViewerPackage.ServiceProvider;
-            }
-        }
-
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
         public IDictionary<int, RunDataCache> RunDataCaches { get; } = new Dictionary<int, RunDataCache>();
@@ -118,7 +102,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             // Register this object to listen for IVsUpdateSolutionEvents
-            IVsSolutionBuildManager2 buildManager = Package.GetService<SVsSolutionBuildManager, IVsSolutionBuildManager2>();
+            IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
             if (buildManager == null)
             {
                 throw Marshal.GetExceptionForHR(E_FAIL);
@@ -126,7 +110,7 @@ namespace Microsoft.Sarif.Viewer
             buildManager.AdviseUpdateSolutionEvents(this, out m_updateSolutionEventsCookie);
 
             // Register this object to listen for IVsSolutionEvents
-            IVsSolution solution = Package.GetService<SVsSolution, IVsSolution>();
+            IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
             if (solution == null)
             {
                 throw Marshal.GetExceptionForHR(E_FAIL);
@@ -134,7 +118,7 @@ namespace Microsoft.Sarif.Viewer
             solution.AdviseSolutionEvents(this, out m_solutionEventsCookie);
 
             // Register this object to listen for IVsRunningDocTableEvents
-            _runningDocTable = Package.GetService<SVsRunningDocumentTable, IVsRunningDocumentTable>();
+            _runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
             if (_runningDocTable == null)
             {
                 throw Marshal.GetExceptionForHR(E_FAIL);
@@ -153,7 +137,7 @@ namespace Microsoft.Sarif.Viewer
             if (m_updateSolutionEventsCookie != VSCOOKIE_NIL)
             {
 
-                IVsSolutionBuildManager2 buildManager = Package.GetService<SVsSolutionBuildManager, IVsSolutionBuildManager2>();
+                IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager))  as IVsSolutionBuildManager2;
                 if (buildManager != null)
                 {
                     buildManager.UnadviseUpdateSolutionEvents(m_updateSolutionEventsCookie);
@@ -164,7 +148,7 @@ namespace Microsoft.Sarif.Viewer
             // Unregister this object from IVsSolutionEvents events
             if (m_solutionEventsCookie != VSCOOKIE_NIL)
             {
-                IVsSolution solution = Package.GetService<SVsSolution, IVsSolution>();
+                IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
                 if (solution != null)
                 {
                     solution.UnadviseSolutionEvents(m_solutionEventsCookie);
@@ -175,7 +159,7 @@ namespace Microsoft.Sarif.Viewer
             // Unregister this object from IVsRunningDocTableEvents events
             if (m_runningDocTableEventsCookie != VSCOOKIE_NIL)
             {
-                IVsRunningDocumentTable runningDocTable = Package.GetService<SVsRunningDocumentTable, IVsRunningDocumentTable>();
+                IVsRunningDocumentTable runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
                 if (runningDocTable != null)
                 {
                     runningDocTable.UnadviseRunningDocTableEvents(m_runningDocTableEventsCookie);
@@ -325,7 +309,7 @@ namespace Microsoft.Sarif.Viewer
                         }
                         catch (WebException wex)
                         {
-                            VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                            VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                        Resources.DownloadFail_DialogMessage + Environment.NewLine + wex.Message,
                                        null, // title
                                        OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -763,7 +747,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             string documentName = null;
-            IVsRunningDocumentTable runningDocTable = SdkUIUtilities.GetService<SVsRunningDocumentTable, IVsRunningDocumentTable>(ServiceProvider);
+            IVsRunningDocumentTable runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
             if (runningDocTable != null)
             {
                 IntPtr docData = IntPtr.Zero;
