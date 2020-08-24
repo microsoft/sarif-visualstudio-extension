@@ -1110,17 +1110,16 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
         internal static List<XamlDoc.Inline> GetInlinesForErrorMessage(string message)
         {
-            return GetMessageInlines(message, -1, null);
+            return GetMessageInlines(message, null);
         }
 
         /// <summary>
         /// Builds a set of Inline elements from the specified message, optionally with embedded hyperlinks.
         /// </summary>
         /// <param name="message">The message to process.</param>
-        /// <param name="index">The index of the error item</param>
         /// <param name="clickHandler">A delegate for the Hyperlink.Click event.</param>
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
-        internal static List<XamlDoc.Inline> GetMessageInlines(string message, int index, RoutedEventHandler clickHandler)
+        internal static List<XamlDoc.Inline> GetMessageInlines(string message, RoutedEventHandler clickHandler)
         {
             List<XamlDoc.Inline> inlines = null;
             if (!ThreadHelper.CheckAccess() && !SarifViewerPackage.IsUnitTesting)
@@ -1129,18 +1128,18 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    inlines = GetMessageInlinesHelper(message, index, clickHandler);
+                    inlines = GetMessageInlinesHelper(message, clickHandler);
                 });
 #pragma warning disable VSTHRD001
             }
             else
             {
-                inlines = GetMessageInlinesHelper(message, index, clickHandler);
+                inlines = GetMessageInlinesHelper(message, clickHandler);
             }
             return inlines;
         }
 
-        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, int index, RoutedEventHandler clickHandler)
+        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, RoutedEventHandler clickHandler)
         {
             var inlines = new List<XamlDoc.Inline>();
 
@@ -1168,25 +1167,20 @@ namespace Microsoft.Sarif.Viewer
                         {
                             target = id;
                         }
-                        else
+                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out var uri))
                         {
-                            Uri uri;
-
-                            if (Uri.TryCreate(targetText, UriKind.Absolute, out uri))
-                            {
-                                // It's a valid absolute URL.
-                                // Call Uri.ToString in case normalization was performed by Uri.TryCreate.
-                                // We are stashing the string because that's what Process.Start takes as input.
-                                target = uri.ToString();
-                            }
+                            // This is super dangerous! We are launching URIs for SARIF logs
+                            // that can point to anything.
+                            // https://github.com/microsoft/sarif-visualstudio-extension/issues/171
+                            target = uri;
                         }
 
                         if (target != null)
                         {
                             var link = new XamlDoc.Hyperlink();
 
-                            // Stash the error index and relativeLocation.id or web URL. This is used in SarifSnapshot.ErrorListInlineLink_Click.
-                            link.Tag = new Tuple<int, object>(index, target);
+                            // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
+                            link.Tag = target;
 
                             // Set the hyperlink text
                             link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));

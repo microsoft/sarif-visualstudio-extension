@@ -117,6 +117,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SARIF Viewer.
+        /// </summary>
+        public static string ErrorListTableDataSourceDisplayName {
+            get {
+                return ResourceManager.GetString("ErrorListTableDataSourceDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open File.
         /// </summary>
         public static string FileOpenFail_DialogCaption {
@@ -204,6 +213,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string SaveConvertedLog_DialogTitle {
             get {
                 return ResourceManager.GetString("SaveConvertedLog_DialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SARIF log files (*.sarif)|*.sarif.
+        /// </summary>
+        public static string SaveDialogFileFilter {
+            get {
+                return ResourceManager.GetString("SaveDialogFileFilter", resourceCulture);
             }
         }
         

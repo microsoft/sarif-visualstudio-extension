@@ -137,6 +137,9 @@
   <data name="DownloadFail_DialogMessage" xml:space="preserve">
     <value>An error occurred downloading the source file.</value>
   </data>
+  <data name="ErrorListTableDataSourceDisplayName" xml:space="preserve">
+    <value>SARIF Viewer</value>
+  </data>
   <data name="FileOpenFail_DialogCaption" xml:space="preserve">
     <value>Open File</value>
   </data>
@@ -172,6 +175,9 @@
   </data>
   <data name="SaveConvertedLog_DialogTitle" xml:space="preserve">
     <value>Save Converted Log File</value>
+  </data>
+  <data name="SaveDialogFileFilter" xml:space="preserve">
+    <value>SARIF log files (*.sarif)|*.sarif</value>
   </data>
   <data name="SaveLogFail_Access_DialogMessage" xml:space="preserve">
     <value>The log file couldn't be saved because access to the path '{0}' was denied.</value>

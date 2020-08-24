@@ -1,4 +1,6 @@
 # SARIF Viewer Visual Studio extension Release History
+## **v2.1.11** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Ensure "close logs" API actually clears errors from error list. [#163](https://github.com/microsoft/sarif-visualstudio-extension/issues/172)
 
 ## **v2.1.10** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Ensure "load logs" API shows results from all log files. [#163](https://github.com/microsoft/sarif-visualstudio-extension/issues/163)

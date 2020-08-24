@@ -147,7 +147,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         {
             return this.CallServiceApiAsync(ViewerCloseServiceInterfaceName, (service) =>
             {
-                service.CloseSarifLog(paths);
+                service.CloseSarifLogs(paths);
                 return true;
             });
         }

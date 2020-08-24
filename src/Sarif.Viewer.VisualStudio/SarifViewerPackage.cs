@@ -102,6 +102,7 @@ namespace Microsoft.Sarif.Viewer
 
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
             ((IServiceContainer)this).AddService(typeof(SLoadSarifLogService), callback, true);
+            ((IServiceContainer)this).AddService(typeof(SCloseSarifLogService), callback, true);
 
             string path = Assembly.GetExecutingAssembly().Location;
             var configMap = new ExeConfigurationFileMap();
