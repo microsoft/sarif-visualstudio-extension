@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
+    [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
     public sealed class SarifViewerPackage : AsyncPackage
