@@ -36,9 +36,6 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(SCloseSarifLogService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
-        private DTE2 Dte;
-        private IServiceProvider ServiceProvider;
-
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
@@ -52,13 +49,6 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public SarifViewerPackage()
         {
-            // Inside this method you can place any initialization code that does not require
-            // any Visual Studio service because at this point the package object is created but
-            // not sited yet inside Visual Studio environment. The place to do all the other
-            // initialization is the Initialize method.
-
-            Dte = GetGlobalService(typeof(DTE)) as DTE2;
-            ServiceProvider = this;
         }
 
         /// <summary>
@@ -70,7 +60,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
                 IVsPackage package;
-                IVsShell vsShell = Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
+                IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
                 if (vsShell == null ||
                     (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
                     vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK) ||
