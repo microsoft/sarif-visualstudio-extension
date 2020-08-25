@@ -6,12 +6,12 @@
     public static class SarifContentType
     {
         /// <summary>
-        /// The content type name for Windows.NMake.
+        /// The content type name for SARIF log files..
         /// </summary>
         public const string ContentTypeName = "SARIF";
 
         /// <summary>
-        /// Gets the base content type definition for Windows.NMake.
+        /// Gets the base content type definition for SARIF log files..
         /// </summary>
         [Export]
         [BaseDefinition("json")]

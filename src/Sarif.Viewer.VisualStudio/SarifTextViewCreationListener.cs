@@ -99,7 +99,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            return persistFile.GetCurFile(out fileName, out var _) == VSConstants.S_OK;
+            return persistFile.GetCurFile(out fileName, out _) == VSConstants.S_OK;
         }
 
         #endregion
