@@ -34,6 +34,7 @@
     <Compile Include="CodeFlowToTreeConverter.cs" />
     <Compile Include="CodeLocationObjectTypeDescriptor.cs" />
     <Compile Include="CodeLocationObject.cs" />
+    <Compile Include="ContentTypes\SarifContentType.cs" />
     <Compile Include="Controls\InternetHyperlink.xaml.cs">
       <DependentUpon>InternetHyperlink.xaml</DependentUpon>
     </Compile>
@@ -123,7 +124,7 @@
     <Compile Include="ProjectHelper.cs" />
     <Compile Include="ProjectKind.cs" />
     <Compile Include="ResultTextMarker.cs" />
-    <Compile Include="SarifEditorFactory.cs" />
+    <Compile Include="SarifTextViewCreationListener.cs" />
     <Compile Include="SarifFileAndContentDefinitions.cs" />
     <Compile Include="ErrorList\SarifTableControlEventProcessorProvider.cs" />
     <Compile Include="SarifViewerPackage.cs" />

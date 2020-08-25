@@ -128,6 +128,12 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             OleMenuCommand menuCommand = (OleMenuCommand)sender;
             OleMenuCmdEventArgs menuCmdEventArgs = (OleMenuCmdEventArgs)e;
 
@@ -279,11 +285,11 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                ErrorListService.ProcessLogFile(logFile, SarifViewerPackage.Dte.Solution, toolFormat, promptOnLogConversions: true, cleanErrors: true);
+                ErrorListService.ProcessLogFile(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true);
             }
             catch (InvalidOperationException)
             {
-                VsShellUtilities.ShowMessageBox(SarifViewerPackage.ServiceProvider,
+                VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                 string.Format(Resources.LogOpenFail_InvalidFormat_DialogMessage, Path.GetFileName(logFile)),
                                                 null, // title
                                                 OLEMSGICON.OLEMSGICON_CRITICAL,

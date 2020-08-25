@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.VisualStudio;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
@@ -37,6 +38,8 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
         public static CallTree ToCallTree(this CodeFlow codeFlow, Run run)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (codeFlow.ThreadFlows?[0]?.Locations?.Count == 0)
             {
                 return null;

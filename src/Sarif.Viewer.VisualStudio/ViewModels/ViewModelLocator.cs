@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.ViewModels
 {
@@ -21,6 +22,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (_designTime == null)
                 {
                     lock (_syncroot)
@@ -38,6 +40,8 @@ namespace Microsoft.Sarif.Viewer.ViewModels
 
         private static SarifErrorListItem GetDesignTimeViewModel1()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             SarifErrorListItem viewModel = new SarifErrorListItem();
             viewModel.Message = "Potential mismatch between sizeof and countof quantities. Use sizeof() to scale byte sizes.";
 

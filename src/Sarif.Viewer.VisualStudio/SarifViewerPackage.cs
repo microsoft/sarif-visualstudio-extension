@@ -13,6 +13,9 @@ using EnvDTE;
 using EnvDTE80;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.VisualStudio.Shell;
+using System.Runtime.CompilerServices;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -28,21 +31,16 @@ namespace Microsoft.Sarif.Viewer
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideEditorExtension(typeof(SarifEditorFactory), ".sarif", 128)]
-    [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057")]
+    [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
-        public static DTE2 Dte;
-        public static IServiceProvider ServiceProvider;
-
-        private SarifEditorFactory _sarifEditorFactory;
-
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
+        public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
 
@@ -51,13 +49,6 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public SarifViewerPackage()
         {
-            // Inside this method you can place any initialization code that does not require
-            // any Visual Studio service because at this point the package object is created but
-            // not sited yet inside Visual Studio environment. The place to do all the other
-            // initialization is the Initialize method.
-
-            Dte = GetGlobalService(typeof(DTE)) as DTE2;
-            ServiceProvider = this;
         }
 
         /// <summary>
@@ -67,11 +58,26 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                SarifViewerPackage package = SarifViewerPackage.ServiceProvider as SarifViewerPackage;
+                ThreadHelper.ThrowIfNotOnUIThread();
+                IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
+                if (vsShell == null)
+                {
+                    return null;
+                }
 
-                SarifToolWindow toolWindow = package?.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
+                IVsPackage package;
+                if (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
+                    vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK)
+                {
+                    return null;
+                }
+                   
+                if(!(package is Package vsPackage))
+                {
+                    return null;
+                }
 
-                return toolWindow;
+                return vsPackage.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
             }
         }
 
@@ -124,9 +130,6 @@ namespace Microsoft.Sarif.Viewer
             };
             TelemetryProvider.Initialize(configuration);
             TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
-
-            _sarifEditorFactory = new SarifEditorFactory();
-            RegisterEditorFactory(_sarifEditorFactory);
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             CodeAnalysisResultManager.Instance.Register();

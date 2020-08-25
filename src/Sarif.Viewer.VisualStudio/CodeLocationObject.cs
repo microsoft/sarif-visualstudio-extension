@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer
                 // Not all locations have regions. Don't try to mark the locations that don't.
                 if (_lineMarker == null && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(SarifViewerPackage.ServiceProvider, RunId, Region, FilePath);
+                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath);
                 }
 
                 return _lineMarker;
@@ -184,7 +184,7 @@ namespace Microsoft.Sarif.Viewer
 
                 if (File.Exists(this.FilePath))
                 {
-                    SdkUIUtilities.OpenDocument(SarifViewerPackage.ServiceProvider, this.FilePath, usePreviewPane);
+                    SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane);
                 }
             }
         }

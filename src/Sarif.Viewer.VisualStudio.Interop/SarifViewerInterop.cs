@@ -188,6 +188,8 @@ namespace Microsoft.Sarif.Viewer.Interop
                 return false;
             }
 
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             return action(serviceInterface);
         }
 

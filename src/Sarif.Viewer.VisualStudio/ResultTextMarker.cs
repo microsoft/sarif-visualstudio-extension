@@ -28,7 +28,6 @@ namespace Microsoft.Sarif.Viewer
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
         private int _runId;
-        private IServiceProvider _serviceProvider;
         private TrackingTagSpan<TextMarkerTag> _marker;
         private SimpleTagger<TextMarkerTag> _tagger;
         private ITrackingSpan _trackingSpan;
@@ -45,19 +44,13 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// fullFilePath may be null for global issues.
         /// </summary>
-        public ResultTextMarker(IServiceProvider serviceProvider, int runId, Region region, string fullFilePath)
+        public ResultTextMarker(int runId, Region region, string fullFilePath)
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
             if (region == null)
             {
                 throw new ArgumentNullException(nameof(region));
             }
 
-            _serviceProvider = serviceProvider;
             _runId = runId;
             Region = region;
             FullFilePath = fullFilePath;
@@ -96,7 +89,7 @@ namespace Microsoft.Sarif.Viewer
                 Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
             }
 
-            IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(SarifViewerPackage.ServiceProvider, this.FullFilePath, usePreviewPane);
+            IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
             if (windowFrame != null)
             {
                 IVsTextView textView = GetTextViewFromFrame(windowFrame);
@@ -431,7 +424,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (_tagger == null)
             {
-                IComponentModel componentModel = (IComponentModel)_serviceProvider.GetService(typeof(SComponentModel));
+                IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
                 if (componentModel == null) { return; }
 
                 ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
