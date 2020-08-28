@@ -98,8 +98,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             switch (menuCommand.CommandID.ID)
             {
                 case ClearSarifResultsCommandId:
-                    SarifTableDataSource.Instance.CleanAllErrors();
-                    CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
+                    ErrorListService.CleanAllErrors();
                     break;
             }
         }

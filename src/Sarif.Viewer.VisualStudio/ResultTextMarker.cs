@@ -17,8 +17,8 @@ using Microsoft.VisualStudio.TextManager.Interop;
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
-    /// This class represents an instance of "highlighed" line in the editor, holds necessary Shell objects and logic 
-    /// to managed lifecycle and appearance.
+    /// This class represents an instance of "highlighted" line in the editor, holds necessary Shell objects and logic 
+    /// to managed life cycle and appearance.
     /// </summary>
     public class ResultTextMarker
     {
@@ -28,17 +28,20 @@ namespace Microsoft.Sarif.Viewer
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
         private int _runId;
-        private TrackingTagSpan<TextMarkerTag> _marker;
+        private TrackingTagSpan<TextMarkerTag> _trackingTagSpan;
         private SimpleTagger<TextMarkerTag> _tagger;
         private ITrackingSpan _trackingSpan;
-        private IWpfTextView _textView;
-        private long? _docCookie;
+        private IWpfTextView _wpfTextView;
+        private IVsWindowFrame _vsWindowFrame;
 
         public string FullFilePath { get; set; }
         public string UriBaseId { get; set; }
         public Region Region { get; set; }
         public string Color { get; set; }
 
+        /// <summary>
+        /// Fired when an the text editor caret enters a tagged region.
+        /// </summary>
         public event EventHandler RaiseRegionSelected;
 
         /// <summary>
@@ -59,30 +62,56 @@ namespace Microsoft.Sarif.Viewer
 
         // This method is called when you click an inline link, with an integer target, which
         // points to a Location object that has a region associated with it.
-        internal IVsWindowFrame NavigateTo(bool usePreviewPane)
+        internal void NavigateTo(bool usePreviewPane)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            // Before anything else, see if this is an external link we should open in the browser.
-            Uri uri;
-            if (Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
-            {
-                if (!uri.IsFile)
-                {
-                    System.Diagnostics.Process.Start(uri.OriginalString);
-                    return null;
-                }
-            }
 
-            // Fall back to the file and line number
+            // If we have tracking span information, then either
+            // ignore the selection if the caret is already in that span
+            // or select what might "remain" of the tracking span
+            // in case it has been modified.
+            // It is important to note that when a caret position change
+            // occurs (see event handler below) and the caret is moved within a text marker,
+            // that can cause a selection in the SARIF tool window to occur
+            // which in turn attempts to navigate right back to this
+            // text marker by calling NavigateTo(). So, this
+            // code must not navigate the selection or caret again if the
+            // caret is already within the correct span, otherwise
+            // the user cannot navigate the editor anymore.
+            if (this.IsTracking)
+            {
+                ITextSnapshot currentSnapshot = this._wpfTextView.TextSnapshot;
+                SnapshotSpan trackingSpanSnapshot = _trackingSpan.GetSpan(currentSnapshot);
+
+                // If the caret is already in the text within the marker, don't re-select it
+                // otherwise users cannot move the caret in the region.
+                if (trackingSpanSnapshot.Contains(_wpfTextView.Caret.Position.BufferPosition))
+                {
+                    _vsWindowFrame?.Show();
+                    return;
+                }
+
+                // The caret is not in this result, move it there so the result can be seen.
+                if (!trackingSpanSnapshot.IsEmpty)
+                {
+                    _wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
+                    _wpfTextView.Caret.EnsureVisible();
+                    _vsWindowFrame?.Show();
+                }
+                return;
+            }
+            
+            // If we get here, this marker hasn't yet been attached to a document and therefore
+            // will attempt to open the document and select the appropriate line.
             if (!File.Exists(this.FullFilePath))
             {
                 if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(_runId, this.UriBaseId, this.FullFilePath))
                 {
-                    return null;
+                    return;
                 }
             }
-            
-            if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out uri))
+
+            if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
@@ -92,25 +121,24 @@ namespace Microsoft.Sarif.Viewer
             IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
             if (windowFrame != null)
             {
-                IVsTextView textView = GetTextViewFromFrame(windowFrame);
-                if (textView == null)
+                IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(windowFrame);
+                if (vsTextView == null)
                 {
-                    return null;
+                    return;
                 }
 
+                // Navigate the caret to the desired location. Text span uses 0-based indexes
                 var sourceLocation = this.GetSourceLocation();
 
-                // Navigate the caret to the desired location. Text span uses 0-based indexes
                 TextSpan ts;
                 ts.iStartLine = sourceLocation.StartLine - 1;
                 ts.iEndLine = sourceLocation.EndLine - 1;
                 ts.iStartIndex = Math.Max(sourceLocation.StartColumn - 1, 0);
                 ts.iEndIndex = Math.Max(sourceLocation.EndColumn - 1, 0);
 
-                textView.EnsureSpanVisible(ts);
-                textView.SetSelection(ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex);
+                vsTextView.EnsureSpanVisible(ts);
+                vsTextView.SetSelection(ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex);
             }
-            return windowFrame;
         }
 
         /// <summary>
@@ -127,53 +155,32 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Clear all markers and tracking classes
-        /// </summary>
-        public void Clear()
-        {
-            if (_marker != null)
-            {
-                RemoveHighlightMarker();
-            }
-
-            if (IsTracking())
-            {
-                RemoveTracking();
-            }
-
-            _tagger = null;
-        }
-
-        /// <summary>
         /// Select current tracking text with <paramref name="highlightColor"/>. 
         /// If highlightColor is null than code will be selected with color from <seealso cref="Color"/>.
         /// If the mark doesn't support tracking changes, then we simply ignore this condition (addresses VS crash 
         /// reported in Bug 476347 : Code Analysis clicking error report C6244 causes VS2012 to crash).  
-        /// Tracking changes helps to ensure that we nativate to the right line even if edits to the file
-        /// have occured, but even if that behavior doesn't work right, it is better to 
+        /// Tracking changes helps to ensure that we navigate to the right line even if edits to the file
+        /// have occurred, but even if that behavior doesn't work right, it is better to 
         /// simply return here (before the fix this code threw an exception which terminated VS).
         /// </summary>
         /// <param name="highlightColor">Color</param>
         public void AddHighlightMarker(string highlightColor)
         {
-            if (!IsTracking())
+            if (!IsTracking)
             {
                 return;
             }
 
-            _marker = _tagger.CreateTagSpan(_trackingSpan, new TextMarkerTag(highlightColor ?? Color));
+            _trackingTagSpan = _tagger.CreateTagSpan(_trackingSpan, new TextMarkerTag(highlightColor ?? Color));
         }
 
         /// <summary>
         /// Add tracking for text in <paramref name="span"/> for document with id <paramref name="docCookie"/>.
         /// </summary>
-        public void AddTracking(IWpfTextView wpfTextView, ITextSnapshot textSnapshot, long docCookie, Span span)
+        public void AddTracking(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, Span span)
         {
-            Debug.Assert(docCookie >= 0);
-            Debug.Assert(!IsTracking(), "This marker already tracking changes.");
-            _docCookie = docCookie;
-            CreateTracking(wpfTextView, textSnapshot, span);
-            SubscribeToCaretEvents(wpfTextView);
+            Debug.Assert(!IsTracking, "This marker already tracking changes.");
+            CreateTracking(vsWindowFrame, wpfTextView, span);
         }
 
         /// <summary>
@@ -181,84 +188,44 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void RemoveHighlightMarker()
         {
-            if (_tagger != null && _marker != null)
+            if (_tagger != null && _trackingTagSpan != null)
             {
-                _tagger.RemoveTagSpan(_marker);
+                _tagger.RemoveTagSpan(_trackingTagSpan);
             }
-            _marker = null;
+            _trackingTagSpan = null;
         }
 
         /// <summary>
         /// Check if current class track changes for document <paramref name="docCookie"/>
         /// </summary>
-        public bool IsTracking(long docCookie)
-        {
-            return _docCookie.HasValue && _docCookie.Value == docCookie && _trackingSpan != null;
-        }
-
-        public void DetachFromDocument(long docCookie)
-        {
-            if (this.IsTracking(docCookie))
-            {
-                this.Clear();
-            }
-        }
-
-        /// <summary>
-        /// Determines if a document can be associated with this ResultTextMarker.
-        /// </summary>
-        public bool CanAttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
-        {
-            // For these cases, this event has nothing to do with this item
-            if (frame == null || this.IsTracking(docCookie) || string.Compare(documentName, this.FullFilePath, StringComparison.OrdinalIgnoreCase) != 0)
-            {
-                return false;
-            }
-
-            return true;
-        }
+        public bool IsTracking { get => _trackingSpan != null; }
 
         /// <summary>
         /// An overridden method for reacting to the event of a document window
         /// being opened
         /// </summary>
-        public void AttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
+        public bool TryAttachToDocument(string documentName, IVsWindowFrame frame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             // For these cases, this event has nothing to do with this item
-            if (CanAttachToDocument(documentName, docCookie, frame))
+            if (this.IsTracking ||
+                frame == null || 
+                string.Compare(documentName, this.FullFilePath, StringComparison.OrdinalIgnoreCase) != 0)
             {
-                AttachToDocumentWorker(frame, docCookie);
-            }
-        }
-
-        private IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            // Get the document view from the window frame, then get the text view
-            object docView;
-            int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
-            if ((hr != 0 && hr != 1) || docView == null)
-            {
-                return null;
+                return false;
             }
 
-            IVsCodeWindow codeWindow = docView as IVsCodeWindow;
-            IVsTextView textView;
-            codeWindow.GetLastActiveView(out textView);
-            if (textView == null)
-            {
-                codeWindow.GetPrimaryView(out textView);
-            }
+            AttachToDocumentWorker(frame);
 
-            return textView;
+            return true;
         }
 
         /// <summary>
         /// Check that current <paramref name="marker"/> point to correct line position 
         /// and attach it to <paramref name="docCookie"/> for track changes.
         /// </summary>
-        private void AttachToDocumentWorker(IVsWindowFrame frame, long docCookie)
+        private void AttachToDocumentWorker(IVsWindowFrame frame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var sourceLocation = this.GetSourceLocation();
@@ -273,12 +240,12 @@ namespace Microsoft.Sarif.Viewer
                 line = 1;
             }
 
-            IVsTextView textView = GetTextViewFromFrame(frame);
-            if (textView != null)
+            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(frame);
+            if (vsTextView != null)
             {
                 // Locate the specific line/column position in the text view and go there
                 IVsTextLines textLines;
-                textView.GetBuffer(out textLines);
+                vsTextView.GetBuffer(out textLines);
                 if (textLines != null)
                 {
                     int lastLine;
@@ -302,54 +269,31 @@ namespace Microsoft.Sarif.Viewer
 
                 // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
                 // if we haven't yet
-                IWpfTextView wpfTextView = GetWpfTextView(textView);
+                IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
                 if (wpfTextView != null)
                 {
-                    AttachMarkerToTextView(wpfTextView, docCookie, this,
+                    AttachMarkerToTextView(frame, wpfTextView, this,
                         line, sourceLocation.StartColumn, line + (sourceLocation.EndLine - sourceLocation.StartLine), sourceLocation.EndColumn);
                 }
             }
         }
 
         /// <summary>
-        /// Helper method for getting a IWpfTextView from a IVsTextView object
-        /// </summary>
-        /// <param name="textView"></param>
-        /// <returns></returns>
-        private IWpfTextView GetWpfTextView(IVsTextView textView)
-        {
-            IWpfTextViewHost textViewHost = null;
-            IVsUserData userData = textView as IVsUserData;
-            if (userData != null)
-            {
-                Guid guid = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
-                object wpfTextViewHost = null;
-                userData.GetData(ref guid, out wpfTextViewHost);
-                textViewHost = wpfTextViewHost as IWpfTextViewHost;
-            }
-
-            if (textViewHost == null)
-            {
-                return null;
-            }
-            return textViewHost.TextView;
-        }
-
-        /// <summary>
         /// Highlight the source code on a particular line
         /// </summary>
-        private static void AttachMarkerToTextView(IWpfTextView textView, long docCookie, ResultTextMarker marker,
+        /// <remarks>
+        /// This code is only valid if the file on disk has not been modified since the analysis run
+        /// was performed.
+        /// </remarks>
+        private static void AttachMarkerToTextView(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, ResultTextMarker marker,
             int startLine, int startColumn, int endLine, int endColumn)
         {
             // If for some reason the start line is not correct, just skip the highlighting
-            ITextSnapshot textSnapshot = textView.TextSnapshot;
+            ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
             if (startLine > textSnapshot.LineCount)
             {
                 return;
             }
-
-            Span spanToColor;
-            int markerStart, markerEnd = 0;
 
             try
             {
@@ -371,7 +315,7 @@ namespace Microsoft.Sarif.Viewer
                     coerced = true;
                 }
 
-                // Calculate the end marker bound. Perform coersion on the values if they aren't consistent
+                // Calculate the end marker bound. Perform coercion on the values if they aren't consistent
                 if (endColumn <= 0 && endColumn >= endTextLine.Length)
                 {
                     endColumn = endTextLine.Length;
@@ -388,11 +332,11 @@ namespace Microsoft.Sarif.Viewer
                 }
 
                 // Create a span with the calculated markers
-                markerStart = startTextLine.Start.Position + startColumn - 1;
-                markerEnd = endTextLine.Start.Position + endColumn - 1;
-                spanToColor = Span.FromBounds(markerStart, markerEnd);
+                int markerStart = startTextLine.Start.Position + startColumn - 1;
+                int markerEnd = endTextLine.Start.Position + endColumn - 1;
+                Span spanToColor = Span.FromBounds(markerStart, markerEnd);
 
-                marker.AddTracking(textView, textSnapshot, docCookie, spanToColor);
+                marker.AddTracking(vsWindowFrame, wpfTextView, spanToColor);
             }
             catch (Exception e)
             {
@@ -402,58 +346,67 @@ namespace Microsoft.Sarif.Viewer
             }
         }    
 
-    private void RemoveTracking()
+        private void RemoveTracking()
         {
-            if (_trackingSpan != null)
+            if (!IsTracking)
             {
-                // TODO: Find a way to delete TrackingSpan
-                _marker = _tagger.CreateTagSpan(_trackingSpan, new TextMarkerTag(Color));
-                RemoveHighlightMarker();
-                _trackingSpan = null;
-                _tagger = null;
-                _docCookie = null;
-            }
-        }
-
-        private void CreateTracking(IWpfTextView textView, ITextSnapshot textSnapshot, Span span)
-        {
-            if (_trackingSpan != null)
                 return;
-
-            _textView = textView;
-
-            if (_tagger == null)
-            {
-                IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
-                if (componentModel == null) { return; }
-
-                ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
-
-                // Get a SimpleTagger over the buffer to color
-                _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(_textView.TextBuffer);
             }
 
-            // Add the marker
-            if (_tagger != null)
-            {
-                // The list of colors for TextMarkerTag are defined in Platform\Text\Impl\TextMarkerAdornment\TextMarkerProviderFactory.cs
-                _trackingSpan = textSnapshot.CreateTrackingSpan(span, SpanTrackingMode.EdgeExclusive);
-            }
+            // TODO: Find a way to delete TrackingSpan
+            _trackingTagSpan = _tagger.CreateTagSpan(_trackingSpan, new TextMarkerTag(Color));
+            RemoveHighlightMarker();
+            _trackingSpan = null;
+            _tagger = null;
         }
 
-        private bool IsValidMarker()
+        private void CreateTracking(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, Span span)
         {
-            return (_marker != null &&
-                    _marker.Span != null &&
-                    _marker.Span.TextBuffer != null &&
-                    _marker.Span.TextBuffer.CurrentSnapshot != null);
+            if (IsTracking)
+            {
+                return;
+            }
+
+            IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+            if (componentModel == null)
+            {
+                return;
+            }
+
+            _wpfTextView = wpfTextView;
+            _wpfTextView.Closed += TextViewClosed;
+            _vsWindowFrame = vsWindowFrame;
+
+            wpfTextView.Caret.PositionChanged += CaretPositionChanged;
+            wpfTextView.LayoutChanged += ViewLayoutChanged;
+
+            ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
+            _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(_wpfTextView.TextBuffer);
+            _trackingSpan = wpfTextView.TextSnapshot.CreateTrackingSpan(span, SpanTrackingMode.EdgeExclusive);
+        }
+
+        private void TextViewClosed(object sender, EventArgs e)
+        {
+            if (_wpfTextView != null)
+            {
+                _wpfTextView.Closed -= TextViewClosed;
+                _wpfTextView.Caret.PositionChanged -= CaretPositionChanged;
+                _wpfTextView.LayoutChanged -= ViewLayoutChanged;
+                _wpfTextView = null;
+            }
+
+            RemoveHighlightMarker();
+            RemoveTracking();
+
+            _tagger = null;
+            _vsWindowFrame = null;
         }
 
         private void SaveCurrentTrackingData(Region sourceLocation)
         {
             try
             {
-                if (!IsTracking())
+                if (!IsTracking)
                 {
                     return;
                 }
@@ -465,8 +418,8 @@ namespace Microsoft.Sarif.Viewer
                 var startLine = startPoint.GetContainingLine();
                 var endLine = endPoint.GetContainingLine();
 
-                var textLineStart = _textView.GetTextViewLineContainingBufferPosition(startPoint);
-                var textLineEnd = _textView.GetTextViewLineContainingBufferPosition(endPoint);
+                var textLineStart = _wpfTextView.GetTextViewLineContainingBufferPosition(startPoint);
+                var textLineEnd = _wpfTextView.GetTextViewLineContainingBufferPosition(endPoint);
 
                 sourceLocation.StartColumn = startLine.Start.Position - textLineStart.Start.Position;
                 sourceLocation.EndColumn = endLine.End.Position - textLineEnd.Start.Position;
@@ -481,29 +434,12 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private bool IsTracking()
-        {
-            return _docCookie.HasValue && IsTracking(_docCookie.Value);
-        }
-
-        private void SubscribeToCaretEvents(IWpfTextView textView)
-        {
-            if (textView != null)
-            {
-                textView.Caret.PositionChanged += CaretPositionChanged;
-                textView.LayoutChanged += ViewLayoutChanged;
-            }
-        }
-
         private void ViewLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
-            if (_textView != null)
+            // If a new snapshot wasn't generated, then skip this layout
+            if (e.NewViewState.EditSnapshot != e.OldViewState.EditSnapshot)
             {
-                // If a new snapshot wasn't generated, then skip this layout
-                if (e.NewViewState.EditSnapshot != e.OldViewState.EditSnapshot)
-                {
-                    UpdateAtCaretPosition(_textView.Caret.Position);
-                }
+                UpdateAtCaretPosition(_wpfTextView.Caret.Position);
             }
         }
 
@@ -514,20 +450,16 @@ namespace Microsoft.Sarif.Viewer
 
         private void UpdateAtCaretPosition(CaretPosition caretPoisition)
         {
-            // Check if the current caret position is within our region. If it is, raise the RegionSelected event.
-            if (_trackingSpan.GetSpan(_trackingSpan.TextBuffer.CurrentSnapshot).Contains(caretPoisition.Point.GetPoint(_trackingSpan.TextBuffer, PositionAffinity.Predecessor).Value))
+            if (_wpfTextView == null)
             {
-                OnRaiseRegionSelected(new EventArgs());
+                return;
             }
-        }
 
-        protected virtual void OnRaiseRegionSelected(EventArgs e)
-        {
-            EventHandler handler = RaiseRegionSelected;
-
-            if (handler != null)
+            // Check if the current caret position is within our region. If it is, raise the RegionSelected event.
+            SnapshotPoint caretBufferPosition = caretPoisition.BufferPosition;
+            if (_trackingSpan.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
             {
-                handler(this, e);
+                this.RaiseRegionSelected?.Invoke(this, new EventArgs());
             }
         }
     }

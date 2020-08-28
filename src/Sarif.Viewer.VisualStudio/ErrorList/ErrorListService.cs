@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     // The version property wasn't found within the first 100 characters.
                     // Per the spec, it should appear first in the sarifLog object.
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                     Resources.VersionPropertyNotFound_DialogTitle,
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_QUERY,
@@ -205,7 +205,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static void CloseAllSarifLogs()
         {
-            SarifTableDataSource.Instance.CleanAllErrors();
+            CleanAllErrors();
         }
 
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
@@ -226,7 +226,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // is fixed.
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            int result = VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+            int result = VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                          dialogMessage,
                                                          null, // title
                                                          OLEMSGICON.OLEMSGICON_QUERY,
@@ -292,7 +292,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (error != null)
             {
-                VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                 error,
                                                 null, // title
                                                 OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -306,10 +306,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Clear previous data
             if (cleanErrors)
             {
-                CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
-                SarifTableDataSource.Instance.CleanAllErrors();
-                CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
-                CodeAnalysisResultManager.Instance.CurrentRunId = -1;
+                CleanAllErrors();
             }
 
             bool hasResults = false;
@@ -338,10 +335,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (!hasResults && showMessageOnNoResults)
             {
-                ThreadHelper.JoinableTaskFactory.Run(async ()  =>
+               ThreadHelper.JoinableTaskFactory.RunAsync(async ()  =>
                {
                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                   VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                   VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                    string.Format(Resources.NoResults_DialogMessage, logFilePath),
                                                    null, // title
                                                    OLEMSGICON.OLEMSGICON_INFO,
@@ -349,6 +346,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                });
             }
+        }
+
+        public static void CleanAllErrors()
+        {
+            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
+            SarifTableDataSource.Instance.CleanAllErrors();
+            CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
+            CodeAnalysisResultManager.Instance.CurrentRunId = -1;
         }
 
         private ErrorListService()
@@ -465,5 +470,5 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
         }
-    }
+     }
 }

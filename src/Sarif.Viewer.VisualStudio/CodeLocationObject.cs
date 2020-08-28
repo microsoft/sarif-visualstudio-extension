@@ -208,28 +208,6 @@ namespace Microsoft.Sarif.Viewer
             LineMarker?.AddHighlightMarker(SelectedSourceHighlightColor);
         }
 
-        private IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            // Get the document view from the window frame, then get the text view
-            object docView;
-            int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
-            if ((hr != 0 && hr != 1) || docView == null)
-            {
-                return null;
-            }
-
-            IVsCodeWindow codeWindow = docView as IVsCodeWindow;
-            IVsTextView textView;
-            codeWindow.GetLastActiveView(out textView);
-            if (textView == null)
-            {
-                codeWindow.GetPrimaryView(out textView);
-            }
-
-            return textView;
-        }
-
         /// <summary>
         /// An overridden method for reacting to the event of a document window
         /// being opened
@@ -239,7 +217,7 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // For these cases, this event has nothing to do with this item
-            if (frame == null || LineMarker.IsTracking(docCookie) || string.Compare(documentName, FilePath, StringComparison.OrdinalIgnoreCase) != 0)
+            if (frame == null || LineMarker.IsTracking || string.Compare(documentName, FilePath, StringComparison.OrdinalIgnoreCase) != 0)
             {
                 return;
             }
@@ -267,12 +245,12 @@ namespace Microsoft.Sarif.Viewer
                 line = 1;
             }
 
-            IVsTextView textView = GetTextViewFromFrame(frame);
-            if (textView != null)
+            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(frame);
+            if (vsTextView != null)
             {
                 // Locate the specific line/column position in the text view and go there
                 IVsTextLines textLines;
-                textView.GetBuffer(out textLines);
+                vsTextView.GetBuffer(out textLines);
                 if (textLines != null)
                 {
                     int lastLine;
@@ -296,47 +274,23 @@ namespace Microsoft.Sarif.Viewer
 
                 // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
                 // if we haven't yet
-                IWpfTextView wpfTextView = GetWpfTextView(textView);
+                IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
                 if (wpfTextView != null)
                 {
-                    AttachMarkerToTextView(wpfTextView, docCookie, marker,
+                    AttachMarkerToTextView(frame, wpfTextView, docCookie, marker,
                         line, sourceLocation.StartColumn, line + (sourceLocation.EndLine - sourceLocation.StartLine), sourceLocation.EndColumn);
                 }
             }
         }
 
         /// <summary>
-        /// Helper method for getting a IWpfTextView from a IVsTextView object
-        /// </summary>
-        /// <param name="textView"></param>
-        /// <returns></returns>
-        private IWpfTextView GetWpfTextView(IVsTextView textView)
-        {
-            IWpfTextViewHost textViewHost = null;
-            IVsUserData userData = textView as IVsUserData;
-            if (userData != null)
-            {
-                Guid guid = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
-                object wpfTextViewHost = null;
-                userData.GetData(ref guid, out wpfTextViewHost);
-                textViewHost = wpfTextViewHost as IWpfTextViewHost;
-            }
-
-            if (textViewHost == null)
-            {
-                return null;
-            }
-            return textViewHost.TextView;
-        }
-
-        /// <summary>
         /// Highlight the source code on a particular line
         /// </summary>
-        private static void AttachMarkerToTextView(IWpfTextView textView, long docCookie, ResultTextMarker marker,
+        private static void AttachMarkerToTextView(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, long docCookie, ResultTextMarker marker,
             int line, int column, int endLine, int endColumn)
         {
             // If for some reason the start line is not correct, just skip the highlighting
-            ITextSnapshot textSnapshot = textView.TextSnapshot;
+            ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
             if (line > textSnapshot.LineCount)
             {
                 return;
@@ -365,7 +319,7 @@ namespace Microsoft.Sarif.Viewer
                     coerced = true;
                 }
 
-                // Calculate the end marker bound. Perform coersion on the values if they aren't consistent
+                // Calculate the end marker bound. Perform coercion on the values if they aren't consistent
                 if (endColumn <= 0 && endColumn >= endTextLine.Length)
                 {
                     endColumn = endTextLine.Length;
@@ -386,7 +340,7 @@ namespace Microsoft.Sarif.Viewer
                 markerEnd = endTextLine.Start.Position + endColumn;
                 spanToColor = Span.FromBounds(markerStart, markerEnd);
 
-                marker.AddTracking(textView, textSnapshot, docCookie, spanToColor);
+                marker.AddTracking(vsWindowFrame, wpfTextView, spanToColor);
             }
             catch (Exception e)
             {

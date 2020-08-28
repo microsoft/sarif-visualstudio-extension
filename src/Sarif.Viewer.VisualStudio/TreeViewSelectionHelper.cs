@@ -104,14 +104,15 @@ namespace Microsoft.Sarif.Viewer
                     node.BringIntoView();
                     node.UpdateLayout();
 
+                    // You might be tempted to set focus to this node
+                    // as well as select it. If the node is focused
+                    // then when a user is navigating through a source file
+                    // in the editor and a "Tagged" region is selected (See ResultTextMark)
+                    // due to the caret entering a region, then focus is moved off the editor
+                    // which means it's nearly impossible for the user to edit highlighted text.
                     if (!node.IsSelected)
                     {
                         node.IsSelected = true;
-                    }
-
-                    if (!node.IsFocused)
-                    {
-                        node.Focus();
                     }
                 }
             }

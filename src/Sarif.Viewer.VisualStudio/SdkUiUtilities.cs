@@ -19,6 +19,8 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Newtonsoft.Json;
 using XamlDoc = System.Windows.Documents;
 
@@ -764,6 +766,55 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return cookieDocLock;
+        }
+
+        /// <summary>
+        /// Helper method for getting a IWpfTextView from a IVsTextView object
+        /// </summary>
+        /// <param name="textView"></param>
+        /// <returns></returns>
+        public static IWpfTextView GetWpfTextView(IVsTextView textView)
+        {
+            IWpfTextViewHost textViewHost = null;
+            IVsUserData userData = textView as IVsUserData;
+            if (userData != null)
+            {
+                Guid guid = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+                object wpfTextViewHost = null;
+                if (userData.GetData(ref guid, out wpfTextViewHost) == VSConstants.S_OK)
+                {
+                    textViewHost = wpfTextViewHost as IWpfTextViewHost;
+                }
+            }
+
+            if (textViewHost == null)
+            {
+                return null;
+            }
+            return textViewHost.TextView;
+        }
+
+        public static IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // Get the document view from the window frame, then get the text view
+            object docView;
+            int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
+            if ((hr != 0 && hr != 1) || docView == null)
+            {
+                return null;
+            }
+
+            IVsCodeWindow codeWindow = docView as IVsCodeWindow;
+            IVsTextView textView;
+            codeWindow.GetLastActiveView(out textView);
+            if (textView == null)
+            {
+                codeWindow.GetPrimaryView(out textView);
+            }
+
+            return textView;
         }
 
         private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };

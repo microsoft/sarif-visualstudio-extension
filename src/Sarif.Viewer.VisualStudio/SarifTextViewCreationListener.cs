@@ -3,8 +3,6 @@
 
 using System;
 using System.ComponentModel.Composition;
-using EnvDTE;
-using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ContentTypes;
 using Microsoft.Sarif.Viewer.ErrorList;

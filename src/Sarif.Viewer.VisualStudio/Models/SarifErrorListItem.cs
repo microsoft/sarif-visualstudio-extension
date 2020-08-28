@@ -12,9 +12,14 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.TextManager.Interop;
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
@@ -30,7 +35,7 @@ namespace Microsoft.Sarif.Viewer
         private DelegateCommand _openLogFileCommand;
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
-        private long _documentCookie;
+        private long? _documentCookie;
         private string _documentName;
         private IVsWindowFrame _windowFrame;
 
@@ -505,7 +510,7 @@ namespace Microsoft.Sarif.Viewer
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            DetachFromDocument(_documentCookie);
+            DetachFromDocument();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
             FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
@@ -597,112 +602,100 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Attaches to the document using the specified properties, which are also cached.
         /// </summary>
-        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame windowFrame)
+        internal bool TryAttachToDocument(string documentName, long docCookie, IVsWindowFrame windowFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (_documentCookie.HasValue || string.Compare(documentName, this.FileName, StringComparison.OrdinalIgnoreCase) != 0)
+            {
+                return false;
+            }
+
             // Cache the document info so we can detach and reattach later.
             _documentName = documentName;
             _documentCookie = docCookie;
             _windowFrame = windowFrame;
 
             AttachToDocument();
+
+            return true;
         }
 
         /// <summary>
         /// Attaches to the document using cached properties.
         /// </summary>
-        internal void AttachToDocument()
+        private void AttachToDocument()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
 
-            foreach (LocationModel location in Locations)
-            {
-                location.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
+            IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+            if (componentModel == null)
+            { 
+                return;
             }
 
-            foreach (LocationModel location in RelatedLocations)
-            {
-                location.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
-            }
+            ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
 
-            foreach (CallTree callTree in CallTrees)
-            {
-                Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
+            // Get a SimpleTagger over the buffer to color
+            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(_windowFrame);
+            IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
+            SimpleTagger<TextMarkerTag> tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
 
-                foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
+            using (tagger.Update())
+            {
+                LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+
+                foreach (LocationModel location in Locations)
                 {
-                    nodesToProcess.Push(topLevelNode);
+                    location.LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
                 }
 
-                while (nodesToProcess.Count > 0)
+                foreach (LocationModel location in RelatedLocations)
                 {
-                    CallTreeNode current = nodesToProcess.Pop();
+                    location.LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+                }
 
-                    if (current.LineMarker?.CanAttachToDocument(_documentName, _documentCookie, _windowFrame) == true)
+                foreach (CallTree callTree in CallTrees)
+                {
+                    Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
+
+                    foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
                     {
-                        current.LineMarker?.AttachToDocument(_documentName, (long)_documentCookie, _windowFrame);
-                        current.ApplyDefaultSourceFileHighlighting();
+                        nodesToProcess.Push(topLevelNode);
                     }
 
-                    foreach (CallTreeNode childNode in current.Children)
+                    while (nodesToProcess.Count > 0)
                     {
-                        nodesToProcess.Push(childNode);
+                        CallTreeNode current = nodesToProcess.Pop();
+
+                        if (current.LineMarker?.TryAttachToDocument(_documentName, _windowFrame) == true)
+                        {
+                            current.ApplyDefaultSourceFileHighlighting();
+                        }
+
+                        foreach (CallTreeNode childNode in current.Children)
+                        {
+                            nodesToProcess.Push(childNode);
+                        }
                     }
                 }
-            }
 
-            foreach (StackCollection stackCollection in Stacks)
-            {
-                foreach (StackFrameModel stackFrame in stackCollection)
+                foreach (StackCollection stackCollection in Stacks)
                 {
-                    stackFrame.LineMarker?.AttachToDocument(_documentName, _documentCookie, _windowFrame);
+                    foreach (StackFrameModel stackFrame in stackCollection)
+                    {
+                        stackFrame.LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+                    }
                 }
             }
         }
 
-        internal void DetachFromDocument(long docCookie)
+        internal void DetachFromDocument()
         {
-            LineMarker?.DetachFromDocument(docCookie);
-
-            foreach (LocationModel location in Locations)
-            {
-                location.LineMarker?.DetachFromDocument(docCookie);
-            }
-
-            foreach (LocationModel location in RelatedLocations)
-            {
-                location.LineMarker?.DetachFromDocument(docCookie);
-            }
-
-            foreach (CallTree callTree in CallTrees)
-            {
-                Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
-
-                foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
-                {
-                    nodesToProcess.Push(topLevelNode);
-                }
-
-                while (nodesToProcess.Count > 0)
-                {
-                    CallTreeNode current = nodesToProcess.Pop();
-                    current.LineMarker?.DetachFromDocument((long)docCookie);
-
-                    foreach (CallTreeNode childNode in current.Children)
-                    {
-                        nodesToProcess.Push(childNode);
-                    }
-                }
-            }
-
-            foreach (StackCollection stackCollection in Stacks)
-            {
-                foreach (StackFrameModel stackFrame in stackCollection)
-                {
-                    stackFrame.LineMarker?.DetachFromDocument(docCookie);
-                }
-            }
+            this.RemoveMarkers();
+            _documentName = null;
+            _documentCookie = null;
+            _windowFrame = null;
         }
     }
 }

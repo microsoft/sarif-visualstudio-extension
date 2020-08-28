@@ -80,9 +80,9 @@ namespace Microsoft.Sarif.Viewer.Models
                         _selectedItem.NavigateTo();
                         _selectedItem.ApplySelectionSourceFileHighlighting();
                     }
-                }
 
-                this.NotifyPropertyChanged(nameof(SelectedItem));
+                    this.NotifyPropertyChanged(nameof(SelectedItem));
+                }
             }
         }
 
