@@ -28,9 +28,8 @@ namespace Microsoft.Sarif.Viewer
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
         private int _runId;
-        private TrackingTagSpan<TextMarkerTag> _trackingTagSpan;
-        private SimpleTagger<TextMarkerTag> _tagger;
-        private ITrackingSpan _trackingSpan;
+        private ISarifTagger _tagger;
+        private ISarifTag _tag;
         private IWpfTextView _wpfTextView;
         private IVsWindowFrame _vsWindowFrame;
 
@@ -81,7 +80,7 @@ namespace Microsoft.Sarif.Viewer
             if (this.IsTracking)
             {
                 ITextSnapshot currentSnapshot = this._wpfTextView.TextSnapshot;
-                SnapshotSpan trackingSpanSnapshot = _trackingSpan.GetSpan(currentSnapshot);
+                SnapshotSpan trackingSpanSnapshot = _tag.PersistentSpan.Span.GetSpan(currentSnapshot);
 
                 // If the caret is already in the text within the marker, don't re-select it
                 // otherwise users cannot move the caret in the region.
@@ -171,7 +170,7 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            _trackingTagSpan = _tagger.CreateTagSpan(_trackingSpan, new TextMarkerTag(highlightColor ?? Color));
+            _tag.Tag = new TextMarkerTag(highlightColor ?? Color);
         }
 
         /// <summary>
@@ -188,17 +187,18 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void RemoveHighlightMarker()
         {
-            if (_tagger != null && _trackingTagSpan != null)
+            if (!IsTracking)
             {
-                _tagger.RemoveTagSpan(_trackingTagSpan);
+                return;
             }
-            _trackingTagSpan = null;
+
+            _tag.Tag = new TextMarkerTag(Color);
         }
 
         /// <summary>
         /// Check if current class track changes for document <paramref name="docCookie"/>
         /// </summary>
-        public bool IsTracking { get => _trackingSpan != null; }
+        public bool IsTracking { get => _tag != null; }
 
         /// <summary>
         /// An overridden method for reacting to the event of a document window
@@ -353,10 +353,9 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            // TODO: Find a way to delete TrackingSpan
-            _trackingTagSpan = _tagger.CreateTagSpan(_trackingSpan, new TextMarkerTag(Color));
+            _tagger.RemoveTag(_tag);
             RemoveHighlightMarker();
-            _trackingSpan = null;
+            _tag= null;
             _tagger = null;
         }
 
@@ -382,7 +381,14 @@ namespace Microsoft.Sarif.Viewer
 
             ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
             _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(_wpfTextView.TextBuffer);
-            _trackingSpan = wpfTextView.TextSnapshot.CreateTrackingSpan(span, SpanTrackingMode.EdgeExclusive);
+
+            TextSpan tagSpan;
+            tagSpan.iStartLine = this.Region.StartLine - 1;
+            tagSpan.iEndLine = this.Region.EndLine - 1;
+            tagSpan.iStartIndex = Math.Max(this.Region.StartColumn - 1, 0);
+            tagSpan.iEndIndex = Math.Max(this.Region.EndColumn - 1, 0);
+
+            _tag = _tagger.AddTag(tagSpan, new TextMarkerTag(Color));
         }
 
         private void TextViewClosed(object sender, EventArgs e)
@@ -411,9 +417,9 @@ namespace Microsoft.Sarif.Viewer
                     return;
                 }
 
-                ITextSnapshot textSnapshot = _trackingSpan.TextBuffer.CurrentSnapshot;
-                SnapshotPoint startPoint = _trackingSpan.GetStartPoint(textSnapshot);
-                SnapshotPoint endPoint = _trackingSpan.GetEndPoint(textSnapshot);
+                ITextSnapshot textSnapshot = _tag.PersistentSpan.Span.TextBuffer.CurrentSnapshot;
+                SnapshotPoint startPoint = _tag.PersistentSpan.Span.GetStartPoint(textSnapshot);
+                SnapshotPoint endPoint = _tag.PersistentSpan.Span.GetEndPoint(textSnapshot);
 
                 var startLine = startPoint.GetContainingLine();
                 var endLine = endPoint.GetContainingLine();
@@ -457,7 +463,7 @@ namespace Microsoft.Sarif.Viewer
 
             // Check if the current caret position is within our region. If it is, raise the RegionSelected event.
             SnapshotPoint caretBufferPosition = caretPoisition.BufferPosition;
-            if (_trackingSpan.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
+            if (_tag.PersistentSpan.Span.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
             {
                 this.RaiseRegionSelected?.Invoke(this, new EventArgs());
             }

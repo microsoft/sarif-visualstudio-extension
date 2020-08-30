@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
-using System.Windows.Media.Animation;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Shell;
@@ -124,10 +123,6 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
 
                 return _lineMarker;
-            }
-            set
-            {
-                _lineMarker = value;
             }
         }
 
