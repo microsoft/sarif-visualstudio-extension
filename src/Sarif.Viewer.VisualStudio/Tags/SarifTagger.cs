@@ -130,7 +130,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (spans.Count == 0)
             {
-                return Enumerable.Empty<ITagSpan<TextMarkerTag>>();
+                yield break;
             }
 
             SarifTag[] possibleTags = null;
@@ -145,11 +145,20 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (possibleTags == null)
             {
-                return Enumerable.Empty<ITagSpan<TextMarkerTag>>();
+                yield break;
             }
 
-            // Create intersection and return.
-            return Enumerable.Empty<ITagSpan<TextMarkerTag>>();
+            foreach (var span in spans)
+            {
+                foreach (var possibleTag in possibleTags)
+                {
+                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.PersistentSpan.Span.GetSpan(span.Snapshot);
+                    if (span.IntersectsWith(possibleTagSnapshotSpan))
+                    {
+                        yield return new TagSpan<TextMarkerTag>(possibleTagSnapshotSpan, possibleTag.Tag);
+                    }
+                }
+            }
         }
 
         public IDisposable Update()
