@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -350,8 +351,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static void CleanAllErrors()
         {
-            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
             SarifTableDataSource.Instance.CleanAllErrors();
+
+            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
             CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
             CodeAnalysisResultManager.Instance.CurrentRunId = -1;
         }

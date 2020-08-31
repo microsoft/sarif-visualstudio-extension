@@ -146,7 +146,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        public void ClearErrorsForLogFiles(IEnumerable<string> logFiles)
+        public IImmutableList<SarifResultTableEntry> ClearErrorsForLogFiles(IEnumerable<string> logFiles)
         {
             IImmutableList<SarifResultTableEntry> entriesToRemove;
 
@@ -165,16 +165,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             this.CallSinks(sink => sink.RemoveEntries(entriesToRemove));
+
+            return entriesToRemove;
         }
 
-        public void CleanAllErrors()
+        public IImmutableList<SarifResultTableEntry> CleanAllErrors()
         {
+            IImmutableList<SarifResultTableEntry> removedEntries;
+
             this.CallSinks(sink => sink.RemoveAllEntries());
 
             using (this.tableEntriesLock.EnterWriteLock())
             {
+                removedEntries = this.logFileToTableEntries.SelectMany(logFileToTableEntry => logFileToTableEntry.Value).ToImmutableList();
                 this.logFileToTableEntries.Clear();
             }
+
+            return removedEntries;
         }
 
         /// <summary>
