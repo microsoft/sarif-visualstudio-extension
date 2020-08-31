@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -59,9 +60,22 @@ namespace Microsoft.Sarif.Viewer
             Color = DEFAULT_SELECTION_COLOR;
         }
 
+        /// <summary>
+        /// Attempts to navigate a VS editor to the text marker.
+        /// </summary>
+        /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
+        /// <returns>Returns true if a VS editor was opened.</returns>
+        public bool TryNavigateTo(bool usePreviewPane)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            return this.TryNavigateTo(usePreviewPane, retryNaviation: true);
+
+        }
+
         // This method is called when you click an inline link, with an integer target, which
         // points to a Location object that has a region associated with it.
-        internal void NavigateTo(bool usePreviewPane)
+        private bool TryNavigateTo(bool usePreviewPane, bool retryNaviation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -77,17 +91,17 @@ namespace Microsoft.Sarif.Viewer
             // code must not navigate the selection or caret again if the
             // caret is already within the correct span, otherwise
             // the user cannot navigate the editor anymore.
-            if (this.IsTracking)
+            if (this.IsTracking && _tag.DocumentPersistentSpan.Span != null)
             {
                 ITextSnapshot currentSnapshot = this._wpfTextView.TextSnapshot;
-                SnapshotSpan trackingSpanSnapshot = _tag.PersistentSpan.Span.GetSpan(currentSnapshot);
+                SnapshotSpan trackingSpanSnapshot = _tag.DocumentPersistentSpan.Span.GetSpan(currentSnapshot);
 
                 // If the caret is already in the text within the marker, don't re-select it
                 // otherwise users cannot move the caret in the region.
                 if (trackingSpanSnapshot.Contains(_wpfTextView.Caret.Position.BufferPosition))
                 {
                     _vsWindowFrame?.Show();
-                    return;
+                    return true;
                 }
 
                 // The caret is not in this result, move it there so the result can be seen.
@@ -97,60 +111,59 @@ namespace Microsoft.Sarif.Viewer
                     _wpfTextView.Caret.EnsureVisible();
                     _vsWindowFrame?.Show();
                 }
-                return;
+                return true;
             }
-            
-            // If we get here, this marker hasn't yet been attached to a document and therefore
-            // will attempt to open the document and select the appropriate line.
-            if (!File.Exists(this.FullFilePath))
+
+            if (retryNaviation)
             {
-                if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(_runId, this.UriBaseId, this.FullFilePath))
+                // If we get here, this marker hasn't yet been attached to a document and therefore
+                // will attempt to open the document and select the appropriate line.
+                if (!File.Exists(this.FullFilePath))
                 {
-                    return;
+                    if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(_runId, this.UriBaseId, this.FullFilePath))
+                    {
+                        return false;
+                    }
                 }
-            }
 
-            if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
-            {
-                // Fill out the region's properties
-                FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
-                Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
-            }
+                if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
+                {
+                    // Fill out the region's properties
+                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+                    Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
+                }
 
-            IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
-            if (windowFrame != null)
-            {
+                IVsWindowFrame windowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
+                if (windowFrame == null)
+                {
+                    return false;
+                }
+
+                // After the document has been opened, then the tagging should have already occurred.
+                // So let's use try to navigate again.
+                if (this.TryNavigateTo(usePreviewPane, retryNaviation: false))
+                {
+                    return true;
+                }
+
+                // Alright, navigating again didn't work, so now let's just select
+                // the region.
+                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.Region, windowFrame, out TextSpan documentSpan))
+                {
+                    return false;
+                }
+
                 IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(windowFrame);
                 if (vsTextView == null)
                 {
-                    return;
+                    return false;
                 }
 
-                // Navigate the caret to the desired location. Text span uses 0-based indexes
-                var sourceLocation = this.GetSourceLocation();
-
-                TextSpan ts;
-                ts.iStartLine = sourceLocation.StartLine - 1;
-                ts.iEndLine = sourceLocation.EndLine - 1;
-                ts.iStartIndex = Math.Max(sourceLocation.StartColumn - 1, 0);
-                ts.iEndIndex = Math.Max(sourceLocation.EndColumn - 1, 0);
-
-                vsTextView.EnsureSpanVisible(ts);
-                vsTextView.SetSelection(ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex);
+                vsTextView.EnsureSpanVisible(documentSpan);
+                vsTextView.SetSelection(documentSpan.iStartLine, documentSpan.iStartIndex, documentSpan.iEndLine, documentSpan.iEndIndex);
             }
-        }
 
-        /// <summary>
-        /// Get source location of current marker (tracking code place). 
-        /// </summary>
-        /// <returns>
-        /// This is clone of stored source location with actual source code coordinates.
-        /// </returns>
-        public Region GetSourceLocation()
-        {
-            Region sourceLocation = Region.DeepClone();                
-            SaveCurrentTrackingData(sourceLocation);
-            return sourceLocation;
+            return true;
         }
 
         /// <summary>
@@ -165,21 +178,19 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="highlightColor">Color</param>
         public void AddHighlightMarker(string highlightColor)
         {
-            if (!IsTracking)
+            if (this._tag != null)
             {
-                return;
+                _tag.Tag = new TextMarkerTag(highlightColor ?? Color);
             }
-
-            _tag.Tag = new TextMarkerTag(highlightColor ?? Color);
         }
 
         /// <summary>
         /// Add tracking for text in <paramref name="span"/> for document with id <paramref name="docCookie"/>.
         /// </summary>
-        public void AddTracking(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, Span span)
+        public void AddTracking(IVsWindowFrame vsWindowFrame)
         {
-            Debug.Assert(!IsTracking, "This marker already tracking changes.");
-            CreateTracking(vsWindowFrame, wpfTextView, span);
+            ThreadHelper.ThrowIfNotOnUIThread();
+            CreateTracking(vsWindowFrame);
         }
 
         /// <summary>
@@ -187,12 +198,10 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void RemoveHighlightMarker()
         {
-            if (!IsTracking)
+            if (this._tag != null)
             {
-                return;
+                this._tag.Tag = new TextMarkerTag(Color);
             }
-
-            _tag.Tag = new TextMarkerTag(Color);
         }
 
         /// <summary>
@@ -228,54 +237,8 @@ namespace Microsoft.Sarif.Viewer
         private void AttachToDocumentWorker(IVsWindowFrame frame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            var sourceLocation = this.GetSourceLocation();
-            int line = sourceLocation.StartLine;
 
-            // Coerce the line numbers so we don't go out of bound. However, if we have to
-            // coerce the line numbers, then we won't perform highlighting because most likely
-            // we will highlight the wrong line. The idea here is to just go to the top or bottom
-            // of the file as our "best effort" to be closest where it thinks it should be
-            if (line <= 0)
-            {
-                line = 1;
-            }
-
-            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(frame);
-            if (vsTextView != null)
-            {
-                // Locate the specific line/column position in the text view and go there
-                IVsTextLines textLines;
-                vsTextView.GetBuffer(out textLines);
-                if (textLines != null)
-                {
-                    int lastLine;
-                    int length;
-                    int hr = textLines.GetLastLineIndex(out lastLine, out length);
-                    if (hr != 0)
-                    {
-                        return;
-                    }
-
-                    // our source code lines are 1-based, and the VS API source code lines are 0-based
-
-                    lastLine = lastLine + 1;
-
-                    // Same thing here, coerce the line number if it's going out of bound
-                    if (line > lastLine)
-                    {
-                        line = lastLine;
-                    }
-                }
-
-                // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
-                // if we haven't yet
-                IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
-                if (wpfTextView != null)
-                {
-                    AttachMarkerToTextView(frame, wpfTextView, this,
-                        line, sourceLocation.StartColumn, line + (sourceLocation.EndLine - sourceLocation.StartLine), sourceLocation.EndColumn);
-                }
-            }
+            AttachMarkerToTextView(frame, this);
         }
 
         /// <summary>
@@ -285,58 +248,13 @@ namespace Microsoft.Sarif.Viewer
         /// This code is only valid if the file on disk has not been modified since the analysis run
         /// was performed.
         /// </remarks>
-        private static void AttachMarkerToTextView(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, ResultTextMarker marker,
-            int startLine, int startColumn, int endLine, int endColumn)
+        private static void AttachMarkerToTextView(IVsWindowFrame vsWindowFrame, ResultTextMarker marker)
         {
-            // If for some reason the start line is not correct, just skip the highlighting
-            ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
-            if (startLine > textSnapshot.LineCount)
-            {
-                return;
-            }
-
             try
             {
-                // Fix up the end line number if it's inconsistent
-                if (endLine <= 0 || endLine < startLine)
-                {
-                    endLine = startLine;
-                }
+                ThreadHelper.ThrowIfNotOnUIThread();
 
-                bool coerced = false;
-
-                // Calculate the start and end marker bound. Adjust for the column values if
-                // the values don't make sense. Make sure we handle the case of empty file correctly
-                ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(Math.Max(startLine - 1, 0));
-                ITextSnapshotLine endTextLine = textSnapshot.GetLineFromLineNumber(Math.Max(endLine - 1, 0));
-                if (startColumn <= 0 || startColumn >= startTextLine.Length)
-                {
-                    startColumn = 1;
-                    coerced = true;
-                }
-
-                // Calculate the end marker bound. Perform coercion on the values if they aren't consistent
-                if (endColumn <= 0 && endColumn >= endTextLine.Length)
-                {
-                    endColumn = endTextLine.Length;
-                    coerced = true;
-                }
-
-                // If we are highlighting just one line and the column values don't make
-                // sense or we corrected one or more of them, then simply mark the
-                // entire line
-                if (endLine == startLine && (coerced || startColumn >= endColumn))
-                {
-                    startColumn = 1;
-                    endColumn = endTextLine.Length;
-                }
-
-                // Create a span with the calculated markers
-                int markerStart = startTextLine.Start.Position + startColumn - 1;
-                int markerEnd = endTextLine.Start.Position + endColumn - 1;
-                Span spanToColor = Span.FromBounds(markerStart, markerEnd);
-
-                marker.AddTracking(vsWindowFrame, wpfTextView, spanToColor);
+                marker.AddTracking(vsWindowFrame);
             }
             catch (Exception e)
             {
@@ -354,13 +272,14 @@ namespace Microsoft.Sarif.Viewer
             }
 
             _tagger.RemoveTag(_tag);
-            RemoveHighlightMarker();
             _tag= null;
             _tagger = null;
         }
 
-        private void CreateTracking(IVsWindowFrame vsWindowFrame, IWpfTextView wpfTextView, Span span)
+        private void CreateTracking(IVsWindowFrame vsWindowFrame)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (IsTracking)
             {
                 return;
@@ -372,6 +291,27 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
+            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(vsWindowFrame);
+            if (vsTextView == null)
+            {
+                return;
+            }
+
+            // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
+            // if we haven't yet
+            IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
+            if (wpfTextView == null)
+            {
+                return;
+            }
+
+            ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
+            _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
+            if (_tagger.HasTag(Region))
+            {
+                return;
+            }
+
             _wpfTextView = wpfTextView;
             _wpfTextView.Closed += TextViewClosed;
             _vsWindowFrame = vsWindowFrame;
@@ -379,16 +319,95 @@ namespace Microsoft.Sarif.Viewer
             wpfTextView.Caret.PositionChanged += CaretPositionChanged;
             wpfTextView.LayoutChanged += ViewLayoutChanged;
 
-            ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
-            _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(_wpfTextView.TextBuffer);
+            if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.Region, vsWindowFrame, out TextSpan tagSpan))
+            {
+                return;
+            }
 
-            TextSpan tagSpan;
-            tagSpan.iStartLine = this.Region.StartLine - 1;
-            tagSpan.iEndLine = this.Region.EndLine - 1;
-            tagSpan.iStartIndex = Math.Max(this.Region.StartColumn - 1, 0);
-            tagSpan.iEndIndex = Math.Max(this.Region.EndColumn - 1, 0);
+            _tag = _tagger.AddTag(Region, tagSpan, new TextMarkerTag(Color));
+        }
 
-            _tag = _tagger.AddTag(tagSpan, new TextMarkerTag(Color));
+        private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, IVsWindowFrame vsWindowFrame, out TextSpan textSpan)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // SARIF regions are 1 based, VS is one based.)
+            textSpan.iStartLine = Math.Max(region.StartLine - 1, 0);
+            textSpan.iEndLine = Math.Max(region.EndLine - 1, 0);
+            textSpan.iStartIndex = Math.Max(region.StartColumn - 1, 0);
+            textSpan.iEndIndex = Math.Max(region.EndColumn - 1, 0);
+
+            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(vsWindowFrame);
+            if (vsTextView == null)
+            {
+                return false;
+            }
+
+            IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
+            if (wpfTextView == null)
+            {
+                return false;
+            }
+
+            // If for some reason the start line is not correct, just skip the highlighting
+            ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
+            if (textSpan.iStartLine > textSnapshot.LineCount)
+            {
+                return false;
+            }
+
+            // Coerce the line numbers so we don't go out of bound. However, if we have to
+            // coerce the line numbers, then we won't perform highlighting because most likely
+            // we will highlight the wrong line. The idea here is to just go to the top or bottom
+            // of the file as our "best effort" to be closest where it thinks it should be
+            if (textSpan.iStartLine < 0)
+            {
+                textSpan.iStartLine = 0;
+            }
+
+            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            if (vsTextLines.GetLastLineIndex(out int lastLine, out int lastIndex) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            if (textSpan.iEndLine > lastLine)
+            {
+                textSpan.iEndLine = lastLine;
+            }
+
+            // Now fix up the column numbers.
+            bool coerced = false;
+            ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
+
+            if (textSpan.iStartLine < 0)
+            {
+                textSpan.iStartLine = 0;
+                coerced = true;
+            }
+
+            if (textSpan.iStartIndex < 0 || textSpan.iStartIndex >= startTextLine.Length)
+            {
+                textSpan.iStartIndex = 0;
+                coerced = true;
+            }
+
+            ITextSnapshotLine endTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iEndLine);
+
+            // If we are highlighting just one line and the column values don't make
+            // sense or we corrected one or more of them, then simply mark the
+            // entire line
+            if (textSpan.iEndLine == textSpan.iStartLine && (coerced || textSpan.iStartIndex >= textSpan.iEndIndex))
+            {
+                textSpan.iStartIndex = 0;
+                textSpan.iEndIndex = endTextLine.Length - 1;
+            }
+
+            return true;
         }
 
         private void TextViewClosed(object sender, EventArgs e)
@@ -401,43 +420,10 @@ namespace Microsoft.Sarif.Viewer
                 _wpfTextView = null;
             }
 
-            RemoveHighlightMarker();
             RemoveTracking();
 
             _tagger = null;
             _vsWindowFrame = null;
-        }
-
-        private void SaveCurrentTrackingData(Region sourceLocation)
-        {
-            try
-            {
-                if (!IsTracking)
-                {
-                    return;
-                }
-
-                ITextSnapshot textSnapshot = _tag.PersistentSpan.Span.TextBuffer.CurrentSnapshot;
-                SnapshotPoint startPoint = _tag.PersistentSpan.Span.GetStartPoint(textSnapshot);
-                SnapshotPoint endPoint = _tag.PersistentSpan.Span.GetEndPoint(textSnapshot);
-
-                var startLine = startPoint.GetContainingLine();
-                var endLine = endPoint.GetContainingLine();
-
-                var textLineStart = _wpfTextView.GetTextViewLineContainingBufferPosition(startPoint);
-                var textLineEnd = _wpfTextView.GetTextViewLineContainingBufferPosition(endPoint);
-
-                sourceLocation.StartColumn = startLine.Start.Position - textLineStart.Start.Position;
-                sourceLocation.EndColumn = endLine.End.Position - textLineEnd.Start.Position;
-                sourceLocation.StartLine = startLine.LineNumber + 1;
-                sourceLocation.EndLine = endLine.LineNumber + 1;
-            }
-            catch (InvalidOperationException)
-            {
-                // Editor throws InvalidOperationException in some cases - 
-                // We act like tracking isn't turned on if this is thrown to avoid
-                // taking all of VS down.
-            }
         }
 
         private void ViewLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -456,14 +442,14 @@ namespace Microsoft.Sarif.Viewer
 
         private void UpdateAtCaretPosition(CaretPosition caretPoisition)
         {
-            if (_wpfTextView == null)
+            if (_wpfTextView == null || _tag.DocumentPersistentSpan.Span == null)
             {
                 return;
             }
 
             // Check if the current caret position is within our region. If it is, raise the RegionSelected event.
             SnapshotPoint caretBufferPosition = caretPoisition.BufferPosition;
-            if (_tag.PersistentSpan.Span.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
+            if (_tag.DocumentPersistentSpan.Span.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
             {
                 this.RaiseRegionSelected?.Invoke(this, new EventArgs());
             }

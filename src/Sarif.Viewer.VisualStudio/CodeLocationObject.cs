@@ -152,7 +152,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (LineMarker != null)
             {
-                LineMarker?.NavigateTo(usePreviewPane);
+                LineMarker?.TryNavigateTo(usePreviewPane);
             }
             else
             {

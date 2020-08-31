@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.TextManager.Interop;
@@ -12,17 +13,26 @@ namespace Microsoft.Sarif.Viewer.Tags
     {
         private TextMarkerTag textMarkerTag;
 
-        public SarifTag(IPersistentSpan persistentSpan, TextSpan initialSpan, TextMarkerTag textMarkerTag)
+        /// <summary>
+        /// Initialize a new instance of <see cref="SarifTag"/>.
+        /// </summary>
+        /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
+        /// <param name="sourceRegion">The original span from the region present in the SARIF log.</param>
+        /// <param name="textMarkerTag">The text marker tag to use.</param>
+        public SarifTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, TextMarkerTag textMarkerTag)
         {
-            this.PersistentSpan = persistentSpan;
+            this.DocumentPersistentSpan = documentPersistentSpan;
             this.textMarkerTag = textMarkerTag;
-            this.InitialSpan = initialSpan;
+            this.SourceRegion = sourceRegion;
         }
 
-        public IPersistentSpan PersistentSpan { get; }
+        /// <inheritdoc/>
+        public IPersistentSpan DocumentPersistentSpan { get; }
 
-        public TextSpan InitialSpan { get; }
+        /// <inheritdoc/>
+        public Region SourceRegion { get; }
 
+        /// <inheritdoc/>
         public TextMarkerTag Tag
         {
             get => this.textMarkerTag;
@@ -37,6 +47,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
+        /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }

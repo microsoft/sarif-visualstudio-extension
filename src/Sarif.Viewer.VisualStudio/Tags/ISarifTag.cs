@@ -3,6 +3,7 @@
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
+    using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Tagging;
     using Microsoft.VisualStudio.TextManager.Interop;
@@ -10,10 +11,24 @@ namespace Microsoft.Sarif.Viewer.Tags
 
     internal interface ISarifTag: INotifyPropertyChanged
     {
-        IPersistentSpan PersistentSpan { get; }
+        /// <summary>
+        /// Gets the persistent span for a document.
+        /// </summary>
+        /// <remarks>
+        /// This span is not necessarily the same as <see cref="SourceRegion"/>.
+        /// It may have been modified to fix up column and line numbers from the region
+        /// present in the SARIF log.
+        /// </remarks>
+        IPersistentSpan DocumentPersistentSpan { get; }
 
-        TextSpan InitialSpan { get; }
+        /// <summary>
+        /// Gets the original span (SAIRF region) that was present in the SARIF log.
+        /// </summary>
+        Region SourceRegion { get; }
 
+        /// <summary>
+        /// Gets the current text tag used for this tag.
+        /// </summary>
         TextMarkerTag Tag { get; set; }
     }
 }

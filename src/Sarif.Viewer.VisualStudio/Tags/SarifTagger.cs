@@ -3,6 +3,7 @@
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
+    using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
@@ -55,7 +56,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-        public ISarifTag AddTag(TextSpan initialSpan, TextMarkerTag tag)
+        public ISarifTag AddTag(Region sourceRegion, TextSpan documentSpan, TextMarkerTag tag)
         {
             using (this.Update())
             {
@@ -66,11 +67,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     {
                         SarifTag existingSarifTag = FileToSarifTags[this.fileName].FirstOrDefault(
                             (sarifTag) =>
-                                sarifTag.InitialSpan.iStartLine == initialSpan.iStartLine &&
-                                sarifTag.InitialSpan.iStartIndex== initialSpan.iStartIndex &&
-                                sarifTag.InitialSpan.iEndLine == initialSpan.iEndLine &&
-                                sarifTag.InitialSpan.iEndIndex == initialSpan.iEndIndex &&
-                                sarifTag.Tag.Type == tag.Type);
+                                sarifTag.SourceRegion.ValueEquals(sourceRegion));
 
                         if (existingSarifTag != null)
                         {
@@ -82,15 +79,15 @@ namespace Microsoft.Sarif.Viewer.Tags
                     {
                         IPersistentSpan persistentSpan = this.persistentSpanFactory.Create(
                             this.fileName,
-                            startLine: initialSpan.iStartLine,
-                            startIndex: initialSpan.iStartIndex,
-                            endLine: initialSpan.iEndLine,
-                            endIndex: initialSpan.iEndIndex,
-                            SpanTrackingMode.EdgeInclusive); ;
+                            startLine: documentSpan.iStartLine,
+                            startIndex: documentSpan.iStartIndex,
+                            endLine: documentSpan.iEndLine,
+                            endIndex: documentSpan.iEndIndex,
+                            SpanTrackingMode.EdgeInclusive);
 
                         SarifTag newSarifTag = new SarifTag(
                             persistentSpan,
-                            initialSpan,
+                            sourceRegion,
                             textMarkerTag: tag);
 
                         if (sarifTags == null)
@@ -102,7 +99,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                         sarifTags.Add(newSarifTag);
                         newSarifTag.PropertyChanged += SarifTagPropertyChanged;
 
-                        this.UpdateBatchSpan(newSarifTag.PersistentSpan.Span);
+                        this.UpdateBatchSpan(newSarifTag.DocumentPersistentSpan.Span);
 
                         return newSarifTag;
                     }
@@ -110,17 +107,35 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
+        /// <inheritdoc/>
+        public bool HasTag(Region sourceRegion)
+        {
+            using (tagListLock.EnterReadLock())
+            {
+                List<SarifTag> sarifTags = null;
+                if (!FileToSarifTags.TryGetValue(fileName, out sarifTags))
+                {
+                    return false;
+                }
+
+                return FileToSarifTags[this.fileName].Any(
+                    (sarifTag) =>
+                        sarifTag.SourceRegion.ValueEquals(sourceRegion));
+            }
+        }
+
+        /// <inheritdoc/>
         public void RemoveTag(ISarifTag tag)
         {
             using (this.Update())
             {
                 using (tagListLock.EnterWriteLock())
                 {
-                    if (tag is SarifTag sarifTag && FileToSarifTags.TryGetValue(sarifTag.PersistentSpan.FilePath, out List<SarifTag> sarifTags))
+                    if (tag is SarifTag sarifTag && FileToSarifTags.TryGetValue(sarifTag.DocumentPersistentSpan.FilePath, out List<SarifTag> sarifTags))
                     {
                         sarifTags.Remove(sarifTag);
                         sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
-                        this.UpdateBatchSpan(sarifTag.PersistentSpan.Span);
+                        this.UpdateBatchSpan(sarifTag.DocumentPersistentSpan.Span);
                     }
                 }
             }
@@ -152,7 +167,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 foreach (var possibleTag in possibleTags)
                 {
-                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.PersistentSpan.Span.GetSpan(span.Snapshot);
+                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.DocumentPersistentSpan.Span.GetSpan(span.Snapshot);
                     if (span.IntersectsWith(possibleTagSnapshotSpan))
                     {
                         yield return new TagSpan<TextMarkerTag>(possibleTagSnapshotSpan, possibleTag.Tag);
@@ -193,7 +208,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (this.Update())
                 {
-                    this.UpdateBatchSpan(sarifTag.PersistentSpan.Span);
+                    this.UpdateBatchSpan(sarifTag.DocumentPersistentSpan.Span);
                 }
             }
         }
