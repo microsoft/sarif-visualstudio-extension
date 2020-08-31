@@ -35,17 +35,17 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _region;
+                return this._region;
             }
             set
             {
-                if (value != _region)
+                if (value != this._region)
                 {
                     _region = value;
 
-                    if (LineMarker != null)
+                    if (this._lineMarker != null)
                     {
-                        LineMarker.Region = _region;
+                        this._lineMarker.Region = _region;
                     }
 
                     NotifyPropertyChanged("Region");
@@ -68,17 +68,17 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _filePath;
+                return this._filePath;
             }
             set
             {
-                if (value != _filePath)
+                if (value != this._filePath)
                 {
-                    _filePath = value;
+                    this._filePath = value;
 
-                    if (this.LineMarker != null)
+                    if (this._lineMarker != null)
                     {
-                        this.LineMarker.FullFilePath = _filePath;
+                        this._lineMarker.FullFilePath = this._filePath;
                     }
 
                     NotifyPropertyChanged("FilePath");
@@ -90,17 +90,17 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _uriBaseId;
+                return this._uriBaseId;
             }
             set
             {
-                if (value != _uriBaseId)
+                if (value != this._uriBaseId)
                 {
-                    _uriBaseId = value;
+                    this._uriBaseId = value;
 
-                    if (this.LineMarker != null)
+                    if (this._lineMarker != null)
                     {
-                        this.LineMarker.UriBaseId = _uriBaseId;
+                        this._lineMarker.UriBaseId = this._uriBaseId;
                     }
 
                     NotifyPropertyChanged("UriBaseId");
