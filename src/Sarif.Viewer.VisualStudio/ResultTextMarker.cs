@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -73,7 +72,7 @@ namespace Microsoft.Sarif.Viewer
 
         }
 
-        // This method is called when you click an inline link, with an integer target, which
+        // This method is called when you click an in-line link, with an integer target, which
         // points to a Location object that has a region associated with it.
         private bool TryNavigateTo(bool usePreviewPane, bool retryNaviation)
         {
@@ -108,9 +107,11 @@ namespace Microsoft.Sarif.Viewer
                 if (!trackingSpanSnapshot.IsEmpty)
                 {
                     _wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
+                    _wpfTextView.Caret.MoveTo(trackingSpanSnapshot.End);
                     _wpfTextView.Caret.EnsureVisible();
                     _vsWindowFrame?.Show();
                 }
+
                 return true;
             }
 
@@ -185,15 +186,6 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Add tracking for text in <paramref name="span"/> for document with id <paramref name="docCookie"/>.
-        /// </summary>
-        public void AddTracking(IVsWindowFrame vsWindowFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            CreateTracking(vsWindowFrame);
-        }
-
-        /// <summary>
         /// Remove selection for tracking text
         /// </summary>
         public void RemoveHighlightMarker()
@@ -213,88 +205,34 @@ namespace Microsoft.Sarif.Viewer
         /// An overridden method for reacting to the event of a document window
         /// being opened
         /// </summary>
-        public bool TryAttachToDocument(string documentName, IVsWindowFrame frame)
+        public bool TryAttachToDocument(string documentName, IVsWindowFrame vsWindowFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // For these cases, this event has nothing to do with this item
-            if (this.IsTracking ||
-                frame == null || 
+            if (this.IsTracking)
+            {
+                return true;
+            }
+
+            if (vsWindowFrame == null || 
                 string.Compare(documentName, this.FullFilePath, StringComparison.OrdinalIgnoreCase) != 0)
             {
                 return false;
             }
 
-            AttachToDocumentWorker(frame);
-
-            return true;
-        }
-
-        /// <summary>
-        /// Check that current <paramref name="marker"/> point to correct line position 
-        /// and attach it to <paramref name="docCookie"/> for track changes.
-        /// </summary>
-        private void AttachToDocumentWorker(IVsWindowFrame frame)
-        {
             ThreadHelper.ThrowIfNotOnUIThread();
-
-            AttachMarkerToTextView(frame, this);
-        }
-
-        /// <summary>
-        /// Highlight the source code on a particular line
-        /// </summary>
-        /// <remarks>
-        /// This code is only valid if the file on disk has not been modified since the analysis run
-        /// was performed.
-        /// </remarks>
-        private static void AttachMarkerToTextView(IVsWindowFrame vsWindowFrame, ResultTextMarker marker)
-        {
-            try
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-
-                marker.AddTracking(vsWindowFrame);
-            }
-            catch (Exception e)
-            {
-                // Log the exception and move ahead. We don't want to bubble this or fail.
-                // We just don't color the problem line.
-                Debug.Print(e.Message);
-            }
-        }    
-
-        private void RemoveTracking()
-        {
-            if (!IsTracking)
-            {
-                return;
-            }
-
-            _tagger.RemoveTag(_tag);
-            _tag= null;
-            _tagger = null;
-        }
-
-        private void CreateTracking(IVsWindowFrame vsWindowFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (IsTracking)
-            {
-                return;
-            }
 
             IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
             if (componentModel == null)
             {
-                return;
+                return false;
             }
 
             IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(vsWindowFrame);
             if (vsTextView == null)
             {
-                return;
+                return false;
             }
 
             // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
@@ -302,29 +240,36 @@ namespace Microsoft.Sarif.Viewer
             IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
             if (wpfTextView == null)
             {
-                return;
+                return false;
             }
 
             ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
             _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
-            if (_tagger.HasTag(Region))
+            _tagger.TryGetTag(Region, out ISarifTag existingTag);
+
+            if (existingTag == null)
             {
-                return;
+                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.Region, vsWindowFrame, out TextSpan tagSpan))
+                {
+                    return false;
+                }
+
+                _tag = _tagger.AddTag(Region, tagSpan, new TextMarkerTag(Color));
             }
+            else
+            {
+                _tag = existingTag;
+            }
+
 
             _wpfTextView = wpfTextView;
             _wpfTextView.Closed += TextViewClosed;
             _vsWindowFrame = vsWindowFrame;
 
-            wpfTextView.Caret.PositionChanged += CaretPositionChanged;
-            wpfTextView.LayoutChanged += ViewLayoutChanged;
+            _wpfTextView.Caret.PositionChanged += CaretPositionChanged;
+            _wpfTextView.LayoutChanged += ViewLayoutChanged;
 
-            if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.Region, vsWindowFrame, out TextSpan tagSpan))
-            {
-                return;
-            }
-
-            _tag = _tagger.AddTag(Region, tagSpan, new TextMarkerTag(Color));
+            return true;
         }
 
         private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, IVsWindowFrame vsWindowFrame, out TextSpan textSpan)
@@ -356,13 +301,19 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            // Coerce the line numbers so we don't go out of bound. However, if we have to
-            // coerce the line numbers, then we won't perform highlighting because most likely
-            // we will highlight the wrong line. The idea here is to just go to the top or bottom
-            // of the file as our "best effort" to be closest where it thinks it should be
             if (textSpan.iStartLine < 0)
             {
                 textSpan.iStartLine = 0;
+            }
+
+            if (textSpan.iEndLine < 0)
+            {
+                textSpan.iEndLine = 0;
+            }
+
+            if (textSpan.iEndLine < textSpan.iStartLine)
+            {
+                textSpan.iEndLine = textSpan.iStartLine;
             }
 
             if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
@@ -383,12 +334,6 @@ namespace Microsoft.Sarif.Viewer
             // Now fix up the column numbers.
             bool coerced = false;
             ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
-
-            if (textSpan.iStartLine < 0)
-            {
-                textSpan.iStartLine = 0;
-                coerced = true;
-            }
 
             if (textSpan.iStartIndex < 0 || textSpan.iStartIndex >= startTextLine.Length)
             {
@@ -420,8 +365,7 @@ namespace Microsoft.Sarif.Viewer
                 _wpfTextView = null;
             }
 
-            RemoveTracking();
-
+            _tag = null;
             _tagger = null;
             _vsWindowFrame = null;
         }

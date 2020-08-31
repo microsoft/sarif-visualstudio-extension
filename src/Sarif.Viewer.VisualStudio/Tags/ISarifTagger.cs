@@ -27,8 +27,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Determines if the tagger already knows about the given source span.
         /// </summary>
         /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
+        /// <param name="existingTag">On successful return, contains existing tag</param>
         /// <returns>Returns true if the tagger already has a span for the given source span.</returns>
-        bool HasTag(Region sourceRegion);
+        bool TryGetTag(Region sourceRegion, out ISarifTag existingTag);
 
         /// <summary>
         /// Removes the tag from the tagger.

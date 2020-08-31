@@ -4,7 +4,6 @@
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.TextManager.Interop;
 using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Tags

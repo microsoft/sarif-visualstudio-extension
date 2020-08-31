@@ -52,10 +52,25 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.fileName = fileName;
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
+
+            // Subscribe to property changed event on any existing tag.
+            using (tagListLock.EnterReadLock())
+            {
+                List<SarifTag> sarifTags = null;
+                if (FileToSarifTags.TryGetValue(fileName, out sarifTags))
+                {
+                    foreach(var sarifTag in sarifTags)
+                    {
+                        sarifTag.PropertyChanged += this.SarifTagPropertyChanged;
+                    }
+                }
+            }
         }
 
+        /// <inheritdoc/>
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
+        /// <inheritdoc/>
         public ISarifTag AddTag(Region sourceRegion, TextSpan documentSpan, TextMarkerTag tag)
         {
             using (this.Update())
@@ -78,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     using (tagListLock.EnterWriteLock())
                     {
                         IPersistentSpan persistentSpan = this.persistentSpanFactory.Create(
-                            this.fileName,
+                            this.textBuffer.CurrentSnapshot,
                             startLine: documentSpan.iStartLine,
                             startIndex: documentSpan.iStartIndex,
                             endLine: documentSpan.iEndLine,
@@ -108,20 +123,23 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public bool HasTag(Region sourceRegion)
+        public bool TryGetTag(Region sourceRegion, out ISarifTag existingTag)
         {
             using (tagListLock.EnterReadLock())
             {
                 List<SarifTag> sarifTags = null;
                 if (!FileToSarifTags.TryGetValue(fileName, out sarifTags))
                 {
+                    existingTag = null;
                     return false;
                 }
 
-                return FileToSarifTags[this.fileName].Any(
+                existingTag = FileToSarifTags[this.fileName].FirstOrDefault(
                     (sarifTag) =>
                         sarifTag.SourceRegion.ValueEquals(sourceRegion));
             }
+
+            return existingTag != null;
         }
 
         /// <inheritdoc/>
@@ -165,7 +183,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (var span in spans)
             {
-                foreach (var possibleTag in possibleTags)
+                foreach (var possibleTag in possibleTags.Where((possibleTag) => possibleTag.DocumentPersistentSpan.Span != null))
                 {
                     SnapshotSpan possibleTagSnapshotSpan = possibleTag.DocumentPersistentSpan.Span.GetSpan(span.Snapshot);
                     if (span.IntersectsWith(possibleTagSnapshotSpan))
@@ -192,6 +210,18 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (disposing)
             {
+                using (tagListLock.EnterReadLock())
+                {
+                    List<SarifTag> sarifTags = null;
+                    if (FileToSarifTags.TryGetValue(this.fileName, out sarifTags))
+                    {
+                        foreach (var sarifTag in sarifTags)
+                        {
+                            sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
+                        }
+                    }
+                }
+
                 this.batchUpdateLock.InnerLock.Dispose();
             }
         }
@@ -234,7 +264,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.batchUpdateSpan = snapshot.CreateTrackingSpan(new SnapshotSpan(newStart, newEnd), this.batchUpdateSpan.TrackingMode);
         }
 
-
         private class BatchUpdate : IDisposable
         {
             private readonly SarifTagger tagger;
@@ -252,7 +281,8 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             public void Dispose()
             {
-                if (Interlocked.Decrement(ref tagger.updateCount) == 0)
+                if (Interlocked.Decrement(ref tagger.updateCount) == 0 &&
+                    this.tagger.batchUpdateSpan != null)
                 {
                     this.tagger.TagsChanged?.Invoke(this.tagger, new SnapshotSpanEventArgs(this.tagger.batchUpdateSpan.GetSpan(this.tagger.textBuffer.CurrentSnapshot)));
                 }
