@@ -4,13 +4,15 @@
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
+using System;
 using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    internal class SarifTag : ISarifTag
+    internal class SarifTag : ISarifTag, IDisposable
     {
         private TextMarkerTag textMarkerTag;
+        private bool disposed;
 
         /// <summary>
         /// Initialize a new instance of <see cref="SarifTag"/>.
@@ -48,5 +50,35 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <inheritdoc/>
+        public event EventHandler CaretEnteredTag;
+
+        /// <summary>
+        /// Called by the tagger to when it detects that the caret for a text view has entered a tag.
+        /// </summary>
+        public void RaiseCaretEnteredTag()
+        {
+            this.CaretEnteredTag?.Invoke(this, new EventArgs());
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                this.disposed = true;
+                if (disposing)
+                {
+                    this.DocumentPersistentSpan?.Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

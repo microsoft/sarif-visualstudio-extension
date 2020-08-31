@@ -6,7 +6,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Tagging;
-    using Microsoft.VisualStudio.TextManager.Interop;
+    using System;
     using System.ComponentModel;
 
     internal interface ISarifTag: INotifyPropertyChanged
@@ -30,5 +30,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Gets the current text tag used for this tag.
         /// </summary>
         TextMarkerTag Tag { get; set; }
+
+        /// <summary>
+        /// Fired when the caret enters a tag.
+        /// </summary>
+        event EventHandler CaretEnteredTag;
     }
 }

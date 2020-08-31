@@ -262,15 +262,15 @@ namespace Microsoft.Sarif.Viewer
             }
 
 
+            _tag.CaretEnteredTag += CaretEnteredTag;
             _wpfTextView = wpfTextView;
-            _wpfTextView.Closed += TextViewClosed;
             _vsWindowFrame = vsWindowFrame;
-
-            _wpfTextView.Caret.PositionChanged += CaretPositionChanged;
-            _wpfTextView.LayoutChanged += ViewLayoutChanged;
 
             return true;
         }
+
+        // When the VS Editor tag has the caret moved inside of it, let's just pass along the region selection.
+        private void CaretEnteredTag(object sender, EventArgs e) => this.RaiseRegionSelected?.Invoke(this, new EventArgs());
 
         private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, IVsWindowFrame vsWindowFrame, out TextSpan textSpan)
         {
@@ -353,50 +353,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return true;
-        }
-
-        private void TextViewClosed(object sender, EventArgs e)
-        {
-            if (_wpfTextView != null)
-            {
-                _wpfTextView.Closed -= TextViewClosed;
-                _wpfTextView.Caret.PositionChanged -= CaretPositionChanged;
-                _wpfTextView.LayoutChanged -= ViewLayoutChanged;
-                _wpfTextView = null;
-            }
-
-            _tag = null;
-            _tagger = null;
-            _vsWindowFrame = null;
-        }
-
-        private void ViewLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
-        {
-            // If a new snapshot wasn't generated, then skip this layout
-            if (e.NewViewState.EditSnapshot != e.OldViewState.EditSnapshot)
-            {
-                UpdateAtCaretPosition(_wpfTextView.Caret.Position);
-            }
-        }
-
-        private void CaretPositionChanged(object sender, CaretPositionChangedEventArgs e)
-        {
-            UpdateAtCaretPosition(e.NewPosition);
-        }
-
-        private void UpdateAtCaretPosition(CaretPosition caretPoisition)
-        {
-            if (_wpfTextView == null || _tag.DocumentPersistentSpan.Span == null)
-            {
-                return;
-            }
-
-            // Check if the current caret position is within our region. If it is, raise the RegionSelected event.
-            SnapshotPoint caretBufferPosition = caretPoisition.BufferPosition;
-            if (_tag.DocumentPersistentSpan.Span.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
-            {
-                this.RaiseRegionSelected?.Invoke(this, new EventArgs());
-            }
         }
     }
 }

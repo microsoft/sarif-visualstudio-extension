@@ -19,6 +19,7 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Newtonsoft.Json;
@@ -815,6 +816,30 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return textView;
+        }
+
+        public static bool TryGetFileNameFromTextBuffer(ITextBuffer textBuffer, out string filename)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            filename = null;
+
+            if (textBuffer == null)
+            {
+                return false;
+            }
+
+            if (!textBuffer.Properties.TryGetProperty(typeof(IVsTextBuffer), out IVsTextBuffer vsTextBuffer))
+            {
+                return false;
+            }
+
+            IPersistFileFormat persistFileFormat = vsTextBuffer as IPersistFileFormat;
+            if (persistFileFormat == null)
+            {
+                return false;
+            }
+
+            return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK;
         }
 
         private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };

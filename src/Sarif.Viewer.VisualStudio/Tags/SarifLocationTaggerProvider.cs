@@ -22,8 +22,10 @@ namespace Microsoft.Sarif.Viewer.Tags
     [Export(typeof(ISarifLocationProviderFactory))]
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(TextMarkerTag))]
+    [Export(typeof(ITextViewCreationListener))]
+    [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
-    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ISarifLocationProviderFactory
+    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ISarifLocationProviderFactory, ITextViewCreationListener
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -60,6 +62,16 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
 
             return CreateSarifLocationTaggerInternal(buffer);
+        }
+
+        public void TextViewCreated(ITextView textView)
+        {
+            SarifTagger tagger = CreateSarifLocationTaggerInternal(textView.TextBuffer);
+            ITextViewCreationListener textViewCreationListener = tagger as ITextViewCreationListener;
+            if (textViewCreationListener != null)
+            {
+                textViewCreationListener.TextViewCreated(textView);
+            }
         }
 
         private SarifTagger CreateSarifLocationTaggerInternal(ITextBuffer textBuffer)

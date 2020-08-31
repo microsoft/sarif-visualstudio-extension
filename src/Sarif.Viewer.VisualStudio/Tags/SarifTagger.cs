@@ -8,6 +8,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
     using Microsoft.VisualStudio.TextManager.Interop;
     using Microsoft.VisualStudio.Utilities;
@@ -16,10 +17,10 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System.Linq;
     using System.Threading;
 
-    internal class SarifTagger : ITagger<TextMarkerTag>, ISarifTagger, IDisposable
+    internal class SarifTagger : ITagger<TextMarkerTag>, ISarifTagger, ITextViewCreationListener, IDisposable
     {
         private static ReaderWriterLockSlimWrapper tagListLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private static readonly Dictionary<string, List<SarifTag>> FileToSarifTags = new Dictionary<string, List<SarifTag>>();
+        private static readonly Dictionary<string, List<SarifTag>> SourceCodeFileToSarifTags = new Dictionary<string, List<SarifTag>>();
 
         private readonly ReaderWriterLockSlimWrapper batchUpdateLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
         private ITrackingSpan batchUpdateSpan;
@@ -33,31 +34,21 @@ namespace Microsoft.Sarif.Viewer.Tags
         public SarifTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (!textBuffer.Properties.TryGetProperty(typeof(IVsTextBuffer), out IVsTextBuffer vsTextBuffer))
+            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textBuffer, out string textBufferFilename))
             {
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            IPersistFileFormat persistFileFormat = vsTextBuffer as IPersistFileFormat;
-            if (persistFileFormat == null)
-            {
-                throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
-            }
-
-            if (persistFileFormat.GetCurFile(out string fileName, out uint formatIndex) != VSConstants.S_OK)
-            {
-                throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
-            }
-
-            this.fileName = fileName;
+            this.fileName = textBufferFilename;
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
 
-            // Subscribe to property changed event on any existing tag.
+            // Subscribe to property changed event on any existing tags.
+            // We subscribe so we can properly send change events to VS
+            // when things like the tag color are changed.
             using (tagListLock.EnterReadLock())
             {
-                List<SarifTag> sarifTags = null;
-                if (FileToSarifTags.TryGetValue(fileName, out sarifTags))
+                if (SourceCodeFileToSarifTags.TryGetValue(fileName, out List<SarifTag> sarifTags))
                 {
                     foreach(var sarifTag in sarifTags)
                     {
@@ -77,10 +68,9 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (tagListLock.EnterUpgradeableReadLock())
                 {
-                    List<SarifTag> sarifTags = null;
-                    if (FileToSarifTags.TryGetValue(fileName, out sarifTags))
+                    if (SourceCodeFileToSarifTags.TryGetValue(fileName, out List<SarifTag> sarifTags))
                     {
-                        SarifTag existingSarifTag = FileToSarifTags[this.fileName].FirstOrDefault(
+                        SarifTag existingSarifTag = SourceCodeFileToSarifTags[this.fileName].FirstOrDefault(
                             (sarifTag) =>
                                 sarifTag.SourceRegion.ValueEquals(sourceRegion));
 
@@ -108,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                         if (sarifTags == null)
                         {
                             sarifTags = new List<SarifTag>();
-                            FileToSarifTags[this.fileName] = sarifTags;
+                            SourceCodeFileToSarifTags[this.fileName] = sarifTags;
                         }
 
                         sarifTags.Add(newSarifTag);
@@ -127,16 +117,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             using (tagListLock.EnterReadLock())
             {
-                List<SarifTag> sarifTags = null;
-                if (!FileToSarifTags.TryGetValue(fileName, out sarifTags))
+                if (!SourceCodeFileToSarifTags.TryGetValue(fileName, out List<SarifTag> sarifTags))
                 {
                     existingTag = null;
                     return false;
                 }
 
-                existingTag = FileToSarifTags[this.fileName].FirstOrDefault(
-                    (sarifTag) =>
-                        sarifTag.SourceRegion.ValueEquals(sourceRegion));
+                existingTag = SourceCodeFileToSarifTags[this.fileName].FirstOrDefault(sarifTag => sarifTag.SourceRegion.ValueEquals(sourceRegion));
             }
 
             return existingTag != null;
@@ -149,10 +136,13 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (tagListLock.EnterWriteLock())
                 {
-                    if (tag is SarifTag sarifTag && FileToSarifTags.TryGetValue(sarifTag.DocumentPersistentSpan.FilePath, out List<SarifTag> sarifTags))
+                    if (tag is SarifTag sarifTag && 
+                        SourceCodeFileToSarifTags.TryGetValue(sarifTag.DocumentPersistentSpan.FilePath, out List<SarifTag> sarifTags) &&
+                        sarifTags.Remove(sarifTag))
                     {
-                        sarifTags.Remove(sarifTag);
                         sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
+                        sarifTag.Dispose();
+
                         this.UpdateBatchSpan(sarifTag.DocumentPersistentSpan.Span);
                     }
                 }
@@ -169,7 +159,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             SarifTag[] possibleTags = null;
             using (tagListLock.EnterReadLock())
             {
-                if (FileToSarifTags.TryGetValue(this.fileName, out List<SarifTag> sarifTags))
+                if (SourceCodeFileToSarifTags.TryGetValue(this.fileName, out List<SarifTag> sarifTags))
                 {
                     possibleTags = new SarifTag[sarifTags.Count];
                     sarifTags.CopyTo(possibleTags, 0);
@@ -212,8 +202,11 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (tagListLock.EnterReadLock())
                 {
-                    List<SarifTag> sarifTags = null;
-                    if (FileToSarifTags.TryGetValue(this.fileName, out sarifTags))
+                    // Important note that we do not dispose or clear
+                    // the SARIF tag list as that would destroy the whole purpose of using
+                    // "persistent spans" which survive open and close of a document within
+                    // a VS session.
+                    if (SourceCodeFileToSarifTags.TryGetValue(this.fileName, out List<SarifTag> sarifTags))
                     {
                         foreach (var sarifTag in sarifTags)
                         {
@@ -262,6 +255,101 @@ namespace Microsoft.Sarif.Viewer.Tags
             SnapshotPoint newEnd = currentBatchSpan.End.Position > currentUpdate.End.Position ? currentBatchSpan.End : currentUpdate.End;
 
             this.batchUpdateSpan = snapshot.CreateTrackingSpan(new SnapshotSpan(newStart, newEnd), this.batchUpdateSpan.TrackingMode);
+        }
+
+        public void TextViewCreated(ITextView textView)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textView.TextBuffer, out string textViewFileName))
+            {
+                return;
+            }
+
+            if (!textViewFileName.Equals(this.fileName, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            new TextViewCaretListener(textView, this);
+        }
+
+        private class TextViewCaretListener
+        {
+            private readonly ITextView textView;
+            private readonly SarifTagger tagger;
+            private List<SarifTag> previousTagsCaretWasIn;
+
+            public TextViewCaretListener(ITextView textView, SarifTagger tagger)
+            {
+                this.textView = textView;
+                this.tagger = tagger;
+                this.textView.Closed += TextView_Closed;
+                this.textView.LayoutChanged += TextView_LayoutChanged;
+                this.textView.Caret.PositionChanged += Caret_PositionChanged;
+            }
+
+            private void TextView_LayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
+            {
+                // If a new snapshot wasn't generated, then skip this layout
+                if (e.NewViewState.EditSnapshot != e.OldViewState.EditSnapshot)
+                {
+                    UpdateAtCaretPosition(textView.Caret.Position);
+                }
+            }
+
+            private void Caret_PositionChanged(object sender, CaretPositionChangedEventArgs e)
+            {
+                UpdateAtCaretPosition(e.NewPosition);
+            }
+
+            private void UpdateAtCaretPosition(CaretPosition caretPoisition)
+            {
+                SarifTag[] possibleTags = null;
+                using (tagListLock.EnterReadLock())
+                {
+                    if (SourceCodeFileToSarifTags.TryGetValue(this.tagger.fileName, out List<SarifTag> sarifTags))
+                    {
+                        possibleTags = new SarifTag[sarifTags.Count];
+                        sarifTags.CopyTo(possibleTags, 0);
+                    }
+                }
+
+                if (possibleTags != null)
+                {
+                    // Keep track of the tags the caret is in now, versus the tags
+                    // that the caret was previously in. (Yes, there can be multiple tags per text range).
+                    // This is done so we don't keep re-issuing caret entered notifications while
+                    // the user is moving the caret around the editor.
+                    var tagsCaretIsCurrentlyIn = new List<SarifTag>();
+
+                    foreach (var possibleTag in possibleTags)
+                    {
+                        SnapshotPoint caretBufferPosition = caretPoisition.BufferPosition;
+                        if (possibleTag.DocumentPersistentSpan.Span.GetSpan(caretBufferPosition.Snapshot).Contains(caretBufferPosition))
+                        {
+                            tagsCaretIsCurrentlyIn.Add(possibleTag);
+                        }
+                    }
+
+                    foreach (SarifTag tagCaretIsCurrentlyIn in tagsCaretIsCurrentlyIn)
+                    {
+                        if (this.previousTagsCaretWasIn == null || !this.previousTagsCaretWasIn.Contains(tagCaretIsCurrentlyIn))
+                        {
+                            tagCaretIsCurrentlyIn.RaiseCaretEnteredTag();
+                        }
+                    }
+
+                    this.previousTagsCaretWasIn = tagsCaretIsCurrentlyIn;
+                }
+            }
+
+            private void TextView_Closed(object sender, EventArgs e)
+            {
+                this.textView.Closed -= this.TextView_Closed;
+                this.textView.LayoutChanged -= this.TextView_LayoutChanged;
+                this.textView.Caret.PositionChanged -= this.TextView_Closed;
+            }
         }
 
         private class BatchUpdate : IDisposable
