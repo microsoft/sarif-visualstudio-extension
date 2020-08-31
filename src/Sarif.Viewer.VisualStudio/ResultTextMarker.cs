@@ -90,7 +90,7 @@ namespace Microsoft.Sarif.Viewer
             // code must not navigate the selection or caret again if the
             // caret is already within the correct span, otherwise
             // the user cannot navigate the editor anymore.
-            if (this.IsTracking && _tag.DocumentPersistentSpan.Span != null)
+            if (_tag?.DocumentPersistentSpan?.Span != null)
             {
                 ITextSnapshot currentSnapshot = this._wpfTextView.TextSnapshot;
                 SnapshotSpan trackingSpanSnapshot = _tag.DocumentPersistentSpan.Span.GetSpan(currentSnapshot);
@@ -197,31 +197,24 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Check if current class track changes for document <paramref name="docCookie"/>
-        /// </summary>
-        public bool IsTracking { get => _tag != null; }
-
-        /// <summary>
         /// An overridden method for reacting to the event of a document window
         /// being opened
         /// </summary>
-        public bool TryAttachToDocument(string documentName, IVsWindowFrame vsWindowFrame)
+        public bool TryTagDocument(string documentName, IVsWindowFrame vsWindowFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // For these cases, this event has nothing to do with this item
-            if (this.IsTracking)
+            if (this._tag == null)
             {
                 return true;
             }
 
-            if (vsWindowFrame == null || 
+            if (vsWindowFrame == null ||
                 string.Compare(documentName, this.FullFilePath, StringComparison.OrdinalIgnoreCase) != 0)
             {
                 return false;
             }
-
-            ThreadHelper.ThrowIfNotOnUIThread();
 
             IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
             if (componentModel == null)

@@ -208,7 +208,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            LineMarker.TryAttachToDocument(documentName, frame);
+            LineMarker.TryTagDocument(documentName, frame);
         }
     }
 }

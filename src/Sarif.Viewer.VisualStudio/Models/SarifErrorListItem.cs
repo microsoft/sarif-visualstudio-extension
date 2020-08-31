@@ -643,16 +643,16 @@ namespace Microsoft.Sarif.Viewer
 
             using (tagger.Update())
             {
-                LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+                LineMarker?.TryTagDocument(_documentName, _windowFrame);
 
                 foreach (LocationModel location in Locations)
                 {
-                    location.LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+                    location.LineMarker?.TryTagDocument(_documentName, _windowFrame);
                 }
 
                 foreach (LocationModel location in RelatedLocations)
                 {
-                    location.LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+                    location.LineMarker?.TryTagDocument(_documentName, _windowFrame);
                 }
 
                 foreach (CallTree callTree in CallTrees)
@@ -668,7 +668,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         CallTreeNode current = nodesToProcess.Pop();
 
-                        if (current.LineMarker?.TryAttachToDocument(_documentName, _windowFrame) == true)
+                        if (current.LineMarker?.TryTagDocument(_documentName, _windowFrame) == true)
                         {
                             current.ApplyDefaultSourceFileHighlighting();
                         }
@@ -684,7 +684,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     foreach (StackFrameModel stackFrame in stackCollection)
                     {
-                        stackFrame.LineMarker?.TryAttachToDocument(_documentName, _windowFrame);
+                        stackFrame.LineMarker?.TryTagDocument(_documentName, _windowFrame);
                     }
                 }
             }
