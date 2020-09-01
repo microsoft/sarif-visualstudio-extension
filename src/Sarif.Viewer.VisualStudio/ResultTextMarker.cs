@@ -159,9 +159,11 @@ namespace Microsoft.Sarif.Viewer
 
                 vsTextView.EnsureSpanVisible(documentSpan);
                 vsTextView.SetSelection(documentSpan.iStartLine, documentSpan.iStartIndex, documentSpan.iEndLine, documentSpan.iEndIndex);
+
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         /// <summary>
