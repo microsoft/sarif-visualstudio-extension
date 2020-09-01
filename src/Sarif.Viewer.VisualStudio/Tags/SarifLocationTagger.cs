@@ -204,7 +204,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                         startIndex: documentSpan.iStartIndex,
                         endLine: documentSpan.iEndLine,
                         endIndex: documentSpan.iEndIndex,
-                        SpanTrackingMode.EdgeInclusive);
+                        trackingMode: SpanTrackingMode.EdgeInclusive);
 
                     SarifLocationTag newSarifTag = new SarifLocationTag(
                         persistentSpan,
