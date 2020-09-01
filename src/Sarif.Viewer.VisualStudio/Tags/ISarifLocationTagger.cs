@@ -8,7 +8,7 @@ using System;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    internal interface ISarifTagger
+    internal interface ISarifLocationTagger
     {
         /// <summary>
         /// Adds a tag to report to visual studio.
@@ -17,13 +17,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="documentSpan">The span to use to create the tag relative to an open document.</param>
         /// <param name="runId">The SARIF log run identifier associated with this tag.</param>
         /// <param name="textMarkerTag">The text marker tag to display for this tag.</param>
-        /// <returns>Returns a new instance of <see cref="ISarifTag"/></returns>
+        /// <returns>Returns a new instance of <see cref="ISarifLocationTag"/></returns>
         /// <remarks>
         /// This <paramref name="documentSpan"/>is not necessarily the same as <paramref name="documentSpan"/>.
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        ISarifTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, TextMarkerTag textMarkerTag);
+        ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, TextMarkerTag textMarkerTag);
 
         /// <summary>
         /// Determines if the tagger already knows about the given source span.
@@ -31,13 +31,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
         /// <param name="existingTag">On successful return, contains existing tag</param>
         /// <returns>Returns true if the tagger already has a span for the given source span.</returns>
-        bool TryGetTag(Region sourceRegion, out ISarifTag existingTag);
+        bool TryGetTag(Region sourceRegion, out ISarifLocationTag existingTag);
 
         /// <summary>
         /// Removes the tag from the tagger.
         /// </summary>
         /// <param name="tag">The tag to remove.</param>
-        void RemoveTag(ISarifTag tag);
+        void RemoveTag(ISarifLocationTag tag);
 
         /// <summary>
         /// Removes tags based on a run ID.

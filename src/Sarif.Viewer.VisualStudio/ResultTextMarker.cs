@@ -28,8 +28,8 @@ namespace Microsoft.Sarif.Viewer
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
         private int _runId;
-        private ISarifTagger _tagger;
-        private ISarifTag _tag;
+        private ISarifLocationTagger _tagger;
+        private ISarifLocationTag _tag;
         private IWpfTextView _wpfTextView;
         private IVsWindowFrame _vsWindowFrame;
 
@@ -238,7 +238,7 @@ namespace Microsoft.Sarif.Viewer
 
             ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
             _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
-            _tagger.TryGetTag(Region, out ISarifTag existingTag);
+            _tagger.TryGetTag(Region, out ISarifLocationTag existingTag);
 
             if (existingTag == null)
             {

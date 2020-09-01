@@ -9,7 +9,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System;
     using System.ComponentModel;
 
-    internal interface ISarifTag: INotifyPropertyChanged
+    internal interface ISarifLocationTag: INotifyPropertyChanged
     {
         /// <summary>
         /// Gets the persistent span for a document.

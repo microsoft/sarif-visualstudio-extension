@@ -214,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (int runIdToClear in runIdsToClear)
             {
                 CodeAnalysisResultManager.Instance.RunDataCaches.Remove(runIdToClear);
-                SarifTagger.RemoveAllTagsForRun(runIdToClear);
+                SarifLocationTagger.RemoveAllTagsForRun(runIdToClear);
             }
         }
 
@@ -369,7 +369,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CleanAllErrors()
         {
             SarifTableDataSource.Instance.CleanAllErrors();
-            SarifTagger.RemoveAllTags();
+            SarifLocationTagger.RemoveAllTags();
             CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
             CodeAnalysisResultManager.Instance.CurrentRunId = -1;
         }

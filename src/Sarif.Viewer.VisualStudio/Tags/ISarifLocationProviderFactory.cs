@@ -7,6 +7,6 @@ namespace Microsoft.Sarif.Viewer.Tags
 {
     internal interface ISarifLocationProviderFactory
     {
-        SarifTagger GetTextMarkerTagger(ITextBuffer textBuffer);
+        SarifLocationTagger GetTextMarkerTagger(ITextBuffer textBuffer);
     }
 }

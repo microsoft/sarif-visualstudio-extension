@@ -639,7 +639,7 @@ namespace Microsoft.Sarif.Viewer
             // Get a SimpleTagger over the buffer to color
             IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(_windowFrame);
             IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
-            SarifTagger tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
+            SarifLocationTagger tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
 
             using (tagger.Update())
             {

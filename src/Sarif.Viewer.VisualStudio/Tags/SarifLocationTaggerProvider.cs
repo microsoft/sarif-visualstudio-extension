@@ -54,7 +54,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             return CreateSarifLocationTaggerInternal(buffer) as ITagger<T>;
         }
 
-        public SarifTagger GetTextMarkerTagger(ITextBuffer buffer)
+        public SarifLocationTagger GetTextMarkerTagger(ITextBuffer buffer)
         {
             if (buffer == null)
             {
@@ -66,7 +66,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public void TextViewCreated(ITextView textView)
         {
-            SarifTagger tagger = CreateSarifLocationTaggerInternal(textView.TextBuffer);
+            SarifLocationTagger tagger = CreateSarifLocationTaggerInternal(textView.TextBuffer);
             ITextViewCreationListener textViewCreationListener = tagger as ITextViewCreationListener;
             if (textViewCreationListener != null)
             {
@@ -74,11 +74,11 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        private SarifTagger CreateSarifLocationTaggerInternal(ITextBuffer textBuffer)
+        private SarifLocationTagger CreateSarifLocationTaggerInternal(ITextBuffer textBuffer)
         {
-            return textBuffer.Properties.GetOrCreateSingletonProperty<SarifTagger>(delegate
+            return textBuffer.Properties.GetOrCreateSingletonProperty<SarifLocationTagger>(delegate
             {
-                return new SarifTagger(textBuffer, this.PersistentSpanFactory);
+                return new SarifLocationTagger(textBuffer, this.PersistentSpanFactory);
             });
         }
     }

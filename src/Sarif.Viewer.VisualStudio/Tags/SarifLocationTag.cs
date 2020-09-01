@@ -9,19 +9,19 @@ using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    internal class SarifTag : ISarifTag, IDisposable
+    internal class SarifLocationTag : ISarifLocationTag, IDisposable
     {
         private TextMarkerTag textMarkerTag;
         private bool disposed;
 
         /// <summary>
-        /// Initialize a new instance of <see cref="SarifTag"/>.
+        /// Initialize a new instance of <see cref="SarifLocationTag"/>.
         /// </summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="sourceRegion">The original span from the region present in the SARIF log.</param>
         /// <param name="runId">The SARIF log run identifier associated with this tag.</param>
         /// <param name="textMarkerTag">The text marker tag to display for this tag.</param>
-        public SarifTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, int runId, TextMarkerTag textMarkerTag)
+        public SarifLocationTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, int runId, TextMarkerTag textMarkerTag)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.SourceRegion = sourceRegion;
