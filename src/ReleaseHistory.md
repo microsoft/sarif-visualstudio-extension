@@ -1,6 +1,6 @@
 # SARIF Viewer Visual Studio extension Release History
 ## **v2.1.14** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: Prevent event loops when navigating editor and selecting items in SARIF tool window. [#183](https://github.com/microsoft/sarif-visualstudio-extension/issues/183)
+* BUGFIX: Prevent event loops when navigating editor and selecting items in SARIF tool window. [#183](https://github.com/microsoft/sarif-visualstudio-extension/issues/185), [#183](https://github.com/microsoft/sarif-visualstudio-extension/issues/185)
 
 ## **v2.1.13** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Bump version and ensure all assemblies have correct version. [#180](https://github.com/microsoft/sarif-visualstudio-extension/issues/180)
