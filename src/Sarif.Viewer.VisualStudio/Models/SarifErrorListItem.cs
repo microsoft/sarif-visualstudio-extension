@@ -637,8 +637,16 @@ namespace Microsoft.Sarif.Viewer
             ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
 
             // Get a SimpleTagger over the buffer to color
-            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(_windowFrame);
-            IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
+            if (!SdkUIUtilities.TryGetTextViewFromFrame(_windowFrame, out IVsTextView vsTextView))
+            {
+                return;
+            }
+
+            if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView))
+            {
+                return;
+            }
+
             SarifLocationTagger tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
 
             using (tagger.Update())

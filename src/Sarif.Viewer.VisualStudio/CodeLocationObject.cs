@@ -72,7 +72,7 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
-                if (value != this._filePath)
+                if (!string.Equals(value, this._filePath))
                 {
                     this._filePath = value;
 
@@ -94,7 +94,7 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
-                if (value != this._uriBaseId)
+                if (string.Equals(value, this._uriBaseId))
                 {
                     this._uriBaseId = value;
 
@@ -152,7 +152,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (LineMarker != null)
             {
-                LineMarker?.TryNavigateTo(usePreviewPane);
+                LineMarker.TryNavigateTo(usePreviewPane);
             }
             else
             {
@@ -208,7 +208,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            LineMarker.TryTagDocument(documentName, frame);
+            LineMarker?.TryTagDocument(documentName, frame);
         }
     }
 }

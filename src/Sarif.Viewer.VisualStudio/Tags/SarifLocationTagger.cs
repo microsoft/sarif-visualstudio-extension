@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// This is a static instance as a "tagger" is created based on an opened text buffer but the tags" persist beyond that instance
         /// of a tagger and will be re-used if the text buffer is re-opened. (For example in a file close and re-open scenario).
         /// </remarks>
-        private static readonly Dictionary<string, List<SarifLocationTag>> SourceCodeFileToSarifTags = new Dictionary<string, List<SarifLocationTag>>();
+        private static readonly Dictionary<string, List<SarifLocationTag>> SourceCodeFileToSarifTags = new Dictionary<string, List<SarifLocationTag>>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Provides a dictionary from SARIF log run Id to a set of tags to display in the VS editor.
@@ -250,9 +250,9 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return;
             }
 
-            using (TagListLock.EnterWriteLock())
+            using (this.Update())
             {
-                using (this.Update())
+                using (TagListLock.EnterWriteLock())
                 {
                     if (this.sarifTags.Remove(sarifTag))
                     {
@@ -283,6 +283,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return;
                 }
 
+                // Copy so we can update (which can make outgoing callse) outside of lock
                 tagsToRemove = new List<SarifLocationTag>(sarifTagsForRun);
             }
 
@@ -499,7 +500,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             private void UpdateAtCaretPosition(CaretPosition caretPoisition)
             {
-                SarifLocationTag[] possibleTags = null;
+                List<SarifLocationTag> possibleTags = null;
                 using (TagListLock.EnterReadLock())
                 {
                     if (this.sarifTags.Count == 0)
@@ -507,13 +508,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                         return;
                     }
 
-                    possibleTags = new SarifLocationTag[sarifTags.Count];
-                    sarifTags.CopyTo(possibleTags, 0);
-                }
-
-                if (possibleTags == null)
-                {
-                    return;
+                    possibleTags = new List<SarifLocationTag>(sarifTags);
                 }
 
                 // Keep track of the tags the caret is in now, versus the tags

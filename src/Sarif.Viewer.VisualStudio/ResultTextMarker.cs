@@ -72,8 +72,6 @@ namespace Microsoft.Sarif.Viewer
 
         }
 
-        // This method is called when you click an in-line link, with an integer target, which
-        // points to a Location object that has a region associated with it.
         private bool TryNavigateTo(bool usePreviewPane, bool retryNaviation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -154,8 +152,7 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(windowFrame);
-                if (vsTextView == null)
+                if (!SdkUIUtilities.TryGetTextViewFromFrame(windowFrame, out IVsTextView vsTextView))
                 {
                     return false;
                 }
@@ -181,7 +178,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this._tag != null)
             {
-                _tag.Tag = new TextMarkerTag(highlightColor ?? Color);
+                this._tag.Tag = new TextMarkerTag(highlightColor ?? Color);
             }
         }
 
@@ -222,16 +219,14 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(vsWindowFrame);
-            if (vsTextView == null)
+            if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out IVsTextView vsTextView))
             {
                 return false;
             }
 
             // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
             // if we haven't yet
-            IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
-            if (wpfTextView == null)
+            if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView))
             {
                 return false;
             }
@@ -275,14 +270,12 @@ namespace Microsoft.Sarif.Viewer
             textSpan.iStartIndex = Math.Max(region.StartColumn - 1, 0);
             textSpan.iEndIndex = Math.Max(region.EndColumn - 1, 0);
 
-            IVsTextView vsTextView = SdkUIUtilities.GetTextViewFromFrame(vsWindowFrame);
-            if (vsTextView == null)
+            if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out IVsTextView vsTextView))
             {
                 return false;
             }
 
-            IWpfTextView wpfTextView = SdkUIUtilities.GetWpfTextView(vsTextView);
-            if (wpfTextView == null)
+            if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView))
             {
                 return false;
             }

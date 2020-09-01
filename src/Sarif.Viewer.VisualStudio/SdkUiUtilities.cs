@@ -774,48 +774,64 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="textView"></param>
         /// <returns></returns>
-        public static IWpfTextView GetWpfTextView(IVsTextView textView)
+        public static bool TryGetWpfTextView(IVsTextView textView, out IWpfTextView wpfTextView)
         {
-            IWpfTextViewHost textViewHost = null;
+            wpfTextView = null;
+
             IVsUserData userData = textView as IVsUserData;
-            if (userData != null)
+            if (userData == null)
             {
-                Guid guid = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
-                object wpfTextViewHost = null;
-                if (userData.GetData(ref guid, out wpfTextViewHost) == VSConstants.S_OK)
-                {
-                    textViewHost = wpfTextViewHost as IWpfTextViewHost;
-                }
+                return false;
             }
+
+            Guid guid = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+            if (userData.GetData(ref guid, out object wpfTextViewHost) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            IWpfTextViewHost textViewHost = wpfTextViewHost as IWpfTextViewHost;
 
             if (textViewHost == null)
             {
-                return null;
+                return false;
             }
-            return textViewHost.TextView;
+
+            wpfTextView = textViewHost.TextView;
+
+            return true;
         }
 
-        public static IVsTextView GetTextViewFromFrame(IVsWindowFrame frame)
+        public static bool TryGetTextViewFromFrame(IVsWindowFrame frame, out IVsTextView vsTextView)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            vsTextView = null;
 
             // Get the document view from the window frame, then get the text view
             object docView;
             int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
             if ((hr != 0 && hr != 1) || docView == null)
             {
-                return null;
+                return false;
             }
 
             IVsCodeWindow codeWindow = docView as IVsCodeWindow;
-            IVsTextView textView;
-            codeWindow.GetLastActiveView(out textView);
-            if (textView == null)
+            if (codeWindow == null)
             {
-                codeWindow.GetPrimaryView(out textView);
+                return false;
             }
 
-            return textView;
+            if (codeWindow.GetLastActiveView(out vsTextView) == VSConstants.S_OK)
+            {
+                return true;
+            }
+
+            if (codeWindow.GetPrimaryView(out vsTextView) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public static bool TryGetFileNameFromTextBuffer(ITextBuffer textBuffer, out string filename)

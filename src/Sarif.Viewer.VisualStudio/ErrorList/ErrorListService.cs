@@ -207,8 +207,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunDataCaches.
                     Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath.Equals(logFile, StringComparison.OrdinalIgnoreCase)).
-                    Select(runDataCacheKvp => runDataCacheKvp.Key).
-                    ToList());
+                    Select(runDataCacheKvp => runDataCacheKvp.Key));
             }
 
             foreach (int runIdToClear in runIdsToClear)
