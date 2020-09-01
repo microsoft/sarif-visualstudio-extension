@@ -21,6 +21,7 @@ using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -199,6 +200,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CloseSarifLogs(IEnumerable<string> logFiles)
         {
             SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
+
+            List<int> runIdsToClear = new List<int>();
+
+            foreach (string logFile in logFiles)
+            {
+                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunDataCaches.
+                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath.Equals(logFile, StringComparison.OrdinalIgnoreCase)).
+                    Select(runDataCacheKvp => runDataCacheKvp.Key).
+                    ToList());
+            }
+
+            foreach (int runIdToClear in runIdsToClear)
+            {
+                CodeAnalysisResultManager.Instance.RunDataCaches.Remove(runIdToClear);
+                SarifTagger.RemoveAllTagsForRun(runIdToClear);
+            }
         }
 
         /// <summary>
@@ -352,7 +369,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CleanAllErrors()
         {
             SarifTableDataSource.Instance.CleanAllErrors();
-
+            SarifTagger.RemoveAllTags();
             CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
             CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
             CodeAnalysisResultManager.Instance.CurrentRunId = -1;
@@ -364,7 +381,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
-            RunDataCache dataCache = new RunDataCache(run);
+            RunDataCache dataCache = new RunDataCache(run, logFilePath);
             CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();

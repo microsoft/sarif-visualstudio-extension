@@ -19,12 +19,14 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="sourceRegion">The original span from the region present in the SARIF log.</param>
-        /// <param name="textMarkerTag">The text marker tag to use.</param>
-        public SarifTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, TextMarkerTag textMarkerTag)
+        /// <param name="runId">The SARIF log run identifier associated with this tag.</param>
+        /// <param name="textMarkerTag">The text marker tag to display for this tag.</param>
+        public SarifTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, int runId, TextMarkerTag textMarkerTag)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
-            this.textMarkerTag = textMarkerTag;
             this.SourceRegion = sourceRegion;
+            this.RunId = runId;
+            this.textMarkerTag = textMarkerTag;
         }
 
         /// <inheritdoc/>
@@ -32,6 +34,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         /// <inheritdoc/>
         public Region SourceRegion { get; }
+
+        /// <inheritdoc/>
+        public int RunId { get; }
 
         /// <inheritdoc/>
         public TextMarkerTag Tag

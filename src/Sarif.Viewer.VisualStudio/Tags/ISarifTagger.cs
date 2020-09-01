@@ -15,13 +15,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
         /// <param name="documentSpan">The span to use to create the tag relative to an open document.</param>
+        /// <param name="runId">The SARIF log run identifier associated with this tag.</param>
+        /// <param name="textMarkerTag">The text marker tag to display for this tag.</param>
         /// <returns>Returns a new instance of <see cref="ISarifTag"/></returns>
         /// <remarks>
         /// This <paramref name="documentSpan"/>is not necessarily the same as <paramref name="documentSpan"/>.
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        ISarifTag AddTag(Region sourceRegion, TextSpan documentSpan, TextMarkerTag textMarkerTag);
+        ISarifTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, TextMarkerTag textMarkerTag);
 
         /// <summary>
         /// Determines if the tagger already knows about the given source span.
@@ -36,6 +38,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         /// <param name="tag">The tag to remove.</param>
         void RemoveTag(ISarifTag tag);
+
+        /// <summary>
+        /// Removes tags based on a run ID.
+        /// </summary>
+        /// <param name="runId">The SARIF log run id.</param>
+        void RemoveTagsForRun(int runId);
 
         /// <summary>
         /// Called to perform a batch update of tags.

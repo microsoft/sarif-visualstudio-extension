@@ -247,7 +247,7 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                _tag = _tagger.AddTag(Region, tagSpan, new TextMarkerTag(Color));
+                _tag = _tagger.AddTag(Region, tagSpan, _runId, new TextMarkerTag(Color));
             }
             else
             {
