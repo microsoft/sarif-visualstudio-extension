@@ -197,7 +197,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (value == _fileName) { return; }
                 _fileName = value;
-                NotifyPropertyChanged("FileName");
+                NotifyPropertyChanged();
             }
         }
 
@@ -286,7 +286,7 @@ namespace Microsoft.Sarif.Viewer
             set
             {
                 _tool = value;
-                NotifyPropertyChanged("Tool");
+                NotifyPropertyChanged();
             }
         }
 
@@ -300,7 +300,7 @@ namespace Microsoft.Sarif.Viewer
             set
             {
                 _rule = value;
-                NotifyPropertyChanged("Rule");
+                NotifyPropertyChanged();
             }
         }
 
@@ -314,7 +314,7 @@ namespace Microsoft.Sarif.Viewer
             set
             {
                 _invocation = value;
-                NotifyPropertyChanged("Invocation");
+                NotifyPropertyChanged();
             }
         }
 

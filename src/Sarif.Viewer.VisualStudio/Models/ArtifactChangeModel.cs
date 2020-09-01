@@ -35,8 +35,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _filePath = value;
 
-                    NotifyPropertyChanged("FilePath");
-                    NotifyPropertyChanged("FileName");
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(this.FileName));
                 }
             }
         }

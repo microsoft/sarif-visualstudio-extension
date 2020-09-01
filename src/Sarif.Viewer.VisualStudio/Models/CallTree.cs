@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         _selectedItem.ApplySelectionSourceFileHighlighting();
                     }
 
-                    this.NotifyPropertyChanged(nameof(SelectedItem));
+                    this.NotifyPropertyChanged();
                 }
             }
         }

@@ -63,7 +63,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _isExpanded)
                 {
                     _isExpanded = value;
-                    NotifyPropertyChanged(nameof(IsExpanded));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -79,7 +79,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _visbility)
                 {
                     _visbility = value;
-                    NotifyPropertyChanged(nameof(Visibility));
+                    NotifyPropertyChanged();
                 }
             }
         }

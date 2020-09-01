@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._message)
                 {
                     this._message = value;
-                    NotifyPropertyChanged("Message");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -44,8 +44,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._line)
                 {
                     this._line = value;
-                    NotifyPropertyChanged("Line");
-                    NotifyPropertyChanged("FullyQualifiedLocation");
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._column)
                 {
                     this._column = value;
-                    NotifyPropertyChanged("Column");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._address)
                 {
                     this._address = value;
-                    NotifyPropertyChanged("Address");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -93,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._offset)
                 {
                     this._offset = value;
-                    NotifyPropertyChanged("Offset");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._filePath)
                 {
                     base.FilePath = value;
-                    NotifyPropertyChanged("FileName");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -133,8 +133,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._fullyQualifiedLogicalName)
                 {
                     this._fullyQualifiedLogicalName = value;
-                    NotifyPropertyChanged("FullyQualifiedLogicalName");
-                    NotifyPropertyChanged("FullyQualifiedLocation");
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
                 }
             }
         }
@@ -150,8 +150,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._module)
                 {
                     this._module = value;
-                    NotifyPropertyChanged("Module");
-                    NotifyPropertyChanged("FullyQualifiedLocation");
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
                 }
             }
         }

@@ -48,8 +48,8 @@ namespace Microsoft.Sarif.Viewer
                         this._lineMarker.Region = _region;
                     }
 
-                    NotifyPropertyChanged("Region");
-                    NotifyPropertyChanged("RegionDisplayString");
+                    NotifyPropertyChanged();
+                    NotifyPropertyChanged(nameof(this.RegionDisplayString));
                 }
             }
         }
@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer
                         this._lineMarker.FullFilePath = this._filePath;
                     }
 
-                    NotifyPropertyChanged("FilePath");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -103,7 +103,7 @@ namespace Microsoft.Sarif.Viewer
                         this._lineMarker.UriBaseId = this._uriBaseId;
                     }
 
-                    NotifyPropertyChanged("UriBaseId");
+                    NotifyPropertyChanged();
                 }
             }
         }
