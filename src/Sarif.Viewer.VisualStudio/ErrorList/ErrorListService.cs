@@ -370,7 +370,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             SarifTableDataSource.Instance.CleanAllErrors();
             SarifTagger.RemoveAllTags();
-            CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
             CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
             CodeAnalysisResultManager.Instance.CurrentRunId = -1;
         }

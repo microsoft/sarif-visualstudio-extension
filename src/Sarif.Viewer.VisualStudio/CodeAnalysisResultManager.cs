@@ -85,18 +85,10 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
-                ClearCurrentMarkers();
                 m_currentSarifError = value;
             }
         }
 
-        public void ClearCurrentMarkers()
-        {
-            if (CurrentSarifResult != null)
-            {
-                CurrentSarifResult.RemoveMarkers();
-            }
-        }
 
         internal void Register()
         {

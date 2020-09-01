@@ -251,15 +251,15 @@ namespace Microsoft.Sarif.Viewer.Tags
                 {
                     if (this.sarifTags.Remove(sarifTag))
                     {
+                        this.UpdateBatchSpan(sarifTag.DocumentPersistentSpan.Span);
+
+                        // We do not need TryGetValue here because if it exists in the SARIF tags list
+                        // it must exist in the run Id to SARIF tag map. If it doesn't, it means the lists
+                        // are out of sync which should never happen and is bad.
+                        RunIdToSarifTags[sarifTag.RunId].Remove(sarifTag);
+
                         sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
                         sarifTag.Dispose();
-
-                        this.UpdateBatchSpan(sarifTag.DocumentPersistentSpan.Span);
-                    }
-
-                    if (RunIdToSarifTags.TryGetValue(sarifTag.RunId, out List<SarifTag> sarifTagsForRun))
-                    {
-                        sarifTagsForRun.Remove(sarifTag);
                     }
                 }
             }
@@ -436,6 +436,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             public BatchUpdate(SarifTagger tagger)
             {
                 this.tagger = tagger;
+                Interlocked.Increment(ref tagger.updateCount);
             }
 
             public void Dispose()

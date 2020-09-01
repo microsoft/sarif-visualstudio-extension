@@ -205,7 +205,7 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // For these cases, this event has nothing to do with this item
-            if (this._tag == null)
+            if (this._tag != null)
             {
                 return true;
             }
