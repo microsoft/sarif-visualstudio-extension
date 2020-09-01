@@ -270,6 +270,10 @@ namespace Microsoft.Sarif.Viewer
             textSpan.iStartIndex = Math.Max(region.StartColumn - 1, 0);
             textSpan.iEndIndex = Math.Max(region.EndColumn - 1, 0);
 
+            // Move the end line to the start line if for some
+            // reason the end line is less than the start line.
+            textSpan.iEndLine = Math.Max(textSpan.iEndLine, textSpan.iStartLine);
+
             if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out IVsTextView vsTextView))
             {
                 return false;
@@ -287,21 +291,6 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (textSpan.iStartLine < 0)
-            {
-                textSpan.iStartLine = 0;
-            }
-
-            if (textSpan.iEndLine < 0)
-            {
-                textSpan.iEndLine = 0;
-            }
-
-            if (textSpan.iEndLine < textSpan.iStartLine)
-            {
-                textSpan.iEndLine = textSpan.iStartLine;
-            }
-
             if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
             {
                 return false;
@@ -312,10 +301,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (textSpan.iEndLine > lastLine)
-            {
-                textSpan.iEndLine = lastLine;
-            }
+            textSpan.iEndLine = Math.Min(lastLine, textSpan.iEndLine);
 
             // Now fix up the column numbers.
             bool coerced = false;
