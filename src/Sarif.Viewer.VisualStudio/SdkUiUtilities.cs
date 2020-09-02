@@ -1318,7 +1318,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (artifactLocation?.Uri != null)
             {
-                RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunDataCaches[runId];
+                RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runId];
 
                 Uri uri = artifactLocation.Uri;
                 string uriBaseId = artifactLocation.UriBaseId;

@@ -138,7 +138,7 @@ namespace Microsoft.Sarif.Viewer
 
         public CodeLocationObject()
         {
-            RunId = CodeAnalysisResultManager.Instance.CurrentRunId;
+            RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
         public void NavigateTo(bool usePreviewPane = true)

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -205,14 +204,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (string logFile in logFiles)
             {
-                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunDataCaches.
+                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
                     Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath.Equals(logFile, StringComparison.OrdinalIgnoreCase)).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
             }
 
             foreach (int runIdToClear in runIdsToClear)
             {
-                CodeAnalysisResultManager.Instance.RunDataCaches.Remove(runIdToClear);
+                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
                 SarifLocationTagger.RemoveAllTagsForRun(runIdToClear);
             }
         }
@@ -369,8 +368,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             SarifTableDataSource.Instance.CleanAllErrors();
             SarifLocationTagger.RemoveAllTags();
-            CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
-            CodeAnalysisResultManager.Instance.CurrentRunId = -1;
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
+            CodeAnalysisResultManager.Instance.CurrentRunIndex = -1;
         }
 
         private ErrorListService()
@@ -379,8 +378,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
-            RunDataCache dataCache = new RunDataCache(run, logFilePath);
-            CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
+            RunDataCache dataCache = new RunDataCache(run, ++CodeAnalysisResultManager.Instance.CurrentRunIndex, logFilePath);
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(CodeAnalysisResultManager.Instance.CurrentRunIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 

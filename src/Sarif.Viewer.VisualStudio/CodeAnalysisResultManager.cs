@@ -63,15 +63,15 @@ namespace Microsoft.Sarif.Viewer
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
-        public IDictionary<int, RunDataCache> RunDataCaches { get; } = new Dictionary<int, RunDataCache>();
+        public IDictionary<int, RunDataCache> RunIndexToRunDataCache { get; } = new Dictionary<int, RunDataCache>();
 
-        public int CurrentRunId { get; set; } = 0;
+        public int CurrentRunIndex { get; set; } = 0;
 
         public RunDataCache CurrentRunDataCache
         {
             get
             {
-                RunDataCaches.TryGetValue(CurrentRunId, out RunDataCache dataCache);
+                RunIndexToRunDataCache.TryGetValue(CurrentRunIndex, out RunDataCache dataCache);
                 return dataCache;
             }
         }
@@ -255,7 +255,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            RunDataCache dataCache = RunDataCaches[runId];
+            RunDataCache dataCache = RunIndexToRunDataCache[runId];
             string rebaselinedFileName = null;
 
             if (dataCache.FileDetails.ContainsKey(originalFilename))
@@ -331,7 +331,7 @@ namespace Microsoft.Sarif.Viewer
         // Contents are embedded in SARIF. Create a file from these contents.
         internal string CreateFileFromContents(int runId, string fileName)
         {
-            return CreateFileFromContents(RunDataCaches[runId].FileDetails, fileName);
+            return CreateFileFromContents(RunIndexToRunDataCache[runId].FileDetails, fileName);
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
@@ -676,11 +676,11 @@ namespace Microsoft.Sarif.Viewer
 
             if (!string.IsNullOrEmpty(documentName))
             {
-                if (RunDataCaches != null)
+                if (RunIndexToRunDataCache != null)
                 {
-                    foreach (int key in RunDataCaches.Keys)
+                    foreach (int key in RunIndexToRunDataCache.Keys)
                     {
-                        foreach (SarifErrorListItem sarifError in RunDataCaches[key].SarifErrors)
+                        foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
                         {
                             sarifError.TryAttachToDocument(documentName, (long)docCookie, pFrame);
                         }
@@ -694,11 +694,11 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         private void DetachFromDocumentChanges()
         {
-            if (RunDataCaches != null)
+            if (RunIndexToRunDataCache != null)
             {
-                foreach (int key in RunDataCaches.Keys)
+                foreach (int key in RunIndexToRunDataCache.Keys)
                 {
-                    foreach (SarifErrorListItem sarifError in RunDataCaches[key].SarifErrors)
+                    foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
                     {
                         sarifError.DetachFromDocument();
                     }
@@ -794,7 +794,7 @@ namespace Microsoft.Sarif.Viewer
         internal Tuple<string, string>[] GetRemappedPathPrefixes()
         {
             // Unit tests will only create one cache.
-            return RunDataCaches.Values.First().RemappedPathPrefixes.ToArray();
+            return RunIndexToRunDataCache.Values.First().RemappedPathPrefixes.ToArray();
         }
     }
 }

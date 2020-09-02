@@ -27,9 +27,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         Region SourceRegion { get; }
 
         /// <summary>
-        /// Gets the SARIF log run identifier associated with this tag.
+        /// Gets the SARIF run index associated with this tag.
         /// </summary>
-        int RunId { get; }
+        int RunIndex { get; }
 
         /// <summary>
         /// Gets the current text tag used for this tag.

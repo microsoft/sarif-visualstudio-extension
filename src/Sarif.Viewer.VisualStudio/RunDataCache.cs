@@ -27,6 +27,8 @@ namespace Microsoft.Sarif.Viewer
 
         public string LogFilePath { get; }
 
+        public int RunId { get; }
+
         public IList<SarifErrorListItem> SarifErrors {
             get
             {
@@ -49,22 +51,23 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache() :
-            this(null, null)
+            this(null, 0, null)
         {
         }
 
         /// <summary>
         /// Used for testing.
         /// </summary>
-        internal RunDataCache(Run run) :
-            this (run, null)
+        internal RunDataCache(Run run, int runId) :
+            this (run, runId, null)
         {
         }
 
-        public RunDataCache(Run run, string logFilePath)
+        public RunDataCache(Run run, int runId, string logFilePath)
         {
-            LogFilePath = logFilePath;
-            FileRegionsCache = new FileRegionsCache(run);
+            this.RunId = runId;
+            this.LogFilePath = logFilePath;
+            this.FileRegionsCache = new FileRegionsCache(run);
         }
     }
 }

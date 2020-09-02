@@ -56,7 +56,7 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
-            _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
+            _runId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
             ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
@@ -144,7 +144,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            _runId = CodeAnalysisResultManager.Instance.CurrentRunId;
+            _runId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
             ReportingDescriptor rule;
             string ruleId = null;
 
@@ -513,7 +513,7 @@ namespace Microsoft.Sarif.Viewer
             DetachFromDocument();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
-            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runId].FileRegionsCache;
 
             if (FileName.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
             {

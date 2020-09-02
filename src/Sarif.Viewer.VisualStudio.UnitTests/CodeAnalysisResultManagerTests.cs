@@ -50,7 +50,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
-            target.RunDataCaches.Add(RunId, dataCache);
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
             string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
@@ -84,7 +84,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 this.fileSystem, 
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
-            target.RunDataCaches.Add(RunId, dataCache);
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // First, rebase a file to prime the list of mappings.
             target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile, dataCache: dataCache);
@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
-            target.RunDataCaches.Add(RunId, dataCache);
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
             string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
@@ -150,7 +150,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
-            target.RunDataCaches.Add(RunId, dataCache);
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
             string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
@@ -177,7 +177,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
-            target.RunDataCaches.Add(RunId, dataCache);
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
             string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
@@ -206,7 +206,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
-            target.RunDataCaches.Add(RunId, dataCache);
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
             string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
@@ -244,8 +244,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var resultManager = new CodeAnalysisResultManager(fileSystem: null, promptForResolvedPathDelegate: null);
 
-            RunDataCache dataCache = new RunDataCache(run);
-            resultManager.RunDataCaches.Add(++resultManager.CurrentRunId, dataCache);
+            RunDataCache dataCache = new RunDataCache(run, ++resultManager.CurrentRunIndex);
+            resultManager.RunIndexToRunDataCache.Add(resultManager.CurrentRunIndex, dataCache);
             resultManager.CacheUriBasePaths(run);
 
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["HAS_SLASH"].Should().Be("file:///C:/code/myProject/src/");

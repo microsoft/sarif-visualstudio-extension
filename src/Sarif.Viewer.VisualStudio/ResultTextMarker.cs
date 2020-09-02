@@ -128,7 +128,7 @@ namespace Microsoft.Sarif.Viewer
                 if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
                 {
                     // Fill out the region's properties
-                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunDataCaches[_runId].FileRegionsCache;
+                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runId].FileRegionsCache;
                     Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
                 }
 
@@ -239,7 +239,7 @@ namespace Microsoft.Sarif.Viewer
 
             ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
             _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
-            _tagger.TryGetTag(Region, out ISarifLocationTag existingTag);
+            _tagger.TryGetTag(Region, _runId, out ISarifLocationTag existingTag);
 
             if (existingTag == null)
             {
