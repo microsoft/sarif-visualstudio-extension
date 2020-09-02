@@ -170,14 +170,14 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return;
                 }
 
-                foreach (SarifLocationTag sarifTagForRun in sarifTagsForRun)
+                foreach (SarifLocationTag sarifTag in sarifTagsForRun)
                 {
-                    if (SourceCodeFileToSarifTags.TryGetValue(sarifTagForRun.DocumentPersistentSpan.FilePath, out List<SarifLocationTag> sarifTagsForSourceFile))
+                    if (SourceCodeFileToSarifTags.TryGetValue(sarifTag.DocumentPersistentSpan.FilePath, out List<SarifLocationTag> sarifTagsForSourceFile))
                     {
-                        sarifTagsForSourceFile.Remove(sarifTagForRun);
+                        sarifTagsForSourceFile.Remove(sarifTag);
                     }
 
-                    sarifTagForRun.Dispose();
+                    sarifTag.Dispose();
                 }
 
                 sarifTagsForRun.Clear();
