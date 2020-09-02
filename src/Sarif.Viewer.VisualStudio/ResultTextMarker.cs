@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer
         public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; //Gray
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
-        private int _runId;
+        private int _runIndex;
         private ISarifLocationTagger _tagger;
         private ISarifLocationTag _tag;
         private IWpfTextView _wpfTextView;
@@ -39,22 +39,17 @@ namespace Microsoft.Sarif.Viewer
         public string Color { get; set; }
 
         /// <summary>
-        /// Fired when an the text editor caret enters a tagged region.
+        /// Fired when the text editor caret enters a tagged region.
         /// </summary>
         public event EventHandler RaiseRegionSelected;
 
         /// <summary>
         /// fullFilePath may be null for global issues.
         /// </summary>
-        public ResultTextMarker(int runId, Region region, string fullFilePath)
+        public ResultTextMarker(int runIndex, Region region, string fullFilePath)
         {
-            if (region == null)
-            {
-                throw new ArgumentNullException(nameof(region));
-            }
-
-            _runId = runId;
-            Region = region;
+            _runIndex = runIndex;
+            Region = region ?? throw new ArgumentNullException(nameof(region));
             FullFilePath = fullFilePath;
             Color = DEFAULT_SELECTION_COLOR;
         }
@@ -66,10 +61,9 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>Returns true if a VS editor was opened.</returns>
         public bool TryNavigateTo(bool usePreviewPane)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
+#pragma warning disable VSTHRD010 // This is an analyzer false positive. 
             return this.TryNavigateTo(usePreviewPane, retryNaviation: true);
-
+#pragma warning restore VSTHRD010
         }
 
         private bool TryNavigateTo(bool usePreviewPane, bool retryNaviation)
@@ -91,6 +85,13 @@ namespace Microsoft.Sarif.Viewer
             if (_tag?.DocumentPersistentSpan?.Span != null)
             {
                 ITextSnapshot currentSnapshot = this._wpfTextView.TextSnapshot;
+
+                // Note that "GetSpan" is not really a great name. What is actually happening
+                // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
+                // text snapshot. In essence what this means is take the "persistent span"
+                // that we have and "replay" any edits that have occurred and return a new
+                // span. So, if the span is no longer relevant (lets say the text has been deleted)
+                // then you'll get back an empty span.
                 SnapshotSpan trackingSpanSnapshot = _tag.DocumentPersistentSpan.Span.GetSpan(currentSnapshot);
 
                 // If the caret is already in the text within the marker, don't re-select it
@@ -119,7 +120,7 @@ namespace Microsoft.Sarif.Viewer
                 // will attempt to open the document and select the appropriate line.
                 if (!File.Exists(this.FullFilePath))
                 {
-                    if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(_runId, this.UriBaseId, this.FullFilePath))
+                    if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(_runIndex, this.UriBaseId, this.FullFilePath))
                     {
                         return false;
                     }
@@ -128,7 +129,7 @@ namespace Microsoft.Sarif.Viewer
                 if (File.Exists(this.FullFilePath) && Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
                 {
                     // Fill out the region's properties
-                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runId].FileRegionsCache;
+                    FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runIndex].FileRegionsCache;
                     Region = regionsCache.PopulateTextRegionProperties(Region, uri, true);
                 }
 
@@ -239,7 +240,7 @@ namespace Microsoft.Sarif.Viewer
 
             ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
             _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
-            _tagger.TryGetTag(Region, _runId, out ISarifLocationTag existingTag);
+            _tagger.TryGetTag(Region, _runIndex, out ISarifLocationTag existingTag);
 
             if (existingTag == null)
             {
@@ -248,7 +249,7 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                _tag = _tagger.AddTag(Region, tagSpan, _runId, new TextMarkerTag(Color));
+                _tag = _tagger.AddTag(Region, tagSpan, _runIndex, new TextMarkerTag(Color));
             }
             else
             {
