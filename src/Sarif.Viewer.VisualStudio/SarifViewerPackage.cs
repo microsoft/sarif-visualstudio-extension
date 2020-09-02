@@ -9,13 +9,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
-using EnvDTE;
-using EnvDTE80;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.VisualStudio.Shell;
-using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
+using Microsoft.Sarif.Viewer.Tags;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -36,6 +34,8 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(SCloseSarifLogService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
+        private bool disposed;
+
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
@@ -81,23 +81,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public static System.Configuration.Configuration AppConfig { get; private set; }
-
-        public T GetService<S, T>()
-            where S : class
-            where T : class
-        {
-            try
-            {
-                return (T)this.GetService(typeof(S));
-            }
-            catch (Exception)
-            {
-                // If anything went wrong, just ignore it
-            }
-            return null;
-        }
-
+        public static Configuration AppConfig { get; private set; }
         #region Package Members
 
         /// <summary>
@@ -139,6 +123,19 @@ namespace Microsoft.Sarif.Viewer
             return;
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (!this.disposed)
+                {
+                    this.disposed = true;
+                    SarifLocationTagger.DisposeStaticObjects();
+                }
+            }
+
+            base.Dispose(disposing);
+        }
         #endregion
 
         private object CreateService(IServiceContainer container, Type serviceType)

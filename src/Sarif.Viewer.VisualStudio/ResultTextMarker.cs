@@ -203,13 +203,17 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // For these cases, this event has nothing to do with this item
+            // If we've already tagged this document, then we're done.
             if (this._tag != null)
             {
                 return true;
             }
 
+            // If this document doesn't have anything to do with this result marker, then
+            // skip tagging.
             if (vsWindowFrame == null ||
+                string.IsNullOrEmpty(documentName) ||
+                string.IsNullOrEmpty(this.FullFilePath) ||
                 string.Compare(documentName, this.FullFilePath, StringComparison.OrdinalIgnoreCase) != 0)
             {
                 return false;
@@ -255,72 +259,64 @@ namespace Microsoft.Sarif.Viewer
             _tag.CaretEnteredTag += CaretEnteredTag;
             _wpfTextView = wpfTextView;
             _vsWindowFrame = vsWindowFrame;
+            _wpfTextView.Closed += this.TextViewClosed;
 
             return true;
         }
 
+        private void TextViewClosed(object sender, EventArgs e)
+        {
+            _tag.CaretEnteredTag -= CaretEnteredTag;
+        }
+
         // When the VS Editor tag has the caret moved inside of it, let's just pass along the region selection.
-        private void CaretEnteredTag(object sender, EventArgs e) => this.RaiseRegionSelected?.Invoke(this, new EventArgs());
+        private void CaretEnteredTag(object sender, EventArgs e) => this.RaiseRegionSelected?.Invoke(this, e);
 
         private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, IVsWindowFrame vsWindowFrame, out TextSpan textSpan)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // SARIF regions are 1 based, VS is one based.)
+            // SARIF regions are 1 based, VS is zero based.
             textSpan.iStartLine = Math.Max(region.StartLine - 1, 0);
             textSpan.iEndLine = Math.Max(region.EndLine - 1, 0);
             textSpan.iStartIndex = Math.Max(region.StartColumn - 1, 0);
             textSpan.iEndIndex = Math.Max(region.EndColumn - 1, 0);
 
+            if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out IVsTextView vsTextView) ||
+                !SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView) ||
+                 vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK ||
+                 vsTextLines.GetLastLineIndex(out int lastLine, out int lastIndex) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            // If the start and end indexes are outside the scope of the text, skip tagging.
+            if (textSpan.iStartLine > lastLine ||
+                textSpan.iEndLine > lastLine)
+            {
+                return false;
+            }
+
             // Move the end line to the start line if for some
             // reason the end line is less than the start line.
             textSpan.iEndLine = Math.Max(textSpan.iEndLine, textSpan.iStartLine);
 
-            if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out IVsTextView vsTextView))
-            {
-                return false;
-            }
-
-            if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView))
-            {
-                return false;
-            }
-
-            // If for some reason the start line is not correct, just skip the highlighting
-            ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
-            if (textSpan.iStartLine > textSnapshot.LineCount)
-            {
-                return false;
-            }
-
-            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
-            {
-                return false;
-            }
-
-            if (vsTextLines.GetLastLineIndex(out int lastLine, out int lastIndex) != VSConstants.S_OK)
-            {
-                return false;
-            }
-
-            textSpan.iEndLine = Math.Min(lastLine, textSpan.iEndLine);
-
             // Now fix up the column numbers.
-            bool coerced = false;
+            ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
             ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
-
-            if (textSpan.iStartIndex < 0 || textSpan.iStartIndex >= startTextLine.Length)
-            {
-                textSpan.iStartIndex = 0;
-                coerced = true;
-            }
-
             ITextSnapshotLine endTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iEndLine);
 
-            // If we are highlighting just one line and the column values don't make
-            // sense or we corrected one or more of them, then simply mark the
-            // entire line
-            if (textSpan.iEndLine == textSpan.iStartLine && (coerced || textSpan.iStartIndex >= textSpan.iEndIndex))
+            // If the start column of the start lines is beyond the length of the start line
+            // then we will reset the start column to zero and maybe tag the entire line if the start and end lines are the same.
+            bool resetStartColumn = (textSpan.iStartIndex >= startTextLine.Length);
+            if (resetStartColumn)
+            {
+                textSpan.iStartIndex = 0;
+            }
+
+            // If we are highlighting just one line and the end column of the end line is out of scope
+            // or we are highlighting just one line and we reset the start column above, then highlight the entire line.
+            if (textSpan.iEndLine == textSpan.iStartLine && (resetStartColumn || textSpan.iStartIndex >= textSpan.iEndIndex))
             {
                 textSpan.iStartIndex = 0;
                 textSpan.iEndIndex = endTextLine.Length - 1;

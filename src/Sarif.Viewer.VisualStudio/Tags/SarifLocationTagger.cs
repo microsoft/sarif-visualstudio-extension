@@ -180,6 +180,31 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
+        /// <summary>
+        /// Cleans up the static locks and lists.
+        /// </summary>
+        public static void DisposeStaticObjects()
+        {
+            List<SarifLocationTag> tagsToDispose = new List<SarifLocationTag>();
+
+            using (TagListLock.EnterWriteLock())
+            {
+                // There is no need to re-add the tags from the run Id to SARIF tag dictionary as the
+                // objects exist in both dictionaries and only need to be disposed once.
+                tagsToDispose.AddRange(SourceCodeFileToSarifTags.Values.SelectMany(sarifTags => sarifTags));
+
+                SourceCodeFileToSarifTags.Clear();
+                RunIdToSarifTags.Clear();
+            }
+
+            tagsToDispose.ForEach(tagToDispose => tagToDispose.Dispose());
+
+            // Note that the lock wrapper implementation does not support IDispose
+            // and therefore we still must dispose the "inner lock" held by the wrapper.
+            TagListLock.InnerLock.Dispose();
+            SarifTaggersLock.InnerLock.Dispose();
+        }
+
             /// <inheritdoc/>
         public ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, TextMarkerTag tag)
         {
@@ -283,7 +308,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return;
                 }
 
-                // Copy so we can update (which can make outgoing callse) outside of lock
+                // Copy so we can update (which can make outgoing calls) outside of lock
                 tagsToRemove = new List<SarifLocationTag>(sarifTagsForRun);
             }
 
