@@ -17,7 +17,7 @@ using Microsoft.VisualStudio.TextManager.Interop;
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
-    /// This class represents an instance of "highlighted" line in the editor, holds necessary Shell objects and logic 
+    /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic 
     /// to managed life cycle and appearance.
     /// </summary>
     public class ResultTextMarker

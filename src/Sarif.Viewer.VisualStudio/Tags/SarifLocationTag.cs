@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.ComponentModel;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
-using System;
-using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {

@@ -103,12 +103,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         public SarifLocationTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textBuffer, out string textBufferFilePath))
+            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textBuffer, out this.filePath))
             {
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            this.filePath = textBufferFilePath;
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
 
@@ -267,14 +266,13 @@ namespace Microsoft.Sarif.Viewer.Tags
                     this.sarifTags.Add(newSarifTag);
                     newSarifTag.PropertyChanged += SarifTagPropertyChanged;
 
-                    if (RunIdToSarifTags.TryGetValue(runId, out List<SarifLocationTag> sarifTagsForRun))
+                    if (!RunIdToSarifTags.TryGetValue(runId, out List<SarifLocationTag> sarifTagsForRun))
                     {
-                        sarifTagsForRun.Add(newSarifTag);
+                        sarifTagsForRun = new List<SarifLocationTag>();
+                        RunIdToSarifTags.Add(runId, sarifTagsForRun);
                     }
-                    else
-                    {
-                        RunIdToSarifTags.Add(runId, new List<SarifLocationTag> { newSarifTag });
-                    }
+
+                    sarifTagsForRun.Add(newSarifTag);
 
                     this.UpdateBatchSpan(newSarifTag.DocumentPersistentSpan.Span);
 
@@ -340,7 +338,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return;
                 }
 
-                // Copy so we can update (which can make outgoing calls) outside of lock
+                // Copy so we can update (which can make outgoing calls) outside of lock.
                 tagsToRemove = new List<SarifLocationTag>(sarifTagsForRun);
             }
 
@@ -361,7 +359,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 yield break;
             }
 
-            SarifLocationTag[] currentTags = null;
+            IEnumerable<SarifLocationTag> currentTags = null;
             using (TagListLock.EnterReadLock())
             {
                 if (this.sarifTags == null)
@@ -369,8 +367,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     yield break;
                 }
 
-                currentTags = new SarifLocationTag[this.sarifTags.Count];
-                this.sarifTags.CopyTo(currentTags, 0);
+                currentTags = new List<SarifLocationTag>(this.sarifTags);
             }
 
             if (currentTags == null)
@@ -378,7 +375,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 yield break;
             }
 
-            foreach (var span in spans)
+            foreach (SnapshotSpan span in spans)
             {
                 foreach (var possibleTag in currentTags.Where(possibleTag => possibleTag.DocumentPersistentSpan.Span != null))
                 {
@@ -451,24 +448,32 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             // If there currently is a batch span, update it to include the biggest
             // range of buffer affected so far.
-            if (this.batchUpdateSpan == null)
+            using (this.batchUpdateLock.EnterWriteLock())
             {
-                this.batchUpdateSpan = snapshotSpan;
-                return;
+                if (this.batchUpdateSpan == null)
+                {
+                    this.batchUpdateSpan = snapshotSpan;
+                    return;
+                }
+
+                ITextSnapshot snapshot = this.textBuffer.CurrentSnapshot;
+
+                SnapshotSpan batchSpan = this.batchUpdateSpan.GetSpan(snapshot);
+                SnapshotSpan updateSpan = snapshotSpan.GetSpan(snapshot);
+
+                SnapshotPoint newStart = batchSpan.Start.Position < updateSpan.Start.Position ? batchSpan.Start : updateSpan.Start;
+                SnapshotPoint newEnd = batchSpan.End.Position > updateSpan.End.Position ? batchSpan.End : updateSpan.End;
+
+                // The tracking mode used here will match the tracking mode of the persistent span that was created in AddTag.
+                this.batchUpdateSpan = snapshot.CreateTrackingSpan(new SnapshotSpan(newStart, newEnd), this.batchUpdateSpan.TrackingMode);
             }
-
-            ITextSnapshot snapshot = this.textBuffer.CurrentSnapshot;
-
-            SnapshotSpan currentBatchSpan = this.batchUpdateSpan.GetSpan(snapshot);
-            SnapshotSpan currentUpdate = snapshotSpan.GetSpan(snapshot);
-
-            SnapshotPoint newStart = currentBatchSpan.Start.Position < currentUpdate.Start.Position ? currentBatchSpan.Start : currentUpdate.Start;
-            SnapshotPoint newEnd = currentBatchSpan.End.Position > currentUpdate.End.Position ? currentBatchSpan.End : currentUpdate.End;
-
-            this.batchUpdateSpan = snapshot.CreateTrackingSpan(new SnapshotSpan(newStart, newEnd), this.batchUpdateSpan.TrackingMode);
         }
 
         /// <inheritdoc/>
+        /// <remarks>
+        /// This call is forwarded from <see cref="SarifLocationTaggerProvider.TextViewCreated(ITextView)"/> so that there is only
+        /// one instance of a text view creation listener implemented by the <see cref="SarifLocationTaggerProvider"/>.
+        /// </remarks>
         public void TextViewCreated(ITextView textView)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -490,8 +495,8 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Used to control batch changes to tags.
         /// </summary>
         /// <remarks>
-        /// When this object is disposed by the caller and all batch updates have completed, a 
-        /// tags changed event is sent to Visual Studio.
+        /// When this object is disposed by the caller and the <see cref="batchUpdateNestingLevel"/>
+        /// reaches zero, tags changed event is sent to Visual Studio.
         /// </remarks>
         private class BatchUpdate : IDisposable
         {
