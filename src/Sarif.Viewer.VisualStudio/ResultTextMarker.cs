@@ -293,31 +293,24 @@ namespace Microsoft.Sarif.Viewer
 
             // If the start and end indexes are outside the scope of the text, skip tagging.
             if (textSpan.iStartLine > lastLine ||
-                textSpan.iEndLine > lastLine)
+                textSpan.iEndLine > lastLine ||
+                textSpan.iEndLine < textSpan.iStartLine)
             {
                 return false;
             }
 
-            // Move the end line to the start line if for some
-            // reason the end line is less than the start line.
-            textSpan.iEndLine = Math.Max(textSpan.iEndLine, textSpan.iStartLine);
-
-            // Now fix up the column numbers.
             ITextSnapshot textSnapshot = wpfTextView.TextSnapshot;
             ITextSnapshotLine startTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
             ITextSnapshotLine endTextLine = textSnapshot.GetLineFromLineNumber(textSpan.iEndLine);
 
-            // If the start column of the start lines is beyond the length of the start line
-            // then we will reset the start column to zero and maybe tag the entire line if the start and end lines are the same.
-            bool resetStartColumn = (textSpan.iStartIndex >= startTextLine.Length);
-            if (resetStartColumn)
+            if (textSpan.iStartIndex >= startTextLine.Length)
             {
-                textSpan.iStartIndex = 0;
+                return false;
             }
 
             // If we are highlighting just one line and the end column of the end line is out of scope
             // or we are highlighting just one line and we reset the start column above, then highlight the entire line.
-            if (textSpan.iEndLine == textSpan.iStartLine && (resetStartColumn || textSpan.iStartIndex >= textSpan.iEndIndex))
+            if (textSpan.iEndLine == textSpan.iStartLine && textSpan.iStartIndex >= textSpan.iEndIndex)
             {
                 textSpan.iStartIndex = 0;
                 textSpan.iEndIndex = endTextLine.Length - 1;
