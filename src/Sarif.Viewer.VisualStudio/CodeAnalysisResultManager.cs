@@ -63,15 +63,15 @@ namespace Microsoft.Sarif.Viewer
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
-        public IDictionary<int, RunDataCache> RunDataCaches { get; } = new Dictionary<int, RunDataCache>();
+        public IDictionary<int, RunDataCache> RunIndexToRunDataCache { get; } = new Dictionary<int, RunDataCache>();
 
-        public int CurrentRunId { get; set; } = 0;
+        public int CurrentRunIndex { get; set; } = 0;
 
         public RunDataCache CurrentRunDataCache
         {
             get
             {
-                RunDataCaches.TryGetValue(CurrentRunId, out RunDataCache dataCache);
+                RunIndexToRunDataCache.TryGetValue(CurrentRunIndex, out RunDataCache dataCache);
                 return dataCache;
             }
         }
@@ -85,18 +85,10 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
-                ClearCurrentMarkers();
                 m_currentSarifError = value;
             }
         }
 
-        public void ClearCurrentMarkers()
-        {
-            if (CurrentSarifResult != null)
-            {
-                CurrentSarifResult.RemoveMarkers();
-            }
-        }
 
         internal void Register()
         {
@@ -263,7 +255,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            RunDataCache dataCache = RunDataCaches[runId];
+            RunDataCache dataCache = RunIndexToRunDataCache[runId];
             string rebaselinedFileName = null;
 
             if (dataCache.FileDetails.ContainsKey(originalFilename))
@@ -309,7 +301,7 @@ namespace Microsoft.Sarif.Viewer
                         }
                         catch (WebException wex)
                         {
-                            VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                            VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                        Resources.DownloadFail_DialogMessage + Environment.NewLine + wex.Message,
                                        null, // title
                                        OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -339,7 +331,7 @@ namespace Microsoft.Sarif.Viewer
         // Contents are embedded in SARIF. Create a file from these contents.
         internal string CreateFileFromContents(int runId, string fileName)
         {
-            return CreateFileFromContents(RunDataCaches[runId].FileDetails, fileName);
+            return CreateFileFromContents(RunIndexToRunDataCache[runId].FileDetails, fileName);
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
@@ -603,7 +595,7 @@ namespace Microsoft.Sarif.Viewer
 
         public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
         {
-            DetachFromDocumentChanges(docCookie);
+            DetachFromDocumentChanges();
             return S_OK;
         }
 
@@ -674,23 +666,23 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Try to get documentname for current document with <param name="docCookie" />
+        /// Try to get document name for current document with <param name="docCookie" />
         /// and invoke attach for each item in analysis results collection. 
         /// </summary>
         private void AttachToDocumentChanges(uint docCookie, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            string documentName = GetDocumentName(docCookie, pFrame);
+            string documentName = GetDocumentName(docCookie);
 
             if (!string.IsNullOrEmpty(documentName))
             {
-                if (RunDataCaches != null)
+                if (RunIndexToRunDataCache != null)
                 {
-                    foreach (int key in RunDataCaches.Keys)
+                    foreach (int key in RunIndexToRunDataCache.Keys)
                     {
-                        foreach (SarifErrorListItem sarifError in RunDataCaches[key].SarifErrors)
+                        foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
                         {
-                            sarifError.AttachToDocument(documentName, (long)docCookie, pFrame);
+                            sarifError.TryAttachToDocument(documentName, (long)docCookie, pFrame);
                         }
                     }
                 }
@@ -700,15 +692,15 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Invoke detach for each item in analysis results collection
         /// </summary>
-        private void DetachFromDocumentChanges(uint docCookie)
+        private void DetachFromDocumentChanges()
         {
-            if (RunDataCaches != null)
+            if (RunIndexToRunDataCache != null)
             {
-                foreach (int key in RunDataCaches.Keys)
+                foreach (int key in RunIndexToRunDataCache.Keys)
                 {
-                    foreach (SarifErrorListItem sarifError in RunDataCaches[key].SarifErrors)
+                    foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
                     {
-                        sarifError.DetachFromDocument((long)docCookie);
+                        sarifError.DetachFromDocument();
                     }
                 }
             }
@@ -737,13 +729,13 @@ namespace Microsoft.Sarif.Viewer
                         }
 
                         // Detach from document.
-                        DetachFromDocumentChanges(cookies[0]);
+                        DetachFromDocumentChanges();
                     }
                 }
             }
         }
 
-        private string GetDocumentName(uint docCookie, IVsWindowFrame pFrame)
+        private string GetDocumentName(uint docCookie)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             string documentName = null;
@@ -802,7 +794,7 @@ namespace Microsoft.Sarif.Viewer
         internal Tuple<string, string>[] GetRemappedPathPrefixes()
         {
             // Unit tests will only create one cache.
-            return RunDataCaches.Values.First().RemappedPathPrefixes.ToArray();
+            return RunIndexToRunDataCache.Values.First().RemappedPathPrefixes.ToArray();
         }
     }
 }

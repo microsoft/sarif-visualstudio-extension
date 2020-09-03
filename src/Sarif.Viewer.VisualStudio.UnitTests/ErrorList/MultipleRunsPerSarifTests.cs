@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void ErrorList_WithMultipleRuns_ManagerHasAllRows()
         {
-            var errorCount = CodeAnalysisResultManager.Instance.RunDataCaches.Sum(c => c.Value.SarifErrors.Count);
+            var errorCount = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Sum(c => c.Value.SarifErrors.Count);
 
             errorCount.Should().Be(3);
         }

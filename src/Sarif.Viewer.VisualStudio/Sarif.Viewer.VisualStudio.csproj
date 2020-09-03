@@ -83,6 +83,10 @@
     <Compile Include="SarifToolWindowCommand.cs" />
     <Compile Include="SCloseSarifLogService.cs" />
     <Compile Include="SLoadSarifLogService.cs" />
+    <Compile Include="Tags\ISarifLocationTag.cs" />
+    <Compile Include="Tags\ISarifLocationTagger.cs" />
+    <Compile Include="Tags\SarifLocationTag.cs" />
+    <Compile Include="Tags\SarifLocationTagger.cs" />
     <Compile Include="TelemetryEvent.cs" />
     <Compile Include="TelemetryProvider.cs" />
     <Compile Include="Uri.extensions.cs" />

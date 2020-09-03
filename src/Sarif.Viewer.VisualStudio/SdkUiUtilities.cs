@@ -19,6 +19,9 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Newtonsoft.Json;
 using XamlDoc = System.Windows.Documents;
 
@@ -766,6 +769,95 @@ namespace Microsoft.Sarif.Viewer
             return cookieDocLock;
         }
 
+        /// <summary>
+        /// Helper method for getting a IWpfTextView from a IVsTextView object
+        /// </summary>
+        /// <param name="textView"></param>
+        /// <returns></returns>
+        public static bool TryGetWpfTextView(IVsTextView textView, out IWpfTextView wpfTextView)
+        {
+            wpfTextView = null;
+
+            IVsUserData userData = textView as IVsUserData;
+            if (userData == null)
+            {
+                return false;
+            }
+
+            Guid guid = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+            if (userData.GetData(ref guid, out object wpfTextViewHost) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            IWpfTextViewHost textViewHost = wpfTextViewHost as IWpfTextViewHost;
+
+            if (textViewHost == null)
+            {
+                return false;
+            }
+
+            wpfTextView = textViewHost.TextView;
+
+            return true;
+        }
+
+        public static bool TryGetTextViewFromFrame(IVsWindowFrame frame, out IVsTextView vsTextView)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            vsTextView = null;
+
+            // Get the document view from the window frame, then get the text view
+            object docView;
+            int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
+            if ((hr != 0 && hr != 1) || docView == null)
+            {
+                return false;
+            }
+
+            IVsCodeWindow codeWindow = docView as IVsCodeWindow;
+            if (codeWindow == null)
+            {
+                return false;
+            }
+
+            if (codeWindow.GetLastActiveView(out vsTextView) == VSConstants.S_OK)
+            {
+                return true;
+            }
+
+            if (codeWindow.GetPrimaryView(out vsTextView) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool TryGetFileNameFromTextBuffer(ITextBuffer textBuffer, out string filename)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            filename = null;
+
+            if (textBuffer == null)
+            {
+                return false;
+            }
+
+            if (!textBuffer.Properties.TryGetProperty(typeof(IVsTextBuffer), out IVsTextBuffer vsTextBuffer))
+            {
+                return false;
+            }
+
+            IPersistFileFormat persistFileFormat = vsTextBuffer as IPersistFileFormat;
+            if (persistFileFormat == null)
+            {
+                return false;
+            }
+
+            return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK;
+        }
+
         private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
@@ -1226,7 +1318,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (artifactLocation?.Uri != null)
             {
-                RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunDataCaches[runId];
+                RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runId];
 
                 Uri uri = artifactLocation.Uri;
                 string uriBaseId = artifactLocation.UriBaseId;

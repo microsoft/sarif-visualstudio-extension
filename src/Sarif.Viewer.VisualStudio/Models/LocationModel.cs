@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System.IO;
-using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -26,7 +25,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._message)
                 {
                     this._message = value;
-                    NotifyPropertyChanged("Message");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -42,7 +41,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._filePath)
                 {
                     base.FilePath = value;
-                    NotifyPropertyChanged("FileName");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -66,7 +65,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._module)
                 {
                     this._module = value;
-                    NotifyPropertyChanged("Module");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -82,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._logicalLocation)
                 {
                     this._logicalLocation = value;
-                    NotifyPropertyChanged("LogicalLocation");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -98,7 +97,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._isEssential)
                 {
                     this._isEssential = value;
-                    NotifyPropertyChanged("IsEssential");
+                    NotifyPropertyChanged();
                 }
             }
         }

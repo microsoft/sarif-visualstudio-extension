@@ -22,19 +22,28 @@ namespace Microsoft.Sarif.Viewer.Tags
     [Export(typeof(ISarifLocationProviderFactory))]
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(TextMarkerTag))]
+    [Export(typeof(ITextViewCreationListener))]
+    [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
-    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ISarifLocationProviderFactory
+    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ISarifLocationProviderFactory, ITextViewCreationListener
     {
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+        [Import]
+        private IPersistentSpanFactory PersistentSpanFactory;
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
+
         public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
         {
             if (textView == null)
             {
-                throw new ArgumentNullException("textView");
+                throw new ArgumentNullException(nameof(textView));
             }
 
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             if (textView.TextBuffer != buffer)
@@ -45,24 +54,32 @@ namespace Microsoft.Sarif.Viewer.Tags
             return CreateSarifLocationTaggerInternal(buffer) as ITagger<T>;
         }
 
-        public SimpleTagger<TextMarkerTag> GetTextMarkerTagger(ITextBuffer buffer)
+        public SarifLocationTagger GetTextMarkerTagger(ITextBuffer buffer)
         {
             if (buffer == null)
             {
-                throw new ArgumentNullException("buffer");
+                throw new ArgumentNullException(nameof(buffer));
             }
 
             return CreateSarifLocationTaggerInternal(buffer);
         }
 
-        internal static SimpleTagger<TextMarkerTag> CreateSarifLocationTaggerInternal(ITextBuffer textBuffer)
+        public void TextViewCreated(ITextView textView)
         {
-            SimpleTagger<TextMarkerTag> sarifLocationTagger = textBuffer.Properties.GetOrCreateSingletonProperty<SimpleTagger<TextMarkerTag>>(delegate
+            SarifLocationTagger tagger = CreateSarifLocationTaggerInternal(textView.TextBuffer);
+            ITextViewCreationListener textViewCreationListener = tagger as ITextViewCreationListener;
+            if (textViewCreationListener != null)
             {
-                return new SimpleTagger<TextMarkerTag>(textBuffer);
-            });
+                textViewCreationListener.TextViewCreated(textView);
+            }
+        }
 
-            return sarifLocationTagger;
+        private SarifLocationTagger CreateSarifLocationTaggerInternal(ITextBuffer textBuffer)
+        {
+            return textBuffer.Properties.GetOrCreateSingletonProperty<SarifLocationTagger>(delegate
+            {
+                return new SarifLocationTagger(textBuffer, this.PersistentSpanFactory);
+            });
         }
     }
 }

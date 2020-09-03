@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _offset = value;
 
-                    NotifyPropertyChanged("Offset");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _deletedLength = value;
 
-                    NotifyPropertyChanged("DeletedLength");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -66,7 +66,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _insertedBytes = value;
 
-                    NotifyPropertyChanged("InsertedBytes");
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _insertedString = value;
 
-                    NotifyPropertyChanged("InsertedString");
+                    NotifyPropertyChanged();
                 }
             }
         }

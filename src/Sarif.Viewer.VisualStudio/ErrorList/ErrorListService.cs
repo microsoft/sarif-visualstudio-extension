@@ -20,6 +20,7 @@ using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -123,7 +124,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     // The version property wasn't found within the first 100 characters.
                     // Per the spec, it should appear first in the sarifLog object.
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                     Resources.VersionPropertyNotFound_DialogTitle,
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_QUERY,
@@ -198,6 +199,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CloseSarifLogs(IEnumerable<string> logFiles)
         {
             SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
+
+            List<int> runIdsToClear = new List<int>();
+
+            foreach (string logFile in logFiles)
+            {
+                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
+                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath.Equals(logFile, StringComparison.OrdinalIgnoreCase)).
+                    Select(runDataCacheKvp => runDataCacheKvp.Key));
+            }
+
+            foreach (int runIdToClear in runIdsToClear)
+            {
+                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
+                SarifLocationTagger.RemoveAllTagsForRun(runIdToClear);
+            }
         }
 
         /// <summary>
@@ -205,7 +221,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static void CloseAllSarifLogs()
         {
-            SarifTableDataSource.Instance.CleanAllErrors();
+            CleanAllErrors();
         }
 
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
@@ -226,7 +242,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // is fixed.
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            int result = VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+            int result = VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                          dialogMessage,
                                                          null, // title
                                                          OLEMSGICON.OLEMSGICON_QUERY,
@@ -292,7 +308,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (error != null)
             {
-                VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                 error,
                                                 null, // title
                                                 OLEMSGICON.OLEMSGICON_CRITICAL,
@@ -306,10 +322,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Clear previous data
             if (cleanErrors)
             {
-                CodeAnalysisResultManager.Instance.ClearCurrentMarkers();
-                SarifTableDataSource.Instance.CleanAllErrors();
-                CodeAnalysisResultManager.Instance.RunDataCaches.Clear();
-                CodeAnalysisResultManager.Instance.CurrentRunId = -1;
+                CleanAllErrors();
             }
 
             bool hasResults = false;
@@ -338,10 +351,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (!hasResults && showMessageOnNoResults)
             {
-                ThreadHelper.JoinableTaskFactory.Run(async ()  =>
+               ThreadHelper.JoinableTaskFactory.RunAsync(async ()  =>
                {
                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                   VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                   VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                    string.Format(Resources.NoResults_DialogMessage, logFilePath),
                                                    null, // title
                                                    OLEMSGICON.OLEMSGICON_INFO,
@@ -351,14 +364,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        public static void CleanAllErrors()
+        {
+            SarifTableDataSource.Instance.CleanAllErrors();
+            SarifLocationTagger.RemoveAllTags();
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
+            CodeAnalysisResultManager.Instance.CurrentRunIndex = -1;
+        }
+
         private ErrorListService()
         {
         }
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
-            RunDataCache dataCache = new RunDataCache(run);
-            CodeAnalysisResultManager.Instance.RunDataCaches.Add(++CodeAnalysisResultManager.Instance.CurrentRunId, dataCache);
+            RunDataCache dataCache = new RunDataCache(run, ++CodeAnalysisResultManager.Instance.CurrentRunIndex, logFilePath);
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(CodeAnalysisResultManager.Instance.CurrentRunIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
@@ -465,5 +486,5 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
         }
-    }
+     }
 }

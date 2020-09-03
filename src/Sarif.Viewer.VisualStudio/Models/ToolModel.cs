@@ -21,7 +21,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _name)
                 {
                     _name = value;
-                    NotifyPropertyChanged(nameof(Name));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _fullName)
                 {
                     _fullName = value;
-                    NotifyPropertyChanged(nameof(FullName));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _version)
                 {
                     _version = value;
-                    NotifyPropertyChanged(nameof(Version));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -69,7 +69,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _semanticVersion)
                 {
                     _semanticVersion = value;
-                    NotifyPropertyChanged(nameof(SemanticVersion));
+                    NotifyPropertyChanged();
                 }
             }
         }

@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _description = value;
 
-                    NotifyPropertyChanged("Description");
+                    NotifyPropertyChanged();
                 }
             }
         }

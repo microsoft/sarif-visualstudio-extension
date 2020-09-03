@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _id)
                 {
                     _id = value;
-                    NotifyPropertyChanged(nameof(Id));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _name)
                 {
                     _name = value;
-                    NotifyPropertyChanged(nameof(Name));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _description)
                 {
                     _description = value;
-                    NotifyPropertyChanged(nameof(Description));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -74,7 +74,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _category)
                 {
                     _category = value;
-                    NotifyPropertyChanged(nameof(Category));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -90,7 +90,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _defaultFailureLevel)
                 {
                     _defaultFailureLevel = value;
-                    NotifyPropertyChanged(nameof(DefaultFailureLevel));
+                    NotifyPropertyChanged();
                 }
             }
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != _helpUri)
                 {
                     _helpUri = value;
-                    NotifyPropertyChanged(nameof(HelpUri));
+                    NotifyPropertyChanged();
                 }
             }
         }

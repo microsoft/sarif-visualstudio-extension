@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -10,12 +11,14 @@ namespace Microsoft.Sarif.Viewer
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void NotifyPropertyChanged(String info)
+        protected void NotifyPropertyChanged([CallerMemberName] string info = null)
         {
-            if (PropertyChanged != null)
+            if (string.IsNullOrEmpty(info))
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
+                throw new ArgumentNullException(nameof(info));
             }
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
         }
     }
 }
