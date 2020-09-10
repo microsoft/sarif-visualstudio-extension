@@ -64,7 +64,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (textView.Properties.TryGetProperty(typeof(SarifLocationTagger), out SarifLocationTagger tagger))
+            if (TryCreateSarifLocationTaggerInternal(textView.TextBuffer, out SarifLocationTagger tagger))
             {
                 tagger.TextViewCreated(textView);
             }
