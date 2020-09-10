@@ -231,15 +231,16 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            // Call a bunch of functions to get the WPF text view so we can perform the highlighting only
-            // if we haven't yet
             if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView))
             {
                 return false;
             }
 
-            ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
-            _tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
+            if (!wpfTextView.TextBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out this._tagger))
+            {
+                return false;
+            }
+
             _tagger.TryGetTag(Region, _runIndex, out ISarifLocationTag existingTag);
 
             if (existingTag == null)

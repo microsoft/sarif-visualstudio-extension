@@ -628,14 +628,6 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
-            if (componentModel == null)
-            { 
-                return;
-            }
-
-            ISarifLocationProviderFactory sarifLocationProviderFactory = componentModel.GetService<ISarifLocationProviderFactory>();
-
             // Get a SimpleTagger over the buffer to color
             if (!SdkUIUtilities.TryGetTextViewFromFrame(_windowFrame, out IVsTextView vsTextView))
             {
@@ -647,7 +639,10 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            SarifLocationTagger tagger = sarifLocationProviderFactory.GetTextMarkerTagger(wpfTextView.TextBuffer);
+            if (!wpfTextView.TextBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out SarifLocationTagger tagger))
+            {
+                return;
+            }
 
             using (tagger.Update())
             {

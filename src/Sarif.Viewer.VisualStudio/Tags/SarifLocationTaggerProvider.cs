@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -19,13 +20,12 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// HTML files are 'projection' types, which doesn't inherit from 'text'. So TextMarkerProviderFactory
     /// cannot highlight HTML file contents.
     /// </remarks>
-    [Export(typeof(ISarifLocationProviderFactory))]
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(TextMarkerTag))]
     [Export(typeof(ITextViewCreationListener))]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
-    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ISarifLocationProviderFactory, ITextViewCreationListener
+    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ITextViewCreationListener
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -36,6 +36,8 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (textView == null)
             {
                 throw new ArgumentNullException(nameof(textView));
@@ -51,35 +53,41 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return null;
             }
 
-            return CreateSarifLocationTaggerInternal(buffer) as ITagger<T>;
-        }
-
-        public SarifLocationTagger GetTextMarkerTagger(ITextBuffer buffer)
-        {
-            if (buffer == null)
+            if (TryCreateSarifLocationTaggerInternal(buffer, out SarifLocationTagger tagger))
             {
-                throw new ArgumentNullException(nameof(buffer));
+                return tagger as ITagger<T>;
             }
 
-            return CreateSarifLocationTaggerInternal(buffer);
+            return null;
         }
 
         public void TextViewCreated(ITextView textView)
         {
-            SarifLocationTagger tagger = CreateSarifLocationTaggerInternal(textView.TextBuffer);
-            ITextViewCreationListener textViewCreationListener = tagger as ITextViewCreationListener;
-            if (textViewCreationListener != null)
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (TryCreateSarifLocationTaggerInternal(textView.TextBuffer, out SarifLocationTagger tagger))
             {
-                textViewCreationListener.TextViewCreated(textView);
+                tagger.TextViewCreated(textView);
             }
         }
 
-        private SarifLocationTagger CreateSarifLocationTaggerInternal(ITextBuffer textBuffer)
+        private bool TryCreateSarifLocationTaggerInternal(ITextBuffer textBuffer, out SarifLocationTagger sarifLocationTagger)
         {
-            return textBuffer.Properties.GetOrCreateSingletonProperty<SarifLocationTagger>(delegate
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            sarifLocationTagger = null;
+
+            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textBuffer, out _))
+            {
+                return false;
+            }
+
+            sarifLocationTagger = textBuffer.Properties.GetOrCreateSingletonProperty(delegate
             {
                 return new SarifLocationTagger(textBuffer, this.PersistentSpanFactory);
             });
+
+            return sarifLocationTagger != null;
         }
     }
 }
