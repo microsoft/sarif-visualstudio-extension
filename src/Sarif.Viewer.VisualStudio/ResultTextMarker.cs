@@ -6,7 +6,6 @@ using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -216,12 +215,6 @@ namespace Microsoft.Sarif.Viewer
                 string.IsNullOrEmpty(documentName) ||
                 string.IsNullOrEmpty(this.FullFilePath) ||
                 string.Compare(documentName, this.FullFilePath, StringComparison.OrdinalIgnoreCase) != 0)
-            {
-                return false;
-            }
-
-            IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
-            if (componentModel == null)
             {
                 return false;
             }
