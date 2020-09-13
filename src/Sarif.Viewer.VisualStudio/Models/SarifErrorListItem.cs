@@ -35,9 +35,6 @@ namespace Microsoft.Sarif.Viewer
         private DelegateCommand _openLogFileCommand;
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
-        private long? _documentCookie;
-        private string _documentName;
-        private IVsWindowFrame _windowFrame;
 
         internal SarifErrorListItem()
         {
@@ -510,7 +507,7 @@ namespace Microsoft.Sarif.Viewer
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            DetachFromDocument();
+            this.RemoveMarkers();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
             FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runId].FileRegionsCache;
@@ -595,67 +592,32 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
             }
-
-            AttachToDocument();
         }
 
         /// <summary>
         /// Attaches to the document using the specified properties, which are also cached.
         /// </summary>
-        internal bool TryAttachToDocument(string documentName, long docCookie, IVsWindowFrame windowFrame)
+        internal bool TryAttachToDocument(ITextBuffer textBuffer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (_documentCookie.HasValue || string.Compare(documentName, this.FileName, StringComparison.OrdinalIgnoreCase) != 0)
+            if (!textBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out SarifLocationTagger tagger))
             {
                 return false;
             }
 
-            // Cache the document info so we can detach and reattach later.
-            _documentName = documentName;
-            _documentCookie = docCookie;
-            _windowFrame = windowFrame;
-
-            AttachToDocument();
-
-            return true;
-        }
-
-        /// <summary>
-        /// Attaches to the document using cached properties.
-        /// </summary>
-        private void AttachToDocument()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // Get a SimpleTagger over the buffer to color
-            if (!SdkUIUtilities.TryGetTextViewFromFrame(_windowFrame, out IVsTextView vsTextView))
-            {
-                return;
-            }
-
-            if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out IWpfTextView wpfTextView))
-            {
-                return;
-            }
-
-            if (!wpfTextView.TextBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out SarifLocationTagger tagger))
-            {
-                return;
-            }
-
             using (tagger.Update())
             {
-                LineMarker?.TryTagDocument(_documentName, _windowFrame);
+                LineMarker?.TryTagDocument(textBuffer);
 
                 foreach (LocationModel location in Locations)
                 {
-                    location.LineMarker?.TryTagDocument(_documentName, _windowFrame);
+                    location.LineMarker?.TryTagDocument(textBuffer);
                 }
 
                 foreach (LocationModel location in RelatedLocations)
                 {
-                    location.LineMarker?.TryTagDocument(_documentName, _windowFrame);
+                    location.LineMarker?.TryTagDocument(textBuffer);
                 }
 
                 foreach (CallTree callTree in CallTrees)
@@ -671,7 +633,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         CallTreeNode current = nodesToProcess.Pop();
 
-                        if (current.LineMarker?.TryTagDocument(_documentName, _windowFrame) == true)
+                        if (current.LineMarker?.TryTagDocument(textBuffer) == true)
                         {
                             current.ApplyDefaultSourceFileHighlighting();
                         }
@@ -687,18 +649,12 @@ namespace Microsoft.Sarif.Viewer
                 {
                     foreach (StackFrameModel stackFrame in stackCollection)
                     {
-                        stackFrame.LineMarker?.TryTagDocument(_documentName, _windowFrame);
+                        stackFrame.LineMarker?.TryTagDocument(textBuffer);
                     }
                 }
             }
-        }
 
-        internal void DetachFromDocument()
-        {
-            this.RemoveMarkers();
-            _documentName = null;
-            _documentCookie = null;
-            _windowFrame = null;
+            return true;
         }
     }
 }

@@ -13,9 +13,14 @@ using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer
@@ -595,7 +600,8 @@ namespace Microsoft.Sarif.Viewer
 
         public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
         {
-            DetachFromDocumentChanges();
+            ThreadHelper.ThrowIfNotOnUIThread();
+            DetachFromDocumentChanges(docCookie);
             return S_OK;
         }
 
@@ -672,19 +678,51 @@ namespace Microsoft.Sarif.Viewer
         private void AttachToDocumentChanges(uint docCookie, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            IVsTextView vsTextView = VsShellUtilities.GetTextView(pFrame);
+            if (vsTextView == null)
+            {
+                return;
+            }
+
+            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
+            {
+                return;
+            }
+
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel == null)
+            {
+                return;
+            }
+
+            IVsEditorAdaptersFactoryService editorAdapterFactoryService = componentModel.GetService<IVsEditorAdaptersFactoryService>();
+            if (editorAdapterFactoryService == null)
+            {
+                return;
+            }
+
+            ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
+
             string documentName = GetDocumentName(docCookie);
 
-            if (!string.IsNullOrEmpty(documentName))
+            if (string.IsNullOrEmpty(documentName))
             {
-                if (RunIndexToRunDataCache != null)
+                return;
+            }
+
+            if (RunIndexToRunDataCache == null)
+            {
+                return;
+            }
+
+            foreach (int key in RunIndexToRunDataCache.Keys)
+            {
+                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = RunIndexToRunDataCache[key].SarifErrors.Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
-                    foreach (int key in RunIndexToRunDataCache.Keys)
-                    {
-                        foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
-                        {
-                            sarifError.TryAttachToDocument(documentName, (long)docCookie, pFrame);
-                        }
-                    }
+                    sarifError.TryAttachToDocument(textBuffer);
                 }
             }
         }
@@ -692,16 +730,28 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Invoke detach for each item in analysis results collection
         /// </summary>
-        private void DetachFromDocumentChanges()
+        private void DetachFromDocumentChanges(uint docCookie)
         {
-            if (RunIndexToRunDataCache != null)
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (RunIndexToRunDataCache == null)
             {
-                foreach (int key in RunIndexToRunDataCache.Keys)
+                return;
+            }
+
+            string documentName = GetDocumentName(docCookie);
+            if (string.IsNullOrEmpty(documentName))
+            {
+                return;
+            }
+
+            foreach (int key in RunIndexToRunDataCache.Keys)
+            {
+                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = RunIndexToRunDataCache[key].SarifErrors.Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
-                    foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
-                    {
-                        sarifError.DetachFromDocument();
-                    }
+                    sarifError.RemoveMarkers();
                 }
             }
         }
@@ -729,7 +779,7 @@ namespace Microsoft.Sarif.Viewer
                         }
 
                         // Detach from document.
-                        DetachFromDocumentChanges();
+                        DetachFromDocumentChanges(cookies[0]);
                     }
                 }
             }
@@ -790,7 +840,7 @@ namespace Microsoft.Sarif.Viewer
             catch (IOException) { }
         }
 
-        // Expose the path prefix remappings to unit tests.
+        // Expose the path prefix remapping to unit tests.
         internal Tuple<string, string>[] GetRemappedPathPrefixes()
         {
             // Unit tests will only create one cache.

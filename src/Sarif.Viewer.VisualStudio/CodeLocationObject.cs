@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -204,11 +204,11 @@ namespace Microsoft.Sarif.Viewer
         /// An overridden method for reacting to the event of a document window
         /// being opened
         /// </summary>
-        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
+        internal void AttachToDocument(ITextBuffer textBuffer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            LineMarker?.TryTagDocument(documentName, frame);
+            LineMarker?.TryTagDocument(textBuffer);
         }
     }
 }
