@@ -679,6 +679,11 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            if (RunIndexToRunDataCache == null)
+            {
+                return;
+            }
+
             IVsTextView vsTextView = VsShellUtilities.GetTextView(pFrame);
             if (vsTextView == null)
             {
@@ -707,11 +712,6 @@ namespace Microsoft.Sarif.Viewer
             string documentName = GetDocumentName(docCookie);
 
             if (string.IsNullOrEmpty(documentName))
-            {
-                return;
-            }
-
-            if (RunIndexToRunDataCache == null)
             {
                 return;
             }

@@ -25,9 +25,23 @@ namespace Microsoft.Sarif.Viewer
         public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; //Gray
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
+        /// <summary>
+        /// This is the original region from the SARIF log file before
+        /// it is remapped to an open document by the <see cref="TryMapRegion" method./>
+        /// </summary>
         private Region region;
+
+        /// <summary>
+        /// Contains the region information mapped to a file on disk.
+        /// </summary>
         private Region mappedRegion;
+
+        /// <summary>
+        /// Indicates whether a call to <see cref="TryMapRegion"/> has already occurred and what the result
+        /// of the remap was.
+        /// </summary>
         private bool? remapResult;
+
         private int runIndex;
         private ISarifLocationTag tag;
 
@@ -35,12 +49,18 @@ namespace Microsoft.Sarif.Viewer
         public string UriBaseId { get; set; }
         public string Color { get; set; }
 
+        /// <summary>
+        /// Gets or sets the original SARIF region from a SARIF log.
+        /// </summary>
         public Region Region
         {
             get => this.region;
             set
             {
                 this.region = value;
+
+                // We need to remap the original region to an ITextBuffer
+                // so reset these values to indicate that remapping should occur.
                 this.remapResult = null;
                 this.mappedRegion = null;
             }
