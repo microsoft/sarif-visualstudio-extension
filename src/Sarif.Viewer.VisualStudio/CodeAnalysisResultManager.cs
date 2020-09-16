@@ -707,8 +707,6 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
-
             string documentName = GetDocumentName(docCookie);
 
             if (string.IsNullOrEmpty(documentName))
@@ -716,9 +714,13 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            foreach (int key in RunIndexToRunDataCache.Keys)
+            ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
+            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
             {
-                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = RunIndexToRunDataCache[key].SarifErrors.Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
+                    Value.
+                    SarifErrors.
+                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
                 foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
@@ -745,9 +747,12 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            foreach (int key in RunIndexToRunDataCache.Keys)
+            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
             {
-                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = RunIndexToRunDataCache[key].SarifErrors.Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
+                    Value.
+                    SarifErrors.
+                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
                 foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
