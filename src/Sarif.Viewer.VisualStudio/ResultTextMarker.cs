@@ -226,25 +226,13 @@ namespace Microsoft.Sarif.Viewer
                 this.tag = tagger.AddTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, new TextMarkerTag(Color));
             }
 
-            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(textBuffer, out IWpfTextView wpfTextView))
-            {
-                return false;
-            }
-
-            this.tag.CaretEnteredTag += CaretEnteredTag;
-            wpfTextView.Closed += this.TextViewClosed;
+            // Once we have tagged the document, we start listening to the
+            // caret entering these tags so we can properly raise events
+            // that ultimately select items (such as call-tree nodes)
+            // in the SARIF explorer tool pane window.
+            this.tag.CaretEnteredTag += this.CaretEnteredTag;
 
             return true;
-        }
-
-        private void TextViewClosed(object sender, EventArgs e)
-        {
-            if (sender is IWpfTextView wpfTextView)
-            {
-                wpfTextView.Closed -= this.TextViewClosed;
-            }
-
-            this.tag.CaretEnteredTag -= CaretEnteredTag;
         }
 
         // When the VS Editor tag has the caret moved inside of it, let's just pass along the region selection.
@@ -279,7 +267,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runIndex].FileRegionsCache;
-                this.fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, true);
+                this.fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
             }
 
             this.regionIsFullyPopulated = this.fullyPopulatedRegion != null;
