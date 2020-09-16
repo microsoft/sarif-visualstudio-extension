@@ -594,14 +594,14 @@ namespace Microsoft.Sarif.Viewer
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            AttachToDocumentChanges(docCookie, pFrame);
+            TryTagDocument(docCookie, pFrame);
             return S_OK;
         }
 
         public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            DetachFromDocumentChanges(docCookie);
+            RemoveTagHighlights(docCookie);
             return S_OK;
         }
 
@@ -671,15 +671,18 @@ namespace Microsoft.Sarif.Viewer
             return commonSuffix;
         }
 
-        /// <summary>
-        /// Try to get document name for current document with <param name="docCookie" />
-        /// and invoke attach for each item in analysis results collection. 
-        /// </summary>
-        private void AttachToDocumentChanges(uint docCookie, IVsWindowFrame pFrame)
+        private void TryTagDocument(uint docCookie, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             if (RunIndexToRunDataCache == null)
+            {
+                return;
+            }
+
+            string documentName = GetDocumentName(docCookie);
+
+            if (string.IsNullOrEmpty(documentName))
             {
                 return;
             }
@@ -707,13 +710,6 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            string documentName = GetDocumentName(docCookie);
-
-            if (string.IsNullOrEmpty(documentName))
-            {
-                return;
-            }
-
             ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
             foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
             {
@@ -724,7 +720,7 @@ namespace Microsoft.Sarif.Viewer
 
                 foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
-                    sarifError.TryAttachToDocument(textBuffer);
+                    sarifError.TryTagDocument(textBuffer);
                 }
             }
         }
@@ -732,7 +728,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Invoke detach for each item in analysis results collection
         /// </summary>
-        private void DetachFromDocumentChanges(uint docCookie)
+        private void RemoveTagHighlights(uint docCookie)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -756,41 +752,35 @@ namespace Microsoft.Sarif.Viewer
 
                 foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
-                    sarifError.RemoveMarkers();
+                    sarifError.RemoveTagHighlights();
                 }
             }
         }
 
         // Detaches the SARIF results from all documents.
-        public void DetachFromAllDocuments()
+        public void RemoveTagHighlightsFromAllDocuments()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (_runningDocTable != null)
+            if (_runningDocTable == null)
             {
-                _runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator);
+                return;
+            }
 
-                if (documentsEnumerator != null)
-                {
-                    uint requestedCount = 1;
-                    uint[] cookies = new uint[requestedCount];
+            if (_runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator) != VSConstants.S_OK)
+            {
+                return;
+            }
 
-                    while (true)
-                    {
-                        documentsEnumerator.Next(requestedCount, cookies, out uint actualCount);
-                        if (actualCount == 0)
-                        {
-                            // There are no more documents to process.
-                            break;
-                        }
+            uint requestedCount = 1;
+            uint[] cookies = new uint[requestedCount];
 
-                        // Detach from document.
-                        DetachFromDocumentChanges(cookies[0]);
-                    }
-                }
+            while (documentsEnumerator.Next(requestedCount, cookies, out uint actualCount) == VSConstants.S_OK)
+            {
+                RemoveTagHighlights(cookies[0]);
             }
         }
 
-        private string GetDocumentName(uint docCookie)
+        private static string GetDocumentName(uint docCookie)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             string documentName = null;

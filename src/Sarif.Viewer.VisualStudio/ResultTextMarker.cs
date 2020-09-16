@@ -18,6 +18,11 @@ namespace Microsoft.Sarif.Viewer
     /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic 
     /// to managed life cycle and appearance.
     /// </summary>
+    /// <remarks>
+    /// An instance of this class can outlive a Visual Studio view that is viewing it.
+    /// It is important to not cache Visual Studio "view" and "frame" interfaces as they will
+    /// become invalid as the user opens and closes documents.
+    /// </remarks>
     public class ResultTextMarker
     {
         public const string DEFAULT_SELECTION_COLOR = "CodeAnalysisWarningSelection"; // Yellow
@@ -27,20 +32,20 @@ namespace Microsoft.Sarif.Viewer
 
         /// <summary>
         /// This is the original region from the SARIF log file before
-        /// it is remapped to an open document by the <see cref="TryMapRegion" method./>
+        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegion" method./>
         /// </summary>
         private Region region;
 
         /// <summary>
-        /// Contains the region information mapped to a file on disk.
+        /// Contains the fully mapped region information mapped to a file on disk.
         /// </summary>
-        private Region mappedRegion;
+        private Region fullyPopulatedRegion;
 
         /// <summary>
-        /// Indicates whether a call to <see cref="TryMapRegion"/> has already occurred and what the result
+        /// Indicates whether a call to <see cref="TryToFullyPopulateRegion"/> has already occurred and what the result
         /// of the remap was.
         /// </summary>
-        private bool? remapResult;
+        private bool? regionIsFullyPopulated;
 
         private int runIndex;
         private ISarifLocationTag tag;
@@ -61,8 +66,8 @@ namespace Microsoft.Sarif.Viewer
 
                 // We need to remap the original region to an ITextBuffer
                 // so reset these values to indicate that remapping should occur.
-                this.remapResult = null;
-                this.mappedRegion = null;
+                this.regionIsFullyPopulated = null;
+                this.fullyPopulatedRegion = null;
             }
         }
 
@@ -91,20 +96,11 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // If the tag doesn't have a persistent span, or it isn't open
+            // If the tag doesn't have a persistent span, or its associated document isn't open,
             // then this indicates that we need to attempt to open the document.
-            if (this.tag?.DocumentPersistentSpan.Span == null ||
-                !this.tag.DocumentPersistentSpan.IsDocumentOpen ||
-                this.tag.DocumentPersistentSpan.Span.TextBuffer == null)
+            if (!this.PersistentSpanValid())
             {
-                if (!File.Exists(this.FullFilePath))
-                {
-                    if (!CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(runIndex, this.UriBaseId, this.FullFilePath))
-                    {
-                        return false;
-                    }
-                }
-                else if (!this.TryMapRegion())
+                if (!this.TryToFullyPopulateRegion())
                 {
                     return false;
                 }
@@ -115,8 +111,8 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                // This step is super important is it will cause the document to get "tagged" before the next check
-                // to see if we have a tag.
+                // The window frame must be shown now (at this point) because we need tagging to occur,
+                // which happens as a result of the Show call, before the rest of this method executes.
                 vsWindowFrame.Show();
             }
 
@@ -132,17 +128,14 @@ namespace Microsoft.Sarif.Viewer
             // code must not navigate the selection or caret again if the
             // caret is already within the correct span, otherwise
             // the user cannot navigate the editor anymore.
-            if (this.tag?.DocumentPersistentSpan.Span != null &&
-                this.tag.DocumentPersistentSpan.IsDocumentOpen &&
-                this.tag.DocumentPersistentSpan.Span.TextBuffer != null)
+            if (this.PersistentSpanValid())
             {
-
                 if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.tag.DocumentPersistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
                 {
                     return false;
                 }
 
-                ITextSnapshot currentSnapshot = tag.DocumentPersistentSpan.Span.TextBuffer.CurrentSnapshot;
+                ITextSnapshot currentSnapshot = this.tag.DocumentPersistentSpan.Span.TextBuffer.CurrentSnapshot;
 
                 // Note that "GetSpan" is not really a great name. What is actually happening
                 // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
@@ -150,7 +143,7 @@ namespace Microsoft.Sarif.Viewer
                 // that we have and "replay" any edits that have occurred and return a new
                 // span. So, if the span is no longer relevant (lets say the text has been deleted)
                 // then you'll get back an empty span.
-                SnapshotSpan trackingSpanSnapshot = tag.DocumentPersistentSpan.Span.GetSpan(currentSnapshot);
+                SnapshotSpan trackingSpanSnapshot = this.tag.DocumentPersistentSpan.Span.GetSpan(currentSnapshot);
 
                 // If the caret is already in the text within the marker, don't re-select it
                 // otherwise users cannot move the caret in the region.
@@ -180,7 +173,7 @@ namespace Microsoft.Sarif.Viewer
         /// simply return here (before the fix this code threw an exception which terminated VS).
         /// </summary>
         /// <param name="highlightColor">Color</param>
-        public void AddHighlightMarker(string highlightColor)
+        public void AddTagHighlight(string highlightColor)
         {
             if (this.tag != null)
             {
@@ -191,7 +184,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Remove selection for tracking text
         /// </summary>
-        public void RemoveHighlightMarker()
+        public void RemoveTagHighlight()
         {
             if (this.tag != null)
             {
@@ -213,7 +206,7 @@ namespace Microsoft.Sarif.Viewer
                 return true;
             }
 
-            if (!this.TryMapRegion())
+            if (!this.TryToFullyPopulateRegion())
             {
                 return false;
             }
@@ -223,24 +216,17 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            tagger.TryGetTag(this.mappedRegion, this.runIndex, out ISarifLocationTag existingTag);
-
-            if (existingTag == null)
+            if (!tagger.TryGetTag(this.fullyPopulatedRegion, this.runIndex, out this.tag))
             {
-                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.mappedRegion, textBuffer, out TextSpan tagSpan))
+                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan tagSpan))
                 {
                     return false;
                 }
 
-                this.tag = tagger.AddTag(this.mappedRegion, tagSpan, this.runIndex, new TextMarkerTag(Color));
-            }
-            else
-            {
-                this.tag = existingTag;
+                this.tag = tagger.AddTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, new TextMarkerTag(Color));
             }
 
-
-            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.tag.DocumentPersistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
+            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(textBuffer, out IWpfTextView wpfTextView))
             {
                 return false;
             }
@@ -264,13 +250,13 @@ namespace Microsoft.Sarif.Viewer
         // When the VS Editor tag has the caret moved inside of it, let's just pass along the region selection.
         private void CaretEnteredTag(object sender, EventArgs e) => this.RaiseRegionSelected?.Invoke(this, e);
 
-        private bool TryMapRegion()
+        private bool TryToFullyPopulateRegion()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (this.remapResult.HasValue)
+            if (this.regionIsFullyPopulated.HasValue)
             {
-                return this.remapResult.Value;
+                return this.regionIsFullyPopulated.Value;
             }
 
             if (string.IsNullOrEmpty(this.FullFilePath))
@@ -284,7 +270,7 @@ namespace Microsoft.Sarif.Viewer
             if (!File.Exists(this.FullFilePath) && 
                 !CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(runIndex, this.UriBaseId, this.FullFilePath))
             {
-                this.remapResult = false; 
+                this.regionIsFullyPopulated = false; 
                 return false;
             }
 
@@ -293,11 +279,25 @@ namespace Microsoft.Sarif.Viewer
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runIndex].FileRegionsCache;
-                this.mappedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, true);
+                this.fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, true);
             }
 
-            this.remapResult = this.mappedRegion != null;
-            return this.remapResult.Value;
+            this.regionIsFullyPopulated = this.fullyPopulatedRegion != null;
+            return this.regionIsFullyPopulated.Value;
+        }
+
+        private bool PersistentSpanValid()
+        {
+            // Some notes here. "this.tag" can be null of the document hasn't been tagged yet.
+            // Furthermore, the persistent span can be null even if you have the tag if the document
+            // isn't open. The text buffer can also be null if the document isn't open.
+            // In theory, we could probably simply this to:
+            // this.tag?.DocumentPersistentSpan?.IsDocumentOpen != false;
+            // but this logic is used inside Visual Studio's code as well so leaving
+            // it like this for now.
+            return this.tag?.DocumentPersistentSpan?.Span != null &&
+                    this.tag.DocumentPersistentSpan.IsDocumentOpen &&
+                    this.tag.DocumentPersistentSpan.Span.TextBuffer != null;
         }
 
         private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, ITextBuffer textBuffer, out TextSpan textSpan)

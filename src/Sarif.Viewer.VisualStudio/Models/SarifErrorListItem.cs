@@ -329,7 +329,7 @@ namespace Microsoft.Sarif.Viewer
 
                 // If a new tab is selected, remove all the the markers for the
                 // previous tab.
-                RemoveMarkers();
+                RemoveTagHighlights();
 
                 // If a new tab is selected, reset the Properties window.
                 SarifViewerPackage.SarifToolWindow.ResetSelection();
@@ -401,18 +401,18 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        internal void RemoveMarkers()
+        internal void RemoveTagHighlights()
         {
-            LineMarker?.RemoveHighlightMarker();
+            LineMarker?.RemoveTagHighlight();
 
             foreach (LocationModel location in Locations)
             {
-                location.LineMarker?.RemoveHighlightMarker();
+                location.LineMarker?.RemoveTagHighlight();
             }
 
             foreach (LocationModel location in RelatedLocations)
             {
-                location.LineMarker?.RemoveHighlightMarker();
+                location.LineMarker?.RemoveTagHighlight();
             }
 
             foreach (CallTree callTree in CallTrees)
@@ -429,7 +429,7 @@ namespace Microsoft.Sarif.Viewer
                     CallTreeNode current = nodesToProcess.Pop();
                     try
                     {
-                        current.LineMarker?.RemoveHighlightMarker();
+                        current.LineMarker?.RemoveTagHighlight();
                     }
                     catch (ArgumentException)
                     {
@@ -449,7 +449,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (StackFrameModel stackFrame in stackCollection)
                 {
-                    stackFrame.LineMarker?.RemoveHighlightMarker();
+                    stackFrame.LineMarker?.RemoveTagHighlight();
                 }
             }
         }
@@ -507,7 +507,7 @@ namespace Microsoft.Sarif.Viewer
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.RemoveMarkers();
+            this.RemoveTagHighlights();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
             FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runId].FileRegionsCache;
@@ -595,9 +595,9 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Attaches to the document using the specified properties, which are also cached.
+        /// Adds tags (highlights) to the passed in text buffer (document).
         /// </summary>
-        internal bool TryAttachToDocument(ITextBuffer textBuffer)
+        internal bool TryTagDocument(ITextBuffer textBuffer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 

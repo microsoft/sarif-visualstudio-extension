@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer
                 if (!SarifViewerPackage.IsUnitTesting)
                 {
                     // Since we have a new set of Results in the Error List, clear all source code highlighting.
-                    CodeAnalysisResultManager.Instance.DetachFromAllDocuments();
+                    CodeAnalysisResultManager.Instance.RemoveTagHighlightsFromAllDocuments();
                 }
 
                 _sarifErrors = value;
