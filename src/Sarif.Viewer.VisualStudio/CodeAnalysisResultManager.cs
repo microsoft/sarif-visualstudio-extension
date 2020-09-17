@@ -13,9 +13,14 @@ using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer
@@ -589,13 +594,14 @@ namespace Microsoft.Sarif.Viewer
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            AttachToDocumentChanges(docCookie, pFrame);
+            TryTagDocument(docCookie, pFrame);
             return S_OK;
         }
 
         public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
         {
-            DetachFromDocumentChanges();
+            ThreadHelper.ThrowIfNotOnUIThread();
+            RemoveTagHighlights(docCookie);
             return S_OK;
         }
 
@@ -665,26 +671,56 @@ namespace Microsoft.Sarif.Viewer
             return commonSuffix;
         }
 
-        /// <summary>
-        /// Try to get document name for current document with <param name="docCookie" />
-        /// and invoke attach for each item in analysis results collection. 
-        /// </summary>
-        private void AttachToDocumentChanges(uint docCookie, IVsWindowFrame pFrame)
+        private void TryTagDocument(uint docCookie, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (RunIndexToRunDataCache == null)
+            {
+                return;
+            }
+
             string documentName = GetDocumentName(docCookie);
 
-            if (!string.IsNullOrEmpty(documentName))
+            if (string.IsNullOrEmpty(documentName))
             {
-                if (RunIndexToRunDataCache != null)
+                return;
+            }
+
+            IVsTextView vsTextView = VsShellUtilities.GetTextView(pFrame);
+            if (vsTextView == null)
+            {
+                return;
+            }
+
+            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
+            {
+                return;
+            }
+
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel == null)
+            {
+                return;
+            }
+
+            IVsEditorAdaptersFactoryService editorAdapterFactoryService = componentModel.GetService<IVsEditorAdaptersFactoryService>();
+            if (editorAdapterFactoryService == null)
+            {
+                return;
+            }
+
+            ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
+            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
+            {
+                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
+                    Value.
+                    SarifErrors.
+                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
-                    foreach (int key in RunIndexToRunDataCache.Keys)
-                    {
-                        foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
-                        {
-                            sarifError.TryAttachToDocument(documentName, (long)docCookie, pFrame);
-                        }
-                    }
+                    sarifError.TryTagDocument(textBuffer);
                 }
             }
         }
@@ -692,50 +728,59 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Invoke detach for each item in analysis results collection
         /// </summary>
-        private void DetachFromDocumentChanges()
+        private void RemoveTagHighlights(uint docCookie)
         {
-            if (RunIndexToRunDataCache != null)
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (RunIndexToRunDataCache == null)
             {
-                foreach (int key in RunIndexToRunDataCache.Keys)
+                return;
+            }
+
+            string documentName = GetDocumentName(docCookie);
+            if (string.IsNullOrEmpty(documentName))
+            {
+                return;
+            }
+
+            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
+            {
+                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
+                    Value.
+                    SarifErrors.
+                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
                 {
-                    foreach (SarifErrorListItem sarifError in RunIndexToRunDataCache[key].SarifErrors)
-                    {
-                        sarifError.DetachFromDocument();
-                    }
+                    sarifError.RemoveTagHighlights();
                 }
             }
         }
 
         // Detaches the SARIF results from all documents.
-        public void DetachFromAllDocuments()
+        public void RemoveTagHighlightsFromAllDocuments()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (_runningDocTable != null)
+            if (_runningDocTable == null)
             {
-                _runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator);
+                return;
+            }
 
-                if (documentsEnumerator != null)
-                {
-                    uint requestedCount = 1;
-                    uint[] cookies = new uint[requestedCount];
+            if (_runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator) != VSConstants.S_OK)
+            {
+                return;
+            }
 
-                    while (true)
-                    {
-                        documentsEnumerator.Next(requestedCount, cookies, out uint actualCount);
-                        if (actualCount == 0)
-                        {
-                            // There are no more documents to process.
-                            break;
-                        }
+            uint requestedCount = 1;
+            uint[] cookies = new uint[requestedCount];
 
-                        // Detach from document.
-                        DetachFromDocumentChanges();
-                    }
-                }
+            while (documentsEnumerator.Next(requestedCount, cookies, out uint actualCount) == VSConstants.S_OK)
+            {
+                RemoveTagHighlights(cookies[0]);
             }
         }
 
-        private string GetDocumentName(uint docCookie)
+        private static string GetDocumentName(uint docCookie)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             string documentName = null;
@@ -790,7 +835,7 @@ namespace Microsoft.Sarif.Viewer
             catch (IOException) { }
         }
 
-        // Expose the path prefix remappings to unit tests.
+        // Expose the path prefix remapping to unit tests.
         internal Tuple<string, string>[] GetRemappedPathPrefixes()
         {
             // Unit tests will only create one cache.

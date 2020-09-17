@@ -1,4 +1,7 @@
 # SARIF Viewer Visual Studio extension Release History
+## **v2.1.15** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Don't throw exceptions if text buffer has no file name, and properly highlight code analysis flows. [#193](https://github.com/microsoft/sarif-visualstudio-extension/issues/193)
+
 ## **v2.1.14** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Prevent event loops when navigating editor and selecting items in SARIF tool window. [#183](https://github.com/microsoft/sarif-visualstudio-extension/issues/185), [#183](https://github.com/microsoft/sarif-visualstudio-extension/issues/185)
 

@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -184,10 +184,10 @@ namespace Microsoft.Sarif.Viewer
         public void ApplyDefaultSourceFileHighlighting()
         {
             // Remove hover marker
-            LineMarker?.RemoveHighlightMarker();
+            LineMarker?.RemoveTagHighlight();
 
             // Add default marker instead
-            LineMarker?.AddHighlightMarker(DefaultSourceHighlightColor);
+            LineMarker?.AddTagHighlight(DefaultSourceHighlightColor);
         }
 
         /// <summary>
@@ -196,19 +196,19 @@ namespace Microsoft.Sarif.Viewer
         public void ApplySelectionSourceFileHighlighting()
         {
             // Remove previous highlighting and replace with hover color
-            LineMarker?.RemoveHighlightMarker();
-            LineMarker?.AddHighlightMarker(SelectedSourceHighlightColor);
+            LineMarker?.RemoveTagHighlight();
+            LineMarker?.AddTagHighlight(SelectedSourceHighlightColor);
         }
 
         /// <summary>
         /// An overridden method for reacting to the event of a document window
         /// being opened
         /// </summary>
-        internal void AttachToDocument(string documentName, long docCookie, IVsWindowFrame frame)
+        internal void AttachToDocument(ITextBuffer textBuffer)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            LineMarker?.TryTagDocument(documentName, frame);
+            LineMarker?.TryTagDocument(textBuffer);
         }
     }
 }

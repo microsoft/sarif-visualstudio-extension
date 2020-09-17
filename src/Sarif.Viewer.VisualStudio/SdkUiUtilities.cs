@@ -858,6 +858,40 @@ namespace Microsoft.Sarif.Viewer
             return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK;
         }
 
+        /// <summary>
+        /// Attempts to locate an active "code window" view for the given text buffer.
+        /// </summary>
+        /// <param name="textBuffer">The text buffer for which to locate a view.</param>
+        /// <param name="wpfTextView">On successful return, contains an instance of <see cref="IWpfTextView"/> that is being used to display the text buffer contents.</param>
+        /// <returns>Returns true if a view can be located.</returns>
+        public static bool TryGetActiveViewForTextBuffer(ITextBuffer textBuffer, out IWpfTextView wpfTextView)
+        {
+            wpfTextView = null;
+
+            if (!textBuffer.Properties.TryGetProperty(typeof(IVsTextBuffer), out IVsTextBuffer vsTextBuffer))
+            {
+                return false;
+            }
+
+            IVsTextManager2 textManager2 = Package.GetGlobalService(typeof(SVsTextManager)) as IVsTextManager2;
+            if (textManager2 == null)
+            {
+                return false;
+            }
+
+            if (textManager2.GetActiveView2(fMustHaveFocus: 0, pBuffer: vsTextBuffer, grfIncludeViewFrameType: (uint)_VIEWFRAMETYPE.vftCodeWindow, ppView: out IVsTextView vsTextView) != VSConstants.S_OK)
+            {
+                return false;
+            }
+
+            if (!SdkUIUtilities.TryGetWpfTextView(vsTextView, out wpfTextView))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
