@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenRegionHasStartLine_HasLineMarker()
         {
-            var item = new SarifErrorListItem
+            SarifErrorListItem item = new SarifErrorListItem
             {
                 FileName = "file.ext",
                 Region = new Region
@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenRegionHasNoStartLine_HasNoLineMarker()
         {
-            var item = new SarifErrorListItem
+            SarifErrorListItem item = new SarifErrorListItem
             {
                 FileName = "file.ext",
                 Region = new Region
@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenRegionIsAbsent_HasNoLineMarker()
         {
-            var item = new SarifErrorListItem
+            SarifErrorListItem item = new SarifErrorListItem
             {
                 FileName = "file.ext"
             };
@@ -70,7 +70,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
             };
 
-            var item = MakeErrorListItem(result);
+            SarifErrorListItem item = MakeErrorListItem(result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Tool = new Tool()
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -164,7 +164,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -206,7 +206,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Message.Should().Be("Hello, Mary!");
         }
@@ -245,7 +245,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(result);
+            SarifErrorListItem item = MakeErrorListItem(result);
 
             item.Fixes[0].ArtifactChanges[0].FilePath.Should().Be("path/to/file.html");
         }
@@ -275,7 +275,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Rule.Id.Should().Be("TST0001");
         }
@@ -302,7 +302,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Rule.Id.Should().Be("TST0001");
         }
@@ -334,7 +334,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -352,7 +352,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(result);
+            SarifErrorListItem item = MakeErrorListItem(result);
             item.Message.Should().Be($"{s1} {s2}");
             item.ShortMessage.Should().Be(s1);
         }
@@ -369,7 +369,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(result);
+            SarifErrorListItem item = MakeErrorListItem(result);
             item.Message.Should().Be(s1);
             item.ShortMessage.Should().Be(s1);
         }
@@ -387,7 +387,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             };
 
-            var item = MakeErrorListItem(result);
+            SarifErrorListItem item = MakeErrorListItem(result);
             item.HasEmbeddedLinks.Should().BeTrue();
         }
 
