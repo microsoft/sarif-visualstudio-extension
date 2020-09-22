@@ -3,14 +3,16 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using EnvDTE;
-using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
+    /// <summary>
+    /// Provides an interface through which other extensions can interact with the this extension,
+    /// in particular, to ask this extension to load a log file.
+    /// </summary>
     public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService, ILoadSarifLogService2
     {
         /// <inheritdoc/>

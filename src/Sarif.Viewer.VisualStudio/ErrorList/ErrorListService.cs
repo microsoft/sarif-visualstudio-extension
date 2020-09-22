@@ -268,17 +268,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 null;
         }
 
-        private static void SaveLogFile(string filePath, SarifLog log)
-        {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            SaveLogFile(filePath, JsonConvert.SerializeObject(log));
-        }
-
         private static void SaveLogFile(string filePath, string logText)
         {
             // For now this is being done on the UI thread
