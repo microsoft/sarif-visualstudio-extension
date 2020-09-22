@@ -391,9 +391,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.HasEmbeddedLinks.Should().BeTrue();
         }
 
+        // Run object used in tests that don't require a populated run object.
+        private static readonly Run EmptyRun = new Run();
+
         private static SarifErrorListItem MakeErrorListItem(Result result)
         {
-            return MakeErrorListItem(new Run(), result);
+            return MakeErrorListItem(EmptyRun, result);
         }
 
         private static SarifErrorListItem MakeErrorListItem(Run run, Result result)
