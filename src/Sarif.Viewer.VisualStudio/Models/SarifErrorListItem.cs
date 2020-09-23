@@ -64,7 +64,7 @@ namespace Microsoft.Sarif.Viewer
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
-            Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
+            Level = GetEffectiveLevel(result);
 
             if (result.Suppressions?.Count > 0)
             {
@@ -132,6 +132,32 @@ namespace Microsoft.Sarif.Viewer
                     Fixes.Add(fix.ToFixModel());
                 }
             }
+        }
+
+        private FailureLevel GetEffectiveLevel(Result result)
+        {
+            FailureLevel effectiveLevel;
+
+            switch (result.Kind)
+            {
+                case ResultKind.Review:
+                case ResultKind.Open:
+                    effectiveLevel = FailureLevel.Warning;
+                    break;
+
+                case ResultKind.NotApplicable:
+                case ResultKind.Informational:
+                    effectiveLevel = FailureLevel.Note;
+                    break;
+
+                case ResultKind.Fail:
+                case ResultKind.None:   // Should never happen.
+                default:                // Should never happen.
+                    effectiveLevel = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
+                    break;
+            }
+
+            return effectiveLevel;
         }
 
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()

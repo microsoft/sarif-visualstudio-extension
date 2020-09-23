@@ -391,6 +391,71 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.HasEmbeddedLinks.Should().BeTrue();
         }
 
+        [Fact]
+        public void SarifErrorListItem_TreatsInformationalResultAsNote()
+        {
+            var result = new Result
+            {
+                Kind = ResultKind.Informational,
+                Level = FailureLevel.None
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Level.Should().Be(FailureLevel.Note);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_TreatsNotApplicableResultAsNote()
+        {
+            var result = new Result
+            {
+                Kind = ResultKind.NotApplicable,
+                Level = FailureLevel.None
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Level.Should().Be(FailureLevel.Note);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_TreatsOpenResultAsWarning()
+        {
+            var result = new Result
+            {
+                Kind = ResultKind.Open,
+                Level = FailureLevel.None
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Level.Should().Be(FailureLevel.Warning);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_TreatsReviewResultAsWarning()
+        {
+            var result = new Result
+            {
+                Kind = ResultKind.Review,
+                Level = FailureLevel.None
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Level.Should().Be(FailureLevel.Warning);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_TreatsFailResultAccordingToLevel()
+        {
+            var result = new Result
+            {
+                Level = FailureLevel.Error,
+                Kind = ResultKind.Fail
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Level.Should().Be(FailureLevel.Error);
+        }
+
         // Run object used in tests that don't require a populated run object.
         private static readonly Run EmptyRun = new Run();
 
