@@ -147,6 +147,7 @@ namespace Microsoft.Sarif.Viewer
 
                 case ResultKind.NotApplicable:
                 case ResultKind.Informational:
+                case ResultKind.Pass:
                     effectiveLevel = FailureLevel.Note;
                     break;
 

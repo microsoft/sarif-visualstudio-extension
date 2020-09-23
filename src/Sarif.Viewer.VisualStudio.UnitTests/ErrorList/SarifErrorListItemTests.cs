@@ -418,6 +418,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifErrorListItem_TreatsPassResultAsNote()
+        {
+            var result = new Result
+            {
+                Kind = ResultKind.Pass,
+                Level = FailureLevel.None
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Level.Should().Be(FailureLevel.Note);
+        }
+
+        [Fact]
         public void SarifErrorListItem_TreatsOpenResultAsWarning()
         {
             var result = new Result
