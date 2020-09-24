@@ -61,6 +61,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Processoing of SARIF log {0} is complete..
+        /// </summary>
+        public static string CompletedProcessingLogFileFormat {
+            get {
+                return ResourceManager.GetString("CompletedProcessingLogFileFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Always allow downloads from &apos;{0}&apos;.
         /// </summary>
         public static string ConfirmDownloadDialog_CheckboxLabel {
@@ -185,6 +194,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string OpenLogFileFail_DilogMessage {
             get {
                 return ResourceManager.GetString("OpenLogFileFail_DilogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processing SARIF log {0}..
+        /// </summary>
+        public static string ProcessingLogFileFormat {
+            get {
+                return ResourceManager.GetString("ProcessingLogFileFormat", resourceCulture);
             }
         }
         

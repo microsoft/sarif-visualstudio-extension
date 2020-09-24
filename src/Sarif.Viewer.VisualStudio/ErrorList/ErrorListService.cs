@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using EnvDTE;
 using EnvDTE80;
@@ -24,6 +27,7 @@ using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TaskStatusCenter;
 using Newtonsoft.Json;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
@@ -34,139 +38,168 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
+            var taskStatusCenterService = (IVsTaskStatusCenterService)Package.GetGlobalService(typeof(SVsTaskStatusCenterService));
+            var taskProgressData = new TaskProgressData
+            {
+                CanBeCanceled = false,
+                ProgressText = null,
+            };
 
+            string fileName = Path.GetFileName(filePath);
+
+            var taskHandlerOptions = new TaskHandlerOptions
+            {
+                ActionsAfterCompletion = CompletionActions.None,
+                TaskSuccessMessage = string.Format(CultureInfo.CurrentCulture, Resources.CompletedProcessingLogFileFormat, fileName),
+                Title = string.Format(CultureInfo.CurrentCulture, Resources.ProcessingLogFileFormat, fileName),
+            };
+
+            ITaskHandler taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
+
+            taskHandler.RegisterTask(ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors));
+        }
+
+        public static async System.Threading.Tasks.Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
+        {
             SarifLog log = null;
-
-            string logText;
+            string logText = null;
             string outputPath = null;
             bool saveOutputFile = true;
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
-                logText = File.ReadAllText(filePath);
-
-                Match match = MatchVersionProperty(logText);
-                if (match.Success)
+                using (FileStream fileStream = File.OpenRead(filePath))
+                using (StreamReader logStreamReader = new StreamReader(fileStream))
                 {
-                    string inputVersion = match.Groups["version"].Value;
+                    logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                    if (inputVersion == SarifUtilities.V1_0_0)
+                    Match match = MatchVersionProperty(logText);
+                    if (match.Success)
                     {
-                        // They're opening a v1 log, so we need to transform it.
-                        // Ask if they'd like to save the v2 log.
-                        MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(Resources.TransformV1_DialogMessage) : MessageDialogCommand.No;
+                        string inputVersion = match.Groups["version"].Value;
 
-                        if (response == MessageDialogCommand.Cancel)
+                        if (inputVersion == SarifUtilities.V1_0_0)
                         {
-                            return;
-                        }
+                            // They're opening a v1 log, so we need to transform it.
+                            // Ask if they'd like to save the v2 log.
+                            MessageDialogCommand response = promptOnLogConversions ?
+                                await PromptToSaveProcessedLogAsync(Resources.TransformV1_DialogMessage).ConfigureAwait(continueOnCapturedContext: false) :
+                                MessageDialogCommand.No;
 
-                        JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
-                        {
-                            ContractResolver = SarifContractResolverVersionOne.Instance
-                        };
-
-                        SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
-                        var transformer = new SarifVersionOneToCurrentVisitor();
-                        transformer.VisitSarifLogVersionOne(v1Log);
-                        log = transformer.SarifLog;
-
-                        if (response == MessageDialogCommand.Yes)
-                        {
-                            // Prompt for a location to save the transformed log.
-                            outputPath = PromptForFileSaveLocation(Resources.SaveTransformedV1Log_DialogTitle, filePath);
-
-                            if (string.IsNullOrEmpty(outputPath))
+                            if (response == MessageDialogCommand.Cancel)
                             {
                                 return;
                             }
+
+                            JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
+                            {
+                                ContractResolver = SarifContractResolverVersionOne.Instance
+                            };
+
+                            SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
+                            var transformer = new SarifVersionOneToCurrentVisitor();
+                            transformer.VisitSarifLogVersionOne(v1Log);
+                            log = transformer.SarifLog;
+
+                            if (response == MessageDialogCommand.Yes)
+                            {
+                                // Prompt for a location to save the transformed log.
+                                outputPath = await PromptForFileSaveLocationAsync(Resources.SaveTransformedV1Log_DialogTitle, filePath).ConfigureAwait(continueOnCapturedContext: false);
+
+                                if (string.IsNullOrEmpty(outputPath))
+                                {
+                                    return;
+                                }
+                            }
+
+                            logText = JsonConvert.SerializeObject(log);
                         }
-
-                        logText = JsonConvert.SerializeObject(log);
-                    }
-                    else if (inputVersion != VersionConstants.StableSarifVersion)
-                    {
-                        // It's an older v2 version, so send it through the pre-release compat transformer.
-                        // Ask if they'd like to save the transformed log.
-                        MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)) : MessageDialogCommand.No;
-
-                        if (response == MessageDialogCommand.Cancel)
+                        else if (inputVersion != VersionConstants.StableSarifVersion)
                         {
-                            return;
-                        }
+                            // It's an older v2 version, so send it through the pre-release compat transformer.
+                            // Ask if they'd like to save the transformed log.
+                            MessageDialogCommand response = promptOnLogConversions ?
+                                await PromptToSaveProcessedLogAsync(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)).ConfigureAwait(continueOnCapturedContext: false) : 
+                                MessageDialogCommand.No;
 
-                        log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
-
-                        if (response == MessageDialogCommand.Yes)
-                        {
-                            // Prompt for a location to save the transformed log.
-                            outputPath = PromptForFileSaveLocation(Resources.SaveTransformedPrereleaseV2Log_DialogTitle, filePath);
-
-                            if (string.IsNullOrEmpty(outputPath))
+                            if (response == MessageDialogCommand.Cancel)
                             {
                                 return;
                             }
+
+                            log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
+
+                            if (response == MessageDialogCommand.Yes)
+                            {
+                                // Prompt for a location to save the transformed log.
+                                outputPath = await PromptForFileSaveLocationAsync(Resources.SaveTransformedPrereleaseV2Log_DialogTitle, filePath).ConfigureAwait(continueOnCapturedContext: false);
+
+                                if (string.IsNullOrEmpty(outputPath))
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Since we didn't do any pre-processing, we don't need to write to a temp location.
+                            outputPath = filePath;
+                            saveOutputFile = false;
                         }
                     }
                     else
                     {
-                        // Since we didn't do any pre-processing, we don't need to write to a temp location.
-                        outputPath = filePath;
-                        saveOutputFile = false;
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                        // The version property wasn't found within the first 100 characters.
+                        // Per the spec, it should appear first in the sarifLog object.
+                        VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
+                                                        Resources.VersionPropertyNotFound_DialogTitle,
+                                                        null, // title
+                                                        OLEMSGICON.OLEMSGICON_QUERY,
+                                                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                        return;
                     }
-                }
-                else
-                {
-                    // The version property wasn't found within the first 100 characters.
-                    // Per the spec, it should appear first in the sarifLog object.
-                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                                    Resources.VersionPropertyNotFound_DialogTitle,
-                                                    null, // title
-                                                    OLEMSGICON.OLEMSGICON_QUERY,
-                                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                    return;
                 }
             }
             else
             {
                 // They're opening a non-SARIF log, so we need to convert it.
                 // Ask if they'd like to save the converted log.
-                MessageDialogCommand response = promptOnLogConversions ? PromptToSaveProcessedLog(Resources.ConvertNonSarifLog_DialogMessage) : MessageDialogCommand.No;
+                MessageDialogCommand response = promptOnLogConversions ?
+                    await PromptToSaveProcessedLogAsync(Resources.ConvertNonSarifLog_DialogMessage).ConfigureAwait(continueOnCapturedContext: false) :
+                    MessageDialogCommand.No;
 
                 if (response == MessageDialogCommand.Cancel)
                 {
                     return;
                 }
 
-                var converter = new ToolFormatConverter();
-                var sb = new StringBuilder();
-
-                using (var input = new MemoryStream(File.ReadAllBytes(filePath)))
-                {
-                    var outputTextWriter = new StringWriter(sb);                
-                    var outputJson = new JsonTextWriter(outputTextWriter);
-                    var output = new ResultLogJsonWriter(outputJson);
-
-                    input.Seek(0, SeekOrigin.Begin);
-                    converter.ConvertToStandardFormat(toolFormat, input, output);
-
-                    // This is serving as a flush mechanism.
-                    output.Dispose();
-
-                    logText = sb.ToString();
-
-                    if (response == MessageDialogCommand.Yes)
+                // The converter doesn't have async methods, so spin
+                // up a task to do this.
+                await System.Threading.Tasks.Task.Run(() => {
+                    var sb = new StringBuilder();
+                    using (FileStream fileStream = File.OpenRead(filePath))
                     {
-                        // Prompt for a location to save the converted log.
-                        outputPath = PromptForFileSaveLocation(Resources.SaveConvertedLog_DialogTitle, filePath);
+                        using (var outputTextWriter = new StringWriter(sb))
+                        using (var outputJson = new JsonTextWriter(outputTextWriter))
+                        using (var output = new ResultLogJsonWriter(outputJson))
+                        {
+                            fileStream.Seek(0, SeekOrigin.Begin);
+                            var converter = new ToolFormatConverter();
+                            converter.ConvertToStandardFormat(toolFormat, fileStream, output);
+                        }
+
+                        logText = sb.ToString();
+
+                        if (response == MessageDialogCommand.Yes)
+                        {
+                            // Prompt for a location to save the converted log.
+                            outputPath = PromptForFileSaveLocationAsync(Resources.SaveConvertedLog_DialogTitle, filePath).Result;
+                        }
                     }
-                }
+                }).ConfigureAwait(continueOnCapturedContext: false);
             }
 
             if (string.IsNullOrEmpty(outputPath))
@@ -176,7 +209,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (saveOutputFile)
             {
-                SaveLogFile(outputPath, logText);
+                await SaveLogFileAsync(outputPath, logText).ConfigureAwait(continueOnCapturedContext: false);
             }
 
             if (log == null)
@@ -234,13 +267,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return Regex.Match(headSegment, VersionRegexPattern, RegexOptions.Compiled);
         }
 
-        private static MessageDialogCommand PromptToSaveProcessedLog(string dialogMessage)
+        private static async Task<MessageDialogCommand> PromptToSaveProcessedLogAsync(string dialogMessage)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             int result = VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                          dialogMessage,
@@ -251,8 +280,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return (MessageDialogCommand)Enum.Parse(typeof(MessageDialogCommand), result.ToString());
         }
 
-        private static string PromptForFileSaveLocation(string dialogTitle, string inputFilePath)
+        private static async Task<string> PromptForFileSaveLocationAsync(string dialogTitle, string inputFilePath)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             var saveFileDialog = new SaveFileDialog();
 
             saveFileDialog.Title = dialogTitle;
@@ -268,30 +299,25 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 null;
         }
 
-        private static void SaveLogFile(string filePath, SarifLog log)
+        private static System.Threading.Tasks.Task SaveLogFileAsync(string filePath, SarifLog log)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            SaveLogFile(filePath, JsonConvert.SerializeObject(log));
+            return System.Threading.Tasks.Task.Run(() =>
+            {
+                string logText = JsonConvert.SerializeObject(log);
+                return SaveLogFileAsync(filePath, logText);
+            });
         }
 
-        private static void SaveLogFile(string filePath, string logText)
+        private static async System.Threading.Tasks.Task SaveLogFileAsync(string filePath, string logText)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             string error = null;
 
             try
             {
-                File.WriteAllText(filePath, logText);
+                using (StreamWriter streamWriter= File.CreateText(filePath))
+                {
+                    await streamWriter.WriteAsync(logText).ConfigureAwait(continueOnCapturedContext: false);
+                }
             }
             catch (UnauthorizedAccessException)
             {
@@ -308,6 +334,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (error != null)
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                 error,
                                                 null, // title

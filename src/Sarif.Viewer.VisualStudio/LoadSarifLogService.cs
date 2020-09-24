@@ -16,12 +16,6 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
@@ -33,36 +27,18 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             this.LoadSarifLogs(paths, promptOnSchemaUpgrade: false);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             foreach (string path in paths.Where((path) => !string.IsNullOrEmpty(path)))
             {
                 // We should not clean errors here, if the user wants to clear errors, they can call the close log service (ICloseSarifLogService::CloseAllSarifLogs)

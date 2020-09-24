@@ -126,13 +126,11 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
-        private void MenuItemCallback(object sender, EventArgs e)
+#pragma warning disable VSTHRD100 // Avoid async void methods => This is an async void event handler
+        private async void MenuItemCallback(object sender, EventArgs e)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             OleMenuCommand menuCommand = (OleMenuCommand)sender;
             OleMenuCmdEventArgs menuCmdEventArgs = (OleMenuCmdEventArgs)e;
@@ -285,10 +283,11 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                ErrorListService.ProcessLogFile(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true);
+                await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true).ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (InvalidOperationException)
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                 string.Format(Resources.LogOpenFail_InvalidFormat_DialogMessage, Path.GetFileName(logFile)),
                                                 null, // title
