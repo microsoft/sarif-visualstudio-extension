@@ -339,9 +339,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.
-            // However the current implementation of the "run data cache"
-            // is not thread safe.
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            // The object model (which is eventually handed to WPF\XAML) could also
+            // be constructed on any thread as well.
+            // However the current implementation of the data model and
+            // the "run data cache" have not been augmented to support this
+            // and are not thread safe.
+            // This work could be done in the future to do even less work on the UI
+            // thread if needed.
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            }
 
             // Clear previous data
             if (cleanErrors)
@@ -391,10 +399,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifLocationTagger.RemoveAllTags();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
             CodeAnalysisResultManager.Instance.CurrentRunIndex = -1;
-        }
-
-        private ErrorListService()
-        {
         }
 
         private int WriteRunToErrorList(Run run, string logFilePath)

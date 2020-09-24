@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             InitializeTestEnvironment();
             CodeAnalysisResultManager.Instance.CurrentRunIndex = 0;
 
-            ErrorListService.ProcessSarifLogAsync(sarifLog, "", showMessageOnNoResults: true, cleanErrors: true).RunSynchronously();
+            ErrorListService.ProcessSarifLogAsync(sarifLog, "", showMessageOnNoResults: true, cleanErrors: true).GetAwaiter().GetResult();
         }
     }
 }
