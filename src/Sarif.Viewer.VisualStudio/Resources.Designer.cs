@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Processoing of SARIF log {0} is complete..
+        ///   Looks up a localized string similar to Done processing SARIF log &apos;{0}&apos; is complete..
         /// </summary>
         public static string CompletedProcessingLogFileFormat {
             get {
@@ -198,7 +198,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Processing SARIF log {0}..
+        ///   Looks up a localized string similar to Processing SARIF log &apos;{0}&apos;….
         /// </summary>
         public static string ProcessingLogFileFormat {
             get {
@@ -207,7 +207,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Processing SARIF logs..
+        ///   Looks up a localized string similar to Processing SARIF logs….
         /// </summary>
         public static string ProcessLogFiles {
             get {
@@ -216,7 +216,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Processing SARIF logs completed..
+        ///   Looks up a localized string similar to Completed processing SARIF logs..
         /// </summary>
         public static string ProcessLogFilesComplete {
             get {

@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CompletedProcessingLogFileFormat" xml:space="preserve">
-    <value>Processoing of SARIF log {0} is complete.</value>
+    <value>Done processing SARIF log '{0}' is complete.</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
   <data name="ConfirmDownloadDialog_CheckboxLabel" xml:space="preserve">
@@ -170,15 +170,15 @@
     <comment>{0} will be the full file path</comment>
   </data>
   <data name="ProcessingLogFileFormat" xml:space="preserve">
-    <value>Processing SARIF log {0}.</value>
+    <value>Processing SARIF log '{0}'&#x2026;</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
   <data name="ProcessLogFiles" xml:space="preserve">
-    <value>Processing SARIF logs.</value>
+    <value>Processing SARIF logs&#x2026;</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
   <data name="ProcessLogFilesComplete" xml:space="preserve">
-    <value>Processing SARIF logs completed.</value>
+    <value>Completed processing SARIF logs.</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
   <data name="ReturnMessage" xml:space="preserve">
