@@ -173,6 +173,14 @@
     <value>Processing SARIF log {0}.</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
+  <data name="ProcessLogFiles" xml:space="preserve">
+    <value>Processing SARIF logs.</value>
+    <comment>Used to display processing log file information in VS's task center UI.</comment>
+  </data>
+  <data name="ProcessLogFilesComplete" xml:space="preserve">
+    <value>Processing SARIF logs completed.</value>
+    <comment>Used to display processing log file information in VS's task center UI.</comment>
+  </data>
   <data name="ReturnMessage" xml:space="preserve">
     <value>Return</value>
     <comment>Displayed on a call tree "CallReturn" node</comment>

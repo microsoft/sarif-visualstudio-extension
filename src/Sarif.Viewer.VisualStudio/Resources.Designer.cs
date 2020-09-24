@@ -207,6 +207,24 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Processing SARIF logs..
+        /// </summary>
+        public static string ProcessLogFiles {
+            get {
+                return ResourceManager.GetString("ProcessLogFiles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processing SARIF logs completed..
+        /// </summary>
+        public static string ProcessLogFilesComplete {
+            get {
+                return ResourceManager.GetString("ProcessLogFilesComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Return.
         /// </summary>
         public static string ReturnMessage {

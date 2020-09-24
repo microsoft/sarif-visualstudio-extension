@@ -217,8 +217,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            ProcessSarifLog(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors);
+            await ProcessSarifLogAsync(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors).ConfigureAwait(continueOnCapturedContext: false);
 
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             if (AsyncPackage.GetGlobalService(typeof(DTE)) is DTE2 dte)
             {
                 dte.ExecuteCommand("View.ErrorList");
@@ -299,15 +300,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 null;
         }
 
-        private static System.Threading.Tasks.Task SaveLogFileAsync(string filePath, SarifLog log)
-        {
-            return System.Threading.Tasks.Task.Run(() =>
-            {
-                string logText = JsonConvert.SerializeObject(log);
-                return SaveLogFileAsync(filePath, logText);
-            });
-        }
-
         private static async System.Threading.Tasks.Task SaveLogFileAsync(string filePath, string logText)
         {
             string error = null;
@@ -344,8 +336,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static void ProcessSarifLog(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors)
+        internal static async System.Threading.Tasks.Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors)
         {
+            // The creation of the data models must be done on the UI thread (for now).
+            // VS's table data source constructs are indeed thread safe.
+            // However the current implementation of the "run data cache"
+            // is not thread safe.
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             // Clear previous data
             if (cleanErrors)
             {
@@ -378,16 +376,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (!hasResults && showMessageOnNoResults)
             {
-               ThreadHelper.JoinableTaskFactory.RunAsync(async ()  =>
-               {
-                   await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                   VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                                   string.Format(Resources.NoResults_DialogMessage, logFilePath),
-                                                   null, // title
-                                                   OLEMSGICON.OLEMSGICON_INFO,
-                                                   OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                   OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-               });
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
+                                                string.Format(Resources.NoResults_DialogMessage, logFilePath),
+                                                null, // title
+                                                OLEMSGICON.OLEMSGICON_INFO,
+                                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
             }
         }
 
