@@ -126,16 +126,19 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
-#pragma warning disable VSTHRD100 // Avoid async void methods => This is an async void event handler
-        private async void MenuItemCallback(object sender, EventArgs e)
-#pragma warning restore VSTHRD100 // Avoid async void methods
+        private void MenuItemCallback(object sender, EventArgs e)
+        {
+            this.MenuItemCallbackAsync(sender, e).FileAndForget("SARIF Viewer open log file menu callback failed.");
+        }
+
+        private async System.Threading.Tasks.Task MenuItemCallbackAsync(object sender, EventArgs e)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             OleMenuCommand menuCommand = (OleMenuCommand)sender;
             OleMenuCmdEventArgs menuCmdEventArgs = (OleMenuCmdEventArgs)e;
 
-            string inputFile = menuCmdEventArgs.InValue as String;
+            string inputFile = menuCmdEventArgs.InValue as string;
             string logFile = null;
 
             if (!String.IsNullOrWhiteSpace(inputFile))
