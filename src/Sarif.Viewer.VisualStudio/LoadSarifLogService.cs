@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using EnvDTE;
-using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
@@ -30,6 +28,11 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
             ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
         }
 
