@@ -71,95 +71,95 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 using (StreamReader logStreamReader = new StreamReader(fileStream))
                 {
                     logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
+                }
 
-                    Match match = MatchVersionProperty(logText);
-                    if (match.Success)
+                Match match = MatchVersionProperty(logText);
+                if (match.Success)
+                {
+                    string inputVersion = match.Groups["version"].Value;
+
+                    if (inputVersion == SarifUtilities.V1_0_0)
                     {
-                        string inputVersion = match.Groups["version"].Value;
+                        // They're opening a v1 log, so we need to transform it.
+                        // Ask if they'd like to save the v2 log.
+                        MessageDialogCommand response = promptOnLogConversions ?
+                            await PromptToSaveProcessedLogAsync(Resources.TransformV1_DialogMessage).ConfigureAwait(continueOnCapturedContext: false) :
+                            MessageDialogCommand.No;
 
-                        if (inputVersion == SarifUtilities.V1_0_0)
+                        if (response == MessageDialogCommand.Cancel)
                         {
-                            // They're opening a v1 log, so we need to transform it.
-                            // Ask if they'd like to save the v2 log.
-                            MessageDialogCommand response = promptOnLogConversions ?
-                                await PromptToSaveProcessedLogAsync(Resources.TransformV1_DialogMessage).ConfigureAwait(continueOnCapturedContext: false) :
-                                MessageDialogCommand.No;
+                            return;
+                        }
 
-                            if (response == MessageDialogCommand.Cancel)
+                        JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
+                        {
+                            ContractResolver = SarifContractResolverVersionOne.Instance
+                        };
+
+                        SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
+                        var transformer = new SarifVersionOneToCurrentVisitor();
+                        transformer.VisitSarifLogVersionOne(v1Log);
+                        log = transformer.SarifLog;
+
+                        if (response == MessageDialogCommand.Yes)
+                        {
+                            // Prompt for a location to save the transformed log.
+                            outputPath = await PromptForFileSaveLocationAsync(Resources.SaveTransformedV1Log_DialogTitle, filePath).ConfigureAwait(continueOnCapturedContext: false);
+
+                            if (string.IsNullOrEmpty(outputPath))
                             {
                                 return;
                             }
-
-                            JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
-                            {
-                                ContractResolver = SarifContractResolverVersionOne.Instance
-                            };
-
-                            SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
-                            var transformer = new SarifVersionOneToCurrentVisitor();
-                            transformer.VisitSarifLogVersionOne(v1Log);
-                            log = transformer.SarifLog;
-
-                            if (response == MessageDialogCommand.Yes)
-                            {
-                                // Prompt for a location to save the transformed log.
-                                outputPath = await PromptForFileSaveLocationAsync(Resources.SaveTransformedV1Log_DialogTitle, filePath).ConfigureAwait(continueOnCapturedContext: false);
-
-                                if (string.IsNullOrEmpty(outputPath))
-                                {
-                                    return;
-                                }
-                            }
-
-                            logText = JsonConvert.SerializeObject(log);
                         }
-                        else if (inputVersion != VersionConstants.StableSarifVersion)
-                        {
-                            // It's an older v2 version, so send it through the pre-release compat transformer.
-                            // Ask if they'd like to save the transformed log.
-                            MessageDialogCommand response = promptOnLogConversions ?
-                                await PromptToSaveProcessedLogAsync(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)).ConfigureAwait(continueOnCapturedContext: false) : 
-                                MessageDialogCommand.No;
 
-                            if (response == MessageDialogCommand.Cancel)
+                        logText = JsonConvert.SerializeObject(log);
+                    }
+                    else if (inputVersion != VersionConstants.StableSarifVersion)
+                    {
+                        // It's an older v2 version, so send it through the pre-release compat transformer.
+                        // Ask if they'd like to save the transformed log.
+                        MessageDialogCommand response = promptOnLogConversions ?
+                            await PromptToSaveProcessedLogAsync(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)).ConfigureAwait(continueOnCapturedContext: false) : 
+                            MessageDialogCommand.No;
+
+                        if (response == MessageDialogCommand.Cancel)
+                        {
+                            return;
+                        }
+
+                        log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
+
+                        if (response == MessageDialogCommand.Yes)
+                        {
+                            // Prompt for a location to save the transformed log.
+                            outputPath = await PromptForFileSaveLocationAsync(Resources.SaveTransformedPrereleaseV2Log_DialogTitle, filePath).ConfigureAwait(continueOnCapturedContext: false);
+
+                            if (string.IsNullOrEmpty(outputPath))
                             {
                                 return;
                             }
-
-                            log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
-
-                            if (response == MessageDialogCommand.Yes)
-                            {
-                                // Prompt for a location to save the transformed log.
-                                outputPath = await PromptForFileSaveLocationAsync(Resources.SaveTransformedPrereleaseV2Log_DialogTitle, filePath).ConfigureAwait(continueOnCapturedContext: false);
-
-                                if (string.IsNullOrEmpty(outputPath))
-                                {
-                                    return;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Since we didn't do any pre-processing, we don't need to write to a temp location.
-                            outputPath = filePath;
-                            saveOutputFile = false;
                         }
                     }
                     else
                     {
-                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                        // The version property wasn't found within the first 100 characters.
-                        // Per the spec, it should appear first in the sarifLog object.
-                        VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                                        Resources.VersionPropertyNotFound_DialogTitle,
-                                                        null, // title
-                                                        OLEMSGICON.OLEMSGICON_QUERY,
-                                                        OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                        OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                        return;
+                        // Since we didn't do any pre-processing, we don't need to write to a temp location.
+                        outputPath = filePath;
+                        saveOutputFile = false;
                     }
+                }
+                else
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                    // The version property wasn't found within the first 100 characters.
+                    // Per the spec, it should appear first in the sarifLog object.
+                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
+                                                    Resources.VersionPropertyNotFound_DialogTitle,
+                                                    null, // title
+                                                    OLEMSGICON.OLEMSGICON_QUERY,
+                                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    return;
                 }
             }
             else
@@ -185,7 +185,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         using (var outputJson = new JsonTextWriter(outputTextWriter))
                         using (var output = new ResultLogJsonWriter(outputJson))
                         {
-                            fileStream.Seek(0, SeekOrigin.Begin);
                             var converter = new ToolFormatConverter();
                             converter.ConvertToStandardFormat(toolFormat, fileStream, output);
                         }

@@ -50,7 +50,7 @@ namespace Microsoft.Sarif.Viewer
 
         private async System.Threading.Tasks.Task LoadSarifLogAsync(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            List<string> validPaths = paths.Where((path) => !string.IsNullOrEmpty(path)).ToList();
+            List<string> validPaths = paths.Where(path => !string.IsNullOrEmpty(path)).ToList();
             if (validPaths.Count == 0)
             {
                 return;
@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer
                     taskHandler.Progress.Report(new TaskProgressData
                     {
                         PercentComplete = (validPathIndex + 1 ) * 100 / validPaths.Count,
-                    }); ;
+                    });
                 }
             }
             finally

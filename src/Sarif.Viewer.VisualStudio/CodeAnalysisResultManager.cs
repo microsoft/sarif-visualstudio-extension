@@ -98,6 +98,14 @@ namespace Microsoft.Sarif.Viewer
         internal void Register()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            // Register this object to listen for IVsUpdateSolutionEvents
+            IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
+            if (buildManager == null)
+            {
+                throw Marshal.GetExceptionForHR(E_FAIL);
+            }
+            buildManager.AdviseUpdateSolutionEvents(this, out m_updateSolutionEventsCookie);
+
             // Register this object to listen for IVsSolutionEvents
             IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
             if (solution == null)
