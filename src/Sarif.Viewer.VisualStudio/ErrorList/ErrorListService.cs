@@ -67,8 +67,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
-                using (FileStream fileStream = File.OpenRead(filePath))
-                using (StreamReader logStreamReader = new StreamReader(fileStream))
+                using (StreamReader logStreamReader = new StreamReader(filePath, Encoding.UTF8))
                 {
                     logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
                 }
