@@ -1,4 +1,7 @@
 # SARIF Viewer Visual Studio extension Release History
+## **v2.1.16** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Offload file reading and parsing from Visual Studio's UI thread. [#160](https://github.com/microsoft/sarif-visualstudio-extension/issues/160)
+
 ## **v2.1.15** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Don't throw exceptions if text buffer has no file name, and properly highlight code analysis flows. [#193](https://github.com/microsoft/sarif-visualstudio-extension/issues/193)
 
