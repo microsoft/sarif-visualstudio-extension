@@ -303,7 +303,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             try
             {
-                using (StreamWriter streamWriter= File.CreateText(filePath))
+                using (StreamWriter streamWriter = File.CreateText(filePath))
                 {
                     await streamWriter.WriteAsync(logText).ConfigureAwait(continueOnCapturedContext: false);
                 }
