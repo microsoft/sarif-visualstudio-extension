@@ -282,12 +282,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var saveFileDialog = new SaveFileDialog();
-
-            saveFileDialog.Title = dialogTitle;
-            saveFileDialog.Filter = Resources.SaveDialogFileFilter;
-            saveFileDialog.RestoreDirectory = true;
-            saveFileDialog.InitialDirectory = Path.GetDirectoryName(inputFilePath);
+            var saveFileDialog = new SaveFileDialog
+            {
+                Title = dialogTitle,
+                Filter = Resources.SaveDialogFileFilter,
+                RestoreDirectory = true,
+                InitialDirectory = Path.GetDirectoryName(inputFilePath)
+            };
 
             inputFilePath = Path.GetFileNameWithoutExtension(inputFilePath) + ".v2.sarif";
             saveFileDialog.FileName = Path.GetFileName(inputFilePath);
