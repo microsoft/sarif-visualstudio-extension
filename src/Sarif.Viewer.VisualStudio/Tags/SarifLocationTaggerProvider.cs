@@ -22,10 +22,9 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// </remarks>
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(TextMarkerTag))]
-    [Export(typeof(ITextViewCreationListener))]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
-    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ITextViewCreationListener
+    internal class SarifLocationTaggerProvider : IViewTaggerProvider
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -35,7 +34,11 @@ namespace Microsoft.Sarif.Viewer.Tags
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
+        /// <summary>
+        /// Note that Visual Studio's tagger aggregation expects and correctly handles null
+        /// if a tagger provider does not want to provide tags
+        /// </summary>
+        public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer textBuffer) where T : ITag
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -44,52 +47,33 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentNullException(nameof(textView));
             }
 
-            if (buffer == null)
+            if (textBuffer == null)
             {
-                throw new ArgumentNullException(nameof(buffer));
+                throw new ArgumentNullException(nameof(textBuffer));
             }
 
-            // Note that Visual Studio's tagger aggregation expects and correctly handles null
-            // if a tagger provider does not want to provide tags.
-            if (TryCreateSarifLocationTaggerInternal(buffer, out SarifLocationTagger tagger))
+            // If for some reason the text buffer doesn't belong to the text view, then skip this.
+            if (textView.TextBuffer != textBuffer)
             {
-                return tagger as ITagger<T>;
+                return null;
             }
-
-            return null;
-        }
-
-        /// <inheritdoc/>
-        public void TextViewCreated(ITextView textView)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (TryCreateSarifLocationTaggerInternal(textView.TextBuffer, out SarifLocationTagger tagger))
-            {
-                tagger.TextViewCreated(textView);
-            }
-        }
-
-        private bool TryCreateSarifLocationTaggerInternal(ITextBuffer textBuffer, out SarifLocationTagger sarifLocationTagger)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            sarifLocationTagger = null;
 
             // The SARIF viewer needs a text buffer to have a file name in order to be able to associate a SARIF
             // result location with the file. Visual Studio allows text buffers to be created at any time with our without a filename.
             // So, if there is no file name, then do not create a tagger for this buffer.
             if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textBuffer, out _))
             {
-                return false;
+                return null;
             }
 
-            sarifLocationTagger = textBuffer.Properties.GetOrCreateSingletonProperty(delegate
-            {
-                return new SarifLocationTagger(textBuffer, this.PersistentSpanFactory);
-            });
+            SarifLocationTagger tagger = new SarifLocationTagger(textView, textBuffer, this.PersistentSpanFactory);
 
-            return sarifLocationTagger != null;
+            // Text view creation comes before the ask to create a tagger.
+            // So at the time we are asked for a tagger for this view and buffer
+            // we likely have no running taggers.
+            tagger.TextViewCreated(textView);
+
+            return tagger as ITagger<T>;
         }
     }
 }

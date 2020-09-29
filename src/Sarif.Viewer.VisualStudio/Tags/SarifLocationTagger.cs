@@ -20,8 +20,10 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// Handles adding, removing, and tagging SARIF locations in a text buffer for Visual Studio integration.
     /// </summary>
     /// <remarks>
-    /// The SARIF location tagger is created per instance of a Visual Studio <see cref="ITextBuffer"/>. The tagger is disposed
-    /// when the text buffer is no longer needed.
+    /// The SARIF location tagger is created per instance of a Visual Studio <see cref="ITextView"/>. The tagger is disposed
+    /// when the text view is no longer used. However the underlying "tags" are associated with a text buffer
+    /// which can outlast an <see cref="ITextView"/>. For instance, a split window view on the same document.
+    /// That results in 2 <see cref="ITextView"/> instances against 1 underlying <see cref="ITextBuffer"/>.
     /// There are static dictionaries in this class that instances use to retrieve
     /// existing tag information to present back to Visual Studio. As an example, if file "foo.c" is opened a text buffer
     /// is created, and an instance of this class is created and tags may be added. If file "foo.c" is then closed, this instance
@@ -31,13 +33,13 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// 
     /// A note about Visual Studio's <see cref="ITrackingSpan.GetSpan(ITextSnapshot)"/> method:
     /// "GetSpan" is not really a great name. What is actually happening
-    // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
-    // text snapshot. In essence what this means is take the "persistent span"
-    // that we have and "replay" any edits that have occurred and return a new
-    // span. So, if the span is no longer relevant (lets say the text has been deleted)
-    // then you'll get back an empty span.
+    /// is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
+    /// text snapshot. In essence what this means is take the "persistent span"
+    /// that we have and "replay" any edits that have occurred and return a new
+    /// span. So, if the span is no longer relevant (lets say the text has been deleted)
+    /// then you'll get back an empty span.
     /// </remarks>
-    internal class SarifLocationTagger : ITagger<TextMarkerTag>, ISarifLocationTagger, ITextViewCreationListener, IDisposable
+    internal class SarifLocationTagger : ITagger<TextMarkerTag>, ISarifLocationTagger, IDisposable
     {
         /// <summary>
         /// Protects access to the <see cref="SourceCodeFileToSarifTags"/> and <see cref="RunIdToSarifTags"/> dictionaries.
@@ -87,7 +89,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         private int batchUpdateNestingLevel;
 
-        private readonly ITextBuffer textBuffer;
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly string filePath;
         
@@ -106,9 +107,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Create an instance of the <see cref="SarifLocationTagger"/>.
         /// </summary>
+        /// <param name="textView">The text view that is displaying the provided <paramref name="textBuffer"/>.</param>
         /// <param name="textBuffer">The Visual Studio text buffer that the tagger will be associated with.</param>
         /// <param name="persistentSpanFactory">The persistent span factory that will be used to create individual tags.</param>
-        public SarifLocationTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        public SarifLocationTagger(ITextView textView, ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textBuffer, out this.filePath))
@@ -116,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            this.textBuffer = textBuffer;
+            this.TextBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
 
             // Subscribe to property changed event on any existing tags.
@@ -144,10 +146,37 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 SarifTaggers.Add(this);
             }
+
+            new TextViewCaretListener(textView, this.sarifTags);
         }
 
         /// <inheritdoc/>
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+
+        /// <summary>
+        /// Gets the text buffer associated with this tagger.
+        /// </summary>
+        public ITextBuffer TextBuffer { get; }
+
+        /// <summary>
+        /// Tries to find a location tagger associated with the given <see cref="ITextBuffer"/>.
+        /// </summary>
+        /// <remarks>
+        /// There could be multiple taggers active for one text buffer since they are created per <see cref="ITextView"/>
+        /// and multiple views can be displaying the same <see cref="ITextBuffer"/>. That is why this
+        /// implementation can return any tagger.</remarks>
+        /// <param name="textBuffer">The text buffer that will be used to locate an instance of <see cref="SarifLocationTagger"/>.</param>
+        /// <param name="sarifLocationTagger">On success, returns the instance of <see cref="SarifLocationTagger"/> associated with the specified <paramref name="textBuffer"/>.</param>
+        /// <returns>Returns true if an instance of <see cref="SarifLocationTagger"/> can be found.</returns>
+        public static bool TryFindTaggerForBuffer(ITextBuffer textBuffer, out SarifLocationTagger sarifLocationTagger)
+        {
+            using (SarifTaggersLock.EnterReadLock())
+            {
+                sarifLocationTagger = SarifTaggers.FirstOrDefault(sarifTagger => sarifTagger.TextBuffer == textBuffer);
+            }
+
+            return sarifLocationTagger != null;
+        }
 
         /// <summary>
         /// Removes tags for a given SARIF run index.
@@ -214,21 +243,16 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         public static void DisposeStaticObjects()
         {
-            List<SarifLocationTag> tagsToDispose = new List<SarifLocationTag>();
-
-            using (TagListLock.EnterWriteLock())
+            List<SarifLocationTagger> taggersToDispose;
+            using (SarifTaggersLock.EnterWriteLock())
             {
-                // There is no need to collect the tags from the run Id to SARIF tag dictionary as the
-                // objects exist in both dictionaries and only need to be disposed once.
-                tagsToDispose.AddRange(SourceCodeFileToSarifTags.Values.SelectMany(sarifTags => sarifTags));
-
-                SourceCodeFileToSarifTags.Clear();
-                RunIdToSarifTags.Clear();
+                taggersToDispose = new List<SarifLocationTagger>(SarifTaggers);
+                SarifTaggers.Clear();
             }
 
-            foreach (SarifLocationTag sarifLocationTag in tagsToDispose)
+            foreach (SarifLocationTagger sarifLocationTagger in taggersToDispose)
             {
-                sarifLocationTag.Dispose();
+                sarifLocationTagger.Dispose();
             }
 
             // Note that the lock wrapper implementation does not support IDispose
@@ -258,7 +282,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
 
                     IPersistentSpan persistentSpan = this.persistentSpanFactory.Create(
-                        this.textBuffer.CurrentSnapshot,
+                        this.TextBuffer.CurrentSnapshot,
                         startLine: documentSpan.iStartLine,
                         startIndex: documentSpan.iStartIndex,
                         endLine: documentSpan.iEndLine,
@@ -319,6 +343,8 @@ namespace Microsoft.Sarif.Viewer.Tags
                 {
                     if (this.sarifTags.Remove(sarifTag))
                     {
+                        sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
+
                         this.UpdateBatchSpan(sarifTag.DocumentPersistentSpan.Span);
 
                         // We do not need TryGetValue here because if it exists in the SARIF tags list
@@ -326,7 +352,6 @@ namespace Microsoft.Sarif.Viewer.Tags
                         // are out of sync which should never happen and is bad.
                         RunIdToSarifTags[sarifTag.RunIndex].Remove(sarifTag);
 
-                        sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
                         sarifTag.Dispose();
                     }
                 }
@@ -413,15 +438,15 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (disposing)
             {
+                // Important note that we do not dispose or clear
+                // the SARIF tag list as that would destroy the whole purpose of using
+                // "persistent spans" which survive open and close of a document within
+                // a VS session.
                 using (TagListLock.EnterReadLock())
                 {
-                    // Important note that we do not dispose or clear
-                    // the SARIF tag list as that would destroy the whole purpose of using
-                    // "persistent spans" which survive open and close of a document within
-                    // a VS session.
-                    foreach (var sarifTag in this.sarifTags)
+                    foreach (SarifLocationTag sarifLocationTag in this.sarifTags)
                     {
-                        sarifTag.PropertyChanged -= this.SarifTagPropertyChanged;
+                        sarifLocationTag.PropertyChanged -= this.SarifTagPropertyChanged;
                     }
                 }
 
@@ -464,7 +489,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return;
                 }
 
-                ITextSnapshot snapshot = this.textBuffer.CurrentSnapshot;
+                ITextSnapshot snapshot = this.TextBuffer.CurrentSnapshot;
 
                 SnapshotSpan batchSpan = this.batchUpdateSpan.GetSpan(snapshot);
                 SnapshotSpan updateSpan = snapshotSpan.GetSpan(snapshot);
@@ -530,7 +555,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                 if (tagsChangedSpan != null)
                 {
-                    this.tagger.TagsChanged?.Invoke(this.tagger, new SnapshotSpanEventArgs(tagsChangedSpan.GetSpan(this.tagger.textBuffer.CurrentSnapshot)));
+                    this.tagger.TagsChanged?.Invoke(this.tagger, new SnapshotSpanEventArgs(tagsChangedSpan.GetSpan(this.tagger.TextBuffer.CurrentSnapshot)));
                 }
             }
         }

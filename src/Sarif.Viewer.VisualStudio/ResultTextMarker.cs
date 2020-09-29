@@ -211,7 +211,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (!textBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out ISarifLocationTagger tagger))
+            if (!SarifLocationTagger.TryFindTaggerForBuffer(textBuffer, out SarifLocationTagger tagger))
             {
                 return false;
             }

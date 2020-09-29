@@ -597,7 +597,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (!textBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out SarifLocationTagger tagger))
+            if (!SarifLocationTagger.TryFindTaggerForBuffer(textBuffer, out SarifLocationTagger tagger))
             {
                 return false;
             }

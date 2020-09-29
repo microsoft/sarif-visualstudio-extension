@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Windows.Controls;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
@@ -44,19 +45,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             /// </summary>
             public override void PreprocessSelectionChanged(TableSelectionChangedEventArgs e)
             {
-                SarifErrorListItem sarifResult;
-                ListView errorList = (ListView)e.SelectionChangedEventArgs.Source;
-
-                if (errorList.SelectedItems.Count != 1)
+                // We only support single selection.
+                // So if there is no selection, or more than one, clear
+                // the SARIF explorer pane (set it's data context to null) and return.
+                ITableEntryHandle selectedTableEntry = e.AddedEntries.SingleOrDefault();
+                if (selectedTableEntry == null)
                 {
-                    // There's more, or less, than one selected item. Clear the SARIF Explorer.
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
                     return;
                 }
 
-                ITableEntryHandle entryHandle = errorList.SelectedItems[0] as ITableEntryHandle;
-
-                if (!TryGetSarifResult(entryHandle, out sarifResult))
+                if (!TryGetSarifResult(selectedTableEntry, out SarifErrorListItem sarifErrorListItem))
                 {
                     // The selected item is not a SARIF result. Clear the SARIF Explorer.
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
@@ -64,22 +63,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 // Set the current sarif error in the manager so we track code locations.
-                CodeAnalysisResultManager.Instance.CurrentSarifResult = sarifResult;
+                CodeAnalysisResultManager.Instance.CurrentSarifResult = sarifErrorListItem;
 
-                if (sarifResult.HasDetails)
+                // Setting the DataContext to be null first forces the TabControl to select the appropriate tab.
+                SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
+
+                if (sarifErrorListItem.HasDetails)
                 {
-                    // Setting the DataContext to be null first forces the TabControl to select the appropriate tab.
-                    SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
-                    SarifViewerPackage.SarifToolWindow.Control.DataContext = sarifResult;
-                }
-                else
-                {
-                    SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
+                    SarifViewerPackage.SarifToolWindow.Control.DataContext = sarifErrorListItem;
                 }
 
-                if (sarifResult.Locations?.Count > 0)
+                if (sarifErrorListItem.Locations?.Count > 0)
                 {
-                    sarifResult.Locations[0].ApplyDefaultSourceFileHighlighting();
+                    sarifErrorListItem.Locations[0].ApplyDefaultSourceFileHighlighting();
                 }
 
                 base.PreprocessSelectionChanged(e);
@@ -93,9 +89,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             public override void PreprocessNavigate(ITableEntryHandle entryHandle, TableEntryNavigateEventArgs e)
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                SarifErrorListItem sarifResult;
 
-                if (!TryGetSarifResult(entryHandle, out sarifResult))
+                if (!TryGetSarifResult(entryHandle, out SarifErrorListItem sarifErrorListItem))
                 {
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
                     return;
@@ -103,16 +98,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 e.Handled = true;
 
-                if (sarifResult.HasDetails)
+                if (sarifErrorListItem.HasDetails)
                 {
                     SarifViewerPackage.SarifToolWindow.Show();
                 }
 
                 // Navigate to the source file of the first location for the defect.
-                if (sarifResult.Locations?.Count > 0)
+                if (sarifErrorListItem.Locations?.Count > 0)
                 {
-                    sarifResult.Locations[0].NavigateTo(false);
-                    sarifResult.Locations[0].ApplyDefaultSourceFileHighlighting();
+                    sarifErrorListItem.Locations[0].NavigateTo(false);
+                    sarifErrorListItem.Locations[0].ApplyDefaultSourceFileHighlighting();
                 }
             }
 
