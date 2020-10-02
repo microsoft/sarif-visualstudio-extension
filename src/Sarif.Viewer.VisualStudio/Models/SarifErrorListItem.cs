@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public class SarifErrorListItem : NotifyPropertyChangedObject
     {
-        private int _runId;
+        private readonly int _runId;
         private string _fileName;
         private ToolModel _tool;
         private RuleModel _rule;
@@ -138,7 +138,6 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             _runId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
-            ReportingDescriptor rule;
             string ruleId = null;
 
             if (notification.AssociatedRule != null)
@@ -150,7 +149,7 @@ namespace Microsoft.Sarif.Viewer
                 ruleId = notification.Descriptor.Id;
             }
 
-            run.TryGetRule(ruleId, out rule);
+            run.TryGetRule(ruleId, out ReportingDescriptor rule);
             Message = notification.Message.Text?.Trim() ?? string.Empty;
             ShortMessage = ExtensionMethods.GetFirstSentence(Message);
 
@@ -489,7 +488,10 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(_runId, Region, FileName);
+                    _lineMarker = new ResultTextMarker(_runId, Region, FileName)
+                    {
+                        UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
+                    };
                 }
 
                 return _lineMarker;
