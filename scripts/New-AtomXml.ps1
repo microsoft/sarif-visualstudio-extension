@@ -13,6 +13,8 @@
     The feed's title.
 .PARAMETER FeedId
     The feed's unique identifier.
+.PARAMETER OutputPath
+    The path to the created atom.xml file.
 #>
 
 [CmdletBinding()]
@@ -28,7 +30,11 @@ param(
 
     [string]
     [Parameter(Mandatory=$true)]
-    $FeedId
+    $FeedId,
+
+    [string]
+    [Parameter(Mandatory=$true)]
+    $OutputPath
 )
 
 Set-StrictMode -Version Latest
@@ -74,4 +80,4 @@ $version = Get-Version;
         <link rel="icon" href="$FeedUri/Triskele.ico"/>
     </entry>
 </feed>
-"@
+"@ | Out-File $OutputPath
