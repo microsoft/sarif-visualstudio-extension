@@ -71,7 +71,7 @@ $version = Get-Version;
             <DownloadCount xsi:nil="true"/>
         </Vsix>
         <link rel="releasenotes" type="text/markdown" href="https://github.com/microsoft/sarif-visualstudio-extension/blob/master/src/ReleaseHistory.md"/>
-        <link rel="icon" href="$FeedUri/insiders/Triskele.ico"/>
+        <link rel="icon" href="$FeedUri/Triskele.ico"/>
     </entry>
 </feed>
 "@
