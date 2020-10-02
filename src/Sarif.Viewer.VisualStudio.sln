@@ -11,12 +11,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		..\BeforeBuild.cmd = ..\BeforeBuild.cmd
+		..\scripts\BeforeBuild.ps1 = ..\scripts\BeforeBuild.ps1
 		build.common.props = build.common.props
 		build.netfx-only.props = build.netfx-only.props
 		build.props = build.props
 		..\BuildAndTest.cmd = ..\BuildAndTest.cmd
+		..\scripts\BuildAndTest.ps1 = ..\scripts\BuildAndTest.ps1
+		..\scripts\BuildPackagesFromSigningDirectory.ps1 = ..\scripts\BuildPackagesFromSigningDirectory.ps1
+		..\scripts\Get-VersionConstants.ps1 = ..\scripts\Get-VersionConstants.ps1
+		..\scripts\New-AtomXml.ps1 = ..\scripts\New-AtomXml.ps1
+		..\scripts\New-VersionConstantsFile.ps1 = ..\scripts\New-VersionConstantsFile.ps1
+		..\scripts\Projects.psm1 = ..\scripts\Projects.psm1
+		..\scripts\RegistrySettings.ps1 = ..\scripts\RegistrySettings.ps1
 		ReleaseHistory.md = ReleaseHistory.md
-		..\RunUnitTests.ps1 = ..\RunUnitTests.ps1
+		..\scripts\Run-Tests.ps1 = ..\scripts\Run-Tests.ps1
+		..\scripts\ScriptUtilities.psm1 = ..\scripts\ScriptUtilities.psm1
+		..\scripts\Unzip.ps1 = ..\scripts\Unzip.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sarif.Viewer.VisualStudio.Interop", "Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj", "{34AFB00A-9D25-494F-B1BF-BCF79C021839}"
