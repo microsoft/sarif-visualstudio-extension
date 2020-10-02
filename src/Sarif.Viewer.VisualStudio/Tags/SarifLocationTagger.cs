@@ -20,17 +20,19 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// Handles adding, removing, and tagging SARIF locations in a text buffer for Visual Studio integration.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// The SARIF location tagger is created per instance of a Visual Studio <see cref="ITextView"/>. The tagger is disposed
-    /// when the text view is no longer used. However the underlying "tags" are associated with a text buffer
+    /// when the text view is no longer used. However, the underlying "tags" are associated with a text buffer
     /// which can outlast an <see cref="ITextView"/>. For instance, a split window view on the same document.
-    /// That results in 2 <see cref="ITextView"/> instances against 1 underlying <see cref="ITextBuffer"/>.
+    /// That results in multiple <see cref="ITextView"/> instances against one underlying <see cref="ITextBuffer"/>.
     /// There are static dictionaries in this class that instances use to retrieve
     /// existing tag information to present back to Visual Studio. As an example, if file "foo.c" is opened a text buffer
     /// is created, and an instance of this class is created and tags may be added. If file "foo.c" is then closed, this instance
     /// of the tagger is disposed, but the static list of tags remains in the dictionaries. If file "foo.c" is the re-opened,
     /// a new text buffer and tagger instance is created but re-tagging of the document is no longer necessary as the tagger
     /// reconnects to the existing data.
-    /// 
+    /// </para>
+    /// <para>
     /// A note about Visual Studio's <see cref="ITrackingSpan.GetSpan(ITextSnapshot)"/> method:
     /// "GetSpan" is not really a great name. What is actually happening
     /// is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
@@ -38,6 +40,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// that we have and "replay" any edits that have occurred and return a new
     /// span. So, if the span is no longer relevant (lets say the text has been deleted)
     /// then you'll get back an empty span.
+    /// </para>
     /// </remarks>
     internal class SarifLocationTagger : ITagger<TextMarkerTag>, ISarifLocationTagger, IDisposable
     {
@@ -147,6 +150,9 @@ namespace Microsoft.Sarif.Viewer.Tags
                 SarifTaggers.Add(this);
             }
 
+            // Start listening to caret position changes so we can send events
+            // that ultimately result in selections occurring in the SARIF explorer
+            // tool window.
             new TextViewCaretListener(textView, this.sarifTags);
         }
 
@@ -500,28 +506,6 @@ namespace Microsoft.Sarif.Viewer.Tags
                 // The tracking mode used here will match the tracking mode of the persistent span that was created in AddTag.
                 this.batchUpdateSpan = snapshot.CreateTrackingSpan(new SnapshotSpan(newStart, newEnd), this.batchUpdateSpan.TrackingMode);
             }
-        }
-
-        /// <inheritdoc/>
-        /// <remarks>
-        /// This call is forwarded from <see cref="SarifLocationTaggerProvider.TextViewCreated(ITextView)"/> so that there is only
-        /// one instance of a text view creation listener implemented by the <see cref="SarifLocationTaggerProvider"/>.
-        /// </remarks>
-        public void TextViewCreated(ITextView textView)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textView.TextBuffer, out string textViewFileName))
-            {
-                return;
-            }
-
-            if (!textViewFileName.Equals(this.filePath, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            new TextViewCaretListener(textView, this.sarifTags);
         }
 
         /// <summary>

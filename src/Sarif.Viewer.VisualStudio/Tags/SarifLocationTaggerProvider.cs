@@ -66,14 +66,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return null;
             }
 
-            SarifLocationTagger tagger = new SarifLocationTagger(textView, textBuffer, this.PersistentSpanFactory);
-
-            // Text view creation comes before the ask to create a tagger.
-            // So at the time we are asked for a tagger for this view and buffer
-            // we likely have no running taggers.
-            tagger.TextViewCreated(textView);
-
-            return tagger as ITagger<T>;
+            return new SarifLocationTagger(textView, textBuffer, this.PersistentSpanFactory) as ITagger<T>;
         }
     }
 }

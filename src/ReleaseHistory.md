@@ -1,6 +1,6 @@
 # SARIF Viewer Visual Studio extension Release History
 ## **v2.1.17** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
-* BUGFIX: Fix crash when closing and re-opening the a file with tagged SARIF results. [#205](https://github.com/microsoft/sarif-visualstudio-extension/issues/205)
+* BUGFIX: Fix crash when closing and re-opening a file with tagged SARIF results. [#205](https://github.com/microsoft/sarif-visualstudio-extension/issues/205)
 
 ## **v2.1.16** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Offload file reading and parsing from Visual Studio's UI thread. [#160](https://github.com/microsoft/sarif-visualstudio-extension/issues/160)

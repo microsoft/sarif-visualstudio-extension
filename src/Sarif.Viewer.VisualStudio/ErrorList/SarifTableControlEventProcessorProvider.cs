@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Controls;
+using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.TableControl;
@@ -20,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     [Order(Before = "Default")]
     public class SarifTableControlEventProcessorProvider : ITableControlEventProcessorProvider
     {
-        internal const string Name = "Sarif Table Event Processor";
+        internal const string Name = "SARIF Table Event Processor";
 
         public SarifTableControlEventProcessorProvider()
         {
@@ -41,15 +44,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             /// <summary>
             /// Handles the single-click Error List event.
             /// Binds the selected item to the Tool Window. 
-            /// Does not show the tool window if it is not already open. Displaying of the tool window is handed by PreprocessNavigate.
+            /// Does not show the tool window if it is not already open. Displaying of the tool window is handled by PreprocessNavigate.
             /// </summary>
             public override void PreprocessSelectionChanged(TableSelectionChangedEventArgs e)
             {
                 // We only support single selection.
                 // So if there is no selection, or more than one, clear
                 // the SARIF explorer pane (set it's data context to null) and return.
-                ITableEntryHandle selectedTableEntry = e.AddedEntries.SingleOrDefault();
-                if (selectedTableEntry == null)
+                IEnumerator<ITableEntryHandle> enumerator =  e.AddedEntries.GetEnumerator();
+                ITableEntryHandle selectedTableEntry = null;
+                if (enumerator.MoveNext())
+                {
+                    selectedTableEntry = enumerator.Current;
+                }
+
+                if (selectedTableEntry == null || enumerator.MoveNext())
                 {
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
                     return;
@@ -62,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     return;
                 }
 
-                // Set the current sarif error in the manager so we track code locations.
+                // Set the current SARIF error in the manager so we track code locations.
                 CodeAnalysisResultManager.Instance.CurrentSarifResult = sarifErrorListItem;
 
                 // Setting the DataContext to be null first forces the TabControl to select the appropriate tab.
@@ -73,10 +82,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = sarifErrorListItem;
                 }
 
-                if (sarifErrorListItem.Locations?.Count > 0)
-                {
-                    sarifErrorListItem.Locations[0].ApplyDefaultSourceFileHighlighting();
-                }
+                sarifErrorListItem.Locations?.FirstOrDefault()?.ApplyDefaultSourceFileHighlighting();
 
                 base.PreprocessSelectionChanged(e);
             }
@@ -104,10 +110,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 // Navigate to the source file of the first location for the defect.
-                if (sarifErrorListItem.Locations?.Count > 0)
+                LocationModel sarifLocation = sarifErrorListItem.Locations?.FirstOrDefault();
+
+                if (sarifLocation != null)
                 {
-                    sarifErrorListItem.Locations[0].NavigateTo(false);
-                    sarifErrorListItem.Locations[0].ApplyDefaultSourceFileHighlighting();
+                    sarifLocation.NavigateTo(false);
+                    sarifLocation.ApplyDefaultSourceFileHighlighting();
                 }
             }
 
