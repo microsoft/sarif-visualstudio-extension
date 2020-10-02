@@ -488,11 +488,10 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(_runId, Region, FileName);
-                    if (Locations.Count > 0)
+                    _lineMarker = new ResultTextMarker(_runId, Region, FileName)
                     {
-                        _lineMarker.UriBaseId = Locations[0].UriBaseId;
-                    }
+                        UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
+                    };
                 }
 
                 return _lineMarker;
