@@ -22,9 +22,21 @@ namespace Microsoft.Sarif.Viewer
             get
             {
                 // Not all locations have regions. Don't try to mark the locations that don't.
+                //
+                // PROBLEM: This means we can't double-click to open a file containing a result
+                // without a region.
                 if (_lineMarker == null && Region != null)
                 {
                     _lineMarker = new ResultTextMarker(RunId, Region, FilePath);
+                }
+
+                // If the UriBaseId was populated before the marker was available, set the
+                // marker's UriBaseId property now. The marker's UriBaseId is used to resolve
+                // relative paths to absolute paths when the user double-clicks a result in
+                // the Error List window.
+                if (_lineMarker != null && UriBaseId != null)
+                {
+                    _lineMarker.UriBaseId = UriBaseId;
                 }
 
                 return _lineMarker;
@@ -94,7 +106,7 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
-                if (string.Equals(value, this._uriBaseId))
+                if (!string.Equals(value, this._uriBaseId))
                 {
                     this._uriBaseId = value;
 

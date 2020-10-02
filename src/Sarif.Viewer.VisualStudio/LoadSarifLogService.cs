@@ -2,10 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.TaskStatusCenter;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -18,12 +21,6 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
@@ -35,11 +32,10 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
 
             ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
         }
@@ -47,28 +43,65 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             this.LoadSarifLogs(paths, promptOnSchemaUpgrade: false);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
+            LoadSarifLogAsync(paths, promptOnSchemaUpgrade).FileAndForget("Microsoft/SARIF/Viewer/LoadSarifLogs");
+        }
 
-            foreach (string path in paths.Where((path) => !string.IsNullOrEmpty(path)))
+        private async System.Threading.Tasks.Task LoadSarifLogAsync(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
+        {
+            List<string> validPaths = paths.Where(path => !string.IsNullOrEmpty(path)).ToList();
+            if (validPaths.Count == 0)
             {
-                // We should not clean errors here, if the user wants to clear errors, they can call the close log service (ICloseSarifLogService::CloseAllSarifLogs)
-                ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: false, cleanErrors: false);
+                return;
+            }
+
+            var taskStatusCenterService = (IVsTaskStatusCenterService)Package.GetGlobalService(typeof(SVsTaskStatusCenterService));
+            var taskProgressData = new TaskProgressData
+            {
+                CanBeCanceled = true,
+                ProgressText = null,
+            };
+
+            var taskHandlerOptions = new TaskHandlerOptions
+            {
+                ActionsAfterCompletion = CompletionActions.None,
+                TaskSuccessMessage = Resources.ProcessLogFilesComplete,
+                Title = Resources.ProcessLogFiles,
+            };
+
+            TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
+            ITaskHandler taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
+            taskHandler.RegisterTask(taskCompletionSource.Task);
+
+            try
+            {
+                for (int validPathIndex = 0; validPathIndex < validPaths.Count; validPathIndex++)
+                {
+                    taskHandler.UserCancellation.ThrowIfCancellationRequested();
+
+                    taskHandler.Progress.Report(new TaskProgressData
+                    {
+                        PercentComplete = validPathIndex * 100 / validPaths.Count,
+                        ProgressText = string.Format(CultureInfo.CurrentCulture, Resources.ProcessingLogFileFormat, validPaths[validPathIndex])
+                    }); ;
+
+                    // We should not clean errors here, if the user wants to clear errors, they can call the close log service (ICloseSarifLogService::CloseAllSarifLogs)
+                    await ErrorListService.ProcessLogFileAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false).ConfigureAwait(continueOnCapturedContext: false);
+
+                    taskHandler.Progress.Report(new TaskProgressData
+                    {
+                        PercentComplete = (validPathIndex + 1 ) * 100 / validPaths.Count,
+                    });
+                }
+            }
+            finally
+            {
+                taskCompletionSource.SetResult(true);
             }
         }
     }

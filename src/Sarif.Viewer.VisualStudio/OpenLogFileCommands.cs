@@ -128,16 +128,17 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            // For now this is being done on the UI thread
-            // and is only required due to the message box being shown below.
-            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-            // is fixed.
-            ThreadHelper.ThrowIfNotOnUIThread();
+            this.MenuItemCallbackAsync(sender, e).FileAndForget("Microsoft/SARIF/Viewer/OpenSARIFLogMenu");
+        }
+
+        private async System.Threading.Tasks.Task MenuItemCallbackAsync(object sender, EventArgs e)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             OleMenuCommand menuCommand = (OleMenuCommand)sender;
             OleMenuCmdEventArgs menuCmdEventArgs = (OleMenuCmdEventArgs)e;
 
-            string inputFile = menuCmdEventArgs.InValue as String;
+            string inputFile = menuCmdEventArgs.InValue as string;
             string logFile = null;
 
             if (!String.IsNullOrWhiteSpace(inputFile))
@@ -285,10 +286,11 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                ErrorListService.ProcessLogFile(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true);
+                await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true).ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (InvalidOperationException)
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                 string.Format(Resources.LogOpenFail_InvalidFormat_DialogMessage, Path.GetFileName(logFile)),
                                                 null, // title
