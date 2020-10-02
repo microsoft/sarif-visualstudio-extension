@@ -300,11 +300,6 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        bool IsSarifProtocol(string path)
-        {
-            return path.StartsWith("sarif://", StringComparison.OrdinalIgnoreCase);
-        }
-
         string ConvertSarifProtocol(string inputUrl)
         {
             int sarifProtocolLength;
