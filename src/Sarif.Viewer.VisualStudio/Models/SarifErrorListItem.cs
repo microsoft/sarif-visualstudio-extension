@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public class SarifErrorListItem : NotifyPropertyChangedObject
     {
-        private int _runId;
+        private readonly int _runId;
         private string _fileName;
         private ToolModel _tool;
         private RuleModel _rule;
@@ -64,7 +64,7 @@ namespace Microsoft.Sarif.Viewer
             ProjectName = projectNameCache.GetName(FileName);
             Category = result.GetCategory();
             Region = result.GetPrimaryTargetRegion();
-            Level = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
+            Level = GetEffectiveLevel(result);
 
             if (result.Suppressions?.Count > 0)
             {
@@ -134,11 +134,37 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        private FailureLevel GetEffectiveLevel(Result result)
+        {
+            FailureLevel effectiveLevel;
+
+            switch (result.Kind)
+            {
+                case ResultKind.Review:
+                case ResultKind.Open:
+                    effectiveLevel = FailureLevel.Warning;
+                    break;
+
+                case ResultKind.NotApplicable:
+                case ResultKind.Informational:
+                case ResultKind.Pass:
+                    effectiveLevel = FailureLevel.Note;
+                    break;
+
+                case ResultKind.Fail:
+                case ResultKind.None:   // Should never happen.
+                default:                // Should never happen.
+                    effectiveLevel = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
+                    break;
+            }
+
+            return effectiveLevel;
+        }
+
         public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             _runId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
-            ReportingDescriptor rule;
             string ruleId = null;
 
             if (notification.AssociatedRule != null)
@@ -150,7 +176,7 @@ namespace Microsoft.Sarif.Viewer
                 ruleId = notification.Descriptor.Id;
             }
 
-            run.TryGetRule(ruleId, out rule);
+            run.TryGetRule(ruleId, out ReportingDescriptor rule);
             Message = notification.Message.Text?.Trim() ?? string.Empty;
             ShortMessage = ExtensionMethods.GetFirstSentence(Message);
 
@@ -491,7 +517,10 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(_runId, Region, FileName);
+                    _lineMarker = new ResultTextMarker(_runId, Region, FileName)
+                    {
+                        UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
+                    };
                 }
 
                 return _lineMarker;

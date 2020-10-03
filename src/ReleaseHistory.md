@@ -1,6 +1,11 @@
 # SARIF Viewer Visual Studio extension Release History
-## **v2.1.17** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+## **v2.1.18** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Fix crash when closing and re-opening a file with tagged SARIF results. [#205](https://github.com/microsoft/sarif-visualstudio-extension/issues/205)
+
+## **v2.1.17** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Display non-failure results appropriately [#199](https://github.com/microsoft/sarif-visualstudio-extension/issues/199)
+* BUGFIX: Double-clicking result does not navigate to source file [#201](https://github.com/microsoft/sarif-visualstudio-extension/issues/201)
+* FEATURE: A new script `New-AtomXml.ps` allows you to create a private Atom feed for pre-release versions of the viewer.=
 
 ## **v2.1.16** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Offload file reading and parsing from Visual Studio's UI thread. [#160](https://github.com/microsoft/sarif-visualstudio-extension/issues/160)
