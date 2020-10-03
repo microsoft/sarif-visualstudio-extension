@@ -9,24 +9,24 @@ using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    internal class SarifLocationTag : ISarifLocationTag, IDisposable
+    internal class SarifLocationTextMarkerTag : ITextMarkerTag, ISarifLocationTag, IDisposable
     {
-        private TextMarkerTag textMarkerTag;
+        private string textMarkerTagType;
         private bool disposed;
 
         /// <summary>
-        /// Initialize a new instance of <see cref="SarifLocationTag"/>.
+        /// Initialize a new instance of <see cref="SarifLocationTextMarkerTag"/>.
         /// </summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="sourceRegion">The original span from the region present in the SARIF log.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
-        /// <param name="textMarkerTag">The text marker tag to display for this tag.</param>
-        public SarifLocationTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, int runIndex, TextMarkerTag textMarkerTag)
+        /// <param name="textMarkerTagType">The text marker tag to display for this tag.</param>
+        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, Region sourceRegion, int runIndex, string textMarkerTagType)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.SourceRegion = sourceRegion;
             this.RunIndex = runIndex;
-            this.textMarkerTag = textMarkerTag;
+            this.textMarkerTagType = textMarkerTagType;
         }
 
         /// <inheritdoc/>
@@ -39,19 +39,22 @@ namespace Microsoft.Sarif.Viewer.Tags
         public int RunIndex { get; }
 
         /// <inheritdoc/>
-        public TextMarkerTag Tag
+        public string TextMarkerTagType
         {
-            get => this.textMarkerTag;
+            get => this.textMarkerTagType;
 
             set
             {
-                if (value != this.textMarkerTag)
+                if (value != this.textMarkerTagType)
                 {
-                    this.textMarkerTag = value;
-                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Tag)));
+                    this.textMarkerTagType = value;
+                    this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.TextMarkerTagType)));
                 }
             }
         }
+
+        /// <inheritdoc/>
+        public string Type { get => this.textMarkerTagType; }
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;

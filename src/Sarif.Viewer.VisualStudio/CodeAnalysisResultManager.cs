@@ -711,17 +711,14 @@ namespace Microsoft.Sarif.Viewer
             }
 
             ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
-            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
-            {
-                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
-                    Value.
-                    SarifErrors.
-                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
-                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
-                {
-                    sarifError.TryTagDocument(textBuffer);
-                }
+            foreach (SarifErrorListItem sarifErrorListItem in 
+                RunIndexToRunDataCache.
+                Values.
+                SelectMany(runDataCache => runDataCache.SarifErrors).
+                Where(sarifListItem => string.Compare(documentName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0))
+            {
+                sarifErrorListItem.TryTagDocument(textBuffer);
             }
         }
 

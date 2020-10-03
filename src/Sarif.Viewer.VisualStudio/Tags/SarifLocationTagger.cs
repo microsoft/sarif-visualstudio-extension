@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// then you'll get back an empty span.
     /// </para>
     /// </remarks>
-    internal class SarifLocationTagger : ITagger<TextMarkerTag>, ISarifLocationTagger, IDisposable
+    internal class SarifLocationTagger : ITagger<SarifLocationTextMarkerTag>, ISarifLocationTagger, IDisposable
     {
         /// <summary>
         /// Protects access to the <see cref="SourceCodeFileToSarifTags"/> and <see cref="RunIdToSarifTags"/> dictionaries.
@@ -56,7 +56,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// This is a static instance as a "tagger" is created based on an opened text buffer but the tags" persist beyond that instance
         /// of a tagger and will be re-used if the text buffer is re-opened. (For example in a file close and re-open scenario).
         /// </remarks>
-        private static readonly Dictionary<string, List<SarifLocationTag>> SourceCodeFileToSarifTags = new Dictionary<string, List<SarifLocationTag>>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, List<SarifLocationTextMarkerTag>> SourceCodeFileToSarifTags = new Dictionary<string, List<SarifLocationTextMarkerTag>>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Provides a dictionary from SARIF log run Id to a set of tags to display in the VS editor.
@@ -65,7 +65,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// This is a static instance as a "tagger" is created based on an opened text buffer but the tags" persist beyond that instance
         /// of a tagger and will be re-used if the text buffer is re-opened. (For example in a file close and re-open scenario).
         /// </remarks>
-        private static readonly Dictionary<int, List<SarifLocationTag>> RunIdToSarifTags = new Dictionary<int, List<SarifLocationTag>>();
+        private static readonly Dictionary<int, List<SarifLocationTextMarkerTag>> RunIdToSarifTags = new Dictionary<int, List<SarifLocationTextMarkerTag>>();
 
         /// <summary>
         /// Protects access to the <see cref="SarifTaggers"/> list.
@@ -96,14 +96,14 @@ namespace Microsoft.Sarif.Viewer.Tags
         private readonly string filePath;
         
         /// <summary>
-        /// References the list of <see cref="SarifLocationTag"/> objects within <see cref="SourceCodeFileToSarifTags"/>.
+        /// References the list of <see cref="SarifLocationTextMarkerTag"/> objects within <see cref="SourceCodeFileToSarifTags"/>.
         /// </summary>
         /// <remarks>
         /// When a <see cref="SarifLocationTagger"/> is constructed, it retrieves a reference to the SARIF location tag list
         /// from <see cref="SourceCodeFileToSarifTags"/> so that it does not have to retrieve the list on every method call
         /// thereby making it more efficient.
         /// </remarks>
-        private List<SarifLocationTag> sarifTags;
+        private List<SarifLocationTextMarkerTag> sarifTags;
 
         private bool disposed;
 
@@ -135,7 +135,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 // potential null checks.
                 if (!SourceCodeFileToSarifTags.TryGetValue(filePath, out this.sarifTags))
                 {
-                    this.sarifTags = new List<SarifLocationTag>();
+                    this.sarifTags = new List<SarifLocationTextMarkerTag>();
                     SourceCodeFileToSarifTags[filePath] = this.sarifTags;
                 }
 
@@ -207,15 +207,15 @@ namespace Microsoft.Sarif.Viewer.Tags
             // Next, remove any remaining tags for the run ID from the static lists.
             using (TagListLock.EnterWriteLock())
             {
-                if (!RunIdToSarifTags.TryGetValue(runIndex, out List<SarifLocationTag> sarifTagsForRun) ||
+                if (!RunIdToSarifTags.TryGetValue(runIndex, out List<SarifLocationTextMarkerTag> sarifTagsForRun) ||
                     sarifTagsForRun.Count == 0)
                 {
                     return;
                 }
 
-                foreach (SarifLocationTag sarifTag in sarifTagsForRun)
+                foreach (SarifLocationTextMarkerTag sarifTag in sarifTagsForRun)
                 {
-                    if (SourceCodeFileToSarifTags.TryGetValue(sarifTag.DocumentPersistentSpan.FilePath, out List<SarifLocationTag> sarifTagsForSourceFile))
+                    if (SourceCodeFileToSarifTags.TryGetValue(sarifTag.DocumentPersistentSpan.FilePath, out List<SarifLocationTextMarkerTag> sarifTagsForSourceFile))
                     {
                         sarifTagsForSourceFile.Remove(sarifTag);
                     }
@@ -268,7 +268,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, TextMarkerTag tag)
+        public ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, string TextMarkerTagType)
         {
             // Since it is possible we are already in a nested update call, we use the update semantics
             // in "Add tag" so that this method does not fire a changed tags event to visual studio
@@ -277,7 +277,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (TagListLock.EnterWriteLock())
                 {
-                    SarifLocationTag existingSarifTag = this.sarifTags.FirstOrDefault(
+                    SarifLocationTextMarkerTag existingSarifTag = this.sarifTags.FirstOrDefault(
                         (sarifTag) =>
                             sarifTag.SourceRegion.ValueEquals(sourceRegion)
                             && sarifTag.RunIndex == runId);
@@ -295,18 +295,18 @@ namespace Microsoft.Sarif.Viewer.Tags
                         endIndex: documentSpan.iEndIndex,
                         trackingMode: SpanTrackingMode.EdgeInclusive);
 
-                    SarifLocationTag newSarifTag = new SarifLocationTag(
+                    SarifLocationTextMarkerTag newSarifTag = new SarifLocationTextMarkerTag(
                         persistentSpan,
                         sourceRegion,
                         runId,
-                        tag);
+                        TextMarkerTagType);
 
                     this.sarifTags.Add(newSarifTag);
                     newSarifTag.PropertyChanged += SarifTagPropertyChanged;
 
-                    if (!RunIdToSarifTags.TryGetValue(runId, out List<SarifLocationTag> sarifTagsForRun))
+                    if (!RunIdToSarifTags.TryGetValue(runId, out List<SarifLocationTextMarkerTag> sarifTagsForRun))
                     {
-                        sarifTagsForRun = new List<SarifLocationTag>();
+                        sarifTagsForRun = new List<SarifLocationTextMarkerTag>();
                         RunIdToSarifTags.Add(runId, sarifTagsForRun);
                     }
 
@@ -335,7 +335,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public void RemoveTag(ISarifLocationTag tag)
         {
-            if (!(tag is SarifLocationTag sarifTag))
+            if (!(tag is SarifLocationTextMarkerTag sarifTag))
             {
                 return;
             }
@@ -367,23 +367,23 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public void RemoveTagsForRun(int runId)
         {
-            List<SarifLocationTag> tagsToRemove;
+            List<SarifLocationTextMarkerTag> tagsToRemove;
 
             using (TagListLock.EnterReadLock())
             {
-                if (!RunIdToSarifTags.TryGetValue(runId, out List<SarifLocationTag> sarifTagsForRun) ||
+                if (!RunIdToSarifTags.TryGetValue(runId, out List<SarifLocationTextMarkerTag> sarifTagsForRun) ||
                     sarifTagsForRun.Count == 0)
                 {
                     return;
                 }
 
                 // Copy so we can update (which can make outgoing calls) outside of lock.
-                tagsToRemove = new List<SarifLocationTag>(sarifTagsForRun);
+                tagsToRemove = new List<SarifLocationTextMarkerTag>(sarifTagsForRun);
             }
 
             using (this.Update())
             {
-                foreach (SarifLocationTag tagToRemove in tagsToRemove)
+                foreach (SarifLocationTextMarkerTag tagToRemove in tagsToRemove)
                 {
                     this.RemoveTag(tagToRemove);
                 }
@@ -391,14 +391,14 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public IEnumerable<ITagSpan<TextMarkerTag>> GetTags(NormalizedSnapshotSpanCollection spans)
+        public IEnumerable<ITagSpan<SarifLocationTextMarkerTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
             if (spans.Count == 0)
             {
                 yield break;
             }
 
-            IEnumerable<SarifLocationTag> currentTags = null;
+            IEnumerable<SarifLocationTextMarkerTag> currentTags = null;
             using (TagListLock.EnterReadLock())
             {
                 if (this.sarifTags == null)
@@ -406,7 +406,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     yield break;
                 }
 
-                currentTags = new List<SarifLocationTag>(this.sarifTags);
+                currentTags = new List<SarifLocationTextMarkerTag>(this.sarifTags);
             }
 
             if (currentTags == null)
@@ -421,7 +421,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     SnapshotSpan possibleTagSnapshotSpan = possibleTag.DocumentPersistentSpan.Span.GetSpan(span.Snapshot);
                     if (span.IntersectsWith(possibleTagSnapshotSpan))
                     {
-                        yield return new TagSpan<TextMarkerTag>(possibleTagSnapshotSpan, possibleTag.Tag);
+                        yield return new TagSpan<SarifLocationTextMarkerTag>(possibleTagSnapshotSpan, possibleTag);
                     }
                 }
             }
@@ -450,7 +450,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 // a VS session.
                 using (TagListLock.EnterReadLock())
                 {
-                    foreach (SarifLocationTag sarifLocationTag in this.sarifTags)
+                    foreach (SarifLocationTextMarkerTag sarifLocationTag in this.sarifTags)
                     {
                         sarifLocationTag.PropertyChanged -= this.SarifTagPropertyChanged;
                     }
@@ -474,7 +474,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private void SarifTagPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (sender is SarifLocationTag sarifTag)
+            if (sender is SarifLocationTextMarkerTag sarifTag)
             {
                 using (this.Update())
                 {
@@ -551,10 +551,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         private class TextViewCaretListener
         {
             private readonly ITextView textView;
-            private List<SarifLocationTag> previousTagsCaretWasIn;
-            private readonly List<SarifLocationTag> sarifTags;
+            private List<SarifLocationTextMarkerTag> previousTagsCaretWasIn;
+            private readonly List<SarifLocationTextMarkerTag> sarifTags;
 
-            public TextViewCaretListener(ITextView textView, List<SarifLocationTag> sarifTags)
+            public TextViewCaretListener(ITextView textView, List<SarifLocationTextMarkerTag> sarifTags)
             {
                 this.textView = textView;
                 this.sarifTags = sarifTags;
@@ -579,7 +579,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             private void UpdateAtCaretPosition(CaretPosition caretPosition)
             {
-                List<SarifLocationTag> currentTags = null;
+                List<SarifLocationTextMarkerTag> currentTags = null;
                 using (TagListLock.EnterReadLock())
                 {
                     if (this.sarifTags.Count == 0)
@@ -587,14 +587,14 @@ namespace Microsoft.Sarif.Viewer.Tags
                         return;
                     }
 
-                    currentTags = new List<SarifLocationTag>(sarifTags);
+                    currentTags = new List<SarifLocationTextMarkerTag>(sarifTags);
                 }
 
                 // Keep track of the tags the caret is in now, versus the tags
                 // that the caret was previously in. (Yes, there can be multiple tags per text range).
                 // This is done so we don't keep re-issuing caret entered notifications while
                 // the user is moving the caret around the editor.
-                var tagsCaretIsCurrentlyIn = new List<SarifLocationTag>();
+                var tagsCaretIsCurrentlyIn = new List<SarifLocationTextMarkerTag>();
 
                 SnapshotPoint caretSnapshotPoint = caretPosition.BufferPosition;
                 foreach (var currentTag in currentTags.Where(currentTag => currentTag.DocumentPersistentSpan.Span != null))
@@ -605,7 +605,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                 }
 
-                foreach (SarifLocationTag tagCaretIsCurrentlyIn in tagsCaretIsCurrentlyIn)
+                foreach (SarifLocationTextMarkerTag tagCaretIsCurrentlyIn in tagsCaretIsCurrentlyIn)
                 {
                     if (this.previousTagsCaretWasIn == null || !this.previousTagsCaretWasIn.Contains(tagCaretIsCurrentlyIn))
                     {

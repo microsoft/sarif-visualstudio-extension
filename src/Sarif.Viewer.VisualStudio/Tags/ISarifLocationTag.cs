@@ -5,7 +5,6 @@ namespace Microsoft.Sarif.Viewer.Tags
 {
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Tagging;
     using System;
     using System.ComponentModel;
 
@@ -34,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Gets the current text tag used for this tag.
         /// </summary>
-        TextMarkerTag Tag { get; set; }
+        string TextMarkerTagType { get; set; }
 
         /// <summary>
         /// Fired when the caret enters a tag.

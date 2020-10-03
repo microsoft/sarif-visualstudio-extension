@@ -2,9 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Windows.Navigation;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -114,6 +121,32 @@ namespace Microsoft.Sarif.Viewer
                 // The window frame must be shown now (at this point) because we need tagging to occur,
                 // which happens as a result of the Show call, before the rest of this method executes.
                 vsWindowFrame.Show();
+
+                IVsTextView vsTextView = VsShellUtilities.GetTextView(vsWindowFrame);
+                if (vsTextView == null)
+                {
+                    return false;
+                }
+
+                if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
+                {
+                    return false;
+                }
+
+                IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                if (componentModel == null)
+                {
+                    return false;
+                }
+
+                IViewTagAggregatorFactoryService viewTagAggregatorFactoryService = componentModel.GetService<IViewTagAggregatorFactoryService>();
+                if (viewTagAggregatorFactoryService == null)
+                {
+                    return false;
+                }
+
+                ITagAggregator<ITextMarkerTag> tagAggregator = viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView);
+                this.TryTagDocument(textView.TextBuffer);
             }
 
             // If we have tracking span information, then either
@@ -177,7 +210,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this.tag != null)
             {
-                this.tag.Tag = new TextMarkerTag(highlightColor ?? Color);
+                this.tag.TextMarkerTagType = highlightColor ?? Color;
             }
         }
 
@@ -188,7 +221,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this.tag != null)
             {
-                this.tag.Tag = new TextMarkerTag(Color);
+                this.tag.TextMarkerTagType = Color;
             }
         }
 
@@ -223,7 +256,7 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                this.tag = tagger.AddTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, new TextMarkerTag(Color));
+                this.tag = tagger.AddTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, Color);
             }
 
             // Once we have tagged the document, we start listening to the

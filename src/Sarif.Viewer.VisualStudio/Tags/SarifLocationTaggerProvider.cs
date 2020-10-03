@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using System.Linq;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -21,10 +22,11 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// cannot highlight HTML file contents.
     /// </remarks>
     [Export(typeof(IViewTaggerProvider))]
-    [TagType(typeof(TextMarkerTag))]
+    [TagType(typeof(SarifLocationTextMarkerTag))]
+    [Export(typeof(ITextViewCreationListener))]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
-    internal class SarifLocationTaggerProvider : IViewTaggerProvider
+    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ITextViewCreationListener
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -52,6 +54,11 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentNullException(nameof(textBuffer));
             }
 
+            if (typeof(T) != typeof(SarifLocationTextMarkerTag) && typeof(T) != typeof(ITextMarkerTag))
+            {
+                return null;
+            }
+
             // If for some reason the text buffer doesn't belong to the text view, then skip this.
             if (textView.TextBuffer != textBuffer)
             {
@@ -67,6 +74,28 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
 
             return new SarifLocationTagger(textView, textBuffer, this.PersistentSpanFactory) as ITagger<T>;
+        }
+
+        /// <inheritdoc/>
+        public void TextViewCreated(ITextView textView)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textView.TextBuffer, out string documentName))
+            {
+                return;
+            }
+
+            foreach (SarifErrorListItem sarifErrorListItem in
+                CodeAnalysisResultManager.
+                Instance.
+                RunIndexToRunDataCache.
+                Values.
+                SelectMany(runDataCache => runDataCache.SarifErrors).
+                Where(sarifListItem => string.Compare(documentName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0))
+            {
+                sarifErrorListItem.TryTagDocument(textView.TextBuffer);
+            }
         }
     }
 }

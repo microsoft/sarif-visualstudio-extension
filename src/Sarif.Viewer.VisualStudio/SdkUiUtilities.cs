@@ -802,6 +802,30 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
+        public static bool TryGetTextViewFromFrame(IVsWindowFrame frame, out ITextView textView)
+        {
+            IVsTextView vsTextView = VsShellUtilities.GetTextView(frame);
+
+            if (vsTextView == null)
+            {
+                textView = null;
+                return false;
+            }
+
+            object textViewHost;
+            Guid guidTextViewHost = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+            if (ErrorHandler.Succeeded(((IVsUserData)vsTextView).GetData(ref guidTextViewHost, out textViewHost)) &&
+                textViewHost != null)
+            {
+                textView = ((IWpfTextViewHost)textViewHost).TextView;
+                return true;
+            }
+
+            textView = null;
+
+            return false;
+        }
+
         public static bool TryGetTextViewFromFrame(IVsWindowFrame frame, out IVsTextView vsTextView)
         {
             ThreadHelper.ThrowIfNotOnUIThread();

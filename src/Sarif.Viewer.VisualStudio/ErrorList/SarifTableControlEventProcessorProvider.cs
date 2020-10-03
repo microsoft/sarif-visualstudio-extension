@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Windows.Controls;
-using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
