@@ -2,16 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Windows.Navigation;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -208,10 +202,9 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="highlightColor">Color</param>
         public void AddTagHighlight(string highlightColor)
         {
-            if (this.tag != null)
-            {
-                this.tag.TextMarkerTagType = highlightColor ?? Color;
-            }
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            this.UpdateHighlightColor(highlightColor ?? Color);
         }
 
         /// <summary>
@@ -219,10 +212,9 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void RemoveTagHighlight()
         {
-            if (this.tag != null)
-            {
-                this.tag.TextMarkerTagType = Color;
-            }
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            this.UpdateHighlightColor(Color);
         }
 
         /// <summary>
@@ -305,6 +297,30 @@ namespace Microsoft.Sarif.Viewer
 
             this.regionIsFullyPopulated = this.fullyPopulatedRegion != null;
             return this.regionIsFullyPopulated.Value;
+        }
+
+        private void UpdateHighlightColor(string color)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (this.tag == null ||
+                !SarifLocationTagger.TryFindTaggerForBuffer(this.tag.TextBuffer, out SarifLocationTagger tagger))
+            {
+                return;
+            }
+
+            using (tagger.Update())
+            {
+                ISarifLocationTag oldTag = this.tag;
+
+                tagger.RemoveTag(this.tag);
+                this.tag = null;
+
+                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, oldTag.TextBuffer, out TextSpan tagSpan))
+                {
+                    this.tag = tagger.AddTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, color);
+                }
+            }
         }
 
         private bool PersistentSpanValid()

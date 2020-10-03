@@ -23,6 +23,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// </remarks>
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(SarifLocationTextMarkerTag))]
+    [TagType(typeof(SarifLocationErrorTag))]
     [Export(typeof(ITextViewCreationListener))]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
@@ -52,11 +53,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (textBuffer == null)
             {
                 throw new ArgumentNullException(nameof(textBuffer));
-            }
-
-            if (typeof(T) != typeof(SarifLocationTextMarkerTag) && typeof(T) != typeof(ITextMarkerTag))
-            {
-                return null;
             }
 
             // If for some reason the text buffer doesn't belong to the text view, then skip this.

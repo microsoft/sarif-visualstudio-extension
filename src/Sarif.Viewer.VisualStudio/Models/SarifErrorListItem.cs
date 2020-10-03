@@ -399,6 +399,8 @@ namespace Microsoft.Sarif.Viewer
 
         internal void RemoveTagHighlights()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             LineMarker?.RemoveTagHighlight();
 
             foreach (LocationModel location in Locations)

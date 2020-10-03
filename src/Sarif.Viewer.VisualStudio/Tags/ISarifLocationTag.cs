@@ -5,10 +5,10 @@ namespace Microsoft.Sarif.Viewer.Tags
 {
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Tagging;
     using System;
-    using System.ComponentModel;
 
-    internal interface ISarifLocationTag: INotifyPropertyChanged
+    internal interface ISarifLocationTag : ITag, IDisposable
     {
         /// <summary>
         /// Gets the persistent span for a document.
@@ -21,6 +21,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         IPersistentSpan DocumentPersistentSpan { get; }
 
         /// <summary>
+        /// The Visual Studio buffer this tag is associated with.
+        /// </summary>
+        ITextBuffer TextBuffer { get; }
+
+        /// <summary>
         /// Gets the original span (SAIRF region) that was present in the SARIF log.
         /// </summary>
         Region SourceRegion { get; }
@@ -29,11 +34,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Gets the SARIF run index associated with this tag.
         /// </summary>
         int RunIndex { get; }
-
-        /// <summary>
-        /// Gets the current text tag used for this tag.
-        /// </summary>
-        string TextMarkerTagType { get; set; }
 
         /// <summary>
         /// Fired when the caret enters a tag.

@@ -46,6 +46,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             /// </summary>
             public override void PreprocessSelectionChanged(TableSelectionChangedEventArgs e)
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 // We only support single selection.
                 // So if there is no selection, or more than one, clear
                 // the SARIF explorer pane (set it's data context to null) and return.

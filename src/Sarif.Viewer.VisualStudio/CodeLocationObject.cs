@@ -183,6 +183,8 @@ namespace Microsoft.Sarif.Viewer
 
         public void ApplyDefaultSourceFileHighlighting()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // Remove hover marker
             LineMarker?.RemoveTagHighlight();
 
@@ -195,6 +197,8 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void ApplySelectionSourceFileHighlighting()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // Remove previous highlighting and replace with hover color
             LineMarker?.RemoveTagHighlight();
             LineMarker?.AddTagHighlight(SelectedSourceHighlightColor);

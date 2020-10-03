@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    internal class SarifLocationTextMarkerTag : ISarifLocationTag, ITextMarkerTag
+    internal class SarifLocationErrorTag : ISarifLocationTag, IErrorTag
     {
         private bool disposed;
 
@@ -16,16 +16,18 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Initialize a new instance of <see cref="SarifLocationTextMarkerTag"/>.
         /// </summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
+        /// <param name="textBuffer">The Visual Studio <see cref="ITextBuffer"/> this tag is associated with.</param>
         /// <param name="sourceRegion">The original span from the region present in the SARIF log.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
-        /// <param name="textMarkerTagType">The text marker tag to display for this tag.</param>
-        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, Region sourceRegion, int runIndex, string textMarkerTagType)
+        /// <param name="errorType">The Visual Studio error type to display.</param>
+        public SarifLocationErrorTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, Region sourceRegion, int runIndex, string errorType, object toolTipContet)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.TextBuffer = textBuffer;
             this.SourceRegion = sourceRegion;
             this.RunIndex = runIndex;
-            this.Type = textMarkerTagType;
+            this.ErrorType = errorType;
+            this.ToolTipContent = toolTipContet;
         }
 
         /// <inheritdoc/>
@@ -38,7 +40,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         public int RunIndex { get; }
 
         /// <inheritdoc/>
-        public string Type { get ; }
+        public string ErrorType { get; }
+
+        /// <inheritdoc/>
+        public object ToolTipContent { get; }
 
         /// <inheritdoc/>
         public ITextBuffer TextBuffer { get; }
