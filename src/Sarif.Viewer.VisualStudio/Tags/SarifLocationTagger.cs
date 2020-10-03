@@ -263,7 +263,42 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, string TextMarkerTagType)
+        public ISarifLocationTag AddTextMarkerTag(Region sourceRegion, TextSpan documentSpan, int runIndex, string textMarkerTagType)
+        {
+            return this.AddTag(sourceRegion, documentSpan, runIndex, persistentSpan => new SarifLocationTextMarkerTag(
+                        persistentSpan,
+                        this.TextBuffer,
+                        sourceRegion,
+                        runIndex,
+                        textMarkerTagType));
+        }
+
+        /// <summary>
+        /// Adds a tag to report to visual studio.
+        /// </summary>
+        /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
+        /// <param name="documentSpan">The span to use to create the tag relative to an open document.</param>
+        /// <param name="runIndex">The SARIF run index associated with this tag.</param>
+        /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
+        /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
+        /// <returns>Returns a new instance of <see cref="ISarifLocationTag"/></returns>
+        /// <remarks>
+        /// This <paramref name="documentSpan"/>is not necessarily the same as <paramref name="sourceRegion"/>.
+        /// It may have been modified to fix up column and line numbers from the region
+        /// present in the SARIF log.
+        /// </remarks>
+        public ISarifLocationTag AddErrorTag(Region sourceRegion, TextSpan documentSpan, int runIndex, string errorType, object tooltipContent)
+        {
+            return this.AddTag(sourceRegion, documentSpan, runIndex, persistentSpan => new SarifLocationErrorTag(
+                        persistentSpan,
+                        this.TextBuffer,
+                        sourceRegion,
+                        runIndex,
+                        errorType,
+                        tooltipContent));
+        }
+
+        private ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, Func<IPersistentSpan, ISarifLocationTag> createTag)
         {
             // Since it is possible we are already in a nested update call, we use the update semantics
             // in "Add tag" so that this method does not fire a changed tags event to visual studio
@@ -290,12 +325,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                         endIndex: documentSpan.iEndIndex,
                         trackingMode: SpanTrackingMode.EdgeInclusive);
 
-                    SarifLocationTextMarkerTag newSarifTag = new SarifLocationTextMarkerTag(
-                        persistentSpan,
-                        this.TextBuffer,
-                        sourceRegion,
-                        runId,
-                        TextMarkerTagType);
+                    ISarifLocationTag newSarifTag = createTag(persistentSpan);
 
                     this.sarifTags.Add(newSarifTag);
 
