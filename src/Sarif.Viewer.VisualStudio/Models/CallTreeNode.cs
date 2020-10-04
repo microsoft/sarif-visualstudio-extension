@@ -9,6 +9,7 @@ using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -118,7 +119,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (_lineMarker == null
                     && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath);
+                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath, PredefinedErrorTypeNames.Suggestion, this.Message);
                     _lineMarker.RaiseRegionSelected += RegionSelected;
                 }
 

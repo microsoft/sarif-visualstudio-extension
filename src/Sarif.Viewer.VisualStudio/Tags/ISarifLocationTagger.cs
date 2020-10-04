@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.TextManager.Interop;
 using System;
 
@@ -12,7 +11,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Adds a tag to report to visual studio.
         /// </summary>
-        /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
         /// <param name="documentSpan">The span to use to create the tag relative to an open document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="textMarkerTagType">The text marker tag to display for this tag.</param>
@@ -22,12 +20,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        ISarifLocationTag AddTextMarkerTag(Region sourceRegion, TextSpan documentSpan, int runIndex, string textMarkerTagType);
+        ISarifLocationTextMarkerTag AddTextMarkerTag(TextSpan documentSpan, int runIndex, string textMarkerTagType);
 
         /// <summary>
         /// Adds a tag to report to visual studio.
         /// </summary>
-        /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
         /// <param name="documentSpan">The span to use to create the tag relative to an open document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
@@ -38,16 +35,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        ISarifLocationTag AddErrorTag(Region sourceRegion, TextSpan documentSpan, int runIndex, string errorType, object tooltipContent);
-
-        /// <summary>
-        /// Determines if the tagger already knows about the given source span.
-        /// </summary>
-        /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
-        /// <param name="runIndex">The SARIF run index associated with this tag.</param>
-        /// <param name="existingTag">On successful return, contains existing tag</param>
-        /// <returns>Returns true if the tagger already has a span for the given source span.</returns>
-        bool TryGetTag(Region sourceRegion, int runIndex, out ISarifLocationTag existingTag);
+        ISarifLocationErrorTag AddErrorTag(TextSpan documentSpan, int runIndex, string errorType, object tooltipContent);
 
         /// <summary>
         /// Removes the tag from the tagger.

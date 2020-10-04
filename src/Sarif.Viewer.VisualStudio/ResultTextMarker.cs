@@ -54,7 +54,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         private readonly int runIndex;
 
-        private ISarifLocationTag textMarkerTag;
+        private ISarifLocationTextMarkerTag textMarkerTag;
 
         public string FullFilePath { get; set; }
         public string UriBaseId { get; set; }
@@ -149,22 +149,17 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
+                // First, let's open the document so the user can see it.
                 IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
                 }
 
-                // The window frame must be shown now (at this point) because we need tagging to occur,
-                // which happens as a result of the Show call, before the rest of this method executes.
                 vsWindowFrame.Show();
 
-                IVsTextView vsTextView = VsShellUtilities.GetTextView(vsWindowFrame);
-                if (vsTextView == null)
-                {
-                    return false;
-                }
-
+                // Now, we need to make sure the document gets tagged before the next section of code
+                // in this method attempts to select it.
                 if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
                 {
                     return false;
@@ -182,7 +177,9 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                ITagAggregator<ITextMarkerTag> tagAggregator = viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView);
+                // Make sure the tagger is associated with this text view (and it's associated buffer) before
+                // we try to tag the document, otherwise tagging will fail.
+                viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView);
                 this.TryTagDocument(textView.TextBuffer);
             }
 
@@ -280,19 +277,16 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (!tagger.TryGetTag(this.fullyPopulatedRegion, this.runIndex, out this.textMarkerTag))
+            if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan tagSpan))
             {
-                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan tagSpan))
-                {
-                    return false;
-                }
+                return false;
+            }
 
-                this.textMarkerTag = tagger.AddTextMarkerTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, Color);
+            this.textMarkerTag = tagger.AddTextMarkerTag(tagSpan, this.runIndex, Color);
 
-                if (this.ToolTipeContent != null && this.ErrorType != null)
-                {
-                    tagger.AddErrorTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, this.ErrorType, this.ToolTipeContent);
-                }
+            if (this.ToolTipeContent != null && this.ErrorType != null)
+            {
+                tagger.AddErrorTag(tagSpan, this.runIndex, this.ErrorType, this.ToolTipeContent);
             }
 
             // Once we have tagged the document, we start listening to the
@@ -300,7 +294,6 @@ namespace Microsoft.Sarif.Viewer
             // that ultimately select items (such as call-tree nodes)
             // in the SARIF explorer tool pane window.
             this.textMarkerTag.CaretEnteredTag += this.CaretEnteredTag;
-
 
             return true;
         }
@@ -359,11 +352,13 @@ namespace Microsoft.Sarif.Viewer
                 ISarifLocationTag oldTag = this.textMarkerTag;
 
                 tagger.RemoveTag(this.textMarkerTag);
+                this.textMarkerTag.CaretEnteredTag -= this.CaretEnteredTag;
                 this.textMarkerTag = null;
 
-                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, oldTag.TextBuffer, out TextSpan tagSpan))
+                if (TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, oldTag.TextBuffer, out TextSpan tagSpan))
                 {
-                    this.textMarkerTag = tagger.AddTextMarkerTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, color);
+                    this.textMarkerTag = tagger.AddTextMarkerTag(tagSpan, this.runIndex, color);
+                    this.textMarkerTag.CaretEnteredTag += this.CaretEnteredTag;
                 }
             }
         }

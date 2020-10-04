@@ -8,7 +8,6 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System.ComponentModel;
     using System.Linq;
     using System.Threading;
-    using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Editor;
@@ -263,12 +262,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public ISarifLocationTag AddTextMarkerTag(Region sourceRegion, TextSpan documentSpan, int runIndex, string textMarkerTagType)
+        public ISarifLocationTextMarkerTag AddTextMarkerTag(TextSpan documentSpan, int runIndex, string textMarkerTagType)
         {
-            return this.AddTag(sourceRegion, documentSpan, runIndex, persistentSpan => new SarifLocationTextMarkerTag(
+            return this.AddTag<ISarifLocationTextMarkerTag>(documentSpan, runIndex, persistentSpan => new SarifLocationTextMarkerTag(
                         persistentSpan,
                         this.TextBuffer,
-                        sourceRegion,
                         runIndex,
                         textMarkerTagType));
         }
@@ -276,7 +274,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Adds a tag to report to visual studio.
         /// </summary>
-        /// <param name="sourceRegion">The original span from the region in the SARIF log.</param>
         /// <param name="documentSpan">The span to use to create the tag relative to an open document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
@@ -287,18 +284,18 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        public ISarifLocationTag AddErrorTag(Region sourceRegion, TextSpan documentSpan, int runIndex, string errorType, object tooltipContent)
+        public ISarifLocationErrorTag AddErrorTag(TextSpan documentSpan, int runIndex, string errorType, object tooltipContent)
         {
-            return this.AddTag(sourceRegion, documentSpan, runIndex, persistentSpan => new SarifLocationErrorTag(
+            return this.AddTag<ISarifLocationErrorTag>(documentSpan, runIndex, persistentSpan => new SarifLocationErrorTag(
                         persistentSpan,
                         this.TextBuffer,
-                        sourceRegion,
                         runIndex,
                         errorType,
                         tooltipContent));
         }
 
-        private ISarifLocationTag AddTag(Region sourceRegion, TextSpan documentSpan, int runId, Func<IPersistentSpan, ISarifLocationTag> createTag)
+        private T AddTag<T>(TextSpan documentSpan, int runId, Func<IPersistentSpan, ISarifLocationTag> createTag)
+            where T: ISarifLocationTag
         {
             // Since it is possible we are already in a nested update call, we use the update semantics
             // in "Add tag" so that this method does not fire a changed tags event to visual studio
@@ -307,16 +304,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (TagListLock.EnterWriteLock())
                 {
-                    ISarifLocationTag existingSarifTag = this.sarifTags.FirstOrDefault(
-                        (sarifTag) =>
-                            sarifTag.SourceRegion.ValueEquals(sourceRegion)
-                            && sarifTag.RunIndex == runId);
-
-                    if (existingSarifTag != null)
-                    {
-                        return existingSarifTag;
-                    }
-
                     IPersistentSpan persistentSpan = this.persistentSpanFactory.Create(
                         this.TextBuffer.CurrentSnapshot,
                         startLine: documentSpan.iStartLine,
@@ -339,32 +326,14 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                     this.UpdateBatchSpan(newSarifTag.DocumentPersistentSpan.Span);
 
-                    return newSarifTag;
+                    return (T)newSarifTag;
                 }
             }
         }
 
         /// <inheritdoc/>
-        public bool TryGetTag(Region sourceRegion, int runIndex, out ISarifLocationTag existingTag)
+        public void RemoveTag(ISarifLocationTag sarifTag)
         {
-            using (TagListLock.EnterReadLock())
-            {
-                existingTag = this.sarifTags.FirstOrDefault(sarifTag =>
-                    sarifTag.SourceRegion.ValueEquals(sourceRegion) &&
-                    runIndex == sarifTag.RunIndex);
-            }
-
-            return existingTag != null;
-        }
-
-        /// <inheritdoc/>
-        public void RemoveTag(ISarifLocationTag tag)
-        {
-            if (!(tag is SarifLocationTextMarkerTag sarifTag))
-            {
-                return;
-            }
-
             // Since it is possible we are already in a nested update call, we use the update semantics
             // in "remove tag" so that this method does not fire a changed tags event to visual studio
             // unless all nesting is complete.
@@ -625,11 +594,11 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                 }
 
-                foreach (SarifLocationTextMarkerTag tagCaretIsCurrentlyIn in tagsCaretIsCurrentlyIn)
+                foreach (ISarifLocationTag tagCaretIsCurrentlyIn in tagsCaretIsCurrentlyIn.Where(tag => tag is SarifLocationTextMarkerTag))
                 {
                     if (this.previousTagsCaretWasIn == null || !this.previousTagsCaretWasIn.Contains(tagCaretIsCurrentlyIn))
                     {
-                        tagCaretIsCurrentlyIn.RaiseCaretEnteredTag();
+                        ((SarifLocationTextMarkerTag)tagCaretIsCurrentlyIn).RaiseCaretEnteredTag();
                     }
                 }
 

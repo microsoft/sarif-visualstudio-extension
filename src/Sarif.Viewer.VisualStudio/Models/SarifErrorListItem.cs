@@ -32,6 +32,13 @@ namespace Microsoft.Sarif.Viewer
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
 
+        private static readonly Dictionary<FailureLevel, string> FailureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
+        {
+            { FailureLevel.Error, Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.OtherError },
+            { FailureLevel.Warning, Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.Warning },
+            { FailureLevel.Note, Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.HintedSuggestion },
+        };
+
         internal SarifErrorListItem()
         {
             Locations = new LocationCollection(string.Empty);
@@ -517,7 +524,9 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (_lineMarker == null && Region != null && Region.StartLine > 0)
                 {
-                    _lineMarker = new ResultTextMarker(_runId, Region, FileName)
+                    FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
+
+                    _lineMarker = new ResultTextMarker(_runId, Region, FileName, predefinedErrorType, this.Message)
                     {
                         UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
                     };

@@ -83,6 +83,8 @@
     <Compile Include="SarifToolWindowCommand.cs" />
     <Compile Include="SCloseSarifLogService.cs" />
     <Compile Include="SLoadSarifLogService.cs" />
+    <Compile Include="Tags\ISarifLocationErrorTag.cs" />
+    <Compile Include="Tags\ISarifLocationTextMarkerTag.cs" />
     <Compile Include="Tags\ISarifLocationTag.cs" />
     <Compile Include="Tags\ISarifLocationTagger.cs" />
     <Compile Include="Tags\SarifLocationErrorTag.cs" />

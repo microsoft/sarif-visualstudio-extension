@@ -2,13 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
-using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    internal class SarifLocationTextMarkerTag : ISarifLocationTag, ITextMarkerTag
+    /// <summary>
+    /// Contains the data necessary to display a text marker tag (a highlight)
+    /// inside Visual Studio's text views.
+    /// </summary>
+    internal class SarifLocationTextMarkerTag : ISarifLocationTextMarkerTag
     {
         private bool disposed;
 
@@ -16,23 +18,18 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Initialize a new instance of <see cref="SarifLocationTextMarkerTag"/>.
         /// </summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
-        /// <param name="sourceRegion">The original span from the region present in the SARIF log.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="textMarkerTagType">The text marker tag to display for this tag.</param>
-        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, Region sourceRegion, int runIndex, string textMarkerTagType)
+        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, int runIndex, string textMarkerTagType)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.TextBuffer = textBuffer;
-            this.SourceRegion = sourceRegion;
             this.RunIndex = runIndex;
             this.Type = textMarkerTagType;
         }
 
         /// <inheritdoc/>
         public IPersistentSpan DocumentPersistentSpan { get; }
-
-        /// <inheritdoc/>
-        public Region SourceRegion { get; }
 
         /// <inheritdoc/>
         public int RunIndex { get; }
