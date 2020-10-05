@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.ComponentModel;
 using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Tags
@@ -10,9 +11,10 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// Contains the data necessary to display a text marker tag (a highlight)
     /// inside Visual Studio's text views.
     /// </summary>
-    internal class SarifLocationTextMarkerTag : ISarifLocationTextMarkerTag
+    internal class SarifLocationTextMarkerTag : ISarifLocationTextMarkerTag, INotifyPropertyChanged
     {
         private bool disposed;
+        private string textMarkerTagType;
 
         /// <summary>
         /// Initialize a new instance of <see cref="SarifLocationTextMarkerTag"/>.
@@ -25,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.TextBuffer = textBuffer;
             this.RunIndex = runIndex;
-            this.Type = textMarkerTagType;
+            this.textMarkerTagType = textMarkerTagType;
         }
 
         /// <inheritdoc/>
@@ -35,7 +37,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         public int RunIndex { get; }
 
         /// <inheritdoc/>
-        public string Type { get ; }
+        public string Type
+        {
+            get => this.textMarkerTagType;
+        }
 
         /// <inheritdoc/>
         public ITextBuffer TextBuffer { get; }
@@ -43,10 +48,21 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public event EventHandler CaretEnteredTag;
 
-        /// <summary>
-        /// Called by the tagger to when it detects that the caret for a text view has entered a tag.
-        /// </summary>
-        public void RaiseCaretEnteredTag()
+        /// <inheritdoc/>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <inheritdoc/>
+        public void UpdateTextMarkerTagType(string textMarkerTagType)
+        {
+            if (textMarkerTagType != this.textMarkerTagType)
+            {
+                this.textMarkerTagType = textMarkerTagType;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Type)));
+            }
+        }
+
+        /// <inheritdoc/>
+        public void NotifyCaretWithin()
         {
             this.CaretEnteredTag?.Invoke(this, new EventArgs());
         }

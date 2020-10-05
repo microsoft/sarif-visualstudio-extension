@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
-    public class RunDataCache
+    internal class RunDataCache
     {
         private IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
 

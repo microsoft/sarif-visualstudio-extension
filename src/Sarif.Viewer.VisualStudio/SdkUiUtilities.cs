@@ -879,7 +879,9 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK;
+            // IPersistFileFormat::GetCurFile clearly documents that the filename can be null (with an S_OK return value) if the document is in the "untitled" state.
+            // For our uses, we require a non-empty, non-null file name.
+            return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK && !string.IsNullOrWhiteSpace(filename);
         }
 
         /// <summary>

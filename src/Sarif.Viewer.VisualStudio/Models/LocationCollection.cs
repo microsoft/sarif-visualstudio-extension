@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class LocationCollection : ObservableCollection<LocationModel>
+    internal class LocationCollection : ObservableCollection<LocationModel>
     {
         private string _message;
         private LocationModel _selectedItem;

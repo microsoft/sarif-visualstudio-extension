@@ -14,13 +14,9 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer
@@ -30,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
     /// implementation to the user interface activities.
     /// </summary>
     [Guid("4494F79A-6E9F-45EA-895B-7AE959B94D6A")]
-    public sealed class CodeAnalysisResultManager : IVsSolutionEvents, IVsUpdateSolutionEvents2, IVsRunningDocTableEvents
+    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents, IVsUpdateSolutionEvents2, IVsRunningDocTableEvents
     {
         internal const int E_FAIL = unchecked((int)0x80004005);
         internal const uint VSCOOKIE_NIL = 0;
@@ -571,32 +567,16 @@ namespace Microsoft.Sarif.Viewer
             return S_OK;
         }
 
-        public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
-        {
-            return S_OK;
-        }
+        #region IVsRunningDocTableEvents
+        public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining) => S_OK;
 
-        public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
-        {
-            return S_OK;
-        }
+        public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining) => S_OK;
 
-        public int OnAfterSave(uint docCookie)
-        {
-            return S_OK;
-        }
+        public int OnAfterSave(uint docCookie) => S_OK;
 
-        public int OnAfterAttributeChange(uint docCookie, uint grfAttribs)
-        {
-            return S_OK;
-        }
+        public int OnAfterAttributeChange(uint docCookie, uint grfAttribs) => S_OK;
 
-        public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            TryTagDocument(docCookie, pFrame);
-            return S_OK;
-        }
+        public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame) => S_OK;
 
         public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
         {
@@ -604,6 +584,7 @@ namespace Microsoft.Sarif.Viewer
             RemoveTagHighlights(docCookie);
             return S_OK;
         }
+        #endregion IVsRunningDocTableEvents
 
         private string PromptForResolvedPath(string pathFromLogFile)
         {
@@ -669,57 +650,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return commonSuffix;
-        }
-
-        private void TryTagDocument(uint docCookie, IVsWindowFrame pFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (RunIndexToRunDataCache == null)
-            {
-                return;
-            }
-
-            string documentName = GetDocumentName(docCookie);
-
-            if (string.IsNullOrEmpty(documentName))
-            {
-                return;
-            }
-
-            IVsTextView vsTextView = VsShellUtilities.GetTextView(pFrame);
-            if (vsTextView == null)
-            {
-                return;
-            }
-
-            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
-            {
-                return;
-            }
-
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel == null)
-            {
-                return;
-            }
-
-            IVsEditorAdaptersFactoryService editorAdapterFactoryService = componentModel.GetService<IVsEditorAdaptersFactoryService>();
-            if (editorAdapterFactoryService == null)
-            {
-                return;
-            }
-
-            ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
-
-            foreach (SarifErrorListItem sarifErrorListItem in 
-                RunIndexToRunDataCache.
-                Values.
-                SelectMany(runDataCache => runDataCache.SarifErrors).
-                Where(sarifListItem => string.Compare(documentName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0))
-            {
-                sarifErrorListItem.TryTagDocument(textBuffer);
-            }
         }
 
         /// <summary>

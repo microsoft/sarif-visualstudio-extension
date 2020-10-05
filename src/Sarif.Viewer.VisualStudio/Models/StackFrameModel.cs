@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class StackFrameModel : CodeLocationObject
+    internal class StackFrameModel : CodeLocationObject
     {
         private string _message;
         private int _line;

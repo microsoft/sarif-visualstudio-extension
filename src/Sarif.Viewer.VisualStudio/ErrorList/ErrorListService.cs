@@ -452,6 +452,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
+            SarifLocationTagger.NotifyAllTagsChanged();
+
             return sarifErrors.Count;
         }
 

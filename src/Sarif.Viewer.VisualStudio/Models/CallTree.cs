@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class CallTree : NotifyPropertyChangedObject
+    internal class CallTree : NotifyPropertyChangedObject
     {
         CallTreeNode _selectedItem;
         DelegateCommand<TreeView> _selectPreviousCommand;

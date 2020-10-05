@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class StackCollection : ObservableCollection<StackFrameModel>
+    internal class StackCollection : ObservableCollection<StackFrameModel>
     {
         private string _message;
 

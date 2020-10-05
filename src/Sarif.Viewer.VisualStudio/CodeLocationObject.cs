@@ -6,11 +6,10 @@ using System.ComponentModel;
 using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer
 {
-    public abstract class CodeLocationObject : NotifyPropertyChangedObject
+    internal abstract class CodeLocationObject : NotifyPropertyChangedObject
     {
         private Region _region;
         protected ResultTextMarker _lineMarker;
@@ -27,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
                 // without a region.
                 if (_lineMarker == null && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath);
+                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath, DefaultSourceHighlightColor);
                 }
 
                 // If the UriBaseId was populated before the marker was available, set the
@@ -195,13 +194,7 @@ namespace Microsoft.Sarif.Viewer
 
         public void ApplyDefaultSourceFileHighlighting()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // Remove hover marker
             LineMarker?.RemoveTagHighlight();
-
-            // Add default marker instead
-            LineMarker?.AddTagHighlight(DefaultSourceHighlightColor);
         }
 
         /// <summary>
@@ -209,22 +202,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public void ApplySelectionSourceFileHighlighting()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // Remove previous highlighting and replace with hover color
-            LineMarker?.RemoveTagHighlight();
             LineMarker?.AddTagHighlight(SelectedSourceHighlightColor);
-        }
-
-        /// <summary>
-        /// An overridden method for reacting to the event of a document window
-        /// being opened
-        /// </summary>
-        internal void AttachToDocument(ITextBuffer textBuffer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            LineMarker?.TryTagDocument(textBuffer);
         }
     }
 }

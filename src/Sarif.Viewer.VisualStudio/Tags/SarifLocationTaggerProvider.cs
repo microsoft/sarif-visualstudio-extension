@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel.Composition;
-using System.Linq;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -24,10 +23,8 @@ namespace Microsoft.Sarif.Viewer.Tags
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(SarifLocationTextMarkerTag))]
     [TagType(typeof(SarifLocationErrorTag))]
-    [Export(typeof(ITextViewCreationListener))]
-    [TextViewRole(PredefinedTextViewRoles.Document)]
     [ContentType("any")]
-    internal class SarifLocationTaggerProvider : IViewTaggerProvider, ITextViewCreationListener
+    internal class SarifLocationTaggerProvider : IViewTaggerProvider
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -55,12 +52,6 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentNullException(nameof(textBuffer));
             }
 
-            // If for some reason the text buffer doesn't belong to the text view, then skip this.
-            if (textView.TextBuffer != textBuffer)
-            {
-                return null;
-            }
-
             // The SARIF viewer needs a text buffer to have a file name in order to be able to associate a SARIF
             // result location with the file. Visual Studio allows text buffers to be created at any time with our without a filename.
             // So, if there is no file name, then do not create a tagger for this buffer.
@@ -69,29 +60,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return null;
             }
 
-            return new SarifLocationTagger(textView, textBuffer, this.PersistentSpanFactory) as ITagger<T>;
-        }
-
-        /// <inheritdoc/>
-        public void TextViewCreated(ITextView textView)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (!SdkUIUtilities.TryGetFileNameFromTextBuffer(textView.TextBuffer, out string documentName))
-            {
-                return;
-            }
-
-            foreach (SarifErrorListItem sarifErrorListItem in
-                CodeAnalysisResultManager.
-                Instance.
-                RunIndexToRunDataCache.
-                Values.
-                SelectMany(runDataCache => runDataCache.SarifErrors).
-                Where(sarifListItem => string.Compare(documentName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0))
-            {
-                sarifErrorListItem.TryTagDocument(textView.TextBuffer);
-            }
+            return new SarifLocationTagger(textView, textBuffer, PersistentSpanFactory) as ITagger<T>;
         }
     }
 }

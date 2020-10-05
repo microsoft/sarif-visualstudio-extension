@@ -33,5 +33,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Fired when the caret enters a tag.
         /// </summary>
         event EventHandler CaretEnteredTag;
+
+        /// <summary>
+        /// Causes the object to raise a <see cref="CaretEnteredTag"/> event its consumers.
+        /// </summary>
+        void NotifyCaretWithin();
     }
 }

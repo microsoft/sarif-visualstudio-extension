@@ -9,11 +9,10 @@ using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class CallTreeNode : CodeLocationObject
+    internal class CallTreeNode : CodeLocationObject
     {
         private ThreadFlowLocation _location;
         private CallTree _callTree;
@@ -119,7 +118,11 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (_lineMarker == null
                     && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath, PredefinedErrorTypeNames.Suggestion, this.Message);
+                    // Note that we could add tool-tips here as well but that results in super confusing UI
+                    // as the same thread flow locations can (and often do) show up in multiple SARIF results.
+                    // If we attempt to "remove duplicates" and only add one, then it gets even more confusing
+                    // as then it could "show up" for a result that isn't relevant at all.
+                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath, DefaultSourceHighlightColor);
                     _lineMarker.RaiseRegionSelected += RegionSelected;
                 }
 

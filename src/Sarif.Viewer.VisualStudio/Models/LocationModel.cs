@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class LocationModel : CodeLocationObject
+    internal class LocationModel : CodeLocationObject
     {
         private string _message;
         private string _logicalLocation;

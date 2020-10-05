@@ -12,7 +12,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
     /// This type is only used by the VS designer. It provides the data which is 
     /// displayed in the designer. 
     /// </summary>
-    public static class ViewModelLocator
+    internal static class ViewModelLocator
     {
         static object _syncroot = new object();
         static SarifErrorListItem _designTime = null;

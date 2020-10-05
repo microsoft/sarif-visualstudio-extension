@@ -20,7 +20,7 @@ using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
-    public class SarifErrorListItem : NotifyPropertyChangedObject
+    internal class SarifErrorListItem : NotifyPropertyChangedObject
     {
         private readonly int _runId;
         private string _fileName;
@@ -526,7 +526,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
-                    _lineMarker = new ResultTextMarker(_runId, Region, FileName, predefinedErrorType, this.Message)
+                    _lineMarker = new ResultTextMarker(_runId, Region, FileName, ResultTextMarker.DEFAULT_SELECTION_COLOR, predefinedErrorType, this.Message)
                     {
                         UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
                     };
@@ -543,6 +543,7 @@ namespace Microsoft.Sarif.Viewer
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             this.RemoveTagHighlights();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
@@ -633,27 +634,22 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Adds tags (highlights) to the passed in text buffer (document).
         /// </summary>
-        internal bool TryTagDocument(ITextBuffer textBuffer)
+        internal bool TryTagDocument(ITextBuffer textBuffer, ISarifLocationTagger sarifLocationTagger)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (!SarifLocationTagger.TryFindTaggerForBuffer(textBuffer, out SarifLocationTagger tagger))
+            
+            using (sarifLocationTagger.Update())
             {
-                return false;
-            }
-
-            using (tagger.Update())
-            {
-                LineMarker?.TryTagDocument(textBuffer);
+                LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
 
                 foreach (LocationModel location in Locations)
                 {
-                    location.LineMarker?.TryTagDocument(textBuffer);
+                    location.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
                 }
 
                 foreach (LocationModel location in RelatedLocations)
                 {
-                    location.LineMarker?.TryTagDocument(textBuffer);
+                    location.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
                 }
 
                 foreach (CallTree callTree in CallTrees)
@@ -669,10 +665,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         CallTreeNode current = nodesToProcess.Pop();
 
-                        if (current.LineMarker?.TryTagDocument(textBuffer) == true)
-                        {
-                            current.ApplyDefaultSourceFileHighlighting();
-                        }
+                        current.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
 
                         foreach (CallTreeNode childNode in current.Children)
                         {
@@ -685,7 +678,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     foreach (StackFrameModel stackFrame in stackCollection)
                     {
-                        stackFrame.LineMarker?.TryTagDocument(textBuffer);
+                        stackFrame.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
                     }
                 }
             }

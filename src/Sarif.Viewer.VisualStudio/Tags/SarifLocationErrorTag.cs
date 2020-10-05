@@ -49,10 +49,8 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public event EventHandler CaretEnteredTag;
 
-        /// <summary>
-        /// Called by the tagger to when it detects that the caret for a text view has entered a tag.
-        /// </summary>
-        public void RaiseCaretEnteredTag()
+        /// <inheritdoc/>
+        public void NotifyCaretWithin()
         {
             this.CaretEnteredTag?.Invoke(this, new EventArgs());
         }
