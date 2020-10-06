@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Services
 {
-    internal interface SLoadSarifLogService
+    internal interface SCloseSarifLogService
     {
     }
 }
