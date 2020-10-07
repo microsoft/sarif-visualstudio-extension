@@ -243,7 +243,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (int runIdToClear in runIdsToClear)
             {
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
-                SarifLocationTaggerProvider.MarkAllTagsAsDirty();
+                SarifLocationTaggerProvider.RefreshAllTags();
             }
         }
 
@@ -395,7 +395,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CleanAllErrors()
         {
             SarifTableDataSource.Instance.CleanAllErrors();
-            SarifLocationTaggerProvider.MarkAllTagsAsDirty();
+            SarifLocationTaggerProvider.RefreshAllTags();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
         }
 
@@ -454,7 +454,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
 
             // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
-            SarifLocationTaggerProvider.MarkAllTagsAsDirty();
+            SarifLocationTaggerProvider.RefreshAllTags();
 
             return sarifErrors.Count;
         }

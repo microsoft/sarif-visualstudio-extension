@@ -199,7 +199,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private void Navigate()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.NavigateTo();
+            this.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
         }
     }
 }

@@ -22,7 +22,6 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly ITextBuffer textBuffer;
-        private readonly ITextView textView;
 
         private List<ISarifLocationTag> currentTags;
         private bool tagsDirty = true;
@@ -33,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public event EventHandler Disposed;
 
-        public SarifLocationErrorTagger(ITextView textView, ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        public SarifLocationErrorTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -43,7 +42,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
 
             this.textBuffer = textBuffer;
-            this.textView = textView;
             this.persistentSpanFactory = persistentSpanFactory;
         }
 
@@ -92,7 +90,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        public void MarkTagsDirty()
+        public void RefreshTags()
         {
             this.tagsDirty = true;
 

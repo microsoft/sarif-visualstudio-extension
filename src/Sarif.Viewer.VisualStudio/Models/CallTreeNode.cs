@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Converters;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
@@ -132,7 +133,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         color: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
-                        tooltipContent: this.Message);
+                        tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this));
                 }
 
                 return _lineMarker;

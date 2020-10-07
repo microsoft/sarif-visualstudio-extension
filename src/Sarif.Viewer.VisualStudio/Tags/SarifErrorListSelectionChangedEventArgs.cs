@@ -5,22 +5,37 @@ namespace Microsoft.Sarif.Viewer.Tags
 {
     using System;
 
+    /// <summary>
+    /// Used as event arguments for the navigate and selection changed events from <see cref="SarifErrorListEventProcessor"/>.
+    /// </summary>
     internal class SarifErrorListSelectionChangedEventArgs: EventArgs
     {
-        public SarifErrorListSelectionChangedEventArgs(SarifErrorListItem oldSarifErrorListItem, SarifErrorListItem newSarifErrorListItem)
+        /// <summary>
+        /// Creates an instance of <see cref="SarifErrorListSelectionChangedEventArgs"/>.
+        /// </summary>
+        /// <param name="oldItem">The previous item.</param>
+        /// <param name="newItem">The new item.</param>
+        /// <remarks>Both parameters may be null.</remarks>
+        public SarifErrorListSelectionChangedEventArgs(SarifErrorListItem oldItem, SarifErrorListItem newItem)
         {
-            this.OldItem = oldSarifErrorListItem;
-            this.NewItem = newSarifErrorListItem;
+            this.OldItem = oldItem;
+            this.NewItem = newItem;
         }
 
-        public SarifErrorListItem OldItem
-        {
-            get;
-        }
+        /// <summary>
+        /// Gets the previous item.
+        /// </summary>
+        /// <remarks>
+        /// May be null.
+        /// </remarks>
+        public SarifErrorListItem OldItem { get; }
 
-        public SarifErrorListItem NewItem
-        {
-            get;
-        }
+        /// <summary>
+        /// Gets the new item.
+        /// </summary>
+        /// <remarks>
+        /// May be null.
+        /// </remarks>
+        public SarifErrorListItem NewItem { get; }
     }
 }

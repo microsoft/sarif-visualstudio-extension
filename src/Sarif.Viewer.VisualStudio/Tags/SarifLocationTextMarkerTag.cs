@@ -1,19 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using System;
-using System.ComponentModel;
-using Microsoft.VisualStudio.Text;
-
 namespace Microsoft.Sarif.Viewer.Tags
 {
+    using System.ComponentModel;
+    using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Tagging;
+
     /// <summary>
     /// Contains the data necessary to display a text marker tag (a highlight)
     /// inside Visual Studio's text views.
     /// </summary>
-    internal class SarifLocationTextMarkerTag : ISarifLocationTextMarkerTag, INotifyPropertyChanged
+    internal class SarifLocationTextMarkerTag : ISarifLocationTag, ITextMarkerTag, INotifyPropertyChanged
     {
-        private bool disposed;
         private string textMarkerTagType;
         private string highlightedTextMarkerTagType;
         private string currentTextMarkerTagType;
@@ -70,25 +69,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         public void NotifyCaretLeft()
         {
             this.UpdateTextMarkerTagType(this.textMarkerTagType);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                this.disposed = true;
-                if (disposing)
-                {
-                    this.DocumentPersistentSpan?.Dispose();
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

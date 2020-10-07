@@ -80,7 +80,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (typeof(T) == typeof(IErrorTag))
             {
-                newTagger = new SarifLocationErrorTagger(textView, textBuffer, this.PersistentSpanFactory);
+                newTagger = new SarifLocationErrorTagger(textBuffer, this.PersistentSpanFactory);
             }
 
             if (typeof(T) == typeof(ITextMarkerTag))
@@ -108,7 +108,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// The primary use of this is to send a tags changed notification when a "text view" is already open and visible
         /// and a tagger is active for that "text view" and a SARIF log is loaded via an API.
         /// </remarks>
-        public static void MarkAllTagsAsDirty()
+        public static void RefreshAllTags()
         {
             IEnumerable<ISarifLocationTagger2> taggers;
             using (SarifTaggersLock.EnterReadLock())
@@ -118,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (ISarifLocationTagger2 tagger in taggers)
             {
-                tagger.MarkTagsDirty();
+                tagger.RefreshTags();
             }
         }
 

@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private void SelectionChanged(LocationModel selectedItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            selectedItem.NavigateTo();
+            selectedItem.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
         }
     }
 }

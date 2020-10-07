@@ -10,23 +10,44 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;
 
+    /// <summary>
+    /// Maintains currently selected and navigated to <see cref="SarifErrorListItem"/> from the Visual Studio error list.
+    /// </summary>
     internal class SarifErrorListEventProcessor : TableControlEventProcessorBase
     {
         private static SarifErrorListItem currentlySelectedItem;
         private static SarifErrorListItem currentlyNavigateddItem;
 
+        /// <summary>
+        /// Gets the currently selected <see cref="SarifErrorListItem"/>.
+        /// </summary>
+        /// <remarks>
+        /// May be null.
+        /// </remarks>
         public static SarifErrorListItem SelectedItem
         {
             get => currentlySelectedItem;
         }
 
+        /// <summary>
+        /// Fired when the selection in the Visual Studio error list has changed.
+        /// </summary>
         public static event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
-        
+
+        /// <summary>
+        /// Gets the currently navigated to <see cref="SarifErrorListItem"/>.
+        /// </summary>
+        /// <remarks>
+        /// May be null.
+        /// </remarks>
         public static SarifErrorListItem NavigatedItem
         {
             get => currentlyNavigateddItem;
         }
 
+        /// <summary>
+        /// Fired when the Visual Studio error list navigates to an item.
+        /// </summary>
         public static event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;
 
         public override void PostprocessSelectionChanged(TableSelectionChangedEventArgs e)
@@ -35,6 +56,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             base.PostprocessSelectionChanged(e);
 
+            // Make sure there is only one selection, that's all we support.
             IEnumerator<ITableEntryHandle> enumerator = e.AddedEntries.GetEnumerator();
             ITableEntryHandle selectedTableEntry = null;
             if (enumerator.MoveNext())
@@ -71,9 +93,9 @@ namespace Microsoft.Sarif.Viewer.Tags
             NavigatedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslyNavigatedItem, currentlyNavigateddItem));
         }
 
-        bool TryGetSarifResult(ITableEntryHandle entryHandle, out SarifErrorListItem sarifResult)
+        private bool TryGetSarifResult(ITableEntryHandle entryHandle, out SarifErrorListItem sarifResult)
         {
-            sarifResult = default(SarifErrorListItem);
+            sarifResult = null;
 
             if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && tableEntry is SarifResultTableEntry sarifResultTableEntry)
             {

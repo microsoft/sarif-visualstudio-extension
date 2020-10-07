@@ -193,7 +193,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         SarifViewerPackage.SarifToolWindow.Control.DataContext = this.Error;
                     }
 
-                    location.NavigateTo(usePreviewPane: false);
+                    location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
                 }
             }
             // This is super dangerous! We are launching URIs for SARIF logs

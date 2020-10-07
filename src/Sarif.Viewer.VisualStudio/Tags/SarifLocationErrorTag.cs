@@ -1,19 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using System;
-using Microsoft.VisualStudio.Text;
-
 namespace Microsoft.Sarif.Viewer.Tags
 {
+    using System;
+    using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Tagging;
+
     /// <summary>
     /// Contains the data necessary to display a error tag (a underlined squiggle with a tool tip)
     /// inside Visual Studio's text views.
     /// </summary>
-    internal class SarifLocationErrorTag : ISarifLocationErrorTag
+    internal class SarifLocationErrorTag : ISarifLocationTag, IErrorTag
     {
-        private bool disposed;
-
         /// <summary>
         /// Initialize a new instance of <see cref="SarifLocationErrorTag"/>.
         /// </summary>
@@ -62,25 +61,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         public void NotifyCaretLeft()
         {
             this.CaretLeft?.Invoke(this, new EventArgs());
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                this.disposed = true;
-                if (disposing)
-                {
-                    this.DocumentPersistentSpan?.Dispose();
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private void SelectedSarifItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
         {
-            this.MarkTagsDirty();
+            this.RefreshTags();
         }
 
         /// <inheritdoc/>
@@ -131,7 +131,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        public void MarkTagsDirty()
+        public void RefreshTags()
         {
             this.tagsDirty = true;
 

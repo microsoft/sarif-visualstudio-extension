@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         toolWindow.UpdateSelectionList(_selectedItem.TypeDescriptor);
 
                         // Navigate to the source file of the selected CallTreeNode.
-                        _selectedItem.NavigateTo();
+                        _selectedItem.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
                     }
 
                     this.NotifyPropertyChanged();

@@ -8,7 +8,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Converters
 {
-    public class CallTreeNodeToTextConverter : IValueConverter
+    internal class CallTreeNodeToTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -23,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.Converters
             return null;
         }
 
-        private static string MakeDisplayString(CallTreeNode node)
+        public static string MakeDisplayString(CallTreeNode node)
         {
             // Use the following preferences for the CallTreeNode text.
             // 1. ThreadFlowLocation.Location.Message.Text

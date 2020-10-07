@@ -592,7 +592,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            SarifLocationTaggerProvider.MarkAllTagsAsDirty();
+            SarifLocationTaggerProvider.RefreshAllTags();
         }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)

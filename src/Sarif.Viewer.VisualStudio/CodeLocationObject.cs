@@ -165,7 +165,13 @@ namespace Microsoft.Sarif.Viewer
             // RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
-        public void NavigateTo(bool usePreviewPane = true)
+        /// <summary>
+        /// Attempts to navigate a VS editor to the text marker.
+        /// </summary>
+        /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
+        /// <param name="moveFocusToCaretLocation">Indicates whether to move focus to the caret location.</param>
+        /// <returns>Returns true if a VS editor was opened.</returns>
+        public void NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -176,7 +182,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (LineMarker != null)
             {
-                LineMarker.TryNavigateTo(usePreviewPane);
+                LineMarker.TryNavigateTo(usePreviewPane, moveFocusToCaretLocation);
             }
             else
             {

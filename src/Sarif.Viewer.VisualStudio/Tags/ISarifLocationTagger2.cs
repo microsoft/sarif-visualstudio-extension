@@ -11,7 +11,7 @@
         /// <remarks>
         /// As an example, this happens when SARIF results are cleared from the error list service <see cref="ErrorListService"/>.
         /// </remarks>
-        void MarkTagsDirty();
+        void RefreshTags();
 
         /// <summary>
         /// Fired when a tagger is disposed.

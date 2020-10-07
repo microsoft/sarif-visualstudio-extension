@@ -4,9 +4,8 @@
 namespace Microsoft.Sarif.Viewer.Tags
 {
     using Microsoft.VisualStudio.Text;
-    using System;
 
-    internal interface ISarifLocationTag : IDisposable
+    internal interface ISarifLocationTag
     {
         /// <summary>
         /// Gets the persistent span for a document.

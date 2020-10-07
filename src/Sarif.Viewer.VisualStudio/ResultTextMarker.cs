@@ -197,7 +197,7 @@ namespace Microsoft.Sarif.Viewer
             if (typeof(T) == typeof(ITextMarkerTag))
             {
                 tags.Add(new SarifLocationTextMarkerTag(
-                                        persistentSpan,
+                                        this.persistentSpan,
                                         runIndex: this.RunIndex,
                                         resultId: this.ResultID,
                                         textMarkerTagType: this.Color,
@@ -211,8 +211,9 @@ namespace Microsoft.Sarif.Viewer
         /// Attempts to navigate a VS editor to the text marker.
         /// </summary>
         /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
+        /// <param name="moveFocusToCaretLocation">Indicates whether to move focus to the caret location.</param>
         /// <returns>Returns true if a VS editor was opened.</returns>
-        public bool TryNavigateTo(bool usePreviewPane)
+        public bool TryNavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -306,7 +307,11 @@ namespace Microsoft.Sarif.Viewer
                     wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
                     wpfTextView.Caret.MoveTo(trackingSpanSnapshot.End);
                     wpfTextView.Caret.EnsureVisible();
-                    wpfTextView.VisualElement.Focus();
+
+                    if (moveFocusToCaretLocation)
+                    {
+                        wpfTextView.VisualElement.Focus();
+                    }
                 }
 
                 return true;
