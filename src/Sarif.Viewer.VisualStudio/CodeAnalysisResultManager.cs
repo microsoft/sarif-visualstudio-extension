@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
     /// implementation to the user interface activities.
     /// </summary>
     [Guid("4494F79A-6E9F-45EA-895B-7AE959B94D6A")]
-    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents, IVsUpdateSolutionEvents2, IVsRunningDocTableEvents
+    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents, IVsUpdateSolutionEvents2
     {
         internal const int E_FAIL = unchecked((int)0x80004005);
         internal const uint VSCOOKIE_NIL = 0;
@@ -38,9 +38,7 @@ namespace Microsoft.Sarif.Viewer
         // Cookies for registration and unregistration
         private uint m_updateSolutionEventsCookie;
         private uint m_solutionEventsCookie;
-        private uint m_runningDocTableEventsCookie;
         private List<string> _allowedDownloadHosts;
-        private IVsRunningDocumentTable _runningDocTable;
 
         private readonly IFileSystem _fileSystem;
 
@@ -120,14 +118,6 @@ namespace Microsoft.Sarif.Viewer
                 throw Marshal.GetExceptionForHR(E_FAIL);
             }
             solution.AdviseSolutionEvents(this, out m_solutionEventsCookie);
-
-            // Register this object to listen for IVsRunningDocTableEvents
-            _runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-            if (_runningDocTable == null)
-            {
-                throw Marshal.GetExceptionForHR(E_FAIL);
-            }
-            _runningDocTable.AdviseRunningDocTableEvents(this, out m_runningDocTableEventsCookie);
         }
 
         /// <summary>
@@ -157,17 +147,6 @@ namespace Microsoft.Sarif.Viewer
                 {
                     solution.UnadviseSolutionEvents(m_solutionEventsCookie);
                     m_solutionEventsCookie = VSCOOKIE_NIL;
-                }
-            }
-
-            // Unregister this object from IVsRunningDocTableEvents events
-            if (m_runningDocTableEventsCookie != VSCOOKIE_NIL)
-            {
-                IVsRunningDocumentTable runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-                if (runningDocTable != null)
-                {
-                    runningDocTable.UnadviseRunningDocTableEvents(m_runningDocTableEventsCookie);
-                    m_runningDocTableEventsCookie = VSCOOKIE_NIL;
                 }
             }
         }
@@ -578,20 +557,6 @@ namespace Microsoft.Sarif.Viewer
             return S_OK;
         }
 
-        #region IVsRunningDocTableEvents
-        public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining) => S_OK;
-
-        public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining) => S_OK;
-
-        public int OnAfterSave(uint docCookie) => S_OK;
-
-        public int OnAfterAttributeChange(uint docCookie, uint grfAttribs) => S_OK;
-
-        public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame) => S_OK;
-
-        public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame) => S_OK;
-        #endregion IVsRunningDocTableEvents
-
         private string PromptForResolvedPath(string pathFromLogFile)
         {
             // Opening the OpenFileDialog causes the TreeView to lose focus,
@@ -656,37 +621,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return commonSuffix;
-        }
-
-        private static string GetDocumentName(uint docCookie)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            string documentName = null;
-            IVsRunningDocumentTable runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-            if (runningDocTable != null)
-            {
-                IntPtr docData = IntPtr.Zero;
-                try
-                {
-                    int hr = runningDocTable.GetDocumentInfo(docCookie,
-                                            out uint grfRDTFlags,
-                                            out uint dwReadLocks,
-                                            out uint dwEditLocks,
-                                            out documentName,
-                                            out IVsHierarchy pHier,
-                                            out uint itemId,
-                                            out docData);
-
-                }
-                finally
-                {
-                    if (docData != IntPtr.Zero)
-                    {
-                        Marshal.Release(docData);
-                    }
-                }
-            }
-            return documentName;
         }
 
         private void RemoveTemporaryFiles()
