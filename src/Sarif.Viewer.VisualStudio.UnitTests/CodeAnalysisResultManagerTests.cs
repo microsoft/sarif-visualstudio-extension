@@ -12,13 +12,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class CodeAnalysisResultManagerTests : SarifViewerPackageUnitTests
     {
-        private IFileSystem fileSystem;
+        private readonly IFileSystem fileSystem;
 
         // The list of files for which File.Exists should return true.
-        private List<string> existingFiles;
+        private readonly List<string> existingFiles;
 
-        // The rebaselined path selected by the user.
-        private string rebaselinedFileName;
+        // The path selected by the user in response to the prompt.
+        private string pathFromPrompt;
 
         // The number of times we prompt the user for the resolved path.
         private int numPrompts;
@@ -39,12 +39,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void CodeAnalysisResultManager_GetRebaselinedFileName_AcceptsMatchingFileNameFromUser()
         {
             // Arrange.
-            const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
-            const string RebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string ExpectedResolvedPath = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
 
             const int RunId = 1;
 
-            this.rebaselinedFileName = RebaselinedFileName;
+            this.pathFromPrompt = ExpectedResolvedPath;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
@@ -53,10 +53,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualRebaselinedFileName.Should().Be(RebaselinedFileName);
+            actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Length.Should().Be(1);
@@ -78,7 +78,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             this.existingFiles.Add(SecondRebaselinedFileName);
 
-            this.rebaselinedFileName = FirstRebaselinedFileName;
+            this.pathFromPrompt = FirstRebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
                 this.fileSystem, 
@@ -93,10 +93,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             this.numPrompts.Should().Be(1);
 
             // Act: Rebaseline a second file with the same prefix.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualRebaselinedFileName.Should().Be(SecondRebaselinedFileName);
+            actualResolvedPath.Should().Be(SecondRebaselinedFileName);
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Length.Should().Be(1);
@@ -112,12 +112,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void CodeAnalysisResultManager_GetRebaselinedFileName_IgnoresMismatchedFileNameFromUser()
         {
             // Arrange.
-            const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
-            const string RebaselinedFileName = @"D:\Users\John\source\sarif-sdk\src\Sarif\HashData.cs";
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string ExpectedResolvedPath = @"D:\Users\John\source\sarif-sdk\src\Sarif\HashData.cs";
 
             const int RunId = 1;
 
-            this.rebaselinedFileName = RebaselinedFileName;
+            this.pathFromPrompt = ExpectedResolvedPath;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
@@ -126,10 +126,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualRebaselinedFileName.Should().Be(FileNameInLogFile);
+            actualResolvedPath.Should().Be(PathInLogFile);
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Should().BeEmpty();
@@ -139,12 +139,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void CodeAnalysisResultManager_GetRebaselinedFileName_WhenUserDoesNotSelectRebaselinedPath_UsesPathFromLogFile()
         {
             // Arrange.
-            const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
 
             const int RunId = 1;
 
             // The user does not select a file in the File Open dialog:
-            this.rebaselinedFileName = null;
+            this.pathFromPrompt = null;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
@@ -153,10 +153,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualRebaselinedFileName.Should().Be(FileNameInLogFile);
+            actualResolvedPath.Should().Be(PathInLogFile);
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Should().BeEmpty();
@@ -166,12 +166,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void CodeAnalysisResultManager_GetRebaselinedFileName_WhenRebaselinedPathDiffersOnlyInDriveLetter_ReturnsRebaselinedPath()
         {
             // Arrange.
-            const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
-            const string RebaselinedFileName = @"D:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string ExpectedResolvedPath = @"D:\Code\sarif-sdk\src\Sarif\Notes.cs";
 
             const int RunId = 1;
 
-            this.rebaselinedFileName = RebaselinedFileName;
+            this.pathFromPrompt = ExpectedResolvedPath;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
@@ -180,10 +180,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualRebaselinedFileName.Should().Be(RebaselinedFileName);
+            actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Length.Should().Be(1);
@@ -195,12 +195,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void CodeAnalysisResultManager_GetRebaselinedFileName_WhenRebaselinedPathHasMoreComponents_ReturnsRebaselinedPath()
         {
             // Arrange.
-            const string FileNameInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
-            const string RebaselinedFileName = @"C:\Users\Mary\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string ExpectedResolvedPath = @"C:\Users\Mary\Code\sarif-sdk\src\Sarif\Notes.cs";
 
             const int RunId = 1;
 
-            this.rebaselinedFileName = RebaselinedFileName;
+            this.pathFromPrompt = ExpectedResolvedPath;
 
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
@@ -209,10 +209,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualRebaselinedFileName = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualRebaselinedFileName.Should().Be(RebaselinedFileName);
+            actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Length.Should().Be(1);
@@ -256,7 +256,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         private string FakePromptForResolvedPath(string fullPathFromLogFile)
         {
             ++this.numPrompts;
-            return this.rebaselinedFileName;
+            return this.pathFromPrompt;
         }
     }
 }
