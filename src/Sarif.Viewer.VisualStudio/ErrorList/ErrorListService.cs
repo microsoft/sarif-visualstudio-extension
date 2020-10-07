@@ -243,7 +243,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (int runIdToClear in runIdsToClear)
             {
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
-                SarifLocationTagger.RemoveAllTagsForRun(runIdToClear);
+                SarifLocationTaggerProvider.MarkAllTagsAsDirty();
             }
         }
 
@@ -395,15 +395,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CleanAllErrors()
         {
             SarifTableDataSource.Instance.CleanAllErrors();
-            SarifLocationTagger.RemoveAllTags();
+            SarifLocationTaggerProvider.MarkAllTagsAsDirty();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
-            CodeAnalysisResultManager.Instance.CurrentRunIndex = -1;
         }
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
-            RunDataCache dataCache = new RunDataCache(run, ++CodeAnalysisResultManager.Instance.CurrentRunIndex, logFilePath);
-            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(CodeAnalysisResultManager.Instance.CurrentRunIndex, dataCache);
+            int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
+            RunDataCache dataCache = new RunDataCache(run, runIndex, logFilePath);
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
@@ -418,7 +418,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 foreach (Result result in run.Results)
                 {
                     result.Run = run;
-                    var sarifError = new SarifErrorListItem(run, result, logFilePath, projectNameCache);
+                    var sarifError = new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache);
                     sarifErrors.Add(sarifError);
                 }
             }
@@ -431,7 +431,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         foreach (Notification configurationNotification in invocation.ToolConfigurationNotifications)
                         {
-                            var sarifError = new SarifErrorListItem(run, configurationNotification, logFilePath, projectNameCache);
+                            var sarifError = new SarifErrorListItem(run, runIndex, configurationNotification, logFilePath, projectNameCache);
                             sarifErrors.Add(sarifError);
                         }
                     }
@@ -442,7 +442,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         {
                             if (toolNotification.Level != FailureLevel.Note)
                             {
-                                var sarifError = new SarifErrorListItem(run, toolNotification, logFilePath, projectNameCache);
+                                var sarifError = new SarifErrorListItem(run, runIndex, toolNotification, logFilePath, projectNameCache);
                                 sarifErrors.Add(sarifError);
                             }
                         }
@@ -452,7 +452,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
-            SarifLocationTagger.NotifyAllTagsChanged();
+
+            // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
+            SarifLocationTaggerProvider.MarkAllTagsAsDirty();
 
             return sarifErrors.Count;
         }

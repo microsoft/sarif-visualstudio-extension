@@ -17,6 +17,11 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _module;
         private DelegateCommand _navigateCommand;
 
+        public StackFrameModel(int resultId, int runIndex)
+            : base(resultId, runIndex)
+        {
+        }
+
         public string Message
         {
             get

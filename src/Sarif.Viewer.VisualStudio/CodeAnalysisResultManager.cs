@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
@@ -66,7 +67,18 @@ namespace Microsoft.Sarif.Viewer
 
         public IDictionary<int, RunDataCache> RunIndexToRunDataCache { get; } = new Dictionary<int, RunDataCache>();
 
-        public int CurrentRunIndex { get; set; } = 0;
+        /// <summary>
+        /// Returns the last index given out by <see cref="GetNextRunIndex"/>.
+        /// </summary>
+        /// <remarks>
+        /// Currently on referenced for testing.
+        /// </remarks>
+        internal int CurrentRunIndex;
+
+        public int GetNextRunIndex()
+        {
+            return Interlocked.Increment(ref this.CurrentRunIndex);
+        }
 
         public RunDataCache CurrentRunDataCache
         {

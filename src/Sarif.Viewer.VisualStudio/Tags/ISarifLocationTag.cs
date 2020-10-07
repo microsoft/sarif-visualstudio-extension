@@ -4,10 +4,9 @@
 namespace Microsoft.Sarif.Viewer.Tags
 {
     using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Tagging;
     using System;
 
-    internal interface ISarifLocationTag : ITag, IDisposable
+    internal interface ISarifLocationTag : IDisposable
     {
         /// <summary>
         /// Gets the persistent span for a document.
@@ -30,13 +29,28 @@ namespace Microsoft.Sarif.Viewer.Tags
         int RunIndex { get; }
 
         /// <summary>
-        /// Fired when the caret enters a tag.
+        /// Gets the result ID associated with this tag.
         /// </summary>
-        event EventHandler CaretEnteredTag;
+        int ResultId { get; }
 
         /// <summary>
-        /// Causes the object to raise a <see cref="CaretEnteredTag"/> event its consumers.
+        /// Fired when the caret enters a tag.
         /// </summary>
-        void NotifyCaretWithin();
+        event EventHandler CaretEntered;
+
+        /// <summary>
+        /// Fired when the caret leaves a tag.
+        /// </summary>
+        event EventHandler CaretLeft;
+
+        /// <summary>
+        /// Causes the object to raise a <see cref="CaretEntered"/> event its consumers.
+        /// </summary>
+        void NotifyCaretEntered();
+
+        /// <summary>
+        /// Causes the object to raise a <see cref="CaretLeft"/> event its consumers.
+        /// </summary>
+        void NotifyCaretLeft();
     }
 }

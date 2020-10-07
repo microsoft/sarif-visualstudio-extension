@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class CodeFlowExtensions
     {
-        public static LocationCollection ToThreadFlowLocationCollection(this CodeFlow codeFlow, Run run)
+        public static LocationCollection ToThreadFlowLocationCollection(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {
             if (codeFlow == null)
             {
@@ -29,14 +29,14 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     // far as SARIF producers). For now we skip these.
                     if (location.Location?.PhysicalLocation == null) { continue; }
 
-                    model.Add(location.ToLocationModel(run));
+                    model.Add(location.ToLocationModel(run, resultId, runIndex));
                 }
             }
 
             return model;
         }
 
-        public static CallTree ToCallTree(this CodeFlow codeFlow, Run run)
+        public static CallTree ToCallTree(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run);
+            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run, resultId, runIndex);
 
             return new CallTree(topLevelNodes, SarifViewerPackage.SarifToolWindow);
         }

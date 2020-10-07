@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockToolWindow = new Mock<IToolWindow>();
             mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null), mockToolWindow.Object);
+            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0), mockToolWindow.Object);
 
             callTree.FindPrevious().Should().Be(null);
             callTree.FindNext().Should().Be(null);
@@ -85,7 +85,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockToolWindow = new Mock<IToolWindow>();
             mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null), mockToolWindow.Object);
+            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0), mockToolWindow.Object);
 
             callTree.SelectedItem = callTree.TopLevelNodes[0];
             callTree.FindPrevious().Should().Be(callTree.TopLevelNodes[0]);

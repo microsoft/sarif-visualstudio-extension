@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNode_DefaultHighlightColor()
         {
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation(),
             };
@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNode_SelectedHighlightColor()
         {
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation(),
             };

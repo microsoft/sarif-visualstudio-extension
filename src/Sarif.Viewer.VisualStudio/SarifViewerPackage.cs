@@ -13,7 +13,6 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
-using Microsoft.Sarif.Viewer.Tags;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -130,7 +129,6 @@ namespace Microsoft.Sarif.Viewer
                 if (!this.disposed)
                 {
                     this.disposed = true;
-                    SarifLocationTagger.DisposeStaticObjects();
                 }
             }
 

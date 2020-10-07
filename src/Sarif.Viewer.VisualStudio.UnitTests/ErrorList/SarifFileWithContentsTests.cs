@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [Collection("SarifObjectTests")]
     public class SarifFileWithContentsTests : SarifViewerPackageUnitTests
     {
-        private const int RunId = 0;
+        private readonly int RunId;
         private const string Key1 = "/item.cpp#fragment";
         private const string Key2 = "/binary.cpp";
         private const string Key3 = "/text.cpp";
@@ -187,6 +187,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             TestUtilities.InitializeTestEnvironment(testLog);
+            RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
         [Fact]

@@ -12,6 +12,11 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _module;
         private bool _isEssential;
 
+        public LocationModel(int resultId, int runIndex)
+            : base(resultId, runIndex)
+        {
+        }
+
         public int Id { get; set; }
 
         public string Message

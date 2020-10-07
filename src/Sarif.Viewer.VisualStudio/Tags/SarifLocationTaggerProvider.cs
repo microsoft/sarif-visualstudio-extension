@@ -2,7 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -33,6 +36,16 @@ namespace Microsoft.Sarif.Viewer.Tags
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
+        /// <summary>
+        /// Protects access to the <see cref="SarifTaggers"/> list.
+        /// </summary>
+        private static readonly ReaderWriterLockSlimWrapper SarifTaggersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+
+        /// <summary>
+        /// This list of running taggers.
+        /// </summary>
+        private static readonly List<ISarifLocationTagger2> SarifTaggers = new List<ISarifLocationTagger2>();
+
         /// <inheritdoc/>
         /// <summary>
         /// Note that Visual Studio's tagger aggregation expects and correctly handles null
@@ -60,7 +73,61 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return null;
             }
 
-            return new SarifLocationTagger(textView, textBuffer, PersistentSpanFactory) as ITagger<T>;
+            ISarifLocationTagger2 newTagger = null;
+
+            if (typeof(T) == typeof(IErrorTag))
+            {
+                newTagger = new SarifLocationErrorTagger(textView, textBuffer, this.PersistentSpanFactory);
+            }
+
+            if (typeof(T) == typeof(ITextMarkerTag))
+            {
+                newTagger = new SarifLocationTextMarkerTagger(textView, textBuffer, this.PersistentSpanFactory);
+            }
+
+            if (newTagger != null)
+            {
+                newTagger.Disposed += TaggerDisposed;
+
+                using (SarifTaggersLock.EnterWriteLock())
+                {
+                    SarifTaggers.Add(newTagger);
+                }
+            }
+
+            return newTagger as ITagger<T>;
+        }
+
+        /// <summary>
+        /// Causes a tags changed notification to be sent out from all known taggers.
+        /// </summary>
+        /// <remarks>
+        /// The primary use of this is to send a tags changed notification when a "text view" is already open and visible
+        /// and a tagger is active for that "text view" and a SARIF log is loaded via an API.
+        /// </remarks>
+        public static void MarkAllTagsAsDirty()
+        {
+            IEnumerable<ISarifLocationTagger2> taggers;
+            using (SarifTaggersLock.EnterReadLock())
+            {
+                taggers = SarifTaggers.ToList();
+            }
+
+            foreach (ISarifLocationTagger2 tagger in taggers)
+            {
+                tagger.MarkTagsDirty();
+            }
+        }
+
+        private void TaggerDisposed(object sender, EventArgs e)
+        {
+            if (sender is ISarifLocationTagger2 tagger)
+            {
+                using (SarifTaggersLock.EnterWriteLock())
+                {
+                    SarifTaggers.Remove(tagger);
+                }
+            }
         }
     }
 }

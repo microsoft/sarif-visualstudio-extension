@@ -20,13 +20,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="textBuffer">The Visual Studio <see cref="ITextBuffer"/> this tag is associated with.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
+        /// <param name="resultId">the result ID associated with this tag.</param>
         /// <param name="errorType">The Visual Studio error type to display.</param>
         /// <param name="toolTipContet">The content to use when displaying a tool tip for this error. This parameter may be null.</param>
-        public SarifLocationErrorTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, int runIndex, string errorType, object toolTipContet)
+        public SarifLocationErrorTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, int runIndex, int resultId, string errorType, object toolTipContet)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.TextBuffer = textBuffer;
             this.RunIndex = runIndex;
+            this.ResultId = resultId;
             this.ErrorType = errorType;
             this.ToolTipContent = toolTipContet;
         }
@@ -47,12 +49,24 @@ namespace Microsoft.Sarif.Viewer.Tags
         public ITextBuffer TextBuffer { get; }
 
         /// <inheritdoc/>
-        public event EventHandler CaretEnteredTag;
+        public int ResultId { get; }
 
         /// <inheritdoc/>
-        public void NotifyCaretWithin()
+        public event EventHandler CaretEntered;
+
+        /// <inheritdoc/>
+        public event EventHandler CaretLeft;
+
+        /// <inheritdoc/>
+        public void NotifyCaretEntered()
         {
-            this.CaretEnteredTag?.Invoke(this, new EventArgs());
+            this.CaretEntered?.Invoke(this, new EventArgs());
+        }
+
+        /// <inheritdoc/>
+        public void NotifyCaretLeft()
+        {
+            this.CaretLeft?.Invoke(this, new EventArgs());
         }
 
         protected virtual void Dispose(bool disposing)

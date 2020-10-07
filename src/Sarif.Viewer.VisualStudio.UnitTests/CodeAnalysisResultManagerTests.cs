@@ -244,8 +244,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var resultManager = new CodeAnalysisResultManager(fileSystem: null, promptForResolvedPathDelegate: null);
 
-            RunDataCache dataCache = new RunDataCache(run, ++resultManager.CurrentRunIndex);
-            resultManager.RunIndexToRunDataCache.Add(resultManager.CurrentRunIndex, dataCache);
+            int runIndex = resultManager.GetNextRunIndex();
+            RunDataCache dataCache = new RunDataCache(run, runIndex);
+            resultManager.RunIndexToRunDataCache.Add(runIndex, dataCache);
             resultManager.CacheUriBasePaths(run);
 
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["HAS_SLASH"].Should().Be("file:///C:/code/myProject/src/");

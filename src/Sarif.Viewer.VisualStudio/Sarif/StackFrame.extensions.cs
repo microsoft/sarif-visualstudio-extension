@@ -8,9 +8,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class StackFrameExtensions
     {
-        public static StackFrameModel ToStackFrameModel(this StackFrame stackFrame)
+        public static StackFrameModel ToStackFrameModel(this StackFrame stackFrame, int resultId, int runIndex)
         {
-            StackFrameModel model = new StackFrameModel();
+            StackFrameModel model = new StackFrameModel(resultId, runIndex);
 
             model.FullyQualifiedLogicalName = stackFrame.Location.LogicalLocation.FullyQualifiedName;
             model.Message = stackFrame.Location?.Message?.Text;

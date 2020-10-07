@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
@@ -16,13 +17,18 @@ using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Tagging;
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
     internal class SarifErrorListItem : NotifyPropertyChangedObject
     {
-        private readonly int _runId;
+        /// <summary>
+        /// Contains the result Id that will be assigned to new instances of <see cref="SarifErrorListItem"/>.
+        /// </summary>
+        private static int NextResultId;
+
         private string _fileName;
         private ToolModel _tool;
         private RuleModel _rule;
@@ -48,7 +54,7 @@ namespace Microsoft.Sarif.Viewer
             Fixes = new ObservableCollection<FixModel>();
         }
 
-        public SarifErrorListItem(Run run, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
+        public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -56,7 +62,9 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
-            _runId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
+
+            this.RunIndex = runIndex;
+            this.ResultId = Interlocked.Increment(ref NextResultId);
             ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
@@ -89,14 +97,14 @@ namespace Microsoft.Sarif.Viewer
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), RunIndex.ToString());
 
             if (result.Locations?.Any() == true)
             {
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = result.Locations.Count - 1; i >= 0; --i)
                 {
-                    Locations.Add(result.Locations[i].ToLocationModel(run));
+                    Locations.Add(result.Locations[i].ToLocationModel(run, this.ResultId, this.RunIndex));
                 }
             }
 
@@ -104,7 +112,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
                 {
-                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run));
+                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, this.ResultId, this.RunIndex));
                 }
 
             }
@@ -113,7 +121,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTree callTree = codeFlow.ToCallTree(run);
+                    CallTree callTree = codeFlow.ToCallTree(run, this.ResultId, this.RunIndex);
                     if (callTree != null)
                     {
                         CallTrees.Add(callTree);
@@ -128,7 +136,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (Stack stack in result.Stacks)
                 {
-                    Stacks.Add(stack.ToStackCollection());
+                    Stacks.Add(stack.ToStackCollection(this.ResultId, this.RunIndex));
                 }
             }
 
@@ -168,10 +176,10 @@ namespace Microsoft.Sarif.Viewer
             return effectiveLevel;
         }
 
-        public SarifErrorListItem(Run run, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
+        public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            _runId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
+            this.RunIndex = runIndex;
             string ruleId = null;
 
             if (notification.AssociatedRule != null)
@@ -195,15 +203,22 @@ namespace Microsoft.Sarif.Viewer
 
             Level = notification.Level;
             LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, _runId) ?? string.Empty;
+            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, RunIndex) ?? string.Empty;
             ProjectName = projectNameCache.GetName(FileName);
-            Locations.Add(new LocationModel() { FilePath = FileName });
+            Locations.Add(new LocationModel(this.ResultId, this.RunIndex) { FilePath = FileName });
 
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(ruleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
-            WorkingDirectory = Path.Combine(Path.GetTempPath(), _runId.ToString());
+            WorkingDirectory = Path.Combine(Path.GetTempPath(), RunIndex.ToString());
         }
+
+        /// <summary>
+        /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
+        /// </summary>
+        public int ResultId { get; }
+
+        private int RunIndex { get; }
 
         [Browsable(false)]
         public string MimeType { get; set; }
@@ -526,7 +541,14 @@ namespace Microsoft.Sarif.Viewer
                 {
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
-                    _lineMarker = new ResultTextMarker(_runId, Region, FileName, ResultTextMarker.DEFAULT_SELECTION_COLOR, predefinedErrorType, this.Message)
+                    _lineMarker = new ResultTextMarker(
+                        resultId: this.ResultId,
+                        runIndex: this.RunIndex,
+                        region: Region,
+                        fullFilePath: FileName,
+                        color: ResultTextMarker.DEFAULT_SELECTION_COLOR,
+                        errorType: predefinedErrorType,
+                        tooltipContent: this.Message)
                     {
                         UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
                     };
@@ -547,7 +569,7 @@ namespace Microsoft.Sarif.Viewer
             this.RemoveTagHighlights();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
-            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[_runId].FileRegionsCache;
+            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunIndex].FileRegionsCache;
 
             if (FileName.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
             {
@@ -631,25 +653,28 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        /// <summary>
-        /// Adds tags (highlights) to the passed in text buffer (document).
-        /// </summary>
-        internal bool TryTagDocument(ITextBuffer textBuffer, ISarifLocationTagger sarifLocationTagger)
+        public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
+            where T: ITag
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            
-            using (sarifLocationTagger.Update())
-            {
-                LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
+            IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
+            List<ResultTextMarker> textMarkers = new List<ResultTextMarker>();
 
+            // The "line marker" springs into existence when it is asked for.
+            if (includeResultTag)
+            {
+                textMarkers.Add(this.LineMarker);
+            }
+
+            if (includeChildTags)
+            {
                 foreach (LocationModel location in Locations)
                 {
-                    location.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
+                    textMarkers.Add(location.LineMarker);
                 }
 
                 foreach (LocationModel location in RelatedLocations)
                 {
-                    location.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
+                    textMarkers.Add(location.LineMarker);
                 }
 
                 foreach (CallTree callTree in CallTrees)
@@ -665,7 +690,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         CallTreeNode current = nodesToProcess.Pop();
 
-                        current.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
+                        textMarkers.Add(current.LineMarker);
 
                         foreach (CallTreeNode childNode in current.Children)
                         {
@@ -678,12 +703,20 @@ namespace Microsoft.Sarif.Viewer
                 {
                     foreach (StackFrameModel stackFrame in stackCollection)
                     {
-                        stackFrame.LineMarker?.TryTagDocument(textBuffer, sarifLocationTagger);
+                        textMarkers.Add(stackFrame.LineMarker);
                     }
                 }
             }
 
-            return true;
+            foreach (ResultTextMarker textMarker in textMarkers)
+            {
+                if (textMarker != null)
+                {
+                    tags = tags.Concat(textMarker.GetTags<T>(textBuffer, persistentSpanFactory));
+                }
+            }
+
+            return tags;
         }
     }
 }

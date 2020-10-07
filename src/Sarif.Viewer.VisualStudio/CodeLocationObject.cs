@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
                 // without a region.
                 if (_lineMarker == null && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath, DefaultSourceHighlightColor);
+                    _lineMarker = new ResultTextMarker(runIndex: this.RunIndex, resultId: this.ResultId, region: Region, fullFilePath: FilePath, color: DefaultSourceHighlightColor);
                 }
 
                 // If the UriBaseId was populated before the marker was available, set the
@@ -41,6 +41,11 @@ namespace Microsoft.Sarif.Viewer
                 return _lineMarker;
             }
         }
+
+        /// <summary>
+        /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
+        /// </summary>
+        public int ResultId { get; }
 
         public Region Region
         {
@@ -145,11 +150,13 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        internal int RunId { get; }
+        public int RunIndex { get; }
 
-        public CodeLocationObject()
+        public CodeLocationObject(int resultId, int runIndex)
         {
-            RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
+            this.ResultId = resultId;
+            this.RunIndex = runIndex;
+            // RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
         public void NavigateTo(bool usePreviewPane = true)
@@ -182,7 +189,7 @@ namespace Microsoft.Sarif.Viewer
 
                 if (!File.Exists(this.FilePath))
                 {
-                    CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(RunId, this.UriBaseId, this.FilePath);
+                    CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(RunIndex, this.UriBaseId, this.FilePath);
                 }
 
                 if (File.Exists(this.FilePath))
