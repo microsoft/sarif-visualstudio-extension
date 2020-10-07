@@ -183,7 +183,7 @@ namespace Microsoft.Sarif.Viewer
 
                 if (!File.Exists(this.FilePath))
                 {
-                    CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(RunId, this.UriBaseId, this.FilePath);
+                    CodeAnalysisResultManager.Instance.ResolveFilePath(RunId, this.UriBaseId, this.FilePath);
                 }
 
                 if (File.Exists(this.FilePath))

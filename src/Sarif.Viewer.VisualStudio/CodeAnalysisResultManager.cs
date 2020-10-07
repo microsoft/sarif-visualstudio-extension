@@ -246,7 +246,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public bool TryRebaselineAllSarifErrors(int runId, string uriBaseId, string originalFilename)
+        public bool ResolveFilePath(int runId, string uriBaseId, string relativePath)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -261,19 +261,19 @@ namespace Microsoft.Sarif.Viewer
             }
 
             RunDataCache dataCache = RunIndexToRunDataCache[runId];
-            string rebaselinedFileName = null;
+            string resolvedPath = null;
 
-            if (dataCache.FileDetails.ContainsKey(originalFilename))
+            if (dataCache.FileDetails.ContainsKey(relativePath))
             {
                 // File contents embedded in SARIF.
-                rebaselinedFileName = CreateFileFromContents(dataCache.FileDetails, originalFilename);
+                resolvedPath = CreateFileFromContents(dataCache.FileDetails, relativePath);
             }
             else
             {
 
                 if (uriBaseId != null
                     && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
-                    && Uri.TryCreate(baseUri, originalFilename, out Uri uri)
+                    && Uri.TryCreate(baseUri, relativePath, out Uri uri)
                     && uri.IsHttpScheme())
                 {
                     bool allow = _allowedDownloadHosts.Contains(uri.Host);
@@ -302,7 +302,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         try
                         {
-                            rebaselinedFileName = DownloadFile(uri.ToString());
+                            resolvedPath = DownloadFile(uri.ToString());
                         }
                         catch (WebException wex)
                         {
@@ -319,17 +319,17 @@ namespace Microsoft.Sarif.Viewer
                 else
                 {
                     // User needs to locate file.
-                    rebaselinedFileName = GetRebaselinedFileName(uriBaseId, originalFilename, dataCache);
+                    resolvedPath = GetRebaselinedFileName(uriBaseId, relativePath, dataCache);
                 }
 
-                if (String.IsNullOrEmpty(rebaselinedFileName) || originalFilename.Equals(rebaselinedFileName, StringComparison.OrdinalIgnoreCase))
+                if (String.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
             }
 
-            // Update all the paths in this run
-            RemapFileNames(dataCache.SarifErrors, originalFilename, rebaselinedFileName);
+            // Update all the paths in this run.
+            RemapFilePaths(dataCache.SarifErrors, relativePath, resolvedPath);
             return true;
         }
 
@@ -557,7 +557,7 @@ namespace Microsoft.Sarif.Viewer
             throw new NotImplementedException();
         }
 
-        internal void RemapFileNames(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
+        internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (SarifErrorListItem sarifError in sarifErrors)
