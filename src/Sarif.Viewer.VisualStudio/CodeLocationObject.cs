@@ -171,6 +171,10 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
         /// <param name="moveFocusToCaretLocation">Indicates whether to move focus to the caret location.</param>
         /// <returns>Returns true if a VS editor was opened.</returns>
+        /// <remarks>
+        /// The <paramref name="usePreviewPane"/> indicates whether Visual Studio opens the document as a preview (tab to the right)
+        /// rather than as an "open code editor" (tab attached to other open documents on the left).
+        /// </remarks>
         public void NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -186,7 +190,7 @@ namespace Microsoft.Sarif.Viewer
             }
             else
             {
-                // The user clicked an inline link with an integer target, which points to
+                // The user clicked an in-line link with an integer target, which points to
                 // a Location object that does NOT have a region associated with it.
 
                 // Before anything else, see if this is an external link we should open in the browser.

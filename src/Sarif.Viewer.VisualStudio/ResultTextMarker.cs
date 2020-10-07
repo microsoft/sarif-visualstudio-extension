@@ -1,22 +1,23 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.TextManager.Interop;
-
 namespace Microsoft.Sarif.Viewer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using Microsoft.CodeAnalysis.Sarif;
+    using Microsoft.Sarif.Viewer.Tags;
+    using Microsoft.VisualStudio.ComponentModelHost;
+    using Microsoft.VisualStudio.Shell;
+    using Microsoft.VisualStudio.Shell.Interop;
+    using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Editor;
+    using Microsoft.VisualStudio.Text.Tagging;
+    using Microsoft.VisualStudio.TextManager.Interop;
+    using Microsoft.VisualStudio.Text.Adornments;
+
     /// <summary>
     /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic 
     /// to managed life cycle and appearance.
@@ -26,7 +27,7 @@ namespace Microsoft.Sarif.Viewer
     /// It is important to not cache Visual Studio "view" and "frame" interfaces as they will
     /// become invalid as the user opens and closes documents.
     /// </remarks>
-    internal class ResultTextMarker
+    internal class ResultTextMarker // This could be an implementation of IErrorTag and or ITextMarkerTag
     {
         public const string DEFAULT_SELECTION_COLOR = "CodeAnalysisWarningSelection"; // Yellow
         public const string KEYEVENT_SELECTION_COLOR = "CodeAnalysisKeyEventSelection"; // Light yellow
@@ -84,7 +85,7 @@ namespace Microsoft.Sarif.Viewer
         public int RunIndex { get; }
 
         /// <summary>
-        /// Gets the Visual Studio error type. See <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/> for more information.
+        /// Gets the Visual Studio error type. See <see cref="PredefinedErrorTypeNames"/> for more information.
         /// </summary>
         /// <remarks>
         /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
@@ -213,15 +214,37 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
         /// <param name="moveFocusToCaretLocation">Indicates whether to move focus to the caret location.</param>
         /// <returns>Returns true if a VS editor was opened.</returns>
+        /// <remarks>
+        /// The <paramref name="usePreviewPane"/> indicates whether Visual Studio opens the document as a preview (tab to the right)
+        /// rather than as an "open code editor" (tab attached to other open documents on the left).
+        /// </remarks>
         public bool TryNavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // If the tag doesn't have a persistent span, or its associated document isn't open,
-            // then this indicates that we need to attempt to open the document.
+            // then this indicates that we need to attempt to open the document and cause it to
+            // be tagged.
             if (!this.PersistentSpanValid())
             {
-                // First, let's open the document so the user can see it.
+                // Now, we need to make sure the document gets tagged before the next section of code
+                // in this method attempts to navigate to it.
+                // So the flow looks like this. Get Visual Studio to open the document for us.
+                // That will cause Visual Studio to create a text view for it.
+                // Now, just because a text view is created does not mean that
+                // a request for "tags" has occurred. Tagging (and the display of those tags)
+                // is highly asynchronous. Taggers are created on demand and disposed when they are no longer
+                // needed. It is quite common to have multiple taggers active for the same text view and text buffers
+                // at the same time. (An easy example is a split-window scenario).
+                // This class relies on a persistent span (this.persistentSpan) being non-null and valid.
+                // This class "creates" the persistent span when it is asked for its tags in the GetTags
+                // method.
+                // To facilitate that, we will:
+                // 1) Open the document
+                // 2) Get the text view from the document.
+                // 2a) That alone may be enough to make the persistent span valid if it was already created.
+                // 3) If the persistent span still isn't valid (likely because we have crated the persistent span yet), ask ourselves for the tags which will
+                //    cause the span to be created.
                 IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
@@ -230,30 +253,28 @@ namespace Microsoft.Sarif.Viewer
 
                 vsWindowFrame.Show();
 
-                // Now, we need to make sure the document gets tagged before the next section of code
-                // in this method attempts to select it.
                 if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
                 {
                     return false;
                 }
 
-                IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-                if (componentModel == null)
+                // At this point, the persistent span may have "become valid" due to the document open.
+                // If not, then ask ourselves for the tags which will create the persistent span.
+                if (!this.PersistentSpanValid())
                 {
-                    return false;
-                }
+                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    if (componentModel == null)
+                    {
+                        return false;
+                    }
 
-                IViewTagAggregatorFactoryService viewTagAggregatorFactoryService = componentModel.GetService<IViewTagAggregatorFactoryService>();
-                if (viewTagAggregatorFactoryService == null)
-                {
-                    return false;
-                }
+                    IPersistentSpanFactory persistentSpanFactory = componentModel.GetService<IPersistentSpanFactory>();
+                    if (persistentSpanFactory == null)
+                    {
+                        return false;
+                    }
 
-                // Make sure the document is tagged so the next check for a valid persistent span succeeds.
-                using (ITagAggregator<ITextMarkerTag> tagAggregator = viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView))
-                {
-                    ITextSnapshot textSnapshot = textView.TextBuffer.CurrentSnapshot;
-                    tagAggregator.GetTags(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length)).Count();
+                    this.GetTags<ITextMarkerTag>(textView.TextBuffer, persistentSpanFactory);
                 }
             }
 
@@ -269,55 +290,55 @@ namespace Microsoft.Sarif.Viewer
             // code must not navigate the selection or caret again if the
             // caret is already within the correct span, otherwise
             // the user cannot navigate the editor anymore.
-            if (this.PersistentSpanValid())
+            if (!this.PersistentSpanValid())
             {
-                if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
-                {
-                    // First, let's open the document so the user can see it.
-                    IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
-                    if (vsWindowFrame == null)
-                    {
-                        return false;
-                    }
+                return false;
+            }
 
-                    vsWindowFrame.Show();
-                }
-
-                if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out wpfTextView))
+            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
+            {
+                // First, let's open the document so the user can see it.
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
+                if (vsWindowFrame == null)
                 {
                     return false;
                 }
 
-                ITextSnapshot currentSnapshot = this.persistentSpan.Span.TextBuffer.CurrentSnapshot;
-
-                // Note that "GetSpan" is not really a great name. What is actually happening
-                // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
-                // text snapshot. In essence what this means is take the "persistent span"
-                // that we have and "replay" any edits that have occurred and return a new
-                // span. So, if the span is no longer relevant (lets say the text has been deleted)
-                // then you'll get back an empty span.
-                SnapshotSpan trackingSpanSnapshot = this.persistentSpan.Span.GetSpan(currentSnapshot);
-
-                // If the caret is already in the text within the marker, don't re-select it
-                // otherwise users cannot move the caret in the region.
-                // If the caret isn't in the marker, move it there.
-                if (!trackingSpanSnapshot.Contains(wpfTextView.Caret.Position.BufferPosition) &&
-                    !trackingSpanSnapshot.IsEmpty)
-                {
-                    wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
-                    wpfTextView.Caret.MoveTo(trackingSpanSnapshot.End);
-                    wpfTextView.Caret.EnsureVisible();
-
-                    if (moveFocusToCaretLocation)
-                    {
-                        wpfTextView.VisualElement.Focus();
-                    }
-                }
-
-                return true;
+                vsWindowFrame.Show();
             }
 
-            return false;
+            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out wpfTextView))
+            {
+                return false;
+            }
+
+            ITextSnapshot currentSnapshot = this.persistentSpan.Span.TextBuffer.CurrentSnapshot;
+
+            // Note that "GetSpan" is not really a great name. What is actually happening
+            // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
+            // text snapshot. In essence what this means is take the "persistent span"
+            // that we have and "replay" any edits that have occurred and return a new
+            // span. So, if the span is no longer relevant (lets say the text has been deleted)
+            // then you'll get back an empty span.
+            SnapshotSpan trackingSpanSnapshot = this.persistentSpan.Span.GetSpan(currentSnapshot);
+
+            // If the caret is already in the text within the marker, don't re-select it
+            // otherwise users cannot move the caret in the region.
+            // If the caret isn't in the marker, move it there.
+            if (!trackingSpanSnapshot.Contains(wpfTextView.Caret.Position.BufferPosition) &&
+                !trackingSpanSnapshot.IsEmpty)
+            {
+                wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
+                wpfTextView.Caret.MoveTo(trackingSpanSnapshot.End);
+                wpfTextView.Caret.EnsureVisible();
+
+                if (moveFocusToCaretLocation)
+                {
+                    wpfTextView.VisualElement.Focus();
+                }
+            }
+
+            return true;
         }
 
         private bool TryToFullyPopulateRegion()
