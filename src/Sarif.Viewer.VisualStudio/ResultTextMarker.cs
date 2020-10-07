@@ -334,11 +334,11 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            // Note: The call to TryRebaselineAllSarifErrors will ultimately
+            // Note: The call to ResolveFilePath will ultimately
             // set "this.FullFilePath" to the a new file path which is why calling
             // File.Exists happens twice here.
             if (!File.Exists(this.FullFilePath) && 
-                !CodeAnalysisResultManager.Instance.TryRebaselineAllSarifErrors(this.RunIndex, this.UriBaseId, this.FullFilePath))
+                !CodeAnalysisResultManager.Instance.ResolveFilePath(this.RunIndex, this.UriBaseId, this.FullFilePath))
             {
                 this.regionIsFullyPopulated = false; 
                 return false;

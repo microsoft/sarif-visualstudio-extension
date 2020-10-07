@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Services
 {
     internal interface ILoadSarifLogService2
     {

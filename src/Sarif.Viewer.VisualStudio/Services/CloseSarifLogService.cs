@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Sarif.Viewer.ErrorList;
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Services
 {
     public class CloseSarifLogService : SCloseSarifLogService, ICloseSarifLogService
     {

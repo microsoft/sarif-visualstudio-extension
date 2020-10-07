@@ -10,7 +10,7 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TaskStatusCenter;
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Services
 {
     /// <summary>
     /// Provides an interface through which other extensions can interact with the this extension,
