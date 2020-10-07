@@ -359,7 +359,7 @@ namespace Microsoft.Sarif.Viewer
             // set "this.FullFilePath" to the a new file path which is why calling
             // File.Exists happens twice here.
             if (!File.Exists(this.FullFilePath) && 
-                !CodeAnalysisResultManager.Instance.ResolveFilePath(this.RunIndex, this.UriBaseId, this.FullFilePath))
+                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultID, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FullFilePath))
             {
                 this.regionIsFullyPopulated = false; 
                 return false;

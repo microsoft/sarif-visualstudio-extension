@@ -14,6 +14,7 @@ using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -85,20 +86,6 @@ namespace Microsoft.Sarif.Viewer
                 return dataCache;
             }
         }
-
-        SarifErrorListItem m_currentSarifError;
-        public SarifErrorListItem CurrentSarifResult
-        {
-            get
-            {
-                return m_currentSarifError;
-            }
-            set
-            {
-                m_currentSarifError = value;
-            }
-        }
-
 
         internal void Register()
         {
@@ -232,7 +219,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public bool ResolveFilePath(int runId, string uriBaseId, string relativePath)
+        public bool ResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -241,12 +228,13 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
-            if (CurrentSarifResult == null)
+            RunDataCache dataCache = RunIndexToRunDataCache[runIndex];
+            SarifErrorListItem sarifErrorListItem = dataCache.SarifErrors.FirstOrDefault(sarifResult => sarifResult.ResultId == resultId);
+            if (sarifErrorListItem == null)
             {
                 return false;
             }
 
-            RunDataCache dataCache = RunIndexToRunDataCache[runId];
             string resolvedPath = null;
 
             if (dataCache.FileDetails.ContainsKey(relativePath))
@@ -288,7 +276,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         try
                         {
-                            resolvedPath = DownloadFile(uri.ToString());
+                            resolvedPath = DownloadFile(sarifErrorListItem, uri.ToString());
                         }
                         catch (WebException wex)
                         {
@@ -396,7 +384,7 @@ namespace Microsoft.Sarif.Viewer
             SdkUIUtilities.StoreObject<List<string>>(_allowedDownloadHosts, AllowedDownloadHostsFileName);
         }
 
-        internal string DownloadFile(string fileUrl)
+        internal string DownloadFile(SarifErrorListItem sarifErrorListItem, string fileUrl)
         {
             if (String.IsNullOrEmpty(fileUrl))
             {
@@ -405,7 +393,7 @@ namespace Microsoft.Sarif.Viewer
 
             Uri sourceUri = new Uri(fileUrl);
 
-            string destinationFile = Path.Combine(CurrentSarifResult.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
+            string destinationFile = Path.Combine(sarifErrorListItem.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
             Directory.CreateDirectory(destinationDirectory);
 
@@ -570,7 +558,7 @@ namespace Microsoft.Sarif.Viewer
             var openFileDialog = new OpenFileDialog
             {
                 Title = $"Locate missing file: {pathFromLogFile}",
-                InitialDirectory = Path.GetDirectoryName(CurrentSarifResult.LogFilePath),
+                InitialDirectory = SarifErrorListEventProcessor.SelectedItem != null ? Path.GetDirectoryName(SarifErrorListEventProcessor.SelectedItem.LogFilePath) : null,
                 Filter = $"{fileName}|{fileName}",
                 RestoreDirectory = true
             };

@@ -182,14 +182,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 if (location != null)
                 {
-                    // Set the current SARIF error in the manager so we track code locations.
-                    CodeAnalysisResultManager.Instance.CurrentSarifResult = this.Error;
-
+                    // Setting the DataContext to null forces the TabControl to select the appropriate tab.
                     SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
 
                     if (this.Error.HasDetails)
                     {
-                        // Setting the DataContext to null (above) forces the TabControl to select the appropriate tab.
                         SarifViewerPackage.SarifToolWindow.Control.DataContext = this.Error;
                     }
 

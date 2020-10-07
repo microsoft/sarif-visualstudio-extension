@@ -162,7 +162,6 @@ namespace Microsoft.Sarif.Viewer
         {
             this.ResultId = resultId;
             this.RunIndex = runIndex;
-            // RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
         /// <summary>
@@ -205,7 +204,7 @@ namespace Microsoft.Sarif.Viewer
 
                 if (!File.Exists(this.FilePath))
                 {
-                    CodeAnalysisResultManager.Instance.ResolveFilePath(RunIndex, this.UriBaseId, this.FilePath);
+                    CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FilePath);
                 }
 
                 if (File.Exists(this.FilePath))
