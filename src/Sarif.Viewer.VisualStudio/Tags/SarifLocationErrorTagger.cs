@@ -6,9 +6,9 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.Sarif.Viewer.ErrorList;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
 
     internal class SarifLocationErrorTagger : ITagger<IErrorTag>, ISarifLocationTagger2, IDisposable

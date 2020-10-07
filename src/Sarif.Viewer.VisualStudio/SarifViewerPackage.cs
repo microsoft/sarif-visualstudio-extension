@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using Microsoft.Sarif.Viewer.Services;
-using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.Sarif.Viewer.ErrorList;
 
 namespace Microsoft.Sarif.Viewer
 {

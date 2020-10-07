@@ -85,9 +85,9 @@
     <Compile Include="Services\SCloseSarifLogService.cs" />
     <Compile Include="Services\SLoadSarifLogService.cs" />
     <Compile Include="Tags\ISarifLocationTag.cs" />
-    <Compile Include="Tags\SarifErrorListEventProcessor.cs" />
-    <Compile Include="Tags\SarifErrorListEventProcessorProvider.cs" />
-    <Compile Include="Tags\SarifErrorListSelectionChangedEventArgs.cs" />
+    <Compile Include="ErrorList\SarifErrorListEventProcessor.cs" />
+    <Compile Include="ErrorList\SarifErrorListEventProcessorProvider.cs" />
+    <Compile Include="ErrorList\SarifErrorListSelectionChangedEventArgs.cs" />
     <Compile Include="Tags\SarifLocationErrorTag.cs" />
     <Compile Include="Tags\SarifLocationTextMarkerTagger.cs" />
     <Compile Include="Tags\SarifLocationTextMarkerTag.cs" />
