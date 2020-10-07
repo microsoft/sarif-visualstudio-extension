@@ -3,7 +3,7 @@
     using Microsoft.Sarif.Viewer.ErrorList;
     using System;
 
-    internal interface ISarifLocationTagger2
+    internal interface ISarifLocationTagger
     {
         /// <summary>
         /// Notifies the tagger that all existing tags should be considered dirty.

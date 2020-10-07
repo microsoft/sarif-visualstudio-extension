@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Tagging;
 
-    internal class SarifLocationErrorTagger : ITagger<IErrorTag>, ISarifLocationTagger2, IDisposable
+    internal class SarifLocationErrorTagger : ITagger<IErrorTag>, ISarifLocationTagger, IDisposable
     {
         private bool isDisposed;
 

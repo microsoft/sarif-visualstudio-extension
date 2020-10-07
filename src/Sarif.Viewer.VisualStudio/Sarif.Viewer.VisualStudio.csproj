@@ -81,7 +81,7 @@
     <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
-    <Compile Include="Tags\ISarifLocationTagger2.cs" />
+    <Compile Include="Tags\ISarifLocationTagger.cs" />
     <Compile Include="Services\SCloseSarifLogService.cs" />
     <Compile Include="Services\SLoadSarifLogService.cs" />
     <Compile Include="Tags\ISarifLocationTag.cs" />

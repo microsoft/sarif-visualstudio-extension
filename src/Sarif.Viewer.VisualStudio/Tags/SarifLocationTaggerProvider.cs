@@ -47,7 +47,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <remarks>
         /// This static list is used to easily notify all running taggers that there tags need to be refreshed.
         /// </remarks>
-        private static readonly List<ISarifLocationTagger2> SarifTaggers = new List<ISarifLocationTagger2>();
+        private static readonly List<ISarifLocationTagger> SarifTaggers = new List<ISarifLocationTagger>();
 
         /// <inheritdoc/>
         /// <summary>
@@ -76,7 +76,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return null;
             }
 
-            ISarifLocationTagger2 newTagger = null;
+            ISarifLocationTagger newTagger = null;
 
             if (typeof(T) == typeof(IErrorTag))
             {
@@ -110,13 +110,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </remarks>
         public static void RefreshAllTags()
         {
-            IEnumerable<ISarifLocationTagger2> taggers;
+            IEnumerable<ISarifLocationTagger> taggers;
             using (SarifTaggersLock.EnterReadLock())
             {
                 taggers = SarifTaggers.ToList();
             }
 
-            foreach (ISarifLocationTagger2 tagger in taggers)
+            foreach (ISarifLocationTagger tagger in taggers)
             {
                 tagger.RefreshTags();
             }
@@ -124,7 +124,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private void TaggerDisposed(object sender, EventArgs e)
         {
-            if (sender is ISarifLocationTagger2 tagger)
+            if (sender is ISarifLocationTagger tagger)
             {
                 tagger.Disposed -= this.TaggerDisposed;
 

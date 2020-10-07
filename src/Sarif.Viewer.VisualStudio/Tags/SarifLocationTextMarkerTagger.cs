@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// </para>
     /// </remarks>
 
-    internal class SarifLocationTextMarkerTagger : ITagger<ITextMarkerTag>, ISarifLocationTagger2, IDisposable
+    internal class SarifLocationTextMarkerTagger : ITagger<ITextMarkerTag>, ISarifLocationTagger, IDisposable
     {
         private bool isDisposed;
 
