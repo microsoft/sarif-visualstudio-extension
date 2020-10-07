@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer
     /// implementation to the user interface activities.
     /// </summary>
     [Guid("4494F79A-6E9F-45EA-895B-7AE959B94D6A")]
-    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents, IVsUpdateSolutionEvents2
+    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents
     {
         internal const int E_FAIL = unchecked((int)0x80004005);
         internal const uint VSCOOKIE_NIL = 0;
@@ -37,7 +37,6 @@ namespace Microsoft.Sarif.Viewer
         private readonly string TemporaryFilePath;
 
         // Cookies for registration and unregistration
-        private uint m_updateSolutionEventsCookie;
         private uint m_solutionEventsCookie;
         private List<string> _allowedDownloadHosts;
 
@@ -90,13 +89,6 @@ namespace Microsoft.Sarif.Viewer
         internal void Register()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            // Register this object to listen for IVsUpdateSolutionEvents
-            IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
-            if (buildManager == null)
-            {
-                throw Marshal.GetExceptionForHR(E_FAIL);
-            }
-            buildManager.AdviseUpdateSolutionEvents(this, out m_updateSolutionEventsCookie);
 
             // Register this object to listen for IVsSolutionEvents
             IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
@@ -114,18 +106,6 @@ namespace Microsoft.Sarif.Viewer
         internal void Unregister()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            // Unregister this object from IVsUpdateSolutionEvents events
-            if (m_updateSolutionEventsCookie != VSCOOKIE_NIL)
-            {
-
-                IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager))  as IVsSolutionBuildManager2;
-                if (buildManager != null)
-                {
-                    buildManager.UnadviseUpdateSolutionEvents(m_updateSolutionEventsCookie);
-                    m_updateSolutionEventsCookie = VSCOOKIE_NIL;
-                }
-            }
-
             // Unregister this object from IVsSolutionEvents events
             if (m_solutionEventsCookie != VSCOOKIE_NIL)
             {
@@ -137,51 +117,24 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
         }
+        #region IVsUpdateSolutionEvents2
+        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded) => S_OK;
 
-        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
-        {
-            return S_OK;
-        }
+        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel) => S_OK;
 
-        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel)
-        {
-            return S_OK;
-        }
+        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved) => S_OK;
 
-        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
-        {
-            return S_OK;
-        }
+        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy) => S_OK;
 
-        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
-        {
-            return S_OK;
-        }
+        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel) => S_OK;
 
-        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
-        {
-            return S_OK;
-        }
+        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy) => S_OK;
 
-        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
-        {
-            return S_OK;
-        }
+        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution) => S_OK;
 
-        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
-        {
-            return S_OK;
-        }
+        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel) => S_OK;
 
-        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
-        {
-            return S_OK;
-        }
-
-        public int OnBeforeCloseSolution(object pUnkReserved)
-        {
-            return S_OK;
-        }
+        public int OnBeforeCloseSolution(object pUnkReserved) => S_OK;
 
         public int OnAfterCloseSolution(object pUnkReserved)
         {
@@ -190,16 +143,7 @@ namespace Microsoft.Sarif.Viewer
 
             return S_OK;
         }
-
-        public int UpdateSolution_Begin(ref int pfCancelUpdate)
-        {
-            return S_OK;
-        }
-
-        public int UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand)
-        {
-            return S_OK;
-        }
+        #endregion IVsUpdateSolutionEvents2
 
         public void CacheUriBasePaths(Run run)
         {
@@ -506,31 +450,6 @@ namespace Microsoft.Sarif.Viewer
             return resolvedPath;
         }
 
-        public int UpdateSolution_StartUpdate(ref int pfCancelUpdate)
-        {
-            return S_OK;
-        }
-
-        public int UpdateSolution_Cancel()
-        {
-            return S_OK;
-        }
-
-        public int OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
-        {
-            return S_OK;
-        }
-
-        public int UpdateProjectCfg_Begin(IVsHierarchy pHierProj, IVsCfg pCfgProj, IVsCfg pCfgSln, uint dwAction, ref int pfCancel)
-        {
-            return S_OK;
-        }
-
-        internal static bool CanNavigateTo(SarifErrorListItem sarifError)
-        {
-            throw new NotImplementedException();
-        }
-
         internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -538,11 +457,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 sarifError.RemapFilePath(originalPath, remappedPath);
             }
-        }
-
-        public int UpdateProjectCfg_Done(IVsHierarchy pHierProj, IVsCfg pCfgProj, IVsCfg pCfgSln, uint dwAction, int fSuccess, int fCancel)
-        {
-            return S_OK;
         }
 
         private string PromptForResolvedPath(string pathFromLogFile)
