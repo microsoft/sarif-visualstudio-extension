@@ -19,11 +19,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         IPersistentSpan DocumentPersistentSpan { get; }
 
         /// <summary>
-        /// The Visual Studio buffer this tag is associated with.
-        /// </summary>
-        ITextBuffer TextBuffer { get; }
-
-        /// <summary>
         /// Gets the SARIF run index associated with this tag.
         /// </summary>
         int RunIndex { get; }
@@ -34,22 +29,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         int ResultId { get; }
 
         /// <summary>
-        /// Fired when the caret enters a tag.
-        /// </summary>
-        event EventHandler CaretEntered;
-
-        /// <summary>
-        /// Fired when the caret leaves a tag.
-        /// </summary>
-        event EventHandler CaretLeft;
-
-        /// <summary>
-        /// Causes the object to raise a <see cref="CaretEntered"/> event its consumers.
+        /// Called when the caret from the text editor enters this tag.
         /// </summary>
         void NotifyCaretEntered();
 
         /// <summary>
-        /// Causes the object to raise a <see cref="CaretLeft"/> event its consumers.
+        /// Called when the caret from the text editor leaves this tag.
         /// </summary>
         void NotifyCaretLeft();
     }

@@ -56,7 +56,8 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                 // This query is saying, create the error tags for the top-level SARIF result (includeChildTags: false, includeResultTag: true)
                 // and then create the tags for the children (includeChildTags: true, includeResultTag: false) but then
-                // filter the children to to the ones relevant to the currently selected error item.
+                // filter the children (thread-flows, call nodes, etc.) to the ones relevant to the currently selected error item.
+                // This is done so that duplicate locations from multiple results in results are rendered in the editor.
                 IEnumerable<ISarifLocationTag> possibleTags = CodeAnalysisResultManager.
                     Instance.
                     RunIndexToRunDataCache.

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
-using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -36,13 +35,6 @@ namespace Microsoft.Sarif.Viewer
             }
             set
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                if (!SarifViewerPackage.IsUnitTesting)
-                {
-                    // Since we have a new set of Results in the Error List, clear all source code highlighting.
-                    CodeAnalysisResultManager.Instance.RemoveTagHighlightsFromAllDocuments();
-                }
-
                 _sarifErrors = value;
             }
         }

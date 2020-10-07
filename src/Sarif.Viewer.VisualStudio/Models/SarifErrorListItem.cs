@@ -371,10 +371,6 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.ThrowIfNotOnUIThread();
                 _selectedTab = value;
 
-                // If a new tab is selected, remove all the the markers for the
-                // previous tab.
-                RemoveTagHighlights();
-
                 // If a new tab is selected, reset the Properties window.
                 SarifViewerPackage.SarifToolWindow.ResetSelection();
             }
@@ -400,7 +396,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return (Locations.Count + RelatedLocations.Count) > 0 || CallTrees.Count > 0 || Stacks.Count > 0 || Fixes.Count > 0;
+                return Locations.Any() || RelatedLocations.Any() || CallTrees.Any() || Stacks.Any() || Fixes.Any();
             }
         }
 
@@ -442,61 +438,6 @@ namespace Microsoft.Sarif.Viewer
                 }
 
                 return _openLogFileCommand;
-            }
-        }
-
-        internal void RemoveTagHighlights()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            LineMarker?.RemoveTagHighlight();
-
-            foreach (LocationModel location in Locations)
-            {
-                location.LineMarker?.RemoveTagHighlight();
-            }
-
-            foreach (LocationModel location in RelatedLocations)
-            {
-                location.LineMarker?.RemoveTagHighlight();
-            }
-
-            foreach (CallTree callTree in CallTrees)
-            {
-                Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
-
-                foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
-                {
-                    nodesToProcess.Push(topLevelNode);
-                }
-
-                while (nodesToProcess.Count > 0)
-                {
-                    CallTreeNode current = nodesToProcess.Pop();
-                    try
-                    {
-                        current.LineMarker?.RemoveTagHighlight();
-                    }
-                    catch (ArgumentException)
-                    {
-                        // An argument exception is thrown if the node does not have a region.
-                        // Since there's no region, there's no document to attach to.
-                        // Just move on with processing the child nodes.
-                    }
-
-                    foreach (CallTreeNode childNode in current.Children)
-                    {
-                        nodesToProcess.Push(childNode);
-                    }
-                }
-            }
-
-            foreach (StackCollection stackCollection in Stacks)
-            {
-                foreach (StackFrameModel stackFrame in stackCollection)
-                {
-                    stackFrame.LineMarker?.RemoveTagHighlight();
-                }
             }
         }
 
@@ -547,6 +488,7 @@ namespace Microsoft.Sarif.Viewer
                         region: Region,
                         fullFilePath: FileName,
                         color: ResultTextMarker.DEFAULT_SELECTION_COLOR,
+                        highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.Message)
                     {
@@ -565,8 +507,6 @@ namespace Microsoft.Sarif.Viewer
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
-            this.RemoveTagHighlights();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
             FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunIndex].FileRegionsCache;
@@ -651,6 +591,8 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
             }
+
+            SarifLocationTaggerProvider.MarkAllTagsAsDirty();
         }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)

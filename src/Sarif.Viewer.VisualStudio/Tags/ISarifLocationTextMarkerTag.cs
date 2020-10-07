@@ -7,10 +7,5 @@ namespace Microsoft.Sarif.Viewer.Tags
 
     internal interface ISarifLocationTextMarkerTag : ISarifLocationTag, ITextMarkerTag
     {
-        /// <summary>
-        /// Changes the "highlight" color for the tag.
-        /// </summary>
-        /// <param name="textMarkerTagType">The new tag type color.</param>
-        void UpdateTextMarkerTagType(string textMarkerTagType);
     }
 }

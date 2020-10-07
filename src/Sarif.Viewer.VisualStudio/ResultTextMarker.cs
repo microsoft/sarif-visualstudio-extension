@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -61,7 +62,16 @@ namespace Microsoft.Sarif.Viewer
 
         public string FullFilePath { get; set; }
         public string UriBaseId { get; set; }
+        
+        /// <summary>
+        /// Gets the non-highlighted color.
+        /// </summary>
         public string Color { get; }
+
+        /// <summary>
+        /// Gets the highlighted color.
+        /// </summary>
+        public string HighlightedColor { get; }
 
         /// <summary>
         /// Gets the identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.
@@ -107,20 +117,16 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Fired when the text editor caret enters a tagged region.
-        /// </summary>
-        public event EventHandler RaiseRegionSelected;
-
-        /// <summary>
         /// Creates a new instances of a <see cref="ResultTextMarker"/>.
         /// </summary>
         /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
-        /// <param name="color">The color of the marker.</param>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color)
-            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, color: color, errorType: null, tooltipContent: null)
+        /// <param name="color">The non-highlighted color of the marker.</param>
+        /// <param name="highlightedColor">The highlighted color of the marker.</param>
+        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor)
+            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, color: color, highlightedColor: highlightedColor, errorType: null, tooltipContent: null)
         {
         }
 
@@ -131,21 +137,23 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
-        /// <param name="color">The color of the marker.</param>
+        /// <param name="color">The non-highlighted color of the marker.</param>
+        /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string errorType, object tooltipContent)
+        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor, string errorType, object tooltipContent)
         {
             this.ResultID = resultId;
             this.RunIndex = runIndex;
             this.FullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
+            this.Color = color;
+            this.HighlightedColor = highlightedColor;
             this.ToolTipeContent = tooltipContent;
             this.ErrorType = errorType;
-            this.Color = color;
         }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
@@ -180,7 +188,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 tags.Add(new SarifLocationErrorTag(
                                     this.persistentSpan,
-                                    textBuffer,
                                     runIndex: this.RunIndex,
                                     resultId: this.ResultID,
                                     errorType: this.ErrorType,
@@ -191,10 +198,10 @@ namespace Microsoft.Sarif.Viewer
             {
                 tags.Add(new SarifLocationTextMarkerTag(
                                         persistentSpan,
-                                        textBuffer,
                                         runIndex: this.RunIndex,
                                         resultId: this.ResultID,
-                                        textMarkerTagType: this.Color));
+                                        textMarkerTagType: this.Color,
+                                        highlightedTextMarkerTagType: this.HighlightedColor));
             }
 
             return tags;
@@ -213,11 +220,6 @@ namespace Microsoft.Sarif.Viewer
             // then this indicates that we need to attempt to open the document.
             if (!this.PersistentSpanValid())
             {
-                if (!this.TryToFullyPopulateRegion())
-                {
-                    return false;
-                }
-
                 // First, let's open the document so the user can see it.
                 IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
@@ -250,7 +252,7 @@ namespace Microsoft.Sarif.Viewer
                 using (ITagAggregator<ITextMarkerTag> tagAggregator = viewTagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(textView))
                 {
                     ITextSnapshot textSnapshot = textView.TextBuffer.CurrentSnapshot;
-                    tagAggregator.GetTags(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length));
+                    tagAggregator.GetTags(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length)).Count();
                 }
             }
 
@@ -311,37 +313,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Select current tracking text with <paramref name="highlightColor"/>. 
-        /// If highlightColor is null than code will be selected with color from <seealso cref="Color"/>.
-        /// If the mark doesn't support tracking changes, then we simply ignore this condition (addresses VS crash 
-        /// reported in Bug 476347 : Code Analysis clicking error report C6244 causes VS2012 to crash).  
-        /// Tracking changes helps to ensure that we navigate to the right line even if edits to the file
-        /// have occurred, but even if that behavior doesn't work right, it is better to 
-        /// simply return here (before the fix this code threw an exception which terminated VS).
-        /// </summary>
-        /// <param name="highlightColor">Color</param>
-        public void AddTagHighlight(string highlightColor)
-        {
-            // this.textMarkerTag?.UpdateTextMarkerTagType(highlightColor ?? Color);
-        }
-
-        /// <summary>
-        /// Remove selection for tracking text
-        /// </summary>
-        public void RemoveTagHighlight()
-        {
-            // this.textMarkerTag?.UpdateTextMarkerTagType(Color);
-        }
-
-        // When the VS Editor tag has the caret moved inside of it, let's just pass along the region selection.
-        private void CaretEnteredTag(object sender, EventArgs e) => this.RaiseRegionSelected?.Invoke(this, e);
-
-        private void CaretLeft(object sender, EventArgs e)
-        {
-            this.RemoveTagHighlight();
         }
 
         private bool TryToFullyPopulateRegion()

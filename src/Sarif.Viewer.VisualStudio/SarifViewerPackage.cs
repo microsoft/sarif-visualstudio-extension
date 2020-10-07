@@ -13,6 +13,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
+using Microsoft.Sarif.Viewer.Tags;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -48,6 +49,17 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public SarifViewerPackage()
         {
+            SarifErrorListEventProcessor.SelectedItemChanged += SarifErrorListEventProcessor_SelectedItemChanged;
+        }
+
+        private void SarifErrorListEventProcessor_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (e.NewItem != null)
+            {
+                SarifToolWindow.Show();
+            }
         }
 
         /// <summary>

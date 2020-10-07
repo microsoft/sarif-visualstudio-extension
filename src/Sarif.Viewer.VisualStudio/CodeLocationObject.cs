@@ -26,7 +26,13 @@ namespace Microsoft.Sarif.Viewer
                 // without a region.
                 if (_lineMarker == null && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(runIndex: this.RunIndex, resultId: this.ResultId, region: Region, fullFilePath: FilePath, color: DefaultSourceHighlightColor);
+                    _lineMarker = new ResultTextMarker(
+                        runIndex: this.RunIndex,
+                        resultId: this.ResultId,
+                        region: Region,
+                        fullFilePath: FilePath,
+                        color: DefaultSourceHighlightColor,
+                        highlightedColor: SelectedSourceHighlightColor);
                 }
 
                 // If the UriBaseId was populated before the marker was available, set the
@@ -197,19 +203,6 @@ namespace Microsoft.Sarif.Viewer
                     SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane);
                 }
             }
-        }
-
-        public void ApplyDefaultSourceFileHighlighting()
-        {
-            LineMarker?.RemoveTagHighlight();
-        }
-
-        /// <summary>
-        /// A method for handling the event when this object is selected
-        /// </summary>
-        public void ApplySelectionSourceFileHighlighting()
-        {
-            LineMarker?.AddTagHighlight(SelectedSourceHighlightColor);
         }
     }
 }

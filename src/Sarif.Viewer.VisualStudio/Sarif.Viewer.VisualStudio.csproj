@@ -137,7 +137,6 @@
     <Compile Include="ResultTextMarker.cs" />
     <Compile Include="SarifTextViewCreationListener.cs" />
     <Compile Include="SarifFileAndContentDefinitions.cs" />
-    <Compile Include="ErrorList\SarifTableControlEventProcessorProvider.cs" />
     <Compile Include="SarifViewerPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SarifErrorListItem.cs" />

@@ -14,7 +14,6 @@ using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -590,12 +589,7 @@ namespace Microsoft.Sarif.Viewer
 
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame) => S_OK;
 
-        public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            RemoveTagHighlights(docCookie);
-            return S_OK;
-        }
+        public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame) => S_OK;
         #endregion IVsRunningDocTableEvents
 
         private string PromptForResolvedPath(string pathFromLogFile)
@@ -662,61 +656,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return commonSuffix;
-        }
-
-        /// <summary>
-        /// Invoke detach for each item in analysis results collection
-        /// </summary>
-        private void RemoveTagHighlights(uint docCookie)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (RunIndexToRunDataCache == null)
-            {
-                return;
-            }
-
-            string documentName = GetDocumentName(docCookie);
-            if (string.IsNullOrEmpty(documentName))
-            {
-                return;
-            }
-
-            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
-            {
-                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
-                    Value.
-                    SarifErrors.
-                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
-
-                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
-                {
-                    sarifError.RemoveTagHighlights();
-                }
-            }
-        }
-
-        // Detaches the SARIF results from all documents.
-        public void RemoveTagHighlightsFromAllDocuments()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (_runningDocTable == null)
-            {
-                return;
-            }
-
-            if (_runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator) != VSConstants.S_OK)
-            {
-                return;
-            }
-
-            uint requestedCount = 1;
-            uint[] cookies = new uint[requestedCount];
-
-            while (documentsEnumerator.Next(requestedCount, cookies, out uint actualCount) == VSConstants.S_OK)
-            {
-                RemoveTagHighlights(cookies[0]);
-            }
         }
 
         private static string GetDocumentName(uint docCookie)

@@ -200,7 +200,6 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.NavigateTo();
-            this.ApplySelectionSourceFileHighlighting();
         }
     }
 }

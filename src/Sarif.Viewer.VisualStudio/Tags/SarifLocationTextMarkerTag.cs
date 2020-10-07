@@ -2,14 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.TableControl;
-using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
@@ -21,21 +15,24 @@ namespace Microsoft.Sarif.Viewer.Tags
     {
         private bool disposed;
         private string textMarkerTagType;
+        private string highlightedTextMarkerTagType;
+        private string currentTextMarkerTagType;
 
-        /// <summary>
         /// Initialize a new instance of <see cref="SarifLocationTextMarkerTag"/>.
         /// </summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="resultId">the result ID associated with this tag.</param>
-        /// <param name="textMarkerTagType">The text marker tag to display for this tag.</param>
-        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, ITextBuffer textBuffer, int runIndex, int resultId, string textMarkerTagType)
+        /// <param name="textMarkerTagType">The text marker tag to display for this tag when it is not highlighted.</param>
+        /// <param name="highlightedTextMarkerTagType">The text marker tag to display for this tag when it is highlighted.</param>
+        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, int runIndex, int resultId, string textMarkerTagType, string highlightedTextMarkerTagType)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
-            this.TextBuffer = textBuffer;
             this.RunIndex = runIndex;
             this.ResultId = resultId;
             this.textMarkerTagType = textMarkerTagType;
+            this.highlightedTextMarkerTagType = highlightedTextMarkerTagType;
+            this.currentTextMarkerTagType = textMarkerTagType;
         }
 
         /// <inheritdoc/>
@@ -45,22 +42,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         public int RunIndex { get; }
 
         /// <inheritdoc/>
-        public string Type
-        {
-            get => this.textMarkerTagType;
-        }
-
-        /// <inheritdoc/>
-        public ITextBuffer TextBuffer { get; }
+        public string Type => this.currentTextMarkerTagType;
 
         /// <inheritdoc/>
         public int ResultId { get; }
-
-        /// <inheritdoc/>
-        public event EventHandler CaretEntered;
-
-        /// <inheritdoc/>
-        public event EventHandler CaretLeft;
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
@@ -68,9 +53,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public void UpdateTextMarkerTagType(string newTextMarkerTagType)
         {
-            if (newTextMarkerTagType != this.textMarkerTagType)
+            if (newTextMarkerTagType != this.currentTextMarkerTagType)
             {
-                this.textMarkerTagType = newTextMarkerTagType;
+                this.currentTextMarkerTagType = newTextMarkerTagType;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Type)));
             }
         }
@@ -78,13 +63,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public void NotifyCaretEntered()
         {
-            this.CaretEntered?.Invoke(this, new EventArgs());
+            this.UpdateTextMarkerTagType(this.highlightedTextMarkerTagType);
         }
 
         /// <inheritdoc/>
         public void NotifyCaretLeft()
         {
-            this.CaretLeft?.Invoke(this, new EventArgs());
+            this.UpdateTextMarkerTagType(this.textMarkerTagType);
         }
 
         protected virtual void Dispose(bool disposing)

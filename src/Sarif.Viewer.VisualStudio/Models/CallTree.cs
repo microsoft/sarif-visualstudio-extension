@@ -62,12 +62,6 @@ namespace Microsoft.Sarif.Viewer.Models
 
                 if (_selectedItem != value)
                 {
-                    // Remove the existing highlighting.
-                    if (_selectedItem != null)
-                    {
-                        _selectedItem.ApplyDefaultSourceFileHighlighting();
-                    }
-
                     _selectedItem = value;
 
                     // Navigate to the source of the selected node and highlight the region.
@@ -78,7 +72,6 @@ namespace Microsoft.Sarif.Viewer.Models
 
                         // Navigate to the source file of the selected CallTreeNode.
                         _selectedItem.NavigateTo();
-                        _selectedItem.ApplySelectionSourceFileHighlighting();
                     }
 
                     this.NotifyPropertyChanged();

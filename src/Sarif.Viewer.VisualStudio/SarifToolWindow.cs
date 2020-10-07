@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -46,9 +47,31 @@ namespace Microsoft.Sarif.Viewer
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
             // the object returned by the Content property.
             Content = new SarifToolWindowControl();
-            Control.DataContext = null;
+            Control.Loaded += this.Control_Loaded;
+            Control.Unloaded += this.Control_Unloaded;
+        }
 
-            ResetSelection();
+        private void Control_Unloaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            SarifErrorListEventProcessor.NavigatedItemChanged -= this.SarifListErrorItemNavigated;
+        }
+
+        private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            SarifErrorListEventProcessor.NavigatedItemChanged += this.SarifListErrorItemNavigated;
+            this.Control.DataContext = SarifErrorListEventProcessor.SelectedItem;
+            this.ResetSelection();
+        }
+
+        private void SarifListErrorItemNavigated(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            this.Control.DataContext = null;
+            this.Control.DataContext = e.NewItem;
+            this.ResetSelection();
         }
 
         public void Show()

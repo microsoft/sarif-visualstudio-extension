@@ -130,9 +130,9 @@ namespace Microsoft.Sarif.Viewer.Models
                         region: this.Region,
                         fullFilePath: this.FilePath,
                         color: this.DefaultSourceHighlightColor,
+                        highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
                         tooltipContent: this.Message);
-                    _lineMarker.RaiseRegionSelected += RegionSelected;
                 }
 
                 return _lineMarker;
