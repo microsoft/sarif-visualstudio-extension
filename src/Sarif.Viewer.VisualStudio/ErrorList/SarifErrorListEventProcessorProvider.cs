@@ -25,6 +25,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public ITableControlEventProcessor GetAssociatedEventProcessor(IWpfTableControl tableControl)
         {
+            (this.sarifErrorListEventSelectionService as SarifErrorListEventProcessor)?.SetTableControl(tableControl);
+
             return sarifErrorListEventSelectionService as ITableControlEventProcessor;
         }
     }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Windows;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Views;
@@ -11,7 +12,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.Sarif.Viewer.Models;
-using System.Windows;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer
     /// </para>
     /// </remarks>
     [Guid("ab561bcc-e01d-4781-8c2e-95a9170bfdd5")]
-    public class SarifToolWindow : ToolWindowPane, IToolWindow
+    public class SarifExplorerWindow : ToolWindowPane, IToolWindow
     {
         private ITrackSelection _trackSelection;
         private SelectionContainer _selectionContainer;
@@ -36,16 +36,13 @@ namespace Microsoft.Sarif.Viewer
 
         internal SarifToolWindowControl Control
         {
-            get
-            {
-                return Content as SarifToolWindowControl;
-            }
+            get => Content as SarifToolWindowControl;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SarifToolWindow"/> class.
+        /// Initializes a new instance of the <see cref="SarifExplorerWindow"/> class.
         /// </summary>
-        public SarifToolWindow() : base(null)
+        public SarifExplorerWindow() : base(null)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.Caption = "SARIF Explorer";
@@ -108,8 +105,13 @@ namespace Microsoft.Sarif.Viewer
                 // and have a parent call tree node, then mark it as selected.
                 if (node.Visibility == Visibility.Visible && node.CallTree != null)
                 {
+                    // Setting the selected item here causes the SARIF explorer window to update it's selection.
+                    // The implementation here is a bit weird because we are telling the "data model" about the
+                    // item that is to be selected in the UI. In a better world, the concept of "selection" would
+                    // be in the UI logic, not the data model.
                     node.CallTree.SelectedItem = node;
                     this.UpdateSelectionList(node.TypeDescriptor);
+                    node.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
                 }
             }
         }
@@ -181,7 +183,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // Resetting the data context to null causes the correct tab in the SAIRF explorer
+            // Resetting the data context to null causes the correct tab in the SARIF explorer
             // window to be selected when the data context is set back to a non-null value.
             this.Control.DataContext = null;
             this.Control.DataContext = sarifErrorListItem;

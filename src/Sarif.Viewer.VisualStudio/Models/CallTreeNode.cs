@@ -9,7 +9,6 @@ using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Converters;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -130,7 +129,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         resultId: this.ResultId,
                         region: this.Region,
                         fullFilePath: this.FilePath,
-                        color: this.DefaultSourceHighlightColor,
+                        nonHghlightedColor: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
                         tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this),

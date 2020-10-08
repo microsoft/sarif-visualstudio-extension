@@ -53,6 +53,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
+            this.sarifErrorListEventSelectionService.SelectedItemChanged += SarifErrorListEventSelectionService_SelectedItemChanged;
         }
 
         /// <inheritdoc/>
@@ -119,6 +120,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (disposing)
             {
+                this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SarifErrorListEventSelectionService_SelectedItemChanged;
                 this.Disposed?.Invoke(this, new EventArgs());
             }
         }
@@ -127,6 +129,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        private void SarifErrorListEventSelectionService_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            this.RefreshTags();
         }
     }
 }

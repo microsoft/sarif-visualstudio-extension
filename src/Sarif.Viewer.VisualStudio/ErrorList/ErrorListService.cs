@@ -246,15 +246,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
             }
 
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
-            {
-                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
-                if (sarifLocationTaggerService != null)
-                {
-                    sarifLocationTaggerService.RefreshAllTags();
-                }
-            }
+            RefreshAllTags();
         }
 
         /// <summary>
@@ -406,16 +398,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             SarifTableDataSource.Instance.CleanAllErrors();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
-
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
-            {
-                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
-                if (sarifLocationTaggerService != null)
-                {
-                    sarifLocationTaggerService.RefreshAllTags();
-                }
-            }
+            RefreshAllTags();
         }
 
         private int WriteRunToErrorList(Run run, string logFilePath)
@@ -473,15 +456,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
 
             // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
-            {
-                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
-                if (sarifLocationTaggerService != null)
-                {
-                    sarifLocationTaggerService.RefreshAllTags();
-                }
-            }
+            RefreshAllTags();
 
             return sarifErrors.Count;
         }
@@ -541,5 +516,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
         }
-     }
+
+        /// <summary>
+        /// Calls into the tagger service and asks it to refresh the tags being displayed in Visual Studio.
+        /// </summary>
+        /// <remarks>
+        /// In a future enhancement, the <see cref="ErrorListService"/> itself becomes a true "package service"
+        /// and exposes events that <see cref="SarifLocationTaggerService"/> subscribes to. The <see cref="ErrorListService"/>
+        /// would send events about open, close, etc. of logs files and the various other services could respond appropriately.
+        /// In other words, it isn't "great" that this code "knows" it needs to tell the tagger service to refresh it's tags.
+        /// </remarks>
+        private static void RefreshAllTags()
+        {
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
+                if (sarifLocationTaggerService != null)
+                {
+                    sarifLocationTaggerService.RefreshAllTags();
+                }
+            }
+        }
+    }
 }

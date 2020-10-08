@@ -12,11 +12,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -38,14 +35,13 @@ namespace Microsoft.Sarif.Viewer
         private const string TemporaryFileDirectoryName = "SarifViewer";
         private readonly string TemporaryFilePath;
 
-        // Cookies for registration and unregistration
+        // Cookie for registration and unregistration
         private uint m_solutionEventsCookie;
         private List<string> _allowedDownloadHosts;
 
         private readonly IFileSystem _fileSystem;
-        private readonly ISarifErrorListEventSelectionService sarifLocationTaggerService;
 
-        internal delegate string PromptForResolvedPathDelegate(string pathFromLogFile);
+        internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
         readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         // This ctor is internal rather than private for unit test purposes.
@@ -61,13 +57,6 @@ namespace Microsoft.Sarif.Viewer
             // Get temporary path for embedded files.
             TemporaryFilePath = Path.GetTempPath();
             TemporaryFilePath = Path.Combine(TemporaryFilePath, TemporaryFileDirectoryName);
-
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
-            {
-                this.sarifLocationTaggerService = componentModel.GetService<ISarifErrorListEventSelectionService>();
-            }
-
         }
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
@@ -78,7 +67,7 @@ namespace Microsoft.Sarif.Viewer
         /// Returns the last index given out by <see cref="GetNextRunIndex"/>.
         /// </summary>
         /// <remarks>
-        /// Currently on referenced for testing.
+        /// The internal reference is for test code.
         /// </remarks>
         internal int CurrentRunIndex;
 
@@ -127,7 +116,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
         }
-        #region IVsUpdateSolutionEvents2
+        #region IVsSolutionEvents
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded) => S_OK;
 
         public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel) => S_OK;
@@ -153,7 +142,7 @@ namespace Microsoft.Sarif.Viewer
 
             return S_OK;
         }
-        #endregion IVsUpdateSolutionEvents2
+        #endregion IVsSolutionEvents
 
         public void CacheUriBasePaths(Run run)
         {
@@ -251,7 +240,7 @@ namespace Microsoft.Sarif.Viewer
                 else
                 {
                     // User needs to locate file.
-                    resolvedPath = GetRebaselinedFileName(uriBaseId, relativePath, dataCache);
+                    resolvedPath = GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
                 }
 
                 if (String.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
@@ -367,7 +356,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Internal rather than private for unit testability.
-        internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
+        internal string GetRebaselinedFileName(SarifErrorListItem sarifErrorListItem, string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
         {
             string originalPath = pathFromLogFile;
             Uri relativeUri = null;
@@ -417,7 +406,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            string resolvedPath = _promptForResolvedPathDelegate(pathFromLogFile);
+            string resolvedPath = _promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
             if (resolvedPath == null)
             {
                 return pathFromLogFile;
@@ -473,7 +462,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private string PromptForResolvedPath(string pathFromLogFile)
+        private string PromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string pathFromLogFile)
         {
             // Opening the OpenFileDialog causes the TreeView to lose focus,
             // which in turn causes the TreeViewItem selection to be unpredictable
@@ -486,7 +475,7 @@ namespace Microsoft.Sarif.Viewer
             var openFileDialog = new OpenFileDialog
             {
                 Title = $"Locate missing file: {pathFromLogFile}",
-                InitialDirectory = this.sarifLocationTaggerService?.SelectedItem != null ? Path.GetDirectoryName(this.sarifLocationTaggerService.SelectedItem.LogFilePath) : null,
+                InitialDirectory = sarifErrorListItem != null ? Path.GetDirectoryName(sarifErrorListItem.LogFilePath) : null,
                 Filter = $"{fileName}|{fileName}",
                 RestoreDirectory = true
             };

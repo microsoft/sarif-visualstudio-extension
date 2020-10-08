@@ -16,6 +16,23 @@ namespace Microsoft.Sarif.Viewer
         protected string _filePath;
         protected string _uriBaseId;
 
+
+        public CodeLocationObject(int resultId, int runIndex)
+        {
+            this.ResultId = resultId;
+            this.RunIndex = runIndex;
+        }
+
+        /// <summary>
+        /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
+        /// </summary>
+        public int ResultId { get; }
+
+        /// <summary>
+        /// Gets the run index known to <see cref="CodeAnalysisResultManager"/>.
+        /// </summary>
+        public int RunIndex { get; }
+
         internal virtual ResultTextMarker LineMarker
         {
             get
@@ -31,7 +48,7 @@ namespace Microsoft.Sarif.Viewer
                         resultId: this.ResultId,
                         region: Region,
                         fullFilePath: FilePath,
-                        color: DefaultSourceHighlightColor,
+                        nonHghlightedColor: DefaultSourceHighlightColor,
                         highlightedColor: SelectedSourceHighlightColor,
                         context: this);
                 }
@@ -48,11 +65,6 @@ namespace Microsoft.Sarif.Viewer
                 return _lineMarker;
             }
         }
-
-        /// <summary>
-        /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
-        /// </summary>
-        public int ResultId { get; }
 
         public Region Region
         {
@@ -155,14 +167,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 return new CodeLocationObjectTypeDescriptor(this);
             }
-        }
-
-        public int RunIndex { get; }
-
-        public CodeLocationObject(int resultId, int runIndex)
-        {
-            this.ResultId = resultId;
-            this.RunIndex = runIndex;
         }
 
         /// <summary>

@@ -92,6 +92,19 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
 
             this.isDisposed = true;
+
+            using (ExistingListenersLock.EnterWriteLock())
+            {
+                foreach (KeyValuePair<ITextView, TextViewCaretListener<T>> textViewAndTagger in this.ExistingListeners)
+                {
+                    textViewAndTagger.Value.CaretEnteredTag += this.Tagger_CaretEnteredTag;
+                    textViewAndTagger.Value.CaretLeftTag += this.Tagger_CaretLeftTag;
+                    textViewAndTagger.Key.Closed -= this.TextView_Closed;
+                }
+
+                this.ExistingListeners.Clear();
+            }
+
             this.ExistingListenersLock.InnerLock.Dispose();
         }
 

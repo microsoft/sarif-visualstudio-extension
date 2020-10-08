@@ -488,7 +488,7 @@ namespace Microsoft.Sarif.Viewer
                         runIndex: this.RunIndex,
                         region: Region,
                         fullFilePath: FileName,
-                        color: ResultTextMarker.DEFAULT_SELECTION_COLOR,
+                        nonHghlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.Message,

@@ -29,7 +29,7 @@ namespace Microsoft.Sarif.Viewer
         private readonly Package package;
 
         public const string guidSarifViewerPackageCmdSet = "e6de64e8-7731-4ffd-8633-e1cbf03609ad";
-        private SarifToolWindow window;
+        private SarifExplorerWindow window;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifToolWindowCommand"/> class.
@@ -94,7 +94,7 @@ namespace Microsoft.Sarif.Viewer
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
-            window = this.package.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
+            window = this.package.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException("Cannot create tool window");

@@ -25,9 +25,16 @@ namespace Microsoft.Sarif.Viewer
     /// An instance of this class can outlive a Visual Studio view that is viewing it.
     /// It is important to not cache Visual Studio "view" and "frame" interfaces as they will
     /// become invalid as the user opens and closes documents.
+    /// A future improvement is that this class "could" be an implementation of IErrorTag and or ITextMarkerTag
     /// </remarks>
-    internal class ResultTextMarker // This could be an implementation of IErrorTag and or ITextMarkerTag
+    internal class ResultTextMarker
     {
+        /// <summary>
+        /// These values are actually "lifted" from the Visual Studio code analysis implementation.
+        /// They are unfortunately not part of the Visual Studio SDK.
+        /// The comments about "yellow", "light yellow", etc. are not quite correct. These values are able to be themed
+        /// through Visual Studio UI.
+        /// </summary>
         public const string DEFAULT_SELECTION_COLOR = "CodeAnalysisWarningSelection"; // Yellow
         public const string KEYEVENT_SELECTION_COLOR = "CodeAnalysisKeyEventSelection"; // Light yellow
         public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; //Gray
@@ -66,7 +73,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the non-highlighted color.
         /// </summary>
-        public string Color { get; }
+        public string NonHighlightedColor { get; }
 
         /// <summary>
         /// Gets the highlighted color.
@@ -76,7 +83,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.
         /// </summary>
-        public int ResultID { get; }
+        public int ResultId { get; }
 
         /// <summary>
         /// The index of the run as known to <see cref="CodeAnalysisResultManager"/>.
@@ -97,7 +104,7 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
         /// </remarks>
-        public object ToolTipeContent { get; }
+        public object ToolTipContent { get; }
 
         /// <summary>
         /// The data context for this result marker.
@@ -132,11 +139,11 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
-        /// <param name="color">The non-highlighted color of the marker.</param>
+        /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="context">The data context for this result marker.</param>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor, object context)
-            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, color: color, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
+        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context)
+            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, nonHghlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
         {
         }
 
@@ -147,7 +154,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
-        /// <param name="color">The non-highlighted color of the marker.</param>
+        /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
@@ -155,19 +162,27 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor, string errorType, object tooltipContent, object context)
+        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
         {
-            this.ResultID = resultId;
-            this.RunIndex = runIndex;
-            this.FullFilePath = fullFilePath;
+            ResultId = resultId;
+            RunIndex = runIndex;
+            FullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
-            this.Color = color;
-            this.HighlightedColor = highlightedColor;
-            this.ToolTipeContent = tooltipContent;
-            this.ErrorType = errorType;
-            this.Context = context;
+            NonHighlightedColor = nonHghlightedColor;
+            HighlightedColor = highlightedColor;
+            ToolTipContent = tooltipContent;
+            ErrorType = errorType;
+            Context = context;
         }
 
+        /// <summary>
+        /// Returns the tags represented by this result marker.
+        /// </summary>
+        /// <remarks>
+        /// This is only called by either <see cref="SarifLocationErrorTagger"/> or <see cref="SarifLocationTextMarkerTagger"/>.</remarks>
+        /// <typeparam name="T">Specifies which tag type the tagger is asking for.</typeparam>
+        /// <param name="textBuffer">The text buffer that the tags are being requested.</param>
+        /// <param name="persistentSpanFactory">The persistent span factory that can be used to create the persistent spans for the tags.</param>
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
             where T : ITag
         {
@@ -175,35 +190,19 @@ namespace Microsoft.Sarif.Viewer
 
             List<ISarifLocationTag> tags = new List<ISarifLocationTag>();
 
-            if (this.persistentSpan == null)
+            if (!this.TryCreatePersistentSpan(textBuffer, persistentSpanFactory))
             {
-                if (!this.TryToFullyPopulateRegion())
-                {
-                    return tags;
-                }
-
-                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan documentSpan))
-                {
-                    return tags;
-                }
-
-                this.persistentSpan = persistentSpanFactory.Create(
-                            textBuffer.CurrentSnapshot,
-                            startLine: documentSpan.iStartLine,
-                            startIndex: documentSpan.iStartIndex,
-                            endLine: documentSpan.iEndLine,
-                            endIndex: documentSpan.iEndIndex,
-                            trackingMode: SpanTrackingMode.EdgeInclusive);
+                return tags;
             }
 
-            if (typeof(T) == typeof(IErrorTag) && this.ToolTipeContent != null && this.ErrorType != null)
+            if (typeof(T) == typeof(IErrorTag) && this.ToolTipContent != null && this.ErrorType != null)
             {
                 tags.Add(new SarifLocationErrorTag(
                                     this.persistentSpan,
                                     runIndex: this.RunIndex,
-                                    resultId: this.ResultID,
+                                    resultId: this.ResultId,
                                     errorType: this.ErrorType,
-                                    toolTipContet: this.ToolTipeContent,
+                                    toolTipContent: this.ToolTipContent,
                                     context: this.Context));
             }
 
@@ -212,8 +211,8 @@ namespace Microsoft.Sarif.Viewer
                 tags.Add(new SarifLocationTextMarkerTag(
                                         this.persistentSpan,
                                         runIndex: this.RunIndex,
-                                        resultId: this.ResultID,
-                                        textMarkerTagType: this.Color,
+                                        resultId: this.ResultId,
+                                        textMarkerTagType: this.NonHighlightedColor,
                                         highlightedTextMarkerTagType: this.HighlightedColor,
                                         context: this.Context));
             }
@@ -234,6 +233,8 @@ namespace Microsoft.Sarif.Viewer
         public bool TryNavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            bool documentWasOpened = false;
 
             // If the tag doesn't have a persistent span, or its associated document isn't open,
             // then this indicates that we need to attempt to open the document and cause it to
@@ -266,15 +267,17 @@ namespace Microsoft.Sarif.Viewer
 
                 vsWindowFrame.Show();
 
-                if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
-                {
-                    return false;
-                }
+                documentWasOpened = true;
 
                 // At this point, the persistent span may have "become valid" due to the document open.
                 // If not, then ask ourselves for the tags which will create the persistent span.
                 if (!this.PersistentSpanValid())
                 {
+                    if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
+                    {
+                        return false;
+                    }
+
                     IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
                     if (componentModel == null)
                     {
@@ -287,8 +290,36 @@ namespace Microsoft.Sarif.Viewer
                         return false;
                     }
 
-                    this.GetTags<ITextMarkerTag>(textView.TextBuffer, persistentSpanFactory);
+                    if (!this.TryCreatePersistentSpan(textView.TextBuffer, persistentSpanFactory))
+                    {
+                        return false;
+                    }
                 }
+            }
+
+
+            if (!this.PersistentSpanValid())
+            {
+                return false;
+            }
+
+            // Now, if the span IS valid it doesn't mean that the editor is visible, so make sure we open the document
+            // for the user if needed.
+            if (!documentWasOpened)
+            {
+                // First, let's open the document so the user can see it.
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
+                if (vsWindowFrame == null)
+                {
+                    return false;
+                }
+
+                vsWindowFrame.Show();
+            }
+
+            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
+            {
+                return false;
             }
 
             // If we have tracking span information, then either
@@ -303,28 +334,6 @@ namespace Microsoft.Sarif.Viewer
             // code must not navigate the selection or caret again if the
             // caret is already within the correct span, otherwise
             // the user cannot navigate the editor anymore.
-            if (!this.PersistentSpanValid())
-            {
-                return false;
-            }
-
-            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
-            {
-                // First, let's open the document so the user can see it.
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
-                if (vsWindowFrame == null)
-                {
-                    return false;
-                }
-
-                vsWindowFrame.Show();
-            }
-
-            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out wpfTextView))
-            {
-                return false;
-            }
-
             ITextSnapshot currentSnapshot = this.persistentSpan.Span.TextBuffer.CurrentSnapshot;
 
             // Note that "GetSpan" is not really a great name. What is actually happening
@@ -372,7 +381,7 @@ namespace Microsoft.Sarif.Viewer
             // set "this.FullFilePath" to the a new file path which is why calling
             // File.Exists happens twice here.
             if (!File.Exists(this.FullFilePath) && 
-                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultID, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FullFilePath))
+                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FullFilePath))
             {
                 this.regionIsFullyPopulated = false; 
                 return false;
@@ -399,7 +408,7 @@ namespace Microsoft.Sarif.Viewer
             // this.tag?.DocumentPersistentSpan?.IsDocumentOpen != false;
             // but this logic is used inside Visual Studio's code as well so leaving
             // it like this for now.
-            return this.persistentSpan != null && this.persistentSpan.IsDocumentOpen;
+            return this.persistentSpan?.IsDocumentOpen == true;
         }
 
         private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, ITextBuffer textBuffer, out TextSpan textSpan)
@@ -438,6 +447,41 @@ namespace Microsoft.Sarif.Viewer
                 textSpan.iStartIndex = 0;
                 textSpan.iEndIndex = endTextLine.Length - 1;
             }
+
+            return true;
+        }
+
+        private bool TryCreatePersistentSpan(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (this.persistentSpan != null)
+            {
+                return true;
+            }
+
+            if (!this.TryToFullyPopulateRegion())
+            {
+                return false;
+            }
+
+            if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan documentSpan))
+            {
+                return false;
+            }
+
+            if (!persistentSpanFactory.CanCreate(textBuffer))
+            {
+                return false;
+            }
+
+            this.persistentSpan = persistentSpanFactory.Create(
+                        textBuffer.CurrentSnapshot,
+                        startLine: documentSpan.iStartLine,
+                        startIndex: documentSpan.iStartIndex,
+                        endLine: documentSpan.iEndLine,
+                        endIndex: documentSpan.iEndIndex,
+                        trackingMode: SpanTrackingMode.EdgeInclusive);
 
             return true;
         }

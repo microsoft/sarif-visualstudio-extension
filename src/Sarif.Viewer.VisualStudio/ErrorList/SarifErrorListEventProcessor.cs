@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
+    using System.Linq;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;
@@ -17,8 +18,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal class SarifErrorListEventProcessor : TableControlEventProcessorBase, ISarifErrorListEventSelectionService
     {
         private SarifErrorListItem currentlySelectedItem;
-        private SarifErrorListItem currentlyNavigateddItem;
+        private SarifErrorListItem currentlyNavigatedItem;
 
+        #region ISarifErrorListEventSelectionService
         /// <inheritdoc/>
         public SarifErrorListItem SelectedItem => currentlySelectedItem;
 
@@ -26,13 +28,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
 
         /// <inheritdoc/>
-        public SarifErrorListItem NavigatedItem => currentlyNavigateddItem;
+        public SarifErrorListItem NavigatedItem => currentlyNavigatedItem;
 
         /// <inheritdoc/>
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;
+        #endregion ISarifErrorListEventSelectionService
 
-        public SarifErrorListEventProcessor()
+        public IWpfTableControl errorListTableControl;
+
+        /// <summary>
+        /// Called by <see cref="SarifErrorListEventProcessorProvider"/> to set the table this service will
+        /// handle.
+        /// </summary>
+        /// <param name="wpfTableControl">The WPF table control representing the error list.</param>
+        public void SetTableControl(IWpfTableControl wpfTableControl)
         {
+            this.errorListTableControl = wpfTableControl;
         }
 
         public override void PostprocessSelectionChanged(TableSelectionChangedEventArgs e)
@@ -41,8 +52,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             base.PostprocessSelectionChanged(e);
 
+            if (this.errorListTableControl == null)
+            {
+                return;
+            }
+
             // Make sure there is only one selection, that's all we support.
-            IEnumerator<ITableEntryHandle> enumerator = e.AddedEntries.GetEnumerator();
+            IEnumerator<ITableEntryHandle> enumerator = (this.errorListTableControl.SelectedEntries ?? Enumerable.Empty<ITableEntryHandle>()).GetEnumerator();
             ITableEntryHandle selectedTableEntry = null;
             if (enumerator.MoveNext())
             {
@@ -60,10 +76,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 TryGetSarifResult(selectedTableEntry, out selectedSarifErrorItem);
             }
 
-            SarifErrorListItem previouslySelectedItem = currentlySelectedItem;
-            currentlySelectedItem = selectedSarifErrorItem;
+            SarifErrorListItem previouslySelectedItem = this.currentlySelectedItem;
+            this.currentlySelectedItem = selectedSarifErrorItem;
 
-            SelectedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslySelectedItem, currentlySelectedItem));
+            SelectedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslySelectedItem, this.currentlySelectedItem));
         }
 
         public override void PostprocessNavigate(ITableEntryHandle entry, TableEntryNavigateEventArgs e)
@@ -72,10 +88,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.TryGetSarifResult(entry, out SarifErrorListItem newlyNavigatedErrorItem);
 
-            SarifErrorListItem previouslyNavigatedItem = currentlyNavigateddItem;
-            currentlyNavigateddItem = newlyNavigatedErrorItem;
+            SarifErrorListItem previouslyNavigatedItem = this.currentlyNavigatedItem;
+            this.currentlyNavigatedItem = newlyNavigatedErrorItem;
 
-            NavigatedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslyNavigatedItem, currentlyNavigateddItem));
+            NavigatedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslyNavigatedItem, this.currentlyNavigatedItem));
         }
 
         private bool TryGetSarifResult(ITableEntryHandle entryHandle, out SarifErrorListItem sarifResult)

@@ -110,6 +110,11 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textView.Caret.PositionChanged -= this.Caret_PositionChanged;
         }
 
+        /// <summary>
+        /// This class is used to check for equality based on the persistent span present
+        /// in a tag. The tag reference itself can be different, but the tags can represent
+        /// the same location. This is important when preventing multiple caret notifications.
+        /// </summary>
         private class TextMarkerTagCompaerer : IEqualityComparer<ISarifLocationTag>
         {
             public bool Equals(ISarifLocationTag x, ISarifLocationTag y)

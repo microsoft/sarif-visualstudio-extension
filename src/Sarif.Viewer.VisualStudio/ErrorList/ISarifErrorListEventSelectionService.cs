@@ -5,6 +5,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     using System;
 
+    /// <summary>
+    /// Service interface that transforms the selections and navigations from Visual Studio's error list into selections
+    /// of <see cref="SarifErrorListItem"/> items that the rest of the extension can leverage.
+    /// </summary>
+    /// <remarks>
+    /// A "navigated item" is one that a user "double clicked on" in the Error list, and a "selected item" is one that the user "single clicked" on in the error list.
+    /// Note that VS does NOT navigate to the file on single click of an item in the error list hence the need for these two properties.
+    /// </remarks>
     internal interface ISarifErrorListEventSelectionService
     {
         /// <summary>

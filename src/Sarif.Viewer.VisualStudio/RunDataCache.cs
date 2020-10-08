@@ -28,22 +28,13 @@ namespace Microsoft.Sarif.Viewer
 
         public int RunIndex { get; }
 
-        public IList<SarifErrorListItem> SarifErrors {
-            get
-            {
-                return _sarifErrors;
-            }
-            set
-            {
-                _sarifErrors = value;
-            }
-        }
+        public IList<SarifErrorListItem> SarifErrors { get; set; } = new List<SarifErrorListItem>();
 
         /// <summary>
         /// Used for testing.
         /// </summary>
         internal RunDataCache() :
-            this(null, 0, null)
+            this(run: null, runIndex: 0, logFilePath: null)
         {
         }
 
@@ -51,7 +42,7 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache(Run run, int runIndex) :
-            this (run, runIndex, null)
+            this (run: run, runIndex: runIndex, logFilePath: null)
         {
         }
 

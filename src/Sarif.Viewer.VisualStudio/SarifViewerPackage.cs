@@ -18,6 +18,7 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.ComponentModelHost;
+using System.Collections.Generic;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -33,7 +34,7 @@ namespace Microsoft.Sarif.Viewer
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
+    [ProvideToolWindow(typeof(SarifExplorerWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
     [ProvideService(typeof(ISarifLocationTaggerService))]
@@ -56,7 +57,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Returns the instance of the SARIF tool window.
         /// </summary>
-        public static SarifToolWindow SarifToolWindow
+        public static SarifExplorerWindow SarifToolWindow
         {
             get
             {
@@ -79,12 +80,24 @@ namespace Microsoft.Sarif.Viewer
                     return null;
                 }
 
-                return vsPackage.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
+                return vsPackage.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
             }
         }
 
         public static Configuration AppConfig { get; private set; }
         #region Package Members
+        /// <summary>
+        /// Contains the list of services and their creator functions.
+        /// </summary>
+        private static readonly Dictionary<Type, Func<object>> ServiceTypeToCreator = new Dictionary<Type, Func<object>>
+        {
+            { typeof(SLoadSarifLogService), () => new LoadSarifLogService() },
+            { typeof(SCloseSarifLogService), () => new CloseSarifLogService() },
+            { typeof(ISarifLocationTaggerService), () => new SarifLocationTaggerService() },
+            { typeof(ITextViewCaretListenerService<ITextMarkerTag>), () => new TextViewCaretListenerService<ITextMarkerTag>() },
+            { typeof(ITextViewCaretListenerService<IErrorTag>), () => new TextViewCaretListenerService<IErrorTag>() },
+            { typeof(ISarifErrorListEventSelectionService), () => new SarifErrorListEventProcessor() },
+        };
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -96,11 +109,10 @@ namespace Microsoft.Sarif.Viewer
             base.Initialize();
 
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
-            ((IServiceContainer)this).AddService(typeof(SLoadSarifLogService), callback, true);
-            ((IServiceContainer)this).AddService(typeof(SCloseSarifLogService), callback, true);
-            ((IServiceContainer)this).AddService(typeof(ISarifLocationTaggerService), callback, true);
-            ((IServiceContainer)this).AddService(typeof(ITextViewCaretListenerService<>), callback, true);
-            ((IServiceContainer)this).AddService(typeof(ISarifErrorListEventSelectionService), callback, true);
+            foreach (Type serviceType in ServiceTypeToCreator.Keys)
+            {
+                ((IServiceContainer)this).AddService(serviceType, callback, true);
+            }
 
             string path = Assembly.GetExecutingAssembly().Location;
             var configMap = new ExeConfigurationFileMap();
@@ -163,34 +175,9 @@ namespace Microsoft.Sarif.Viewer
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
-            if (typeof(SLoadSarifLogService) == serviceType)
+            if (ServiceTypeToCreator.TryGetValue(serviceType, out Func<object> creator))
             {
-                return new LoadSarifLogService();
-            }
-
-            if (typeof(SCloseSarifLogService) == serviceType)
-            {
-                return new CloseSarifLogService();
-            }
-
-            if (typeof(ISarifLocationTaggerService) == serviceType)
-            {
-                return new SarifLocationTaggerService();
-            }
-
-            if (typeof(ITextViewCaretListenerService<ITextMarkerTag>) == serviceType)
-            {
-                return new TextViewCaretListenerService<ITextMarkerTag>();
-            }
-
-            if (typeof(ITextViewCaretListenerService<IErrorTag>) == serviceType)
-            {
-                return new TextViewCaretListenerService<IErrorTag>();
-            }
-
-            if (typeof(ISarifErrorListEventSelectionService) == serviceType)
-            {
-                return new SarifErrorListEventProcessor();
+                return creator();
             }
 
             return null;

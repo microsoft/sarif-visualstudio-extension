@@ -80,7 +80,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RunDataCache.cs" />
-    <Compile Include="SarifToolWindow.cs" />
+    <Compile Include="SarifExplorerWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
     <Compile Include="Tags\CaretEventArgs.cs" />
     <Compile Include="Tags\ISarifLocationTagger.cs" />

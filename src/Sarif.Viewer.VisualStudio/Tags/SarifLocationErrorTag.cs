@@ -20,15 +20,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="resultId">the result ID associated with this tag.</param>
         /// <param name="errorType">The Visual Studio error type to display.</param>
-        /// <param name="toolTipContet">The content to use when displaying a tool tip for this error. This parameter may be null.</param>
+        /// <param name="toolTipContent">The content to use when displaying a tool tip for this error. This parameter may be null.</param>
         /// <param name="context">Gets the data context for this tag.</param>
-        public SarifLocationErrorTag(IPersistentSpan documentPersistentSpan, int runIndex, int resultId, string errorType, object toolTipContet, object context)
+        public SarifLocationErrorTag(IPersistentSpan documentPersistentSpan, int runIndex, int resultId, string errorType, object toolTipContent, object context)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.RunIndex = runIndex;
             this.ResultId = resultId;
             this.ErrorType = errorType;
-            this.ToolTipContent = toolTipContet;
+            this.ToolTipContent = toolTipContent;
             this.Context = context;
         }
 
