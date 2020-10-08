@@ -15,12 +15,10 @@ namespace Microsoft.Sarif.Viewer.Models
         DelegateCommand<TreeView> _selectPreviousCommand;
         DelegateCommand<TreeView> _selectNextCommand;
 
-        private IToolWindow toolWindow;
         private ObservableCollection<CallTreeNode> _topLevelNodes;
 
-        public CallTree(IList<CallTreeNode> topLevelNodes, IToolWindow toolWindow)
+        public CallTree(IList<CallTreeNode> topLevelNodes)
         {
-            this.toolWindow = toolWindow;
             TopLevelNodes = new ObservableCollection<CallTreeNode>(topLevelNodes);
         }
 

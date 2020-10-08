@@ -16,12 +16,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal interface ISarifErrorListEventSelectionService
     {
         /// <summary>
-        /// Gets the currently selected <see cref="SarifErrorListItem"/>.
+        /// Gets or sets the currently selected <see cref="SarifErrorListItem"/>.
         /// </summary>
         /// <remarks>
         /// May be null.
         /// </remarks>
-        SarifErrorListItem SelectedItem { get; }
+        SarifErrorListItem SelectedItem { get; set; }
 
         /// <summary>
         /// Fired when the selection in the Visual Studio error list has changed.
@@ -29,12 +29,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
 
         /// <summary>
-        /// Gets the currently navigated to <see cref="SarifErrorListItem"/>.
+        /// Gets or sets the currently navigated to <see cref="SarifErrorListItem"/>.
         /// </summary>
         /// <remarks>
         /// May be null.
         /// </remarks>
-        SarifErrorListItem NavigatedItem { get; }
+        SarifErrorListItem NavigatedItem { get; set; }
 
         /// <summary>
         /// Fired when the Visual Studio error list navigates to an item.

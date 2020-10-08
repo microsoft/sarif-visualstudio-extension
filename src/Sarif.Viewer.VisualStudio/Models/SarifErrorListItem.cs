@@ -373,7 +373,7 @@ namespace Microsoft.Sarif.Viewer
                 _selectedTab = value;
 
                 // If a new tab is selected, reset the Properties window.
-                SarifViewerPackage.SarifToolWindow.ResetSelection();
+                SarifViewerPackage.SarifExplorerWindow.ResetSelection();
             }
         }
 

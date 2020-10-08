@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using EnvDTE;
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.Sarif.Viewer.Models;
+    using Microsoft.VisualStudio.ComponentModelHost;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using Microsoft.VisualStudio.Shell.TableControl;
@@ -182,12 +183,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 if (location != null)
                 {
-                    // Setting the DataContext to null forces the TabControl to select the appropriate tab.
-                    SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
-
                     if (this.Error.HasDetails)
                     {
-                        SarifViewerPackage.SarifToolWindow.Control.DataContext = this.Error;
+                        IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                        if (componentModel != null)
+                        {
+                            ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                            if (sarifSelectionService != null)
+                            {
+                                sarifSelectionService.NavigatedItem = this.Error;
+                            }
+                        }
                     }
 
                     location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);

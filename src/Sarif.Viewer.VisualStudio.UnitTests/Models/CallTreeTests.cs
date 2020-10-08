@@ -459,10 +459,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTree_ExpandAll_NoNodes()
         {
-            var mockToolWindow = new Mock<IToolWindow>();
-            mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
-
-            CallTree tree = new CallTree(new List<CallTreeNode>(), mockToolWindow.Object);
+            CallTree tree = new CallTree(new List<CallTreeNode>());
             tree.ExpandAll();
         }
 
@@ -586,10 +583,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 }
             });
 
-            var mockToolWindow = new Mock<IToolWindow>();
-            mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
-
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0), mockToolWindow.Object);
+            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
             return callTree;
         }

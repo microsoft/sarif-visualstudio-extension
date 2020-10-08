@@ -22,13 +22,40 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         #region ISarifErrorListEventSelectionService
         /// <inheritdoc/>
-        public SarifErrorListItem SelectedItem => currentlySelectedItem;
+        public SarifErrorListItem SelectedItem
+        {
+            get => this.currentlySelectedItem;
+
+            set
+            {
+                if (this.currentlySelectedItem != value)
+                {
+                    SarifErrorListItem previouslySelectedItem = this.currentlySelectedItem;
+                    this.currentlySelectedItem = value;
+
+                    SelectedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslySelectedItem, this.currentlySelectedItem));
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
 
         /// <inheritdoc/>
-        public SarifErrorListItem NavigatedItem => currentlyNavigatedItem;
+        public SarifErrorListItem NavigatedItem
+        {
+            get => this.currentlyNavigatedItem;
+            set
+            {
+                if (this.currentlyNavigatedItem != value)
+                {
+                    SarifErrorListItem previouslyNavigatedItem = this.currentlyNavigatedItem;
+                    this.currentlyNavigatedItem = value;
+
+                    NavigatedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslyNavigatedItem, this.currentlyNavigatedItem));
+                }
+            }
+        }
 
         /// <inheritdoc/>
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;

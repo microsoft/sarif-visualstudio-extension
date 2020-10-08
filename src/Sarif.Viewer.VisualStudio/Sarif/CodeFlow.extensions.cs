@@ -47,7 +47,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run, resultId, runIndex);
 
-            return new CallTree(topLevelNodes, SarifViewerPackage.SarifToolWindow);
+            return new CallTree(topLevelNodes);
         }
     }
 }

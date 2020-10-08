@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Returns the instance of the SARIF tool window.
         /// </summary>
-        public static SarifExplorerWindow SarifToolWindow
+        public static SarifExplorerWindow SarifExplorerWindow
         {
             get
             {
@@ -201,7 +201,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (e.NewItem != null)
             {
-                SarifToolWindow.Show();
+                SarifExplorerWindow.Show();
             }
         }
     }
