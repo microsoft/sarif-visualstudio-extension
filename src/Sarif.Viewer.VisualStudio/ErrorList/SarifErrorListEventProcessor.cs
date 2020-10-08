@@ -5,6 +5,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.Composition;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;
@@ -12,42 +13,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     /// <summary>
     /// Maintains currently selected and navigated to <see cref="SarifErrorListItem"/> from the Visual Studio error list.
     /// </summary>
-    internal class SarifErrorListEventProcessor : TableControlEventProcessorBase
+    [Export(typeof(ISarifErrorListEventSelectionService))]
+    internal class SarifErrorListEventProcessor : TableControlEventProcessorBase, ISarifErrorListEventSelectionService
     {
-        private static SarifErrorListItem currentlySelectedItem;
-        private static SarifErrorListItem currentlyNavigateddItem;
+        private SarifErrorListItem currentlySelectedItem;
+        private SarifErrorListItem currentlyNavigateddItem;
 
-        /// <summary>
-        /// Gets the currently selected <see cref="SarifErrorListItem"/>.
-        /// </summary>
-        /// <remarks>
-        /// May be null.
-        /// </remarks>
-        public static SarifErrorListItem SelectedItem
+        /// <inheritdoc/>
+        public SarifErrorListItem SelectedItem => currentlySelectedItem;
+
+        /// <inheritdoc/>
+        public event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
+
+        /// <inheritdoc/>
+        public SarifErrorListItem NavigatedItem => currentlyNavigateddItem;
+
+        /// <inheritdoc/>
+        public event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;
+
+        public SarifErrorListEventProcessor()
         {
-            get => currentlySelectedItem;
         }
-
-        /// <summary>
-        /// Fired when the selection in the Visual Studio error list has changed.
-        /// </summary>
-        public static event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
-
-        /// <summary>
-        /// Gets the currently navigated to <see cref="SarifErrorListItem"/>.
-        /// </summary>
-        /// <remarks>
-        /// May be null.
-        /// </remarks>
-        public static SarifErrorListItem NavigatedItem
-        {
-            get => currentlyNavigateddItem;
-        }
-
-        /// <summary>
-        /// Fired when the Visual Studio error list navigates to an item.
-        /// </summary>
-        public static event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;
 
         public override void PostprocessSelectionChanged(TableSelectionChangedEventArgs e)
         {

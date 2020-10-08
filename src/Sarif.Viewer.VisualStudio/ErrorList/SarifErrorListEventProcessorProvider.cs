@@ -16,9 +16,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     [Order(Before = "Default")]
     internal class SarifErrorListEventProcessorProvider : ITableControlEventProcessorProvider
     {
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+        [Import]
+        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
+
         public ITableControlEventProcessor GetAssociatedEventProcessor(IWpfTableControl tableControl)
         {
-            return new SarifErrorListEventProcessor();
+            return sarifErrorListEventSelectionService as ITableControlEventProcessor;
         }
     }
 }

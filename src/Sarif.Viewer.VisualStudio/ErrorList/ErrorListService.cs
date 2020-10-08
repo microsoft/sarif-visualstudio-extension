@@ -23,6 +23,7 @@ using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -243,7 +244,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (int runIdToClear in runIdsToClear)
             {
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
-                SarifLocationTaggerProvider.RefreshAllTags();
+            }
+
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
+                if (sarifLocationTaggerService != null)
+                {
+                    sarifLocationTaggerService.RefreshAllTags();
+                }
             }
         }
 
@@ -395,8 +405,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CleanAllErrors()
         {
             SarifTableDataSource.Instance.CleanAllErrors();
-            SarifLocationTaggerProvider.RefreshAllTags();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
+
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
+                if (sarifLocationTaggerService != null)
+                {
+                    sarifLocationTaggerService.RefreshAllTags();
+                }
+            }
         }
 
         private int WriteRunToErrorList(Run run, string logFilePath)
@@ -454,7 +473,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
 
             // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
-            SarifLocationTaggerProvider.RefreshAllTags();
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
+                if (sarifLocationTaggerService != null)
+                {
+                    sarifLocationTaggerService.RefreshAllTags();
+                }
+            }
 
             return sarifErrors.Count;
         }

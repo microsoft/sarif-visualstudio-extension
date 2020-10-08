@@ -15,6 +15,8 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -41,6 +43,7 @@ namespace Microsoft.Sarif.Viewer
         private List<string> _allowedDownloadHosts;
 
         private readonly IFileSystem _fileSystem;
+        private readonly ISarifErrorListEventSelectionService sarifLocationTaggerService;
 
         internal delegate string PromptForResolvedPathDelegate(string pathFromLogFile);
         readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
@@ -58,6 +61,13 @@ namespace Microsoft.Sarif.Viewer
             // Get temporary path for embedded files.
             TemporaryFilePath = Path.GetTempPath();
             TemporaryFilePath = Path.Combine(TemporaryFilePath, TemporaryFileDirectoryName);
+
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                this.sarifLocationTaggerService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+            }
+
         }
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
@@ -472,7 +482,7 @@ namespace Microsoft.Sarif.Viewer
             var openFileDialog = new OpenFileDialog
             {
                 Title = $"Locate missing file: {pathFromLogFile}",
-                InitialDirectory = SarifErrorListEventProcessor.SelectedItem != null ? Path.GetDirectoryName(SarifErrorListEventProcessor.SelectedItem.LogFilePath) : null,
+                InitialDirectory = this.sarifLocationTaggerService?.SelectedItem != null ? Path.GetDirectoryName(this.sarifLocationTaggerService.SelectedItem.LogFilePath) : null,
                 Filter = $"{fileName}|{fileName}",
                 RestoreDirectory = true
             };

@@ -51,6 +51,7 @@
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="DelegateCommandBase.cs" />
     <Compile Include="ErrorList\ErrorListCommand.cs" />
+    <Compile Include="ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="ErrorList\SarifResultTableEntry.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService2.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifToolWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
+    <Compile Include="Tags\CaretEventArgs.cs" />
     <Compile Include="Tags\ISarifLocationTagger.cs" />
     <Compile Include="Services\SCloseSarifLogService.cs" />
     <Compile Include="Services\SLoadSarifLogService.cs" />
@@ -88,11 +90,15 @@
     <Compile Include="ErrorList\SarifErrorListEventProcessor.cs" />
     <Compile Include="ErrorList\SarifErrorListEventProcessorProvider.cs" />
     <Compile Include="ErrorList\SarifErrorListSelectionChangedEventArgs.cs" />
+    <Compile Include="Tags\ISarifLocationTaggerService.cs" />
+    <Compile Include="Tags\ITextViewCaretListenerService.cs" />
     <Compile Include="Tags\SarifLocationErrorTag.cs" />
+    <Compile Include="Tags\SarifLocationTaggerService.cs" />
     <Compile Include="Tags\SarifLocationTextMarkerTagger.cs" />
     <Compile Include="Tags\SarifLocationTextMarkerTag.cs" />
     <Compile Include="Tags\SarifLocationErrorTagger.cs" />
     <Compile Include="Tags\TextViewCaretListener.cs" />
+    <Compile Include="Tags\TextViewCaretListenerService.cs" />
     <Compile Include="TelemetryEvent.cs" />
     <Compile Include="TelemetryProvider.cs" />
     <Compile Include="Uri.extensions.cs" />

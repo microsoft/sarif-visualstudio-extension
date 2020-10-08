@@ -15,6 +15,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.ComponentModelHost;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -33,6 +36,9 @@ namespace Microsoft.Sarif.Viewer
     [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
+    [ProvideService(typeof(ISarifLocationTaggerService))]
+    [ProvideService(typeof(ITextViewCaretListenerService<>))]
+    [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         private bool disposed;
@@ -45,23 +51,7 @@ namespace Microsoft.Sarif.Viewer
 
         public static bool IsUnitTesting { get; set; } = false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OpenLogFileCommands"/> class.
-        /// </summary>
-        public SarifViewerPackage()
-        {
-            SarifErrorListEventProcessor.SelectedItemChanged += SarifErrorListEventProcessor_SelectedItemChanged;
-        }
-
-        private void SarifErrorListEventProcessor_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (e.NewItem != null)
-            {
-                SarifToolWindow.Show();
-            }
-        }
+        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
 
         /// <summary>
         /// Returns the instance of the SARIF tool window.
@@ -108,6 +98,9 @@ namespace Microsoft.Sarif.Viewer
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
             ((IServiceContainer)this).AddService(typeof(SLoadSarifLogService), callback, true);
             ((IServiceContainer)this).AddService(typeof(SCloseSarifLogService), callback, true);
+            ((IServiceContainer)this).AddService(typeof(ISarifLocationTaggerService), callback, true);
+            ((IServiceContainer)this).AddService(typeof(ITextViewCaretListenerService<>), callback, true);
+            ((IServiceContainer)this).AddService(typeof(ISarifErrorListEventSelectionService), callback, true);
 
             string path = Assembly.GetExecutingAssembly().Location;
             var configMap = new ExeConfigurationFileMap();
@@ -127,22 +120,41 @@ namespace Microsoft.Sarif.Viewer
             TelemetryProvider.Initialize(configuration);
             TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
 
+            // Subscribe to navigation changes in the SARIF error list event processor
+            // so when an error is navigated to, the SARIF explorer is shown.
+            // NOTE: If you call "GetService" directly instead of going through MEF (Component Model)
+            // then you end up with two instances of the SARIF error list selection service, which
+            // is definitely not what you want. Let MEF do it's thing and return the singleton
+            // service to you.
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                this.sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                if (this.sarifErrorListEventSelectionService != null)
+                {
+                    this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifErrorListEventProcessor_NavigatedItemChanged;
+                }
+            }
+
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
-
+        
             return;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (this.disposed)
             {
-                if (!this.disposed)
-                {
-                    this.disposed = true;
-                }
+                return;
+            }
+            this.disposed = true;
+
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.NavigatedItemChanged -= this.SarifErrorListEventProcessor_NavigatedItemChanged;
             }
 
             base.Dispose(disposing);
@@ -161,7 +173,37 @@ namespace Microsoft.Sarif.Viewer
                 return new CloseSarifLogService();
             }
 
+            if (typeof(ISarifLocationTaggerService) == serviceType)
+            {
+                return new SarifLocationTaggerService();
+            }
+
+            if (typeof(ITextViewCaretListenerService<ITextMarkerTag>) == serviceType)
+            {
+                return new TextViewCaretListenerService<ITextMarkerTag>();
+            }
+
+            if (typeof(ITextViewCaretListenerService<IErrorTag>) == serviceType)
+            {
+                return new TextViewCaretListenerService<IErrorTag>();
+            }
+
+            if (typeof(ISarifErrorListEventSelectionService) == serviceType)
+            {
+                return new SarifErrorListEventProcessor();
+            }
+
             return null;
+        }
+
+        private void SarifErrorListEventProcessor_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (e.NewItem != null)
+            {
+                SarifToolWindow.Show();
+            }
         }
     }
 }

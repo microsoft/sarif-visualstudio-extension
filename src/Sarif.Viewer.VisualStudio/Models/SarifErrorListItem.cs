@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -592,7 +593,15 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            SarifLocationTaggerProvider.RefreshAllTags();
+            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
+                if (sarifLocationTaggerService != null)
+                {
+                    sarifLocationTaggerService.RefreshAllTags();
+                }
+            }
         }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)

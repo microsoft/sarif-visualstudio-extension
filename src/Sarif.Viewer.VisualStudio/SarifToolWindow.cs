@@ -4,9 +4,12 @@
 using System;
 using System.Runtime.InteropServices;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Views;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -26,6 +29,8 @@ namespace Microsoft.Sarif.Viewer
     {
         private ITrackSelection _trackSelection;
         private SelectionContainer _selectionContainer;
+        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
+        private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
 
         internal SarifToolWindowControl Control
         {
@@ -49,20 +54,48 @@ namespace Microsoft.Sarif.Viewer
             Content = new SarifToolWindowControl();
             Control.Loaded += this.Control_Loaded;
             Control.Unloaded += this.Control_Unloaded;
+
+            IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                this.sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                this.textViewCaretListenerService = componentModel.GetService<ITextViewCaretListenerService<ITextMarkerTag>>();
+            }
         }
 
         private void Control_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            SarifErrorListEventProcessor.NavigatedItemChanged -= this.SarifListErrorItemNavigated;
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.NavigatedItemChanged -= this.SarifListErrorItemNavigated;
+            }
+
+            if (this.textViewCaretListenerService != null)
+            {
+                this.textViewCaretListenerService.CaretEnteredTag -= this.TextViewCaretListenerService_CaretEnteredTag;
+            }
+        }
+
+        private void TextViewCaretListenerService_CaretEnteredTag(object sender, CaretEventArgs e)
+        {
         }
 
         private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            SarifErrorListEventProcessor.NavigatedItemChanged += this.SarifListErrorItemNavigated;
-            this.Control.DataContext = SarifErrorListEventProcessor.SelectedItem;
-            this.ResetSelection();
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifListErrorItemNavigated;
+                this.Control.DataContext = this.sarifErrorListEventSelectionService.SelectedItem;
+            }
+
+            if (this.textViewCaretListenerService != null)
+            {
+                this.textViewCaretListenerService.CaretEnteredTag += this.TextViewCaretListenerService_CaretEnteredTag;
+            }
+
+                this.ResetSelection();
         }
 
         private void SarifListErrorItemNavigated(object sender, SarifErrorListSelectionChangedEventArgs e)

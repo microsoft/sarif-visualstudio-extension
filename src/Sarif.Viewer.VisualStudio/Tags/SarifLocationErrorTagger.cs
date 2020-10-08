@@ -21,6 +21,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         private readonly string filePath;
 
         private readonly IPersistentSpanFactory persistentSpanFactory;
+        private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
         private readonly ITextBuffer textBuffer;
 
         private List<ISarifLocationTag> currentTags;
@@ -32,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public event EventHandler Disposed;
 
-        public SarifLocationErrorTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        public SarifLocationErrorTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, ISarifErrorListEventSelectionService sarifErrorListEventSelectionService)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -43,6 +44,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
+            this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
         }
 
         /// <inheritdoc/>
@@ -65,7 +67,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     SelectMany(sarifListItem => 
                     sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true).Concat(
                         sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: false).Where(
-                            sarifLocationTag => SarifErrorListEventProcessor.SelectedItem != null && sarifLocationTag.ResultId == SarifErrorListEventProcessor.SelectedItem.ResultId))).
+                            sarifLocationTag => this.sarifErrorListEventSelectionService.SelectedItem != null && sarifLocationTag.ResultId == this.sarifErrorListEventSelectionService.SelectedItem.ResultId))).
                     ToList();
 
                 // We need to make sure the list isn't modified underneath us while providing the tags, so executing ToList to get our copy.

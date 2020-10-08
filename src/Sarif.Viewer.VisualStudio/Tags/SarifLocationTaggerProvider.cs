@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -33,21 +34,18 @@ namespace Microsoft.Sarif.Viewer.Tags
 #pragma warning disable IDE0044 // Assigned by MEF
         [Import]
         private IPersistentSpanFactory PersistentSpanFactory;
+
+        [Import]
+        private ISarifLocationTaggerService sarifLocationTaggerService;
+
+        [Import]
+        private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
+
+        [Import]
+        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
+
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
-
-        /// <summary>
-        /// Protects access to the <see cref="SarifTaggers"/> list.
-        /// </summary>
-        private static readonly ReaderWriterLockSlimWrapper SarifTaggersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-
-        /// <summary>
-        /// This list of running taggers.
-        /// </summary>
-        /// <remarks>
-        /// This static list is used to easily notify all running taggers that there tags need to be refreshed.
-        /// </remarks>
-        private static readonly List<ISarifLocationTagger> SarifTaggers = new List<ISarifLocationTagger>();
 
         /// <inheritdoc/>
         /// <summary>
@@ -80,59 +78,20 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (typeof(T) == typeof(IErrorTag))
             {
-                newTagger = new SarifLocationErrorTagger(textBuffer, this.PersistentSpanFactory);
+                newTagger = new SarifLocationErrorTagger(textBuffer, this.PersistentSpanFactory, this.sarifErrorListEventSelectionService);
             }
 
             if (typeof(T) == typeof(ITextMarkerTag))
             {
-                newTagger = new SarifLocationTextMarkerTagger(textView, textBuffer, this.PersistentSpanFactory);
+                newTagger = new SarifLocationTextMarkerTagger(textView, textBuffer, this.PersistentSpanFactory, this.textViewCaretListenerService, this.sarifErrorListEventSelectionService);
             }
 
             if (newTagger != null)
             {
-                newTagger.Disposed += this.TaggerDisposed;
-
-                using (SarifTaggersLock.EnterWriteLock())
-                {
-                    SarifTaggers.Add(newTagger);
-                }
+                this.sarifLocationTaggerService.NotifyTaggerCreated(newTagger);
             }
 
             return newTagger as ITagger<T>;
-        }
-
-        /// <summary>
-        /// Causes a tags changed notification to be sent out from all known taggers.
-        /// </summary>
-        /// <remarks>
-        /// The primary use of this is to send a tags changed notification when a "text view" is already open and visible
-        /// and a tagger is active for that "text view" and a SARIF log is loaded via an API.
-        /// </remarks>
-        public static void RefreshAllTags()
-        {
-            IEnumerable<ISarifLocationTagger> taggers;
-            using (SarifTaggersLock.EnterReadLock())
-            {
-                taggers = SarifTaggers.ToList();
-            }
-
-            foreach (ISarifLocationTagger tagger in taggers)
-            {
-                tagger.RefreshTags();
-            }
-        }
-
-        private void TaggerDisposed(object sender, EventArgs e)
-        {
-            if (sender is ISarifLocationTagger tagger)
-            {
-                tagger.Disposed -= this.TaggerDisposed;
-
-                using (SarifTaggersLock.EnterWriteLock())
-                {
-                    SarifTaggers.Remove(tagger);
-                }
-            }
         }
     }
 }

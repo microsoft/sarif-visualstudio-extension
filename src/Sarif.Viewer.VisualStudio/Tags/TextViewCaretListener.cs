@@ -6,48 +6,23 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
-    using Microsoft.VisualStudio.Utilities;
 
     /// <summary>
     /// Handles listening to caret and layout updates to the text view in order
     /// to send notifications about the caret entering a tag.
     /// </summary>
-    internal class TextViewCaretListener<T> : IDisposable
+    internal class TextViewCaretListener<T>
         where T: ITag
     {
-        /// <summary>
-        /// Protects access to the <see cref="SarifTaggers"/> list.
-        /// </summary>
-        private static readonly ReaderWriterLockSlimWrapper ExistingListenersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private static readonly Dictionary<ITextView, TextViewCaretListener<T>> ExistingListeners = new Dictionary<ITextView, TextViewCaretListener<T>>();
-
         private readonly TextMarkerTagCompaerer textMarkerTagCompaerer = new TextMarkerTagCompaerer();
         private readonly ITagger<T> tagger;
         private readonly ITextView textView;
         private List<ISarifLocationTag> previousTagsCaretWasIn;
-        private bool isDisposed;
 
-        public static void CreateListener(ITextView textView, ITagger<T> tagger)
-        {
-            using (ExistingListenersLock.EnterUpgradeableReadLock())
-            {
-                if (ExistingListeners.ContainsKey(textView))
-                {
-                    return;
-                }
-
-                using (ExistingListenersLock.EnterWriteLock())
-                {
-                    ExistingListeners.Add(textView, new TextViewCaretListener<T>(textView, tagger));
-                }
-            }
-        }
-
-        private TextViewCaretListener(ITextView textView, ITagger<T> tagger)
+        public TextViewCaretListener(ITextView textView, ITagger<T> tagger)
         {
             this.tagger = tagger;
             this.textView = textView;
@@ -55,6 +30,16 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textView.LayoutChanged += TextView_LayoutChanged;
             this.textView.Caret.PositionChanged += Caret_PositionChanged;
         }
+
+        /// <summary>
+        /// Fired when the Visual Studio caret enters a tag.
+        /// </summary>
+        public event EventHandler<CaretEventArgs> CaretEnteredTag;
+
+        /// <summary>
+        /// Fired when the Visual Studio caret leaves a tag.
+        /// </summary>
+        public event EventHandler<CaretEventArgs> CaretLeftTag;
 
         private void TextView_LayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
@@ -97,6 +82,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // Start an update batch in case the notifications cause a series of changes to tags. (Such as highlight colors).
             foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretEnter)
             {
+                this.CaretEnteredTag?.Invoke(this, new CaretEventArgs(tagToNotify));
                 tagToNotify.NotifyCaretEntered();
             }
 
@@ -104,6 +90,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretLeave)
                 {
+                    this.CaretLeftTag?.Invoke(this, new CaretEventArgs(tagToNotify));
                     tagToNotify.NotifyCaretLeft();
                 }
             }
@@ -121,32 +108,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textView.Closed -= this.TextView_Closed;
             this.textView.LayoutChanged -= this.TextView_LayoutChanged;
             this.textView.Caret.PositionChanged -= this.Caret_PositionChanged;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.isDisposed)
-            {
-                return;
-            }
-
-            this.isDisposed = true;
-            if (disposing)
-            {
-                this.UnsubscribeFromEvents();
-
-                using (ExistingListenersLock.EnterWriteLock())
-                {
-                    ExistingListeners.Remove(this.textView);
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         private class TextMarkerTagCompaerer : IEqualityComparer<ISarifLocationTag>

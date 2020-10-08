@@ -50,6 +50,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         private readonly string filePath;
 
         private readonly IPersistentSpanFactory persistentSpanFactory;
+        private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
         private readonly ITextBuffer textBuffer;
 
         private List<ISarifLocationTag> currentTags;
@@ -61,7 +62,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public event EventHandler Disposed;
 
-        public SarifLocationTextMarkerTagger(ITextView textView, ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        public SarifLocationTextMarkerTagger(
+            ITextView textView,
+            ITextBuffer textBuffer,
+            IPersistentSpanFactory persistentSpanFactory,
+            ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService,
+            ISarifErrorListEventSelectionService sarifErrorListEventSelectionService)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -72,15 +78,16 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
+            this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
 
             // Subscribe to the SARIF error item being selected from the error list
             // so we can properly filter the tags being shown in the editor
             // to the currently selected item.
-            SarifErrorListEventProcessor.SelectedItemChanged += this.SelectedSarifItemChanged;
+            this.sarifErrorListEventSelectionService.SelectedItemChanged += this.SelectedSarifItemChanged;
 
             // Subscribe to the caret position so we can send enter and exit notifications
             // to the tags so they can decide potentially change their colors.
-            TextViewCaretListener<ITextMarkerTag>.CreateListener(textView, this);
+            textViewCaretListenerService.CreateListener(textView, this);
         }
 
         private void SelectedSarifItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
@@ -97,7 +104,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                 this.UnsubscribeFromTagEvents();
 
-                SarifErrorListItem currentlySelectedItem = SarifErrorListEventProcessor.SelectedItem;
+                SarifErrorListItem currentlySelectedItem = this.sarifErrorListEventSelectionService.SelectedItem;
 
                 // We need to make sure the list isn't modified underneath us while providing the tags, so executing ToList to get our copy.
                 this.currentTags = (currentlySelectedItem == null ? Enumerable.Empty<ISarifLocationTag>() :
@@ -198,7 +205,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (disposing)
             {
                 this.UnsubscribeFromTagEvents();
-                SarifErrorListEventProcessor.SelectedItemChanged -= this.SelectedSarifItemChanged;
+                this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SelectedSarifItemChanged;
                 this.Disposed?.Invoke(this, new EventArgs());
             }
         }
