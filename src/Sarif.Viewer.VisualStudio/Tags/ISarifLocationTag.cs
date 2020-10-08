@@ -4,6 +4,7 @@
 namespace Microsoft.Sarif.Viewer.Tags
 {
     using Microsoft.VisualStudio.Text;
+    using Microsoft.Sarif.Viewer.Models;
 
     internal interface ISarifLocationTag
     {
@@ -26,6 +27,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Gets the result ID associated with this tag.
         /// </summary>
         int ResultId { get; }
+
+        /// <summary>
+        /// Gets the data context for this tag.
+        /// </summary>
+        /// <remarks>
+        /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
+        /// for the "data context" for the SARIF explorer window.
+        /// </remarks>
+        object Context { get; }
 
         /// <summary>
         /// Called when the caret from the text editor enters this tag.

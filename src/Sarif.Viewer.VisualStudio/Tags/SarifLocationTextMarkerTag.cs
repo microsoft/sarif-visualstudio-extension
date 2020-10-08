@@ -17,14 +17,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         private string highlightedTextMarkerTagType;
         private string currentTextMarkerTagType;
 
-        /// Initialize a new instance of <see cref="SarifLocationTextMarkerTag"/>.
-        /// </summary>
+        /// <summary>
         /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="resultId">the result ID associated with this tag.</param>
         /// <param name="textMarkerTagType">The text marker tag to display for this tag when it is not highlighted.</param>
         /// <param name="highlightedTextMarkerTagType">The text marker tag to display for this tag when it is highlighted.</param>
-        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, int runIndex, int resultId, string textMarkerTagType, string highlightedTextMarkerTagType)
+        /// <param name="context">Gets the data context for this tag.</param>
+        /// </summary>
+        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, int runIndex, int resultId, string textMarkerTagType, string highlightedTextMarkerTagType, object context)
         {
             this.DocumentPersistentSpan = documentPersistentSpan;
             this.RunIndex = runIndex;
@@ -32,6 +33,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textMarkerTagType = textMarkerTagType;
             this.highlightedTextMarkerTagType = highlightedTextMarkerTagType;
             this.currentTextMarkerTagType = textMarkerTagType;
+            this.Context = context;
         }
 
         /// <inheritdoc/>
@@ -45,6 +47,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         /// <inheritdoc/>
         public int ResultId { get; }
+
+        /// <inheritdoc/>
+        public object Context { get; }
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;

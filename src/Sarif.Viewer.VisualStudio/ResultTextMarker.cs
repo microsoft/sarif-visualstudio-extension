@@ -100,6 +100,15 @@ namespace Microsoft.Sarif.Viewer
         public object ToolTipeContent { get; }
 
         /// <summary>
+        /// The data context for this result marker.
+        /// </summary>
+        /// <remarks>
+        /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
+        /// for the "data context" for the SARIF explorer window.
+        /// </remarks>
+        public object Context { get; }
+
+        /// <summary>
         /// Gets or sets the original SARIF region from a SARIF log.
         /// </summary>
         public Region Region
@@ -125,8 +134,9 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
         /// <param name="color">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor)
-            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, color: color, highlightedColor: highlightedColor, errorType: null, tooltipContent: null)
+        /// <param name="context">The data context for this result marker.</param>
+        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor, object context)
+            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, color: color, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
         {
         }
 
@@ -141,10 +151,11 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
+        /// <param name="context">The data context for this result marker.</param>
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor, string errorType, object tooltipContent)
+        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string color, string highlightedColor, string errorType, object tooltipContent, object context)
         {
             this.ResultID = resultId;
             this.RunIndex = runIndex;
@@ -154,6 +165,7 @@ namespace Microsoft.Sarif.Viewer
             this.HighlightedColor = highlightedColor;
             this.ToolTipeContent = tooltipContent;
             this.ErrorType = errorType;
+            this.Context = context;
         }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
@@ -191,7 +203,8 @@ namespace Microsoft.Sarif.Viewer
                                     runIndex: this.RunIndex,
                                     resultId: this.ResultID,
                                     errorType: this.ErrorType,
-                                    toolTipContet: this.ToolTipeContent));
+                                    toolTipContet: this.ToolTipeContent,
+                                    context: this.Context));
             }
 
             if (typeof(T) == typeof(ITextMarkerTag))
@@ -201,7 +214,8 @@ namespace Microsoft.Sarif.Viewer
                                         runIndex: this.RunIndex,
                                         resultId: this.ResultID,
                                         textMarkerTagType: this.Color,
-                                        highlightedTextMarkerTagType: this.HighlightedColor));
+                                        highlightedTextMarkerTagType: this.HighlightedColor,
+                                        context: this.Context));
             }
 
             return tags;

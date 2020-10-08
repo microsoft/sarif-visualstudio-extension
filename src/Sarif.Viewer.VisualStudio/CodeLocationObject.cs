@@ -32,7 +32,8 @@ namespace Microsoft.Sarif.Viewer
                         region: Region,
                         fullFilePath: FilePath,
                         color: DefaultSourceHighlightColor,
-                        highlightedColor: SelectedSourceHighlightColor);
+                        highlightedColor: SelectedSourceHighlightColor,
+                        context: this);
                 }
 
                 // If the UriBaseId was populated before the marker was available, set the

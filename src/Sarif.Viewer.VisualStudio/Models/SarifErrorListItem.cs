@@ -491,7 +491,8 @@ namespace Microsoft.Sarif.Viewer
                         color: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
-                        tooltipContent: this.Message)
+                        tooltipContent: this.Message,
+                        context: this)
                     {
                         UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
                     };

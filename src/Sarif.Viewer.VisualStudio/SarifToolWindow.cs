@@ -10,6 +10,8 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.Sarif.Viewer.Models;
+using System.Windows;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -78,6 +80,17 @@ namespace Microsoft.Sarif.Viewer
 
         private void TextViewCaretListenerService_CaretEnteredTag(object sender, CaretEventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (e.Tag.Context is CallTreeNode node)
+            {
+                if (node.Visibility == Visibility.Visible && node.CallTree != null)
+                {
+                    node.CallTree.SelectedItem = node;
+                    this.UpdateSelectionList(node.TypeDescriptor);
+                    node.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
+                }
+            }
         }
 
         private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
@@ -95,7 +108,7 @@ namespace Microsoft.Sarif.Viewer
                 this.textViewCaretListenerService.CaretEnteredTag += this.TextViewCaretListenerService_CaretEnteredTag;
             }
 
-                this.ResetSelection();
+            this.ResetSelection();
         }
 
         private void SarifListErrorItemNavigated(object sender, SarifErrorListSelectionChangedEventArgs e)

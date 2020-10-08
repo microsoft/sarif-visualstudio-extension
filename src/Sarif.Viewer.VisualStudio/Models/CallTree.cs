@@ -53,26 +53,9 @@ namespace Microsoft.Sarif.Viewer.Models
             }
             set
             {
-                if (!SarifViewerPackage.IsUnitTesting)
-                {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
-                    ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
-                }
-
                 if (_selectedItem != value)
                 {
                     _selectedItem = value;
-
-                    // Navigate to the source of the selected node and highlight the region.
-                    if (_selectedItem != null)
-                    {
-                        // Update the VS Properties window with the properties of the selected CallTreeNode.
-                        toolWindow.UpdateSelectionList(_selectedItem.TypeDescriptor);
-
-                        // Navigate to the source file of the selected CallTreeNode.
-                        _selectedItem.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
-                    }
 
                     this.NotifyPropertyChanged();
                 }

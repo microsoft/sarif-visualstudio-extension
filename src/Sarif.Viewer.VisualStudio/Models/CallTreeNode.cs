@@ -133,26 +133,11 @@ namespace Microsoft.Sarif.Viewer.Models
                         color: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
-                        tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this));
+                        tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this),
+                        context:this);
                 }
 
                 return _lineMarker;
-            }
-        }
-
-        /// <summary>
-        /// Called when the source code region of this node is
-        /// selected in the editor.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RegionSelected(object sender, EventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            // Select this item in the CallTree to bring the source and call tree in sync.
-            if (CallTree != null && this.Visibility == Visibility.Visible)
-            {
-                CallTree.SelectedItem = this;
             }
         }
 
