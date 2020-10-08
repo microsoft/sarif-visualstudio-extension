@@ -65,6 +65,26 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            
+            // Subscribe to the error list event service so we
+            // can properly update the data context of this control when the selection changes.
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifListErrorItemNavigated;
+                this.UpdateDataContext(this.sarifErrorListEventSelectionService.NavigatedItem);
+            }
+
+            // Subscribe to the caret listener service so we can ensure the proper call tree node
+            // is selected when the caret enters a tag representing a call tree node.
+            if (this.textViewCaretListenerService != null)
+            {
+                this.textViewCaretListenerService.CaretEnteredTag += this.TextViewCaretListenerService_CaretEnteredTag;
+            }
+        }
+
         private void Control_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
             if (this.sarifErrorListEventSelectionService != null)
@@ -84,40 +104,21 @@ namespace Microsoft.Sarif.Viewer
 
             if (e.Tag.Context is CallTreeNode node)
             {
+                // If the node is visible in the explorer pane's UI (controlled by verbosity slider)
+                // and have a parent call tree node, then mark it as selected.
                 if (node.Visibility == Visibility.Visible && node.CallTree != null)
                 {
                     node.CallTree.SelectedItem = node;
                     this.UpdateSelectionList(node.TypeDescriptor);
-                    node.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
                 }
             }
-        }
-
-        private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (this.sarifErrorListEventSelectionService != null)
-            {
-                this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifListErrorItemNavigated;
-                this.Control.DataContext = this.sarifErrorListEventSelectionService.SelectedItem;
-            }
-
-            if (this.textViewCaretListenerService != null)
-            {
-                this.textViewCaretListenerService.CaretEnteredTag += this.TextViewCaretListenerService_CaretEnteredTag;
-            }
-
-            this.ResetSelection();
         }
 
         private void SarifListErrorItemNavigated(object sender, SarifErrorListSelectionChangedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            this.Control.DataContext = null;
-            this.Control.DataContext = e.NewItem;
-            this.ResetSelection();
+            this.UpdateDataContext(e.NewItem);
         }
 
         public void Show()
@@ -172,7 +173,19 @@ namespace Microsoft.Sarif.Viewer
         public void ResetSelection()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             UpdateSelectionList(Control?.DataContext);
+        }
+
+        private void UpdateDataContext(SarifErrorListItem sarifErrorListItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // Resetting the data context to null causes the correct tab in the SAIRF explorer
+            // window to be selected when the data context is set back to a non-null value.
+            this.Control.DataContext = null;
+            this.Control.DataContext = sarifErrorListItem;
+            this.ResetSelection();
         }
     }
 }

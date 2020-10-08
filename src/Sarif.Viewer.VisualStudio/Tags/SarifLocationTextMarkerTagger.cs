@@ -14,32 +14,11 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Text.Tagging;
 
     /// <summary>
-    /// Handles adding, removing, and tagging SARIF locations in a text buffer for Visual Studio integration.
+    /// Provides tags to Visual Studio from <see cref="SarifErrorListItem"/>s.
     /// </summary>
     /// <remarks>
-    /// <para>
-    /// The SARIF location tagger is created per instance of a Visual Studio <see cref="ITextView"/>. The tagger is disposed
-    /// when the text view is no longer used. However, the underlying "tags" are associated with a text buffer
-    /// which can outlast an <see cref="ITextView"/>. For instance, a split window view on the same document.
-    /// That results in multiple <see cref="ITextView"/> instances against one underlying <see cref="ITextBuffer"/>.
-    /// There are static dictionaries in this class that instances use to retrieve
-    /// existing tag information to present back to Visual Studio. As an example, if file "foo.c" is opened a text buffer
-    /// is created, and an instance of this class is created and tags may be added. If file "foo.c" is then closed, this instance
-    /// of the tagger is disposed, but the static list of tags remains in the dictionaries. If file "foo.c" is the re-opened,
-    /// a new text buffer and tagger instance is created but re-tagging of the document is no longer necessary as the tagger
-    /// reconnects to the existing data.
-    /// </para>
-    /// <para>
-    /// A note about Visual Studio's <see cref="ITrackingSpan.GetSpan(ITextSnapshot)"/> method:
-    /// "GetSpan" is not really a great name. What is actually happening
-    /// is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
-    /// text snapshot. In essence what this means is take the "persistent span"
-    /// that we have and "replay" any edits that have occurred and return a new
-    /// span. So, if the span is no longer relevant (lets say the text has been deleted)
-    /// then you'll get back an empty span.
-    /// </para>
+    /// The tags provided from this class represent all the instances of <see cref="ResultTextMarker"/> that a <see cref="SarifErrorListItem"/> may contain.
     /// </remarks>
-
     internal class SarifLocationTextMarkerTagger : ITagger<ITextMarkerTag>, ISarifLocationTagger, IDisposable
     {
         private bool isDisposed;
@@ -118,6 +97,10 @@ namespace Microsoft.Sarif.Viewer.Tags
                     SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
                     ToList();
 
+                // We need to subscribe to property change events from the provided tags
+                // because they will change their highlight color depending on whether
+                // the editor caret is within them.
+                // When they change their colors, we need to ask Visual Studio to refresh it's tags.
                 this.SubscribeToTagEvents();
             }
 

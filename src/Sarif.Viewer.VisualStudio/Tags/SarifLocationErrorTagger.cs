@@ -11,6 +11,14 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Tagging;
 
+    /// <summary>
+    /// Provides tags to Visual Studio from <see cref="SarifErrorListItem"/>s.
+    /// </summary>
+    /// <remarks>
+    /// The tags provided from this class represent all the instances of <see cref="ResultTextMarker"/> that a <see cref="SarifErrorListItem"/> may contain
+    /// that are children of the currently selected <see cref="SarifErrorListItem"/> as defined by <see cref="ISarifErrorListEventSelectionService.SelectedItem"/>.
+    /// This allows us to provide error tags for code flows for a specific result without displaying potentially overlapping code flow error tags from other results.
+    /// </remarks>
     internal class SarifLocationErrorTagger : ITagger<IErrorTag>, ISarifLocationTagger, IDisposable
     {
         private bool isDisposed;

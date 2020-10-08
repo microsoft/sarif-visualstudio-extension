@@ -11,6 +11,11 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System.ComponentModel.Composition;
     using System.Threading;
 
+    /// <summary>
+    /// This service provides consumers the ability to listen to the Visual Studio caret entering and leaving
+    /// tags such as SARIF result error tags and call tree node tags.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [Export(typeof(ITextViewCaretListenerService<>))]
     internal class TextViewCaretListenerService<T>: ITextViewCaretListenerService<T>, IDisposable
         where T: ITag
