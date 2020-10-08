@@ -89,14 +89,31 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Contains the list of services and their creator functions.
         /// </summary>
-        private static readonly Dictionary<Type, Func<object>> ServiceTypeToCreator = new Dictionary<Type, Func<object>>
+        private static readonly Dictionary<Type, Func<Type, object>> ServiceTypeToCreator = new Dictionary<Type, Func<Type, object>>
         {
-            { typeof(SLoadSarifLogService), () => new LoadSarifLogService() },
-            { typeof(SCloseSarifLogService), () => new CloseSarifLogService() },
-            { typeof(ISarifLocationTaggerService), () => new SarifLocationTaggerService() },
-            { typeof(ITextViewCaretListenerService<ITextMarkerTag>), () => new TextViewCaretListenerService<ITextMarkerTag>() },
-            { typeof(ITextViewCaretListenerService<IErrorTag>), () => new TextViewCaretListenerService<IErrorTag>() },
-            { typeof(ISarifErrorListEventSelectionService), () => new SarifErrorListEventProcessor() },
+            { typeof(SLoadSarifLogService), type => new LoadSarifLogService() },
+            { typeof(SCloseSarifLogService), type => new CloseSarifLogService() },
+            { typeof(ISarifLocationTaggerService), type => new SarifLocationTaggerService() },
+            { typeof(ISarifErrorListEventSelectionService), type => new SarifErrorListEventProcessor() },
+
+            // Services that are exposed as templates are a bit "different", you expose them as
+            // ITextViewCaretListenerService<> and then you have to differentiate them when they are
+            // asked for.
+            { typeof(ITextViewCaretListenerService<>), type =>
+                {
+                    if (type == typeof(ITextViewCaretListenerService<IErrorTag>))
+                    {
+                        return new TextViewCaretListenerService<IErrorTag>();
+                    }
+
+                    if (type == typeof(ITextViewCaretListenerService<ITextMarkerTag>))
+                    {
+                        return new TextViewCaretListenerService<ITextMarkerTag>();
+                    }
+
+                    return null;
+                }
+            }
         };
 
         /// <summary>
@@ -105,13 +122,12 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            OpenLogFileCommands.Initialize(this);
-            base.Initialize();
+            await base.InitializeAsync(cancellationToken, progress);
 
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
             foreach (Type serviceType in ServiceTypeToCreator.Keys)
             {
-                ((IServiceContainer)this).AddService(serviceType, callback, true);
+                ((IServiceContainer)this).AddService(serviceType, callback);
             }
 
             string path = Assembly.GetExecutingAssembly().Location;
@@ -149,6 +165,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
@@ -175,12 +192,7 @@ namespace Microsoft.Sarif.Viewer
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
-            if (ServiceTypeToCreator.TryGetValue(serviceType, out Func<object> creator))
-            {
-                return creator();
-            }
-
-            return null;
+            return ServiceTypeToCreator.TryGetValue(serviceType, out Func<Type, object> creator) ? creator(serviceType) : null;
         }
 
         private void SarifErrorListEventProcessor_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
