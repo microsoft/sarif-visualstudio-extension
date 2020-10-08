@@ -182,7 +182,11 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
-            RunDataCache dataCache = RunIndexToRunDataCache[runIndex];
+            if (!RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
+            {
+                return false;
+            }
+
             SarifErrorListItem sarifErrorListItem = dataCache.SarifErrors.FirstOrDefault(sarifResult => sarifResult.ResultId == resultId);
             if (sarifErrorListItem == null)
             {
