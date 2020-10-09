@@ -644,18 +644,18 @@ namespace Microsoft.Sarif.Viewer
 
         private IEnumerable<ResultTextMarker> CollectResultTextMarkers(bool includeChildTags, bool includeResultTag)
         {
-            IEnumerable<ResultTextMarker> textMarkers = Enumerable.Empty<ResultTextMarker>();
+            IEnumerable<ResultTextMarker> resultTextMarkers = Enumerable.Empty<ResultTextMarker>();
 
             // The "line marker" springs into existence when it is asked for.
             if (includeResultTag)
             {
-                textMarkers = textMarkers.Concat(Enumerable.Repeat(this.LineMarker, 1));
+                resultTextMarkers = resultTextMarkers.Concat(Enumerable.Repeat(this.LineMarker, 1));
             }
 
             if (includeChildTags)
             {
-                textMarkers = textMarkers.Concat(Locations.Select(location => location.LineMarker));
-                textMarkers = textMarkers.Concat(RelatedLocations.Select(relatedLocation => relatedLocation.LineMarker));
+                resultTextMarkers = resultTextMarkers.Concat(Locations.Select(location => location.LineMarker));
+                resultTextMarkers = resultTextMarkers.Concat(RelatedLocations.Select(relatedLocation => relatedLocation.LineMarker));
 
                 foreach (CallTree callTree in CallTrees)
                 {
@@ -679,16 +679,18 @@ namespace Microsoft.Sarif.Viewer
                         }
                     }
 
-                    textMarkers = textMarkers.Concat(allCallTreeNodes.Select(callTreeNode => callTreeNode.LineMarker));
+                    resultTextMarkers = resultTextMarkers.Concat(allCallTreeNodes.Select(callTreeNode => callTreeNode.LineMarker));
                 }
 
                 foreach (StackCollection stackCollection in Stacks)
                 {
-                    textMarkers = textMarkers.Concat(stackCollection.Select(stack => stack.LineMarker));
+                    resultTextMarkers = resultTextMarkers.Concat(stackCollection.Select(stack => stack.LineMarker));
                 }
             }
 
-            return textMarkers;
+            // Some of the data models will return null markers if there aren't valid properties like
+            // "region" being set. So let's filter out the nulls from the callers.
+            return resultTextMarkers.Where(resultTextMarker => resultTextMarker != null);
         }
     }
 }
