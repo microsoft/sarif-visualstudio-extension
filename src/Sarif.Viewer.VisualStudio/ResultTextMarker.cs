@@ -27,8 +27,10 @@ namespace Microsoft.Sarif.Viewer
     /// become invalid as the user opens and closes documents.
     /// A future improvement is that this class "could" be an implementation of IErrorTag and or ITextMarkerTag
     /// </remarks>
-    internal class ResultTextMarker
+    internal class ResultTextMarker : IDisposable
     {
+        private bool isDisposed;
+
         /// <summary>
         /// These values are actually "lifted" from the Visual Studio code analysis implementation.
         /// They are unfortunately not part of the Visual Studio SDK.
@@ -58,14 +60,6 @@ namespace Microsoft.Sarif.Viewer
         private bool? regionIsFullyPopulated;
 
         /// <summary>
-        /// Contains the fully populated file path.
-        /// </summary>
-        /// <remarks>
-        /// This property may be null.
-        /// </remarks>
-        private string fullFilePath;
-
-        /// <summary>
         /// The persistent span created for this marker.
         /// </summary>
         /// <remarks>
@@ -73,22 +67,17 @@ namespace Microsoft.Sarif.Viewer
         /// and then re-opens. This allows for our "tags" to be accurate after an edit.
         /// That is as long as they don't modify the document in another editor (say notepad).
         /// </remarks>
-        IPersistentSpan persistentSpan;
+        private IPersistentSpan persistentSpan;
 
-        public string FullFilePath
-        {
-            get => this.fullFilePath;
-            set
-            {
-                if (this.fullFilePath != value)
-                {
-                    this.fullFilePath = value;
-                    this.DisposePersistentSpan();
-                }
-            }
-        }
+        /// <summary>
+        /// Contains the fully populated file path.
+        /// </summary>
+        /// <remarks>
+        /// This property may be null.
+        /// </remarks>
+        public string FullFilePath { get; }
 
-        public string UriBaseId { get; set; }
+        public string UriBaseId { get; }
         
         /// <summary>
         /// Gets the non-highlighted color.
@@ -138,28 +127,21 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets or sets the original SARIF region from a SARIF log.
         /// </summary>
-        public Region Region
-        {
-            get => this.region;
-            set
-            {
-                this.region = value;
-                this.DisposePersistentSpan();
-            }
-        }
+        public Region Region { get; }
 
         /// <summary>
         /// Creates a new instances of a <see cref="ResultTextMarker"/>.
         /// </summary>
         /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
+        /// <param name="uriBaseId">The base identifier for the file-path.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
         /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="context">The data context for this result marker.</param>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context)
-            : this(runIndex: runIndex, resultId: resultId, region: region, fullFilePath: fullFilePath, nonHghlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context)
+            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHghlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
         {
         }
 
@@ -168,6 +150,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
+        /// <param name="uriBaseId">The base identifier for the file-path.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
         /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
@@ -178,11 +161,12 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
         {
             ResultId = resultId;
             RunIndex = runIndex;
-            this.fullFilePath = fullFilePath;
+            UriBaseId = uriBaseId;
+            FullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
             NonHighlightedColor = nonHghlightedColor;
             HighlightedColor = highlightedColor;
@@ -275,7 +259,7 @@ namespace Microsoft.Sarif.Viewer
                 // 2a) That alone may be enough to make the persistent span valid if it was already created.
                 // 3) If the persistent span still isn't valid (likely because we have crated the persistent span yet), ask ourselves for the tags which will
                 //    cause the span to be created.
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.fullFilePath, usePreviewPane);
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, FullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
@@ -324,7 +308,7 @@ namespace Microsoft.Sarif.Viewer
             if (!documentWasOpened)
             {
                 // First, let's open the document so the user can see it.
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.fullFilePath, usePreviewPane);
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, FullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
@@ -388,23 +372,23 @@ namespace Microsoft.Sarif.Viewer
                 return this.regionIsFullyPopulated.Value;
             }
 
-            if (string.IsNullOrEmpty(this.fullFilePath))
+            if (string.IsNullOrEmpty(FullFilePath))
             {
                 return false;
             }
 
             // Note: The call to ResolveFilePath will ultimately
-            // set "this.fullFilePath" to the a new file path which is why calling
+            // set "FullFilePath" to the a new file path which is why calling
             // File.Exists happens twice here.
-            if (!File.Exists(this.fullFilePath) && 
-                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.fullFilePath))
+            if (!File.Exists(FullFilePath) && 
+                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: FullFilePath))
             {
                 this.regionIsFullyPopulated = false; 
                 return false;
             }
 
-            if (File.Exists(this.fullFilePath) &&
-                Uri.TryCreate(this.fullFilePath, UriKind.Absolute, out Uri uri))
+            if (File.Exists(FullFilePath) &&
+                Uri.TryCreate(FullFilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.RunIndex].FileRegionsCache;
@@ -502,15 +486,25 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
-        private void DisposePersistentSpan()
+        protected virtual void Dispose(bool disposing)
         {
-            this.persistentSpan?.Dispose();
-            this.persistentSpan = null;
+            if (this.isDisposed)
+            {
+                return;
+            }
 
-            // We need to remap the original region to an ITextBuffer
-            // so reset these values to indicate that remapping should occur.
-            this.regionIsFullyPopulated = null;
-            this.fullyPopulatedRegion = null;
+            this.isDisposed = true;
+            if (disposing)
+            {
+                this.persistentSpan?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

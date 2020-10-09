@@ -494,16 +494,14 @@ namespace Microsoft.Sarif.Viewer
                     _lineMarker = new ResultTextMarker(
                         resultId: ResultId,
                         runIndex: RunIndex,
+                        uriBaseId: Locations?.FirstOrDefault()?.UriBaseId,
                         region: Region,
                         fullFilePath: FileName,
                         nonHghlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.Message,
-                        context: this)
-                    {
-                        UriBaseId = Locations?.FirstOrDefault()?.UriBaseId
-                    };
+                        context: this);
                 }
 
                 return _lineMarker;

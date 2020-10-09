@@ -125,8 +125,9 @@ namespace Microsoft.Sarif.Viewer.Models
                     && Region != null)
                 {
                     _lineMarker = new ResultTextMarker(
-                        runIndex: this.RunIndex,
-                        resultId: this.ResultId,
+                        runIndex: RunIndex,
+                        resultId: ResultId,
+                        uriBaseId: UriBaseId,
                         region: this.Region,
                         fullFilePath: this.FilePath,
                         nonHghlightedColor: this.DefaultSourceHighlightColor,

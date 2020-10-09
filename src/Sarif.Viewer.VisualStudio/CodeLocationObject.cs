@@ -19,8 +19,9 @@ namespace Microsoft.Sarif.Viewer
 
         public CodeLocationObject(int resultId, int runIndex)
         {
-            this.ResultId = resultId;
-            this.RunIndex = runIndex;
+            ResultId = resultId;
+            RunIndex = runIndex;
+            TypeDescriptor = new CodeLocationObjectTypeDescriptor(this);
         }
 
         /// <summary>
@@ -37,29 +38,9 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                // Not all locations have regions. Don't try to mark the locations that don't.
-                //
-                // PROBLEM: This means we can't double-click to open a file containing a result
-                // without a region.
-                if (_lineMarker == null && Region != null)
+                if (_lineMarker == null)
                 {
-                    _lineMarker = new ResultTextMarker(
-                        runIndex: this.RunIndex,
-                        resultId: this.ResultId,
-                        region: Region,
-                        fullFilePath: FilePath,
-                        nonHghlightedColor: DefaultSourceHighlightColor,
-                        highlightedColor: SelectedSourceHighlightColor,
-                        context: this);
-                }
-
-                // If the UriBaseId was populated before the marker was available, set the
-                // marker's UriBaseId property now. The marker's UriBaseId is used to resolve
-                // relative paths to absolute paths when the user double-clicks a result in
-                // the Error List window.
-                if (_lineMarker != null && UriBaseId != null)
-                {
-                    _lineMarker.UriBaseId = UriBaseId;
+                    this.RecreateLineMarker();
                 }
 
                 return _lineMarker;
@@ -80,7 +61,7 @@ namespace Microsoft.Sarif.Viewer
 
                     if (this._lineMarker != null)
                     {
-                        this._lineMarker.Region = _region;
+                        this.RecreateLineMarker();
                     }
 
                     NotifyPropertyChanged();
@@ -113,7 +94,7 @@ namespace Microsoft.Sarif.Viewer
 
                     if (this._lineMarker != null)
                     {
-                        this._lineMarker.FullFilePath = this._filePath;
+                        this.RecreateLineMarker();
                     }
 
                     NotifyPropertyChanged();
@@ -135,7 +116,7 @@ namespace Microsoft.Sarif.Viewer
 
                     if (this._lineMarker != null)
                     {
-                        this._lineMarker.UriBaseId = this._uriBaseId;
+                        this.RecreateLineMarker();
                     }
 
                     NotifyPropertyChanged();
@@ -143,31 +124,13 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public virtual string DefaultSourceHighlightColor
-        {
-            get
-            {
-                return ResultTextMarker.DEFAULT_SELECTION_COLOR;
-            }
-        }
+        public virtual string DefaultSourceHighlightColor => ResultTextMarker.DEFAULT_SELECTION_COLOR;
 
-        public virtual string SelectedSourceHighlightColor
-        {
-            get
-            {
-                return ResultTextMarker.DEFAULT_SELECTION_COLOR;
-            }
-        }
+        public virtual string SelectedSourceHighlightColor => ResultTextMarker.DEFAULT_SELECTION_COLOR;
 
         // This is a custom type descriptor which enables the SARIF properties
         // to be displayed in the Properties window.
-        internal ICustomTypeDescriptor TypeDescriptor
-        {
-            get
-            {
-                return new CodeLocationObjectTypeDescriptor(this);
-            }
-        }
+        internal ICustomTypeDescriptor TypeDescriptor { get; }
 
         /// <summary>
         /// Attempts to navigate a VS editor to the text marker.
@@ -217,6 +180,33 @@ namespace Microsoft.Sarif.Viewer
                     SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane);
                 }
             }
+        }
+
+        private void RecreateLineMarker()
+        {
+            if (this._lineMarker == null)
+            {
+                this._lineMarker.Dispose();
+                this._lineMarker = null;
+            }
+
+            // Not all locations have regions. Don't try to mark the locations that don't.
+            // PROBLEM: This means we can't double-click to open a file containing a result
+            // without a region.
+            if (Region != null)
+            {
+                _lineMarker = new ResultTextMarker(
+                    runIndex: RunIndex,
+                    resultId: ResultId,
+                    uriBaseId: UriBaseId,
+                    region: Region,
+                    fullFilePath: FilePath,
+                    nonHghlightedColor: DefaultSourceHighlightColor,
+                    highlightedColor: SelectedSourceHighlightColor,
+                    context: this);
+            }
+
+            NotifyPropertyChanged(nameof(this.LineMarker));
         }
     }
 }
