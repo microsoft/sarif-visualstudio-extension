@@ -15,7 +15,6 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -31,17 +30,6 @@ namespace Microsoft.Sarif.Viewer
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-
-    // Visual Studio will not call "InitializeAsync" on your package for any MEF exported services or classes
-    // (instead MEF just calls their constructors directly from the assembly when Visual Studio needs them).
-    // So, to make sure our commands such as "Open Log", "Clear SARIF results", "Show explorer window"
-    // etc. are present, we need to inform Visual Studio that we'd like our extension to be loaded
-    // whether a solution is present or not (hence both of the attributes).
-    // We also rely on the InitializeAsync to be called so that we can show the SARIF tool window
-    // when a navigation occurs on the error list.
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
-
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
@@ -53,8 +41,6 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
-        private bool disposed;
-
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
@@ -62,38 +48,6 @@ namespace Microsoft.Sarif.Viewer
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
-
-        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
-
-        /// <summary>
-        /// Returns the instance of the SARIF tool window.
-        /// </summary>
-        public static SarifExplorerWindow SarifExplorerWindow
-        {
-            get
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
-                if (vsShell == null)
-                {
-                    return null;
-                }
-
-                IVsPackage package;
-                if (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
-                    vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK)
-                {
-                    return null;
-                }
-                   
-                if(!(package is Package vsPackage))
-                {
-                    return null;
-                }
-
-                return vsPackage.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
-            }
-        }
 
         public static Configuration AppConfig { get; private set; }
         #region Package Members
@@ -159,22 +113,6 @@ namespace Microsoft.Sarif.Viewer
             TelemetryProvider.Initialize(configuration);
             TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
 
-            // Subscribe to navigation changes in the SARIF error list event processor
-            // so when an error is navigated to, the SARIF explorer is shown.
-            // NOTE: If you call "GetService" directly instead of going through MEF (Component Model)
-            // then you end up with two instances of the SARIF error list selection service, which
-            // is definitely not what you want. Let MEF do it's thing and return the singleton
-            // service to you.
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
-            {
-                this.sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
-                if (this.sarifErrorListEventSelectionService != null)
-                {
-                    this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifErrorListEventProcessor_NavigatedItemChanged;
-                }
-            }
-
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
@@ -184,36 +122,11 @@ namespace Microsoft.Sarif.Viewer
             return;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (this.disposed)
-            {
-                return;
-            }
-            this.disposed = true;
-
-            if (this.sarifErrorListEventSelectionService != null)
-            {
-                this.sarifErrorListEventSelectionService.NavigatedItemChanged -= this.SarifErrorListEventProcessor_NavigatedItemChanged;
-            }
-
-            base.Dispose(disposing);
-        }
         #endregion
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
             return ServiceTypeToCreator.TryGetValue(serviceType, out Func<Type, object> creator) ? creator(serviceType) : null;
-        }
-
-        private void SarifErrorListEventProcessor_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (e.NewItem != null)
-            {
-                SarifExplorerWindow.Show();
-            }
         }
     }
 }

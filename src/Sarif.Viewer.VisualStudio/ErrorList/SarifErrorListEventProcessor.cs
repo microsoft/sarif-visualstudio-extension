@@ -115,12 +115,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public override void PostprocessNavigate(ITableEntryHandle entry, TableEntryNavigateEventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             base.PostprocessNavigate(entry, e);
 
             this.TryGetSarifResult(entry, out SarifErrorListItem newlyNavigatedErrorItem);
 
             SarifErrorListItem previouslyNavigatedItem = this.currentlyNavigatedItem;
             this.currentlyNavigatedItem = newlyNavigatedErrorItem;
+
+            SarifExplorerWindow.Find()?.Show();
 
             NavigatedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslyNavigatedItem, this.currentlyNavigatedItem));
         }

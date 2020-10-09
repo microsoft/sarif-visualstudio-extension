@@ -8,6 +8,7 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Views;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -160,6 +161,33 @@ namespace Microsoft.Sarif.Viewer
             this.Control.DataContext = sarifErrorListItem;
 
             UpdateSelectionList(sarifErrorListItem);
+        }
+
+        /// <summary>
+        /// Returns the instance of the SARIF tool window.
+        /// </summary>
+        public static SarifExplorerWindow Find()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
+            if (vsShell == null)
+            {
+                return null;
+            }
+
+            IVsPackage package;
+            if (vsShell.IsPackageLoaded(SarifViewerPackage.PackageGuid, out package) != VSConstants.S_OK &&
+                vsShell.LoadPackage(SarifViewerPackage.PackageGuid, out package) != VSConstants.S_OK)
+            {
+                return null;
+            }
+
+            if (!(package is Package vsPackage))
+            {
+                return null;
+            }
+
+            return vsPackage.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
         }
     }
 }

@@ -34,22 +34,17 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
 
+        #region IErrorTag
         /// <inheritdoc/>
         public string Type => this.currentTextMarkerTagType;
+        #endregion IErrorTag
 
+        #region INotifyPropertyChanged
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
+        #endregion INotifyPropertyChanged
 
-        /// <inheritdoc/>
-        public void UpdateTextMarkerTagType(string newTextMarkerTagType)
-        {
-            if (newTextMarkerTagType != this.currentTextMarkerTagType)
-            {
-                this.currentTextMarkerTagType = newTextMarkerTagType;
-                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Type)));
-            }
-        }
-
+        #region ISarifLocationTagCaretNotify
         /// <inheritdoc/>
         public void OnCaretEntered()
         {
@@ -61,5 +56,16 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.UpdateTextMarkerTagType(this.nonHighlightedTextMarkerTagType);
         }
+        #endregion
+
+        private void UpdateTextMarkerTagType(string newTextMarkerTagType)
+        {
+            if (newTextMarkerTagType != this.currentTextMarkerTagType)
+            {
+                this.currentTextMarkerTagType = newTextMarkerTagType;
+                this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Type)));
+            }
+        }
+
     }
 }
