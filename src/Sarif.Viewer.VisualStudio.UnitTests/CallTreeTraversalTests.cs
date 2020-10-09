@@ -4,7 +4,6 @@
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests

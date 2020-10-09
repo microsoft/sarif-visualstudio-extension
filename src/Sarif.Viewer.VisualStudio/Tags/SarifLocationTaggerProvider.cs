@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
         [Import]
-        private IPersistentSpanFactory PersistentSpanFactory;
+        private IPersistentSpanFactory persistentSpanFactory;
 
         [Import]
         private ISarifLocationTaggerService sarifLocationTaggerService;
@@ -45,10 +45,10 @@ namespace Microsoft.Sarif.Viewer.Tags
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        /// <summary>
+        /// <remarks>
         /// Note that Visual Studio's tagger aggregation expects and correctly handles null
-        /// if a tagger provider does not want to provide tags
-        /// </summary>
+        /// if a tagger provider does not want to provide tags.
+        /// </remarks>
         public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer textBuffer) where T : ITag
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -75,17 +75,17 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (typeof(T) == typeof(IErrorTag))
             {
-                newTagger = new SarifLocationErrorTagger(textBuffer, this.PersistentSpanFactory, this.sarifErrorListEventSelectionService);
+                newTagger = new SarifLocationErrorTagger(textBuffer, this.persistentSpanFactory, this.sarifErrorListEventSelectionService);
             }
 
             if (typeof(T) == typeof(ITextMarkerTag))
             {
-                newTagger = new SarifLocationTextMarkerTagger(textView, textBuffer, this.PersistentSpanFactory, this.textViewCaretListenerService, this.sarifErrorListEventSelectionService);
+                newTagger = new SarifLocationTextMarkerTagger(textView, textBuffer, this.persistentSpanFactory, this.textViewCaretListenerService, this.sarifErrorListEventSelectionService);
             }
 
             if (newTagger != null)
             {
-                this.sarifLocationTaggerService.NotifyTaggerCreated(newTagger);
+                this.sarifLocationTaggerService.AddTagger(newTagger);
             }
 
             return newTagger as ITagger<T>;

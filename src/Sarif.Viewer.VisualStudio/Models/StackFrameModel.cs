@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private DelegateCommand _navigateCommand;
 
         public StackFrameModel(int resultId, int runIndex)
-            : base(resultId, runIndex)
+            : base(resultId: resultId, runIndex: runIndex)
         {
         }
 

@@ -14,21 +14,21 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using XamlDoc = System.Windows.Documents;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer
 {
     internal class SarifErrorListItem : NotifyPropertyChangedObject
     {
         /// <summary>
-        /// Contains the result Id that will be assigned to new instances of <see cref="SarifErrorListItem"/>.
+        /// Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
         /// </summary>
-        private static int NextResultId;
+        private static int CurrentResultId;
 
         private string _fileName;
         private ToolModel _tool;
@@ -39,11 +39,15 @@ namespace Microsoft.Sarif.Viewer
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
 
+        /// <summary>
+        /// This dictionary is used to map the SARIF failure level to the color of the "squiggle" shown
+        /// in Visual Studio's editor.
+        /// </summary>
         private static readonly Dictionary<FailureLevel, string> FailureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
         {
-            { FailureLevel.Error, Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.OtherError },
-            { FailureLevel.Warning, Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.Warning },
-            { FailureLevel.Note, Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.HintedSuggestion },
+            { FailureLevel.Error, PredefinedErrorTypeNames.OtherError },
+            { FailureLevel.Warning, PredefinedErrorTypeNames.Warning },
+            { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
         };
 
         internal SarifErrorListItem()
@@ -64,8 +68,8 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
-            this.RunIndex = runIndex;
-            this.ResultId = Interlocked.Increment(ref NextResultId);
+            RunIndex = runIndex;
+            ResultId = Interlocked.Increment(ref CurrentResultId);
             ReportingDescriptor rule = result.GetRule(run);
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(result.RuleId);
@@ -105,7 +109,7 @@ namespace Microsoft.Sarif.Viewer
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = result.Locations.Count - 1; i >= 0; --i)
                 {
-                    Locations.Add(result.Locations[i].ToLocationModel(run, this.ResultId, this.RunIndex));
+                    Locations.Add(result.Locations[i].ToLocationModel(run, resultId: ResultId, runIndex: RunIndex));
                 }
             }
 
@@ -113,7 +117,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
                 {
-                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, this.ResultId, this.RunIndex));
+                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, resultId: ResultId, runIndex: RunIndex));
                 }
 
             }
@@ -122,7 +126,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTree callTree = codeFlow.ToCallTree(run, this.ResultId, this.RunIndex);
+                    CallTree callTree = codeFlow.ToCallTree(run, resultId: ResultId, runIndex: RunIndex);
                     if (callTree != null)
                     {
                         CallTrees.Add(callTree);
@@ -137,7 +141,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (Stack stack in result.Stacks)
                 {
-                    Stacks.Add(stack.ToStackCollection(this.ResultId, this.RunIndex));
+                    Stacks.Add(stack.ToStackCollection(resultId: ResultId, runIndex: RunIndex));
                 }
             }
 
@@ -180,7 +184,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.RunIndex = runIndex;
+            RunIndex = runIndex;
             string ruleId = null;
 
             if (notification.AssociatedRule != null)
@@ -206,7 +210,7 @@ namespace Microsoft.Sarif.Viewer
             LogFilePath = logFilePath;
             FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, RunIndex) ?? string.Empty;
             ProjectName = projectNameCache.GetName(FileName);
-            Locations.Add(new LocationModel(this.ResultId, this.RunIndex) { FilePath = FileName });
+            Locations.Add(new LocationModel(resultId: ResultId, runIndex: RunIndex) { FilePath = FileName });
 
             Tool = run.Tool.ToToolModel();
             Rule = rule.ToRuleModel(ruleId);
@@ -217,6 +221,10 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
         /// </summary>
+        /// <remarks>
+        /// This property is used by the tagger to perform queries over the SARIF errors whereas the
+        /// <see cref="RunIndex"/> property is not yet used.
+        /// </remarks>
         public int ResultId { get; }
 
         private int RunIndex { get; }
@@ -484,8 +492,8 @@ namespace Microsoft.Sarif.Viewer
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
                     _lineMarker = new ResultTextMarker(
-                        resultId: this.ResultId,
-                        runIndex: this.RunIndex,
+                        resultId: ResultId,
+                        runIndex: RunIndex,
                         region: Region,
                         fullFilePath: FileName,
                         nonHghlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
@@ -594,15 +602,10 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
-            {
-                ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
-                if (sarifLocationTaggerService != null)
-                {
-                    sarifLocationTaggerService.RefreshAllTags();
-                }
-            }
+            // After the file-paths have been remapped, we need to refresh the tags
+            // as the persistent spans may now be possible to create (since the file paths are now potential valid)
+            // or their file paths may have moved from one valid location to a different valid location.
+            SarifLocationTagHelpers.RefreshAllTags();
         }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)

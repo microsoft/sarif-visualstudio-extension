@@ -11,45 +11,31 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// Contains the data necessary to display a text marker tag (a highlight)
     /// inside Visual Studio's text views.
     /// </summary>
-    internal class SarifLocationTextMarkerTag : ISarifLocationTag, ITextMarkerTag, INotifyPropertyChanged
+    internal class SarifLocationTextMarkerTag : SarifLocationTagBase, ITextMarkerTag, ISarifLocationTagCaretNotify, INotifyPropertyChanged
     {
-        private string textMarkerTagType;
-        private string highlightedTextMarkerTagType;
         private string currentTextMarkerTagType;
+        private string highlightedTextMarkerTagType;
+        private string nonHighlightedTextMarkerTagType;
 
         /// <summary>
-        /// <param name="documentPersistentSpan">The persistent span for the tag within a document.</param>
+        /// <param name="persistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="resultId">the result ID associated with this tag.</param>
-        /// <param name="textMarkerTagType">The text marker tag to display for this tag when it is not highlighted.</param>
+        /// <param name="nonHighlightedTextMarkerTagType">The text marker tag to display for this tag when it is not highlighted.</param>
         /// <param name="highlightedTextMarkerTagType">The text marker tag to display for this tag when it is highlighted.</param>
         /// <param name="context">Gets the data context for this tag.</param>
         /// </summary>
-        public SarifLocationTextMarkerTag(IPersistentSpan documentPersistentSpan, int runIndex, int resultId, string textMarkerTagType, string highlightedTextMarkerTagType, object context)
+        public SarifLocationTextMarkerTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string nonHighlightedTextMarkerTagType, string highlightedTextMarkerTagType, object context)
+            : base(persistentSpan, runIndex: runIndex, resultId: resultId, context)
         {
-            this.DocumentPersistentSpan = documentPersistentSpan;
-            this.RunIndex = runIndex;
-            this.ResultId = resultId;
-            this.textMarkerTagType = textMarkerTagType;
+            this.currentTextMarkerTagType = nonHighlightedTextMarkerTagType;
             this.highlightedTextMarkerTagType = highlightedTextMarkerTagType;
-            this.currentTextMarkerTagType = textMarkerTagType;
-            this.Context = context;
+            this.nonHighlightedTextMarkerTagType = nonHighlightedTextMarkerTagType;
         }
 
-        /// <inheritdoc/>
-        public IPersistentSpan DocumentPersistentSpan { get; }
-
-        /// <inheritdoc/>
-        public int RunIndex { get; }
 
         /// <inheritdoc/>
         public string Type => this.currentTextMarkerTagType;
-
-        /// <inheritdoc/>
-        public int ResultId { get; }
-
-        /// <inheritdoc/>
-        public object Context { get; }
 
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
@@ -65,15 +51,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public void NotifyCaretEntered()
+        public void OnCaretEntered()
         {
             this.UpdateTextMarkerTagType(this.highlightedTextMarkerTagType);
         }
 
         /// <inheritdoc/>
-        public void NotifyCaretLeft()
+        public void OnCaretLeft()
         {
-            this.UpdateTextMarkerTagType(this.textMarkerTagType);
+            this.UpdateTextMarkerTagType(this.nonHighlightedTextMarkerTagType);
         }
     }
 }

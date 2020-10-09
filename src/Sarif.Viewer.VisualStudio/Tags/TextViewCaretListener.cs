@@ -83,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretEnter)
             {
                 this.CaretEnteredTag?.Invoke(this, new CaretEventArgs(tagToNotify));
-                tagToNotify.NotifyCaretEntered();
+                (tagToNotify as ISarifLocationTagCaretNotify)?.OnCaretEntered();
             }
 
             if (tagsToNotifyOfCaretLeave != null)
@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretLeave)
                 {
                     this.CaretLeftTag?.Invoke(this, new CaretEventArgs(tagToNotify));
-                    tagToNotify.NotifyCaretLeft();
+                    (tagToNotify as ISarifLocationTagCaretNotify)?.OnCaretLeft();
                 }
             }
 
@@ -129,17 +129,17 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return false;
                 }
 
-                if (x.DocumentPersistentSpan.IsDocumentOpen != y.DocumentPersistentSpan.IsDocumentOpen)
+                if (x.PersistentSpan.IsDocumentOpen != y.PersistentSpan.IsDocumentOpen)
                 {
                     return false;
                 }
 
-                if (!x.DocumentPersistentSpan.FilePath.Equals(y.DocumentPersistentSpan.FilePath, StringComparison.OrdinalIgnoreCase))
+                if (!x.PersistentSpan.FilePath.Equals(y.PersistentSpan.FilePath, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
 
-                if (x.DocumentPersistentSpan.TryGetSpan(out Span xSpan) && y.DocumentPersistentSpan.TryGetSpan(out Span ySpan))
+                if (x.PersistentSpan.TryGetSpan(out Span xSpan) && y.PersistentSpan.TryGetSpan(out Span ySpan))
                 {
                     return xSpan == ySpan;
                 }
@@ -149,7 +149,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             public int GetHashCode(ISarifLocationTag obj)
             {
-                return obj.DocumentPersistentSpan.GetHashCode();
+                return obj.PersistentSpan.GetHashCode();
             }
         }
     }

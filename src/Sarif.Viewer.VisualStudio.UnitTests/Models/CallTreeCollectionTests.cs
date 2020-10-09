@@ -6,8 +6,6 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.VisualStudio.UnitTests;
-
-using Moq;
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests

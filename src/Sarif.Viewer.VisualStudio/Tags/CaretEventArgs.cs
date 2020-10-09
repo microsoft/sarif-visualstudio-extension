@@ -5,11 +5,15 @@ namespace Microsoft.Sarif.Viewer.Tags
 {
     using System;
 
+    /// <summary>
+    /// Used as arguments for the <see cref="ITextViewCaretListenerService{T}.CaretEnteredTag"/> and <see cref="ITextViewCaretListenerService{T}.CaretLeftTag"/>
+    /// events.
+    /// </summary>
     internal class CaretEventArgs : EventArgs
     {
-        public CaretEventArgs(ISarifLocationTag Tag)
+        public CaretEventArgs(ISarifLocationTag tag)
         {
-            this.Tag = Tag;
+            this.Tag = tag;
         }
 
         public ISarifLocationTag Tag { get; }

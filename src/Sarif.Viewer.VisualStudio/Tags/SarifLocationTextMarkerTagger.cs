@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Text.Tagging;
 
     /// <summary>
-    /// Provides tags to Visual Studio from <see cref="SarifErrorListItem"/>s.
+    /// Provides text marker tags (which appear text highlighting) to Visual Studio.
     /// </summary>
     /// <remarks>
     /// The tags provided from this class represent all the instances of <see cref="ResultTextMarker"/> that a <see cref="SarifErrorListItem"/> may contain.
@@ -69,10 +69,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             textViewCaretListenerService.CreateListener(textView, this);
         }
 
-        private void SelectedSarifItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
-        {
-            this.RefreshTags();
-        }
+        private void SelectedSarifItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e) => this.RefreshTags();
 
         /// <inheritdoc/>
         public IEnumerable<ITagSpan<ITextMarkerTag>> GetTags(NormalizedSnapshotSpanCollection spans)
@@ -111,9 +108,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (SnapshotSpan span in spans)
             {
-                foreach (var possibleTag in this.currentTags.Where(possibleTag => possibleTag.DocumentPersistentSpan.Span != null))
+                foreach (ISarifLocationTag possibleTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
-                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.DocumentPersistentSpan.Span.GetSpan(span.Snapshot);
+                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.PersistentSpan.Span.GetSpan(span.Snapshot);
                     if (span.IntersectsWith(possibleTagSnapshotSpan))
                     {
                         yield return new TagSpan<ITextMarkerTag>(possibleTagSnapshotSpan, (ITextMarkerTag)possibleTag);
@@ -138,7 +135,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private void SubscribeToTagEvents()
         {
-            if (this.currentTags == null || !this.currentTags.Any())
+            if (this.currentTags?.Any() != true)
             {
                 return;
             }
@@ -154,7 +151,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private void UnsubscribeFromTagEvents()
         {
-            if (this.currentTags == null || !this.currentTags.Any())
+            if (this.currentTags?.Any() != true)
             {
                 return;
             }
@@ -170,9 +167,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private void TagPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (sender is ISarifLocationTag tag && tag.DocumentPersistentSpan.IsDocumentOpen)
+            if (sender is ISarifLocationTag tag && tag.PersistentSpan.IsDocumentOpen)
             {
-                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.DocumentPersistentSpan.Span.GetSpan(textBuffer.CurrentSnapshot)));
+                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(textBuffer.CurrentSnapshot)));
             }
         }
 

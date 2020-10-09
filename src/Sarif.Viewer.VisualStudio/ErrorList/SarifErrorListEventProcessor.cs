@@ -125,7 +125,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             sarifResult = null;
 
-            if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && tableEntry is SarifResultTableEntry sarifResultTableEntry)
+            if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && 
+                tableEntry is SarifResultTableEntry sarifResultTableEntry) // Make sure the table entry is one of our table entriy types
             {
                 sarifResult = sarifResultTableEntry.Error;
             }

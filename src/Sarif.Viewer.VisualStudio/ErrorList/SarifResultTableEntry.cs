@@ -170,34 +170,39 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (hyperLink.Tag is int id)
             {
-                // The user clicked an inline link with an integer target. Look for a Location object
+                // The user clicked an in-line link with an integer target. Look for a Location object
                 // whose Id property matches that integer. The spec says that might be _any_ Location
                 // object under the current result. At present, we only support Location objects that
                 // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
                 // look in Result.CodeFlows or Result.Stacks.
-                LocationModel location = this.Error.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
+                LocationModel location = 
+                    this.Error.RelatedLocations.
+                    Concat(this.Error.Locations).
+                    FirstOrDefault(l => l.Id == id);
+
                 if (location == null)
                 {
-                    location = this.Error.Locations.Where(l => l.Id == id).FirstOrDefault();
+                    return;
                 }
 
-                if (location != null)
+                // If a location is found, then we will show this error in the explorer window
+                // by setting the navigated item to the error related to this error entry,
+                // but... we will navigate the editor to the found location, which for example
+                // may be a related location.
+                if (this.Error.HasDetails)
                 {
-                    if (this.Error.HasDetails)
+                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    if (componentModel != null)
                     {
-                        IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-                        if (componentModel != null)
+                        ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                        if (sarifSelectionService != null)
                         {
-                            ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
-                            if (sarifSelectionService != null)
-                            {
-                                sarifSelectionService.NavigatedItem = this.Error;
-                            }
+                            sarifSelectionService.NavigatedItem = this.Error;
                         }
                     }
-
-                    location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
                 }
+
+                location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
             // This is super dangerous! We are launching URIs for SARIF logs
             // that can point to anything.

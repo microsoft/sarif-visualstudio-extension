@@ -18,8 +18,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <remarks>Both parameters may be null.</remarks>
         public SarifErrorListSelectionChangedEventArgs(SarifErrorListItem oldItem, SarifErrorListItem newItem)
         {
-            this.OldItem = oldItem;
-            this.NewItem = newItem;
+            OldItem = oldItem;
+            NewItem = newItem;
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private bool _isEssential;
 
         public LocationModel(int resultId, int runIndex)
-            : base(resultId, runIndex)
+            : base(resultId: resultId, runIndex: runIndex)
         {
         }
 

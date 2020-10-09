@@ -90,9 +90,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (SnapshotSpan span in spans)
             {
-                foreach (var possibleTag in this.currentTags.Where(possibleTag => possibleTag.DocumentPersistentSpan.Span != null))
+                foreach (ISarifLocationTag possibleTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
-                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.DocumentPersistentSpan.Span.GetSpan(span.Snapshot);
+                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.PersistentSpan.Span.GetSpan(span.Snapshot);
                     if (span.IntersectsWith(possibleTagSnapshotSpan))
                     {
                         yield return new TagSpan<IErrorTag>(possibleTagSnapshotSpan, (IErrorTag)possibleTag);

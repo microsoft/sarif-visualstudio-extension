@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        IPersistentSpan DocumentPersistentSpan { get; }
+        IPersistentSpan PersistentSpan { get; }
 
         /// <summary>
         /// Gets the SARIF run index associated with this tag.
@@ -36,15 +36,5 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// for the "data context" for the SARIF explorer window.
         /// </remarks>
         object Context { get; }
-
-        /// <summary>
-        /// Called when the caret from the text editor enters this tag.
-        /// </summary>
-        void NotifyCaretEntered();
-
-        /// <summary>
-        /// Called when the caret from the text editor leaves this tag.
-        /// </summary>
-        void NotifyCaretLeft();
     }
 }

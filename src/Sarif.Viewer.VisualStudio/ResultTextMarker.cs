@@ -58,6 +58,14 @@ namespace Microsoft.Sarif.Viewer
         private bool? regionIsFullyPopulated;
 
         /// <summary>
+        /// Contains the fully populated file path.
+        /// </summary>
+        /// <remarks>
+        /// This property may be null.
+        /// </remarks>
+        private string fullFilePath;
+
+        /// <summary>
         /// The persistent span created for this marker.
         /// </summary>
         /// <remarks>
@@ -67,7 +75,19 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         IPersistentSpan persistentSpan;
 
-        public string FullFilePath { get; set; }
+        public string FullFilePath
+        {
+            get => this.fullFilePath;
+            set
+            {
+                if (this.fullFilePath != value)
+                {
+                    this.fullFilePath = value;
+                    this.DisposePersistentSpan();
+                }
+            }
+        }
+
         public string UriBaseId { get; set; }
         
         /// <summary>
@@ -124,11 +144,7 @@ namespace Microsoft.Sarif.Viewer
             set
             {
                 this.region = value;
-
-                // We need to remap the original region to an ITextBuffer
-                // so reset these values to indicate that remapping should occur.
-                this.regionIsFullyPopulated = null;
-                this.fullyPopulatedRegion = null;
+                this.DisposePersistentSpan();
             }
         }
 
@@ -166,7 +182,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ResultId = resultId;
             RunIndex = runIndex;
-            FullFilePath = fullFilePath;
+            this.fullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
             NonHighlightedColor = nonHghlightedColor;
             HighlightedColor = highlightedColor;
@@ -212,7 +228,7 @@ namespace Microsoft.Sarif.Viewer
                                         this.persistentSpan,
                                         runIndex: this.RunIndex,
                                         resultId: this.ResultId,
-                                        textMarkerTagType: this.NonHighlightedColor,
+                                        nonHighlightedTextMarkerTagType: this.NonHighlightedColor,
                                         highlightedTextMarkerTagType: this.HighlightedColor,
                                         context: this.Context));
             }
@@ -259,7 +275,7 @@ namespace Microsoft.Sarif.Viewer
                 // 2a) That alone may be enough to make the persistent span valid if it was already created.
                 // 3) If the persistent span still isn't valid (likely because we have crated the persistent span yet), ask ourselves for the tags which will
                 //    cause the span to be created.
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.fullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
@@ -308,7 +324,7 @@ namespace Microsoft.Sarif.Viewer
             if (!documentWasOpened)
             {
                 // First, let's open the document so the user can see it.
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.fullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
@@ -372,23 +388,23 @@ namespace Microsoft.Sarif.Viewer
                 return this.regionIsFullyPopulated.Value;
             }
 
-            if (string.IsNullOrEmpty(this.FullFilePath))
+            if (string.IsNullOrEmpty(this.fullFilePath))
             {
                 return false;
             }
 
             // Note: The call to ResolveFilePath will ultimately
-            // set "this.FullFilePath" to the a new file path which is why calling
+            // set "this.fullFilePath" to the a new file path which is why calling
             // File.Exists happens twice here.
-            if (!File.Exists(this.FullFilePath) && 
-                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FullFilePath))
+            if (!File.Exists(this.fullFilePath) && 
+                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.fullFilePath))
             {
                 this.regionIsFullyPopulated = false; 
                 return false;
             }
 
-            if (File.Exists(this.FullFilePath) &&
-                Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
+            if (File.Exists(this.fullFilePath) &&
+                Uri.TryCreate(this.fullFilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.RunIndex].FileRegionsCache;
@@ -484,6 +500,17 @@ namespace Microsoft.Sarif.Viewer
                         trackingMode: SpanTrackingMode.EdgeInclusive);
 
             return true;
+        }
+
+        private void DisposePersistentSpan()
+        {
+            this.persistentSpan?.Dispose();
+            this.persistentSpan = null;
+
+            // We need to remap the original region to an ITextBuffer
+            // so reset these values to indicate that remapping should occur.
+            this.regionIsFullyPopulated = null;
+            this.fullyPopulatedRegion = null;
         }
     }
 }

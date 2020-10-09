@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         }
 
         /// <inheritdoc/>
-        public void NotifyTaggerCreated(ISarifLocationTagger tagger)
+        public void AddTagger(ISarifLocationTagger tagger)
         {
             using (this.SarifTaggersLock.EnterWriteLock())
             {
@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 using (this.SarifTaggersLock.EnterWriteLock())
                 {
-                    if (!this.SarifTaggers.Remove(tagger))
+                    if (this.SarifTaggers.Remove(tagger))
                     {
                         tagger.Disposed -= this.Tagger_Disposed;
                     }

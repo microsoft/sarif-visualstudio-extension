@@ -83,6 +83,7 @@
     <Compile Include="SarifExplorerWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
     <Compile Include="Tags\CaretEventArgs.cs" />
+    <Compile Include="Tags\ISarifLocationTagCaretNotify.cs" />
     <Compile Include="Tags\ISarifLocationTagger.cs" />
     <Compile Include="Services\SCloseSarifLogService.cs" />
     <Compile Include="Services\SLoadSarifLogService.cs" />
@@ -93,7 +94,9 @@
     <Compile Include="Tags\ISarifLocationTaggerService.cs" />
     <Compile Include="Tags\ITextViewCaretListenerService.cs" />
     <Compile Include="Tags\SarifLocationErrorTag.cs" />
+    <Compile Include="Tags\SarifLocationTagBase.cs" />
     <Compile Include="Tags\SarifLocationTaggerService.cs" />
+    <Compile Include="Tags\SarifLocationTagHelpers.cs" />
     <Compile Include="Tags\SarifLocationTextMarkerTagger.cs" />
     <Compile Include="Tags\SarifLocationTextMarkerTag.cs" />
     <Compile Include="Tags\SarifLocationErrorTagger.cs" />

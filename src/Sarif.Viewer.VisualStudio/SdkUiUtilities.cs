@@ -4,17 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.IO;
 using System.IO.IsolatedStorage;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
-using EnvDTE;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;

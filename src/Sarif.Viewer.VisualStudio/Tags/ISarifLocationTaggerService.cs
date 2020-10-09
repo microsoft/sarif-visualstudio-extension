@@ -13,15 +13,19 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Causes a tags changed notification to be sent out from all known taggers.
         /// </summary>
         /// <remarks>
-        /// The primary use of this is to send a tags changed notification when a "text view" is already open and visible
-        /// and a tagger is active for that "text view" and a SARIF log is loaded via an API.
+        /// As an example, this method is called is to send a tags changed notification when a "text view" is already open and visible
+        /// and a tagger is active for that "text view" when a SARIF log is loaded or cleared.
         /// </remarks>
         void RefreshAllTags();
 
         /// <summary>
-        /// Called when a new tagger is created which allows <see cref="RefreshAllTags"/> to call into the tagger.
+        /// Adds a new tagger to the list of known taggers the service.
         /// </summary>
+        /// <remarks>
+        /// The taggers known to this service will be asked to refresh their tags when <see cref="ISarifLocationTaggerService.RefreshAllTags"/>
+        /// is called by consumers of the service.
+        /// </remarks>
         /// <param name="tagger">A new instance of <see cref="ISarifLocationTagger"/></param>.
-        void NotifyTaggerCreated(ISarifLocationTagger tagger);
+        void AddTagger(ISarifLocationTagger tagger);
     }
 }
