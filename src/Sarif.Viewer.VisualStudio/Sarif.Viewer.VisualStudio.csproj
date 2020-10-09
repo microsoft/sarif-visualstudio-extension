@@ -82,7 +82,7 @@
     <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifExplorerWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
-    <Compile Include="Tags\CaretEventArgs.cs" />
+    <Compile Include="Tags\TagInCaretChangedEventArgs.cs" />
     <Compile Include="Tags\ISarifLocationTagCaretNotify.cs" />
     <Compile Include="Tags\ISarifLocationTagger.cs" />
     <Compile Include="Services\SCloseSarifLogService.cs" />

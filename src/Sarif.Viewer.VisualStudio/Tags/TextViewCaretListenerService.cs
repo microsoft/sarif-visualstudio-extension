@@ -29,10 +29,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         private bool isDisposed;
 
         /// <inheritdoc/>
-        public event EventHandler<CaretEventArgs> CaretEnteredTag;
+        public event EventHandler<TagInCaretChangedEventArgs> CaretEnteredTag;
 
         /// <inheritdoc/>
-        public event EventHandler<CaretEventArgs> CaretLeftTag;
+        public event EventHandler<TagInCaretChangedEventArgs> CaretLeftTag;
 
         /// <inheritdoc/>
         public void CreateListener(ITextView textView, ITagger<T> tagger)
@@ -56,12 +56,12 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        private void Tagger_CaretEnteredTag(object sender, CaretEventArgs e)
+        private void Tagger_CaretEnteredTag(object sender, TagInCaretChangedEventArgs e)
         {
             this.CaretEnteredTag?.Invoke(this, e);
         }
 
-        private void Tagger_CaretLeftTag(object sender, CaretEventArgs e)
+        private void Tagger_CaretLeftTag(object sender, TagInCaretChangedEventArgs e)
         {
             this.CaretLeftTag?.Invoke(this, e);
         }

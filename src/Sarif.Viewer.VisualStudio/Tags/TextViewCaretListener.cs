@@ -34,12 +34,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Fired when the Visual Studio caret enters a tag.
         /// </summary>
-        public event EventHandler<CaretEventArgs> CaretEnteredTag;
+        public event EventHandler<TagInCaretChangedEventArgs> CaretEnteredTag;
 
         /// <summary>
         /// Fired when the Visual Studio caret leaves a tag.
         /// </summary>
-        public event EventHandler<CaretEventArgs> CaretLeftTag;
+        public event EventHandler<TagInCaretChangedEventArgs> CaretLeftTag;
 
         private void TextView_LayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
@@ -82,7 +82,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // Start an update batch in case the notifications cause a series of changes to tags. (Such as highlight colors).
             foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretEnter)
             {
-                this.CaretEnteredTag?.Invoke(this, new CaretEventArgs(tagToNotify));
+                this.CaretEnteredTag?.Invoke(this, new TagInCaretChangedEventArgs(tagToNotify));
                 (tagToNotify as ISarifLocationTagCaretNotify)?.OnCaretEntered();
             }
 
@@ -90,7 +90,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretLeave)
                 {
-                    this.CaretLeftTag?.Invoke(this, new CaretEventArgs(tagToNotify));
+                    this.CaretLeftTag?.Invoke(this, new TagInCaretChangedEventArgs(tagToNotify));
                     (tagToNotify as ISarifLocationTagCaretNotify)?.OnCaretLeft();
                 }
             }

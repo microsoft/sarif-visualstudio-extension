@@ -20,11 +20,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Fired when the Visual Studio caret enters a tag.
         /// </summary>
-        event EventHandler<CaretEventArgs> CaretEnteredTag;
+        event EventHandler<TagInCaretChangedEventArgs> CaretEnteredTag;
 
         /// <summary>
         /// Fired when the Visual Studio caret leaves a tag.
         /// </summary>
-        event EventHandler<CaretEventArgs> CaretLeftTag;
+        event EventHandler<TagInCaretChangedEventArgs> CaretLeftTag;
     }
 }

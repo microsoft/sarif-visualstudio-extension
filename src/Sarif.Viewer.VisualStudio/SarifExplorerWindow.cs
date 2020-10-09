@@ -97,7 +97,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private void TextViewCaretListenerService_CaretEnteredTag(object sender, CaretEventArgs e)
+        private void TextViewCaretListenerService_CaretEnteredTag(object sender, TagInCaretChangedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
