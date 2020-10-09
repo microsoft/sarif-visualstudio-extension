@@ -14,9 +14,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer
