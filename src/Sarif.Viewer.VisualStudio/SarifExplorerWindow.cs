@@ -30,8 +30,7 @@ namespace Microsoft.Sarif.Viewer
     [Guid("ab561bcc-e01d-4781-8c2e-95a9170bfdd5")]
     public class SarifExplorerWindow : ToolWindowPane, IToolWindow
     {
-        private readonly ITrackSelection _trackSelection;
-
+        private ITrackSelection _trackSelection;
         private SelectionContainer _selectionContainer;
         private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
         private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
@@ -45,8 +44,6 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.Caption = "SARIF Explorer";
-
-            this._trackSelection =  GetService(typeof(STrackSelection)) as ITrackSelection;
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
@@ -81,6 +78,10 @@ namespace Microsoft.Sarif.Viewer
             {
                 this.textViewCaretListenerService.CaretEnteredTag += this.TextViewCaretListenerService_CaretEnteredTag;
             }
+
+            // Update the selection.
+            this._trackSelection = GetService(typeof(STrackSelection)) as ITrackSelection;
+            this._trackSelection.OnSelectChange(_selectionContainer);
         }
 
         private void Control_Unloaded(object sender, System.Windows.RoutedEventArgs e)
@@ -138,6 +139,7 @@ namespace Microsoft.Sarif.Viewer
             _selectionContainer.SelectableObjects = items;
             _selectionContainer.SelectedObjects = items;
 
+            // This is null until the control is loaded.
             this._trackSelection.OnSelectChange(_selectionContainer);
         }
 
