@@ -140,7 +140,7 @@ namespace Microsoft.Sarif.Viewer
             _selectionContainer.SelectedObjects = items;
 
             // This is null until the control is loaded.
-            this._trackSelection.OnSelectChange(_selectionContainer);
+            this._trackSelection?.OnSelectChange(_selectionContainer);
         }
 
         /// <summary>
