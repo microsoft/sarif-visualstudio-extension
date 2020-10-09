@@ -18,8 +18,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System.Windows;
     using System.Windows.Documents;
 
-    internal sealed class SarifResultTableEntry : ITableEntry
+    internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
+        private bool isDisposed;
+
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
         public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new [] {
@@ -215,6 +217,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 System.Diagnostics.Process.Start(uri.ToString());
             }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            this.isDisposed = true;
+            if (disposing)
+            {
+                this.Error.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

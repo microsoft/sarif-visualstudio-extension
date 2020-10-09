@@ -165,15 +165,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             this.CallSinks(sink => sink.RemoveEntries(entriesToRemove));
+
+            foreach (SarifResultTableEntry entryToRemove in entriesToRemove)
+            {
+                entryToRemove.Dispose();
+            }
         }
 
         public void CleanAllErrors()
         {
             this.CallSinks(sink => sink.RemoveAllEntries());
 
+            Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntriesToClear;
             using (this.tableEntriesLock.EnterWriteLock())
             {
-                this.logFileToTableEntries.Clear();
+                logFileToTableEntriesToClear = this.logFileToTableEntries;
+                this.logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>();
+            }
+
+            foreach (SarifResultTableEntry entryToRemove in logFileToTableEntriesToClear.Values.SelectMany(tableEntries => tableEntries))
+            {
+                entryToRemove.Dispose();
             }
         }
 

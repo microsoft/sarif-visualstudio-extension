@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _message = value;
 
-                    this.OnPropertyChanged(new PropertyChangedEventArgs("Message"));
+                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.Message)));
                 }
             }
         }
@@ -44,9 +44,11 @@ namespace Microsoft.Sarif.Viewer.Models
             set
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                _selectedItem = value;
-
-                this.SelectionChanged(value);
+                if (this._selectedItem != value)
+                {
+                    _selectedItem = value;
+                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.SelectedItem)));
+                }
             }
         }
 
@@ -57,7 +59,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
                 if (_selectedCommand == null)
                 {
-                    _selectedCommand = new DelegateCommand<LocationModel>(l => SelectionChanged(l));
+                    _selectedCommand = new DelegateCommand<LocationModel>(l => this.SelectionChanged(l));
                 }
 
                 return _selectedCommand;

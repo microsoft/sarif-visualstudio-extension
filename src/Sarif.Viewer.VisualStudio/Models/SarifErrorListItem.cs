@@ -23,7 +23,7 @@ using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer
 {
-    internal class SarifErrorListItem : NotifyPropertyChangedObject
+    internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
         /// <summary>
         /// Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
@@ -38,6 +38,7 @@ namespace Microsoft.Sarif.Viewer
         private DelegateCommand _openLogFileCommand;
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
+        private bool isDisposed;
 
         /// <summary>
         /// This dictionary is used to map the SARIF failure level to the color of the "squiggle" shown
@@ -601,7 +602,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // After the file-paths have been remapped, we need to refresh the tags
-            // as the persistent spans may now be possible to create (since the file paths are now potential valid)
+            // as as it may now be possible to create the persistent spans (since the file paths are now potentially valid)
             // or their file paths may have moved from one valid location to a different valid location.
             SarifLocationTagHelpers.RefreshAllTags();
         }
@@ -610,29 +611,56 @@ namespace Microsoft.Sarif.Viewer
             where T: ITag
         {
             IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
-            List<ResultTextMarker> textMarkers = new List<ResultTextMarker>();
+            IEnumerable<ResultTextMarker> resultTextMarkers = this.CollectResultTextMarkers(includeChildTags: includeChildTags, includeResultTag: includeResultTag);
+
+            return resultTextMarkers.SelectMany(resultTextMarker => resultTextMarker.GetTags<T>(textBuffer, persistentSpanFactory));
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            this.isDisposed = true;
+
+            if (disposing)
+            {
+                IEnumerable<ResultTextMarker> resultTextMarkers = this.CollectResultTextMarkers(includeChildTags: true, includeResultTag: true);
+                foreach (ResultTextMarker resultTextMarker in resultTextMarkers)
+                {
+                    resultTextMarker.Dispose();
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        private IEnumerable<ResultTextMarker> CollectResultTextMarkers(bool includeChildTags, bool includeResultTag)
+        {
+            IEnumerable<ResultTextMarker> textMarkers = Enumerable.Empty<ResultTextMarker>();
 
             // The "line marker" springs into existence when it is asked for.
             if (includeResultTag)
             {
-                textMarkers.Add(this.LineMarker);
+                textMarkers = textMarkers.Concat(Enumerable.Repeat(this.LineMarker, 1));
             }
 
             if (includeChildTags)
             {
-                foreach (LocationModel location in Locations)
-                {
-                    textMarkers.Add(location.LineMarker);
-                }
-
-                foreach (LocationModel location in RelatedLocations)
-                {
-                    textMarkers.Add(location.LineMarker);
-                }
+                textMarkers = textMarkers.Concat(Locations.Select(location => location.LineMarker));
+                textMarkers = textMarkers.Concat(RelatedLocations.Select(relatedLocation => relatedLocation.LineMarker));
 
                 foreach (CallTree callTree in CallTrees)
                 {
                     Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
+                    List<CallTreeNode> allCallTreeNodes = new List<CallTreeNode>();
 
                     foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
                     {
@@ -643,33 +671,24 @@ namespace Microsoft.Sarif.Viewer
                     {
                         CallTreeNode current = nodesToProcess.Pop();
 
-                        textMarkers.Add(current.LineMarker);
+                        allCallTreeNodes.Add(current);
 
                         foreach (CallTreeNode childNode in current.Children)
                         {
                             nodesToProcess.Push(childNode);
                         }
                     }
+
+                    textMarkers = textMarkers.Concat(allCallTreeNodes.Select(callTreeNode => callTreeNode.LineMarker));
                 }
 
                 foreach (StackCollection stackCollection in Stacks)
                 {
-                    foreach (StackFrameModel stackFrame in stackCollection)
-                    {
-                        textMarkers.Add(stackFrame.LineMarker);
-                    }
+                    textMarkers = textMarkers.Concat(stackCollection.Select(stack => stack.LineMarker));
                 }
             }
 
-            foreach (ResultTextMarker textMarker in textMarkers)
-            {
-                if (textMarker != null)
-                {
-                    tags = tags.Concat(textMarker.GetTags<T>(textBuffer, persistentSpanFactory));
-                }
-            }
-
-            return tags;
+            return textMarkers;
         }
     }
 }

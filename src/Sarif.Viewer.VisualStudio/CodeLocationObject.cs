@@ -184,7 +184,7 @@ namespace Microsoft.Sarif.Viewer
 
         private void RecreateLineMarker()
         {
-            if (this._lineMarker == null)
+            if (this._lineMarker != null)
             {
                 this._lineMarker.Dispose();
                 this._lineMarker = null;

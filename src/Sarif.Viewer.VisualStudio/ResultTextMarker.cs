@@ -305,9 +305,12 @@ namespace Microsoft.Sarif.Viewer
 
             // Now, if the span IS valid it doesn't mean that the editor is visible, so make sure we open the document
             // for the user if needed.
-            if (!documentWasOpened)
+            // But before we try to call "open document" let's see if we can find an active view because calling
+            // "open document" is super slow (which causes keyboard navigation from items in the SARIF explorer to be slow
+            // IF "open document" is called every time.
+            if (!documentWasOpened ||
+                !SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
             {
-                // First, let's open the document so the user can see it.
                 IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, FullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
@@ -315,11 +318,11 @@ namespace Microsoft.Sarif.Viewer
                 }
 
                 vsWindowFrame.Show();
-            }
 
-            if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
-            {
-                return false;
+                if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out wpfTextView))
+                {
+                    return false;
+                }
             }
 
             // If we have tracking span information, then either
@@ -401,7 +404,7 @@ namespace Microsoft.Sarif.Viewer
 
         private bool PersistentSpanValid()
         {
-            // Some notes here. "this.tag" can be null of the document hasn't been tagged yet.
+            // Some notes here. "this.tag" can be null if the document hasn't been tagged yet.
             // Furthermore, the persistent span can be null even if you have the tag if the document
             // isn't open. The text buffer can also be null if the document isn't open.
             // In theory, we could probably simply this to:

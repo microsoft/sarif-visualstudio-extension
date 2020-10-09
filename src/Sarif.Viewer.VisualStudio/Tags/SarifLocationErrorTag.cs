@@ -28,10 +28,20 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.ToolTipContent = toolTipContent;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the Visual Studio error type to display.
+        /// </summary>
+        /// <remarks>
+        /// The "error type" is basically the squiggle color. This may be null.
+        /// </remarks>
         public string ErrorType { get; }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// The content to use when displaying a tool tip for this error.
+        /// </summary>
+        /// <remarks>
+        /// This may be null.
+        /// </remarks>
         public object ToolTipContent { get; }
     }
 }

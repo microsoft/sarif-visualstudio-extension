@@ -5,13 +5,13 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -29,15 +29,13 @@ namespace Microsoft.Sarif.Viewer
     [Guid("ab561bcc-e01d-4781-8c2e-95a9170bfdd5")]
     public class SarifExplorerWindow : ToolWindowPane, IToolWindow
     {
-        private ITrackSelection _trackSelection;
+        private readonly ITrackSelection _trackSelection;
+
         private SelectionContainer _selectionContainer;
         private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
         private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
 
-        internal SarifToolWindowControl Control
-        {
-            get => Content as SarifToolWindowControl;
-        }
+        internal SarifToolWindowControl Control => Content as SarifToolWindowControl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifExplorerWindow"/> class.
@@ -46,6 +44,8 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.Caption = "SARIF Explorer";
+
+            this._trackSelection =  GetService(typeof(STrackSelection)) as ITrackSelection;
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
@@ -111,7 +111,6 @@ namespace Microsoft.Sarif.Viewer
                     // be in the UI logic, not the data model.
                     node.CallTree.SelectedItem = node;
                     this.UpdateSelectionList(node.TypeDescriptor);
-                    node.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
                 }
             }
         }
@@ -129,44 +128,16 @@ namespace Microsoft.Sarif.Viewer
             ((IVsWindowFrame)Frame).Show();
         }
 
-        private ITrackSelection TrackSelection
-        {
-            get
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                if (_trackSelection == null)
-                {
-                    _trackSelection = GetService(typeof(STrackSelection)) as ITrackSelection;
-                }
-
-                return _trackSelection;
-            }
-        }
-
-        /// <summary>
-        /// Updates the Properties window with the public properties of the selection objects.
-        /// </summary>
-        public void ApplySelection()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            ITrackSelection track = TrackSelection;
-            if (track != null)
-            {
-                track.OnSelectChange((ISelectionContainer)_selectionContainer);
-            }
-        }
-
-        /// <summary>
-        /// Replaces the collection of objects whose values are displayed in the Properties window.
-        /// </summary>
-        /// <param name="items"></param>
         public void UpdateSelectionList(params object[] items)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            _selectionContainer = new SelectionContainer(true, false);
+
+            _selectionContainer = new SelectionContainer(selectableReadOnly: true, selectedReadOnly: false);
+
             _selectionContainer.SelectableObjects = items;
             _selectionContainer.SelectedObjects = items;
-            ApplySelection();
+
+            this._trackSelection.OnSelectChange(_selectionContainer);
         }
 
         /// <summary>
@@ -187,7 +158,8 @@ namespace Microsoft.Sarif.Viewer
             // window to be selected when the data context is set back to a non-null value.
             this.Control.DataContext = null;
             this.Control.DataContext = sarifErrorListItem;
-            this.ResetSelection();
+
+            UpdateSelectionList(sarifErrorListItem);
         }
     }
 }

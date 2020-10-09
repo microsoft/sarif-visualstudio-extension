@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -30,6 +31,8 @@ namespace Microsoft.Sarif.Viewer
 
         private static void SelectedItemChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (!(obj is TreeView))
                 return;
 
@@ -38,6 +41,11 @@ namespace Microsoft.Sarif.Viewer
 
             TreeViewSelectedNodeBehavior view = behaviors[obj];
             view.ChangeSelectedNode(e.NewValue);
+
+            if (e.NewValue is CallTreeNode node)
+            {
+                node.LineMarker?.TryNavigateTo(usePreviewPane: false, moveFocusToCaretLocation: false);
+            }
         }
 
         private class TreeViewSelectedNodeBehavior
