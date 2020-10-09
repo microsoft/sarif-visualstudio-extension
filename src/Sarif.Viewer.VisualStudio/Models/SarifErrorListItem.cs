@@ -498,7 +498,7 @@ namespace Microsoft.Sarif.Viewer
                         uriBaseId: Locations?.FirstOrDefault()?.UriBaseId,
                         region: Region,
                         fullFilePath: FileName,
-                        nonHghlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
+                        nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.Message,

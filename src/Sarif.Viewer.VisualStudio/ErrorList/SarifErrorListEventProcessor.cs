@@ -20,10 +20,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private SarifErrorListItem currentlySelectedItem;
         private SarifErrorListItem currentlyNavigatedItem;
 
-        public SarifErrorListEventProcessor()
-        {
-        }
-
         #region ISarifErrorListEventSelectionService
         /// <inheritdoc/>
         public SarifErrorListItem SelectedItem
@@ -65,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;
         #endregion ISarifErrorListEventSelectionService
 
-        public IWpfTableControl errorListTableControl;
+        private IWpfTableControl errorListTableControl;
 
         /// <summary>
         /// Called by <see cref="SarifErrorListEventProcessorProvider"/> to set the table this service will

@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         void OnCaretEntered();
 
         /// <summary>
-        /// Called by the<see cref="ISarifLocationTaggerService"/> when the caret from the text editor leaves this tag.
+        /// Called by the <see cref="ISarifLocationTaggerService"/> when the caret from the text editor leaves this tag.
         /// </summary>
         void OnCaretLeft();
     }

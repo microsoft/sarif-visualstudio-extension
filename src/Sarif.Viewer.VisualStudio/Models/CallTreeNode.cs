@@ -130,7 +130,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         uriBaseId: UriBaseId,
                         region: this.Region,
                         fullFilePath: this.FilePath,
-                        nonHghlightedColor: this.DefaultSourceHighlightColor,
+                        nonHighlightedColor: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
                         tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this),

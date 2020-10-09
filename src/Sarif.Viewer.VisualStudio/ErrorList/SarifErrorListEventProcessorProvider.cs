@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             (this.sarifErrorListEventSelectionService as SarifErrorListEventProcessor)?.SetTableControl(tableControl);
 
-            return sarifErrorListEventSelectionService as ITableControlEventProcessor;
+            return this.sarifErrorListEventSelectionService as ITableControlEventProcessor;
         }
     }
 }

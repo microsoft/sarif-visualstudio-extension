@@ -16,9 +16,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         private bool isDisposed;
 
         /// <summary>
-        /// Protects access to the <see cref="SarifTaggers"/> list.
+        /// Protects access to the <see cref="sarifTaggers"/> list.
         /// </summary>
-        private readonly ReaderWriterLockSlimWrapper SarifTaggersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private readonly ReaderWriterLockSlimWrapper sarifTaggersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
 
         /// <summary>
         /// This list of running taggers.
@@ -26,15 +26,15 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <remarks>
         /// This static list is used to easily notify all running taggers that there tags need to be refreshed.
         /// </remarks>
-        private readonly List<ISarifLocationTagger> SarifTaggers = new List<ISarifLocationTagger>();
+        private readonly List<ISarifLocationTagger> sarifTaggers = new List<ISarifLocationTagger>();
 
         /// <inheritdoc/>
         public void RefreshAllTags()
         {
             IEnumerable<ISarifLocationTagger> taggers;
-            using (this.SarifTaggersLock.EnterReadLock())
+            using (this.sarifTaggersLock.EnterReadLock())
             {
-                taggers = SarifTaggers.ToList();
+                taggers = sarifTaggers.ToList();
             }
 
             foreach (ISarifLocationTagger tagger in taggers)
@@ -46,11 +46,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public void AddTagger(ISarifLocationTagger tagger)
         {
-            using (this.SarifTaggersLock.EnterWriteLock())
+            using (this.sarifTaggersLock.EnterWriteLock())
             {
-                if (!this.SarifTaggers.Contains(tagger))
+                if (!this.sarifTaggers.Contains(tagger))
                 {
-                    this.SarifTaggers.Add(tagger);
+                    this.sarifTaggers.Add(tagger);
                     tagger.Disposed += this.Tagger_Disposed;
                 }
             }
@@ -60,9 +60,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (sender is ISarifLocationTagger tagger)
             {
-                using (this.SarifTaggersLock.EnterWriteLock())
+                using (this.sarifTaggersLock.EnterWriteLock())
                 {
-                    if (this.SarifTaggers.Remove(tagger))
+                    if (this.sarifTaggers.Remove(tagger))
                     {
                         tagger.Disposed -= this.Tagger_Disposed;
                     }
@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             if (disposing)
             {
-                this.SarifTaggersLock.InnerLock.Dispose();
+                this.sarifTaggersLock.InnerLock.Dispose();
             }
         }
 

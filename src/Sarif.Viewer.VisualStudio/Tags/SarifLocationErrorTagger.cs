@@ -12,12 +12,13 @@ namespace Microsoft.Sarif.Viewer.Tags
     using Microsoft.VisualStudio.Text.Tagging;
 
     /// <summary>
-    /// Provides tags to Visual Studio from <see cref="SarifErrorListItem"/>s.
+    /// Provides tags to Visual Studio from <see cref="SarifErrorListItem"/>s. The tags are in the form of a "squiggle" or a "tooltip" or both.
     /// </summary>
     /// <remarks>
     /// The tags provided from this class represent all the instances of <see cref="ResultTextMarker"/> that a <see cref="SarifErrorListItem"/> may contain
     /// that are children of the currently selected <see cref="SarifErrorListItem"/> as defined by <see cref="ISarifErrorListEventSelectionService.SelectedItem"/>.
-    /// This allows us to provide error tags for code flows for a specific result without displaying potentially overlapping code flow error tags from other results.
+    /// So.. The SARIF error result "itself" will be represented as a "squiggle" and a "tooltip". The locations contained within that result
+    /// (code-flows, etc) will be as just a tooltip with no squiggle.
     /// </remarks>
     internal class SarifLocationErrorTagger : ITagger<IErrorTag>, ISarifLocationTagger, IDisposable
     {

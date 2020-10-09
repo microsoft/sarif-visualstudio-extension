@@ -141,7 +141,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="context">The data context for this result marker.</param>
         public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context)
-            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHghlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
+            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
         {
         }
 
@@ -153,7 +153,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="uriBaseId">The base identifier for the file-path.</param>
         /// <param name="region">The original source region from the SARIF log file.</param>
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
-        /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
+        /// <param name="nonHighlightedColor">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
@@ -161,14 +161,14 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
         {
             ResultId = resultId;
             RunIndex = runIndex;
             UriBaseId = uriBaseId;
             FullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
-            NonHighlightedColor = nonHghlightedColor;
+            NonHighlightedColor = nonHighlightedColor;
             HighlightedColor = highlightedColor;
             ToolTipContent = tooltipContent;
             ErrorType = errorType;
