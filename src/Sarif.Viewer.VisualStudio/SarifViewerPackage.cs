@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
@@ -10,15 +11,14 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio;
-using Microsoft.Sarif.Viewer.Services;
-using Microsoft.Sarif.Viewer.ErrorList;
-using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.ComponentModelHost;
-using System.Collections.Generic;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -31,8 +31,17 @@ namespace Microsoft.Sarif.Viewer
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+
+    // Visual Studio will not call "InitializeAsync" on your package for any MEF exported services or classes
+    // (instead MEF just calls their constructors directly from the assembly when Visual Studio needs them).
+    // So, to make sure our commands such as "Open Log", "Clear SARIF results", "Show explorer window"
+    // etc. are present, we need to inform Visual Studio that we'd like our extension to be loaded
+    // whether a solution is present or not (hence both of the attributes).
+    // We also rely on the InitializeAsync to be called so that we can show the SARIF tool window
+    // when a navigation occurs on the error list.
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
+
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]

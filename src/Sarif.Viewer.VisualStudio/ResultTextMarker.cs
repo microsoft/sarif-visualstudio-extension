@@ -325,18 +325,6 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            // If we have tracking span information, then either
-            // ignore the selection if the caret is already in that span
-            // or select what might "remain" of the tracking span
-            // in case it has been modified.
-            // It is important to note that when a caret position change
-            // occurs (see event handler below) and the caret is moved within a text marker,
-            // that can cause a selection in the SARIF tool window to occur
-            // which in turn attempts to navigate right back to this
-            // text marker by calling NavigateTo(). So, this
-            // code must not navigate the selection or caret again if the
-            // caret is already within the correct span, otherwise
-            // the user cannot navigate the editor anymore.
             ITextSnapshot currentSnapshot = this.persistentSpan.Span.TextBuffer.CurrentSnapshot;
 
             // Note that "GetSpan" is not really a great name. What is actually happening

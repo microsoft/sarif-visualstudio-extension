@@ -97,8 +97,8 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 foreach (KeyValuePair<ITextView, TextViewCaretListener<T>> textViewAndTagger in this.ExistingListeners)
                 {
-                    textViewAndTagger.Value.CaretEnteredTag += this.Tagger_CaretEnteredTag;
-                    textViewAndTagger.Value.CaretLeftTag += this.Tagger_CaretLeftTag;
+                    textViewAndTagger.Value.CaretEnteredTag -= this.Tagger_CaretEnteredTag;
+                    textViewAndTagger.Value.CaretLeftTag -= this.Tagger_CaretLeftTag;
                     textViewAndTagger.Key.Closed -= this.TextView_Closed;
                 }
 
