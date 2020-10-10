@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="context">Gets the data context for this tag.</param>
         /// </summary>
         public SarifLocationTextMarkerTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string nonHighlightedTextMarkerTagType, string highlightedTextMarkerTagType, object context)
-            : base(persistentSpan, runIndex: runIndex, resultId: resultId, context)
+            : base(persistentSpan: persistentSpan, runIndex: runIndex, resultId: resultId, context: context)
         {
             this.currentTextMarkerTagType = nonHighlightedTextMarkerTagType;
             this.highlightedTextMarkerTagType = highlightedTextMarkerTagType;
