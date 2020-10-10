@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
+    using System.IO;
     using System.Linq;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.TableControl;
@@ -109,6 +110,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SelectedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslySelectedItem, this.currentlySelectedItem));
         }
 
+        public override void PreprocessNavigate(ITableEntryHandle entry, TableEntryNavigateEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            base.PreprocessNavigate(entry, e);
+            if (this.TryGetSarifResult(entry, out SarifErrorListItem aboutToNavigateItem) &&
+                aboutToNavigateItem?.HasDetails == true)
+            {
+                SarifExplorerWindow.Find()?.Show();
+            }
+        }
+
         public override void PostprocessNavigate(ITableEntryHandle entry, TableEntryNavigateEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -120,7 +133,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifErrorListItem previouslyNavigatedItem = this.currentlyNavigatedItem;
             this.currentlyNavigatedItem = newlyNavigatedErrorItem;
 
-            SarifExplorerWindow.Find()?.Show();
+            if (this.currentlyNavigatedItem != null)
+            {
+                // There are two conditions to consider here..
+                // The first is that Visual Studio opened the document through the course of normal navigation
+                // because the SARIF result had a file name that existed on the local file system.
+                // The second case is that no document was opened because the file name doesn't exist on the local file system.
+                // In the first case, where the file existed, Visual Studio has already opened the document
+                // for us (and the editor is active). The only thing left to do is move the caret to the right location (but do NOT move focus).
+                // In the second case, where the file does not exist, we want to attempt to navigate
+                // the "first location" AND move the focus to the resulting caret location.
+                // The navigation request will prompt the user to remap the path. If the user remaps the path,
+                // the file will then be opened in the editor focus will be moved to the proper caret location.
+                bool moveFocusToCaretLocation = this.currentlyNavigatedItem.FileName != null && !File.Exists(this.currentlyNavigatedItem.FileName);
+                this.currentlyNavigatedItem.Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: moveFocusToCaretLocation);
+            }
 
             NavigatedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslyNavigatedItem, this.currentlyNavigatedItem));
         }

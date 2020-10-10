@@ -142,7 +142,7 @@ namespace Microsoft.Sarif.Viewer
         /// The <paramref name="usePreviewPane"/> indicates whether Visual Studio opens the document as a preview (tab to the right)
         /// rather than as an "open code editor" (tab attached to other open documents on the left).
         /// </remarks>
-        public void NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
+        public bool NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -153,7 +153,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (LineMarker != null)
             {
-                LineMarker.TryNavigateTo(usePreviewPane, moveFocusToCaretLocation);
+                return LineMarker.TryNavigateTo(usePreviewPane, moveFocusToCaretLocation);
             }
             else
             {
@@ -165,21 +165,24 @@ namespace Microsoft.Sarif.Viewer
                 {
                     if (!uri.IsFile)
                     {
-                        System.Diagnostics.Process.Start(uri.OriginalString);
-                        return;
+                        System.Diagnostics.Process.Start(uri.OriginalString)?.Dispose();
+                        return true;
                     }
                 }
 
-                if (!File.Exists(this.FilePath))
+                if (!File.Exists(this.FilePath) &&
+                    !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FilePath))
                 {
-                    CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FilePath);
+                    return false;
                 }
 
                 if (File.Exists(this.FilePath))
                 {
-                    SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane);
+                    return SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane) != null;
                 }
             }
+
+            return false;
         }
 
         private void RecreateLineMarker()

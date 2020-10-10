@@ -163,7 +163,7 @@ namespace Microsoft.Sarif.Viewer
                                                                        MessageBoxButtons.YesNo,
                                                                        MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
-                    System.Diagnostics.Process.Start(Path.GetDirectoryName(file));
+                    System.Diagnostics.Process.Start(Path.GetDirectoryName(file))?.Dispose();
                 }
 
                 return null;
