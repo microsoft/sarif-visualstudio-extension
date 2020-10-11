@@ -23,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.Views
     /// of the selected item in the view should be distinct and separate from <see cref="CallTree.SelectedItem"/> as that is not
     /// a "SARIF" concept.
     /// </remarks>
-    public class CallTreeView : TreeView
+    internal class CallTreeView : TreeView
     {
         public CallTreeView()
         {
