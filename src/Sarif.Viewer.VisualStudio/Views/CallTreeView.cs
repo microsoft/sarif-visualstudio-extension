@@ -140,21 +140,20 @@ namespace Microsoft.Sarif.Viewer.Views
 
                 node = (TreeViewItem)parent.ItemContainerGenerator.ContainerFromItem(currentNode);
 
-                // Make sure to expand all the nodes in the hierarchy as we walk down
-                if (node != null)
+                // Make sure to expand all the nodes in the hierarchy as we walk down.
+                // But we don't want to expand the selected node because we only
+                // want to select that node inside it's parent tree view item, not show
+                // it's children.
+                if (node != null
+                    && node != newSelectedNode
+                    && !node.IsExpanded)
                 {
-                    // Do not expand the new selected node
-                    if (pathToNode.Count != 0)
-                    {
-                        if (!node.IsExpanded)
-                        {
-                            node.ExpandSubtree();
-                        }
-                    }
+                    node.ExpandSubtree();
                 }
             }
 
-            // If we found the node in the tree, select it
+            // If we found the node in the XAML UI tree, make sure it is selected
+            // and in view.
             if (node != null)
             {
                 node.BringIntoView();
