@@ -48,21 +48,39 @@ namespace Microsoft.Sarif.Viewer
         public static bool IsUnitTesting { get; set; } = false;
 
         public static Configuration AppConfig { get; private set; }
+
+
         #region Package Members
+        private struct ServiceInformation
+        {
+            /// <summary>
+            /// Function that will create an instance of this service.
+            /// </summary>
+            public Func<Type, object> Creator;
+
+            /// <summary>
+            /// Indicates whether to promote the service to parent service containers.
+            /// </summary>
+            /// <remarks>
+            /// For our purposes, true indicates whether the service is visible outside this package.
+            /// </remarks>
+            public bool Promote;
+        }
+
         /// <summary>
         /// Contains the list of services and their creator functions.
         /// </summary>
-        private static readonly Dictionary<Type, Func<Type, object>> ServiceTypeToCreator = new Dictionary<Type, Func<Type, object>>
+        private static readonly Dictionary<Type, ServiceInformation> ServiceTypeToServiceInformation = new Dictionary<Type, ServiceInformation>
         {
-            { typeof(SLoadSarifLogService), type => new LoadSarifLogService() },
-            { typeof(SCloseSarifLogService), type => new CloseSarifLogService() },
-            { typeof(ISarifLocationTaggerService), type => new SarifLocationTaggerService() },
-            { typeof(ISarifErrorListEventSelectionService), type => new SarifErrorListEventProcessor() },
+            { typeof(SLoadSarifLogService), new ServiceInformation { Creator = type => new LoadSarifLogService(), Promote = true } },
+            { typeof(SCloseSarifLogService), new ServiceInformation { Creator = type => new CloseSarifLogService(), Promote = true } },
+            { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService (), Promote = false } },
+            { typeof(ISarifErrorListEventSelectionService), new ServiceInformation { Creator = type => new SarifErrorListEventProcessor(), Promote = false } },
 
             // Services that are exposed as templates are a bit "different", you expose them as
             // ITextViewCaretListenerService<> and then you have to differentiate them when they are
             // asked for.
-            { typeof(ITextViewCaretListenerService<>), type =>
+            { typeof(ITextViewCaretListenerService<>), new ServiceInformation { Creator =  type =>
                 {
                     if (type == typeof(ITextViewCaretListenerService<IErrorTag>))
                     {
@@ -75,8 +93,9 @@ namespace Microsoft.Sarif.Viewer
                     }
 
                     return null;
-                }
-            }
+                },
+                Promote = false
+            } }
         };
 
         /// <summary>
@@ -88,9 +107,9 @@ namespace Microsoft.Sarif.Viewer
             await base.InitializeAsync(cancellationToken, progress);
 
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
-            foreach (Type serviceType in ServiceTypeToCreator.Keys)
+            foreach (KeyValuePair<Type, ServiceInformation> serviceInformationKVP in ServiceTypeToServiceInformation)
             {
-                ((IServiceContainer)this).AddService(serviceType, callback);
+                ((IServiceContainer)this).AddService(serviceInformationKVP.Key, callback, promote: serviceInformationKVP.Value.Promote);
             }
 
             string path = Assembly.GetExecutingAssembly().Location;
@@ -124,7 +143,7 @@ namespace Microsoft.Sarif.Viewer
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
-            return ServiceTypeToCreator.TryGetValue(serviceType, out Func<Type, object> creator) ? creator(serviceType) : null;
+            return ServiceTypeToServiceInformation.TryGetValue(serviceType, out ServiceInformation serviceInformation) ? serviceInformation.Creator(serviceType) : null;
         }
     }
 }
