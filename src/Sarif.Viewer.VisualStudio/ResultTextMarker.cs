@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer
 
         /// <summary>
         /// This is the original region from the SARIF log file before
-        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegion" method./>
+        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegionAndFilePath" method./>
         /// </summary>
         private Region region;
 
@@ -54,10 +54,15 @@ namespace Microsoft.Sarif.Viewer
         private Region fullyPopulatedRegion;
 
         /// <summary>
-        /// Indicates whether a call to <see cref="TryToFullyPopulateRegion"/> has already occurred and what the result
+        /// Indicates whether a call to <see cref="TryToFullyPopulateRegionAndFilePath"/> has already occurred and what the result
         /// of the remap was.
         /// </summary>
-        private bool? regionIsFullyPopulated;
+        private bool? regionAndFilePathAreFullyPopulated;
+
+        /// <summary>
+        /// Contains the file path after a call to <see cref="TryToFullyPopulateRegionAndFilePath"/>.
+        /// </summary>
+        private string resolvedFullFilePath;
 
         /// <summary>
         /// The persistent span created for this marker.
@@ -235,6 +240,12 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             bool documentWasOpened = false;
+            
+            // Make sure to fully populate region.
+            if (!this.TryToFullyPopulateRegionAndFilePath())
+            {
+                return false;
+            }
 
             // If the tag doesn't have a persistent span, or its associated document isn't open,
             // then this indicates that we need to attempt to open the document and cause it to
@@ -259,7 +270,7 @@ namespace Microsoft.Sarif.Viewer
                 // 2a) That alone may be enough to make the persistent span valid if it was already created.
                 // 3) If the persistent span still isn't valid (likely because we have crated the persistent span yet), ask ourselves for the tags which will
                 //    cause the span to be created.
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, FullFilePath, usePreviewPane);
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.resolvedFullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
@@ -311,7 +322,7 @@ namespace Microsoft.Sarif.Viewer
             if (!documentWasOpened ||
                 !SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
             {
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, FullFilePath, usePreviewPane);
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.resolvedFullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
@@ -354,13 +365,13 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
-        private bool TryToFullyPopulateRegion()
+        private bool TryToFullyPopulateRegionAndFilePath()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (this.regionIsFullyPopulated.HasValue)
+            if (this.regionAndFilePathAreFullyPopulated.HasValue)
             {
-                return this.regionIsFullyPopulated.Value;
+                return this.regionAndFilePathAreFullyPopulated.Value;
             }
 
             if (string.IsNullOrEmpty(FullFilePath))
@@ -368,26 +379,27 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            // Note: The call to ResolveFilePath will ultimately
-            // set "FullFilePath" to the a new file path which is why calling
-            // File.Exists happens twice here.
-            if (!File.Exists(FullFilePath) && 
-                !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: FullFilePath))
+            if (File.Exists(FullFilePath))
             {
-                this.regionIsFullyPopulated = false; 
+                this.resolvedFullFilePath = FullFilePath;
+            }
+            else if (!CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: FullFilePath, resolvedPath: out this.resolvedFullFilePath))
+            {
+                this.regionAndFilePathAreFullyPopulated = false;
                 return false;
             }
 
-            if (File.Exists(FullFilePath) &&
-                Uri.TryCreate(FullFilePath, UriKind.Absolute, out Uri uri))
+
+            if (File.Exists(this.resolvedFullFilePath) &&
+                Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
                 FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.RunIndex].FileRegionsCache;
                 this.fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
             }
 
-            this.regionIsFullyPopulated = this.fullyPopulatedRegion != null;
-            return this.regionIsFullyPopulated.Value;
+            this.regionAndFilePathAreFullyPopulated = this.fullyPopulatedRegion != null;
+            return this.regionAndFilePathAreFullyPopulated.Value;
         }
 
         private bool PersistentSpanValid()
@@ -451,7 +463,7 @@ namespace Microsoft.Sarif.Viewer
                 return true;
             }
 
-            if (!this.TryToFullyPopulateRegion())
+            if (!this.TryToFullyPopulateRegionAndFilePath())
             {
                 return false;
             }

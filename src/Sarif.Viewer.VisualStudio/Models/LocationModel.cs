@@ -11,6 +11,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _logicalLocation;
         private string _module;
         private bool _isEssential;
+        private bool _isSelected;
 
         public LocationModel(int resultId, int runIndex)
             : base(resultId: resultId, runIndex: runIndex)
@@ -108,6 +109,19 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         public int Index { get; set; }
-        public bool IsSelected { get; set; }
+
+        public bool IsSelected
+        {
+            get => this._isSelected;
+
+            set
+            {
+                if (value != this._isSelected)
+                {
+                    this._isSelected = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
     }
 }

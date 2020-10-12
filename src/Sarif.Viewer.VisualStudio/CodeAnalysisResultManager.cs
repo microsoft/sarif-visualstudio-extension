@@ -162,8 +162,10 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public bool ResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath)
+        public bool TryResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath, out string resolvedPath)
         {
+            resolvedPath = null;
+
             if (!SarifViewerPackage.IsUnitTesting)
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
@@ -181,8 +183,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 return false;
             }
-
-            string resolvedPath = null;
 
             if (dataCache.FileDetails.ContainsKey(relativePath))
             {

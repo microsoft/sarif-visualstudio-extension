@@ -170,15 +170,13 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
 
-                if (!File.Exists(this.FilePath) &&
-                    !CodeAnalysisResultManager.Instance.ResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FilePath))
-                {
-                    return false;
-                }
-
                 if (File.Exists(this.FilePath))
                 {
                     return SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane) != null;
+                }
+                else if (CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FilePath, resolvedPath: out string resolvedFilePath))
+                {
+                    return SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, resolvedFilePath, usePreviewPane) != null;
                 }
             }
 

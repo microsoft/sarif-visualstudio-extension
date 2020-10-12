@@ -120,6 +120,11 @@ namespace Microsoft.Sarif.Viewer
                     this.UpdateSelectionList(node.TypeDescriptor);
                 }
             }
+
+            if (e.Tag.Context is LocationModel locationModel)
+            {
+                locationModel.IsSelected = true;
+            }
         }
 
         private void SarifListErrorItemNavigated(object sender, SarifErrorListSelectionChangedEventArgs e)

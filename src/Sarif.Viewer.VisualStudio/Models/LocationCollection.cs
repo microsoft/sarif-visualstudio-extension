@@ -3,6 +3,7 @@
 
 using Microsoft.VisualStudio.Shell;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -16,6 +17,48 @@ namespace Microsoft.Sarif.Viewer.Models
         public LocationCollection(string message)
         {
             this._message = message;
+            this.CollectionChanged += LocationCollection_CollectionChanged;
+        }
+
+        private void LocationCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                if (e.NewItems != null)
+                {
+                    foreach (object newItem in e.NewItems)
+                    {
+                        if (newItem is INotifyPropertyChanged notifyPropertyChanged)
+                        {
+                            notifyPropertyChanged.PropertyChanged += LocationModelPropertyChanged;
+                        }
+                    }
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if (e.OldItems != null)
+                {
+                    foreach (object oldItem in e.OldItems)
+                    {
+                        if (oldItem is INotifyPropertyChanged notifyPropertyChanged)
+                        {
+                            notifyPropertyChanged.PropertyChanged -= LocationModelPropertyChanged;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LocationModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (e.PropertyName == nameof(LocationModel.IsSelected) && sender is LocationModel locationModel)
+            {
+                SelectedItem = locationModel;
+            }
         }
 
         public string  Message
@@ -46,7 +89,12 @@ namespace Microsoft.Sarif.Viewer.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
                 if (this._selectedItem != value)
                 {
-                    _selectedItem = value;
+                    if (this._selectedItem != null)
+                    {
+                        this._selectedItem.IsSelected = false;
+                    }
+                    this._selectedItem = value;
+
                     this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.SelectedItem)));
                 }
             }
