@@ -110,6 +110,14 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public int Index { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether this model shows as selected (without affecting keyboard focus)
+        /// in the SARIF explorer UI.
+        /// </summary>
+        /// <remarks>
+        /// Future enhancement, factor this out of the data model into a view model as this is not
+        /// part of the SARIF data model
+        /// </remarks>
         public bool IsSelected
         {
             get => this._isSelected;
