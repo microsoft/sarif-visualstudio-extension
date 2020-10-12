@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
@@ -10,11 +11,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -30,13 +31,14 @@ namespace Microsoft.Sarif.Viewer
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideToolWindow(typeof(SarifToolWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
+    [ProvideToolWindow(typeof(SarifExplorerWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
+    [ProvideService(typeof(ISarifLocationTaggerService))]
+    [ProvideService(typeof(ITextViewCaretListenerService<>))]
+    [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
-        private bool disposed;
-
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
@@ -45,45 +47,56 @@ namespace Microsoft.Sarif.Viewer
 
         public static bool IsUnitTesting { get; set; } = false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OpenLogFileCommands"/> class.
-        /// </summary>
-        public SarifViewerPackage()
-        {
-        }
-
-        /// <summary>
-        /// Returns the instance of the SARIF tool window.
-        /// </summary>
-        public static SarifToolWindow SarifToolWindow
-        {
-            get
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
-                if (vsShell == null)
-                {
-                    return null;
-                }
-
-                IVsPackage package;
-                if (vsShell.IsPackageLoaded(PackageGuid, out package) != VSConstants.S_OK &&
-                    vsShell.LoadPackage(PackageGuid, out package) != VSConstants.S_OK)
-                {
-                    return null;
-                }
-                   
-                if(!(package is Package vsPackage))
-                {
-                    return null;
-                }
-
-                return vsPackage.FindToolWindow(typeof(SarifToolWindow), 0, true) as SarifToolWindow;
-            }
-        }
-
         public static Configuration AppConfig { get; private set; }
+
+
         #region Package Members
+        private struct ServiceInformation
+        {
+            /// <summary>
+            /// Function that will create an instance of this service.
+            /// </summary>
+            public Func<Type, object> Creator;
+
+            /// <summary>
+            /// Indicates whether to promote the service to parent service containers.
+            /// </summary>
+            /// <remarks>
+            /// For our purposes, true indicates whether the service is visible outside this package.
+            /// </remarks>
+            public bool Promote;
+        }
+
+        /// <summary>
+        /// Contains the list of services and their creator functions.
+        /// </summary>
+        private static readonly Dictionary<Type, ServiceInformation> ServiceTypeToServiceInformation = new Dictionary<Type, ServiceInformation>
+        {
+            { typeof(SLoadSarifLogService), new ServiceInformation { Creator = type => new LoadSarifLogService(), Promote = true } },
+            { typeof(SCloseSarifLogService), new ServiceInformation { Creator = type => new CloseSarifLogService(), Promote = true } },
+            { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService (), Promote = false } },
+            { typeof(ISarifErrorListEventSelectionService), new ServiceInformation { Creator = type => new SarifErrorListEventProcessor(), Promote = false } },
+
+            // Services that are exposed as templates are a bit "different", you expose them as
+            // ITextViewCaretListenerService<> and then you have to differentiate them when they are
+            // asked for.
+            { typeof(ITextViewCaretListenerService<>), new ServiceInformation { Creator =  type =>
+                {
+                    if (type == typeof(ITextViewCaretListenerService<IErrorTag>))
+                    {
+                        return new TextViewCaretListenerService<IErrorTag>();
+                    }
+
+                    if (type == typeof(ITextViewCaretListenerService<ITextMarkerTag>))
+                    {
+                        return new TextViewCaretListenerService<ITextMarkerTag>();
+                    }
+
+                    return null;
+                },
+                Promote = false
+            } }
+        };
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -91,12 +104,13 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            OpenLogFileCommands.Initialize(this);
-            base.Initialize();
+            await base.InitializeAsync(cancellationToken, progress);
 
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
-            ((IServiceContainer)this).AddService(typeof(SLoadSarifLogService), callback, true);
-            ((IServiceContainer)this).AddService(typeof(SCloseSarifLogService), callback, true);
+            foreach (KeyValuePair<Type, ServiceInformation> serviceInformationKVP in ServiceTypeToServiceInformation)
+            {
+                ((IServiceContainer)this).AddService(serviceInformationKVP.Key, callback, promote: serviceInformationKVP.Value.Promote);
+            }
 
             string path = Assembly.GetExecutingAssembly().Location;
             var configMap = new ExeConfigurationFileMap();
@@ -117,41 +131,19 @@ namespace Microsoft.Sarif.Viewer
             TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
-
+        
             return;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (!this.disposed)
-                {
-                    this.disposed = true;
-                    SarifLocationTagger.DisposeStaticObjects();
-                }
-            }
-
-            base.Dispose(disposing);
-        }
         #endregion
 
         private object CreateService(IServiceContainer container, Type serviceType)
         {
-            if (typeof(SLoadSarifLogService) == serviceType)
-            {
-                return new LoadSarifLogService();
-            }
-
-            if (typeof(SCloseSarifLogService) == serviceType)
-            {
-                return new CloseSarifLogService();
-            }
-
-            return null;
+            return ServiceTypeToServiceInformation.TryGetValue(serviceType, out ServiceInformation serviceInformation) ? serviceInformation.Creator(serviceType) : null;
         }
     }
 }

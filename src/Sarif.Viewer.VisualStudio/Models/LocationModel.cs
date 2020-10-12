@@ -5,12 +5,18 @@ using System.IO;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class LocationModel : CodeLocationObject
+    internal class LocationModel : CodeLocationObject
     {
         private string _message;
         private string _logicalLocation;
         private string _module;
         private bool _isEssential;
+        private bool _isSelected;
+
+        public LocationModel(int resultId, int runIndex)
+            : base(resultId: resultId, runIndex: runIndex)
+        {
+        }
 
         public int Id { get; set; }
 
@@ -103,6 +109,27 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         public int Index { get; set; }
-        public bool IsSelected { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether this model shows as selected (without affecting keyboard focus)
+        /// in the SARIF explorer UI.
+        /// </summary>
+        /// <remarks>
+        /// Future enhancement, factor this out of the data model into a view model as this is not
+        /// part of the SARIF data model
+        /// </remarks>
+        public bool IsSelected
+        {
+            get => this._isSelected;
+
+            set
+            {
+                if (value != this._isSelected)
+                {
+                    this._isSelected = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
     }
 }

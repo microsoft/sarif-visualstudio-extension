@@ -3,11 +3,12 @@
 
 using Microsoft.VisualStudio.Shell;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class LocationCollection : ObservableCollection<LocationModel>
+    internal class LocationCollection : ObservableCollection<LocationModel>
     {
         private string _message;
         private LocationModel _selectedItem;
@@ -16,6 +17,52 @@ namespace Microsoft.Sarif.Viewer.Models
         public LocationCollection(string message)
         {
             this._message = message;
+
+            // Subscribe to collection changed events so we can listen
+            // to property change notifications from our child items
+            // and set our selected item property.
+            this.CollectionChanged += LocationCollection_CollectionChanged;
+        }
+
+        private void LocationCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                if (e.NewItems != null)
+                {
+                    foreach (object newItem in e.NewItems)
+                    {
+                        if (newItem is INotifyPropertyChanged notifyPropertyChanged)
+                        {
+                            notifyPropertyChanged.PropertyChanged += LocationModelPropertyChanged;
+                        }
+                    }
+                }
+            }
+
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if (e.OldItems != null)
+                {
+                    foreach (object oldItem in e.OldItems)
+                    {
+                        if (oldItem is INotifyPropertyChanged notifyPropertyChanged)
+                        {
+                            notifyPropertyChanged.PropertyChanged -= LocationModelPropertyChanged;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LocationModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (e.PropertyName == nameof(LocationModel.IsSelected) && sender is LocationModel locationModel)
+            {
+                SelectedItem = locationModel;
+            }
         }
 
         public string  Message
@@ -30,11 +77,19 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _message = value;
 
-                    this.OnPropertyChanged(new PropertyChangedEventArgs("Message"));
+                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.Message)));
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether this model shows as selected (without affecting keyboard focus)
+        /// in the SARIF explorer UI.
+        /// </summary>
+        /// <remarks>
+        /// Future enhancement, factor this out of the data model into a view model as this is not
+        /// part of the SARIF model.
+        /// </remarks>
         public LocationModel SelectedItem
         {
             get
@@ -44,9 +99,24 @@ namespace Microsoft.Sarif.Viewer.Models
             set
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                _selectedItem = value;
+                if (this._selectedItem != value)
+                {
+                    // If we have a selected item, make sure to mark it unselected.
+                    if (this._selectedItem != null)
+                    {
+                        this._selectedItem.IsSelected = false;
+                    }
 
-                this.SelectionChanged(value);
+                    this._selectedItem = value;
+
+                    // If we have a selected item, make sure to mark it selected.
+                    if (this._selectedItem != null)
+                    {
+                        this._selectedItem.IsSelected = true;
+                    }
+
+                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.SelectedItem)));
+                }
             }
         }
 
@@ -57,7 +127,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
                 if (_selectedCommand == null)
                 {
-                    _selectedCommand = new DelegateCommand<LocationModel>(l => SelectionChanged(l));
+                    _selectedCommand = new DelegateCommand<LocationModel>(l => this.SelectionChanged(l));
                 }
 
                 return _selectedCommand;
@@ -71,8 +141,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private void SelectionChanged(LocationModel selectedItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            selectedItem.NavigateTo();
-            selectedItem.ApplySelectionSourceFileHighlighting();
+            selectedItem.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
         }
     }
 }

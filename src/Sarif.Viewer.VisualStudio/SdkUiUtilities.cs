@@ -4,17 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.IO;
 using System.IO.IsolatedStorage;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
-using EnvDTE;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -30,13 +26,6 @@ namespace Microsoft.Sarif.Viewer
 
     public static class SdkUIUtilities
     {
-        private static string s_staticAnalysisToolsDirectory;
-        private static string[] s_ruleSetDirectories;
-        private static string s_builtInRuleSetDirectory;
-        private static string s_plugInsDirectory;
-        private static readonly Guid s_appIdUsesIsolatedCLR = new Guid("{074a44d3-1d9d-406c-9f91-c2a4982b1974}");
-        internal static readonly Guid s_enviornmentThemeCategory = new Guid("624ed9c3-bdfd-41fa-96c3-7c824ea32e3d");
-
         // Embedded link format: [link text](n|uri) where n is a non-negative integer, or uri is an absolute URL
         private const string EmbeddedLinkPattern =
 @"
@@ -50,19 +39,6 @@ namespace Microsoft.Sarif.Viewer
         [^)]+
     )
 \)";
-        internal const string RuleSetFileExtension = ".ruleset";
-        /// <summary>
-        /// Default Rule Set for Express SKU, it is used by VS and VB projects
-        /// </summary>
-        internal const string ManagedMinimumRulesetFileName = "ManagedMinimumRules.ruleset";
-        /// <summary>
-        /// Default Rule Set for Express SKU, it is used by VC projects
-        /// </summary>
-        internal const string NativeMinimumRulesetFileName = "NativeMinimumRules.ruleset";
-        /// <summary>
-        /// Default Rule Set for Express SKU, it is used by VC + CLR projects
-        /// </summary>
-        internal const string MixedMinimumRulesetFileName = "MixedMinimumRules.ruleset";
 
         /// <summary>
         /// Gets the requested service of type S from the service provider.
@@ -95,59 +71,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return null;
-        }
-
-        // The cached registry root
-        private static string s_registryRoot;
-
-        /// <summary>
-        /// Reads the registry root from the IDE
-        /// </summary>
-        internal static string GetRegistryRoot(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (s_registryRoot == null)
-            {
-                IVsShell vsh = GetService<IVsShell>(provider);
-                if (vsh == null)
-                    return null;
-
-                object obj;
-                if (VSConstants.S_OK == vsh.GetProperty((int)__VSSPROPID.VSSPROPID_VirtualRegistryRoot, out obj))
-                {
-                    s_registryRoot = obj.ToString();
-                }
-            }
-            return s_registryRoot;
-        }
-
-        /// <summary>
-        /// Returns the current VS font from the provider
-        /// </summary>
-        /// <param name="provider">An IServiceProvider that contains IUIHostLocale</param>
-        /// <returns>The current VS font</returns>
-        internal static Font GetVsFont(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (provider != null)
-            {
-                IUIHostLocale service = (IUIHostLocale)provider.GetService(typeof(IUIHostLocale));
-                UIDLGLOGFONT[] dlgFont = new UIDLGLOGFONT[1];
-
-                if (service != null && 0 == service.GetDialogFont(dlgFont))
-                {
-                    try
-                    {
-                        return Font.FromLogFont(dlgFont[0]);
-                    }
-                    catch (ArgumentException)
-                    {
-                        // This can happen if a non-TrueType font is set as the system Icon font.
-                        // Eat the exception and use the system dialog font.
-                    }
-                }
-            }
-            return System.Drawing.SystemFonts.DialogFont;
         }
 
         /// <summary>
@@ -191,427 +114,6 @@ namespace Microsoft.Sarif.Viewer
                     writer.Write(JsonConvert.SerializeObject(t, Formatting.Indented));
                 }
             }
-        }
-
-        /// <summary>
-        /// Gets a property from the DTE.
-        ///
-        /// See http://msdn.microsoft.com/en-us/library/ms165643.aspx for
-        /// a description of the parameter values.
-        /// </summary>
-        /// <returns>
-        /// True if the property exists and was successfully cast to the requested type,
-        /// otherwise false.
-        /// </returns>
-        internal static bool TryGetDteProperty<T>
-        (
-            EnvDTE.DTE dte,
-            string category,
-            string page,
-            string propertyName,
-            out T retVal
-        )
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            retVal = default(T);
-
-            if (dte == null)
-                return false;
-
-            EnvDTE.Properties properties;
-            try
-            {
-                properties = dte.get_Properties(category, page);
-            }
-            catch (COMException)
-            {
-                // EnvDTE.Properties.get_Properties throws this exception when
-                // the category or page does not exist.
-                return false;
-            }
-
-            EnvDTE.Property property;
-            try
-            {
-                property = properties.Item(propertyName);
-            }
-            catch (ArgumentException)
-            {
-                // EnvDTE.Property.Item throws this exception when the property
-                // does not exist.
-                return false;
-            }
-
-            // Convert the property to the requested type
-            try
-            {
-                retVal = (T)property.Value;
-                return true;
-            }
-            catch (InvalidCastException)
-            {
-                return false;
-            }
-        }
-
-        private static IWin32Window s_ownerDialogWindow;
-        private class WindowHandleWrapper : IWin32Window
-        {
-            private IntPtr m_hwnd;
-            internal WindowHandleWrapper(IntPtr hwnd)
-            {
-                m_hwnd = hwnd;
-            }
-
-            IntPtr IWin32Window.Handle
-            {
-                get { return m_hwnd; }
-            }
-        }
-
-        /// <summary>
-        /// Gets the VS dialog owner window as an IWin32Window that can be passed to Form.ShowDialog
-        /// </summary>
-        [SuppressMessage("Microsoft.Usage","CA1806:DoNotIgnoreMethodResults", MessageId="Microsoft.VisualStudio.Shell.Interop.IVsUIShell.GetDialogOwnerHwnd(System.IntPtr@)")]
-        internal static IWin32Window GetVsDialogOwner(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (s_ownerDialogWindow == null)
-            {
-                IVsUIShell shell = GetService<SVsUIShell, IVsUIShell>(provider);
-                if (shell == null)
-                {
-                    throw Marshal.GetExceptionForHR(VSConstants.E_FAIL);
-                }
-
-                // Get the dialog owner window from the shell
-                IntPtr hwnd;
-                shell.GetDialogOwnerHwnd(out hwnd);
-                s_ownerDialogWindow = new WindowHandleWrapper(hwnd);
-            }
-            return s_ownerDialogWindow;
-        }
-
-        /// <summary>
-        /// Gets the project at the root of a VS hieararchy object
-        /// </summary>
-        /// <param name="hierarchy">The VS hierarchy object</param>
-        /// <returns>The project at the root</returns>
-        internal static Project GetProjectFromHierarchy(IVsHierarchy hierarchy)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            Debug.Assert(hierarchy != null);
-
-            object obj;
-
-            int hr = hierarchy.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out obj);
-            if (ErrorHandler.Succeeded(hr))
-            {
-                return obj as Project;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets the VS hierarchy which a given project belongs to
-        /// </summary>
-        /// <param name="project">The project from which to figure out the VS hierarchy</param>
-        /// <param name="provider">The IServiceProvider object for the DTE</param>
-        /// <returns>The hierarchy for the given project</returns>
-        [SuppressMessage("Microsoft.Usage","CA1806:DoNotIgnoreMethodResults", MessageId="Microsoft.VisualStudio.Shell.Interop.IVsSolution.GetProjectOfUniqueName(System.String,Microsoft.VisualStudio.Shell.Interop.IVsHierarchy@)")]
-        internal static IVsHierarchy GetHierarchyFromProject(Project project, IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            Debug.Assert(project != null);
-
-            IVsHierarchy hierarchy = null;
-            string uniqueName = project.UniqueName;
-
-            IVsSolution solution = provider.GetService(typeof(IVsSolution)) as IVsSolution;
-            if (solution == null)
-            {
-                throw Marshal.GetExceptionForHR(VSConstants.E_FAIL);
-            }
-
-            solution.GetProjectOfUniqueName(uniqueName, out hierarchy);
-            return hierarchy;
-        }
-
-        /// <summary>
-        /// Gets the loaded EnvDTE.Project object for a given project file path
-        /// </summary>
-        /// <param name="projectFile">The full path to the project file</param>
-        /// <param name="provider">The IServiceProvider for the DTE</param>
-        /// <returns>
-        /// The Project object for the given project file, or null if the project
-        /// is not loaded.
-        /// </returns>
-        internal static Project GetProjectFromFileName(string projectFile, IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (string.IsNullOrEmpty(projectFile))
-            {
-                return null;
-            }
-
-            // Get the DTE service and make sure there is an open solution
-            EnvDTE.DTE dte = provider.GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            if (dte == null || dte.Solution == null || dte.Solution.Projects == null)
-            {
-                return null;
-            }
-
-            // In some rare cases (e.g. when you open Silverlight project, but don't have Silverlight tools installed)
-            // project DTE object can throw NotImplementedException and crash VS
-            try
-            {
-                // Find the project in the current solution
-                foreach (Project project in dte.Solution.Projects)
-                {
-                    Project targetProject = FindProjectByFileName(projectFile, project);
-                    if (targetProject != null)
-                    {
-                        return targetProject;
-                    }
-                }
-            }
-            catch (System.NotImplementedException e)
-            {
-                Debug.Fail(e.ToString());
-                return null;
-            }
-            
-
-            return null;
-        }
-
-        /// <summary>
-        /// Recursively searches for a project with a FileName property that matches the given name
-        /// </summary>
-        internal static Project FindProjectByFileName(string projectName, Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return FindProjectByName(projectName, project, true);
-        }
-
-        /// <summary>
-        /// Recursively searches for a project with a FullName property that matches the given name
-        /// </summary>
-        internal static Project FindProjectByFullName(string projectName, Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return FindProjectByName(projectName, project, false);
-        }
-
-        private static readonly Guid SOLUTIONFOLDER_PROJECT_GUID = new Guid("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}");
-
-        internal static bool IsProjectKind(Project project, Guid projectKindGuid)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return projectKindGuid == new Guid(project.Kind);
-        }
-
-        private static bool IsSolutionFolderProject(Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return IsProjectKind(project, SOLUTIONFOLDER_PROJECT_GUID);
-        }
-
-        /// <summary>
-        /// Recursively searches for a project that matches the given name
-        /// </summary>
-        private static Project FindProjectByName(string projectName, Project project, bool useFileName)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (IsSolutionFolderProject(project))
-            {
-                foreach (ProjectItem subItem in project.ProjectItems)
-                {
-                    if (subItem.SubProject != null)
-                    {
-                        Project targetProject = FindProjectByName(projectName, subItem.SubProject, useFileName);
-                        if (targetProject != null)
-                        {
-                            return targetProject;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                try
-                {
-                    string projectProperty;
-                    if (useFileName)
-                    {
-                        projectProperty = project.FileName;
-                    }
-                    else
-                    {
-                        projectProperty = project.FullName;
-                    }
-
-                    if (string.Equals(projectProperty, projectName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return project;
-                    }
-                }
-                catch (NotImplementedException)
-                {
-                    // If the project has been unloaded, attempting to reference FileName or FullName or other properties
-                    // causes the NotImplementedException to be thrown.
-                    return null;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Returns currently loaded solution
-        /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        internal static EnvDTE.Solution GetCurrentSolution(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            // Get the DTE service and make sure there is an open solution
-            EnvDTE.DTE dte = provider.GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            if (dte == null || dte.Solution == null)
-            {
-                return null;
-            }
-            else
-            {
-                return dte.Solution;
-            }
-        }
-
-        /// <summary>
-        /// Returns the currently selected project in the current user context
-        /// </summary>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        internal static EnvDTE.Project GetSelectedProject(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            // Get the DTE service and make sure there is an open solution
-            EnvDTE.DTE dte = provider.GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-            if (dte == null || dte.Solution == null)
-            {
-                return null;
-            }
-
-            EnvDTE.Project project = null;
-            IntPtr selectionHierarchy = IntPtr.Zero;
-            IntPtr selectionContainer = IntPtr.Zero;
-
-            // Get the current selection in the shell
-            IVsMonitorSelection monitorSelection = provider.GetService(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
-            if (monitorSelection != null)
-            {
-                try
-                {
-                    uint itemId;
-                    IVsMultiItemSelect multiSelect;
-
-                    monitorSelection.GetCurrentSelection(out selectionHierarchy, out itemId, out multiSelect, out selectionContainer);
-                    if (selectionHierarchy != IntPtr.Zero)
-                    {
-                        IVsHierarchy hierarchy = Marshal.GetObjectForIUnknown(selectionHierarchy) as IVsHierarchy;
-                        Debug.Assert(hierarchy != null);
-                        project = GetProjectFromHierarchy(hierarchy);
-                    }
-                }
-                catch (Exception)
-                {
-                    // If anything went wrong, just ignore it
-                }
-                finally
-                {
-                    // Make sure we release the COM pointers in any case
-                    if (selectionHierarchy != IntPtr.Zero)
-                    {
-                        Marshal.Release(selectionHierarchy);
-                    }
-                    if (selectionContainer != IntPtr.Zero)
-                    {
-                        Marshal.Release(selectionContainer);
-                    }
-                }
-            }
-
-            return project;
-        }
-
-        /// <summary>
-        /// Returns the currently selected project hierarchy in the current user context
-        /// </summary>
-        internal static IVsHierarchy GetSelectedProjectHierarchy(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            EnvDTE.Project project = provider != null ? GetSelectedProject(provider) : null;
-            return project != null ? GetHierarchyFromProject(project, provider) : null;
-        }
-
-        /// <summary>
-        /// Returns the project directory for a given project
-        /// </summary>
-        internal static string GetProjectDirectory(EnvDTE.Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (project == null)
-            {
-                return string.Empty;
-            }
-
-            if (ProjectHelper.IsWebProject(project))
-            {
-                // If it is a web project then get the full path from the Properties collection.
-                // The FullName property can be a URI for IIS web projects.
-                return project.Properties.Item("FullPath").Value as string;
-            }
-            else
-            {
-                // For other projects get the full path to the project file and return the directory portion.
-                return Path.GetDirectoryName(project.FullName);
-            }
-        }
-
-        /// <summary>
-        /// Returns the AppId setting for AppIdUsesIsolatedCLR
-        /// </summary>
-        internal static bool UsingRascalPro(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            return GetAppidSetting(provider, s_appIdUsesIsolatedCLR);
-        }
-
-        /// <summary>
-        /// Returns the AppId setting for the given AppId guid
-        /// </summary>
-        internal static bool GetAppidSetting(IServiceProvider provider, Guid setting)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            int isActive = 0;
-
-            // Get the command UI context from the monitor service
-            IVsMonitorSelection monitor = provider.GetService(typeof(SVsShellMonitorSelection)) as IVsMonitorSelection;
-            if (monitor != null)
-            {
-                uint cookie = 0;
-                if (monitor.GetCmdUIContextCookie(ref setting, out cookie) == VSConstants.S_OK)
-                {
-                    int hr = monitor.IsCmdUIContextActive(cookie, out isActive);
-                    if (VSConstants.S_OK != hr)
-                    {
-                        Debug.Fail("IVsMonitorSelection.IsCmdUIContextActive failed.");
-                        // If the call fails then default to the context not being active.
-                        isActive = 0;
-                    }
-                }
-            }
-
-            return isActive != 0;
         }
 
         /// <summary>
@@ -661,7 +163,7 @@ namespace Microsoft.Sarif.Viewer
                                                                        MessageBoxButtons.YesNo,
                                                                        MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
-                    System.Diagnostics.Process.Start(Path.GetDirectoryName(file));
+                    System.Diagnostics.Process.Start(Path.GetDirectoryName(file))?.Dispose();
                 }
 
                 return null;
@@ -802,36 +304,28 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
-        public static bool TryGetTextViewFromFrame(IVsWindowFrame frame, out IVsTextView vsTextView)
+        public static bool TryGetTextViewFromFrame(IVsWindowFrame frame, out ITextView textView)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            vsTextView = null;
+            IVsTextView vsTextView = VsShellUtilities.GetTextView(frame);
 
-            // Get the document view from the window frame, then get the text view
-            object docView;
-            int hr = frame.GetProperty((int)__VSFPROPID.VSFPROPID_DocView, out docView);
-            if ((hr != 0 && hr != 1) || docView == null)
+            if (vsTextView == null)
             {
+                textView = null;
                 return false;
             }
 
-            IVsCodeWindow codeWindow = docView as IVsCodeWindow;
-            if (codeWindow == null)
+            object textViewHost;
+            Guid guidTextViewHost = Microsoft.VisualStudio.Editor.DefGuidList.guidIWpfTextViewHost;
+            if (ErrorHandler.Succeeded(((IVsUserData)vsTextView).GetData(ref guidTextViewHost, out textViewHost)) &&
+                textViewHost != null)
             {
-                return false;
-            }
-
-            if (codeWindow.GetLastActiveView(out vsTextView) == VSConstants.S_OK)
-            {
+                textView = ((IWpfTextViewHost)textViewHost).TextView;
                 return true;
             }
 
-            if (codeWindow.GetPrimaryView(out vsTextView) != VSConstants.S_OK)
-            {
-                return false;
-            }
+            textView = null;
 
-            return true;
+            return false;
         }
 
         public static bool TryGetFileNameFromTextBuffer(ITextBuffer textBuffer, out string filename)
@@ -855,7 +349,9 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK;
+            // IPersistFileFormat::GetCurFile clearly documents that the filename can be null (with an S_OK return value) if the document is in the "untitled" state.
+            // For our uses, we require a non-empty, non-null file name.
+            return persistFileFormat.GetCurFile(out filename, out uint formatIndex) == VSConstants.S_OK && !string.IsNullOrWhiteSpace(filename);
         }
 
         /// <summary>
@@ -1039,194 +535,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return null;
-        }
-
-        internal static bool IsFormOnScreen(System.Windows.Forms.Form form)
-        {
-            System.Drawing.Rectangle totalScreens = System.Drawing.Rectangle.Empty;
-            //we calculate the screens again each time we're called as screens are not static
-            System.Windows.Forms.Screen screen;
-            for (int i = 0; i < System.Windows.Forms.Screen.AllScreens.Length; ++i)
-            {
-                screen = System.Windows.Forms.Screen.AllScreens[i];
-                totalScreens = System.Drawing.Rectangle.Union(totalScreens, screen.WorkingArea);
-            }
-            return totalScreens.Contains(form.DesktopBounds);
-        }
-
-        /// <summary>
-        /// Gets the list of directories to search for rule sets
-        /// </summary>
-        internal static string[] GetRuleSetDirectories(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (s_ruleSetDirectories == null)
-            {
-                // We will have more of these if we implement a Tools.Options dialog for rule set paths
-                s_ruleSetDirectories = new string[] {GetBuiltInRuleSetDirectory(provider)};
-            }
-
-            return s_ruleSetDirectories;
-        }
-
-        /// <summary>
-        /// Gets the built-in rule sets directory
-        /// </summary>
-        internal static string GetBuiltInRuleSetDirectory(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (s_builtInRuleSetDirectory == null)
-            {
-                s_builtInRuleSetDirectory = Path.Combine(GetStaticAnalysisToolsDirectory(provider), @"Rule Sets");
-            }
-
-            return s_builtInRuleSetDirectory;
-        }
-
-        /// <summary>
-        /// Gets the analyzer plug-ins directory
-        /// </summary>
-        internal static string GetPlugInFileDirectory(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (s_plugInsDirectory == null)
-            {
-                s_plugInsDirectory = Path.Combine(GetStaticAnalysisToolsDirectory(provider), @"PlugIns");
-            }
-
-            return s_plugInsDirectory;
-        }
-
-        /// <summary>
-        /// Gets the Static Analysis Tools directory
-        /// </summary>
-        private static string GetStaticAnalysisToolsDirectory(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (s_staticAnalysisToolsDirectory == null)
-            {
-                string installDirectory = null;
-
-                // Get the VS install directory
-                IVsShell shell = (IVsShell)provider.GetService(typeof(IVsShell));
-                if (shell != null)
-                {
-                    object value;
-                    if (shell.GetProperty((int)__VSSPROPID2.VSSPROPID_InstallRootDir, out value) == VSConstants.S_OK)
-                    {
-                        installDirectory = value as string;
-                    }
-                }
-
-                // If we failed to get the install directory through the shell service (this is possible if we are called
-                // from the policy object and we are running in tf.exe and not devenv.exe), then just try to deduce the
-                // install directory from the location of this assembly, which should be under common7\ide\privateassemblies
-                if (string.IsNullOrEmpty(installDirectory))
-                {
-                    installDirectory = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\"));
-                }
-
-                s_staticAnalysisToolsDirectory = Path.Combine(installDirectory, @"Team Tools\Static Analysis Tools");
-            }
-
-            return s_staticAnalysisToolsDirectory;
-        }
-
-        /// <summary>
-        /// Gets file paths for all the rule set files found in the rule set search paths
-        /// </summary>
-        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        private static List<string> GetAllRuleSetFiles(IServiceProvider provider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            List<string> ruleSetFiles = new List<string>();
-            List<string> fileNames = new List<string>();
-
-            // Look through the search paths
-            foreach (string path in GetRuleSetDirectories(provider))
-            {
-                try
-                {
-                    if (Directory.Exists(path))
-                    {
-                        string[] files = Directory.GetFiles(path, "*" + SdkUIUtilities.RuleSetFileExtension);
-                        foreach (string file in files)
-                        {
-                            string fileName = Path.GetFileName(file).ToLowerInvariant();
-                            if (!fileNames.Contains(fileName))
-                            {
-                                // Found a rule set with a unique file name
-                                fileNames.Add(fileName);
-                                ruleSetFiles.Add(file);
-                            }
-                        }
-                    }
-                }
-                catch (IOException)
-                {
-                    // If something went wrong while processing this path, then just skip it
-                }
-            }
-
-            return ruleSetFiles;
-        }
-
-        internal static Color GetDesignerThemeColor(IVsUIShell5 uiShellService, Guid themeCategory, String themeColorName, __THEMEDCOLORTYPE colorType, Color defaultColor)
-        {
-            if (uiShellService != null)
-            {
-                UInt32 rgbaValue = 0;
-
-                Int32 hr = Microsoft.VisualStudio.ErrorHandler.CallWithCOMConvention(
-                    () =>
-                    {
-                        ThreadHelper.ThrowIfNotOnUIThread();
-                        rgbaValue = uiShellService.GetThemedColor(themeCategory, themeColorName, (System.UInt32)colorType);
-                    });
-
-                if (Microsoft.VisualStudio.ErrorHandler.Succeeded(hr))
-                {
-                    return RGBAToColor(rgbaValue);
-                }
-            }
-
-            return defaultColor;
-        }
-
-        private static Color RGBAToColor(UInt32 rgbaValue)
-        {
-            return Color.FromArgb(
-                (int)((rgbaValue & 0xFF000000U) >> 24),
-                (int)(rgbaValue & 0xFFU),
-                (int)((rgbaValue & 0xFF00U) >> 8),
-                (int)((rgbaValue & 0xFF0000U) >> 16));
-        }
-
-
-        /// <summary>
-        /// Determines whether the shell is in command line mode.
-        /// </summary>
-        /// <param name="serviceProvider">A reference to a Service Provider.</param>
-        /// <returns>true if the shell is in command line mode. false otherwise.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal static bool IsShellInCommandLineMode(System.IServiceProvider serviceProvider)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
-            IVsShell shell = serviceProvider.GetService(typeof(SVsShell)) as IVsShell;
-            if (shell == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            object isInCommandLineModeAsObject;
-            ErrorHandler.ThrowOnFailure(shell.GetProperty((int)__VSSPROPID.VSSPROPID_IsInCommandLineMode, out isInCommandLineModeAsObject));
-
-            return ((bool)isInCommandLineModeAsObject);
         }
 
         /// <summary>

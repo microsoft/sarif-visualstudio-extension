@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         {
             string message = "my_function";
 
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         {
             string snippet = "    int x = 42;";
 
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -73,7 +73,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNodeToTextConverter_HandlesNoMessageNorSnippet()
         {
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -99,7 +99,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
             string snippet = "    int x = 42;";
             string message = "my_function";
 
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -133,7 +133,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
             string snippet = "    int x = 42;";
             string message = null;
 
-            var callTreeNode = new CallTreeNode
+            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {

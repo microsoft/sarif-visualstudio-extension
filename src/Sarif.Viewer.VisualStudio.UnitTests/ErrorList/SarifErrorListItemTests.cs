@@ -482,9 +482,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             result.Run = run;
             return new SarifErrorListItem(
                 run,
-                result,
-                "log.sarif",
-                new ProjectNameCache(solution: null));
+                runIndex: 0,
+                result: result,
+                logFilePath: "log.sarif",
+                projectNameCache: new ProjectNameCache(solution: null));
         }
     }
 }

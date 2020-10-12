@@ -3,13 +3,10 @@
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Tagging;
-    using System;
-    using System.ComponentModel;
+    using Microsoft.Sarif.Viewer.Models;
 
-    internal interface ISarifLocationTag: INotifyPropertyChanged
+    internal interface ISarifLocationTag
     {
         /// <summary>
         /// Gets the persistent span for a document.
@@ -19,12 +16,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// It may have been modified to fix up column and line numbers from the region
         /// present in the SARIF log.
         /// </remarks>
-        IPersistentSpan DocumentPersistentSpan { get; }
-
-        /// <summary>
-        /// Gets the original span (SAIRF region) that was present in the SARIF log.
-        /// </summary>
-        Region SourceRegion { get; }
+        IPersistentSpan PersistentSpan { get; }
 
         /// <summary>
         /// Gets the SARIF run index associated with this tag.
@@ -32,13 +24,17 @@ namespace Microsoft.Sarif.Viewer.Tags
         int RunIndex { get; }
 
         /// <summary>
-        /// Gets the current text tag used for this tag.
+        /// Gets the result ID associated with this tag.
         /// </summary>
-        TextMarkerTag Tag { get; set; }
+        int ResultId { get; }
 
         /// <summary>
-        /// Fired when the caret enters a tag.
+        /// Gets the data context for this tag.
         /// </summary>
-        event EventHandler CaretEnteredTag;
+        /// <remarks>
+        /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
+        /// for the "data context" for the SARIF explorer window.
+        /// </remarks>
+        object Context { get; }
     }
 }

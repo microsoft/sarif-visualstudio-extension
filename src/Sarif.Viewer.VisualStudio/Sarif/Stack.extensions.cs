@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class StackExtensions
     {
-        public static StackCollection ToStackCollection(this Stack stack)
+        public static StackCollection ToStackCollection(this Stack stack, int resultId, int runIndex)
         {
             if (stack == null)
             {
@@ -21,7 +21,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 foreach (StackFrame frame in stack.Frames)
                 {
-                    model.Add(frame.ToStackFrameModel());
+                    model.Add(frame.ToStackFrameModel(resultId, runIndex));
                 }
             }
 

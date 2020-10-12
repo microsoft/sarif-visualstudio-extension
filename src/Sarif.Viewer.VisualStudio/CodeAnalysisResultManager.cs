@@ -8,19 +8,15 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer
@@ -30,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
     /// implementation to the user interface activities.
     /// </summary>
     [Guid("4494F79A-6E9F-45EA-895B-7AE959B94D6A")]
-    public sealed class CodeAnalysisResultManager : IVsSolutionEvents, IVsUpdateSolutionEvents2, IVsRunningDocTableEvents
+    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents
     {
         internal const int E_FAIL = unchecked((int)0x80004005);
         internal const uint VSCOOKIE_NIL = 0;
@@ -39,16 +35,13 @@ namespace Microsoft.Sarif.Viewer
         private const string TemporaryFileDirectoryName = "SarifViewer";
         private readonly string TemporaryFilePath;
 
-        // Cookies for registration and unregistration
-        private uint m_updateSolutionEventsCookie;
+        // Cookie for registration and unregistration
         private uint m_solutionEventsCookie;
-        private uint m_runningDocTableEventsCookie;
         private List<string> _allowedDownloadHosts;
-        private IVsRunningDocumentTable _runningDocTable;
 
         private readonly IFileSystem _fileSystem;
 
-        internal delegate string PromptForResolvedPathDelegate(string pathFromLogFile);
+        internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
         readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         // This ctor is internal rather than private for unit test purposes.
@@ -70,7 +63,18 @@ namespace Microsoft.Sarif.Viewer
 
         public IDictionary<int, RunDataCache> RunIndexToRunDataCache { get; } = new Dictionary<int, RunDataCache>();
 
-        public int CurrentRunIndex { get; set; } = 0;
+        /// <summary>
+        /// Returns the last index given out by <see cref="GetNextRunIndex"/>.
+        /// </summary>
+        /// <remarks>
+        /// The internal reference is for test code.
+        /// </remarks>
+        internal int CurrentRunIndex;
+
+        public int GetNextRunIndex()
+        {
+            return Interlocked.Increment(ref this.CurrentRunIndex);
+        }
 
         public RunDataCache CurrentRunDataCache
         {
@@ -81,30 +85,9 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        SarifErrorListItem m_currentSarifError;
-        public SarifErrorListItem CurrentSarifResult
-        {
-            get
-            {
-                return m_currentSarifError;
-            }
-            set
-            {
-                m_currentSarifError = value;
-            }
-        }
-
-
         internal void Register()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            // Register this object to listen for IVsUpdateSolutionEvents
-            IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager)) as IVsSolutionBuildManager2;
-            if (buildManager == null)
-            {
-                throw Marshal.GetExceptionForHR(E_FAIL);
-            }
-            buildManager.AdviseUpdateSolutionEvents(this, out m_updateSolutionEventsCookie);
 
             // Register this object to listen for IVsSolutionEvents
             IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
@@ -113,14 +96,6 @@ namespace Microsoft.Sarif.Viewer
                 throw Marshal.GetExceptionForHR(E_FAIL);
             }
             solution.AdviseSolutionEvents(this, out m_solutionEventsCookie);
-
-            // Register this object to listen for IVsRunningDocTableEvents
-            _runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-            if (_runningDocTable == null)
-            {
-                throw Marshal.GetExceptionForHR(E_FAIL);
-            }
-            _runningDocTable.AdviseRunningDocTableEvents(this, out m_runningDocTableEventsCookie);
         }
 
         /// <summary>
@@ -130,18 +105,6 @@ namespace Microsoft.Sarif.Viewer
         internal void Unregister()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            // Unregister this object from IVsUpdateSolutionEvents events
-            if (m_updateSolutionEventsCookie != VSCOOKIE_NIL)
-            {
-
-                IVsSolutionBuildManager2 buildManager = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolutionBuildManager))  as IVsSolutionBuildManager2;
-                if (buildManager != null)
-                {
-                    buildManager.UnadviseUpdateSolutionEvents(m_updateSolutionEventsCookie);
-                    m_updateSolutionEventsCookie = VSCOOKIE_NIL;
-                }
-            }
-
             // Unregister this object from IVsSolutionEvents events
             if (m_solutionEventsCookie != VSCOOKIE_NIL)
             {
@@ -152,63 +115,25 @@ namespace Microsoft.Sarif.Viewer
                     m_solutionEventsCookie = VSCOOKIE_NIL;
                 }
             }
-
-            // Unregister this object from IVsRunningDocTableEvents events
-            if (m_runningDocTableEventsCookie != VSCOOKIE_NIL)
-            {
-                IVsRunningDocumentTable runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-                if (runningDocTable != null)
-                {
-                    runningDocTable.UnadviseRunningDocTableEvents(m_runningDocTableEventsCookie);
-                    m_runningDocTableEventsCookie = VSCOOKIE_NIL;
-                }
-            }
         }
+        #region IVsSolutionEvents
+        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded) => S_OK;
 
-        public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded)
-        {
-            return S_OK;
-        }
+        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel) => S_OK;
 
-        public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel)
-        {
-            return S_OK;
-        }
+        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved) => S_OK;
 
-        public int OnBeforeCloseProject(IVsHierarchy pHierarchy, int fRemoved)
-        {
-            return S_OK;
-        }
+        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy) => S_OK;
 
-        public int OnAfterLoadProject(IVsHierarchy pStubHierarchy, IVsHierarchy pRealHierarchy)
-        {
-            return S_OK;
-        }
+        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel) => S_OK;
 
-        public int OnQueryUnloadProject(IVsHierarchy pRealHierarchy, ref int pfCancel)
-        {
-            return S_OK;
-        }
+        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy) => S_OK;
 
-        public int OnBeforeUnloadProject(IVsHierarchy pRealHierarchy, IVsHierarchy pStubHierarchy)
-        {
-            return S_OK;
-        }
+        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution) => S_OK;
 
-        public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
-        {
-            return S_OK;
-        }
+        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel) => S_OK;
 
-        public int OnQueryCloseSolution(object pUnkReserved, ref int pfCancel)
-        {
-            return S_OK;
-        }
-
-        public int OnBeforeCloseSolution(object pUnkReserved)
-        {
-            return S_OK;
-        }
+        public int OnBeforeCloseSolution(object pUnkReserved) => S_OK;
 
         public int OnAfterCloseSolution(object pUnkReserved)
         {
@@ -217,16 +142,7 @@ namespace Microsoft.Sarif.Viewer
 
             return S_OK;
         }
-
-        public int UpdateSolution_Begin(ref int pfCancelUpdate)
-        {
-            return S_OK;
-        }
-
-        public int UpdateSolution_Done(int fSucceeded, int fModified, int fCancelCommand)
-        {
-            return S_OK;
-        }
+        #endregion IVsSolutionEvents
 
         public void CacheUriBasePaths(Run run)
         {
@@ -246,8 +162,10 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public bool ResolveFilePath(int runId, string uriBaseId, string relativePath)
+        public bool TryResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath, out string resolvedPath)
         {
+            resolvedPath = null;
+
             if (!SarifViewerPackage.IsUnitTesting)
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
@@ -255,13 +173,16 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
-            if (CurrentSarifResult == null)
+            if (!RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
             {
                 return false;
             }
 
-            RunDataCache dataCache = RunIndexToRunDataCache[runId];
-            string resolvedPath = null;
+            SarifErrorListItem sarifErrorListItem = dataCache.SarifErrors.FirstOrDefault(sarifResult => sarifResult.ResultId == resultId);
+            if (sarifErrorListItem == null)
+            {
+                return false;
+            }
 
             if (dataCache.FileDetails.ContainsKey(relativePath))
             {
@@ -302,7 +223,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         try
                         {
-                            resolvedPath = DownloadFile(uri.ToString());
+                            resolvedPath = DownloadFile(sarifErrorListItem, uri.ToString());
                         }
                         catch (WebException wex)
                         {
@@ -319,7 +240,7 @@ namespace Microsoft.Sarif.Viewer
                 else
                 {
                     // User needs to locate file.
-                    resolvedPath = GetRebaselinedFileName(uriBaseId, relativePath, dataCache);
+                    resolvedPath = GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
                 }
 
                 if (String.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
@@ -410,7 +331,7 @@ namespace Microsoft.Sarif.Viewer
             SdkUIUtilities.StoreObject<List<string>>(_allowedDownloadHosts, AllowedDownloadHostsFileName);
         }
 
-        internal string DownloadFile(string fileUrl)
+        internal string DownloadFile(SarifErrorListItem sarifErrorListItem, string fileUrl)
         {
             if (String.IsNullOrEmpty(fileUrl))
             {
@@ -419,7 +340,7 @@ namespace Microsoft.Sarif.Viewer
 
             Uri sourceUri = new Uri(fileUrl);
 
-            string destinationFile = Path.Combine(CurrentSarifResult.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
+            string destinationFile = Path.Combine(sarifErrorListItem.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
             Directory.CreateDirectory(destinationDirectory);
 
@@ -435,7 +356,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Internal rather than private for unit testability.
-        internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
+        internal string GetRebaselinedFileName(SarifErrorListItem sarifErrorListItem, string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
         {
             string originalPath = pathFromLogFile;
             Uri relativeUri = null;
@@ -485,7 +406,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            string resolvedPath = _promptForResolvedPathDelegate(pathFromLogFile);
+            string resolvedPath = _promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
             if (resolvedPath == null)
             {
                 return pathFromLogFile;
@@ -532,31 +453,6 @@ namespace Microsoft.Sarif.Viewer
             return resolvedPath;
         }
 
-        public int UpdateSolution_StartUpdate(ref int pfCancelUpdate)
-        {
-            return S_OK;
-        }
-
-        public int UpdateSolution_Cancel()
-        {
-            return S_OK;
-        }
-
-        public int OnActiveProjectCfgChange(IVsHierarchy pIVsHierarchy)
-        {
-            return S_OK;
-        }
-
-        public int UpdateProjectCfg_Begin(IVsHierarchy pHierProj, IVsCfg pCfgProj, IVsCfg pCfgSln, uint dwAction, ref int pfCancel)
-        {
-            return S_OK;
-        }
-
-        internal static bool CanNavigateTo(SarifErrorListItem sarifError)
-        {
-            throw new NotImplementedException();
-        }
-
         internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -566,46 +462,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public int UpdateProjectCfg_Done(IVsHierarchy pHierProj, IVsCfg pCfgProj, IVsCfg pCfgSln, uint dwAction, int fSuccess, int fCancel)
-        {
-            return S_OK;
-        }
-
-        public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
-        {
-            return S_OK;
-        }
-
-        public int OnBeforeLastDocumentUnlock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
-        {
-            return S_OK;
-        }
-
-        public int OnAfterSave(uint docCookie)
-        {
-            return S_OK;
-        }
-
-        public int OnAfterAttributeChange(uint docCookie, uint grfAttribs)
-        {
-            return S_OK;
-        }
-
-        public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            TryTagDocument(docCookie, pFrame);
-            return S_OK;
-        }
-
-        public int OnAfterDocumentWindowHide(uint docCookie, IVsWindowFrame pFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            RemoveTagHighlights(docCookie);
-            return S_OK;
-        }
-
-        private string PromptForResolvedPath(string pathFromLogFile)
+        private string PromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string pathFromLogFile)
         {
             // Opening the OpenFileDialog causes the TreeView to lose focus,
             // which in turn causes the TreeViewItem selection to be unpredictable
@@ -618,7 +475,7 @@ namespace Microsoft.Sarif.Viewer
             var openFileDialog = new OpenFileDialog
             {
                 Title = $"Locate missing file: {pathFromLogFile}",
-                InitialDirectory = Path.GetDirectoryName(CurrentSarifResult.LogFilePath),
+                InitialDirectory = sarifErrorListItem != null ? Path.GetDirectoryName(sarifErrorListItem.LogFilePath) : null,
                 Filter = $"{fileName}|{fileName}",
                 RestoreDirectory = true
             };
@@ -669,146 +526,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return commonSuffix;
-        }
-
-        private void TryTagDocument(uint docCookie, IVsWindowFrame pFrame)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (RunIndexToRunDataCache == null)
-            {
-                return;
-            }
-
-            string documentName = GetDocumentName(docCookie);
-
-            if (string.IsNullOrEmpty(documentName))
-            {
-                return;
-            }
-
-            IVsTextView vsTextView = VsShellUtilities.GetTextView(pFrame);
-            if (vsTextView == null)
-            {
-                return;
-            }
-
-            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
-            {
-                return;
-            }
-
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            if (componentModel == null)
-            {
-                return;
-            }
-
-            IVsEditorAdaptersFactoryService editorAdapterFactoryService = componentModel.GetService<IVsEditorAdaptersFactoryService>();
-            if (editorAdapterFactoryService == null)
-            {
-                return;
-            }
-
-            ITextBuffer textBuffer = editorAdapterFactoryService.GetDataBuffer(vsTextLines);
-            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
-            {
-                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
-                    Value.
-                    SarifErrors.
-                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
-
-                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
-                {
-                    sarifError.TryTagDocument(textBuffer);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Invoke detach for each item in analysis results collection
-        /// </summary>
-        private void RemoveTagHighlights(uint docCookie)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (RunIndexToRunDataCache == null)
-            {
-                return;
-            }
-
-            string documentName = GetDocumentName(docCookie);
-            if (string.IsNullOrEmpty(documentName))
-            {
-                return;
-            }
-
-            foreach (KeyValuePair<int, RunDataCache> runIndexToRunDataCacheKVP in RunIndexToRunDataCache)
-            {
-                IEnumerable<SarifErrorListItem> sarifErrorsForDocument = runIndexToRunDataCacheKVP.
-                    Value.
-                    SarifErrors.
-                    Where(sarifError => string.Compare(documentName, sarifError.FileName, StringComparison.OrdinalIgnoreCase) == 0);
-
-                foreach (SarifErrorListItem sarifError in sarifErrorsForDocument)
-                {
-                    sarifError.RemoveTagHighlights();
-                }
-            }
-        }
-
-        // Detaches the SARIF results from all documents.
-        public void RemoveTagHighlightsFromAllDocuments()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (_runningDocTable == null)
-            {
-                return;
-            }
-
-            if (_runningDocTable.GetRunningDocumentsEnum(out IEnumRunningDocuments documentsEnumerator) != VSConstants.S_OK)
-            {
-                return;
-            }
-
-            uint requestedCount = 1;
-            uint[] cookies = new uint[requestedCount];
-
-            while (documentsEnumerator.Next(requestedCount, cookies, out uint actualCount) == VSConstants.S_OK)
-            {
-                RemoveTagHighlights(cookies[0]);
-            }
-        }
-
-        private static string GetDocumentName(uint docCookie)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            string documentName = null;
-            IVsRunningDocumentTable runningDocTable = ServiceProvider.GlobalProvider.GetService(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-            if (runningDocTable != null)
-            {
-                IntPtr docData = IntPtr.Zero;
-                try
-                {
-                    int hr = runningDocTable.GetDocumentInfo(docCookie,
-                                            out uint grfRDTFlags,
-                                            out uint dwReadLocks,
-                                            out uint dwEditLocks,
-                                            out documentName,
-                                            out IVsHierarchy pHier,
-                                            out uint itemId,
-                                            out docData);
-
-                }
-                finally
-                {
-                    if (docData != IntPtr.Zero)
-                    {
-                        Marshal.Release(docData);
-                    }
-                }
-            }
-            return documentName;
         }
 
         private void RemoveTemporaryFiles()

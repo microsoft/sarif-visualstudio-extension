@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer
     /// A custom type descriptor which enables the SARIF properties to be displayed
     /// in the Properties window.
     /// </summary>
-    public class CodeLocationObjectTypeDescriptor : ICustomTypeDescriptor
+    internal class CodeLocationObjectTypeDescriptor : ICustomTypeDescriptor
     {
         CodeLocationObject _item;
 

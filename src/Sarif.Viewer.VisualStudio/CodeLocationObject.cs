@@ -6,37 +6,41 @@ using System.ComponentModel;
 using System.IO;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer
 {
-    public abstract class CodeLocationObject : NotifyPropertyChangedObject
+    internal abstract class CodeLocationObject : NotifyPropertyChangedObject
     {
         private Region _region;
         protected ResultTextMarker _lineMarker;
         protected string _filePath;
         protected string _uriBaseId;
 
+
+        public CodeLocationObject(int resultId, int runIndex)
+        {
+            ResultId = resultId;
+            RunIndex = runIndex;
+            TypeDescriptor = new CodeLocationObjectTypeDescriptor(this);
+        }
+
+        /// <summary>
+        /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
+        /// </summary>
+        public int ResultId { get; }
+
+        /// <summary>
+        /// Gets the run index known to <see cref="CodeAnalysisResultManager"/>.
+        /// </summary>
+        public int RunIndex { get; }
+
         internal virtual ResultTextMarker LineMarker
         {
             get
             {
-                // Not all locations have regions. Don't try to mark the locations that don't.
-                //
-                // PROBLEM: This means we can't double-click to open a file containing a result
-                // without a region.
-                if (_lineMarker == null && Region != null)
+                if (_lineMarker == null)
                 {
-                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath);
-                }
-
-                // If the UriBaseId was populated before the marker was available, set the
-                // marker's UriBaseId property now. The marker's UriBaseId is used to resolve
-                // relative paths to absolute paths when the user double-clicks a result in
-                // the Error List window.
-                if (_lineMarker != null && UriBaseId != null)
-                {
-                    _lineMarker.UriBaseId = UriBaseId;
+                    this.RecreateLineMarker();
                 }
 
                 return _lineMarker;
@@ -57,7 +61,7 @@ namespace Microsoft.Sarif.Viewer
 
                     if (this._lineMarker != null)
                     {
-                        this._lineMarker.Region = _region;
+                        this.RecreateLineMarker();
                     }
 
                     NotifyPropertyChanged();
@@ -90,7 +94,7 @@ namespace Microsoft.Sarif.Viewer
 
                     if (this._lineMarker != null)
                     {
-                        this._lineMarker.FullFilePath = this._filePath;
+                        this.RecreateLineMarker();
                     }
 
                     NotifyPropertyChanged();
@@ -112,7 +116,7 @@ namespace Microsoft.Sarif.Viewer
 
                     if (this._lineMarker != null)
                     {
-                        this._lineMarker.UriBaseId = this._uriBaseId;
+                        this.RecreateLineMarker();
                     }
 
                     NotifyPropertyChanged();
@@ -120,40 +124,25 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public virtual string DefaultSourceHighlightColor
-        {
-            get
-            {
-                return ResultTextMarker.DEFAULT_SELECTION_COLOR;
-            }
-        }
+        public virtual string DefaultSourceHighlightColor => ResultTextMarker.DEFAULT_SELECTION_COLOR;
 
-        public virtual string SelectedSourceHighlightColor
-        {
-            get
-            {
-                return ResultTextMarker.DEFAULT_SELECTION_COLOR;
-            }
-        }
+        public virtual string SelectedSourceHighlightColor => ResultTextMarker.DEFAULT_SELECTION_COLOR;
 
         // This is a custom type descriptor which enables the SARIF properties
         // to be displayed in the Properties window.
-        internal ICustomTypeDescriptor TypeDescriptor
-        {
-            get
-            {
-                return new CodeLocationObjectTypeDescriptor(this);
-            }
-        }
+        internal ICustomTypeDescriptor TypeDescriptor { get; }
 
-        internal int RunId { get; }
-
-        public CodeLocationObject()
-        {
-            RunId = CodeAnalysisResultManager.Instance.CurrentRunIndex;
-        }
-
-        public void NavigateTo(bool usePreviewPane = true)
+        /// <summary>
+        /// Attempts to navigate a VS editor to the text marker.
+        /// </summary>
+        /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
+        /// <param name="moveFocusToCaretLocation">Indicates whether to move focus to the caret location.</param>
+        /// <returns>Returns true if a VS editor was opened.</returns>
+        /// <remarks>
+        /// The <paramref name="usePreviewPane"/> indicates whether Visual Studio opens the document as a preview (tab to the right)
+        /// rather than as an "open code editor" (tab attached to other open documents on the left).
+        /// </remarks>
+        public bool NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -164,11 +153,11 @@ namespace Microsoft.Sarif.Viewer
 
             if (LineMarker != null)
             {
-                LineMarker.TryNavigateTo(usePreviewPane);
+                return LineMarker.NavigateTo(usePreviewPane, moveFocusToCaretLocation);
             }
             else
             {
-                // The user clicked an inline link with an integer target, which points to
+                // The user clicked an in-line link with an integer target, which points to
                 // a Location object that does NOT have a region associated with it.
 
                 // Before anything else, see if this is an external link we should open in the browser.
@@ -176,51 +165,49 @@ namespace Microsoft.Sarif.Viewer
                 {
                     if (!uri.IsFile)
                     {
-                        System.Diagnostics.Process.Start(uri.OriginalString);
-                        return;
+                        System.Diagnostics.Process.Start(uri.OriginalString)?.Dispose();
+                        return true;
                     }
-                }
-
-                if (!File.Exists(this.FilePath))
-                {
-                    CodeAnalysisResultManager.Instance.ResolveFilePath(RunId, this.UriBaseId, this.FilePath);
                 }
 
                 if (File.Exists(this.FilePath))
                 {
-                    SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane);
+                    return SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FilePath, usePreviewPane) != null;
+                }
+                else if (CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FilePath, resolvedPath: out string resolvedFilePath))
+                {
+                    return SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, resolvedFilePath, usePreviewPane) != null;
                 }
             }
+
+            return false;
         }
 
-        public void ApplyDefaultSourceFileHighlighting()
+        private void RecreateLineMarker()
         {
-            // Remove hover marker
-            LineMarker?.RemoveTagHighlight();
+            if (this._lineMarker != null)
+            {
+                this._lineMarker.Dispose();
+                this._lineMarker = null;
+            }
 
-            // Add default marker instead
-            LineMarker?.AddTagHighlight(DefaultSourceHighlightColor);
-        }
+            // Not all locations have regions. Don't try to mark the locations that don't.
+            // PROBLEM: This means we can't double-click to open a file containing a result
+            // without a region.
+            if (Region != null)
+            {
+                _lineMarker = new ResultTextMarker(
+                    runIndex: RunIndex,
+                    resultId: ResultId,
+                    uriBaseId: UriBaseId,
+                    region: Region,
+                    fullFilePath: FilePath,
+                    nonHghlightedColor: DefaultSourceHighlightColor,
+                    highlightedColor: SelectedSourceHighlightColor,
+                    context: this);
+            }
 
-        /// <summary>
-        /// A method for handling the event when this object is selected
-        /// </summary>
-        public void ApplySelectionSourceFileHighlighting()
-        {
-            // Remove previous highlighting and replace with hover color
-            LineMarker?.RemoveTagHighlight();
-            LineMarker?.AddTagHighlight(SelectedSourceHighlightColor);
-        }
-
-        /// <summary>
-        /// An overridden method for reacting to the event of a document window
-        /// being opened
-        /// </summary>
-        internal void AttachToDocument(ITextBuffer textBuffer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            LineMarker?.TryTagDocument(textBuffer);
+            NotifyPropertyChanged(nameof(this.LineMarker));
         }
     }
 }

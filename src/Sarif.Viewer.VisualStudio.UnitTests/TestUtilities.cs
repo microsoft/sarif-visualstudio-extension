@@ -16,7 +16,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public static void InitializeTestEnvironment(SarifLog sarifLog)
         {
             InitializeTestEnvironment();
-            CodeAnalysisResultManager.Instance.CurrentRunIndex = 0;
 
             ErrorListService.ProcessSarifLogAsync(sarifLog, "", showMessageOnNoResults: true, cleanErrors: true).GetAwaiter().GetResult();
         }

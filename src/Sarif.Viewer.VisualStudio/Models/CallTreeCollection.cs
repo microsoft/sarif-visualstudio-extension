@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class CallTreeCollection : ObservableCollection<CallTree>
+    internal class CallTreeCollection : ObservableCollection<CallTree>
     {
         private int _verbosity;
         private DelegateCommand _expandAllCommand;

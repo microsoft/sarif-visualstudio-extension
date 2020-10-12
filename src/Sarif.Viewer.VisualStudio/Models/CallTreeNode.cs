@@ -7,18 +7,24 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Converters;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class CallTreeNode : CodeLocationObject
+    internal class CallTreeNode : CodeLocationObject
     {
         private ThreadFlowLocation _location;
         private CallTree _callTree;
         private CallTreeNode _parent;
         private bool _isExpanded;
         private Visibility _visbility;
+
+        public CallTreeNode(int resultId, int runIndex)
+            : base(resultId, runIndex)
+        {
+        }
 
         [Browsable(false)]
         public ThreadFlowLocation Location
@@ -118,27 +124,20 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (_lineMarker == null
                     && Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(RunId, Region, FilePath);
-                    _lineMarker.RaiseRegionSelected += RegionSelected;
+                    _lineMarker = new ResultTextMarker(
+                        runIndex: RunIndex,
+                        resultId: ResultId,
+                        uriBaseId: UriBaseId,
+                        region: this.Region,
+                        fullFilePath: this.FilePath,
+                        nonHighlightedColor: this.DefaultSourceHighlightColor,
+                        highlightedColor: this.SelectedSourceHighlightColor,
+                        errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
+                        tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this),
+                        context:this);
                 }
 
                 return _lineMarker;
-            }
-        }
-
-        /// <summary>
-        /// Called when the source code region of this node is
-        /// selected in the editor.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RegionSelected(object sender, EventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            // Select this item in the CallTree to bring the source and call tree in sync.
-            if (CallTree != null && this.Visibility == Visibility.Visible)
-            {
-                CallTree.SelectedItem = this;
             }
         }
 

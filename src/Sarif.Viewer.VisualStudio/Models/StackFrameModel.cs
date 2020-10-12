@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class StackFrameModel : CodeLocationObject
+    internal class StackFrameModel : CodeLocationObject
     {
         private string _message;
         private int _line;
@@ -16,6 +16,11 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _fullyQualifiedLogicalName;
         private string _module;
         private DelegateCommand _navigateCommand;
+
+        public StackFrameModel(int resultId, int runIndex)
+            : base(resultId: resultId, runIndex: runIndex)
+        {
+        }
 
         public string Message
         {
@@ -194,8 +199,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private void Navigate()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.NavigateTo();
-            this.ApplySelectionSourceFileHighlighting();
+            this.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
         }
     }
 }

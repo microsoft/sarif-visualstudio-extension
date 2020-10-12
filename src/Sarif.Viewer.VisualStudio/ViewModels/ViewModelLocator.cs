@@ -12,7 +12,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
     /// This type is only used by the VS designer. It provides the data which is 
     /// displayed in the designer. 
     /// </summary>
-    public static class ViewModelLocator
+    internal static class ViewModelLocator
     {
         static object _syncroot = new object();
         static SarifErrorListItem _designTime = null;
@@ -65,31 +65,31 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FileName = @"C:\Temp\Foo.exe",
             };
 
-            viewModel.Locations.Add(new LocationModel
+            viewModel.Locations.Add(new LocationModel(resultId: 0, runIndex: 0)
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(11, 1, 11, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.Locations.Add(new LocationModel
+            viewModel.Locations.Add(new LocationModel(resultId: 0, runIndex: 0)
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(12, 1, 12, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new LocationModel
+            viewModel.RelatedLocations.Add(new LocationModel(resultId: 0, runIndex: 0)
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(21, 1, 21, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new LocationModel
+            viewModel.RelatedLocations.Add(new LocationModel(resultId: 0, runIndex: 0)
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(22, 1, 22, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.RelatedLocations.Add(new LocationModel
+            viewModel.RelatedLocations.Add(new LocationModel(resultId: 0, runIndex: 0)
             {
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Region = new Region(23, 1, 23, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
@@ -98,26 +98,26 @@ namespace Microsoft.Sarif.Viewer.ViewModels
             viewModel.CallTrees.Add(new CallTree(
                 new List<CallTreeNode>
                 {
-                    new CallTreeNode
+                    new CallTreeNode(resultId: 0, runIndex: 0)
                     {
                         Location = new ThreadFlowLocation()
                     },
 
-                    new CallTreeNode
+                    new CallTreeNode(resultId: 0, runIndex: 0)
                     {
                         Location = new ThreadFlowLocation(),
                         Children = new List<CallTreeNode>
                         {
-                            new CallTreeNode
+                            new CallTreeNode(resultId: 0, runIndex: 0)
                             {
                                 Location = new ThreadFlowLocation()
                             }
                         }
                     }
-                }, SarifViewerPackage.SarifToolWindow));
+                }));
 
             StackCollection stack1 = new StackCollection("Stack A1");
-            stack1.Add(new StackFrameModel()
+            stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)
             {
                 Message = "Message A1.1",
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FullyQualifiedLogicalName ="My.Assembly.Main(string[] args)",
                 Module = "My.Module.dll",
             });
-            stack1.Add(new StackFrameModel()
+            stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)
             {
                 Message = "Message A1.2",
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
@@ -135,7 +135,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FullyQualifiedLogicalName = "Our.Shared.Library.Method(int param)",
                 Module = "My.Module.dll",
             });
-            stack1.Add(new StackFrameModel()
+            stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)
             {
                 Message = "Message A1.3",
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",

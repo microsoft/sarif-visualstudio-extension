@@ -6,7 +6,6 @@ using System.Windows;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
@@ -20,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         {
             List<CallTreeNode> list = null;
 
-            CallTreeNode node = new CallTreeNode();
+            CallTreeNode node = new CallTreeNode(resultId: 0, runIndex: 0);
 
             int index;
             bool result = CallTree.TryGetIndexInCallTreeNodeList(list, node, out index);
@@ -32,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetIndexInCallTreeNodeList_NullNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             int index;
             bool result = CallTree.TryGetIndexInCallTreeNodeList(list, null, out index);
@@ -44,10 +43,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetIndexInCallTreeNodeList_FirstNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(target);
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             int index;
             bool result = CallTree.TryGetIndexInCallTreeNodeList(list, target, out index);
@@ -60,9 +59,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetIndexInCallTreeNodeList_LastNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
 
             int index;
@@ -76,10 +75,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetIndexInCallTreeNodeList_MiddleNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             int index;
             bool result = CallTree.TryGetIndexInCallTreeNodeList(list, target, out index);
@@ -92,12 +91,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetIndexInCallTreeNodeList_DoesNotExistNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             int index;
-            bool result = CallTree.TryGetIndexInCallTreeNodeList(list, new CallTreeNode(), out index);
+            bool result = CallTree.TryGetIndexInCallTreeNodeList(list, new CallTreeNode(resultId: 0, runIndex: 0), out index);
 
             result.Should().BeFalse();
         }
@@ -107,7 +106,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         {
             List<CallTreeNode> list = null;
 
-            CallTreeNode node = new CallTreeNode();
+            CallTreeNode node = new CallTreeNode(resultId: 0, runIndex: 0);
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, node, out resultNode);
@@ -119,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_NullNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, null, out resultNode);
@@ -131,10 +130,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_FirstNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(target);
-            list.Add(new CallTreeNode() { FilePath = Expected });
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, target, out resultNode);
@@ -147,9 +146,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_LastNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
 
             CallTreeNode resultNode;
@@ -162,10 +161,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_MiddleNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
-            list.Add(new CallTreeNode() { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, target, out resultNode);
@@ -178,12 +177,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_SkipNonVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
-            list.Add(new CallTreeNode() { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, target, out resultNode);
@@ -196,11 +195,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_NoVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, target, out resultNode);
@@ -212,13 +211,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetNextSibling_DoesNotExistNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
             CallTreeNode resultNode;
-            bool result = CallTree.TryGetNextSibling(list, new CallTreeNode(), out resultNode);
+            bool result = CallTree.TryGetNextSibling(list, new CallTreeNode(resultId: 0, runIndex: 0), out resultNode);
 
             result.Should().BeFalse();
         }
@@ -228,7 +227,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         {
             List<CallTreeNode> list = null;
 
-            CallTreeNode node = new CallTreeNode();
+            CallTreeNode node = new CallTreeNode(resultId: 0, runIndex: 0);
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, node, out resultNode);
@@ -240,7 +239,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_NullNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, null, out resultNode);
@@ -252,10 +251,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_FirstNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(target);
-            list.Add(new CallTreeNode() { FilePath = Expected });
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, target, out resultNode);
@@ -267,9 +266,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_LastNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode() { FilePath = Expected });
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(target);
 
             CallTreeNode resultNode;
@@ -283,10 +282,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_MiddleNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode() { FilePath = Expected });
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(target);
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, target, out resultNode);
@@ -299,12 +298,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_SkipNonVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode() { FilePath = Expected });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
             list.Add(target);
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, target, out resultNode);
@@ -317,11 +316,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_NoVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
             list.Add(target);
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, target, out resultNode);
@@ -333,13 +332,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetPreviousSibling_DoesNotExistNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
             CallTreeNode resultNode;
-            bool result = CallTree.TryGetPreviousSibling(list, new CallTreeNode(), out resultNode);
+            bool result = CallTree.TryGetPreviousSibling(list, new CallTreeNode(resultId: 0, runIndex: 0), out resultNode);
 
             result.Should().BeFalse();
         }
@@ -359,9 +358,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetFirstItem_FirstNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode() { FilePath = Expected });
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetFirstItem(list, out resultNode);
@@ -374,10 +373,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetFirstItem_SkipNonVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
-            list.Add(new CallTreeNode() { FilePath = Expected });
-            list.Add(new CallTreeNode());
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetFirstItem(list, out resultNode);
@@ -390,9 +389,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetFirstItem_NoVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetFirstItem(list, out resultNode);
@@ -415,9 +414,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetLastItem_LastNode()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode() { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetLastItem(list, out resultNode);
@@ -430,10 +429,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetLastItem_SkipNonVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            list.Add(new CallTreeNode());
-            list.Add(new CallTreeNode() { FilePath = Expected });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetLastItem(list, out resultNode);
@@ -446,9 +445,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         public void CallTree_TryGetLastItem_NoVisibleNodes()
         {
             List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode();
-            list.Add(new CallTreeNode() { Visibility = Visibility.Collapsed });
-            list.Add(new CallTreeNode() { Visibility = Visibility.Hidden });
+            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
+            list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetLastItem(list, out resultNode);
@@ -459,10 +458,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTree_ExpandAll_NoNodes()
         {
-            var mockToolWindow = new Mock<IToolWindow>();
-            mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
-
-            CallTree tree = new CallTree(new List<CallTreeNode>(), mockToolWindow.Object);
+            CallTree tree = new CallTree(new List<CallTreeNode>());
             tree.ExpandAll();
         }
 
@@ -586,10 +582,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 }
             });
 
-            var mockToolWindow = new Mock<IToolWindow>();
-            mockToolWindow.Setup(s => s.UpdateSelectionList(It.IsAny<object[]>()));
-
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null), mockToolWindow.Object);
+            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
             return callTree;
         }

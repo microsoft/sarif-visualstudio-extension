@@ -1,19 +1,22 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using System;
-using System.IO;
-using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.TextManager.Interop;
-
 namespace Microsoft.Sarif.Viewer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using Microsoft.CodeAnalysis.Sarif;
+    using Microsoft.Sarif.Viewer.Tags;
+    using Microsoft.VisualStudio.ComponentModelHost;
+    using Microsoft.VisualStudio.Shell;
+    using Microsoft.VisualStudio.Shell.Interop;
+    using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Editor;
+    using Microsoft.VisualStudio.Text.Tagging;
+    using Microsoft.VisualStudio.TextManager.Interop;
+    using Microsoft.VisualStudio.Text.Adornments;
+
     /// <summary>
     /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic 
     /// to managed life cycle and appearance.
@@ -22,9 +25,18 @@ namespace Microsoft.Sarif.Viewer
     /// An instance of this class can outlive a Visual Studio view that is viewing it.
     /// It is important to not cache Visual Studio "view" and "frame" interfaces as they will
     /// become invalid as the user opens and closes documents.
+    /// A future improvement is that this class "could" be an implementation of IErrorTag and or ITextMarkerTag
     /// </remarks>
-    public class ResultTextMarker
+    internal class ResultTextMarker : IDisposable
     {
+        private bool isDisposed;
+
+        /// <summary>
+        /// These values are actually "lifted" from the Visual Studio code analysis implementation.
+        /// They are unfortunately not part of the Visual Studio SDK.
+        /// The comments about "yellow", "light yellow", etc. are not quite correct. These values are able to be themed
+        /// through Visual Studio UI.
+        /// </summary>
         public const string DEFAULT_SELECTION_COLOR = "CodeAnalysisWarningSelection"; // Yellow
         public const string KEYEVENT_SELECTION_COLOR = "CodeAnalysisKeyEventSelection"; // Light yellow
         public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; //Gray
@@ -32,7 +44,7 @@ namespace Microsoft.Sarif.Viewer
 
         /// <summary>
         /// This is the original region from the SARIF log file before
-        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegion" method./>
+        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegionAndFilePath" method./>
         /// </summary>
         private Region region;
 
@@ -42,250 +54,364 @@ namespace Microsoft.Sarif.Viewer
         private Region fullyPopulatedRegion;
 
         /// <summary>
-        /// Indicates whether a call to <see cref="TryToFullyPopulateRegion"/> has already occurred and what the result
+        /// Indicates whether a call to <see cref="TryToFullyPopulateRegionAndFilePath"/> has already occurred and what the result
         /// of the remap was.
         /// </summary>
-        private bool? regionIsFullyPopulated;
+        private bool? regionAndFilePathAreFullyPopulated;
 
-        private int runIndex;
-        private ISarifLocationTag tag;
+        /// <summary>
+        /// Contains the file path after a call to <see cref="TryToFullyPopulateRegionAndFilePath"/>.
+        /// </summary>
+        private string resolvedFullFilePath;
 
-        public string FullFilePath { get; set; }
-        public string UriBaseId { get; set; }
-        public string Color { get; set; }
+        /// <summary>
+        /// The persistent span created for this marker.
+        /// </summary>
+        /// <remarks>
+        /// Visual Studio's persistent span factory allows us to correctly track spans for documents that the users opens, edits and closes
+        /// and then re-opens. This allows for our "tags" to be accurate after an edit.
+        /// That is as long as they don't modify the document in another editor (say notepad).
+        /// </remarks>
+        private IPersistentSpan persistentSpan;
+
+        /// <summary>
+        /// Contains the fully populated file path.
+        /// </summary>
+        /// <remarks>
+        /// This property may be null.
+        /// </remarks>
+        public string FullFilePath { get; }
+
+        public string UriBaseId { get; }
+        
+        /// <summary>
+        /// Gets the non-highlighted color.
+        /// </summary>
+        public string NonHighlightedColor { get; }
+
+        /// <summary>
+        /// Gets the highlighted color.
+        /// </summary>
+        public string HighlightedColor { get; }
+
+        /// <summary>
+        /// Gets the identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.
+        /// </summary>
+        public int ResultId { get; }
+
+        /// <summary>
+        /// The index of the run as known to <see cref="CodeAnalysisResultManager"/>.
+        /// </summary>
+        public int RunIndex { get; }
+
+        /// <summary>
+        /// Gets the Visual Studio error type. See <see cref="PredefinedErrorTypeNames"/> for more information.
+        /// </summary>
+        /// <remarks>
+        /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
+        /// </remarks>
+        public string ErrorType { get; }
+
+        /// <summary>
+        /// Gets the tool-tip content to display.
+        /// </summary>
+        /// <remarks>
+        /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
+        /// </remarks>
+        public object ToolTipContent { get; }
+
+        /// <summary>
+        /// The data context for this result marker.
+        /// </summary>
+        /// <remarks>
+        /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
+        /// for the "data context" for the SARIF explorer window.
+        /// </remarks>
+        public object Context { get; }
 
         /// <summary>
         /// Gets or sets the original SARIF region from a SARIF log.
         /// </summary>
-        public Region Region
-        {
-            get => this.region;
-            set
-            {
-                this.region = value;
+        public Region Region { get; }
 
-                // We need to remap the original region to an ITextBuffer
-                // so reset these values to indicate that remapping should occur.
-                this.regionIsFullyPopulated = null;
-                this.fullyPopulatedRegion = null;
-            }
+        /// <summary>
+        /// Creates a new instances of a <see cref="ResultTextMarker"/>.
+        /// </summary>
+        /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
+        /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
+        /// <param name="uriBaseId">The base identifier for the file-path.</param>
+        /// <param name="region">The original source region from the SARIF log file.</param>
+        /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
+        /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
+        /// <param name="highlightedColor">The highlighted color of the marker.</param>
+        /// <param name="context">The data context for this result marker.</param>
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context)
+            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
+        {
         }
 
         /// <summary>
-        /// Fired when the text editor caret enters a tagged region.
+        /// Creates a new instances of a <see cref="ResultTextMarker"/>.
         /// </summary>
-        public event EventHandler RaiseRegionSelected;
+        /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
+        /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
+        /// <param name="uriBaseId">The base identifier for the file-path.</param>
+        /// <param name="region">The original source region from the SARIF log file.</param>
+        /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
+        /// <param name="nonHighlightedColor">The non-highlighted color of the marker.</param>
+        /// <param name="highlightedColor">The highlighted color of the marker.</param>
+        /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
+        /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
+        /// <param name="context">The data context for this result marker.</param>
+        /// <remarks>
+        /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
+        /// </remarks>
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
+        {
+            ResultId = resultId;
+            RunIndex = runIndex;
+            UriBaseId = uriBaseId;
+            FullFilePath = fullFilePath;
+            this.region = region ?? throw new ArgumentNullException(nameof(region));
+            NonHighlightedColor = nonHighlightedColor;
+            HighlightedColor = highlightedColor;
+            ToolTipContent = tooltipContent;
+            ErrorType = errorType;
+            Context = context;
+        }
 
         /// <summary>
-        /// fullFilePath may be null for global issues.
+        /// Returns the tags represented by this result marker.
         /// </summary>
-        public ResultTextMarker(int runIndex, Region region, string fullFilePath)
+        /// <remarks>
+        /// This is only called by either <see cref="SarifLocationErrorTagger"/> or <see cref="SarifLocationTextMarkerTagger"/>.</remarks>
+        /// <typeparam name="T">Specifies which tag type the tagger is asking for.</typeparam>
+        /// <param name="textBuffer">The text buffer that the tags are being requested.</param>
+        /// <param name="persistentSpanFactory">The persistent span factory that can be used to create the persistent spans for the tags.</param>
+        public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+            where T : ITag
         {
-            this.runIndex = runIndex;
-            this.region = region ?? throw new ArgumentNullException(nameof(region));
-            FullFilePath = fullFilePath;
-            Color = DEFAULT_SELECTION_COLOR;
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            List<ISarifLocationTag> tags = new List<ISarifLocationTag>();
+
+            if (!this.TryCreatePersistentSpan(textBuffer, persistentSpanFactory))
+            {
+                return tags;
+            }
+
+            if (typeof(T) == typeof(IErrorTag) && this.ToolTipContent != null && this.ErrorType != null)
+            {
+                tags.Add(new SarifLocationErrorTag(
+                                    this.persistentSpan,
+                                    runIndex: this.RunIndex,
+                                    resultId: this.ResultId,
+                                    errorType: this.ErrorType,
+                                    toolTipContent: this.ToolTipContent,
+                                    context: this.Context));
+            }
+
+            if (typeof(T) == typeof(ITextMarkerTag))
+            {
+                tags.Add(new SarifLocationTextMarkerTag(
+                                        this.persistentSpan,
+                                        runIndex: this.RunIndex,
+                                        resultId: this.ResultId,
+                                        nonHighlightedTextMarkerTagType: this.NonHighlightedColor,
+                                        highlightedTextMarkerTagType: this.HighlightedColor,
+                                        context: this.Context));
+            }
+
+            return tags;
         }
 
         /// <summary>
         /// Attempts to navigate a VS editor to the text marker.
         /// </summary>
         /// <param name="usePreviewPane">Indicates whether to use VS's preview pane.</param>
+        /// <param name="moveFocusToCaretLocation">Indicates whether to move focus to the caret location.</param>
         /// <returns>Returns true if a VS editor was opened.</returns>
-        public bool TryNavigateTo(bool usePreviewPane)
+        /// <remarks>
+        /// The <paramref name="usePreviewPane"/> indicates whether Visual Studio opens the document as a preview (tab to the right)
+        /// rather than as an "open code editor" (tab attached to other open documents on the left).
+        /// </remarks>
+        public bool NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            bool documentWasOpened = false;
+            
+            // Make sure to fully populate region.
+            if (!this.TryToFullyPopulateRegionAndFilePath())
+            {
+                return false;
+            }
+
             // If the tag doesn't have a persistent span, or its associated document isn't open,
-            // then this indicates that we need to attempt to open the document.
+            // then this indicates that we need to attempt to open the document and cause it to
+            // be tagged.
             if (!this.PersistentSpanValid())
             {
-                if (!this.TryToFullyPopulateRegion())
-                {
-                    return false;
-                }
-
-                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.FullFilePath, usePreviewPane);
+                // Now, we need to make sure the document gets tagged before the next section of code
+                // in this method attempts to navigate to it.
+                // So the flow looks like this. Get Visual Studio to open the document for us.
+                // That will cause Visual Studio to create a text view for it.
+                // Now, just because a text view is created does not mean that
+                // a request for "tags" has occurred. Tagging (and the display of those tags)
+                // is highly asynchronous. Taggers are created on demand and disposed when they are no longer
+                // needed. It is quite common to have multiple taggers active for the same text view and text buffers
+                // at the same time. (An easy example is a split-window scenario).
+                // This class relies on a persistent span (this.persistentSpan) being non-null and valid.
+                // This class "creates" the persistent span when it is asked for its tags in the GetTags
+                // method.
+                // To facilitate that, we will:
+                // 1) Open the document
+                // 2) Get the text view from the document.
+                // 2a) That alone may be enough to make the persistent span valid if it was already created.
+                // 3) If the persistent span still isn't valid (likely because we have crated the persistent span yet), ask ourselves for the tags which will
+                //    cause the span to be created.
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.resolvedFullFilePath, usePreviewPane);
                 if (vsWindowFrame == null)
                 {
                     return false;
                 }
 
-                // The window frame must be shown now (at this point) because we need tagging to occur,
-                // which happens as a result of the Show call, before the rest of this method executes.
                 vsWindowFrame.Show();
+
+                documentWasOpened = true;
+
+                // At this point, the persistent span may have "become valid" due to the document open.
+                // If not, then ask ourselves for the tags which will create the persistent span.
+                if (!this.PersistentSpanValid())
+                {
+                    if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
+                    {
+                        return false;
+                    }
+
+                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    if (componentModel == null)
+                    {
+                        return false;
+                    }
+
+                    IPersistentSpanFactory persistentSpanFactory = componentModel.GetService<IPersistentSpanFactory>();
+                    if (persistentSpanFactory == null)
+                    {
+                        return false;
+                    }
+
+                    if (!this.TryCreatePersistentSpan(textView.TextBuffer, persistentSpanFactory))
+                    {
+                        return false;
+                    }
+                }
             }
 
-            // If we have tracking span information, then either
-            // ignore the selection if the caret is already in that span
-            // or select what might "remain" of the tracking span
-            // in case it has been modified.
-            // It is important to note that when a caret position change
-            // occurs (see event handler below) and the caret is moved within a text marker,
-            // that can cause a selection in the SARIF tool window to occur
-            // which in turn attempts to navigate right back to this
-            // text marker by calling NavigateTo(). So, this
-            // code must not navigate the selection or caret again if the
-            // caret is already within the correct span, otherwise
-            // the user cannot navigate the editor anymore.
-            if (this.PersistentSpanValid())
+
+            if (!this.PersistentSpanValid())
             {
-                if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.tag.DocumentPersistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
+                return false;
+            }
+
+            // Now, if the span IS valid it doesn't mean that the editor is visible, so make sure we open the document
+            // for the user if needed.
+            // But before we try to call "open document" let's see if we can find an active view because calling
+            // "open document" is super slow (which causes keyboard navigation from items in the SARIF explorer to be slow
+            // IF "open document" is called every time.
+            if (!documentWasOpened ||
+                !SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out IWpfTextView wpfTextView))
+            {
+                IVsWindowFrame vsWindowFrame = SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, this.resolvedFullFilePath, usePreviewPane);
+                if (vsWindowFrame == null)
                 {
                     return false;
                 }
 
-                ITextSnapshot currentSnapshot = this.tag.DocumentPersistentSpan.Span.TextBuffer.CurrentSnapshot;
+                vsWindowFrame.Show();
 
-                // Note that "GetSpan" is not really a great name. What is actually happening
-                // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
-                // text snapshot. In essence what this means is take the "persistent span"
-                // that we have and "replay" any edits that have occurred and return a new
-                // span. So, if the span is no longer relevant (lets say the text has been deleted)
-                // then you'll get back an empty span.
-                SnapshotSpan trackingSpanSnapshot = this.tag.DocumentPersistentSpan.Span.GetSpan(currentSnapshot);
-
-                // If the caret is already in the text within the marker, don't re-select it
-                // otherwise users cannot move the caret in the region.
-                // If the caret isn't in the marker, move it there.
-                if (!trackingSpanSnapshot.Contains(wpfTextView.Caret.Position.BufferPosition) &&
-                    !trackingSpanSnapshot.IsEmpty)
+                if (!SdkUIUtilities.TryGetActiveViewForTextBuffer(this.persistentSpan.Span.TextBuffer, out wpfTextView))
                 {
-                    wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
-                    wpfTextView.Caret.MoveTo(trackingSpanSnapshot.End);
-                    wpfTextView.Caret.EnsureVisible();
+                    return false;
+                }
+            }
+
+            ITextSnapshot currentSnapshot = this.persistentSpan.Span.TextBuffer.CurrentSnapshot;
+
+            // Note that "GetSpan" is not really a great name. What is actually happening
+            // is the "Span" that "GetSpan" is called on is "mapped" onto the passed in
+            // text snapshot. In essence what this means is take the "persistent span"
+            // that we have and "replay" any edits that have occurred and return a new
+            // span. So, if the span is no longer relevant (lets say the text has been deleted)
+            // then you'll get back an empty span.
+            SnapshotSpan trackingSpanSnapshot = this.persistentSpan.Span.GetSpan(currentSnapshot);
+
+            // If the caret is already in the text within the marker, don't re-select it
+            // otherwise users cannot move the caret in the region.
+            // If the caret isn't in the marker, move it there.
+            if (!trackingSpanSnapshot.Contains(wpfTextView.Caret.Position.BufferPosition) &&
+                !trackingSpanSnapshot.IsEmpty)
+            {
+                wpfTextView.Selection.Select(trackingSpanSnapshot, isReversed: false);
+                wpfTextView.Caret.MoveTo(trackingSpanSnapshot.End);
+                wpfTextView.Caret.EnsureVisible();
+
+                if (moveFocusToCaretLocation)
+                {
                     wpfTextView.VisualElement.Focus();
                 }
-
-                return true;
             }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Select current tracking text with <paramref name="highlightColor"/>. 
-        /// If highlightColor is null than code will be selected with color from <seealso cref="Color"/>.
-        /// If the mark doesn't support tracking changes, then we simply ignore this condition (addresses VS crash 
-        /// reported in Bug 476347 : Code Analysis clicking error report C6244 causes VS2012 to crash).  
-        /// Tracking changes helps to ensure that we navigate to the right line even if edits to the file
-        /// have occurred, but even if that behavior doesn't work right, it is better to 
-        /// simply return here (before the fix this code threw an exception which terminated VS).
-        /// </summary>
-        /// <param name="highlightColor">Color</param>
-        public void AddTagHighlight(string highlightColor)
-        {
-            if (this.tag != null)
-            {
-                this.tag.Tag = new TextMarkerTag(highlightColor ?? Color);
-            }
-        }
-
-        /// <summary>
-        /// Remove selection for tracking text
-        /// </summary>
-        public void RemoveTagHighlight()
-        {
-            if (this.tag != null)
-            {
-                this.tag.Tag = new TextMarkerTag(Color);
-            }
-        }
-
-        /// <summary>
-        /// An overridden method for reacting to the event of a document window
-        /// being opened
-        /// </summary>
-        public bool TryTagDocument(ITextBuffer textBuffer)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // If we've already tagged this document, then we're done.
-            if (this.tag != null)
-            {
-                return true;
-            }
-
-            if (!this.TryToFullyPopulateRegion())
-            {
-                return false;
-            }
-
-            if (!textBuffer.Properties.TryGetProperty(typeof(SarifLocationTagger), out ISarifLocationTagger tagger))
-            {
-                return false;
-            }
-
-            if (!tagger.TryGetTag(this.fullyPopulatedRegion, this.runIndex, out this.tag))
-            {
-                if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan tagSpan))
-                {
-                    return false;
-                }
-
-                this.tag = tagger.AddTag(this.fullyPopulatedRegion, tagSpan, this.runIndex, new TextMarkerTag(Color));
-            }
-
-            // Once we have tagged the document, we start listening to the
-            // caret entering these tags so we can properly raise events
-            // that ultimately select items (such as call-tree nodes)
-            // in the SARIF explorer tool pane window.
-            this.tag.CaretEnteredTag += this.CaretEnteredTag;
 
             return true;
         }
 
-        // When the VS Editor tag has the caret moved inside of it, let's just pass along the region selection.
-        private void CaretEnteredTag(object sender, EventArgs e) => this.RaiseRegionSelected?.Invoke(this, e);
-
-        private bool TryToFullyPopulateRegion()
+        private bool TryToFullyPopulateRegionAndFilePath()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (this.regionIsFullyPopulated.HasValue)
+            if (this.regionAndFilePathAreFullyPopulated.HasValue)
             {
-                return this.regionIsFullyPopulated.Value;
+                return this.regionAndFilePathAreFullyPopulated.Value;
             }
 
-            if (string.IsNullOrEmpty(this.FullFilePath))
+            if (string.IsNullOrEmpty(FullFilePath))
             {
                 return false;
             }
 
-            // Note: The call to TryRebaselineAllSarifErrors will ultimately
-            // set "this.FullFilePath" to the a new file path which is why calling
-            // File.Exists happens twice here.
-            if (!File.Exists(this.FullFilePath) && 
-                !CodeAnalysisResultManager.Instance.ResolveFilePath(runIndex, this.UriBaseId, this.FullFilePath))
+            if (File.Exists(FullFilePath))
             {
-                this.regionIsFullyPopulated = false; 
+                this.resolvedFullFilePath = FullFilePath;
+            }
+            else if (!CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: FullFilePath, resolvedPath: out this.resolvedFullFilePath))
+            {
+                this.regionAndFilePathAreFullyPopulated = false;
                 return false;
             }
 
-            if (File.Exists(this.FullFilePath) &&
-                Uri.TryCreate(this.FullFilePath, UriKind.Absolute, out Uri uri))
+
+            if (File.Exists(this.resolvedFullFilePath) &&
+                Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
-                FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runIndex].FileRegionsCache;
+                FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.RunIndex].FileRegionsCache;
                 this.fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
             }
 
-            this.regionIsFullyPopulated = this.fullyPopulatedRegion != null;
-            return this.regionIsFullyPopulated.Value;
+            this.regionAndFilePathAreFullyPopulated = this.fullyPopulatedRegion != null;
+            return this.regionAndFilePathAreFullyPopulated.Value;
         }
 
         private bool PersistentSpanValid()
         {
-            // Some notes here. "this.tag" can be null of the document hasn't been tagged yet.
+            // Some notes here. "this.tag" can be null if the document hasn't been tagged yet.
             // Furthermore, the persistent span can be null even if you have the tag if the document
             // isn't open. The text buffer can also be null if the document isn't open.
             // In theory, we could probably simply this to:
             // this.tag?.DocumentPersistentSpan?.IsDocumentOpen != false;
             // but this logic is used inside Visual Studio's code as well so leaving
             // it like this for now.
-            return this.tag?.DocumentPersistentSpan?.Span != null &&
-                    this.tag.DocumentPersistentSpan.IsDocumentOpen &&
-                    this.tag.DocumentPersistentSpan.Span.TextBuffer != null;
+            return this.persistentSpan?.IsDocumentOpen == true;
         }
 
         private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, ITextBuffer textBuffer, out TextSpan textSpan)
@@ -326,6 +452,62 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return true;
+        }
+
+        private bool TryCreatePersistentSpan(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (this.persistentSpan != null)
+            {
+                return true;
+            }
+
+            if (!this.TryToFullyPopulateRegionAndFilePath())
+            {
+                return false;
+            }
+
+            if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan documentSpan))
+            {
+                return false;
+            }
+
+            if (!persistentSpanFactory.CanCreate(textBuffer))
+            {
+                return false;
+            }
+
+            this.persistentSpan = persistentSpanFactory.Create(
+                        textBuffer.CurrentSnapshot,
+                        startLine: documentSpan.iStartLine,
+                        startIndex: documentSpan.iStartIndex,
+                        endLine: documentSpan.iEndLine,
+                        endIndex: documentSpan.iEndIndex,
+                        trackingMode: SpanTrackingMode.EdgeInclusive);
+
+            return true;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            this.isDisposed = true;
+            if (disposing)
+            {
+                this.persistentSpan?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

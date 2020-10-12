@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using EnvDTE;
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.Sarif.Viewer.Models;
+    using Microsoft.VisualStudio.ComponentModelHost;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using Microsoft.VisualStudio.Shell.TableControl;
@@ -17,8 +18,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System.Windows;
     using System.Windows.Documents;
 
-    internal sealed class SarifResultTableEntry : ITableEntry
+    internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
+        private bool isDisposed;
+
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
         public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new [] {
@@ -169,33 +172,39 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (hyperLink.Tag is int id)
             {
-                // The user clicked an inline link with an integer target. Look for a Location object
+                // The user clicked an in-line link with an integer target. Look for a Location object
                 // whose Id property matches that integer. The spec says that might be _any_ Location
                 // object under the current result. At present, we only support Location objects that
                 // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
                 // look in Result.CodeFlows or Result.Stacks.
-                LocationModel location = this.Error.RelatedLocations.Where(l => l.Id == id).FirstOrDefault();
+                LocationModel location = 
+                    this.Error.RelatedLocations.
+                    Concat(this.Error.Locations).
+                    FirstOrDefault(l => l.Id == id);
+
                 if (location == null)
                 {
-                    location = this.Error.Locations.Where(l => l.Id == id).FirstOrDefault();
+                    return;
                 }
 
-                if (location != null)
+                // If a location is found, then we will show this error in the explorer window
+                // by setting the navigated item to the error related to this error entry,
+                // but... we will navigate the editor to the found location, which for example
+                // may be a related location.
+                if (this.Error.HasDetails)
                 {
-                    // Set the current SARIF error in the manager so we track code locations.
-                    CodeAnalysisResultManager.Instance.CurrentSarifResult = this.Error;
-
-                    SarifViewerPackage.SarifToolWindow.Control.DataContext = null;
-
-                    if (this.Error.HasDetails)
+                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    if (componentModel != null)
                     {
-                        // Setting the DataContext to null (above) forces the TabControl to select the appropriate tab.
-                        SarifViewerPackage.SarifToolWindow.Control.DataContext = this.Error;
+                        ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                        if (sarifSelectionService != null)
+                        {
+                            sarifSelectionService.NavigatedItem = this.Error;
+                        }
                     }
-
-                    location.NavigateTo(false);
-                    location.ApplyDefaultSourceFileHighlighting();
                 }
+
+                location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
             // This is super dangerous! We are launching URIs for SARIF logs
             // that can point to anything.
@@ -208,6 +217,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 System.Diagnostics.Process.Start(uri.ToString());
             }
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            this.isDisposed = true;
+            if (disposing)
+            {
+                this.Error.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

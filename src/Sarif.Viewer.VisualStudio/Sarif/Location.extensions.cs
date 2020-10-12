@@ -9,9 +9,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class LocationExtensions
     {
-        public static LocationModel ToLocationModel(this Location location, Run run)
+        public static LocationModel ToLocationModel(this Location location, Run run, int resultId, int runIndex)
         {
-            var model = new LocationModel();
+            var model = new LocationModel(resultId, runIndex);
             PhysicalLocation physicalLocation = location.PhysicalLocation;
 
             if (physicalLocation?.ArtifactLocation != null)

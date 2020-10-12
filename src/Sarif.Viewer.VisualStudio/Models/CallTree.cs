@@ -9,18 +9,16 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class CallTree : NotifyPropertyChangedObject
+    internal class CallTree : NotifyPropertyChangedObject
     {
         CallTreeNode _selectedItem;
         DelegateCommand<TreeView> _selectPreviousCommand;
         DelegateCommand<TreeView> _selectNextCommand;
 
-        private IToolWindow toolWindow;
         private ObservableCollection<CallTreeNode> _topLevelNodes;
 
-        public CallTree(IList<CallTreeNode> topLevelNodes, IToolWindow toolWindow)
+        public CallTree(IList<CallTreeNode> topLevelNodes)
         {
-            this.toolWindow = toolWindow;
             TopLevelNodes = new ObservableCollection<CallTreeNode>(topLevelNodes);
         }
 
@@ -53,33 +51,9 @@ namespace Microsoft.Sarif.Viewer.Models
             }
             set
             {
-                if (!SarifViewerPackage.IsUnitTesting)
-                {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
-                    ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
-                }
-
                 if (_selectedItem != value)
                 {
-                    // Remove the existing highlighting.
-                    if (_selectedItem != null)
-                    {
-                        _selectedItem.ApplyDefaultSourceFileHighlighting();
-                    }
-
                     _selectedItem = value;
-
-                    // Navigate to the source of the selected node and highlight the region.
-                    if (_selectedItem != null)
-                    {
-                        // Update the VS Properties window with the properties of the selected CallTreeNode.
-                        toolWindow.UpdateSelectionList(_selectedItem.TypeDescriptor);
-
-                        // Navigate to the source file of the selected CallTreeNode.
-                        _selectedItem.NavigateTo();
-                        _selectedItem.ApplySelectionSourceFileHighlighting();
-                    }
 
                     this.NotifyPropertyChanged();
                 }

@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [Collection("SarifObjectTests")]
     public class SarifFileWithContentsTests : SarifViewerPackageUnitTests
     {
-        private const int RunId = 0;
+        private readonly int runIndex;
         private const string Key1 = "/item.cpp#fragment";
         private const string Key2 = "/binary.cpp";
         private const string Key3 = "/text.cpp";
@@ -187,12 +187,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             TestUtilities.InitializeTestEnvironment(testLog);
+
+            // CodeAnalysisResultManager.Instance.CurrentRunIndex is currently an internal (instead of private)
+            // member of CodeAnalysisResultManager only for this test.
+            this.runIndex = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
         [Fact]
         public void SarifFileWithContents_SavesContents()
         {
-            var fileDetails = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails;
+            var fileDetails = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails;
 
             fileDetails.Should().ContainKey(Key1);
         }
@@ -200,7 +204,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_DecodesBinaryContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key2];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key2];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -210,8 +214,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_OpensEmbeddedBinaryFile()
         {
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(RunId, Key2);
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key2];
+            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.runIndex, Key2);
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key2];
             var fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -221,8 +225,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_OpensEmbeddedNonFileUriBinaryFile()
         {
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(RunId, Key8);
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key8];
+            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.runIndex, Key8);
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key8];
             var fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -232,7 +236,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_DecodesTextContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key3];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key3];
             var contents = fileDetail.GetContents();
 
             contents.Should().Be(ExpectedContents1);
@@ -241,7 +245,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_DecodesBinaryContentsWithText()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key4];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key4];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -251,7 +255,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyBinaryContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key5];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key5];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -261,7 +265,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyTextContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key6];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key6];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -271,7 +275,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesExistingHash()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key7];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key7];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
@@ -281,7 +285,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_GeneratesHash()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunId].FileDetails[Key1];
+            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key1];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);

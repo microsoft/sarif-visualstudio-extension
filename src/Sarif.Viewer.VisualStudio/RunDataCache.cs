@@ -5,11 +5,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
-using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
-    public class RunDataCache
+    internal class RunDataCache
     {
         private IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
 
@@ -29,29 +28,13 @@ namespace Microsoft.Sarif.Viewer
 
         public int RunIndex { get; }
 
-        public IList<SarifErrorListItem> SarifErrors {
-            get
-            {
-                return _sarifErrors;
-            }
-            set
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                if (!SarifViewerPackage.IsUnitTesting)
-                {
-                    // Since we have a new set of Results in the Error List, clear all source code highlighting.
-                    CodeAnalysisResultManager.Instance.RemoveTagHighlightsFromAllDocuments();
-                }
-
-                _sarifErrors = value;
-            }
-        }
+        public IList<SarifErrorListItem> SarifErrors { get; set; } = new List<SarifErrorListItem>();
 
         /// <summary>
         /// Used for testing.
         /// </summary>
         internal RunDataCache() :
-            this(null, 0, null)
+            this(run: null, runIndex: 0, logFilePath: null)
         {
         }
 
@@ -59,7 +42,7 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache(Run run, int runIndex) :
-            this (run, runIndex, null)
+            this (run: run, runIndex: runIndex, logFilePath: null)
         {
         }
 

@@ -93,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             });
 
-            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null);
+            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0);
 
             topLevelNodes.Count.Should().Be(2);
             topLevelNodes[0].Children.Count.Should().Be(4);
@@ -181,7 +181,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             });
 
-            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null);
+            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0);
 
             topLevelNodes.Count.Should().Be(2);
             topLevelNodes[0].Children.Count.Should().Be(4);
@@ -225,7 +225,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             });
 
-            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null);
+            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0);
 
             topLevelNodes.Count.Should().Be(3);
             topLevelNodes[0].Children.Should().BeEmpty();
