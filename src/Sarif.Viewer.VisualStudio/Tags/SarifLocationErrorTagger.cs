@@ -64,24 +64,28 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 this.tagsDirty = false;
 
-                // This query is saying, create the error tags for the top-level SARIF result (includeChildTags: false, includeResultTag: true)
-                // and then create the tags for the children (includeChildTags: true, includeResultTag: false) but then
-                // filter the children (thread-flows, call nodes, etc.) to the ones relevant to the currently selected error item.
-                // This is done so that duplicate locations from multiple results in results are rendered in the editor.
-                IEnumerable<ISarifLocationTag> possibleTags = CodeAnalysisResultManager.
-                    Instance.
-                    RunIndexToRunDataCache.
-                    Values.
-                    SelectMany(runDataCache => runDataCache.SarifErrors).
-                    Where(sarifListItem => string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0).
-                    SelectMany(sarifListItem => 
-                    sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true).Concat(
-                        sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: false).Where(
-                            sarifLocationTag => this.sarifErrorListEventSelectionService.SelectedItem != null && sarifLocationTag.ResultId == this.sarifErrorListEventSelectionService.SelectedItem.ResultId))).
-                    ToList();
+                IEnumerable<SarifErrorListItem> errorsInCurrentFile = CodeAnalysisResultManager
+                    .Instance
+                    .RunIndexToRunDataCache
+                    .Values
+                    .SelectMany(runDataCache => runDataCache.SarifErrors)
+                    .Where(sarifListItem => string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
+                IEnumerable<ISarifLocationTag> resultLocationTags = errorsInCurrentFile
+                    .SelectMany(sarifListItem =>
+                        sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true));
+
+                IEnumerable<ISarifLocationTag> associatedLocationTags = this.sarifErrorListEventSelectionService.SelectedItem != null
+                    ? (errorsInCurrentFile
+                        .SelectMany(sarifListItem =>
+                            sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: false)
+                        .Where(sarifLocationTag =>
+                            sarifLocationTag.ResultId == this.sarifErrorListEventSelectionService.SelectedItem.ResultId))) : Enumerable.Empty<ISarifLocationTag>();
+
+                IEnumerable<ISarifLocationTag> relevantTags = resultLocationTags.Concat(associatedLocationTags);
+      
                 // We need to make sure the list isn't modified underneath us while providing the tags, so executing ToList to get our copy.
-                this.currentTags = possibleTags.ToList();
+                this.currentTags = relevantTags.ToList();
             }
 
             if (!this.currentTags.Any())

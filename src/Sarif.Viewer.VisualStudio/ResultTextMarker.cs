@@ -230,7 +230,7 @@ namespace Microsoft.Sarif.Viewer
         /// The <paramref name="usePreviewPane"/> indicates whether Visual Studio opens the document as a preview (tab to the right)
         /// rather than as an "open code editor" (tab attached to other open documents on the left).
         /// </remarks>
-        public bool TryNavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
+        public bool NavigateTo(bool usePreviewPane, bool moveFocusToCaretLocation)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 

@@ -153,7 +153,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (LineMarker != null)
             {
-                return LineMarker.TryNavigateTo(usePreviewPane, moveFocusToCaretLocation);
+                return LineMarker.NavigateTo(usePreviewPane, moveFocusToCaretLocation);
             }
             else
             {

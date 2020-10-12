@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Views
     /// </summary>
     /// <remarks>
     /// The selection in the tree view is maintained by the data model through the <see cref="CallTree.SelectedItem"/> property.
-    /// What this class is ensuring that when the selected item property is modified in the data model 
+    /// This class ensures that when the selected item property is modified in the data model,
     /// that the "parent" UI elements (tree view items) in the tree view are properly expanded so the element is visible.
     /// The class must also perform the reverse logic of when the selection changes in the tree view ensure that it is reflected
     /// back in the data model.
@@ -39,17 +39,16 @@ namespace Microsoft.Sarif.Viewer.Views
             // Subscribe to the call tree's property changed notification
             // so that this control can properly handle any changes to the selected item
             // (selected call tree node).
-            if (DataContext is CallTree callTree &&
-                callTree is INotifyPropertyChanged notifyPropertyChanged)
+            if (DataContext is INotifyPropertyChanged notifyPropertyChanged)
             {
                 notifyPropertyChanged.PropertyChanged += CallTree_PropertyChanged;
             }
         }
 
         /// <summary>
-        /// Called when properties of the <see cref="CallTree"/> is modified .
+        /// Called when properties of the <see cref="CallTree"/> is modified.
         /// </summary>
-        /// <param name="sender">The <see cref="CallTree"/> object whose property is modified.</param>
+        /// <param name="sender">The <see cref="CallTree"/> object whose properties are modified.</param>
         /// <param name="e">An instance of <see cref="PropertyChangedEventArgs"/> that contains the name of the modified property.</param>
         /// <remarks>
         /// For the purposes of behavior in this tree view, we only pay attention to the <see cref="CallTree.SelectedItem"/> property.
@@ -79,8 +78,7 @@ namespace Microsoft.Sarif.Viewer.Views
             Unloaded -= CallTree_TreeView_Unloaded;
             Loaded -= CallTree_TreeView_Loaded;
 
-            if (DataContext is CallTree callTree &&
-                callTree is INotifyPropertyChanged notifyPropertyChanged)
+            if (DataContext is INotifyPropertyChanged notifyPropertyChanged)
             {
                 notifyPropertyChanged.PropertyChanged -= CallTree_PropertyChanged;
             }

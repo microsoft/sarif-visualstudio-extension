@@ -30,8 +30,13 @@ namespace Microsoft.Sarif.Viewer
     [Guid("ab561bcc-e01d-4781-8c2e-95a9170bfdd5")]
     public class SarifExplorerWindow : ToolWindowPane, IToolWindow
     {
+        /// <summary>
+        /// Track selection is for development (design time) only. It has no impact on runtime.
+        /// It updates VS's "properties" pane.
+        /// </summary>
         private ITrackSelection _trackSelection;
         private SelectionContainer _selectionContainer;
+
         private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
         private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
 

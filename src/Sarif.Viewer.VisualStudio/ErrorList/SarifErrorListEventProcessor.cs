@@ -115,6 +115,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ThreadHelper.ThrowIfNotOnUIThread();
 
             base.PreprocessNavigate(entry, e);
+
+            // We need to show the explorer window before navigation so
+            // it has time to subscribe to navigation events.
             if (this.TryGetSarifResult(entry, out SarifErrorListItem aboutToNavigateItem) &&
                 aboutToNavigateItem?.HasDetails == true)
             {
