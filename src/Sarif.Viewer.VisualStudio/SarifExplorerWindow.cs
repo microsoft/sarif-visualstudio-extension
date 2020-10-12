@@ -123,6 +123,10 @@ namespace Microsoft.Sarif.Viewer
 
             if (e.Tag.Context is LocationModel locationModel)
             {
+                // Setting the selected item here causes the SARIF explorer window to update it's selection.
+                // The implementation here is a bit weird because we are telling the "data model" about the
+                // item that is to be selected in the UI. In a better world, the concept of "selection" would
+                // be in the UI logic, not the data model.
                 locationModel.IsSelected = true;
             }
         }
