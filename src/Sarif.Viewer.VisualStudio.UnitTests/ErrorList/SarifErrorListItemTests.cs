@@ -483,9 +483,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             return new SarifErrorListItem(
                 run,
                 runIndex: 0,
-                result,
-                "log.sarif",
-                new ProjectNameCache(solution: null));
+                result: result,
+                logFilePath: "log.sarif",
+                projectNameCache: new ProjectNameCache(solution: null));
         }
     }
 }
