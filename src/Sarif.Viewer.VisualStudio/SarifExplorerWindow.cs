@@ -48,7 +48,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifExplorerWindow() : base(null)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.Caption = "SARIF Explorer";
+            this.Caption = Resources.SarifExplorerCaption;
 
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
@@ -171,12 +171,32 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            if (this.Control.DataContext is SarifErrorListItem previousSarifErrorListItem)
+            {
+                previousSarifErrorListItem.Disposed -= SarifErrorListItem_Disposed;
+            }
+
             // Resetting the data context to null causes the correct tab in the SARIF explorer
             // window to be selected when the data context is set back to a non-null value.
             this.Control.DataContext = null;
             this.Control.DataContext = sarifErrorListItem;
 
+            if (sarifErrorListItem != null)
+            {
+                sarifErrorListItem.Disposed += SarifErrorListItem_Disposed;
+            }
+
             UpdateSelectionList(sarifErrorListItem);
+        }
+
+        private void SarifErrorListItem_Disposed(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (this.Control.DataContext == sender)
+            {
+                UpdateDataContext(sarifErrorListItem: null);
+            }
         }
 
         /// <summary>

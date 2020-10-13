@@ -93,14 +93,6 @@ namespace Microsoft.Sarif.Viewer.Views
             {
                 EnsureNodeIsVisibleAndSelected(this, callTree.SelectedItem);
             }
-               
-            // If we still don't have a selection, then select the first item.
-            if (SelectedItem == null &&
-                Items.Count != 0 &&
-                ItemContainerGenerator.ContainerFromIndex(0) is TreeViewItem treeViewItem)
-            {
-                treeViewItem.IsSelected = true;
-            }
         }
 
         private static void EnsureNodeIsVisibleAndSelected(TreeView callTreeView, object newSelectedNode)
