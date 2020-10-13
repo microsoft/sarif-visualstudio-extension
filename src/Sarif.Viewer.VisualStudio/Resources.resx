@@ -290,4 +290,8 @@
     <value>SARIF files (*.sarif)|*.sarif</value>
     <comment>Used in the import log open dialog</comment>
   </data>
+  <data name="ImportSemmleQLFilter" xml:space="preserve">
+    <value>Semmle QL log files (*.csv)|*.csv</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
 </root>

@@ -288,6 +288,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Semmle QL log files (*.csv)|*.csv.
+        /// </summary>
+        public static string ImportSemmleQLFilter {
+            get {
+                return ResourceManager.GetString("ImportSemmleQLFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Static Driver Verifier log files (*.tt)|*.tt.
         /// </summary>
         public static string ImportStaticDriverVerifierFilter {
