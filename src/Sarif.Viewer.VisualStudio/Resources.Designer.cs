@@ -171,15 +171,6 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to All files (*.*)|*.*.
-        /// </summary>
-        public static string ImportAllFilesFilter {
-            get {
-                return ResourceManager.GetString("ImportAllFilesFilter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Android Studio log files (*.xml)|*.xml.
         /// </summary>
         public static string ImportAndroidStudioFilter {

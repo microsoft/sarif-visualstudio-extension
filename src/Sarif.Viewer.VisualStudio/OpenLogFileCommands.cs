@@ -153,7 +153,10 @@ namespace Microsoft.Sarif.Viewer
 
                 // Keep a dictionary of filter index to the tool format string
                 // just in case the SDK and supported converters gets out of sync
-                // with this extension. Hopefully in the future this will be caught by a test.
+                // with this extension.
+                // We have a "test" to "try" to catch this, but that test is only good IF
+                // the extension solution and the test solution are using the same
+                // converter nuget package.
                 Dictionary<int, string> filterIndexToToolFormat = new Dictionary<int, string>(toolFormatFieldInfos.Length)
                 {
                     { 0, ToolFormat.None }
@@ -177,10 +180,6 @@ namespace Microsoft.Sarif.Viewer
                         filterIndexToToolFormat.Add(toolFormatFilters.Count, fieldInfo.Name);
                     }
                 }
-
-                // Add "import all"
-                toolFormatFilters.Add(Resources.ImportAllFilesFilter);
-                filterIndexToToolFormat.Add(toolFormatFilters.Count, ToolFormat.None);
 
                 OpenFileDialog openFileDialog = new OpenFileDialog();
 

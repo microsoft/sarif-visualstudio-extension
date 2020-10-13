@@ -270,10 +270,6 @@
     <value>TSLint log files (*.json)|*.json</value>
     <comment>Used in the import log open dialog</comment>
   </data>
-  <data name="ImportAllFilesFilter" xml:space="preserve">
-    <value>All files (*.*)|*.*</value>
-    <comment>Used in the import log open dialog</comment>
-  </data>
   <data name="ImportContrastSecurityFilter" xml:space="preserve">
     <value>Contrast Security files (*.csf)|*.csf</value>
     <comment>Used in the import log open dialog</comment>
