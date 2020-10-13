@@ -170,11 +170,11 @@
     <comment>{0} will be the full file path</comment>
   </data>
   <data name="ProcessingLogFileFormat" xml:space="preserve">
-    <value>Processing SARIF log '{0}'&#x2026;</value>
+    <value>Processing SARIF log '{0}'…</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
   <data name="ProcessLogFiles" xml:space="preserve">
-    <value>Processing SARIF logs&#x2026;</value>
+    <value>Processing SARIF logs…</value>
     <comment>Used to display processing log file information in VS's task center UI.</comment>
   </data>
   <data name="ProcessLogFilesComplete" xml:space="preserve">
@@ -188,6 +188,10 @@
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="RuleLookup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Data\RuleLookup.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SarifExplorerCaption" xml:space="preserve">
+    <value>SARIF Explorer</value>
+    <comment>The caption of the SARIF explorer tool window</comment>
   </data>
   <data name="SaveConvertedLog_DialogTitle" xml:space="preserve">
     <value>Save Converted Log File</value>

@@ -244,6 +244,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SARIF Explorer.
+        /// </summary>
+        public static string SarifExplorerCaption {
+            get {
+                return ResourceManager.GetString("SarifExplorerCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save Converted Log File.
         /// </summary>
         public static string SaveConvertedLog_DialogTitle {
