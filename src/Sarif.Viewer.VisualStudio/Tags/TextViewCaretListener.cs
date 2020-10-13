@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
@@ -29,6 +30,15 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textView.Closed += TextView_Closed;
             this.textView.LayoutChanged += TextView_LayoutChanged;
             this.textView.Caret.PositionChanged += Caret_PositionChanged;
+            this.textView.GotAggregateFocus += TextView_GotAggregateFocus;
+            this.textView.LostAggregateFocus += TextView_LostAggregateFocus;
+
+            // Send an update of the initial caret position for this text view.
+            // This allows the SARIF explorer to properly receive the caret
+            // entered notifications for a newly created text view.
+            // This allows the SARIF explorer to proper set selection to items
+            // on initial load.
+            ThreadHelper.JoinableTaskFactory.RunAsync(() => this.UpdateInitialCaretPositionAsync());
         }
 
         /// <summary>
@@ -40,6 +50,20 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Fired when the Visual Studio caret leaves a tag.
         /// </summary>
         public event EventHandler<TagInCaretChangedEventArgs> CaretLeftTag;
+
+        private async System.Threading.Tasks.Task UpdateInitialCaretPositionAsync()
+        {
+            // When ThreadHelper.JoinableTaskFactory.RunAsync is invoked, if the current thread
+            // is the main UI thread, then it runs this task synchronously.
+            // What we want is for the constructor above to return and the consumer
+            // of the new object to be able to subscribe to events before the initial
+            // caret position update (and it's corresponding events) are sent.
+            // So we yield to allow the constructor call stack to unwind before sending
+            // the initial caret position events.
+            await System.Threading.Tasks.Task.Yield();
+
+            this.UpdateAtCaretPosition(this.textView.Caret.Position);
+        }
 
         private void TextView_LayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
@@ -60,16 +84,28 @@ namespace Microsoft.Sarif.Viewer.Tags
             UpdateAtCaretPosition(e.NewPosition);
         }
 
+        private void TextView_GotAggregateFocus(object sender, EventArgs e)
+        {
+            this.UpdateAtCaretPosition(this.textView.Caret.Position);
+        }
+
+        private void TextView_LostAggregateFocus(object sender, EventArgs e)
+        {
+            this.UpdateAtCaretPosition(this.textView.Caret.Position);
+        }
+
         private void UpdateAtCaretPosition(CaretPosition caretPosition)
         {
             SnapshotPoint caretSnapshotPoint = caretPosition.BufferPosition;
 
             NormalizedSnapshotSpanCollection normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
-            List<ISarifLocationTag> tagsCaretIsCurrentlyIn = this.tagger.GetTags(normalizedSnapshotSpanCollection).
+            // Handling the aggregate focus allows tags to have their highlights removed when the focus moves from
+            // one document to another rather than having a bunch of views with highlights that don't correspond
+            // with what's being selected in the solution explorer.
+            List<ISarifLocationTag> tagsCaretIsCurrentlyIn = (this.textView.HasAggregateFocus ? this.tagger.GetTags(normalizedSnapshotSpanCollection).
                 Where(tag => tag.Tag is ISarifLocationTag).
-                Select(tag => tag.Tag as ISarifLocationTag).
-                ToList();
+                Select(tag => tag.Tag as ISarifLocationTag) : Enumerable.Empty<ISarifLocationTag>()).ToList();
 
             if (this.previousTagsCaretWasIn != null && tagsCaretIsCurrentlyIn.SequenceEqual(this.previousTagsCaretWasIn, this.textMarkerTagCompaerer))
             {
@@ -108,6 +144,8 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.textView.Closed -= this.TextView_Closed;
             this.textView.LayoutChanged -= this.TextView_LayoutChanged;
             this.textView.Caret.PositionChanged -= this.Caret_PositionChanged;
+            this.textView.GotAggregateFocus -= this.TextView_GotAggregateFocus;
+            this.textView.LostAggregateFocus -= this.TextView_LostAggregateFocus;
         }
 
         /// <summary>

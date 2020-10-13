@@ -155,6 +155,15 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Fired when this error list item is disposed.
+        /// </summary>
+        /// <remarks>
+        /// An example of the usage of this is making sure that the SARIF explorer window
+        /// doesn't hold on to a disposed object when the error list is cleared.
+        /// </remarks>
+        public event EventHandler Disposed;
+
         private FailureLevel GetEffectiveLevel(Result result)
         {
             FailureLevel effectiveLevel;
@@ -633,6 +642,8 @@ namespace Microsoft.Sarif.Viewer
                     resultTextMarker.Dispose();
                 }
             }
+
+            Disposed?.Invoke(this, new EventArgs());
         }
 
         public void Dispose()

@@ -171,12 +171,32 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            if (this.Control.DataContext is SarifErrorListItem previousSarifErrorListItem)
+            {
+                previousSarifErrorListItem.Disposed -= SarifErrorListItem_Disposed;
+            }
+
             // Resetting the data context to null causes the correct tab in the SARIF explorer
             // window to be selected when the data context is set back to a non-null value.
             this.Control.DataContext = null;
             this.Control.DataContext = sarifErrorListItem;
 
+            if (sarifErrorListItem != null)
+            {
+                sarifErrorListItem.Disposed += SarifErrorListItem_Disposed;
+            }
+
             UpdateSelectionList(sarifErrorListItem);
+        }
+
+        private void SarifErrorListItem_Disposed(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (this.Control.DataContext == sender)
+            {
+                UpdateDataContext(sarifErrorListItem: null);
+            }
         }
 
         /// <summary>
