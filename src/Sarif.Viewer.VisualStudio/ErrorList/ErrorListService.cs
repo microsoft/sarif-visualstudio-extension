@@ -215,12 +215,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             await ProcessSarifLogAsync(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors).ConfigureAwait(continueOnCapturedContext: false);
-
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            if (AsyncPackage.GetGlobalService(typeof(DTE)) is DTE2 dte)
-            {
-                dte.ExecuteCommand("View.ErrorList");
-            }
         }
 
         /// <summary>
@@ -381,9 +375,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            if (!hasResults && showMessageOnNoResults)
+            if (hasResults)
             {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget("Microsoft/SARIF/Viewer/ShowErrorList");
+            }
+            else if (showMessageOnNoResults)
+            {
                 VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                 string.Format(Resources.NoResults_DialogMessage, logFilePath),
                                                 null, // title

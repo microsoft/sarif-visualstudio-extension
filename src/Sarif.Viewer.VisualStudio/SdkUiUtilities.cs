@@ -388,6 +388,40 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
+        /// <summary>
+        /// Locates a tool window and request that it be shown.
+        /// </summary>
+        /// <param name="toolWindowGuid">A tool window identifier, typically one from <see cref="ToolWindowGuids80"/> such as the error list.</param>
+        /// <param name="activate">Indicates whether to activate (take keyboard focus) when showing the tool window.</param>
+        /// <returns>Returns a task that when completed indicates if the tool window was shown.</returns>
+        public static async System.Threading.Tasks.Task<bool> ShowToolWindowAsync(Guid toolWindowGuid, bool activate)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            IVsUIShell uiShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell;
+            if (uiShell == null)
+            {
+                return false;
+            }
+
+            IVsWindowFrame toolWindowFrame = null;
+            uiShell.FindToolWindow((uint)__VSFINDTOOLWIN.FTW_fForceCreate, ref toolWindowGuid, out toolWindowFrame);
+            if (toolWindowFrame != null)
+            {
+                if (activate)
+                {
+                    toolWindowFrame.Show();
+                }
+                else
+                {
+                    toolWindowFrame.ShowNoActivate();
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
