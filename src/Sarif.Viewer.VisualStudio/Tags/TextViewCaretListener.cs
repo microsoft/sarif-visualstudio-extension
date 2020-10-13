@@ -64,7 +64,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             SnapshotPoint caretSnapshotPoint = caretPosition.BufferPosition;
 
-            NormalizedSnapshotSpanCollection normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(caretSnapshotPoint, caretSnapshotPoint));
+            NormalizedSnapshotSpanCollection normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
             List<ISarifLocationTag> tagsCaretIsCurrentlyIn = this.tagger.GetTags(normalizedSnapshotSpanCollection).
                 Where(tag => tag.Tag is ISarifLocationTag).
