@@ -171,6 +171,141 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All files (*.*)|*.*.
+        /// </summary>
+        public static string ImportAllFilesFilter {
+            get {
+                return ResourceManager.GetString("ImportAllFilesFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Android Studio log files (*.xml)|*.xml.
+        /// </summary>
+        public static string ImportAndroidStudioFilter {
+            get {
+                return ResourceManager.GetString("ImportAndroidStudioFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clang log files (*.xml)|*.xml.
+        /// </summary>
+        public static string ImportClangAnalyzerFilter {
+            get {
+                return ResourceManager.GetString("ImportClangAnalyzerFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Contrast Security files (*.csf)|*.csf.
+        /// </summary>
+        public static string ImportContrastSecurityFilter {
+            get {
+                return ResourceManager.GetString("ImportContrastSecurityFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CppCheck log files (*.xml)|*.xml.
+        /// </summary>
+        public static string ImportCppCheckFilter {
+            get {
+                return ResourceManager.GetString("ImportCppCheckFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fortify log files (*.xml)|*.xml.
+        /// </summary>
+        public static string ImportFortifyFilter {
+            get {
+                return ResourceManager.GetString("ImportFortifyFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fortify FPR log files (*.fpr)|*.fpr.
+        /// </summary>
+        public static string ImportFortifyFprFilter {
+            get {
+                return ResourceManager.GetString("ImportFortifyFprFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FxCop report and project files (*.xml)|*.xml.
+        /// </summary>
+        public static string ImportFxCopFilter {
+            get {
+                return ResourceManager.GetString("ImportFxCopFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import analysis log.
+        /// </summary>
+        public static string ImportLogOpenFileDialogTitle {
+            get {
+                return ResourceManager.GetString("ImportLogOpenFileDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MSBuild files (*.xyz)|*.xyz.
+        /// </summary>
+        public static string ImportMSBuildFilter {
+            get {
+                return ResourceManager.GetString("ImportMSBuildFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PREfast log files (*.xml)|*.xml.
+        /// </summary>
+        public static string ImportPREfastFilter {
+            get {
+                return ResourceManager.GetString("ImportPREfastFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pylint log files (*.json)|*.json.
+        /// </summary>
+        public static string ImportPylintFilter {
+            get {
+                return ResourceManager.GetString("ImportPylintFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SARIF files (*.sarif)|*.sarif.
+        /// </summary>
+        public static string ImportSARIFFilter {
+            get {
+                return ResourceManager.GetString("ImportSARIFFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Static Driver Verifier log files (*.tt)|*.tt.
+        /// </summary>
+        public static string ImportStaticDriverVerifierFilter {
+            get {
+                return ResourceManager.GetString("ImportStaticDriverVerifierFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TSLint log files (*.json)|*.json.
+        /// </summary>
+        public static string ImportTSLintFilter {
+            get {
+                return ResourceManager.GetString("ImportTSLintFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The log file &apos;{0}&apos; is invalid and couldn&apos;t be opened..
         /// </summary>
         public static string LogOpenFail_InvalidFormat_DialogMessage {

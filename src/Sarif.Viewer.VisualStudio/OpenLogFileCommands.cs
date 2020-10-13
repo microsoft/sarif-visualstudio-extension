@@ -2,10 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Windows.Forms;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -22,34 +26,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int OpenSarifFileCommandId = 0x0100;
-        public const int OpenPREfastFileCommandId = 0x0101;
-        public const int OpenStaticDriverVerifierFileCommandId = 0x0102;
-        public const int OpenFxCopFileCommandId = 0x0103;
-        public const int OpenFortifyFileCommandId = 0x0104;
-        public const int OpenCppCheckFileCommandId = 0x0105;
-        public const int OpenClangFileCommandId = 0x0106;
-        public const int OpenAndroidStudioFileCommandId = 0x0107;
-        public const int OpenSemmleFileCommandId = 0x0108;
-        public const int OpenTSLintFileCommand = 0x0109;
-        public const int OpenPylintFileCommand = 0x010A;
-        public const int OpenFortifyFprFileCommandId = 0x010B;
-
-        private static int[] s_commands = new int[]
-        {
-            OpenSarifFileCommandId,
-            OpenPREfastFileCommandId,
-            OpenStaticDriverVerifierFileCommandId,
-            OpenFxCopFileCommandId,
-            OpenFortifyFileCommandId,
-            OpenCppCheckFileCommandId,
-            OpenClangFileCommandId,
-            OpenAndroidStudioFileCommandId,
-            OpenSemmleFileCommandId,
-            OpenTSLintFileCommand,
-            OpenPylintFileCommand,
-            OpenFortifyFprFileCommandId
-        };
+        public const int ImportAnalysLogCommandId = 0x0100;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -78,15 +55,12 @@ namespace Microsoft.Sarif.Viewer
             OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
             {
-                foreach (int command in s_commands)
-                {
-                    OleMenuCommand oleCommand = new OleMenuCommand(
-                            this.MenuItemCallback,
-                            new CommandID(CommandSet, command));
-                    oleCommand.ParametersDescription = "$";
+                OleMenuCommand oleCommand = new OleMenuCommand(
+                        this.MenuItemCallback,
+                        new CommandID(CommandSet, ImportAnalysLogCommandId));
+                oleCommand.ParametersDescription = "$";
 
-                    commandService.AddCommand(oleCommand);
-                }
+                commandService.AddCommand(oleCommand);
             }
         }
 
@@ -168,104 +142,50 @@ namespace Microsoft.Sarif.Viewer
 
             if (logFile == null)
             {
-                string title = "Open Static Analysis Results Interchange Format (SARIF) file";
-                string filter = "SARIF files (*.sarif)|*.sarif";
+                FieldInfo[] toolFormatFieldInfos = typeof(ToolFormat).GetFields();
 
-                switch (menuCommand.CommandID.ID)
+                // Need two additional entries for "SARIF" and "All" which are at the beginning
+                // and end of the list respectively.
+                List<string> toolFormatFilters = new List<string>(toolFormatFieldInfos.Length + 2)
                 {
-                    // These constants expressed in our VSCT
-                    case OpenSarifFileCommandId:
+                    Resources.ImportSARIFFilter,
+                };
+
+                // Keep a dictionary of filter index to the tool format string
+                // just in case the SDK and supported converters gets out of sync
+                // with this extension. Hopefully in the future this will be caught by a test.
+                Dictionary<int, string> filterIndexToToolFormat = new Dictionary<int, string>(toolFormatFieldInfos.Length)
+                {
+                    { 0, ToolFormat.None }
+                };
+
+                foreach (FieldInfo fieldInfo in toolFormatFieldInfos)
+                {
+                    if (fieldInfo.Name.Equals(ToolFormat.None, StringComparison.OrdinalIgnoreCase))
                     {
-                            // Native SARIF. All our defaults above are fine
-                            break;
+                        continue;
                     }
-                    case OpenPREfastFileCommandId:
+
+                    string filterString = Resources.ResourceManager.GetString(string.Format(CultureInfo.InvariantCulture, "Import{0}Filter", fieldInfo.Name), CultureInfo.CurrentCulture);
+                    Debug.Assert(!string.IsNullOrEmpty(filterString), "Why should have resources for the filters for all types of conversions we support");
+
+                    if (!string.IsNullOrEmpty(filterString))
                     {
-                        toolFormat = ToolFormat.PREfast;
-                        title = "Open PREfast XML log file";
-                        filter = "PREfast log files (*.xml)|*.xml";
-                        break;
-                    }
-                    case OpenStaticDriverVerifierFileCommandId:
-                    {
-                        toolFormat = ToolFormat.StaticDriverVerifier;
-                        title = "Open Static Driver Verifier trace log file";
-                        filter = "Static Driver Verifier log files (*.tt)|*.tt";
-                        break;
-                    }
-                    case OpenFxCopFileCommandId:
-                    {
-                        // FxCop. TODO. We need project file support. FxCop
-                        // fullMessages look broken.
-                        toolFormat = ToolFormat.FxCop;
-                        title = "Open FxCop XML log file";
-                        filter = "FxCop report and project files (*.xml)|*.xml";
-                        break;
-                    }
-                    case OpenFortifyFileCommandId:
-                    {
-                        toolFormat = ToolFormat.Fortify;
-                        title = "Open Fortify XML log file";
-                        filter = "Fortify log files (*.xml)|*.xml";
-                        break;
-                    }
-                    case OpenFortifyFprFileCommandId:
-                    {
-                        toolFormat = ToolFormat.FortifyFpr;
-                        title = "Open Fortify FPR log file";
-                        filter = "Fortify FPR log files (*.fpr)|*.fpr";
-                        break;
-                    }
-                    case OpenCppCheckFileCommandId:
-                    {
-                        toolFormat = ToolFormat.CppCheck;
-                        title = "Open CppCheck XML log file";
-                        filter = "CppCheck log files (*.xml)|*.xml";
-                        break;
-                    }
-                    case OpenClangFileCommandId:
-                    {
-                        toolFormat = ToolFormat.ClangAnalyzer;
-                        title = "Open Clang XML log file";
-                        filter = "Clang log files (*.xml)|*.xml";
-                        break;
-                    }
-                    case OpenAndroidStudioFileCommandId:
-                    {
-                        toolFormat = ToolFormat.AndroidStudio;
-                        title = "Open Android Studio XML log file";
-                        filter = "Android Studio log files (*.xml)|*.xml";
-                        break;
-                    }
-                    case OpenSemmleFileCommandId:
-                    {
-                        toolFormat = ToolFormat.SemmleQL;
-                        title = "Open Semmle QL CSV log file";
-                        filter = "Semmle QL log files (*.csv)|*.csv";
-                        break;
-                    }
-                    case OpenPylintFileCommand:
-                    {
-                        toolFormat = ToolFormat.Pylint;
-                        title = "Open Pylint JSON log file";
-                        filter = "Pylint log files (*.json)|*.json";
-                        break;
-                    }
-                    case OpenTSLintFileCommand:
-                    {
-                        toolFormat = ToolFormat.TSLint;
-                        title = "Open TSLint JSON log file";
-                        filter = "TSLint log files (*.json)|*.json";
-                        break;
+                        // We want the list to start with "import SARIF" and end with "All file"
+                        // so insert this after "import SARIF".
+                        toolFormatFilters.Add(filterString);
+                        filterIndexToToolFormat.Add(toolFormatFilters.Count, fieldInfo.Name);
                     }
                 }
 
-                filter += "|All files (*.*)|*.*";
+                // Add "import all"
+                toolFormatFilters.Add(Resources.ImportAllFilesFilter);
+                filterIndexToToolFormat.Add(toolFormatFilters.Count, ToolFormat.None);
 
-                 OpenFileDialog openFileDialog = new OpenFileDialog();
+                OpenFileDialog openFileDialog = new OpenFileDialog();
 
-                openFileDialog.Title = title;
-                openFileDialog.Filter = filter;
+                openFileDialog.Title = Resources.ImportLogOpenFileDialogTitle;
+                openFileDialog.Filter = string.Join("|", toolFormatFilters);
                 openFileDialog.RestoreDirectory = true;
 
                 if (!String.IsNullOrWhiteSpace(inputFile))
@@ -279,6 +199,7 @@ namespace Microsoft.Sarif.Viewer
                     return;
                 }
 
+                toolFormat = filterIndexToToolFormat[openFileDialog.FilterIndex];
                 logFile = openFileDialog.FileName;
             }
 
@@ -290,7 +211,6 @@ namespace Microsoft.Sarif.Viewer
             }
             catch (InvalidOperationException)
             {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                                 string.Format(Resources.LogOpenFail_InvalidFormat_DialogMessage, Path.GetFileName(logFile)),
                                                 null, // title
