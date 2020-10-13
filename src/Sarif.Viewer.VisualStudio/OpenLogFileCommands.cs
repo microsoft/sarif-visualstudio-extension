@@ -128,7 +128,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            this.MenuItemCallbackAsync(sender, e).FileAndForget("Microsoft/SARIF/Viewer/OpenSARIFLogMenu");
+            this.MenuItemCallbackAsync(sender, e).FileAndForget(Constants.FileAndForgetFaultEventNames.OpenSarifLogMenu);
         }
 
         private async System.Threading.Tasks.Task MenuItemCallbackAsync(object sender, EventArgs e)

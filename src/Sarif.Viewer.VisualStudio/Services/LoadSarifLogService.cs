@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            LoadSarifLogAsync(paths, promptOnSchemaUpgrade).FileAndForget("Microsoft/SARIF/Viewer/LoadSarifLogs");
+            LoadSarifLogAsync(paths, promptOnSchemaUpgrade).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         private async System.Threading.Tasks.Task LoadSarifLogAsync(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
