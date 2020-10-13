@@ -64,13 +64,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             SnapshotPoint caretSnapshotPoint = caretPosition.BufferPosition;
 
-            // If the caret is at the end of the file, then the caret cannot be inside a tag.
-            if (caretSnapshotPoint.Position + 1 >= this.textView.TextBuffer.CurrentSnapshot.Length)
-            {
-                return;
-            }
-
-            NormalizedSnapshotSpanCollection normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(caretSnapshotPoint, 1));
+            NormalizedSnapshotSpanCollection normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
             List<ISarifLocationTag> tagsCaretIsCurrentlyIn = this.tagger.GetTags(normalizedSnapshotSpanCollection).
                 Where(tag => tag.Tag is ISarifLocationTag).
