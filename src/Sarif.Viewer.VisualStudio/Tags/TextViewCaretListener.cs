@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // is the main UI thread, then it runs this task synchronously.
             // What we want is for the constructor above to return and the consumer
             // of the new object to be able to subscribe to events before the initial
-            // caret position update (and it's corresponding events) are sent.
+            // caret position update (and its corresponding events) are sent.
             // So we yield to allow the constructor call stack to unwind before sending
             // the initial caret position events.
             await System.Threading.Tasks.Task.Yield();
@@ -103,9 +103,11 @@ namespace Microsoft.Sarif.Viewer.Tags
             // Handling the aggregate focus allows tags to have their highlights removed when the focus moves from
             // one document to another rather than having a bunch of views with highlights that don't correspond
             // with what's being selected in the solution explorer.
-            List<ISarifLocationTag> tagsCaretIsCurrentlyIn = (this.textView.HasAggregateFocus ? this.tagger.GetTags(normalizedSnapshotSpanCollection).
-                Where(tag => tag.Tag is ISarifLocationTag).
-                Select(tag => tag.Tag as ISarifLocationTag) : Enumerable.Empty<ISarifLocationTag>()).ToList();
+            List<ISarifLocationTag> tagsCaretIsCurrentlyIn = (this.textView.HasAggregateFocus
+                ? this.tagger.GetTags(normalizedSnapshotSpanCollection).
+                    Where(tag => tag.Tag is ISarifLocationTag).
+                    Select(tag => tag.Tag as ISarifLocationTag)
+                : Enumerable.Empty<ISarifLocationTag>()).ToList();
 
             if (this.previousTagsCaretWasIn != null && tagsCaretIsCurrentlyIn.SequenceEqual(this.previousTagsCaretWasIn, this.textMarkerTagCompaerer))
             {
