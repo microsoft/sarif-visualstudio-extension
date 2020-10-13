@@ -3,8 +3,26 @@
 
 namespace Microsoft.Sarif.Viewer
 {
-    class Constants
+    internal static class Constants
     {
         public const string VSIX_NAME = "SARIF Viewer";
+
+        public static class FileAndForgetFaultEventNames
+        {
+            /// <summary>
+            /// Used when showing the error list fails.
+            /// </summary>
+            public const string ShowErrorList = "Microsoft/SARIF/Viewer/ShowErrorList";
+
+            /// <summary>
+            /// Used when the open SARIF log menu fails.
+            /// </summary>
+            public const string OpenSarifLogMenu = "Microsoft/SARIF/Viewer/OpenSARIFLogMenu";
+
+            /// <summary>
+            /// Used when loading a SARIF log through the load SARIF log service files.
+            /// </summary>
+            public const string LoadSarifLogs = "Microsoft/SARIF/Viewer/LoadSarifLogs";
+        }
     }
 }

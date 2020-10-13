@@ -377,7 +377,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (hasResults)
             {
-                SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget("Microsoft/SARIF/Viewer/ShowErrorList");
+                SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
             }
             else if (showMessageOnNoResults)
             {
