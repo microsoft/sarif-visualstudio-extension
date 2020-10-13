@@ -397,26 +397,22 @@ namespace Microsoft.Sarif.Viewer
         public static async System.Threading.Tasks.Task<bool> ShowToolWindowAsync(Guid toolWindowGuid, bool activate)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            IVsUIShell uiShell = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsUIShell)) as IVsUIShell;
-            if (uiShell == null)
+            if (Package.GetGlobalService(typeof(SVsUIShell)) is IVsUIShell uiShell)
             {
-                return false;
-            }
-
-            IVsWindowFrame toolWindowFrame = null;
-            uiShell.FindToolWindow((uint)__VSFINDTOOLWIN.FTW_fForceCreate, ref toolWindowGuid, out toolWindowFrame);
-            if (toolWindowFrame != null)
-            {
-                if (activate)
+                if (uiShell.FindToolWindow((uint)__VSFINDTOOLWIN.FTW_fForceCreate, ref toolWindowGuid, out IVsWindowFrame toolWindowFrame) == VSConstants.S_OK &&
+                    toolWindowFrame != null)
                 {
-                    toolWindowFrame.Show();
-                }
-                else
-                {
-                    toolWindowFrame.ShowNoActivate();
-                }
+                    if (activate)
+                    {
+                        toolWindowFrame.Show();
+                    }
+                    else
+                    {
+                        toolWindowFrame.ShowNoActivate();
+                    }
 
-                return true;
+                    return true;
+                }
             }
 
             return false;
