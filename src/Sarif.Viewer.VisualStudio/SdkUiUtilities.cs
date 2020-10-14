@@ -397,6 +397,7 @@ namespace Microsoft.Sarif.Viewer
         public static async System.Threading.Tasks.Task<bool> ShowToolWindowAsync(Guid toolWindowGuid, bool activate)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             if (Package.GetGlobalService(typeof(SVsUIShell)) is IVsUIShell uiShell)
             {
                 if (uiShell.FindToolWindow((uint)__VSFINDTOOLWIN.FTW_fForceCreate, ref toolWindowGuid, out IVsWindowFrame toolWindowFrame) == VSConstants.S_OK &&
