@@ -1,21 +1,20 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
-using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.Sarif.Viewer.ErrorList;
-using Microsoft.Sarif.Viewer.Services;
-using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -37,7 +36,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ISarifLocationTaggerService))]
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
-    public sealed class SarifViewerPackage : AsyncPackage
+    public sealed class SarifViewerPackage : AsyncPackage, IVsPackage2
     {
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
@@ -112,22 +111,6 @@ namespace Microsoft.Sarif.Viewer
                 ((IServiceContainer)this).AddService(serviceInformationKVP.Key, callback, promote: serviceInformationKVP.Value.Promote);
             }
 
-            string path = Assembly.GetExecutingAssembly().Location;
-            var configMap = new ExeConfigurationFileMap();
-            configMap.ExeConfigFilename = Path.Combine(Path.GetDirectoryName(path), "App.config");
-            AppConfig = System.Configuration.ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
-
-#if DEBUG
-            string telemetryKey = SarifViewerPackage.AppConfig.AppSettings.Settings["TelemetryInstrumentationKey_Debug"].Value;
-#else
-            string telemetryKey = SarifViewerPackage.AppConfig.AppSettings.Settings["TelemetryInstrumentationKey_Release"].Value;
-#endif
-
-            TelemetryConfiguration configuration = new TelemetryConfiguration()
-            {
-                InstrumentationKey = telemetryKey
-            };
-            TelemetryProvider.Initialize(configuration);
             TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -144,6 +127,17 @@ namespace Microsoft.Sarif.Viewer
         private object CreateService(IServiceContainer container, Type serviceType)
         {
             return ServiceTypeToServiceInformation.TryGetValue(serviceType, out ServiceInformation serviceInformation) ? serviceInformation.Creator(serviceType) : null;
+        }
+
+        public int get_CanClose(out bool pfCanClose)
+        {
+            pfCanClose = true;
+            return VSConstants.S_OK;
+        }
+
+        protected override int QueryClose(out bool canClose)
+        {
+            return base.QueryClose(out canClose);
         }
     }
 }

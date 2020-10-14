@@ -3,10 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
+using EnvDTE;
+using EnvDTE80;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.CodeAnalysis.Sarif.Converters;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -15,51 +23,62 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal static class TelemetryProvider
     {
-        private static TelemetryClient s_AppInsightsClient;
-        private static readonly object s_LockObject = new object();
-        private static bool s_IsInitialized = false;
+        private static ReaderWriterLockSlimWrapper s_initializeLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private static JoinableTask<TelemetryClient> s_initializeTask;
 
         /// <summary>
         /// Initializes the static instance of the TelemetryProvider.
         /// </summary>
-        /// <param name="telemetryKey">The instrumentation key of the target AI instance.</param>
-        public static void Initialize(TelemetryConfiguration configuration)
+        public static JoinableTask<TelemetryClient> InitializeAsync()
         {
-            lock (s_LockObject)
+            using (s_initializeLock.EnterUpgradeableReadLock())
             {
-                if (!s_IsInitialized)
+                if (s_initializeTask != null)
                 {
-                    s_AppInsightsClient = new TelemetryClient(configuration);
-                    s_IsInitialized = true;
+                    return s_initializeTask;
+                }
+
+                using (s_initializeLock.EnterWriteLock())
+                {
+                    s_initializeTask = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                    {
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                        string path = Assembly.GetExecutingAssembly().Location;
+                        var configMap = new ExeConfigurationFileMap();
+                        configMap.ExeConfigFilename = Path.Combine(Path.GetDirectoryName(path), "App.config");
+                        System.Configuration.Configuration assemblyConfiguration = System.Configuration.ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
+
+#if DEBUG
+                        string telemetryKey = assemblyConfiguration.AppSettings.Settings["TelemetryInstrumentationKey_Debug"].Value;
+#else
+                        string telemetryKey = assemblyConfiguration.AppSettings.Settings["TelemetryInstrumentationKey_Release"].Value;
+#endif
+
+                        TelemetryConfiguration telemetryConfiguration = new TelemetryConfiguration()
+                        {
+                            InstrumentationKey = telemetryKey
+                        };
+
+                        TelemetryClient telemtryClient = new TelemetryClient(telemetryConfiguration);
+
+                        // Get an instance of the currently running Visual Studio IDE
+                        if (ServiceProvider.GlobalProvider.GetService(typeof(DTE)) is DTE2 dte2)
+                        {
+                            dte2.Events.DTEEvents.OnBeginShutdown += new _dispDTEEvents_OnBeginShutdownEventHandler(() =>
+                            {
+                                telemtryClient.Flush();
+                                telemetryConfiguration.Dispose();
+                                s_initializeLock.InnerLock.Dispose();
+                            });
+                        }
+
+                        return telemtryClient;
+                    });
                 }
             }
-        }
 
-        /// <summary>
-        /// Resets to the uninitialized state.
-        /// </summary>
-        public static void Reset()
-        {
-            lock (s_LockObject)
-            {
-                s_AppInsightsClient = null;
-                s_IsInitialized = false;
-            }
-        }
-
-        /// <summary>
-        /// Sends event telemetry when the user chooses a menu item from the Tools > Open Static Analysis Log File menu.
-        /// </summary>
-        /// <param name="toolFormat">The tool format of the menu item.</param>
-        public static void WriteMenuCommandEvent(string toolFormat)
-        {
-            if (string.IsNullOrWhiteSpace(toolFormat))
-            {
-                throw new ArgumentNullException(nameof(toolFormat));
-            }
-
-            WriteEvent(TelemetryEvent.LogFileOpenedByMenuCommand,
-                       CreateKeyValuePair("Format", toolFormat == ToolFormat.None ? "SARIF" : toolFormat));
+            return s_initializeTask;
         }
 
         /// <summary>
@@ -68,18 +87,14 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="eventType">The type of the event.</param>
         public static void WriteEvent(TelemetryEvent eventType)
         {
-            if (s_IsInitialized)
-            {
-                s_AppInsightsClient.TrackEvent(eventType.ToString());
-                s_AppInsightsClient.Flush();
-            }
+            WriteEventAsync(eventType).FileAndForget(Constants.FileAndForgetFaultEventNames.TelemetryWriteEvent);
         }
 
         /// <summary>
         /// Sends event telemetry for the specified event type with the specified data value.
         /// </summary>
         /// <param name="eventType">The type of the event.</param>
-        /// <param name="data">The value of the Data property associted with the event.</param>
+        /// <param name="data">The value of the Data property associated with the event.</param>
         public static void WriteEvent(TelemetryEvent eventType, string data)
         {
             if (string.IsNullOrWhiteSpace(data))
@@ -97,7 +112,7 @@ namespace Microsoft.Sarif.Viewer
         /// Sends event telemetry for the specified event type with the associated named data properties.
         /// </summary>
         /// <param name="eventType">The type of the event.</param>
-        /// <param name="pairs">Named string value data properties associted with this event.</param>
+        /// <param name="pairs">Named string value data properties associated with this event.</param>
         public static void WriteEvent(TelemetryEvent eventType, params KeyValuePair<string, string>[] pairs)
         {
             var dictionary = pairs.ToDictionary(p => p.Key, p => p.Value);
@@ -109,14 +124,10 @@ namespace Microsoft.Sarif.Viewer
         /// Sends event telemetry for the specified event type with the specified named data properties.
         /// </summary>
         /// <param name="eventType">The type of the event.</param>
-        /// <param name="properties">Named string value data properties associted with this event.</param>
+        /// <param name="properties">Named string value data properties associated with this event.</param>
         public static void WriteEvent(TelemetryEvent eventType, Dictionary<string, string> properties = null)
         {
-            if (s_IsInitialized)
-            {
-                s_AppInsightsClient.TrackEvent(eventType.ToString(), properties);
-                s_AppInsightsClient.Flush();
-            }
+            WriteEventAsync(eventType, properties).FileAndForget(Constants.FileAndForgetFaultEventNames.TelemetryWriteEvent);
         }
 
         /// <summary>
@@ -138,6 +149,18 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return new KeyValuePair<string, string>(key, value);
+        }
+
+        private static async System.Threading.Tasks.Task WriteEventAsync(TelemetryEvent eventType)
+        {
+            TelemetryClient telemetryClient = await InitializeAsync();
+            telemetryClient.TrackEvent(eventType.ToString());
+        }
+
+        private static async System.Threading.Tasks.Task WriteEventAsync(TelemetryEvent eventType, Dictionary<string, string> properties = null)
+        {
+            TelemetryClient telemetryClient = await InitializeAsync();
+            telemetryClient.TrackEvent(eventType.ToString(), properties);
         }
     }
 }

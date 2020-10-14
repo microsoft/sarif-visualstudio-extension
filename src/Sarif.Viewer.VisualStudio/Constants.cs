@@ -23,6 +23,11 @@ namespace Microsoft.Sarif.Viewer
             /// Used when loading a SARIF log through the load SARIF log service files.
             /// </summary>
             public const string LoadSarifLogs = "Microsoft/SARIF/Viewer/LoadSarifLogs";
+
+            /// <summary>
+            /// Indicates a telemetry write failed.
+            /// </summary>
+            public const string TelemetryWriteEvent = "Microsoft/SARIF/Viewer/Telemetry/WriteEvent";
         }
     }
 }
