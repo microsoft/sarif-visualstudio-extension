@@ -377,7 +377,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (hasResults)
             {
-                SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
+                if (!SarifViewerPackage.IsUnitTesting) // We cannot show UI during unit-tests.
+                {
+                    SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
+                }
             }
             else if (showMessageOnNoResults)
             {
