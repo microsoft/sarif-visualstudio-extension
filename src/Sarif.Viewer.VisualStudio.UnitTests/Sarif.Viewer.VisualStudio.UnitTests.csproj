@@ -226,7 +226,6 @@
     <Compile Include="Models\ArtifactChangeModelTests.cs" />
     <Compile Include="Models\FixModelTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
-    <Compile Include="ResourceTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />
     <Compile Include="SdkUIUtilitiesTests.cs" />
     <Compile Include="TelemetryProviderTests.cs" />
