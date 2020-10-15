@@ -11,12 +11,14 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void CloseAllSarifLogs()
         {
+            Telemetry.Events.CloseAllSarifLogsApiInvoked();
             ErrorListService.CloseAllSarifLogs();
         }
 
         /// <inheritdoc/>
         public void CloseSarifLogs(IEnumerable<string> paths)
         {
+            Telemetry.Events.CloseSarifLogsLogsApiInvoked();
             ErrorListService.CloseSarifLogs(paths);
         }
     }

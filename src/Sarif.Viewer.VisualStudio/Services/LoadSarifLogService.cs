@@ -21,6 +21,8 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
         {
+            Telemetry.Events.LoadSarifLogApiInvoked();
+
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
@@ -32,6 +34,8 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLog(string path)
         {
+            Telemetry.Events.LoadSarifLogApiInvoked();
+
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
@@ -49,6 +53,8 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
+            Telemetry.Events.LoadSarifLogApiInvoked();
+
             LoadSarifLogAsync(paths, promptOnSchemaUpgrade).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 

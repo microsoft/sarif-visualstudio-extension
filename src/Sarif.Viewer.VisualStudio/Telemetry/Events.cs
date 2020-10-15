@@ -6,6 +6,15 @@ namespace Microsoft.Sarif.Viewer.Telemetry
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Contains the methods for firing telemetry events from the SARIF viewer extension.
+    /// </summary>
+    /// <remarks>
+    /// The documentation in this class is super useful for understanding where this telemetry is fired.
+    /// The documentation should also contain "why" the telemetry is being fired, i.e., why is this data needed?
+    /// Also, by having individual methods, versus calling application insights directly from the code,
+    /// it allows us to easily locate the code that is firing the telemetry.
+    /// </remarks>
     internal static class Events
     {
         /// <summary>
@@ -17,36 +26,51 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// <see cref="TelemetryProvider.TrackEvent(string)"/> that would end up being a recursive MEF composition call (and a
         /// MEF composition exception). This method is purely used for event naming purposes.
         /// </remarks>
-        public static void ExtensionLoaded()
-        {
-            throw new NotImplementedException();
-        }
+        public static void ExtensionLoaded() => throw new NotImplementedException();
 
         /// <summary>
         /// Tracks an event indicating that a SARF log file was run was loaded into the extension.
         /// </summary>
         /// <param name="toolName">The name of the tool that provided the SARIF log.</param>
-        public static void LogFileRunCreatedByToolName(string toolName)
-        {
+        public static void LogFileRunCreatedByToolName(string toolName) =>
             TelemetryProvider.TrackEvent(new Dictionary<string, string> { { nameof(toolName), toolName } } );
-        }
 
         /// <summary>
         /// Tracks an event indicating that a document was opened as a result of navigation either through
         /// a call to <see cref="ResultTextMarker.NavigateTo(bool, bool)"/> or <see cref="CodeLocationObject.NavigateTo(bool, bool)"/>.
         /// </summary>
-        public static void TaskItemDocumentOpened()
-        {
+        public static void TaskItemDocumentOpened() =>
             TelemetryProvider.TrackEvent();
-        }
 
         /// <summary>
         /// Indicates that a SARIF log file was opened (imported) through the tools menu.
         /// </summary>
         /// <param name="toolName">The name of the tool that produced the original static analysis file.</param>
-        public static void LogFileOpenedByMenuCommand(string toolName)
-        {
+        public static void LogFileOpenedByMenuCommand(string toolName) =>
             TelemetryProvider.TrackEvent(new Dictionary<string, string> { { nameof(toolName), toolName } });
-        }
+
+        /// <summary>
+        /// Called when a call to <see cref="Services.CloseSarifLogService.CloseAllSarifLogs"/> is invoked.
+        /// </summary>
+        public static void CloseAllSarifLogsApiInvoked() =>
+            TelemetryProvider.TrackEvent();
+
+        /// <summary>
+        /// Called when a call to <see cref="Services.CloseSarifLogService.CloseSarifLogs"/> is invoked.
+        /// </summary>
+        public static void CloseSarifLogsLogsApiInvoked() =>
+            TelemetryProvider.TrackEvent();
+
+        /// <summary>
+        /// Called when a call to <see cref="Services.LoadSarifLogService.LoadSarifLog"/> is invoked.
+        /// </summary>
+        public static void LoadSarifLogApiInvoked() =>
+            TelemetryProvider.TrackEvent();
+
+        /// <summary>
+        /// Called when a call to <see cref="Services.LoadSarifLogService.LoadSarifLogs)"/> is invoked.
+        /// </summary>
+        public static void LoadSarifsLogApiInvoked() =>
+            TelemetryProvider.TrackEvent();
     }
 }
