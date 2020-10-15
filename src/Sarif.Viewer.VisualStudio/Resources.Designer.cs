@@ -252,6 +252,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SARIF files (*.sarif)|*.sarif.
+        /// </summary>
+        public static string ImportNoneFilter {
+            get {
+                return ResourceManager.GetString("ImportNoneFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PREfast log files (*.xml)|*.xml.
         /// </summary>
         public static string ImportPREfastFilter {
@@ -266,15 +275,6 @@ namespace Microsoft.Sarif.Viewer {
         public static string ImportPylintFilter {
             get {
                 return ResourceManager.GetString("ImportPylintFilter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SARIF files (*.sarif)|*.sarif.
-        /// </summary>
-        public static string ImportSARIFFilter {
-            get {
-                return ResourceManager.GetString("ImportSARIFFilter", resourceCulture);
             }
         }
         

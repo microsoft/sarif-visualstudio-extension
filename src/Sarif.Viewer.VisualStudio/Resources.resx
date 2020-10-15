@@ -282,12 +282,12 @@
     <value>MSBuild files (*.xyz)|*.xyz</value>
     <comment>Used in the import log open dialog</comment>
   </data>
-  <data name="ImportSARIFFilter" xml:space="preserve">
-    <value>SARIF files (*.sarif)|*.sarif</value>
-    <comment>Used in the import log open dialog</comment>
-  </data>
   <data name="ImportSemmleQLFilter" xml:space="preserve">
     <value>Semmle QL log files (*.csv)|*.csv</value>
     <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportNoneFilter" xml:space="preserve">
+    <value>SARIF files (*.sarif)|*.sarif</value>
+    <comment>Used in the import log open dialog. The (None) tool format is expected to be SARIF in the logic.</comment>
   </data>
 </root>

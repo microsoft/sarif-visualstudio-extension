@@ -166,30 +166,23 @@ namespace Microsoft.Sarif.Viewer
             if (logFile == null)
             {
                 FieldInfo[] toolFormatFieldInfos = typeof(ToolFormat).GetFields();
+                List<KeyValuePair<FieldInfo, string>> fieldInfoToOpenFileDialogFilterDisplayString = new List<KeyValuePair<FieldInfo, string>>(toolFormatFieldInfos.Length);
 
-                // We need one additional entry for "SARIF" which is at the beginning of the list.
-                List<string> toolFormatFilters = new List<string>(toolFormatFieldInfos.Length + 1);
-
-                // The reflected enumeration of the fields in tool format is not necessarily in
-                // the same order it is presented in the class (as typed by the developer).
-                // So keep a small map the filter index to the correct tool format.
-                Dictionary<int, FieldInfo> filterIndexToToolFormatFieldInfo = new Dictionary<int, FieldInfo>(toolFormatFieldInfos.Length + 1);
-
+                // Note that "ImportNoneFilter" represents the SARIF file filter (which matches what the code logic does below as well).
                 foreach (FieldInfo fieldInfo in toolFormatFieldInfos)
                 {
-                    string resourceName = 
-                        fieldInfo.Name.Equals(ToolFormat.None, StringComparison.OrdinalIgnoreCase) ?
-                            nameof(Resources.ImportSARIFFilter) : string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", FilterResourceNamePrefix, fieldInfo.Name, FilterResourceNameSuffix);
-
-                    string filterString = Resources.ResourceManager.GetString(resourceName, CultureInfo.CurrentCulture);
-                    toolFormatFilters.Add(filterString);
-                    filterIndexToToolFormatFieldInfo.Add(toolFormatFilters.Count, fieldInfo);
+                    string resourceName = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", FilterResourceNamePrefix, fieldInfo.Name, FilterResourceNameSuffix);
+                    string openFileDialogFilterString = Resources.ResourceManager.GetString(resourceName, CultureInfo.CurrentCulture);
+                    fieldInfoToOpenFileDialogFilterDisplayString.Add(new KeyValuePair<FieldInfo, string>(fieldInfo, openFileDialogFilterString));
                 }
+
+                // Sort the filters by their display strings so the user has a nice alphabetized list.
+                IEnumerable<KeyValuePair<FieldInfo, string>> orderedFilters = fieldInfoToOpenFileDialogFilterDisplayString.OrderBy(kvp => kvp.Value);
 
                 OpenFileDialog openFileDialog = new OpenFileDialog()
                 {
                     Title = Resources.ImportLogOpenFileDialogTitle,
-                    Filter = string.Join("|", toolFormatFilters),
+                    Filter = string.Join("|", orderedFilters.Select( kvp => kvp.Value)),
                     RestoreDirectory = true,
                     Multiselect = false
                 };
@@ -209,13 +202,23 @@ namespace Microsoft.Sarif.Viewer
                     collectionExists != 0 &&
                     vsSettingsStore.GetString(nameof(SarifViewerPackage), ToolFormatSettingName, out string openLogFileToolFormat) == VSConstants.S_OK)
                 {
-                    int? filterIndex = filterIndexToToolFormatFieldInfo.
-                        Where(kvp => kvp.Value.Name.Equals(openLogFileToolFormat, StringComparison.Ordinal)).
-                        Select(kvp => kvp.Key).FirstOrDefault();
+                    int? filterIndex = null;
+                    int currentIndex = 0;
+
+                    foreach (FieldInfo fieldInfo in orderedFilters.Select( kvp => kvp.Key))
+                    {
+                        if (fieldInfo.Name.Equals(openLogFileToolFormat, StringComparison.Ordinal))
+                        {
+                            filterIndex = currentIndex;
+                            break;
+                        }
+                        currentIndex++;
+                    }
 
                     if (filterIndex.HasValue)
                     {
-                        openFileDialog.FilterIndex = filterIndex.Value;
+                        // The filter index in the open file dialog is 1 base.
+                        openFileDialog.FilterIndex = (filterIndex.Value + 1);
                     }
                 }
 
@@ -224,7 +227,8 @@ namespace Microsoft.Sarif.Viewer
                     return;
                 }
 
-                toolFormat = filterIndexToToolFormatFieldInfo[openFileDialog.FilterIndex].GetValue(null) as string;
+                // The filter index in the open file dialog is 1 base.
+                toolFormat = orderedFilters.Skip(openFileDialog.FilterIndex - 1).First().Key.GetValue(null) as string;
 
                 // Write the user's last tool format selection.
                 if (vsSettingsManager != null &&
