@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
     /// Also, by having individual methods, versus calling application insights directly from the code,
     /// it allows us to easily locate the code that is firing the telemetry.
     /// </remarks>
-    internal static class Events
+    internal class Events
     {
         /// <summary>
         /// Does nothing.
@@ -33,44 +33,44 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// </summary>
         /// <param name="toolName">The name of the tool that provided the SARIF log.</param>
         public static void LogFileRunCreatedByToolName(string toolName) =>
-            TelemetryProvider.TrackEvent(new Dictionary<string, string> { { nameof(toolName), toolName } } );
+            TelemetryProvider.TrackEvent<Events>(new Dictionary<string, string> { { nameof(toolName), toolName } } );
 
         /// <summary>
         /// Tracks an event indicating that a document was opened as a result of navigation either through
         /// a call to <see cref="ResultTextMarker.NavigateTo(bool, bool)"/> or <see cref="CodeLocationObject.NavigateTo(bool, bool)"/>.
         /// </summary>
         public static void TaskItemDocumentOpened() =>
-            TelemetryProvider.TrackEvent();
+            TelemetryProvider.TrackEvent<Events>();
 
         /// <summary>
         /// Indicates that a SARIF log file was opened (imported) through the tools menu.
         /// </summary>
         /// <param name="toolName">The name of the tool that produced the original static analysis file.</param>
         public static void LogFileOpenedByMenuCommand(string toolName) =>
-            TelemetryProvider.TrackEvent(new Dictionary<string, string> { { nameof(toolName), toolName } });
+            TelemetryProvider.TrackEvent<Events>(new Dictionary<string, string> { { nameof(toolName), toolName } });
 
         /// <summary>
         /// Called when a call to <see cref="Services.CloseSarifLogService.CloseAllSarifLogs"/> is invoked.
         /// </summary>
         public static void CloseAllSarifLogsApiInvoked() =>
-            TelemetryProvider.TrackEvent();
+            TelemetryProvider.TrackEvent<Events>();
 
         /// <summary>
         /// Called when a call to <see cref="Services.CloseSarifLogService.CloseSarifLogs"/> is invoked.
         /// </summary>
         public static void CloseSarifLogsLogsApiInvoked() =>
-            TelemetryProvider.TrackEvent();
+            TelemetryProvider.TrackEvent<Events>();
 
         /// <summary>
         /// Called when a call to <see cref="Services.LoadSarifLogService.LoadSarifLog"/> is invoked.
         /// </summary>
         public static void LoadSarifLogApiInvoked() =>
-            TelemetryProvider.TrackEvent();
+            TelemetryProvider.TrackEvent<Events>();
 
         /// <summary>
         /// Called when a call to <see cref="Services.LoadSarifLogService.LoadSarifLogs)"/> is invoked.
         /// </summary>
         public static void LoadSarifsLogApiInvoked() =>
-            TelemetryProvider.TrackEvent();
+            TelemetryProvider.TrackEvent<Events>();
     }
 }

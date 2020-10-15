@@ -51,21 +51,21 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// Sends event with the specified named data properties.
         /// </summary>
         /// <param name="eventType">The name of the event.</param>
-        public static void TrackEvent([CallerMemberName] string eventName = null) =>
-            TrackEvent(eventName, properties: null);
+        /// <typeparam name="T">The type that will be used as the enclosing name space for the type.</typeparam>
+        public static void TrackEvent<T>([CallerMemberName] string eventName = null) where T : class
+            => TrackEvent(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeof(T).FullName, eventName), properties: null);
 
         /// <summary>
         /// Sends event with the specified named data properties.
         /// </summary>
         /// <param name="eventType">The name of the event.</param>
         /// <param name="properties">An dictionary of properties.</param>
-        public static void TrackEvent(Dictionary<string, string> properties, [CallerMemberName] string eventName = null) =>
-            TrackEvent(eventName, properties);
+        /// <typeparam name="T">The type that will be used as the enclosing name space for the type.</typeparam>
+        public static void TrackEvent<T>(Dictionary<string, string> properties, [CallerMemberName] string eventName = null) where T : class
+            => TrackEvent(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeof(T).FullName, eventName), properties);
 
         private static void TrackEvent(string eventName, Dictionary<string, string> properties)
-        {
-            TelemetryClient.TrackEvent(eventName, properties);
-        }
+            => TelemetryClient.TrackEvent(eventName, properties);
 
         /// <summary>
         /// Simple exported MEF service that contains our telemetry client and configuration.
