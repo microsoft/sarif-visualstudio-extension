@@ -4,7 +4,6 @@
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Contains the methods for firing telemetry events from the SARIF viewer extension.
