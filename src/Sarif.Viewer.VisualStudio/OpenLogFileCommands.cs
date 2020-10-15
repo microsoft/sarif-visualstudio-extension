@@ -7,11 +7,13 @@ using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Windows.Forms;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -36,6 +38,26 @@ namespace Microsoft.Sarif.Viewer
         /// VS Package that provides this command, not null.
         /// </summary>
         private readonly Package package;
+
+        /// <summary>
+        /// The prefix for the resources that give the names of the filters in the open log dialog.
+        /// </summary>
+        /// <remarks>
+        /// The resources are in the form of 'Import{ToolFormat}Filter'.</remarks>
+        internal const string FilterResourceNamePrefix = "Import";
+
+        /// <summary>
+        /// The suffix for the resources that give the names of the filters in the open log dialog.
+        /// </summary>
+        /// <remarks>
+        /// The resources are in the form of 'Import{ToolFormat}Filter'.</remarks>
+        internal const string FilterResourceNameSuffix = "Filter";
+
+
+        /// <summary>
+        /// The name of the setting used to store the users last selected open log format.
+        /// </summary>
+        internal const string ToolFormatSettingName = "OpenLogFileToolFormat";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenLogFileCommands"/> class.
@@ -143,48 +165,32 @@ namespace Microsoft.Sarif.Viewer
             {
                 FieldInfo[] toolFormatFieldInfos = typeof(ToolFormat).GetFields();
 
-                // Need two additional entries for "SARIF" and "All" which are at the beginning
-                // and end of the list respectively.
-                List<string> toolFormatFilters = new List<string>(toolFormatFieldInfos.Length + 2)
-                {
-                    Resources.ImportSARIFFilter,
-                };
+                // Need two additional entries for "SARIF" which is at the beginning of the list.
+                List<string> toolFormatFilters = new List<string>(toolFormatFieldInfos.Length + 1);
 
-                // Keep a dictionary of filter index to the tool format string
-                // just in case the SDK and supported converters gets out of sync
-                // with this extension.
-                // We have a "test" to "try" to catch this, but that test is only good IF
-                // the extension solution and the test solution are using the same
-                // converter nuget package.
-                Dictionary<int, string> filterIndexToToolFormat = new Dictionary<int, string>(toolFormatFieldInfos.Length)
-                {
-                    { 0, ToolFormat.None }
-                };
+                // The reflected enumeration of the fields in tool format is not necessarily in
+                // the same order it is presented in the class (as typed by the developer).
+                // So keep a small map the filter index to the correct tool format.
+                Dictionary<int, FieldInfo> filterIndexToToolFormatField = new Dictionary<int, FieldInfo>(toolFormatFieldInfos.Length + 1);
 
                 foreach (FieldInfo fieldInfo in toolFormatFieldInfos)
                 {
-                    if (fieldInfo.Name.Equals(ToolFormat.None, StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
+                    string resourceName = 
+                        fieldInfo.Name.Equals(ToolFormat.None, StringComparison.OrdinalIgnoreCase) ?
+                            nameof(Resources.ImportSARIFFilter) : string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", FilterResourceNamePrefix, fieldInfo.Name, FilterResourceNameSuffix);
 
-                    string filterString = Resources.ResourceManager.GetString(string.Format(CultureInfo.InvariantCulture, "Import{0}Filter", fieldInfo.Name), CultureInfo.CurrentCulture);
-                    Debug.Assert(!string.IsNullOrEmpty(filterString), "Why should have resources for the filters for all types of conversions we support");
-
-                    if (!string.IsNullOrEmpty(filterString))
-                    {
-                        // We want the list to start with "import SARIF" and end with "All file"
-                        // so insert this after "import SARIF".
-                        toolFormatFilters.Add(filterString);
-                        filterIndexToToolFormat.Add(toolFormatFilters.Count, fieldInfo.Name);
-                    }
+                    string filterString = Resources.ResourceManager.GetString(resourceName, CultureInfo.CurrentCulture);
+                    toolFormatFilters.Add(filterString);
+                    filterIndexToToolFormatField.Add(toolFormatFilters.Count, fieldInfo);
                 }
 
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-
-                openFileDialog.Title = Resources.ImportLogOpenFileDialogTitle;
-                openFileDialog.Filter = string.Join("|", toolFormatFilters);
-                openFileDialog.RestoreDirectory = true;
+                OpenFileDialog openFileDialog = new OpenFileDialog()
+                {
+                    Title = Resources.ImportLogOpenFileDialogTitle,
+                    Filter = string.Join("|", toolFormatFilters),
+                    RestoreDirectory = true,
+                    Multiselect = false
+                };
 
                 if (!String.IsNullOrWhiteSpace(inputFile))
                 {
@@ -192,12 +198,45 @@ namespace Microsoft.Sarif.Viewer
                     openFileDialog.InitialDirectory = Path.GetDirectoryName(inputFile);
                 }
 
+                // Read the user's last tool format selection.
+                int collectionExists;
+                IVsSettingsManager vsSettingsManager = Package.GetGlobalService(typeof(SVsSettingsManager)) as IVsSettingsManager;
+                if (vsSettingsManager != null &&
+                    vsSettingsManager.GetReadOnlySettingsStore((uint)__VsEnclosingScopes.EnclosingScopes_UserSettings, out IVsSettingsStore vsSettingsStore) == VSConstants.S_OK &&
+                    vsSettingsStore.CollectionExists(nameof(SarifViewerPackage), out collectionExists) == VSConstants.S_OK &&
+                    collectionExists != 0 &&
+                    vsSettingsStore.GetString(nameof(SarifViewerPackage), ToolFormatSettingName, out string openLogFileToolFormat) == VSConstants.S_OK)
+                {
+                    int? filterIndex = filterIndexToToolFormatField.
+                        Where(kvp => kvp.Value.Name.Equals(openLogFileToolFormat, StringComparison.Ordinal)).
+                        Select(kvp => kvp.Key).FirstOrDefault();
+
+                    if (filterIndex.HasValue)
+                    {
+                        openFileDialog.FilterIndex = filterIndex.Value;
+                    }
+                }
+
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
 
-                toolFormat = filterIndexToToolFormat[openFileDialog.FilterIndex];
+                toolFormat = filterIndexToToolFormatField[openFileDialog.FilterIndex].GetValue(null) as string;
+
+                // Write the user's last tool format selection.
+                if (vsSettingsManager != null &&
+                    vsSettingsManager.GetWritableSettingsStore((uint)__VsEnclosingScopes.EnclosingScopes_UserSettings, out IVsWritableSettingsStore vsWritableSettingsStore) == VSConstants.S_OK)
+                {
+                    if (vsWritableSettingsStore.CollectionExists(nameof(SarifViewerPackage), out collectionExists) != VSConstants.S_OK ||
+                        collectionExists == 0)
+                    {
+                        vsWritableSettingsStore.CreateCollection(nameof(SarifViewerPackage));
+                    }
+
+                    vsWritableSettingsStore.SetString(nameof(SarifViewerPackage), ToolFormatSettingName, toolFormat);
+                }
+
                 logFile = openFileDialog.FileName;
             }
 

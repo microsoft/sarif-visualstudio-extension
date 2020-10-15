@@ -5,6 +5,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Reflection;
     using FluentAssertions;
     using Microsoft.CodeAnalysis.Sarif.Converters;
@@ -12,9 +13,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
     public class ConverterResourceTests : SarifViewerPackageUnitTests
     {
-        private const string FilterResourceNamePrefix = "Import";
-        private const string FilterResourceNameSuffix = "Filter";
-
         [Fact]
         public void VerifyToolFormatOpenLogFileResourcesExist()
         {
@@ -27,7 +25,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     continue;
                 }
 
-                string filterString = Resources.ResourceManager.GetString(string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", FilterResourceNamePrefix, fieldInfo.Name, FilterResourceNameSuffix), CultureInfo.CurrentCulture);
+                string filterString = Resources.ResourceManager.GetString(string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", OpenLogFileCommands.FilterResourceNamePrefix, fieldInfo.Name, OpenLogFileCommands.FilterResourceNameSuffix), CultureInfo.CurrentCulture);
                 filterString.Should().NotBeNullOrEmpty();
             }
         }
@@ -39,13 +37,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 // The SARIF filter in the open log dialog is added explicitly and is not in the tool format
                 // class.
-                if (resourcePropertyInfo.Name.StartsWith(FilterResourceNamePrefix, StringComparison.OrdinalIgnoreCase) &&
-                    resourcePropertyInfo.Name.EndsWith(FilterResourceNameSuffix, StringComparison.OrdinalIgnoreCase) &&
+                if (resourcePropertyInfo.Name.StartsWith(OpenLogFileCommands.FilterResourceNamePrefix, StringComparison.OrdinalIgnoreCase) &&
+                    resourcePropertyInfo.Name.EndsWith(OpenLogFileCommands.FilterResourceNameSuffix, StringComparison.OrdinalIgnoreCase) &&
                     !resourcePropertyInfo.Name.Equals(nameof(Resources.ImportSARIFFilter)))
                 {
                     string fieldName = resourcePropertyInfo.Name.Substring(
-                        FilterResourceNamePrefix.Length, 
-                        resourcePropertyInfo.Name.Length - (FilterResourceNamePrefix.Length + FilterResourceNameSuffix.Length));
+                        OpenLogFileCommands.FilterResourceNamePrefix.Length, 
+                        resourcePropertyInfo.Name.Length - (OpenLogFileCommands.FilterResourceNamePrefix.Length + OpenLogFileCommands.FilterResourceNameSuffix.Length));
                     FieldInfo field = typeof(ToolFormat).GetField(fieldName);
                     field.Should().NotBeNull();
                 }
