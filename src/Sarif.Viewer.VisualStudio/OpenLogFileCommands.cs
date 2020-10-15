@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Command ID.
         /// </summary>
-        public const int ImportAnalysLogCommandId = 0x0100;
+        public const int ImportAnalysisLogCommandId = 0x0100;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -43,19 +43,21 @@ namespace Microsoft.Sarif.Viewer
         /// The prefix for the resources that give the names of the filters in the open log dialog.
         /// </summary>
         /// <remarks>
-        /// The resources are in the form of 'Import{ToolFormat}Filter'.</remarks>
+        /// The resources are in the form of 'Import{ToolFormat}Filter'.
+        /// </remarks>
         internal const string FilterResourceNamePrefix = "Import";
 
         /// <summary>
         /// The suffix for the resources that give the names of the filters in the open log dialog.
         /// </summary>
         /// <remarks>
-        /// The resources are in the form of 'Import{ToolFormat}Filter'.</remarks>
+        /// The resources are in the form of 'Import{ToolFormat}Filter'.
+        /// </remarks>
         internal const string FilterResourceNameSuffix = "Filter";
 
 
         /// <summary>
-        /// The name of the setting used to store the users last selected open log format.
+        /// The name of the setting used to store the user's last selected open log format.
         /// </summary>
         internal const string ToolFormatSettingName = "OpenLogFileToolFormat";
 
@@ -78,7 +80,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 OleMenuCommand oleCommand = new OleMenuCommand(
                         this.MenuItemCallback,
-                        new CommandID(CommandSet, ImportAnalysLogCommandId));
+                        new CommandID(CommandSet, ImportAnalysisLogCommandId));
                 oleCommand.ParametersDescription = "$";
 
                 commandService.AddCommand(oleCommand);
@@ -165,13 +167,13 @@ namespace Microsoft.Sarif.Viewer
             {
                 FieldInfo[] toolFormatFieldInfos = typeof(ToolFormat).GetFields();
 
-                // Need two additional entries for "SARIF" which is at the beginning of the list.
+                // We need one additional entry for "SARIF" which is at the beginning of the list.
                 List<string> toolFormatFilters = new List<string>(toolFormatFieldInfos.Length + 1);
 
                 // The reflected enumeration of the fields in tool format is not necessarily in
                 // the same order it is presented in the class (as typed by the developer).
                 // So keep a small map the filter index to the correct tool format.
-                Dictionary<int, FieldInfo> filterIndexToToolFormatField = new Dictionary<int, FieldInfo>(toolFormatFieldInfos.Length + 1);
+                Dictionary<int, FieldInfo> filterIndexToToolFormatFieldInfo = new Dictionary<int, FieldInfo>(toolFormatFieldInfos.Length + 1);
 
                 foreach (FieldInfo fieldInfo in toolFormatFieldInfos)
                 {
@@ -181,7 +183,7 @@ namespace Microsoft.Sarif.Viewer
 
                     string filterString = Resources.ResourceManager.GetString(resourceName, CultureInfo.CurrentCulture);
                     toolFormatFilters.Add(filterString);
-                    filterIndexToToolFormatField.Add(toolFormatFilters.Count, fieldInfo);
+                    filterIndexToToolFormatFieldInfo.Add(toolFormatFilters.Count, fieldInfo);
                 }
 
                 OpenFileDialog openFileDialog = new OpenFileDialog()
@@ -207,7 +209,7 @@ namespace Microsoft.Sarif.Viewer
                     collectionExists != 0 &&
                     vsSettingsStore.GetString(nameof(SarifViewerPackage), ToolFormatSettingName, out string openLogFileToolFormat) == VSConstants.S_OK)
                 {
-                    int? filterIndex = filterIndexToToolFormatField.
+                    int? filterIndex = filterIndexToToolFormatFieldInfo.
                         Where(kvp => kvp.Value.Name.Equals(openLogFileToolFormat, StringComparison.Ordinal)).
                         Select(kvp => kvp.Key).FirstOrDefault();
 
@@ -222,7 +224,7 @@ namespace Microsoft.Sarif.Viewer
                     return;
                 }
 
-                toolFormat = filterIndexToToolFormatField[openFileDialog.FilterIndex].GetValue(null) as string;
+                toolFormat = filterIndexToToolFormatFieldInfo[openFileDialog.FilterIndex].GetValue(null) as string;
 
                 // Write the user's last tool format selection.
                 if (vsSettingsManager != null &&

@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             foreach (FieldInfo fieldInfo in toolFormatFieldInfos)
             {
                 // We do not add the "none" tool format to the open log dialog so it is not expected to exist.
-                if (fieldInfo.Name.Equals(ToolFormat.None, StringComparison.OrdinalIgnoreCase))
+                if (fieldInfo.Name.Equals(ToolFormat.None, StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -37,8 +37,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 // The SARIF filter in the open log dialog is added explicitly and is not in the tool format
                 // class.
-                if (resourcePropertyInfo.Name.StartsWith(OpenLogFileCommands.FilterResourceNamePrefix, StringComparison.OrdinalIgnoreCase) &&
-                    resourcePropertyInfo.Name.EndsWith(OpenLogFileCommands.FilterResourceNameSuffix, StringComparison.OrdinalIgnoreCase) &&
+                if (resourcePropertyInfo.Name.StartsWith(OpenLogFileCommands.FilterResourceNamePrefix, StringComparison.Ordinal) &&
+                    resourcePropertyInfo.Name.EndsWith(OpenLogFileCommands.FilterResourceNameSuffix, StringComparison.Ordinal) &&
                     !resourcePropertyInfo.Name.Equals(nameof(Resources.ImportSARIFFilter)))
                 {
                     string fieldName = resourcePropertyInfo.Name.Substring(
