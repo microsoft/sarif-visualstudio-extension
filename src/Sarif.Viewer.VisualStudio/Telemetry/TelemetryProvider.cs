@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -83,7 +84,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 string path = Assembly.GetExecutingAssembly().Location;
                 var configMap = new ExeConfigurationFileMap()
                 {
-                    ExeConfigFilename = Path.Combine(Assembly.GetExecutingAssembly().Location, "App.config")
+                    ExeConfigFilename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "App.config")
                 };
 
                 Configuration assemblyConfiguration = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
@@ -111,7 +112,10 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 // we are in the middle of MEF composition\creation, if we called
                 // Microsoft.Sarif.Viewer.Telemetry.ExtensionLoaded directly, that would
                 // end up being a recursive MEF composition call.
-                this.TelemetryClient.TrackEvent(typeof(Events).GetField(nameof(Events.ExtensionLoaded)).Name);
+                MethodInfo extensionLoadedMethodInfo = typeof(Events).GetMethod(nameof(Events.ExtensionLoaded));
+                this.TelemetryClient.TrackEvent(
+                    string.Format(CultureInfo.InvariantCulture,"{0}.{1}",
+                    extensionLoadedMethodInfo.DeclaringType.FullName, extensionLoadedMethodInfo.Name));
             }
 
             /// <summary>
