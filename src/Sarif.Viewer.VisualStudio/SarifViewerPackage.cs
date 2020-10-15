@@ -1,11 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using Microsoft.Sarif.Viewer.ErrorList;
-using Microsoft.Sarif.Viewer.Services;
-using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -13,6 +8,11 @@ using System.Configuration;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Task = System.Threading.Tasks.Task;
+using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer
 {
