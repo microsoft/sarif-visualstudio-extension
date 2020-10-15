@@ -216,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeAnalysisResultManagerTests.cs" />
+    <Compile Include="ConverterResourceTests.cs" />
     <Compile Include="ErrorList\ErrorListServiceTests.cs" />
     <Compile Include="ErrorList\MultipleRunsPerSarifTests.cs" />
     <Compile Include="ErrorList\SarifErrorListItemTests.cs" />
