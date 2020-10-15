@@ -367,8 +367,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     };
                 }
 
-                Telemetry.Events.LogFileRunCreatedByToolName(run.Tool.Driver.Name);
-
                 if (Instance.WriteRunToErrorList(run, logFilePath) > 0)
                 {
                     hasResults = true;
