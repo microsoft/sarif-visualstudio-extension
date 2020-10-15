@@ -282,7 +282,7 @@ namespace Microsoft.Sarif.Viewer
                 logFile = openFileDialog.FileName;
             }
 
-            TelemetryProvider.WriteEvent(TelemetryEvent.LogFileOpenedByMenuCommand, TelemetryProvider.CreateKeyValuePair("Format", toolFormat == ToolFormat.None ? "SARIF" : toolFormat));
+            Telemetry.Events.LogFileOpenedByMenuCommand(toolFormat == ToolFormat.None ? "SARIF" : toolFormat);
 
             try
             {

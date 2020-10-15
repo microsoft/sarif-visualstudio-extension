@@ -4,9 +4,7 @@
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
@@ -21,11 +19,6 @@ namespace Microsoft.Sarif.Viewer
     /// <summary>
     /// This is the class that implements the package exposed by this assembly.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
-    /// </para>
-    /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
@@ -36,7 +29,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ISarifLocationTaggerService))]
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
-    public sealed class SarifViewerPackage : AsyncPackage, IVsPackage2
+    public sealed class SarifViewerPackage : AsyncPackage
     {
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
@@ -48,8 +41,6 @@ namespace Microsoft.Sarif.Viewer
 
         public static Configuration AppConfig { get; private set; }
 
-
-        #region Package Members
         private struct ServiceInformation
         {
             /// <summary>
@@ -111,9 +102,8 @@ namespace Microsoft.Sarif.Viewer
                 ((IServiceContainer)this).AddService(serviceInformationKVP.Key, callback, promote: serviceInformationKVP.Value.Promote);
             }
 
-            TelemetryProvider.WriteEvent(TelemetryEvent.ViewerExtensionLoaded);
-
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
@@ -122,22 +112,9 @@ namespace Microsoft.Sarif.Viewer
             return;
         }
 
-        #endregion
-
         private object CreateService(IServiceContainer container, Type serviceType)
         {
             return ServiceTypeToServiceInformation.TryGetValue(serviceType, out ServiceInformation serviceInformation) ? serviceInformation.Creator(serviceType) : null;
-        }
-
-        public int get_CanClose(out bool pfCanClose)
-        {
-            pfCanClose = true;
-            return VSConstants.S_OK;
-        }
-
-        protected override int QueryClose(out bool canClose)
-        {
-            return base.QueryClose(out canClose);
         }
     }
 }

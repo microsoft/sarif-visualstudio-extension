@@ -367,8 +367,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     };
                 }
 
-                TelemetryProvider.WriteEvent(TelemetryEvent.LogFileRunCreatedByToolName,
-                                             TelemetryProvider.CreateKeyValuePair("ToolName", run.Tool.Driver.Name));
+                Telemetry.Events.LogFileRunCreatedByToolName(run.Tool.Driver.Name);
+
                 if (Instance.WriteRunToErrorList(run, logFilePath) > 0)
                 {
                     hasResults = true;

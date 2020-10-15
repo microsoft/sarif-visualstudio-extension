@@ -136,7 +136,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            TelemetryProvider.WriteEvent(TelemetryEvent.TaskItemDocumentOpened);
+            Telemetry.Events.TaskItemDocumentOpened();
 
             try
             {
