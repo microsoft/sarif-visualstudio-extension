@@ -55,7 +55,7 @@
               <CommandFlag>DefaultInvisible</CommandFlag>
               <CommandFlag>DynamicVisibility</CommandFlag>
           If you do not want an image next to your command, remove the Icon node /> -->
-      <Button guid="guidOpenSarifFileCommandPackageCmdSet" id="ImportAnalysLogCommandId" priority="0x0100" type="Button">
+      <Button guid="guidOpenSarifFileCommandPackageCmdSet" id="ImportAnalysisLogCommandId" priority="0x0100" type="Button">
         <Parent guid="guidOpenSarifFileCommandPackageCmdSet" id="OpenFileMenuGroup" />
         <CommandFlag>AllowParams</CommandFlag>
         <Strings>
@@ -87,7 +87,7 @@
 
     <!-- This is the guid used to group the menu commands together -->
     <GuidSymbol name="guidOpenSarifFileCommandPackageCmdSet" value="{a236a757-af66-4cf0-a3c8-facbb61d5cf1}">
-      <IDSymbol name="ImportAnalysLogCommandId" value="0x0100" />
+      <IDSymbol name="ImportAnalysisLogCommandId" value="0x0100" />
       <IDSymbol name="OpenFileMenuGroup" value="0x1150" />
       <IDSymbol name="cmdidTestSubCommand" value="0x0200" />
     </GuidSymbol>
