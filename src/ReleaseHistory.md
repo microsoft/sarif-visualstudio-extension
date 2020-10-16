@@ -1,4 +1,7 @@
 # SARIF Viewer Visual Studio extension Release History
+## **v2.1.19** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Ensure telemetry is properly initialized and delivered to Application Insights. [#216](https://github.com/microsoft/sarif-visualstudio-extension/issues/216)
+
 ## **v2.1.18** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Fix crash when closing and re-opening a file with tagged SARIF results. [#205](https://github.com/microsoft/sarif-visualstudio-extension/issues/205)
 * BUGFIX: Ensure that SARIF explorer properly selects code-flow location when navigating caret in editor. [#198](https://github.com/microsoft/sarif-visualstudio-extension/issues/198)

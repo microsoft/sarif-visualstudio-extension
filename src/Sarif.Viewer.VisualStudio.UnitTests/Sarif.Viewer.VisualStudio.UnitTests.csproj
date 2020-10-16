@@ -229,7 +229,6 @@
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />
     <Compile Include="SdkUIUtilitiesTests.cs" />
-    <Compile Include="TelemetryProviderTests.cs" />
     <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UriExtensionsTests.cs" />

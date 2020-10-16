@@ -246,8 +246,6 @@ namespace Microsoft.Sarif.Viewer
                 logFile = openFileDialog.FileName;
             }
 
-            TelemetryProvider.WriteMenuCommandEvent(toolFormat);
-
             try
             {
                 await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true).ConfigureAwait(continueOnCapturedContext: false);
