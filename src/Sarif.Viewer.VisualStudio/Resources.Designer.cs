@@ -189,7 +189,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Contrast Security files (*.csf)|*.csf.
+        ///   Looks up a localized string similar to Contrast Security files (*.xml)|*.xml.
         /// </summary>
         public static string ImportContrastSecurityFilter {
             get {
@@ -243,7 +243,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MSBuild files (*.xyz)|*.xyz.
+        ///   Looks up a localized string similar to MSBuild files (*.*)|*.*.
         /// </summary>
         public static string ImportMSBuildFilter {
             get {

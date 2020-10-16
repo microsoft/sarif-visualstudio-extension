@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Services
                 return;
             }
 
-            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnSchemaUpgrade, cleanErrors: true);
+            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnSchemaUpgrade, cleanErrors: true, openInEditor: false);
         }
 
         /// <inheritdoc/>
@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Services
                 return;
             }
 
-            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true);
+            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true, openInEditor: false);
         }
 
         /// <inheritdoc/>
@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.Services
                     }); ;
 
                     // We should not clean errors here, if the user wants to clear errors, they can call the close log service (ICloseSarifLogService::CloseAllSarifLogs)
-                    await ErrorListService.ProcessLogFileAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false).ConfigureAwait(continueOnCapturedContext: false);
+                    await ErrorListService.ProcessLogFileAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
 
                     taskHandler.Progress.Report(new TaskProgressData
                     {

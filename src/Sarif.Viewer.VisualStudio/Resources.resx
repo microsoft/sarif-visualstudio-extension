@@ -271,7 +271,7 @@
     <comment>Used in the import log open dialog</comment>
   </data>
   <data name="ImportContrastSecurityFilter" xml:space="preserve">
-    <value>Contrast Security files (*.csf)|*.csf</value>
+    <value>Contrast Security files (*.xml)|*.xml</value>
     <comment>Used in the import log open dialog</comment>
   </data>
   <data name="ImportLogOpenFileDialogTitle" xml:space="preserve">
@@ -279,7 +279,7 @@
     <comment>Used in the import log open dialog</comment>
   </data>
   <data name="ImportMSBuildFilter" xml:space="preserve">
-    <value>MSBuild files (*.xyz)|*.xyz</value>
+    <value>MSBuild files (*.*)|*.*</value>
     <comment>Used in the import log open dialog</comment>
   </data>
   <data name="ImportSemmleQLFilter" xml:space="preserve">

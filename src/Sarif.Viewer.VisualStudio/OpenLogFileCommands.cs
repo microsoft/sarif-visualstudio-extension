@@ -181,6 +181,8 @@ namespace Microsoft.Sarif.Viewer
                 KeyValuePair<FieldInfo, string> noneFieldInfo = fieldInfoToOpenFileDialogFilterDisplayString.
                     Single(kvp => kvp.Key.Name.Equals(nameof(ToolFormat.None), StringComparison.OrdinalIgnoreCase));
 
+                // Linq's Order by does the right sorting..
+                // It ultimately does ultureInfo.CurrentCulture.CompareInfo.Compare(this, strB, CompareOptions.None);
                 IEnumerable<KeyValuePair<FieldInfo, string>> orderedFilters =
                     Enumerable.Repeat(noneFieldInfo, 1).Concat(
                         fieldInfoToOpenFileDialogFilterDisplayString.Where(kvp => kvp.Key != noneFieldInfo.Key).
@@ -255,7 +257,7 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true).ConfigureAwait(continueOnCapturedContext: false);
+                await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true, openInEditor: true).ConfigureAwait(continueOnCapturedContext: false);
             }
             catch (InvalidOperationException)
             {

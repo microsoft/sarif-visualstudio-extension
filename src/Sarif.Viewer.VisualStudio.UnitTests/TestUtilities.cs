@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             InitializeTestEnvironment();
 
-            ErrorListService.ProcessSarifLogAsync(sarifLog, "", showMessageOnNoResults: true, cleanErrors: true).GetAwaiter().GetResult();
+            ErrorListService.ProcessSarifLogAsync(sarifLog, "", showMessageOnNoResults: true, cleanErrors: true, openInEditor: false).GetAwaiter().GetResult();
         }
     }
 }
