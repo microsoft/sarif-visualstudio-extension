@@ -230,4 +230,64 @@
   <data name="VersionPropertyNotFound_DialogTitle" xml:space="preserve">
     <value>The SARIF specification recommends that the version property appear at the beginning of the log file. This log file does not conform to that recommendation.</value>
   </data>
+  <data name="ImportPREfastFilter" xml:space="preserve">
+    <value>PREfast log files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportStaticDriverVerifierFilter" xml:space="preserve">
+    <value>Static Driver Verifier log files (*.tt)|*.tt</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportFxCopFilter" xml:space="preserve">
+    <value>FxCop report and project files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportFortifyFilter" xml:space="preserve">
+    <value>Fortify log files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportFortifyFprFilter" xml:space="preserve">
+    <value>Fortify FPR log files (*.fpr)|*.fpr</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportCppCheckFilter" xml:space="preserve">
+    <value>CppCheck log files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportClangAnalyzerFilter" xml:space="preserve">
+    <value>Clang log files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportAndroidStudioFilter" xml:space="preserve">
+    <value>Android Studio log files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportPylintFilter" xml:space="preserve">
+    <value>Pylint log files (*.json)|*.json</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportTSLintFilter" xml:space="preserve">
+    <value>TSLint log files (*.json)|*.json</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportContrastSecurityFilter" xml:space="preserve">
+    <value>Contrast Security files (*.xml)|*.xml</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportLogOpenFileDialogTitle" xml:space="preserve">
+    <value>Import analysis log</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportMSBuildFilter" xml:space="preserve">
+    <value>MSBuild files (*.*)|*.*</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportSemmleQLFilter" xml:space="preserve">
+    <value>Semmle QL log files (*.csv)|*.csv</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
+  <data name="ImportNoneFilter" xml:space="preserve">
+    <value>SARIF files (*.sarif)|*.sarif</value>
+    <comment>Used in the import log open dialog. The (None) tool format is expected to be SARIF in the logic.</comment>
+  </data>
 </root>

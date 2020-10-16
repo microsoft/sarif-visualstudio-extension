@@ -35,7 +35,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
+        public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             var taskStatusCenterService = (IVsTaskStatusCenterService)Package.GetGlobalService(typeof(SVsTaskStatusCenterService));
             var taskProgressData = new TaskProgressData
@@ -55,10 +55,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             ITaskHandler taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
 
-            taskHandler.RegisterTask(ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors));
+            taskHandler.RegisterTask(ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
         }
 
-        public static async System.Threading.Tasks.Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors)
+        public static async System.Threading.Tasks.Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             SarifLog log = null;
             string logText = null;
@@ -214,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            await ProcessSarifLogAsync(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors).ConfigureAwait(continueOnCapturedContext: false);
+            await ProcessSarifLogAsync(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         /// <summary>
@@ -329,7 +329,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async System.Threading.Tasks.Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors)
+        internal static async System.Threading.Tasks.Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.
@@ -371,6 +371,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     hasResults = true;
                 }
+            }
+
+            if (openInEditor && !SarifViewerPackage.IsUnitTesting)
+            {
+                SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, logFilePath, usePreviewPane: false);
             }
 
             if (hasResults)
