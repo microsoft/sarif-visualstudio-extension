@@ -29,8 +29,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             foreach (PropertyInfo resourcePropertyInfo in typeof(Resources).GetProperties())
             {
-                // The SARIF filter in the open log dialog is added explicitly and is not in the tool format
-                // class.
+                // The ImportNoneFilter corresponds to the SARIF file format which is consistent
+                // with how the import logic behaves.
                 if (resourcePropertyInfo.Name.StartsWith(OpenLogFileCommands.FilterResourceNamePrefix, StringComparison.Ordinal) &&
                     resourcePropertyInfo.Name.EndsWith(OpenLogFileCommands.FilterResourceNameSuffix, StringComparison.Ordinal))
                 {

@@ -166,7 +166,7 @@ namespace Microsoft.Sarif.Viewer
             if (logFile == null)
             {
                 FieldInfo[] toolFormatFieldInfos = typeof(ToolFormat).GetFields();
-                List<KeyValuePair<FieldInfo, string>> fieldInfoToOpenFileDialogFilterDisplayString = new List<KeyValuePair<FieldInfo, string>>(toolFormatFieldInfos.Length);
+                var fieldInfoToOpenFileDialogFilterDisplayString = new List<KeyValuePair<FieldInfo, string>>(toolFormatFieldInfos.Length);
 
                 // Note that "ImportNoneFilter" represents the SARIF file filter (which matches what the code logic does below as well).
                 foreach (FieldInfo fieldInfo in toolFormatFieldInfos)
@@ -176,13 +176,20 @@ namespace Microsoft.Sarif.Viewer
                     fieldInfoToOpenFileDialogFilterDisplayString.Add(new KeyValuePair<FieldInfo, string>(fieldInfo, openFileDialogFilterString));
                 }
 
-                // Sort the filters by their display strings so the user has a nice alphabetized list.
-                IEnumerable<KeyValuePair<FieldInfo, string>> orderedFilters = fieldInfoToOpenFileDialogFilterDisplayString.OrderBy(kvp => kvp.Value);
+
+                // Sort the filters by their display strings so the user has a nice alphabetized list with import SARIF at the top.
+                KeyValuePair<FieldInfo, string> noneFieldInfo = fieldInfoToOpenFileDialogFilterDisplayString.
+                    Single(kvp => kvp.Key.Name.Equals(nameof(ToolFormat.None), StringComparison.OrdinalIgnoreCase));
+
+                IEnumerable<KeyValuePair<FieldInfo, string>> orderedFilters =
+                    Enumerable.Repeat(noneFieldInfo, 1).Concat(
+                        fieldInfoToOpenFileDialogFilterDisplayString.Where(kvp => kvp.Key != noneFieldInfo.Key).
+                            OrderBy(kvp => kvp.Value));
 
                 OpenFileDialog openFileDialog = new OpenFileDialog()
                 {
                     Title = Resources.ImportLogOpenFileDialogTitle,
-                    Filter = string.Join("|", orderedFilters.Select( kvp => kvp.Value)),
+                    Filter = string.Join("|", orderedFilters.Select(kvp => kvp.Value)),
                     RestoreDirectory = true,
                     Multiselect = false
                 };
@@ -205,7 +212,7 @@ namespace Microsoft.Sarif.Viewer
                     int? filterIndex = null;
                     int currentIndex = 0;
 
-                    foreach (FieldInfo fieldInfo in orderedFilters.Select( kvp => kvp.Key))
+                    foreach (FieldInfo fieldInfo in orderedFilters.Select(kvp => kvp.Key))
                     {
                         if (fieldInfo.Name.Equals(openLogFileToolFormat, StringComparison.Ordinal))
                         {
@@ -218,7 +225,7 @@ namespace Microsoft.Sarif.Viewer
                     if (filterIndex.HasValue)
                     {
                         // The filter index in the open file dialog is 1 base.
-                        openFileDialog.FilterIndex = (filterIndex.Value + 1);
+                        openFileDialog.FilterIndex = filterIndex.Value + 1;
                     }
                 }
 
