@@ -23,12 +23,12 @@ set SigningDirectory=%BinaryOutputDirectory%\Signing
 set BinaryOutputDirectory=%BinaryOutputDirectory%\%Platform%_%Configuration%
 
 
-:: Copy viewer dll to net461
+:: Copy viewer dll to net472
 if exist %ArchiveDirectory% (rd /s /q %ArchiveDirectory%)
 md %ArchiveDirectory%
 
 powershell -File .\scripts\Unzip.ps1 %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.vsix %ArchiveDirectory%
-xcopy /Y %SigningDirectory%\net461\Microsoft.Sarif.Viewer.dll %ArchiveDirectory%
+xcopy /Y %SigningDirectory%\net472\Microsoft.Sarif.Viewer.dll %ArchiveDirectory%
 del /Q %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.vsix
 
 :: This command will only output to a file with a .zip extension
