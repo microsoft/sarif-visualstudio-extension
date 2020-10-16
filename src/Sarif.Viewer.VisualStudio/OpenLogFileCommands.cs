@@ -181,7 +181,7 @@ namespace Microsoft.Sarif.Viewer
                 KeyValuePair<FieldInfo, string> noneFieldInfo = fieldInfoToOpenFileDialogFilterDisplayString.
                     Single(kvp => kvp.Key.Name.Equals(nameof(ToolFormat.None), StringComparison.OrdinalIgnoreCase));
 
-                // Linq's Order by does the right sorting..
+                // Linq's OrderBy does the right sorting..
                 // It ultimately does ultureInfo.CurrentCulture.CompareInfo.Compare(this, strB, CompareOptions.None);
                 IEnumerable<KeyValuePair<FieldInfo, string>> orderedFilters =
                     Enumerable.Repeat(noneFieldInfo, 1).Concat(
