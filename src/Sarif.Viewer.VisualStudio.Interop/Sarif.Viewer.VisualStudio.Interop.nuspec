@@ -20,10 +20,10 @@
     </packageTypes>
   </metadata>
   <files>
-    <file src="bld\bin\$platform$_$configuration$\$project$\Publish\$framework$\**"
+    <file src="bld\bin\Signing\$framework$\$project$.dll"
           target="lib\$framework$" />
     <file src="triskelion.png" />
-    <file src="..\src\ReleaseHistory.md" />
-    <file src="..\src\$project$\**\*.cs" target="src" />
+    <file src="src\ReleaseHistory.md" />
+    <file src="src\$project$\**\*.cs" target="src" />
   </files>
 </package>

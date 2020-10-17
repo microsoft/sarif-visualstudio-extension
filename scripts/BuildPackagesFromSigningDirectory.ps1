@@ -20,7 +20,7 @@ Import-Module -Force $PSScriptRoot\Projects.psm1
 
 # Copy signed binaries back into the normal directory structure.
 function Copy-FromSigningDirectory {
-    Write-Information "Copying files to signing directory..."
+    Write-Information "Copying files from signing directory..."
     $SigningDirectory = "$BinRoot\Signing"
 
     foreach ($project in $Projects.Product) {

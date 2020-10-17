@@ -83,14 +83,13 @@ function New-SigningDirectory {
     }
 
     foreach ($project in $Projects.Product) {
-        $projectBinDirectory = (Get-ProjectBinDirectory $project $configuration)
+        $projectBinDirectory = Get-ProjectBinDirectory $project $configuration
 
         foreach ($framework in $Frameworks) {
-            $sourceDirectory = "$projectBinDirectory\$framework"
             $destinationDirectory = "$SigningDirectory\$framework"
+            $fileToCopy = "$projectBinDirectory\$project.dll"
 
-            if (Test-Path $sourceDirectory) {
-                $fileToCopy = "$sourceDirectory\$project.dll"
+            if (Test-Path $fileToCopy) {
                 Copy-Item -Force -Path $fileToCopy -Destination $destinationDirectory
             }
         }
