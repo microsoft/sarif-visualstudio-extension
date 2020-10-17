@@ -1,4 +1,8 @@
 # SARIF Viewer Visual Studio extension Release History
+
+## **v2.1.20** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* Build for .NET Framework 4.7.2 rather than 4.6.1. This is in preparation for adding some features which require NuGet packages which support only 4.7.2.
+
 ## **v2.1.19** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Ensure telemetry is properly initialized and delivered to Application Insights. [#216](https://github.com/microsoft/sarif-visualstudio-extension/issues/216)
 * BUGFIX: Consolidate import static analysis logs as SARIF into one menu option and actually open resulting SARIF log in the editor. [#217](https://github.com/microsoft/sarif-visualstudio-extension/issues/217)

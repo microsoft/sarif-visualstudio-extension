@@ -33,33 +33,13 @@ function Exit-WithFailureMessage($scriptName, $message) {
     exit 1
 }
 
-# NuGet Package Creation section
-function New-NuGetPackageFromProjectFile($configuration, $project, $version) {
-    $projectFile = "$SourceRoot\$project\$project.csproj"
-
-    $arguments =
-        "pack", $projectFile,
-        "--configuration", $configuration,
-        "--no-build", "--no-restore",
-        "--include-source", "--include-symbols",
-        "-p:Platform=$Platform",
-        "--output", (Get-PackageDirectoryName $configuration)
-
-    Write-Debug "dotnet $($arguments -join ' ')"
-
-    dotnet $arguments
-    if ($LASTEXITCODE -ne 0) {
-        Exit-WithFailureMessage $ScriptName "$project NuGet package creation failed."
-    }
-}
-
-function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $suffix = "") {
-    $nuspecFile = "$SourceRoot\NuGet\$project.nuspec"
+function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $framework, $suffix = "") {
+    $nuspecFile = "$SourceRoot\$project\$project.nuspec"
 
     $arguments=
         "pack", $nuspecFile,
         "-Symbols",
-        "-Properties", "platform=$Platform;configuration=$configuration;version=$version",
+        "-Properties", "platform=$Platform;configuration=$configuration;project=$project;version=$version;framework=$framework",
         "-Verbosity", "Quiet",
         "-BasePath", ".\",
         "-OutputDirectory", (Get-PackageDirectoryName $configuration)
@@ -77,10 +57,10 @@ function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $suf
         Exit-WithFailureMessage $ScriptName "$project NuGet package creation failed."
     }
 
-    Write-Information "  Successfully created package '$BinRoot\NuGet\$Configuration\$Project.$version.nupkg'."
+    Write-Information "Created package '$BinRoot\NuGet\$Configuration\$Project.$version.nupkg' for $framework."
 }
 
-function New-NuGetPackages($configuration, $projects) {
+function New-NuGetPackages($configuration, $projects, $frameworks) {
     $versionPrefix, $versionSuffix = & $PSScriptRoot\Get-VersionConstants.ps1
     if ($versionSuffix)
     {
@@ -89,17 +69,10 @@ function New-NuGetPackages($configuration, $projects) {
         $version = $versionPrefix
     }
 
-    # We can build the NuGet packages for library projects directly from their
-    # project file.
-    foreach ($project in $projects.NewLibrary) {
-        New-NuGetPackageFromProjectFile $configuration $project $version
-    }
-
-    # Unfortunately, application projects like MultiTool need to include things
-    # that are not specified in the project file, so their packages still require
-    # a .nuspec file.
-    foreach ($project in $Projects.NewApplication) {
-        New-NuGetPackageFromNuSpecFile $configuration $project $version
+    foreach ($project in $Projects.NuGet) {
+        foreach ($framework in $frameworks) {
+            New-NuGetPackageFromNuSpecFile $configuration $project $version $framework
+        }
     }
 }
 
@@ -129,7 +102,6 @@ Export-ModuleMember -Function `
     New-DirectorySafely, `
     Remove-DirectorySafely, `
     New-NuGetPackages, `
-    New-NuGetPackageFromProjectFile, `
     New-NuGetPackageFromNuSpecFile, `
     Get-PackageDirectoryName, `
     Get-ProjectBinDirectory

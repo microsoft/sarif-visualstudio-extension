@@ -16,8 +16,6 @@
     Do not run tests.
 .PARAMETER NoPackage
     Do not create NuGet packages.
-.PARAMETER NoPublish
-    Do not run dotnet publish, which creates a layout directory.
 .PARAMETER NoSigningDirectory
     Do not create a directory containing the binaries that need to be signed.
 .PARAMETER Install
@@ -75,39 +73,23 @@ function Invoke-Build {
     }
 }
 
-# Create a directory containing all files necessary to execute an application.
-# This operation is called "publish" because it is performed by "dotnet publish".
-function Publish-Application($project, $framework) {
-    Write-Information "Publishing $project for $framework ..."
-    dotnet publish $SourceRoot\$project\$project.csproj --no-restore --configuration $Configuration --framework $framework
-}
-
 # Create a directory populated with the binaries that need to be signed.
 function New-SigningDirectory {
     Write-Information "Copying files to signing directory..."
     $SigningDirectory = "$BinRoot\Signing"
 
-    foreach ($framework in $Frameworks.All) {
+    foreach ($framework in $Frameworks) {
         New-DirectorySafely $SigningDirectory\$framework
     }
 
-    foreach ($project in $Projects.NewProduct) {
-        $projectBinDirectory = (Get-ProjectBinDirectory $project $configuration)
+    foreach ($project in $Projects.Product) {
+        $projectBinDirectory = Get-ProjectBinDirectory $project $configuration
 
-        foreach ($framework in $Frameworks.All) {
-            $sourceDirectory = "$projectBinDirectory\$framework"
+        foreach ($framework in $Frameworks) {
             $destinationDirectory = "$SigningDirectory\$framework"
+            $fileToCopy = "$projectBinDirectory\$project.dll"
 
-            if (Test-Path $sourceDirectory) {
-
-                # Everything we copy is a DLL, _except_ that application projects built for
-                # NetFX have a .exe extension.
-                $fileExtension = ".dll"
-                if ($Projects.NewApplication -contains $project -and $Frameworks.NetFx -contains $framework) {
-                    $fileExtension = ".exe"
-                }
-
-                $fileToCopy = "$sourceDirectory\$project$fileExtension"
+            if (Test-Path $fileToCopy) {
                 Copy-Item -Force -Path $fileToCopy -Destination $destinationDirectory
             }
         }
@@ -115,7 +97,7 @@ function New-SigningDirectory {
 
     # Copy the viewer. Its name doesn't fit the pattern binary name == project name,
     # so we copy it by hand.
-    foreach ($framework in $Frameworks.NetFX) {
+    foreach ($framework in $Frameworks) {
         Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework
     }
 }
@@ -161,20 +143,12 @@ if (-not $NoTest) {
     }
 }
 
-if (-not $NoPublish) {
-    foreach ($project in $Projects.NewApplication) {
-        foreach ($framework in $Frameworks.Application) {
-            Publish-Application $project $framework
-        }
-    }
-}
-
 if (-not $NoSigningDirectory) {
     New-SigningDirectory
 }
 
 if (-not $NoPackage) {
-    New-NuGetPackages $Configuration $Projects
+    New-NuGetPackages $Configuration $Projects $Frameworks
 }
 
 if ($Install) {

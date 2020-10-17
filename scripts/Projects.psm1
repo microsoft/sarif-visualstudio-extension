@@ -7,39 +7,14 @@
     they are built.
 #>
 
-$Frameworks = @{}
-
 # .NET Framework versions for which we build.
-$Frameworks.NetFx = @("net461")
-
-# Frameworks for which we build libraries.
-$Frameworks.Library = @("netstandard2.0") + $Frameworks.NetFx
-
-# Frameworks for which we build applications.
-$Frameworks.Application = @("netcoreapp2.0") + $Frameworks.NetFx
-
-$Frameworks.All = ($Frameworks.Library + $Frameworks.Application | Select -Unique)
+$Frameworks = @("net472")
 
 $Projects = @{}
-
-# Projects built with the VS 2017 project system.
-$Projects.NewLibrary = @("Sarif.Viewer.VisualStudio.Interop")
-
-$Projects.NewApplication = @(
-    )
-
-$Projects.NewProduct = $Projects.NewLibrary + $Projects.NewApplication
-
-$Projects.NewTest = @(    
-    )
-
-$Projects.New = $Projects.NewProduct + $Projects.NewTest
-
-# Projects built with the old project system.
-$Projects.OldProduct = @("Sarif.Viewer.VisualStudio")
-$Projects.OldTest = @("Sarif.Viewer.VisualStudio.UnitTests")
-$Projects.Old = $Projects.OldProduct + $Projects.OldTest
-
-$Projects.All = $Projects.New + $Projects.Old
+$Projects.Vsix = @("Sarif.Viewer.VisualStudio")
+$Projects.NuGet = @("Sarif.Viewer.VisualStudio.Interop")
+$Projects.Product = $Projects.Vsix + $Projects.NuGet
+$Projects.Test = @("Sarif.Viewer.VisualStudio.UnitTests")
+$Projects.All = $Projects.Product + $Projects.Test
 
 Export-ModuleMember -Variable Frameworks, Projects

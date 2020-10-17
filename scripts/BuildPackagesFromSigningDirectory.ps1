@@ -20,24 +20,17 @@ Import-Module -Force $PSScriptRoot\Projects.psm1
 
 # Copy signed binaries back into the normal directory structure.
 function Copy-FromSigningDirectory {
-    Write-Information "Copying files to signing directory..."
+    Write-Information "Copying files from signing directory..."
     $SigningDirectory = "$BinRoot\Signing"
 
-    foreach ($project in $Projects.NewProduct) {
+    foreach ($project in $Projects.Product) {
         $projectBinDirectory = (Get-ProjectBinDirectory $project $configuration)
 
-        foreach ($framework in $Frameworks.All) {
+        foreach ($framework in $Frameworks) {
             $sourceDirectory = "$SigningDirectory\$framework"
             $destinationDirectory = "$projectBinDirectory\$framework"
 
-            # Everything we copy is a DLL, _except_ that application projects built for
-            # NetFX have a .exe extension.
-            $fileExtension = ".dll"
-            if ($Projects.NewApplication -contains $project -and $Frameworks.NetFx -contains $framework) {
-                $fileExtension = ".exe"
-            }
-
-            $fileToCopy = "$sourceDirectory\$project$fileExtension"
+            $fileToCopy = "$sourceDirectory\$project.dll"
             if (Test-Path $fileToCopy) {
                 Write-Information "$fileToCopy $destinationDirectory"
                 Copy-Item -Force -Path $fileToCopy -Destination $destinationDirectory
@@ -47,11 +40,11 @@ function Copy-FromSigningDirectory {
 
     # Copy the viewer. Its name doesn't fit the pattern binary name == project name,
     # so we copy it by hand.
-    foreach ($framework in $Frameworks.NetFX) {
+    foreach ($framework in $Frameworks) {
         Copy-Item -Force -Path $SigningDirectory\$framework\Microsoft.Sarif.Viewer.dll -Destination $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll
     }
 }
 
 Copy-FromSigningDirectory
 
-New-NuGetPackages $Configuration $Projects
+New-NuGetPackages $Configuration $Projects $Frameworks
