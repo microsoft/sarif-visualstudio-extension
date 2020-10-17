@@ -54,7 +54,7 @@ function New-NuGetPackageFromProjectFile($configuration, $project, $version) {
 }
 
 function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $suffix = "") {
-    $nuspecFile = "$SourceRoot\NuGet\$project.nuspec"
+    $nuspecFile = "$SourceRoot\$project\$project.nuspec"
 
     $arguments=
         "pack", $nuspecFile,
@@ -89,16 +89,10 @@ function New-NuGetPackages($configuration, $projects) {
         $version = $versionPrefix
     }
 
-    # We can build the NuGet packages for library projects directly from their
-    # project file.
-    foreach ($project in $projects.NewLibrary) {
-        New-NuGetPackageFromProjectFile $configuration $project $version
-    }
-
     # Unfortunately, application projects like MultiTool need to include things
     # that are not specified in the project file, so their packages still require
     # a .nuspec file.
-    foreach ($project in $Projects.NewApplication) {
+    foreach ($project in $Projects.NuGet) {
         New-NuGetPackageFromNuSpecFile $configuration $project $version
     }
 }

@@ -40,25 +40,7 @@ if ($AppVeyor) {
 
 $TestRunnerRootPath = "$NuGetPackageRoot\xunit.runner.console.2.4.0\tools\"
 
-foreach ($project in $Projects.NewTest) {
-    foreach ($framework in $Frameworks.Application) {
-        Write-Information "Running tests in ${project}: $framework..."
-        Push-Location $BinRoot\${Platform}_$Configuration\$project\$framework
-        $dll = "$project" + ".dll"
-        if ($framework -eq "netcoreapp2.0") {
-            & dotnet ${TestRunnerRootPath}netcoreapp2.0\xunit.console.dll $dll $ReporterOption
-        } else {
-            & ${TestRunnerRootPath}net452\xunit.console.exe $dll $ReporterOption
-        }
-        if ($LASTEXITCODE -ne 0) {
-            Pop-Location
-            Exit-WithFailureMessage $ScriptName "${project}: tests failed."
-        }
-        Pop-Location
-    }
-}
-
-foreach ($project in $Projects.OldTest) {
+foreach ($project in $Projects.Test) {
     Write-Information "Running tests in ${project}..."
     Push-Location $BinRoot\${Platform}_$Configuration\$project
     $dll = "$project" + ".dll"
