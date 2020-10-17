@@ -33,26 +33,6 @@ function Exit-WithFailureMessage($scriptName, $message) {
     exit 1
 }
 
-# NuGet Package Creation section
-function New-NuGetPackageFromProjectFile($configuration, $project, $version) {
-    $projectFile = "$SourceRoot\$project\$project.csproj"
-
-    $arguments =
-        "pack", $projectFile,
-        "--configuration", $configuration,
-        "--no-build", "--no-restore",
-        "--include-source", "--include-symbols",
-        "-p:Platform=$Platform",
-        "--output", (Get-PackageDirectoryName $configuration)
-
-    Write-Debug "dotnet $($arguments -join ' ')"
-
-    dotnet $arguments
-    if ($LASTEXITCODE -ne 0) {
-        Exit-WithFailureMessage $ScriptName "$project NuGet package creation failed."
-    }
-}
-
 function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $suffix = "") {
     $nuspecFile = "$SourceRoot\$project\$project.nuspec"
 
@@ -89,9 +69,6 @@ function New-NuGetPackages($configuration, $projects) {
         $version = $versionPrefix
     }
 
-    # Unfortunately, application projects like MultiTool need to include things
-    # that are not specified in the project file, so their packages still require
-    # a .nuspec file.
     foreach ($project in $Projects.NuGet) {
         New-NuGetPackageFromNuSpecFile $configuration $project $version
     }
@@ -123,7 +100,6 @@ Export-ModuleMember -Function `
     New-DirectorySafely, `
     Remove-DirectorySafely, `
     New-NuGetPackages, `
-    New-NuGetPackageFromProjectFile, `
     New-NuGetPackageFromNuSpecFile, `
     Get-PackageDirectoryName, `
     Get-ProjectBinDirectory
