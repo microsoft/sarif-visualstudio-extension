@@ -47,4 +47,4 @@ function Copy-FromSigningDirectory {
 
 Copy-FromSigningDirectory
 
-New-NuGetPackages $Configuration $Projects
+New-NuGetPackages $Configuration $Projects $Frameworks

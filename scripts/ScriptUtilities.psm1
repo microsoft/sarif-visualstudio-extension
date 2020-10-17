@@ -33,13 +33,13 @@ function Exit-WithFailureMessage($scriptName, $message) {
     exit 1
 }
 
-function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $suffix = "") {
+function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $framework, $suffix = "") {
     $nuspecFile = "$SourceRoot\$project\$project.nuspec"
 
     $arguments=
         "pack", $nuspecFile,
         "-Symbols",
-        "-Properties", "platform=$Platform;configuration=$configuration;version=$version",
+        "-Properties", "platform=$Platform;configuration=$configuration;project=$project;version=$version;framework=$framework",
         "-Verbosity", "Quiet",
         "-BasePath", ".\",
         "-OutputDirectory", (Get-PackageDirectoryName $configuration)
@@ -57,10 +57,10 @@ function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $suf
         Exit-WithFailureMessage $ScriptName "$project NuGet package creation failed."
     }
 
-    Write-Information "  Successfully created package '$BinRoot\NuGet\$Configuration\$Project.$version.nupkg'."
+    Write-Information "  Successfully created package '$BinRoot\NuGet\$Configuration\$Project.$version.nupkg' for $framework."
 }
 
-function New-NuGetPackages($configuration, $projects) {
+function New-NuGetPackages($configuration, $projects, $frameworks) {
     $versionPrefix, $versionSuffix = & $PSScriptRoot\Get-VersionConstants.ps1
     if ($versionSuffix)
     {
@@ -70,7 +70,9 @@ function New-NuGetPackages($configuration, $projects) {
     }
 
     foreach ($project in $Projects.NuGet) {
-        New-NuGetPackageFromNuSpecFile $configuration $project $version
+        foreach ($framework in $frameworks) {
+            New-NuGetPackageFromNuSpecFile $configuration $project $version $framework
+        }
     }
 }
 

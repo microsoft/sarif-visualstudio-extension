@@ -149,7 +149,7 @@ if (-not $NoSigningDirectory) {
 }
 
 if (-not $NoPackage) {
-    New-NuGetPackages $Configuration $Projects
+    New-NuGetPackages $Configuration $Projects $Frameworks
 }
 
 if ($Install) {

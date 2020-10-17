@@ -1,0 +1,29 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>$project$</id>
+    <version>$version$</version>
+    <title>Microsoft SARIF Visual Studio Viewer Extension Interop Assembly</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides an API that allows Visual Studio extensions to consume services exposed by the Microsoft SARIF Visual Studio Viewer extension.</description>
+    <releaseNotes>Version $version$ of the Microsoft SARIF Visual Studio Viewer Extension Interop Assembly</releaseNotes>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/microsoft/sarif-visualstudio-extension</projectUrl>
+    <icon>triskelion.png</icon>
+    <iconUrl>https://go.microsoft.com/fwlink/?linkid=2008860</iconUrl>
+    <tags>SARIF viewer static analysis</tags>
+    <packageTypes>
+      <packageType name="Dependency" />
+    </packageTypes>
+  </metadata>
+  <files>
+    <file src="bld\bin\$platform$_$configuration$\$project$\Publish\$framework$\**"
+          target="lib\$framework$" />
+    <file src="triskelion.png" />
+    <file src="..\src\ReleaseHistory.md" />
+    <file src="..\src\$project$\**\*.cs" target="src" />
+  </files>
+</package>
