@@ -58,6 +58,9 @@
     <Compile Include="ErrorList\ErrorListCommand.cs" />
     <Compile Include="ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="ErrorList\SarifResultTableEntry.cs" />
+    <Compile Include="FixSuggestedAction.cs" />
+    <Compile Include="FixSuggestedActionsSource.cs" />
+    <Compile Include="FixSuggestedActionsSourceProvider.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService2.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
