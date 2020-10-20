@@ -79,6 +79,8 @@ namespace Microsoft.Sarif.Viewer.Interop
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 return _isViewerExtensionInstalled ?? (bool)(_isViewerExtensionInstalled = IsExtensionInstalled());
             }
         }
@@ -90,6 +92,8 @@ namespace Microsoft.Sarif.Viewer.Interop
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 return _isViewerExtensionLoaded ?? (bool)(_isViewerExtensionLoaded = IsExtensionLoaded());
             }
         }
