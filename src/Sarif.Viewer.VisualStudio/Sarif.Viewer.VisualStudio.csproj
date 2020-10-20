@@ -29,6 +29,12 @@
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.old-project.props))\build.old-project.props" />
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" />
+    <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
+    <PackageReference Include="Sarif.Converters" Version="2.3.6" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CodeAnalysisResultManager.cs" />
     <Compile Include="CodeFlowToTreeConverter.cs" />
     <Compile Include="CodeLocationObjectTypeDescriptor.cs" />
