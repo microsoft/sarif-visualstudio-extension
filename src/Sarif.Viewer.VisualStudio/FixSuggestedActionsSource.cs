@@ -33,6 +33,9 @@ namespace Microsoft.Sarif.Viewer
             TextBuffer = textBuffer;
         }
 
+        // TODO: Decide if VS actually requires these properties to be public. Once everything
+        // is working, try replacing them with private fields.
+
         /// <summary>
         /// Gets the provider for this source.
         /// </summary>
