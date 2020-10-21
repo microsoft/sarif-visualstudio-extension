@@ -10,16 +10,21 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer
 {
+    /// <summary>
+    /// Provides a <see cref="FixSuggestedActionsSource"/> for a specified <see cref="ITextView"/>
+    /// and <see cref="ITextBuffer"/>
+    /// </summary>
     [Export(typeof(ISuggestedActionsSourceProvider))]
     [Name(FixActionCategoryName)]
     [ContentType("text")]
     internal class FixSuggestedActionsSourceProvider : ISuggestedActionsSourceProvider
     {
-        internal const string FixActionCategoryName = "SARIF fix suggestion";
+        private const string FixActionCategoryName = "SARIF fix suggestion";
 
         [Import(typeof(ITextStructureNavigatorSelectorService))]
-        internal ITextStructureNavigatorSelectorService NavigatorService { get; set; }
+        private ITextStructureNavigatorSelectorService NavigatorService { get; set; }
 
+        /// <inheritdoc/>
         public ISuggestedActionsSource CreateSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
         {
             if (textBuffer == null && textView == null)
