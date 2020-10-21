@@ -36,6 +36,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
     <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
     <PackageReference Include="Sarif.Converters" Version="2.3.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeAnalysisResultManager.cs" />

@@ -20,6 +20,7 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="15.7.27703" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
