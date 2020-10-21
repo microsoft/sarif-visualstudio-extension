@@ -13,8 +13,6 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class FixSuggestedActionsSource : ISuggestedActionsSource
     {
-        internal const string FixActionCategoryName = "SARIF fix suggestion";
-
         public FixSuggestedActionsSource(FixSuggestedActionsSourceProvider fixSuggestedActionsSourceProvider, ITextView textView, ITextBuffer textBuffer)
         {
             FixSuggestedActionsSourceProvider = fixSuggestedActionsSourceProvider;
@@ -36,7 +34,7 @@ namespace Microsoft.Sarif.Viewer
 
         public IEnumerable<SuggestedActionSet> GetSuggestedActions(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
-            yield return new SuggestedActionSet(FixActionCategoryName, new FixSuggestedAction[0]);
+            yield return new SuggestedActionSet(new FixSuggestedAction[0]);
         }
 
         public Task<bool> HasSuggestedActionsAsync(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)

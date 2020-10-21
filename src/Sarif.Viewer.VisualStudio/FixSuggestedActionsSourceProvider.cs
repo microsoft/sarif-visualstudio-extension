@@ -11,10 +11,12 @@ using Microsoft.VisualStudio.Utilities;
 namespace Microsoft.Sarif.Viewer
 {
     [Export(typeof(ISuggestedActionsSourceProvider))]
-    [Name(FixSuggestedActionsSource.FixActionCategoryName)]
+    [Name(FixActionCategoryName)]
     [ContentType("text")]
     internal class FixSuggestedActionsSourceProvider : ISuggestedActionsSourceProvider
     {
+        internal const string FixActionCategoryName = "SARIF fix suggestion";
+
         [Import(typeof(ITextStructureNavigatorSelectorService))]
         internal ITextStructureNavigatorSelectorService NavigatorService { get; set; }
 

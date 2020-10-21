@@ -30,7 +30,10 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.old-project.props))\build.old-project.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="15.7.27703" />
+    <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
     <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
     <PackageReference Include="Sarif.Converters" Version="2.3.6" />
   </ItemGroup>
