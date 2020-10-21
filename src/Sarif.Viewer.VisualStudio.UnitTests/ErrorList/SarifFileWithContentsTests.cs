@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Xunit;
@@ -13,10 +15,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     // Added tests to Collection because otherwise the other tests
     // will load in parallel, which causes issues with static collections.
     // Production code will only load one SARIF file at a time.
+    // See https://xunit.net/docs/running-tests-in-parallel.
     [Collection("SarifObjectTests")]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "No point in naming test methods \"Async\".")]
     public class SarifFileWithContentsTests : SarifViewerPackageUnitTests
     {
-        private readonly int runIndex;
+        private readonly SarifLog testLog;
+
         private const string Key1 = "/item.cpp#fragment";
         private const string Key2 = "/binary.cpp";
         private const string Key3 = "/text.cpp";
@@ -33,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         public SarifFileWithContentsTests()
         {
-            var testLog = new SarifLog
+            this.testLog = new SarifLog
             {
                 Runs = new List<Run>
                 {
@@ -185,26 +190,24 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     }
                 }
             };
-
-            TestUtilities.InitializeTestEnvironment(testLog);
-
-            // CodeAnalysisResultManager.Instance.CurrentRunIndex is currently an internal (instead of private)
-            // member of CodeAnalysisResultManager only for this test.
-            this.runIndex = CodeAnalysisResultManager.Instance.CurrentRunIndex;
         }
 
         [Fact]
-        public void SarifFileWithContents_SavesContents()
+        public async Task SarifFileWithContents_SavesContents()
         {
-            var fileDetails = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails;
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetails = CurrentRunDataCache.FileDetails;
 
             fileDetails.Should().ContainKey(Key1);
         }
 
         [Fact]
-        public void SarifFileWithContents_DecodesBinaryContents()
+        public async Task SarifFileWithContents_DecodesBinaryContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key2];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetail = CurrentRunDataCache.FileDetails[Key2];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -212,10 +215,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifFileWithContents_OpensEmbeddedBinaryFile()
+        public async Task SarifFileWithContents_OpensEmbeddedBinaryFile()
         {
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.runIndex, Key2);
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key2];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(CurrentRunIndex, Key2);
+            var fileDetail = CurrentRunDataCache.FileDetails[Key2];
             var fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -223,10 +228,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifFileWithContents_OpensEmbeddedNonFileUriBinaryFile()
+        public async Task SarifFileWithContents_OpensEmbeddedNonFileUriBinaryFile()
         {
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.runIndex, Key8);
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key8];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(CurrentRunIndex, Key8);
+            var fileDetail = CurrentRunDataCache.FileDetails[Key8];
             var fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -234,18 +241,22 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
        
         [Fact]
-        public void SarifFileWithContents_DecodesTextContents()
+        public async Task SarifFileWithContents_DecodesTextContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key3];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetail = CurrentRunDataCache.FileDetails[Key3];
             var contents = fileDetail.GetContents();
 
             contents.Should().Be(ExpectedContents1);
         }
 
         [Fact]
-        public void SarifFileWithContents_DecodesBinaryContentsWithText()
+        public async Task SarifFileWithContents_DecodesBinaryContentsWithText()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key4];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetail = CurrentRunDataCache.FileDetails[Key4];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -253,9 +264,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifFileWithContents_HandlesEmptyBinaryContents()
+        public async Task SarifFileWithContents_HandlesEmptyBinaryContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key5];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetail = CurrentRunDataCache.FileDetails[Key5];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -265,7 +278,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyTextContents()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key6];
+            var fileDetail = CurrentRunDataCache.FileDetails[Key6];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -273,9 +286,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifFileWithContents_HandlesExistingHash()
+        public async Task SarifFileWithContents_HandlesExistingHash()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key7];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetail = CurrentRunDataCache.FileDetails[Key7];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
@@ -283,13 +298,23 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void SarifFileWithContents_GeneratesHash()
+        public async Task SarifFileWithContents_GeneratesHash()
         {
-            var fileDetail = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.runIndex].FileDetails[Key1];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
+            var fileDetail = CurrentRunDataCache.FileDetails[Key1];
             var contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
             contents.Should().Be(ExpectedContents1);
         }
+
+        private RunDataCache CurrentRunDataCache =>
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[CurrentRunIndex];
+
+        private int CurrentRunIndex =>
+            // CodeAnalysisResultManager.Instance.CurrentRunIndex is currently an internal (instead of private)
+            // member of CodeAnalysisResultManager only for this test.
+            CodeAnalysisResultManager.Instance.CurrentRunIndex;
     }
 }

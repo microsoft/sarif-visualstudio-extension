@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -14,12 +16,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     // Added tests to Collection because otherwise the other tests
     // will load in parallel, which causes issues with static collections.
     // Production code will only load one SARIF file at a time.
+    // See https://xunit.net/docs/running-tests-in-parallel.
     [Collection("SarifObjectTests")]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "No point in naming test methods \"Async\".")]
     public class MultipleRunsPerSarifTests
     {
+        private readonly SarifLog testLog;
+
         public MultipleRunsPerSarifTests()
         {
-            var testLog = new SarifLog
+            this.testLog = new SarifLog
             {
                 Runs = new List<Run>
                 {
@@ -107,13 +113,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     }
                 }
             };
-
-            TestUtilities.InitializeTestEnvironment(testLog);
         }
 
         [Fact]
-        public void ErrorList_WithMultipleRuns_ListObjectHasAllRows()
+        public async Task ErrorList_WithMultipleRuns_ListObjectHasAllRows()
         {
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
             var hasFirstError = SarifTableDataSource.Instance.HasErrors("/item1.cpp");
             var hasSecondError = SarifTableDataSource.Instance.HasErrors("/item2.cpp");
             var hasThirdError = SarifTableDataSource.Instance.HasErrors("/item3.cpp");
@@ -124,8 +130,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void ErrorList_WithMultipleRuns_ManagerHasAllRows()
+        public async Task ErrorList_WithMultipleRuns_ManagerHasAllRows()
         {
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+
             var errorCount = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Sum(c => c.Value.SarifErrors.Count);
 
             errorCount.Should().Be(3);

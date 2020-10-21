@@ -38,13 +38,13 @@ if ($AppVeyor) {
     $ReporterOption = "-appveyor"
 }
 
-$TestRunnerRootPath = "$NuGetPackageRoot\xunit.runner.console.2.4.0\tools\"
+$TestRunnerRootPath = "$NuGetPackageRoot\xunit.runner.console\2.4.1\tools\"
 
 foreach ($project in $Projects.Test) {
     Write-Information "Running tests in ${project}..."
     Push-Location $BinRoot\${Platform}_$Configuration\$project
     $dll = "$project" + ".dll"
-    & ${TestRunnerRootPath}net452\xunit.console.exe $dll $ReporterOption -parallel none
+    & ${TestRunnerRootPath}net472\xunit.console.exe $dll $ReporterOption -parallel none
     if ($LASTEXITCODE -ne 0) {
         Pop-Location
         Exit-WithFailureMessage $ScriptName "${project}: tests failed."

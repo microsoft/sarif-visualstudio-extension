@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Diagnostics.CodeAnalysis;
 using EnvDTE;
 using FluentAssertions;
 using Moq;
@@ -8,6 +9,10 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
+    [SuppressMessage("Usage", "VSTHRD010:Invoke single-threaded types on Main thread",
+        Justification = 
+@"See https://github.com/josetr/VsixTesting/issues/5. There is no good way to switch to the 'main thread' in a test.
+Really the problem is how we mix VS types with our own types in our object model. We need to fix that to have good tests of our OM.")]
     public class ProjectNameCacheTests : SarifViewerPackageUnitTests
     {
         private const string FileName = "SomeFile.cs";
