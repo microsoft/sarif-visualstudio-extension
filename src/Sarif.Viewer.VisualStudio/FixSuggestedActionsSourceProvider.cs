@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     [Export(typeof(ISuggestedActionsSourceProvider))]
     [Name(FixActionCategoryName)]
-    [ContentType(ContentTypes.ContentTypes.Any)]
+    [ContentType(ContentTypes.Any)]
     internal class FixSuggestedActionsSourceProvider : ISuggestedActionsSourceProvider
     {
         private const string FixActionCategoryName = "SARIF fix suggestion";

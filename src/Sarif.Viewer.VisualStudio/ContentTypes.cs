@@ -1,4 +1,7 @@
-﻿namespace Microsoft.Sarif.Viewer.ContentTypes
+﻿// Copyright (c) Microsoft. All rights reserved. 
+// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+
+namespace Microsoft.Sarif.Viewer
 {
     using Microsoft.VisualStudio.Utilities;
     using System.ComponentModel.Composition;
