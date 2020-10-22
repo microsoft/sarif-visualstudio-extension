@@ -3,19 +3,24 @@
     using Microsoft.VisualStudio.Utilities;
     using System.ComponentModel.Composition;
 
-    public static class SarifContentType
+    public static class ContentTypes
     {
         /// <summary>
-        /// The content type name for SARIF log files..
+        /// The content type name for SARIF log files.
         /// </summary>
-        public const string ContentTypeName = "SARIF";
+        public const string Sarif = "SARIF";
+
+        /// <summary>
+        /// The content type name that accepts any file.
+        /// </summary>
+        public const string Any = "any";
 
         /// <summary>
         /// Gets the base content type definition for SARIF log files..
         /// </summary>
         [Export]
         [BaseDefinition("json")]
-        [Name(ContentTypeName)]
+        [Name(Sarif)]
         internal static ContentTypeDefinition SarifBaseContentType { get; } = null;
 
         /// <summary>
@@ -23,7 +28,7 @@
         /// </summary>
         [Export]
         [FileExtension(".sarif")]
-        [ContentType(ContentTypeName)]
+        [ContentType(Sarif)]
         internal static FileExtensionToContentTypeDefinition SarifFileExtensionContentType { get; } = null;
     }
 }

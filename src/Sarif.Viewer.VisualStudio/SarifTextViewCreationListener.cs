@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer
     /// <summary>
     /// Factory for creating our editors.
     /// </summary>
-    [ContentType(SarifContentType.ContentTypeName)]
+    [ContentType(ContentTypes.ContentTypes.Sarif)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [Export(typeof(ITextViewCreationListener))]
     public class SarifTextViewCreationListener : ITextViewCreationListener

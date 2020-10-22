@@ -44,7 +44,7 @@
     <Compile Include="CodeFlowToTreeConverter.cs" />
     <Compile Include="CodeLocationObjectTypeDescriptor.cs" />
     <Compile Include="CodeLocationObject.cs" />
-    <Compile Include="ContentTypes\SarifContentType.cs" />
+    <Compile Include="ContentTypes\ContentTypes.cs" />
     <Compile Include="Controls\InternetHyperlink.xaml.cs">
       <DependentUpon>InternetHyperlink.xaml</DependentUpon>
     </Compile>
