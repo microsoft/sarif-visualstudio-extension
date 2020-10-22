@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer
         private const string FixActionCategoryName = "SARIF fix suggestion";
 
         [Import(typeof(ITextStructureNavigatorSelectorService))]
-        private ITextStructureNavigatorSelectorService NavigatorService { get; set; }
+        internal ITextStructureNavigatorSelectorService NavigatorService { get; set; }
 
         /// <inheritdoc/>
         public ISuggestedActionsSource CreateSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
