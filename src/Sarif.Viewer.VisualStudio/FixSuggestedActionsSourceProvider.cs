@@ -20,6 +20,13 @@ namespace Microsoft.Sarif.Viewer
     {
         private const string FixActionCategoryName = "SARIF fix suggestion";
 
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+        [Import]
+        private IPersistentSpanFactory persistentSpanFactory;
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
+
         /// <inheritdoc/>
         public ISuggestedActionsSource CreateSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
         {
@@ -28,7 +35,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            return new FixSuggestedActionsSource(textView, textBuffer);
+            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory);
         }
     }
 }

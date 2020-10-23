@@ -21,6 +21,7 @@ namespace Microsoft.Sarif.Viewer
     {
         private readonly ITextView textView;
         private readonly ITextBuffer textBuffer;
+        private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly ReadOnlyCollection<SarifErrorListItem> fixableErrors;
 
         /// <summary>
@@ -33,13 +34,13 @@ namespace Microsoft.Sarif.Viewer
         /// The <see cref="ITextBuffer"/> associated with the <see cref="ITextView"/> for which this
         /// source will offer fix suggestions.
         /// </param>
-        public FixSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
+        public FixSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             this.textView = textView;
             this.textBuffer = textBuffer;
-
+            this.persistentSpanFactory = persistentSpanFactory;
 
             // If this text buffer is not associated with a file, it cannot have any SARIF errors.
             if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
