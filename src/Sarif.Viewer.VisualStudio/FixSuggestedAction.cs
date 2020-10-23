@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer
         public string IconAutomationText => null;
 
         /// <inheritdoc/>
-        public string InputGestureText => "TODO: Provide real input gesture text once we understand what it is.";
+        public string InputGestureText => null;
 
         /// <inheritdoc/>
         public bool HasPreview => false;

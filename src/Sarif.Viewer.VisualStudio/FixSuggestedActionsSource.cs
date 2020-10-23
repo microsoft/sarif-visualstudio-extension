@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -16,6 +18,7 @@ namespace Microsoft.Sarif.Viewer
     {
         private readonly ITextView textView;
         private readonly ITextBuffer textBuffer;
+        private readonly IEnumerable<SarifErrorListItem> errorsWithFixes;
 
         /// <summary>
         /// Creates a new instance of <see cref="FixSuggestedActionsSource"/>.
@@ -29,8 +32,27 @@ namespace Microsoft.Sarif.Viewer
         /// </param>
         public FixSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             this.textView = textView;
             this.textBuffer = textBuffer;
+
+
+            // If this text buffer is not associated with a file, it cannot have any SARIF errors.
+            if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
+            {
+                this.errorsWithFixes = CodeAnalysisResultManager
+                    .Instance
+                    .RunIndexToRunDataCache
+                    .Values
+                    .SelectMany(runDataCache => runDataCache.SarifErrors)
+                    .Where(sarifListItem => string.Compare(fileName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0)
+                    .Where(sarifListItem => sarifListItem.Fixes.Any());
+            }
+            else
+            {
+                this.errorsWithFixes = Enumerable.Empty<SarifErrorListItem>();
+            }
         }
 
 #pragma warning disable 0067
@@ -50,21 +72,7 @@ namespace Microsoft.Sarif.Viewer
 
         /// <inheritdoc/>
         public async Task<bool> HasSuggestedActionsAsync(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
-        {
-            if (!SarifViewerPackage.IsUnitTesting)
-            {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-            }
-
-            return await System.Threading.Tasks.Task.Factory.StartNew(() =>
-            {
-                return CaretIsOnSarifError();
-            },
-            cancellationToken,
-            TaskCreationOptions.None,
-            TaskScheduler.Current); // Use the scheduler associate with the current thread,
-                                    // which at this point is known to be the UI thread.
-        }
+            => await Task.FromResult(CaretIsOnAnySarifError());
 
         /// <inheritdoc/>
         public bool TryGetTelemetryId(out Guid telemetryId)
@@ -73,6 +81,8 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        private bool CaretIsOnSarifError() => false;
+        private bool CaretIsOnAnySarifError() => this.errorsWithFixes.Any(CaretIsOnSarifError);
+
+        private bool CaretIsOnSarifError(SarifErrorListItem sarifError) => true;
     }
 }
