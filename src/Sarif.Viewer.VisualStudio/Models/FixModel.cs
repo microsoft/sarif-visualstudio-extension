@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 if (_applyFixCommand == null)
                 {
-                    _applyFixCommand = new DelegateCommand<FixModel>(l => ApplyFix(l));
+                    _applyFixCommand = new DelegateCommand<FixModel>(l => l.Apply());
                 }
 
                 return _applyFixCommand;
@@ -165,12 +165,12 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        internal void ApplyFix(FixModel selectedFix)
+        internal void Apply()
         {
             HashSet<string> files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Gather the list of files for the fix.
-            foreach (var fileChanges in selectedFix.ArtifactChanges)
+            foreach (var fileChanges in ArtifactChanges)
             {
                 files.Add(fileChanges.FilePath.ToLower());
             }
@@ -181,7 +181,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     List<ReplacementModel> replacements = new List<ReplacementModel>();
 
-                    var fileChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
+                    var fileChanges = ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
                     foreach (ArtifactChangeModel fileChange in fileChanges)
                     {
                         replacements.AddRange(fileChange.Replacements);

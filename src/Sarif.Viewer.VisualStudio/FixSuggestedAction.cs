@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            fix.ApplyFix(fix);
+            fix.Apply();
         }
 
         /// <inheritdoc/>

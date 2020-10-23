@@ -41,7 +41,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             DummyFixModel dummy = InitializeDummyFixModel();
 
             // Act
-            dummy.ApplyFix(dummy);
+            dummy.Apply();
 
             // Assert
             byte[] actual = dummy.FileSystem.ReadAllBytes("index.html");
