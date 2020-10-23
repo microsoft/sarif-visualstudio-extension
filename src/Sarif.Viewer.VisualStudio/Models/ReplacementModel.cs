@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.VisualStudio.Text;
+
 namespace Microsoft.Sarif.Viewer.Models
 {
     public class ReplacementModel : NotifyPropertyChangedObject
@@ -77,5 +79,10 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             }
         }
+
+        /// <summary>
+        /// A persistent span that represents the range of bytes replaced by this object.
+        /// </summary>
+        public IPersistentSpan PersistentSpan { get; set; }
     }
 }
