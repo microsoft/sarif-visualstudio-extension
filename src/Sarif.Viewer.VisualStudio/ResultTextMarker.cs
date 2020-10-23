@@ -14,7 +14,6 @@ namespace Microsoft.Sarif.Viewer
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
-    using Microsoft.VisualStudio.TextManager.Interop;
     using Microsoft.VisualStudio.Text.Adornments;
 
     /// <summary>
@@ -414,46 +413,6 @@ namespace Microsoft.Sarif.Viewer
             return this.persistentSpan?.IsDocumentOpen == true;
         }
 
-        private static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, ITextBuffer textBuffer, out TextSpan textSpan)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // SARIF regions are 1 based, VS is zero based.
-            textSpan.iStartLine = Math.Max(region.StartLine - 1, 0);
-            textSpan.iEndLine = Math.Max(region.EndLine - 1, 0);
-            textSpan.iStartIndex = Math.Max(region.StartColumn - 1, 0);
-            textSpan.iEndIndex = Math.Max(region.EndColumn - 1, 0);
-
-            ITextSnapshot currentSnapshot = textBuffer.CurrentSnapshot;
-            int lastLine = currentSnapshot.LineCount;
-
-            // If the start and end indexes are outside the scope of the text, skip tagging.
-            if (textSpan.iStartLine > lastLine ||
-                textSpan.iEndLine > lastLine ||
-                textSpan.iEndLine < textSpan.iStartLine)
-            {
-                return false;
-            }
-
-            ITextSnapshotLine startTextLine = currentSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
-            ITextSnapshotLine endTextLine = currentSnapshot.GetLineFromLineNumber(textSpan.iEndLine);
-
-            if (textSpan.iStartIndex >= startTextLine.Length)
-            {
-                return false;
-            }
-
-            // If we are highlighting just one line and the end column of the end line is out of scope
-            // or we are highlighting just one line and we reset the start column above, then highlight the entire line.
-            if (textSpan.iEndLine == textSpan.iStartLine && textSpan.iStartIndex >= textSpan.iEndIndex)
-            {
-                textSpan.iStartIndex = 0;
-                textSpan.iEndIndex = endTextLine.Length - 1;
-            }
-
-            return true;
-        }
-
         private bool TryCreatePersistentSpan(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -468,25 +427,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (!TryCreateTextSpanWithinDocumentFromSourceRegion(this.fullyPopulatedRegion, textBuffer, out TextSpan documentSpan))
-            {
-                return false;
-            }
-
-            if (!persistentSpanFactory.CanCreate(textBuffer))
-            {
-                return false;
-            }
-
-            this.persistentSpan = persistentSpanFactory.Create(
-                        textBuffer.CurrentSnapshot,
-                        startLine: documentSpan.iStartLine,
-                        startIndex: documentSpan.iStartIndex,
-                        endLine: documentSpan.iEndLine,
-                        endIndex: documentSpan.iEndIndex,
-                        trackingMode: SpanTrackingMode.EdgeInclusive);
-
-            return true;
+            return SpanHelper.TryCreatePersistentSpan(this.fullyPopulatedRegion, textBuffer, persistentSpanFactory, out this.persistentSpan);
         }
 
         protected virtual void Dispose(bool disposing)
