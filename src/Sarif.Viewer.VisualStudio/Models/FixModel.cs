@@ -212,6 +212,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
                 // Delete/Insert the bytes for each replacement.
                 List<byte> bytes = _fileSystem.ReadAllBytes(filePath).ToList();
+                bool hasBom = HasByteOrderMark(bytes);
 
                 FixOffsetList list = null;
                 string path = filePath.ToLower();
@@ -235,6 +236,11 @@ namespace Microsoft.Sarif.Viewer.Models
                 foreach (ReplacementModel replacement in sortedReplacements)
                 {
                     int offset = replacement.Offset + delta;
+                    if (hasBom)
+                    {
+                        offset += s_byteOrderMark.Count;
+                    }
+
                     int thisDelta = 0;
 
                     if (replacement.DeletedLength > 0)
@@ -277,6 +283,27 @@ namespace Microsoft.Sarif.Viewer.Models
             }
 
             return fixedFile != null;
+        }
+
+        private static readonly ReadOnlyCollection<byte> s_byteOrderMark
+            = new List<byte> { 0xEF, 0xBB, 0xBF }.AsReadOnly();
+
+        private static bool HasByteOrderMark(List<byte> bytes)
+        {
+            if (bytes.Count < s_byteOrderMark.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < s_byteOrderMark.Count; i++)
+            {
+                if (bytes[i] != s_byteOrderMark[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
