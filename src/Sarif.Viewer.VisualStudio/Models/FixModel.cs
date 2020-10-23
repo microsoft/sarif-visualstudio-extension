@@ -288,22 +288,8 @@ namespace Microsoft.Sarif.Viewer.Models
         private static readonly ReadOnlyCollection<byte> s_byteOrderMark
             = new List<byte> { 0xEF, 0xBB, 0xBF }.AsReadOnly();
 
-        private static bool HasByteOrderMark(List<byte> bytes)
-        {
-            if (bytes.Count < s_byteOrderMark.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < s_byteOrderMark.Count; i++)
-            {
-                if (bytes[i] != s_byteOrderMark[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        private static bool HasByteOrderMark(List<byte> bytes) =>
+            bytes.Count >= s_byteOrderMark.Count
+            && Enumerable.SequenceEqual(s_byteOrderMark, bytes.Take(s_byteOrderMark.Count));
     }
 }
