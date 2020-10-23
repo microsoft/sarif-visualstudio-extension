@@ -56,6 +56,8 @@ namespace Microsoft.Sarif.Viewer
                     .Where(error => error.Fixes.Any(fix => fix.CanBeApplied()))
                     .ToList()
                     .AsReadOnly();
+
+                CalculatePersistentSpans(fixableErrors);
             }
             else
             {
@@ -88,6 +90,26 @@ namespace Microsoft.Sarif.Viewer
         {
             telemetryId = Guid.Empty;
             return false;
+        }
+
+        private void CalculatePersistentSpans(ReadOnlyCollection<SarifErrorListItem> sarifErrors)
+        {
+            IEnumerable<ReplacementModel> replacementsNeedingPersistentSpans = sarifErrors
+                .SelectMany(error => error.Fixes)
+                .Where(fix => fix.CanBeApplied())
+                .SelectMany(fix => fix.ArtifactChanges)
+                .SelectMany(ac => ac.Replacements)
+                .Where(r => r.PersistentSpan == null);
+
+            foreach (ReplacementModel replacement in replacementsNeedingPersistentSpans)
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
+                if (SpanHelper.TryCreatePersistentSpan(replacement.Region, this.textBuffer, this.persistentSpanFactory, out IPersistentSpan persistentSpan))
+                {
+                    replacement.PersistentSpan = persistentSpan;
+                }
+            }
         }
 
         // TODO: Really implement.

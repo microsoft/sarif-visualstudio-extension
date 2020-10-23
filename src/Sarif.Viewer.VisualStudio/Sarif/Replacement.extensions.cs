@@ -16,25 +16,29 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            ReplacementModel model = new ReplacementModel();
-            Region regionToUse = uri.IsAbsoluteUri
-                ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion.DeepClone(), uri, populateSnippet: false)
-                : replacement.DeletedRegion;
-
-            if (!string.IsNullOrWhiteSpace(replacement.InsertedContent?.Text))
+            ReplacementModel model = new ReplacementModel
             {
-                model.DeletedLength = regionToUse.CharLength;
-                model.Offset = regionToUse.CharOffset;
+                Region = uri.IsAbsoluteUri
+                    ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion.DeepClone(), uri, populateSnippet: false)
+                    : replacement.DeletedRegion
+            };
+
+            if (replacement.IsTextReplacement())
+            {
                 model.InsertedString = replacement.InsertedContent.Text;
             }
             else if (replacement.InsertedContent?.Binary != null)
             {
-                model.DeletedLength = regionToUse.ByteLength;
-                model.Offset = regionToUse.ByteOffset;
                 model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
             }
 
             return model;
         }
+
+        public static bool IsTextReplacement(this Replacement replacement) =>
+            replacement.InsertedContent?.Text != null;
+
+        public static bool IsBinaryReplacement(this Replacement replacement) =>
+            replacement.InsertedContent?.Binary != null;
     }
 }

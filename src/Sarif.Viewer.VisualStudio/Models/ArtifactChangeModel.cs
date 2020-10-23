@@ -9,11 +9,10 @@ namespace Microsoft.Sarif.Viewer.Models
     public class ArtifactChangeModel : NotifyPropertyChangedObject
     {
         private string _filePath;
-        private ObservableCollection<ReplacementModel> _replacements;
 
         public ArtifactChangeModel()
         {
-            this._replacements = new ObservableCollection<ReplacementModel>();
+            Replacements = new ObservableCollection<ReplacementModel>();
         }
 
         public string  FilePath
@@ -42,12 +41,6 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public ObservableCollection<ReplacementModel> Replacements
-        {
-            get
-            {
-                return this._replacements;
-            }
-        }
+        public ObservableCollection<ReplacementModel> Replacements { get; }
     }
 }

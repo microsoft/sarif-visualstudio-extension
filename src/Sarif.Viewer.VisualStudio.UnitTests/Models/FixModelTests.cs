@@ -21,10 +21,39 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var fixModel = new DummyFixModel("Test dummy", fileSystem);
 
-            var replacements = new List<ReplacementModel>();
-            replacements.Add(new ReplacementModel() { Offset = 191, DeletedLength = 0, InsertedString = "\"" });
-            replacements.Add(new ReplacementModel() { Offset = 199, DeletedLength = 0, InsertedString = "\"" });
-            replacements.Add(new ReplacementModel() { Offset = 233, DeletedLength = 3, InsertedString = "img" });
+            var replacements = new List<ReplacementModel>
+            {
+                new ReplacementModel
+                {
+                    Region = new Region
+                    {
+                        CharOffset = 191,
+                        CharLength = 0
+                    },
+                    InsertedString = "\""
+                },
+
+                new ReplacementModel
+                {
+                    Region = new Region
+                    {
+                        CharOffset = 199,
+                        CharLength = 0
+                    },
+                    InsertedString = "\""
+                },
+
+                new ReplacementModel
+                {
+                    Region = new Region
+                    {
+                        CharOffset = 233,
+                        CharLength = 3
+                    },
+                    InsertedString = "img"
+                }
+            };
+
             replacements.ForEach(rm => rm.InsertedBytes = Encoding.UTF8.GetBytes(rm.InsertedString));
 
             var changeModel = new ArtifactChangeModel() { FilePath = @"C:\source\index.html" };
