@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -19,7 +21,7 @@ namespace Microsoft.Sarif.Viewer
     {
         private readonly ITextView textView;
         private readonly ITextBuffer textBuffer;
-        private readonly IEnumerable<SarifErrorListItem> errorsWithFixes;
+        private readonly ReadOnlyCollection<SarifErrorListItem> fixableErrors;
 
         /// <summary>
         /// Creates a new instance of <see cref="FixSuggestedActionsSource"/>.
@@ -42,17 +44,21 @@ namespace Microsoft.Sarif.Viewer
             // If this text buffer is not associated with a file, it cannot have any SARIF errors.
             if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
             {
-                this.errorsWithFixes = CodeAnalysisResultManager
+                IEnumerable<SarifErrorListItem> allErrorsInFile = CodeAnalysisResultManager
                     .Instance
                     .RunIndexToRunDataCache
                     .Values
                     .SelectMany(runDataCache => runDataCache.SarifErrors)
-                    .Where(sarifListItem => string.Compare(fileName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0)
-                    .Where(sarifListItem => sarifListItem.Fixes.Any());
+                    .Where(sarifListItem => string.Compare(fileName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+                this.fixableErrors = allErrorsInFile
+                    .Where(error => error.Fixes.Any(fix => fix.CanBeApplied()))
+                    .ToList()
+                    .AsReadOnly();
             }
             else
             {
-                this.errorsWithFixes = Enumerable.Empty<SarifErrorListItem>();
+                this.fixableErrors = new List<SarifErrorListItem>().AsReadOnly();
             }
         }
 
@@ -68,20 +74,13 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public IEnumerable<SuggestedActionSet> GetSuggestedActions(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
-            if (CaretIsOnAnySarifError())
-            {
-                SarifErrorListItem sarifError = GetSelectedSarifError();
-                return CreateActionSetFromSarifError(sarifError);
-            }
-            else
-            {
-                return Enumerable.Empty<SuggestedActionSet>();
-            }
+            IEnumerable<SarifErrorListItem> selectedFixableErrors = GetSelectedFixableErrors();
+            return CreateActionSetFromSarifErrors(selectedFixableErrors);
         }
 
         /// <inheritdoc/>
         public async Task<bool> HasSuggestedActionsAsync(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
-            => await Task.FromResult(CaretIsOnAnySarifError());
+            => await Task.FromResult(GetSelectedFixableErrors().Any());
 
         /// <inheritdoc/>
         public bool TryGetTelemetryId(out Guid telemetryId)
@@ -90,21 +89,25 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        private bool CaretIsOnAnySarifError() => this.errorsWithFixes.Any(CaretIsOnSarifError);
-
         // TODO: Really implement.
-        private bool CaretIsOnSarifError(SarifErrorListItem sarifError) => true;
+        private IEnumerable<SarifErrorListItem> GetSelectedFixableErrors() =>
+            new List<SarifErrorListItem>
+            {
+                this.fixableErrors.First()
+            };
 
-        // TODO: Really implement.
-        private SarifErrorListItem GetSelectedSarifError() => this.errorsWithFixes.First();
-
-        private IEnumerable<SuggestedActionSet> CreateActionSetFromSarifError(SarifErrorListItem sarifError)
+        private IEnumerable<SuggestedActionSet> CreateActionSetFromSarifErrors(IEnumerable<SarifErrorListItem> sarifErrors)
         {
-            IEnumerable<FixSuggestedAction> suggestedActions = sarifError.Fixes.Select(ToSuggestedAction);
-            var suggestedActionSet = new SuggestedActionSet(suggestedActions);
+            // Every error in the specified list has at least one fix that can be
+            // applied, but we must provide only the apply-able ones.
+            IEnumerable<FixSuggestedAction> suggestedActions = sarifErrors
+                .SelectMany(se => se.Fixes)
+                .Where(fix => fix.CanBeApplied())
+                .Select(ToSuggestedAction);
+
             return new List<SuggestedActionSet>
             {
-                suggestedActionSet
+                new SuggestedActionSet(suggestedActions)
             };
         }
 
