@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -15,11 +18,19 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal class FixSuggestedAction : ISuggestedAction
     {
+        private readonly FixModel fix;
+
+        public FixSuggestedAction(FixModel fix)
+        {
+            this.fix = fix;
+            DisplayText = fix.Description;
+        }
+
         /// <inheritdoc/>
         public bool HasActionSets => false;
 
         /// <inheritdoc/>
-        public string DisplayText => "TODO: Provide real display text";
+        public string DisplayText { get; }
 
         /// <inheritdoc/>
         public ImageMoniker IconMoniker => default;
@@ -43,7 +54,18 @@ namespace Microsoft.Sarif.Viewer
         public Task<object> GetPreviewAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public void Invoke(CancellationToken cancellationToken) => throw new NotImplementedException();
+        public void Invoke(CancellationToken cancellationToken)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            VsShellUtilities.ShowMessageBox(
+                ServiceProvider.GlobalProvider,
+                $"Replace with '{fix.ArtifactChanges[0].Replacements[0].InsertedString}'",
+                DisplayText,
+                OLEMSGICON.OLEMSGICON_INFO,
+                OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+        }
 
         /// <inheritdoc/>
         public bool TryGetTelemetryId(out Guid telemetryId)

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -67,7 +68,15 @@ namespace Microsoft.Sarif.Viewer
         /// <inheritdoc/>
         public IEnumerable<SuggestedActionSet> GetSuggestedActions(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
-            yield break;
+            if (CaretIsOnAnySarifError())
+            {
+                SarifErrorListItem sarifError = GetSelectedSarifError();
+                return CreateActionSetFromSarifError(sarifError);
+            }
+            else
+            {
+                return Enumerable.Empty<SuggestedActionSet>();
+            }
         }
 
         /// <inheritdoc/>
@@ -83,6 +92,22 @@ namespace Microsoft.Sarif.Viewer
 
         private bool CaretIsOnAnySarifError() => this.errorsWithFixes.Any(CaretIsOnSarifError);
 
+        // TODO: Really implement.
         private bool CaretIsOnSarifError(SarifErrorListItem sarifError) => true;
+
+        // TODO: Really implement.
+        private SarifErrorListItem GetSelectedSarifError() => this.errorsWithFixes.First();
+
+        private IEnumerable<SuggestedActionSet> CreateActionSetFromSarifError(SarifErrorListItem sarifError)
+        {
+            IEnumerable<FixSuggestedAction> suggestedActions = sarifError.Fixes.Select(ToSuggestedAction);
+            var suggestedActionSet = new SuggestedActionSet(suggestedActions);
+            return new List<SuggestedActionSet>
+            {
+                suggestedActionSet
+            };
+        }
+
+        private FixSuggestedAction ToSuggestedAction(FixModel fix) => new FixSuggestedAction(fix);
     }
 }
