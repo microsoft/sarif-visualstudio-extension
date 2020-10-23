@@ -5,7 +5,6 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer
@@ -21,9 +20,6 @@ namespace Microsoft.Sarif.Viewer
     {
         private const string FixActionCategoryName = "SARIF fix suggestion";
 
-        [Import(typeof(ITextStructureNavigatorSelectorService))]
-        internal ITextStructureNavigatorSelectorService NavigatorService { get; set; }
-
         /// <inheritdoc/>
         public ISuggestedActionsSource CreateSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
         {
@@ -32,7 +28,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            return new FixSuggestedActionsSource(this, textView, textBuffer);
+            return new FixSuggestedActionsSource(textView, textBuffer);
         }
     }
 }

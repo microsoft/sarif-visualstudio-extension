@@ -16,25 +16,25 @@ namespace Microsoft.Sarif.Viewer
     internal class FixSuggestedAction : ISuggestedAction
     {
         /// <inheritdoc/>
-        public bool HasActionSets => throw new NotImplementedException();
+        public bool HasActionSets => false;
 
         /// <inheritdoc/>
-        public string DisplayText => throw new NotImplementedException();
+        public string DisplayText => "TODO: Provide real display text";
 
         /// <inheritdoc/>
-        public ImageMoniker IconMoniker => throw new NotImplementedException();
+        public ImageMoniker IconMoniker => default;
 
         /// <inheritdoc/>
-        public string IconAutomationText => throw new NotImplementedException();
+        public string IconAutomationText => null;
 
         /// <inheritdoc/>
-        public string InputGestureText => throw new NotImplementedException();
+        public string InputGestureText => "TODO: Provide real input gesture text once we understand what it is.";
 
         /// <inheritdoc/>
-        public bool HasPreview => throw new NotImplementedException();
+        public bool HasPreview => false;
 
         /// <inheritdoc/>
-        public void Dispose() => throw new NotImplementedException();
+        public void Dispose() { }
 
         /// <inheritdoc/>
         public Task<IEnumerable<SuggestedActionSet>> GetActionSetsAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
@@ -46,6 +46,10 @@ namespace Microsoft.Sarif.Viewer
         public void Invoke(CancellationToken cancellationToken) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public bool TryGetTelemetryId(out Guid telemetryId) => throw new NotImplementedException();
+        public bool TryGetTelemetryId(out Guid telemetryId)
+        {
+            telemetryId = Guid.Empty;
+            return false;
+        }
     }
 }
