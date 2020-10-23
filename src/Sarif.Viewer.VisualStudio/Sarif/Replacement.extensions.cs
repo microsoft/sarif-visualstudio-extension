@@ -9,7 +9,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class ReplacementExtensions
     {
-        public static ReplacementModel ToReplacementModel(this Replacement replacement)
+        public static ReplacementModel ToReplacementModel(this Replacement replacement, FileRegionsCache fileRegionsCache, Uri uri)
         {
             if (replacement == null)
             {
@@ -17,17 +17,20 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
 
             ReplacementModel model = new ReplacementModel();
+            Region regionToUse = uri.IsAbsoluteUri
+                ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion.DeepClone(), uri, populateSnippet: false)
+                : replacement.DeletedRegion;
 
             if (!string.IsNullOrWhiteSpace(replacement.InsertedContent?.Text))
             {
-                model.DeletedLength = replacement.DeletedRegion.CharLength;
-                model.Offset = replacement.DeletedRegion.CharOffset;
+                model.DeletedLength = regionToUse.CharLength;
+                model.Offset = regionToUse.CharOffset;
                 model.InsertedString = replacement.InsertedContent.Text;
             }
             else if (replacement.InsertedContent?.Binary != null)
             {
-                model.DeletedLength = replacement.DeletedRegion.ByteLength;
-                model.Offset = replacement.DeletedRegion.ByteOffset;
+                model.DeletedLength = regionToUse.ByteLength;
+                model.Offset = regionToUse.ByteOffset;
                 model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
             }
 

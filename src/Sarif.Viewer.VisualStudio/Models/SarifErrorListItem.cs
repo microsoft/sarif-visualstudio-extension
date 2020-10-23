@@ -148,9 +148,10 @@ namespace Microsoft.Sarif.Viewer
 
             if (result.Fixes != null)
             {
+                FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunIndex].FileRegionsCache;
                 foreach (Fix fix in result.Fixes)
                 {
-                    Fixes.Add(fix.ToFixModel());
+                    Fixes.Add(fix.ToFixModel(run.OriginalUriBaseIds, regionsCache));
                 }
             }
         }

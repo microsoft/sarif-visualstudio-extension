@@ -9,7 +9,6 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -58,13 +57,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            VsShellUtilities.ShowMessageBox(
-                ServiceProvider.GlobalProvider,
-                $"Replace with '{fix.ArtifactChanges[0].Replacements[0].InsertedString}'",
-                DisplayText,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            fix.ApplyFix(fix);
         }
 
         /// <inheritdoc/>
