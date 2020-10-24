@@ -623,6 +623,18 @@ namespace Microsoft.Sarif.Viewer
             SarifLocationTagHelpers.RefreshAllTags();
         }
 
+        /// <summary>
+        /// Returns a value indicating whether this error is fixable.
+        /// </summary>
+        /// <remarks>
+        /// An error is fixable if it provides at list one fix with enough information to be
+        /// applied.
+        /// </remarks>
+        /// <returns>
+        /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
+        /// </returns>
+        public bool IsFixable() => Fixes.Any(fix => fix.CanBeApplied());
+
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T: ITag
         {

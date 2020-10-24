@@ -94,7 +94,12 @@ namespace Microsoft.Sarif.Viewer
 
         private void CalculatePersistentSpans(ReadOnlyCollection<SarifErrorListItem> sarifErrors)
         {
-            IEnumerable<FixModel> applyableFixes = sarifErrors
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            IEnumerable<SarifErrorListItem> fixableErrors = sarifErrors
+                .Where(error => error.IsFixable());
+
+            IEnumerable<FixModel> applyableFixes = fixableErrors
                 .SelectMany(error => error.Fixes)
                 .Where(fix => fix.CanBeApplied());
 
@@ -105,8 +110,6 @@ namespace Microsoft.Sarif.Viewer
 
             foreach (ReplacementModel replacement in replacementsNeedingPersistentSpans)
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
-
                 if (SpanHelper.TryCreatePersistentSpan(replacement.Region, this.textBuffer, this.persistentSpanFactory, out IPersistentSpan persistentSpan))
                 {
                     replacement.PersistentSpan = persistentSpan;
