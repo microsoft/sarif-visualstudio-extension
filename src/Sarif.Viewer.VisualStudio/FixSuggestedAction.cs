@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer
         public string DisplayText { get; }
 
         /// <inheritdoc/>
-        public ImageMoniker IconMoniker => default;
+        public ImageMoniker IconMoniker => default(ImageMoniker);
 
         /// <inheritdoc/>
         public string IconAutomationText => null;
