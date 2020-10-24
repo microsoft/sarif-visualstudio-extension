@@ -34,6 +34,10 @@ namespace Microsoft.Sarif.Viewer
         /// The <see cref="ITextBuffer"/> associated with the <see cref="ITextView"/> for which this
         /// source will offer fix suggestions.
         /// </param>
+        /// <param name="persistentSpanFactory">
+        /// A factory for creating the persistent spans that specify the error locations and the
+        /// replacement locations (which are not necessarily the same).
+        /// </param>
         public FixSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -159,7 +163,7 @@ namespace Microsoft.Sarif.Viewer
         {
             // Every error in the specified list has at least one fix that can be
             // applied, but we must provide only the apply-able ones.
-            IEnumerable<FixModel> allFixes = errors.SelectMany(se => se.Fixes);
+            IEnumerable<FixModel> allFixes = errors.SelectMany(error => error.Fixes);
             IEnumerable<FixModel> applyableFixes = allFixes.Where(fix => fix.CanBeApplied());
             IEnumerable<ISuggestedAction> suggestedActions = applyableFixes.Select(ToSuggestedAction);
 

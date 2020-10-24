@@ -23,22 +23,22 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     : replacement.DeletedRegion
             };
 
-            if (replacement.IsTextReplacement())
+            if (model.Region.CharOffset >= 0)
             {
-                model.InsertedString = replacement.InsertedContent.Text;
+                // This is a text replacement.
+                model.InsertedString = replacement.InsertedContent?.Text;
             }
-            else if (replacement.InsertedContent?.Binary != null)
+            else
             {
-                model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
+                // This is a binary replacement, but don't try to convert the replacement
+                // content to a string if there isn't any.
+                if (replacement.InsertedContent?.Binary != null)
+                {
+                    model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
+                }
             }
 
             return model;
         }
-
-        public static bool IsTextReplacement(this Replacement replacement) =>
-            replacement.DeletedRegion.CharOffset >= 0;
-
-        public static bool IsBinaryReplacement(this Replacement replacement) =>
-            !replacement.IsTextReplacement() && replacement.DeletedRegion.ByteOffset >= 0;
     }
 }

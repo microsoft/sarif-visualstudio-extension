@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
         /// Represents the fix to be applied.
         /// </param>
         /// <returns>
-        /// <code>true</code> if there is enough information to apply the fix, otherwise \
+        /// <code>true</code> if there is enough information to apply the fix, otherwise
         /// <code>false</code>.
         /// </returns>
         public static bool CanBeApplied(this FixModel fixModel) =>

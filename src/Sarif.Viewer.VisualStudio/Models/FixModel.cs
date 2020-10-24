@@ -130,9 +130,9 @@ namespace Microsoft.Sarif.Viewer.Models
             HashSet<string> files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Gather the list of files for the fix.
-            foreach (var fileChanges in selectedFix.ArtifactChanges)
+            foreach (var artifactChanges in selectedFix.ArtifactChanges)
             {
-                files.Add(fileChanges.FilePath);
+                files.Add(artifactChanges.FilePath);
             }
 
             foreach (string file in files)
@@ -141,8 +141,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     List<ReplacementModel> replacements = new List<ReplacementModel>();
 
-                    var fileChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
-                    foreach (ArtifactChangeModel fileChange in fileChanges)
+                    IEnumerable<ArtifactChangeModel> artifactChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
+                    foreach (ArtifactChangeModel fileChange in artifactChanges)
                     {
                         replacements.AddRange(fileChange.Replacements);
                     }
