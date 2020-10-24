@@ -8,7 +8,6 @@
     <system:String x:Key="SarifViewerControl_TabItemHeader_CodeFlows_Text_String">Code Flows</system:String>
     <system:String x:Key="SarifViewerControl_TabItemHeader_Stacks_Text_String">Stacks</system:String>
     <system:String x:Key="SarifViewerControl_TabItemHeader_CallTrees_Text_String">Call Trees</system:String>
-    <system:String x:Key="SarifViewerControl_TabItemHeader_Fixes_Text_String">Fixes</system:String>
     <system:String x:Key="SarifViewerControl_TabItemHeader_Info_Text_String">Info</system:String>
     <system:String x:Key="SarifViewerControl_TabItemHeader_ItemCount_Text_FormatString">({0})</system:String>
 
