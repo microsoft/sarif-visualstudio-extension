@@ -630,12 +630,13 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <remarks>
         /// An error is fixable if it provides at list one fix with enough information to be
-        /// applied.
+        /// applied, and it is not already fixed.
         /// </remarks>
         /// <returns>
         /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
         /// </returns>
-        public bool IsFixable() => Fixes.Any(fix => fix.CanBeApplied());
+        public bool IsFixable() =>
+            !IsFixed && Fixes.Any(fix => fix.CanBeApplied());
 
         /// <summary>
         /// Gets or sets a value indicating whether this error has been fixed.

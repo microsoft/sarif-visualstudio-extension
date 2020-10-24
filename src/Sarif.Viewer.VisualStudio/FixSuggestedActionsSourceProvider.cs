@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
     /// Provides a <see cref="FixSuggestedActionsSource"/> for a specified <see cref="ITextView"/>
-    /// and <see cref="ITextBuffer"/>
+    /// and <see cref="ITextBuffer"/>.
     /// </summary>
     [Export(typeof(ISuggestedActionsSourceProvider))]
     [Name(FixActionCategoryName)]

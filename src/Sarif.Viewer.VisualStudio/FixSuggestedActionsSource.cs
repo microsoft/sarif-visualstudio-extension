@@ -45,18 +45,8 @@ namespace Microsoft.Sarif.Viewer
             // If this text buffer is not associated with a file, it cannot have any SARIF errors.
             if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
             {
-                IEnumerable<SarifErrorListItem> allErrorsInFile = CodeAnalysisResultManager
-                    .Instance
-                    .RunIndexToRunDataCache
-                    .Values
-                    .SelectMany(runDataCache => runDataCache.SarifErrors)
-                    .Where(sarifListItem => string.Compare(fileName, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0);
-
-                this.fixableErrors = allErrorsInFile
-                    .Where(error => error.Fixes.Any(fix => fix.CanBeApplied()))
-                    .ToList()
-                    .AsReadOnly();
-
+                IEnumerable<SarifErrorListItem> errorsInFile = GetErrorsInFile(fileName);
+                this.fixableErrors = GetFixableErrors(errorsInFile);
                 CalculatePersistentSpans(fixableErrors);
             }
             else
@@ -64,6 +54,20 @@ namespace Microsoft.Sarif.Viewer
                 this.fixableErrors = new List<SarifErrorListItem>().AsReadOnly();
             }
         }
+
+        private static ReadOnlyCollection<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
+            errors
+            .Where(error => error.IsFixable())
+            .ToList()
+            .AsReadOnly();
+
+        private static IEnumerable<SarifErrorListItem> GetErrorsInFile(string fileName) =>
+            CodeAnalysisResultManager
+            .Instance
+            .RunIndexToRunDataCache
+            .Values
+            .SelectMany(runDataCache => runDataCache.SarifErrors)
+            .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
 #pragma warning disable 0067
         public event EventHandler<EventArgs> SuggestedActionsChanged;
@@ -78,7 +82,7 @@ namespace Microsoft.Sarif.Viewer
         public IEnumerable<SuggestedActionSet> GetSuggestedActions(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
             IEnumerable<SarifErrorListItem> selectedFixableErrors = GetSelectedFixableErrors();
-            return CreateActionSetFromSarifErrors(selectedFixableErrors);
+            return CreateActionSetFromErrors(selectedFixableErrors);
         }
 
         /// <inheritdoc/>
@@ -92,14 +96,16 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        private void CalculatePersistentSpans(ReadOnlyCollection<SarifErrorListItem> sarifErrors)
+        // Calculate persistent spans for each error location (because we want to display a
+        // lightbulb any time the caret intersects such a span, even if the document has been
+        // edited) and for each region that must be replaced when the error is fixed (because
+        // we want to apply the fix in the right place, even if the document has been edited).
+        private void CalculatePersistentSpans(ReadOnlyCollection<SarifErrorListItem> errors)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            IEnumerable<SarifErrorListItem> fixableErrors = sarifErrors
-                .Where(error => error.IsFixable() && !error.IsFixed);
-
-            IEnumerable<LocationModel> locationsNeedingPersistentSpans = fixableErrors.SelectMany(error => error.Locations);
+            // Calculate persistent spans for the error locations.
+            IEnumerable<LocationModel> locationsNeedingPersistentSpans = errors.SelectMany(error => error.Locations);
             foreach (LocationModel location in locationsNeedingPersistentSpans)
             {
                 if (SpanHelper.TryCreatePersistentSpan(location.Region, this.textBuffer, this.persistentSpanFactory, out IPersistentSpan persistentSpan))
@@ -108,7 +114,10 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            IEnumerable<FixModel> applyableFixes = fixableErrors
+            // Calculate persistent spans for each region that must be replaced in every
+            // applyable fix. Not every fix is applyable because it might not have enough
+            // information to resolve the absolute path to every file that must be touched.
+            IEnumerable<FixModel> applyableFixes = errors
                 .SelectMany(error => error.Fixes)
                 .Where(fix => fix.CanBeApplied());
 
@@ -126,18 +135,31 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        // TODO: Really implement.
-        private IEnumerable<SarifErrorListItem> GetSelectedFixableErrors() =>
-            new List<SarifErrorListItem>
-            {
-                this.fixableErrors.First()
-            };
+        // Find all fixable errors any of whose locations intersect the caret. Those are the
+        // locations where a lightbulb should appear.
+        private IEnumerable<SarifErrorListItem> GetSelectedFixableErrors()
+        {
+            SnapshotPoint caretSnapshotPoint = this.textView.Caret.Position.BufferPosition;
+            var caretSpanCollection =
+                new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
-        private IEnumerable<SuggestedActionSet> CreateActionSetFromSarifErrors(IEnumerable<SarifErrorListItem> sarifErrors)
+            return this.fixableErrors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection));
+        }
+
+        private bool CaretIntersectsAnyErrorLocation(SarifErrorListItem error, NormalizedSnapshotSpanCollection caretSpanCollection) =>
+            error
+            .Locations
+            ?.Any(locationModel => CaretIntersectsSingleErrorLocation(locationModel, caretSpanCollection)) == true;
+
+        private bool CaretIntersectsSingleErrorLocation(LocationModel locationModel, NormalizedSnapshotSpanCollection caretSpanCollection) =>
+            caretSpanCollection.Any(
+                caretSpan => caretSpan.IntersectsWith(locationModel.PersistentSpan.Span.GetSpan(caretSpan.Snapshot)));
+
+        private IEnumerable<SuggestedActionSet> CreateActionSetFromErrors(IEnumerable<SarifErrorListItem> errors)
         {
             // Every error in the specified list has at least one fix that can be
             // applied, but we must provide only the apply-able ones.
-            IEnumerable<FixModel> allFixes = sarifErrors.SelectMany(se => se.Fixes);
+            IEnumerable<FixModel> allFixes = errors.SelectMany(se => se.Fixes);
             IEnumerable<FixModel> applyableFixes = allFixes.Where(fix => fix.CanBeApplied());
             IEnumerable<ISuggestedAction> suggestedActions = applyableFixes.Select(ToSuggestedAction);
 
