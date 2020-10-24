@@ -99,6 +99,15 @@ namespace Microsoft.Sarif.Viewer
             IEnumerable<SarifErrorListItem> fixableErrors = sarifErrors
                 .Where(error => error.IsFixable());
 
+            IEnumerable<LocationModel> locationsNeedingPersistentSpans = fixableErrors.SelectMany(error => error.Locations);
+            foreach (LocationModel location in locationsNeedingPersistentSpans)
+            {
+                if (SpanHelper.TryCreatePersistentSpan(location.Region, this.textBuffer, this.persistentSpanFactory, out IPersistentSpan persistentSpan))
+                {
+                    location.PersistentSpan = persistentSpan;
+                }
+            }
+
             IEnumerable<FixModel> applyableFixes = fixableErrors
                 .SelectMany(error => error.Fixes)
                 .Where(fix => fix.CanBeApplied());

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System.IO;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -131,5 +132,10 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             }
         }
+
+        /// <summary>
+        /// A persistent span that represents the this location's region.
+        /// </summary>
+        public IPersistentSpan PersistentSpan { get; set; }
     }
 }
