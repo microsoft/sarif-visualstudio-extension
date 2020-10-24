@@ -24,6 +24,8 @@ namespace Microsoft.Sarif.Viewer.Models
         protected static string s_sourceFileFixLedgerFileName = "SourceFileChangeLedger.json";
         protected readonly IFileSystem _fileSystem;
 
+        public delegate void FixAppliedHandler();
+
         public FixModel(string description, IFileSystem fileSystem)
         {
             this._description = description;
@@ -32,6 +34,8 @@ namespace Microsoft.Sarif.Viewer.Models
 
             LoadFixLedger();
         }
+
+        public event FixAppliedHandler FixApplied;
 
         public string Description
         {
@@ -199,6 +203,8 @@ namespace Microsoft.Sarif.Viewer.Models
                     }
                 }
             }
+
+            FixApplied?.Invoke();
         }
 
         internal bool TryFixFile(string filePath, IEnumerable<ReplacementModel> replacements, bool isPreview, out byte[] fixedFile)

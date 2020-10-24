@@ -157,7 +157,9 @@ namespace Microsoft.Sarif.Viewer
                 FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
                 foreach (Fix fix in result.Fixes)
                 {
-                    Fixes.Add(fix.ToFixModel(run.OriginalUriBaseIds, regionsCache));
+                    FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
+                    fixModel.FixApplied += () => IsFixed = true;
+                    Fixes.Add(fixModel);
                 }
             }
         }
@@ -634,6 +636,11 @@ namespace Microsoft.Sarif.Viewer
         /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
         /// </returns>
         public bool IsFixable() => Fixes.Any(fix => fix.CanBeApplied());
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this error has been fixed.
+        /// </summary>
+        public bool IsFixed { get; set; }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T: ITag

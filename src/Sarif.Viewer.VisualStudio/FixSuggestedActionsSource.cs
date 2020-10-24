@@ -97,7 +97,7 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             IEnumerable<SarifErrorListItem> fixableErrors = sarifErrors
-                .Where(error => error.IsFixable());
+                .Where(error => error.IsFixable() && !error.IsFixed);
 
             IEnumerable<LocationModel> locationsNeedingPersistentSpans = fixableErrors.SelectMany(error => error.Locations);
             foreach (LocationModel location in locationsNeedingPersistentSpans)
