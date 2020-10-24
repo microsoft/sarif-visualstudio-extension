@@ -71,9 +71,9 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public bool IsTextReplacement => InsertedString != null;
+        public bool IsTextReplacement => Region.CharOffset >= 0;
 
-        public bool IsBinaryReplacement => InsertedBytes != null;
+        public bool IsBinaryReplacement => !IsTextReplacement && Region.ByteOffset >= 0;
 
         /// <summary>
         /// A persistent span that represents the range of bytes replaced by this object.

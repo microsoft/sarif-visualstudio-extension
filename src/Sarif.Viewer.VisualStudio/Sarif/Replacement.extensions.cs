@@ -36,9 +36,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
         }
 
         public static bool IsTextReplacement(this Replacement replacement) =>
-            replacement.InsertedContent?.Text != null;
+            replacement.DeletedRegion.CharOffset >= 0;
 
         public static bool IsBinaryReplacement(this Replacement replacement) =>
-            replacement.InsertedContent?.Binary != null;
+            !replacement.IsTextReplacement() && replacement.DeletedRegion.ByteOffset >= 0;
     }
 }

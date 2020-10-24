@@ -94,9 +94,11 @@ namespace Microsoft.Sarif.Viewer
 
         private void CalculatePersistentSpans(ReadOnlyCollection<SarifErrorListItem> sarifErrors)
         {
-            IEnumerable<ReplacementModel> replacementsNeedingPersistentSpans = sarifErrors
+            IEnumerable<FixModel> applyableFixes = sarifErrors
                 .SelectMany(error => error.Fixes)
-                .Where(fix => fix.CanBeApplied())
+                .Where(fix => fix.CanBeApplied());
+
+            IEnumerable<ReplacementModel> replacementsNeedingPersistentSpans = applyableFixes
                 .SelectMany(fix => fix.ArtifactChanges)
                 .SelectMany(ac => ac.Replacements)
                 .Where(r => r.PersistentSpan == null);
@@ -123,10 +125,9 @@ namespace Microsoft.Sarif.Viewer
         {
             // Every error in the specified list has at least one fix that can be
             // applied, but we must provide only the apply-able ones.
-            IEnumerable<FixSuggestedAction> suggestedActions = sarifErrors
-                .SelectMany(se => se.Fixes)
-                .Where(fix => fix.CanBeApplied())
-                .Select(ToSuggestedAction);
+            IEnumerable<FixModel> allFixes = sarifErrors.SelectMany(se => se.Fixes);
+            IEnumerable<FixModel> applyableFixes = allFixes.Where(fix => fix.CanBeApplied());
+            IEnumerable<ISuggestedAction> suggestedActions = applyableFixes.Select(ToSuggestedAction);
 
             return new List<SuggestedActionSet>
             {
