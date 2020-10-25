@@ -7,10 +7,9 @@ using System.IO;
 using System.Text;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Models;
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
+namespace Microsoft.Sarif.Viewer.Models
 {
     public class FixModelTests
     {
