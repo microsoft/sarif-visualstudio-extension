@@ -145,18 +145,6 @@ namespace Microsoft.Sarif.Viewer.ViewModels
             });
             viewModel.Stacks.Add(stack1);
 
-            FixModel fix1 = new FixModel("Replace *.Close() with *.Dispose().", new FileSystem());
-            ArtifactChangeModel fileChange11 = new ArtifactChangeModel();
-            fileChange11.FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs";
-            fileChange11.Replacements.Add(new ReplacementModel()
-            {
-                Offset = 1234,
-                DeletedLength = ".Close()".Length,
-                InsertedString = ".Dispose()",
-            });
-            fix1.ArtifactChanges.Add(fileChange11);
-            viewModel.Fixes.Add(fix1);
-
             return viewModel;
         }
     }

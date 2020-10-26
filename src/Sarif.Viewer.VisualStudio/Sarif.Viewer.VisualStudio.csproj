@@ -44,7 +44,7 @@
     <Compile Include="CodeFlowToTreeConverter.cs" />
     <Compile Include="CodeLocationObjectTypeDescriptor.cs" />
     <Compile Include="CodeLocationObject.cs" />
-    <Compile Include="ContentTypes\SarifContentType.cs" />
+    <Compile Include="ContentTypes.cs" />
     <Compile Include="Controls\InternetHyperlink.xaml.cs">
       <DependentUpon>InternetHyperlink.xaml</DependentUpon>
     </Compile>
@@ -95,6 +95,7 @@
     <Compile Include="RunDataCache.cs" />
     <Compile Include="SarifExplorerWindow.cs" />
     <Compile Include="SarifToolWindowCommand.cs" />
+    <Compile Include="SpanHelper.cs" />
     <Compile Include="Tags\TagInCaretChangedEventArgs.cs" />
     <Compile Include="Tags\ISarifLocationTagCaretNotify.cs" />
     <Compile Include="Tags\ISarifLocationTagger.cs" />
@@ -263,10 +264,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\FixesStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\InformationStringResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -296,10 +293,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\DefaultStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Fixes.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

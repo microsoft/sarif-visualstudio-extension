@@ -1,48 +1,41 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Text;
+
 namespace Microsoft.Sarif.Viewer.Models
 {
     public class ReplacementModel : NotifyPropertyChangedObject
     {
-        private int _offset;
-        private int _deletedLength;
+        private Region region;
         private byte[] _insertedBytes;
         private string _insertedString;
 
-        public int Offset
+        public Region Region
         {
             get
             {
-                return _offset;
+                return this.region;
             }
+
             set
             {
-                if (value != this._offset)
+                if (!(this.region?.ValueEquals(value) == true))
                 {
-                    _offset = value;
-
+                    this.region = value;
                     NotifyPropertyChanged();
                 }
             }
         }
 
-        public int DeletedLength
-        {
-            get
-            {
-                return _deletedLength;
-            }
-            set
-            {
-                if (value != this._deletedLength)
-                {
-                    _deletedLength = value;
+        public int Offset => IsTextReplacement
+            ? this.region.CharOffset
+            : this.region.ByteOffset;
 
-                    NotifyPropertyChanged();
-                }
-            }
-        }
+        public int DeletedLength => IsTextReplacement
+            ? this.region.CharLength
+            : this.region.ByteLength;
 
         public byte[] InsertedBytes
         {
@@ -77,5 +70,14 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             }
         }
+
+        public bool IsTextReplacement => Region.CharOffset >= 0;
+
+        public bool IsBinaryReplacement => !IsTextReplacement && Region.ByteOffset >= 0;
+
+        /// <summary>
+        /// A persistent span that represents the range of bytes replaced by this object.
+        /// </summary>
+        public IPersistentSpan PersistentSpan { get; set; }
     }
 }

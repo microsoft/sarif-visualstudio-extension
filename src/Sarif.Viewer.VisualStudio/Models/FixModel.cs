@@ -24,6 +24,8 @@ namespace Microsoft.Sarif.Viewer.Models
         protected static string s_sourceFileFixLedgerFileName = "SourceFileChangeLedger.json";
         protected readonly IFileSystem _fileSystem;
 
+        public delegate void FixAppliedHandler();
+
         public FixModel(string description, IFileSystem fileSystem)
         {
             this._description = description;
@@ -32,6 +34,8 @@ namespace Microsoft.Sarif.Viewer.Models
 
             LoadFixLedger();
         }
+
+        public event FixAppliedHandler FixApplied;
 
         public string Description
         {
@@ -81,7 +85,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 if (_applyFixCommand == null)
                 {
-                    _applyFixCommand = new DelegateCommand<FixModel>(l => ApplyFix(l));
+                    _applyFixCommand = new DelegateCommand<FixModel>(l => l.Apply());
                 }
 
                 return _applyFixCommand;
@@ -126,9 +130,9 @@ namespace Microsoft.Sarif.Viewer.Models
             HashSet<string> files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Gather the list of files for the fix.
-            foreach (var fileChanges in selectedFix.ArtifactChanges)
+            foreach (var artifactChanges in selectedFix.ArtifactChanges)
             {
-                files.Add(fileChanges.FilePath);
+                files.Add(artifactChanges.FilePath);
             }
 
             foreach (string file in files)
@@ -137,8 +141,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     List<ReplacementModel> replacements = new List<ReplacementModel>();
 
-                    var fileChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
-                    foreach (ArtifactChangeModel fileChange in fileChanges)
+                    IEnumerable<ArtifactChangeModel> artifactChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
+                    foreach (ArtifactChangeModel fileChange in artifactChanges)
                     {
                         replacements.AddRange(fileChange.Replacements);
                     }
@@ -165,12 +169,12 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        internal void ApplyFix(FixModel selectedFix)
+        internal void Apply()
         {
             HashSet<string> files = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Gather the list of files for the fix.
-            foreach (var fileChanges in selectedFix.ArtifactChanges)
+            foreach (var fileChanges in ArtifactChanges)
             {
                 files.Add(fileChanges.FilePath.ToLower());
             }
@@ -181,7 +185,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     List<ReplacementModel> replacements = new List<ReplacementModel>();
 
-                    var fileChanges = selectedFix.ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
+                    var fileChanges = ArtifactChanges.Where(fc => fc.FilePath.Equals(file, StringComparison.OrdinalIgnoreCase));
                     foreach (ArtifactChangeModel fileChange in fileChanges)
                     {
                         replacements.AddRange(fileChange.Replacements);
@@ -199,6 +203,8 @@ namespace Microsoft.Sarif.Viewer.Models
                     }
                 }
             }
+
+            FixApplied?.Invoke();
         }
 
         internal bool TryFixFile(string filePath, IEnumerable<ReplacementModel> replacements, bool isPreview, out byte[] fixedFile)
@@ -212,6 +218,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
                 // Delete/Insert the bytes for each replacement.
                 List<byte> bytes = _fileSystem.ReadAllBytes(filePath).ToList();
+                bool hasBom = HasByteOrderMark(bytes);
 
                 FixOffsetList list = null;
                 string path = filePath.ToLower();
@@ -235,6 +242,11 @@ namespace Microsoft.Sarif.Viewer.Models
                 foreach (ReplacementModel replacement in sortedReplacements)
                 {
                     int offset = replacement.Offset + delta;
+                    if (hasBom)
+                    {
+                        offset += s_byteOrderMark.Count;
+                    }
+
                     int thisDelta = 0;
 
                     if (replacement.DeletedLength > 0)
@@ -278,5 +290,12 @@ namespace Microsoft.Sarif.Viewer.Models
 
             return fixedFile != null;
         }
+
+        private static readonly ReadOnlyCollection<byte> s_byteOrderMark
+            = new List<byte> { 0xEF, 0xBB, 0xBF }.AsReadOnly();
+
+        private static bool HasByteOrderMark(List<byte> bytes) =>
+            bytes.Count >= s_byteOrderMark.Count
+            && Enumerable.SequenceEqual(s_byteOrderMark, bytes.Take(s_byteOrderMark.Count));
     }
 }

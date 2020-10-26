@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     [Export(typeof(IViewTaggerProvider))]
     [TagType(typeof(SarifLocationTextMarkerTag))]
     [TagType(typeof(SarifLocationErrorTag))]
-    [ContentType("any")]
+    [ContentType(ContentTypes.Any)]
     internal class SarifLocationTaggerProvider : IViewTaggerProvider
     {
 #pragma warning disable CS0649 // Filled in by MEF

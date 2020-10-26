@@ -4,11 +4,11 @@
 using System.Windows;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.VisualStudio;
 using Microsoft.Sarif.Viewer.VisualStudio.UnitTests;
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
+namespace Microsoft.Sarif.Viewer.Models
 {
     public class CallTreeCollectionTests : SarifViewerPackageUnitTests
     {

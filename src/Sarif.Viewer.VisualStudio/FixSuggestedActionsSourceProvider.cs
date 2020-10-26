@@ -5,24 +5,27 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Operations;
 using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
     /// Provides a <see cref="FixSuggestedActionsSource"/> for a specified <see cref="ITextView"/>
-    /// and <see cref="ITextBuffer"/>
+    /// and <see cref="ITextBuffer"/>.
     /// </summary>
     [Export(typeof(ISuggestedActionsSourceProvider))]
     [Name(FixActionCategoryName)]
-    [ContentType("text")]
+    [ContentType(ContentTypes.Any)]
     internal class FixSuggestedActionsSourceProvider : ISuggestedActionsSourceProvider
     {
         private const string FixActionCategoryName = "SARIF fix suggestion";
 
-        [Import(typeof(ITextStructureNavigatorSelectorService))]
-        private ITextStructureNavigatorSelectorService NavigatorService { get; set; }
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+        [Import]
+        private IPersistentSpanFactory persistentSpanFactory;
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
 
         /// <inheritdoc/>
         public ISuggestedActionsSource CreateSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer)
@@ -32,7 +35,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            return new FixSuggestedActionsSource(this, textView, textBuffer);
+            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory);
         }
     }
 }

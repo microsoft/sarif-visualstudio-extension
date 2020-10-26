@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Windows;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.VisualStudio;
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
+namespace Microsoft.Sarif.Viewer.Models
 {
     public class CallTreeTests
     {

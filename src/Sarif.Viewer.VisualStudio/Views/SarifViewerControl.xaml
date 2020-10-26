@@ -23,7 +23,6 @@
                 <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/Locations.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/Stacks.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/CallTrees.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/Fixes.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/Information.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -179,9 +178,6 @@
                         <DataTrigger Binding="{Binding Locations, Converter={StaticResource CollectionToBooleanConverter}}" Value="True">
                             <Setter Property="SelectedIndex" Value="0" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Fixes, Converter={StaticResource CollectionToBooleanConverter}}" Value="True">
-                            <Setter Property="SelectedIndex" Value="3" />
-                        </DataTrigger>
                         <DataTrigger Binding="{Binding Stacks, Converter={StaticResource CollectionToBooleanConverter}}" Value="True">
                             <Setter Property="SelectedIndex" Value="2" />
                         </DataTrigger>
@@ -272,22 +268,6 @@
                                 Content="{Binding Stacks}"
                                 IsTabStop="False"
                                 Style="{StaticResource StacksTabItemContentStyle}"/>
-            </TabItem>
-            <TabItem Visibility="{Binding Fixes, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
-                <TabItem.Header>
-                    <DockPanel Style="{StaticResource TabItemHeaderPanelStyle}">
-                        <TextBlock Text="{StaticResource SarifViewerControl_TabItemHeader_Fixes_Text_String}"
-                                   Style="{StaticResource TabItemHeaderTextStyle}"/>
-                        <TextBlock Visibility="{Binding Fixes, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
-                                   Style="{StaticResource TabItemHeaderItemCountTextStyle}">
-                            <Run Text="{Binding Fixes, Mode=OneWay, Converter={StaticResource CollectionToCountConverter}, StringFormat={StaticResource SarifViewerControl_TabItemHeader_ItemCount_Text_FormatString}}" />
-                        </TextBlock>
-                    </DockPanel>
-                </TabItem.Header>
-
-                <ContentControl ContentTemplate="{StaticResource FixCollectionTemplate}"
-                                Content="{Binding Fixes}" 
-                                IsTabStop="False"/>
             </TabItem>
             <TabItem>
                 <TabItem.Header>

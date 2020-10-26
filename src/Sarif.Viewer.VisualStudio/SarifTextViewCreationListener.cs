@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.Composition;
 using Microsoft.CodeAnalysis.Sarif.Converters;
-using Microsoft.Sarif.Viewer.ContentTypes;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
@@ -18,7 +17,7 @@ namespace Microsoft.Sarif.Viewer
     /// <summary>
     /// Factory for creating our editors.
     /// </summary>
-    [ContentType(SarifContentType.ContentTypeName)]
+    [ContentType(ContentTypes.Sarif)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [Export(typeof(ITextViewCreationListener))]
     public class SarifTextViewCreationListener : ITextViewCreationListener

@@ -9,26 +9,33 @@ namespace Microsoft.Sarif.Viewer.Sarif
 {
     static class ReplacementExtensions
     {
-        public static ReplacementModel ToReplacementModel(this Replacement replacement)
+        public static ReplacementModel ToReplacementModel(this Replacement replacement, FileRegionsCache fileRegionsCache, Uri uri)
         {
             if (replacement == null)
             {
                 return null;
             }
 
-            ReplacementModel model = new ReplacementModel();
+            ReplacementModel model = new ReplacementModel
+            {
+                Region = uri.IsAbsoluteUri
+                    ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion.DeepClone(), uri, populateSnippet: false)
+                    : replacement.DeletedRegion
+            };
 
-            if (!string.IsNullOrWhiteSpace(replacement.InsertedContent?.Text))
+            if (model.Region.CharOffset >= 0)
             {
-                model.DeletedLength = replacement.DeletedRegion.CharLength;
-                model.Offset = replacement.DeletedRegion.CharOffset;
-                model.InsertedString = replacement.InsertedContent.Text;
+                // This is a text replacement.
+                model.InsertedString = replacement.InsertedContent?.Text;
             }
-            else if (replacement.InsertedContent?.Binary != null)
+            else
             {
-                model.DeletedLength = replacement.DeletedRegion.ByteLength;
-                model.Offset = replacement.DeletedRegion.ByteOffset;
-                model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
+                // This is a binary replacement, but don't try to convert the replacement
+                // content to a string if there isn't any.
+                if (replacement.InsertedContent?.Binary != null)
+                {
+                    model.InsertedBytes = Convert.FromBase64String(replacement.InsertedContent.Binary);
+                }
             }
 
             return model;

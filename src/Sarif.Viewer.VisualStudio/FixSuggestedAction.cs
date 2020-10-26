@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -15,26 +17,34 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal class FixSuggestedAction : ISuggestedAction
     {
-        /// <inheritdoc/>
-        public bool HasActionSets => throw new NotImplementedException();
+        private readonly FixModel fix;
+
+        public FixSuggestedAction(FixModel fix)
+        {
+            this.fix = fix;
+            DisplayText = fix.Description;
+        }
 
         /// <inheritdoc/>
-        public string DisplayText => throw new NotImplementedException();
+        public bool HasActionSets => false;
 
         /// <inheritdoc/>
-        public ImageMoniker IconMoniker => throw new NotImplementedException();
+        public string DisplayText { get; }
 
         /// <inheritdoc/>
-        public string IconAutomationText => throw new NotImplementedException();
+        public ImageMoniker IconMoniker => default(ImageMoniker);
 
         /// <inheritdoc/>
-        public string InputGestureText => throw new NotImplementedException();
+        public string IconAutomationText => null;
 
         /// <inheritdoc/>
-        public bool HasPreview => throw new NotImplementedException();
+        public string InputGestureText => null;
 
         /// <inheritdoc/>
-        public void Dispose() => throw new NotImplementedException();
+        public bool HasPreview => false;
+
+        /// <inheritdoc/>
+        public void Dispose() { }
 
         /// <inheritdoc/>
         public Task<IEnumerable<SuggestedActionSet>> GetActionSetsAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
@@ -43,9 +53,18 @@ namespace Microsoft.Sarif.Viewer
         public Task<object> GetPreviewAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
 
         /// <inheritdoc/>
-        public void Invoke(CancellationToken cancellationToken) => throw new NotImplementedException();
+        public void Invoke(CancellationToken cancellationToken)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            fix.Apply();
+        }
 
         /// <inheritdoc/>
-        public bool TryGetTelemetryId(out Guid telemetryId) => throw new NotImplementedException();
+        public bool TryGetTelemetryId(out Guid telemetryId)
+        {
+            telemetryId = Guid.Empty;
+            return false;
+        }
     }
 }

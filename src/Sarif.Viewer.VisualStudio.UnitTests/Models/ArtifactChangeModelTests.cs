@@ -5,14 +5,16 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
+namespace Microsoft.Sarif.Viewer.Models
 {
     public class ArtifactChangeModelTests
     {
+        private static readonly IDictionary<string, ArtifactLocation> s_emptyOriginalUriBaseIds = new Dictionary<string, ArtifactLocation>();
+        private static readonly FileRegionsCache s_emptyFileRegionsCache = new FileRegionsCache(new Run());
+
         [Fact]
         public void ArtifactChangeModel_FromArtifactChange_LocalPath()
         {
@@ -25,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
                 Replacements = new List<Replacement>()
             };
 
-            ArtifactChangeModel model = change.ToArtifactChangeModel();
+            ArtifactChangeModel model = change.ToArtifactChangeModel(s_emptyOriginalUriBaseIds, s_emptyFileRegionsCache);
             model.FilePath.Should().Be(@"C:\src\tools\util.cs");
         }
 
@@ -41,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
                 Replacements = new List<Replacement>()
             };
 
-            ArtifactChangeModel model = change.ToArtifactChangeModel();
+            ArtifactChangeModel model = change.ToArtifactChangeModel(s_emptyOriginalUriBaseIds, s_emptyFileRegionsCache);
             model.FilePath.Should().Be(@"\src\tools\util.cs");
         }
     }

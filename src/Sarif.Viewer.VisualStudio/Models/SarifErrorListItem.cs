@@ -148,9 +148,18 @@ namespace Microsoft.Sarif.Viewer
 
             if (result.Fixes != null)
             {
+                IDictionary<int, RunDataCache> runIndexToRunDataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
+                if (!runIndexToRunDataCache.TryGetValue(RunIndex, out RunDataCache runDataCache))
+                {
+                    runDataCache = null;
+                }
+
+                FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
                 foreach (Fix fix in result.Fixes)
                 {
-                    Fixes.Add(fix.ToFixModel());
+                    FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
+                    fixModel.FixApplied += () => IsFixed = true;
+                    Fixes.Add(fixModel);
                 }
             }
         }
@@ -615,6 +624,24 @@ namespace Microsoft.Sarif.Viewer
             // or their file paths may have moved from one valid location to a different valid location.
             SarifLocationTagHelpers.RefreshAllTags();
         }
+
+        /// <summary>
+        /// Returns a value indicating whether this error is fixable.
+        /// </summary>
+        /// <remarks>
+        /// An error is fixable if it provides at list one fix with enough information to be
+        /// applied, and it is not already fixed.
+        /// </remarks>
+        /// <returns>
+        /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
+        /// </returns>
+        public bool IsFixable() =>
+            !IsFixed && Fixes.Any(fix => fix.CanBeApplied());
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this error has been fixed.
+        /// </summary>
+        public bool IsFixed { get; set; }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T: ITag
