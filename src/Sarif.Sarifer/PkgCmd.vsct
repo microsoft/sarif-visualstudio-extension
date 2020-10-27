@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-
-Copyright (c) Microsoft Corporation. All rights reserved. 
-THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-
+Copyright (c) Microsoft. All rights reserved.
+ Licensed under the MIT license. See LICENSE file in the project root for full license information.
 -->
 
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -128,13 +123,6 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
         <Parent guid="guidMenuAndCommandsCmdSet" id="MyToolbar"/>
       </Group>
 
-      <!--
-      Now create a new group inside the standard editor's context menu. As always the ID of this
-      menu is defined inside vsshlids.h.
-      -->
-      <Group guid="guidMenuAndCommandsCmdSet" id="MyEditorCtxGroup" priority="0x600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
-      </Group>
     </Groups>
 
     <!--
@@ -233,14 +221,6 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
   groups or one of our groups inside a menu defined somewhere else.
   -->
   <CommandPlacements>
-    <!--Here we place two commands inside the empty menu group we created in the Groups section.-->
-    <CommandPlacement guid="guidMenuAndCommandsCmdSet" id="cmdidMyCommand" priority="0x100">
-      <Parent guid="guidMenuAndCommandsCmdSet" id="MyEditorCtxGroup"/>
-    </CommandPlacement>
-    <CommandPlacement guid="guidMenuAndCommandsCmdSet" id="cmdidMyZoom" priority="0x200">
-      <Parent guid="guidMenuAndCommandsCmdSet" id="MyEditorCtxGroup"/>
-    </CommandPlacement>
-
     <!--Now we place a previously defined group inside the Solution Explorer's toolbar.-->
     <CommandPlacement guid="guidMenuAndCommandsCmdSet" id="MyToolbarGroup" priority="0x600">
       <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_PROJWIN"/>
@@ -306,7 +286,6 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
       <IDSymbol name="MyMenuGroup" value="0x1010" />
       <IDSymbol name="MyToolbarGroup" value="0x1011" />
       <IDSymbol name="MyMainToolbarGroup" value="0x1012" />
-      <IDSymbol name="MyEditorCtxGroup" value="0x1013" />
       <IDSymbol name="cmdidMyCommand" value="0x2001" />
       <IDSymbol name="cmdidMyGraph" value="0x2002" />
       <IDSymbol name="cmdidMyZoom" value="0x2003" />
