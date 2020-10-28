@@ -38,8 +38,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <summary>
-        /// Initialization of the package; this is the place where you can put all the initialization
-        /// code that relies on services provided by Visual Studio.
+        /// Initialize the package. All the initialization code that relies on services provided by
+        /// Visual Studio belongs here.
         /// </summary>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
@@ -50,18 +50,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // Otherwise, remove the switch to the UI thread if you don't need it.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            // Now get the OleCommandService object provided by the MPF; this object is the one
-            // responsible for handling the collection of commands implemented by the package.
+            // The OleCommandService object provided by the MPF is responsible for managing the set
+            // of commands implemented by the package.
             if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
-                // Now create one object derived from MenuCommand for each command defined in
-                // the VSCT file and add it to the command service.
+                // Create one object derived from MenuCommand for each command defined in tje VSCU
+                // and add it to the command service.
 
-                // For each command we have to define its id that is a unique Guid/integer pair.
+                // Each command has an id defined by a unique GUID/integer pair.
                 CommandID id = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData);
+
                 // Now create the OleMenuCommand object for this command. The EventHandler object is the
                 // function that will be called when the user will select the command.
                 OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);
+
                 // Add the command to the command service.
                 mcs.AddCommand(command);
             }
