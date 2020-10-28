@@ -18,11 +18,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration("#110", "#112", "2.1.20", IconResourceID = 400)]
-    [Guid(GuidsList.guidMenuAndCommandsPkg_string)]
+    [Guid(PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     public sealed class MenuCommandsPackage : AsyncPackage
     {
+        public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
+        public static readonly Guid PackageGuid = new Guid(PackageGuidString);
+
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
         /// the package. The constructor should perform only the most basic initializazion, like
@@ -55,7 +58,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 // the VSCT file and add it to the command service.
 
                 // For each command we have to define its id that is a unique Guid/integer pair.
-                CommandID id = new CommandID(GuidsList.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidMyCommand);
+                CommandID id = new CommandID(Guids.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidMyCommand);
                 // Now create the OleMenuCommand object for this command. The EventHandler object is the
                 // function that will be called when the user will select the command.
                 OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);
