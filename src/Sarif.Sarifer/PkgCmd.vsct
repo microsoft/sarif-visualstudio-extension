@@ -276,12 +276,12 @@ Copyright (c) Microsoft. All rights reserved.
     -->
 
     <!--The first GUID defined here is the one for the package. It does not contains numeric IDs.-->
-    <GuidSymbol name="guidMenuAndCommandsPkg" value="{3C7C5ABE-82AC-4A37-B077-0FF60E8B1FD3}" />
+    <GuidSymbol name="guidMenuAndCommandsPkg" value="{F70132AB-4095-477F-AAD2-81D3D581113B}" />
     
     
     <!--The GUID for the command set is the one that contains the numeric IDs used in this sample
         with the only exception of the one used for the bitmap.-->
-    <GuidSymbol name="guidMenuAndCommandsCmdSet" value="{19492BCB-32B3-4EC3-8826-D67CD5526653}">
+    <GuidSymbol name="guidMenuAndCommandsCmdSet" value="{CD8EE607-A630-4652-B2BA-748F534235C1}">
       <IDSymbol name="MyToolbar" value="0x101" />
       <IDSymbol name="MyMenuGroup" value="0x1010" />
       <IDSymbol name="MyToolbarGroup" value="0x1011" />

@@ -12,7 +12,7 @@
 -->
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
   <Symbols>
-    <GuidSymbol name="CustomMoniker" value="{d53d7256-d44d-4245-bdd2-bfd22943659c}">
+    <GuidSymbol name="CustomMoniker" value="{825512A6-BCE4-4620-96AD-AE3F6732731B}">
       <IDSymbol name="Application" value="1" />
     </GuidSymbol>
   </Symbols>

@@ -20,12 +20,12 @@ namespace Microsoft.Samples.VisualStudio.MenuCommands
     {
         // Now define the list of guids as public static members.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        public static readonly Guid guidMenuAndCommandsPkg = new Guid("{3C7C5ABE-82AC-4A37-B077-0FF60E8B1FD3}");
-        public const string guidMenuAndCommandsPkg_string = "3C7C5ABE-82AC-4A37-B077-0FF60E8B1FD3";
+        public static readonly Guid guidMenuAndCommandsPkg = new Guid("{F70132AB-4095-477F-AAD2-81D3D581113B}");
+        public const string guidMenuAndCommandsPkg_string = "F70132AB-4095-477F-AAD2-81D3D581113B";
 
-        public static readonly Guid guidMenuAndCommandsCmdSet = new Guid("{19492BCB-32B3-4EC3-8826-D67CD5526653}");
+        public static readonly Guid guidMenuAndCommandsCmdSet = new Guid("{CD8EE607-A630-4652-B2BA-748F534235C1}");
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
-        public static readonly Guid guidGenericCmdBmp = new Guid("{0A4C51BD-3239-4370-8869-16E0AE8C0A46}");
+        public static readonly Guid guidGenericCmdBmp = new Guid("{9749197A-F29F-4753-85CE-FD6B9C200223}");
     }
 }

@@ -7,7 +7,7 @@
 <ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
   <Symbols>
     <String Name="Resources" Value="/Microsoft.Samples.VisualStudio.MenuAndCommands;Component/Resources" />
-    <Guid Name="CustomMoniker" Value="{d53d7256-d44d-4245-bdd2-bfd22943659c}" />
+    <Guid Name="CustomMoniker" Value="{825512A6-BCE4-4620-96AD-AE3F6732731B}" />
     <ID Name="Application" Value="1" />
   </Symbols>
   <Images>
