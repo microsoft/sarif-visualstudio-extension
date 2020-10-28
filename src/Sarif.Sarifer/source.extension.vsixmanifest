@@ -7,10 +7,11 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="cad97c36-f0b6-4ec3-8dc2-6e9a940d7158" Version="1.0" Language="en-US" Publisher="Microsoft Corp." />
+    <Identity Id="2ec87711-16c7-4a58-8e1d-453f805ce112" Version="2.1.20" Language="en-US" Publisher="Microsoft Corporation" />
     <DisplayName>Sarifer</DisplayName>
     <Description xml:space="preserve">Sends test SARIF data to the SARIF Viewer extension.</Description>
     <Icon>Resources\Package.ico</Icon>
+    <Preview>true</Preview>
   </Metadata>
   <Installation InstalledByMsi="false">
     <InstallationTarget Version="[15.0,17.0)" Id="Microsoft.VisualStudio.Community" />
