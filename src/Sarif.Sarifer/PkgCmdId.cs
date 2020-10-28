@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-namespace Microsoft.Samples.VisualStudio.MenuCommands
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
 	/// <summary>
 	/// This class is used to expose the list of the IDs of the commands implemented
