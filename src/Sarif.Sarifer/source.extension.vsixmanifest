@@ -13,8 +13,8 @@ PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="cad97c36-f0b6-4ec3-8dc2-6e9a940d7158" Version="1.0" Language="en-US" Publisher="Microsoft Corp." />
-    <DisplayName>MenuAndCommands</DisplayName>
-    <Description xml:space="preserve">Menu And Commands SDK sample. Adds three buttons to the Tools menu.</Description>
+    <DisplayName>Sarifer</DisplayName>
+    <Description xml:space="preserve">Sends test SARIF data to the SARIF Viewer extension.</Description>
     <Icon>Resources\Package.ico</Icon>
   </Metadata>
   <Installation InstalledByMsi="false">
