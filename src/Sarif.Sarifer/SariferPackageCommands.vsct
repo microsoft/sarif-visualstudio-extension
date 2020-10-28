@@ -41,7 +41,7 @@ Copyright (c) Microsoft. All rights reserved.
   translate in an actual GUID at compile time. It is not allow to use an actual
   GUID for the package attribute.
   -->
-  <Commands package="guidMenuAndCommandsPkg">
+  <Commands package="guidSariferPackage">
     <!--
     Inside this section we can have different sub-sections: one for the menus, another
     for the menu groups, one for the buttons (the actual commands), one for the combos
@@ -64,7 +64,7 @@ Copyright (c) Microsoft. All rights reserved.
       To define a group we have to specify its ID, the parent and its display priority.
       In this case we use as our parent menu the Tools menu of VS; its ID is defined in vsshlids.h.
       -->
-      <Group guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup" priority="0x600">
+      <Group guid="guidSariferCommandSet" id="SariferMenuGroup" priority="0x600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
       </Group>
     </Groups>
@@ -78,10 +78,10 @@ Copyright (c) Microsoft. All rights reserved.
       An element inside this section is defined by its ID and must specify a parent group, a display
       priority, an image, a type, some visibility flags (optional) and a default text.
       -->
-      <Button guid="guidMenuAndCommandsCmdSet" id="cmdidMyCommand" priority="0x100" type="Button">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup"/>
+      <Button guid="guidSariferCommandSet" id="cmdidGenerateTestData" priority="0x100" type="Button">
+        <Parent guid="guidSariferCommandSet" id="SariferMenuGroup"/>
         <Strings>
-          <ButtonText>C# Command Sample</ButtonText>
+          <ButtonText>Generate SARIF Test Data</ButtonText>
         </Strings>
       </Button>
 
@@ -109,14 +109,14 @@ Copyright (c) Microsoft. All rights reserved.
     -->
 
     <!--The first GUID defined here is the one for the package. It does not contains numeric IDs.-->
-    <GuidSymbol name="guidMenuAndCommandsPkg" value="{F70132AB-4095-477F-AAD2-81D3D581113B}" />
+    <GuidSymbol name="guidSariferPackage" value="{F70132AB-4095-477F-AAD2-81D3D581113B}" />
     
     
     <!--The GUID for the command set is the one that contains the numeric IDs used in this sample
         with the only exception of the one used for the bitmap.-->
-    <GuidSymbol name="guidMenuAndCommandsCmdSet" value="{CD8EE607-A630-4652-B2BA-748F534235C1}">
-      <IDSymbol name="MyMenuGroup" value="0x1010" />
-      <IDSymbol name="cmdidMyCommand" value="0x2001" />
+    <GuidSymbol name="guidSariferCommandSet" value="{CD8EE607-A630-4652-B2BA-748F534235C1}">
+      <IDSymbol name="SariferMenuGroup" value="0x1010" />
+      <IDSymbol name="cmdidGenerateTestData" value="0x2001" />
     </GuidSymbol>
 
   </Symbols>

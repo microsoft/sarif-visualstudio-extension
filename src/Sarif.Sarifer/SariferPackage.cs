@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 // the VSCT file and add it to the command service.
 
                 // For each command we have to define its id that is a unique Guid/integer pair.
-                CommandID id = new CommandID(Guids.guidMenuAndCommandsCmdSet, SariferPackageCommandIds.cmdidMyCommand);
+                CommandID id = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData);
                 // Now create the OleMenuCommand object for this command. The EventHandler object is the
                 // function that will be called when the user will select the command.
                 OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);
