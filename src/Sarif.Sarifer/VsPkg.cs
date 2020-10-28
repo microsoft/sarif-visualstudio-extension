@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.VisualStudio.Shell;
 using System;
@@ -49,8 +49,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // Now get the OleCommandService object provided by the MPF; this object is the one
             // responsible for handling the collection of commands implemented by the package.
-            OleMenuCommandService mcs = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (null != mcs)
+            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
                 // Now create one object derived from MenuCommand for each command defined in
                 // the VSCT file and add it to the command service.
