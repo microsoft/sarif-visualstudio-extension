@@ -21,7 +21,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Guid(PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
-    public sealed class MenuCommandsPackage : AsyncPackage
+    public sealed class SariferPackage : AsyncPackage
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// yet part of VS environment yet. Wait for VS to call InitializeAsync, and perform that
         /// kind of initialization there.
         /// </summary>
-        public MenuCommandsPackage()
+        public SariferPackage()
         {
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 // the VSCT file and add it to the command service.
 
                 // For each command we have to define its id that is a unique Guid/integer pair.
-                CommandID id = new CommandID(Guids.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidMyCommand);
+                CommandID id = new CommandID(Guids.guidMenuAndCommandsCmdSet, SariferPackageCommandIds.cmdidMyCommand);
                 // Now create the OleMenuCommand object for this command. The EventHandler object is the
                 // function that will be called when the user will select the command.
                 OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);

@@ -29,14 +29,14 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Guids.cs" />
-    <Compile Include="PkgCmdId.cs" />
+    <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>VSPackage.resx</DependentUpon>
     </Compile>
-    <Compile Include="VsPkg.cs" />
+    <Compile Include="SariferPackage.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VSPackage.resx">
@@ -52,7 +52,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <VSCTCompile Include="PkgCmd.vsct">
+    <VSCTCompile Include="SariferPackageCommands.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
   </ItemGroup>

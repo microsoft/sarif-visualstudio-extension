@@ -8,7 +8,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 	/// by this package. This list of IDs must match the set of IDs defined inside the
 	/// Buttons section of the VSCT file.
 	/// </summary>
-	internal static class PkgCmdIDList
+	internal static class SariferPackageCommandIds
 	{
 		// Now define the list a set of public static members.
 		public const int cmdidMyCommand = 0x2001;
