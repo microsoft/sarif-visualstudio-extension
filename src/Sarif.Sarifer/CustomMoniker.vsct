@@ -1,4 +1,10 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
+
+<!--
+Copyright (c) Microsoft. All rights reserved. 
+Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+-->
+
 <!--
  This file defines the Guid data for the custom monikers and the ID symbols for individual 
  icons. This file is used in conjunction with the imagemanifest file to provide the necessary 
