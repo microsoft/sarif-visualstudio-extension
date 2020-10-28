@@ -10,7 +10,7 @@ Copyright (c) Microsoft. All rights reserved.
   This is the file that defines the actual layout and type of the commands.
   It is divided in different sections (e.g. command definition, command
   placement, ...), with each defining a specific set of properties.
-  See the comment before each section or the VSCT schema for more details 
+  See the comment before each section or the VSCT schema for more details
   about how to use it.
   -->
 
@@ -61,41 +61,9 @@ Copyright (c) Microsoft. All rights reserved.
     the guid attribute for the command set and the id attribute for the numeric part.
     -->
 
-    <!-- This is the sub-section that defines the menus and toolbars. -->
-    <Menus>
-      <!--
-      To define a menu element we need an ID, a parent group, a display priority,
-      a menu type, a name and a default text. The exception to requiring a parent
-      is if we are a top level piece of UI (i.e. a toolbar or a context menu. In other
-      words an element that doesn't live on any other command UI, or if we will later 
-      parent our command via a CommandPlacement element to one or more locations).
-      
-      In this example we define a toolbar, so we set the type attribute to Toolbar.
-      
-      Toolbars can set their priority field to affect where they are shown in the toolbar
-      tray. The lower 16 bits of the priority value is taken as a vertical row offset from
-      row 0 (where the standard toolbar is) and is further interpreted as a priority offset
-      within the row the toolbar appears in. So below, by specifying we are at priority 
-      0x0001 we say we want to be in the first row (below the standard toolbar) with a 
-      priority value of 1 relative to other toolbar's priority values that are in that same 
-      row.
-      -->
-      <Menu guid="guidMenuAndCommandsCmdSet" id="MyToolbar" priority="0x0001" type="Toolbar">        
-        <Strings>
-          <!--
-          The String section contains the localizable strings for an element, in this case our
-          toolbar. In this example we are not defining a localizable set of commands, so we do not
-          specify the "language" attribute for the Strings tag. It is possible however to specify
-          different String sections inside any element definition, one for each supported language.
-          -->
-          <ButtonText>C# Sample Toolbar</ButtonText>
-        </Strings>
-      </Menu>
-    </Menus>
-
     <!--
-    In this section we define new menu groups. A group is a container for menus or buttons (commands); 
-    from a visual point of view you can see the group as the part of a menu contained between separators. 
+    In this section we define new menu groups. A group is a container for menus or buttons (commands);
+    from a visual point of view you can see the group as the part of a menu contained between separators.
     The parent of a group must be a menu/toolbar.
     -->
     <Groups>
@@ -106,23 +74,6 @@ Copyright (c) Microsoft. All rights reserved.
       <Group guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup" priority="0x600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
       </Group>
-
-      <!--
-      The second group is created inside the main toolbar of VisualStudio. Again, you can find
-      the ID inside vsshlids.h.
-      -->
-      <Group guid="guidMenuAndCommandsCmdSet" id="MyMainToolbarGroup" priority="0x100">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_STANDARD"/>
-      </Group>
-
-      <!--
-      Here we create a menu group for the toolbar defined above in the Menus section. We always
-      need a menu group because this is the only possible container for commands.
-      -->
-      <Group guid="guidMenuAndCommandsCmdSet" id="MyToolbarGroup" priority="0x100">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyToolbar"/>
-      </Group>
-
     </Groups>
 
     <!--
@@ -143,117 +94,8 @@ Copyright (c) Microsoft. All rights reserved.
         </Strings>
       </Button>
 
-      <!--
-      Here there is the definition of the commands placed inside the toolbars. Notice that there is
-      no difference between these toolbar button definitions and the menu item definition above.
-      -->
-      <Button guid="guidMenuAndCommandsCmdSet" id="cmdidMyGraph" priority="0x100" type="Button">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyMainToolbarGroup"/>
-        <Icon guid="ImageCatalogGuid" id="GenericChart"/>
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <Strings>
-          <ButtonText>C# Sample Graph Command</ButtonText>
-        </Strings>
-      </Button>
-
-      <Button guid="guidMenuAndCommandsCmdSet" id="cmdidMyZoom" priority="0x100" type="Button">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyToolbarGroup"/>
-        <Icon guid="ImageCatalogGuid" id="Search"/>
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <Strings>
-          <ButtonText>C# Sample Zoom Command</ButtonText>
-        </Strings>
-      </Button>
-
-      <!--
-      Now we define a menu item with dynamic text. From the VSCT point of view all we have to do is to add a
-      "CommandFlag" section to the button definition and make sure that it contains the "TextChanges" flag; we
-      still have to provide a text and it will be used as default text for the command. The "TextChanges" flag
-      implies that when the package is loaded Visual Studio will ask the package for the text before display
-      the command.
-      -->
-      <Button guid="guidMenuAndCommandsCmdSet" id="cmdidDynamicTxt" priority="0x200" type="Button">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup"/>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>C# Text Changes</ButtonText>
-        </Strings>
-      </Button>
-
-      <!--
-      The following two buttons have the the DynamicVisibility flag set inside the CommandFlag section.
-      When this flag is set and the package providing this command is loaded, VisualStudio will ask
-      the package to find out if the command is visible or not; if the package is not loaded, then
-      the command is visible only if you don't specify the DefaultInvisible flag.
-
-      In this example, when the MenuAndCommands package is not loaded, the first command will be
-      visible and the second invisible; when the package is loaded it will control the visibility.
-      -->
-      <Button guid="guidMenuAndCommandsCmdSet" id="cmdidDynVisibility1" priority="0x300" type="Button">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup"/>
-        <Icon guid="CustomMoniker" id="Application"/>
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <Strings>
-          <ButtonText>C# Dynamic Visibility 1</ButtonText>
-        </Strings>
-      </Button>
-
-      <!--
-      Note the arrow icon is not shown when 'C# Dynamic Visibility 2' is displayed.
-      -->
-      <Button guid="guidMenuAndCommandsCmdSet" id="cmdidDynVisibility2" priority="0x300" type="Button">
-        <Parent guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup"/>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>DefaultInvisible</CommandFlag>
-        <Strings>
-          <ButtonText>C# Dynamic Visibility 2</ButtonText>
-        </Strings>
-      </Button>
     </Buttons>
   </Commands>
-
-  
-  <!--
-  Inside this section, we have the ability to place menu groups inside some other menu or
-  menu / commands inside other groups.
-  For instance, it is possible to place one of VisualStudio's menus or commands inside one of our
-  groups or one of our groups inside a menu defined somewhere else.
-  -->
-  <CommandPlacements>
-    <!--Now we place a previously defined group inside the Solution Explorer's toolbar.-->
-    <CommandPlacement guid="guidMenuAndCommandsCmdSet" id="MyToolbarGroup" priority="0x600">
-      <Parent guid="guidSHLMainMenu" id="IDM_VS_TOOL_PROJWIN"/>
-    </CommandPlacement>
-  </CommandPlacements>
-
-  
-  <!--This section is where you can associate a command with a keyboard shortcut; this association is
-  valid within a specific UI context, that is when the shell is inside a specific mode, e.g. during
-  debugging, editing a file or when the user is using a specific designer.-->
-  <KeyBindings>
-    <!--
-    To define a binding, we have to specify the sequence of keys to press to activate the command (keystate).
-    A key binding can use one or two key and optionally up to two modifiers (Alt, Control or Shift keys); the
-    keys are specified using the key1 and key2 attributes (key2 can be omitted) and the modifiers using the
-    mod1 and mod2 attributes (both optional).
-
-    The editor attribute is used to specify the UI context that activates the key binding.
-
-    Notice that Visual Studio has a lot of components and commands, so it can be difficult to find a
-    key binding not used by somebody else; if the key bindings are conflicting only one will be used
-    and one problem is that the shell will not inform the user that a conflict was found. The only
-    way to detect the problem is to start Visual Studio under debugger, try to execute any command
-    and look if there is a message in the output window about a duplicated accelerator found.
-    -->
-
-    <!--
-    In this example we want to use the <Control><1> binding for the first command defined in
-    the Buttons section above, so this is its definition:
-    -->
-    <KeyBinding guid="guidMenuAndCommandsCmdSet" id="cmdidMyCommand" editor="guidVSStd97" key1="1" mod1="Control" />
-  </KeyBindings>
-
 
   <!--
   In this example we have always used descriptive names for the GUIDs and numeric IDs inside the definition
@@ -282,16 +124,8 @@ Copyright (c) Microsoft. All rights reserved.
     <!--The GUID for the command set is the one that contains the numeric IDs used in this sample
         with the only exception of the one used for the bitmap.-->
     <GuidSymbol name="guidMenuAndCommandsCmdSet" value="{CD8EE607-A630-4652-B2BA-748F534235C1}">
-      <IDSymbol name="MyToolbar" value="0x101" />
       <IDSymbol name="MyMenuGroup" value="0x1010" />
-      <IDSymbol name="MyToolbarGroup" value="0x1011" />
-      <IDSymbol name="MyMainToolbarGroup" value="0x1012" />
       <IDSymbol name="cmdidMyCommand" value="0x2001" />
-      <IDSymbol name="cmdidMyGraph" value="0x2002" />
-      <IDSymbol name="cmdidMyZoom" value="0x2003" />
-      <IDSymbol name="cmdidDynamicTxt" value="0x2004" />
-      <IDSymbol name="cmdidDynVisibility1" value="0x2005" />
-      <IDSymbol name="cmdidDynVisibility2" value="0x2006" />
     </GuidSymbol>
 
   </Symbols>

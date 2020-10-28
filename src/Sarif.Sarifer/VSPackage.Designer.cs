@@ -87,22 +87,4 @@ public class VSPackage {
             return ((System.Drawing.Icon)(obj));
         }
     }
-    
-    /// <summary>
-    ///   Looks up a localized string similar to C# Text Changes.
-    /// </summary>
-    public static string DynamicTextBaseText {
-        get {
-            return ResourceManager.GetString("DynamicTextBaseText", resourceCulture);
-        }
-    }
-    
-    /// <summary>
-    ///   Looks up a localized string similar to {0} (Clicked {1} times).
-    /// </summary>
-    public static string DynamicTextFormat {
-        get {
-            return ResourceManager.GetString("DynamicTextFormat", resourceCulture);
-        }
-    }
 }

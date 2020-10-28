@@ -26,17 +26,12 @@ namespace Microsoft.Samples.VisualStudio.MenuCommands
     [ComVisible(true)]
     public sealed class MenuCommandsPackage : AsyncPackage
     {
-        #region Member Variables
-        private OleMenuCommand dynamicVisibilityCommand1;
-        private OleMenuCommand dynamicVisibilityCommand2;
-        #endregion
-
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
         /// the package. The constructor should perform only the most basic initializazion, like
-        /// setting the initial values of member variables. Never try to use any VS service,
-        /// because this object is not yet part of VS environment yet. Wait for VS to call
-        /// InitializeAsync, and perform this kind of initialization there.
+        /// setting member variables. Never try to use any VS service, because this object is not
+        /// yet part of VS environment yet. Wait for VS to call InitializeAsync, and perform that
+        /// kind of initialization there.
         /// </summary>
         public MenuCommandsPackage()
         {
@@ -70,36 +65,6 @@ namespace Microsoft.Samples.VisualStudio.MenuCommands
                 OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);
                 // Add the command to the command service.
                 mcs.AddCommand(command);
-
-                // Create the MenuCommand object for the command placed in the main toolbar.
-                id = new CommandID(GuidsList.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidMyGraph);
-                command = new OleMenuCommand(new EventHandler(GraphCommandCallback), id);
-                mcs.AddCommand(command);
-
-                // Create the MenuCommand object for the command placed in our toolbar.
-                id = new CommandID(GuidsList.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidMyZoom);
-                command = new OleMenuCommand(new EventHandler(ZoomCommandCallback), id);
-                mcs.AddCommand(command);
-
-                // Create the DynamicMenuCommand object for the command defined with the TextChanges
-                // flag.
-                id = new CommandID(GuidsList.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidDynamicTxt);
-                command = new DynamicTextCommand(id, VSPackage.ResourceManager.GetString("DynamicTextBaseText"));
-                mcs.AddCommand(command);
-
-                // Now create two OleMenuCommand objects for the two commands with dynamic visibility
-                id = new CommandID(GuidsList.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidDynVisibility1);
-                dynamicVisibilityCommand1 = new OleMenuCommand(new EventHandler(DynamicVisibilityCallback), id);
-                mcs.AddCommand(dynamicVisibilityCommand1);
-
-                id = new CommandID(GuidsList.guidMenuAndCommandsCmdSet, PkgCmdIDList.cmdidDynVisibility2);
-                dynamicVisibilityCommand2 = new OleMenuCommand(new EventHandler(DynamicVisibilityCallback), id);
-
-                // This command is the one that is invisible by default, so we have to set its visble
-                // property to false because the default value of this property for every object derived
-                // from MenuCommand is true.
-                dynamicVisibilityCommand2.Visible = false;
-                mcs.AddCommand(dynamicVisibilityCommand2);
             }
         }
 
@@ -139,61 +104,6 @@ namespace Microsoft.Samples.VisualStudio.MenuCommands
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             OutputCommandString("Sample Command Callback.");
-        }
-
-        /// <summary>
-        /// Event handler called when the user selects the Graph command.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Microsoft.Samples.VisualStudio.MenuCommands.MenuCommandsPackage.OutputCommandString(System.String)")]
-        private void GraphCommandCallback(object caller, EventArgs args)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            OutputCommandString("Graph Command Callback.");
-        }
-
-        /// <summary>
-        /// Event handler called when the user selects the Zoom command.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Microsoft.Samples.VisualStudio.MenuCommands.MenuCommandsPackage.OutputCommandString(System.String)")]
-        private void ZoomCommandCallback(object caller, EventArgs args)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            OutputCommandString("Zoom Command Callback.");
-        }
-
-        /// <summary>
-        /// Event handler called when the user selects one of the two menus with
-        /// dynamic visibility.
-        /// </summary>
-        private void DynamicVisibilityCallback(object caller, EventArgs args)
-        {
-            // This callback is supposed to be called only from the two menus with dynamic visibility
-            // defined inside this package, so first we have to verify that the caller is correct.
-
-            // Check that the type of the caller is the expected one.
-            OleMenuCommand command = caller as OleMenuCommand;
-            if (null == command)
-                return;
-
-            // Now check the command set.
-            if (command.CommandID.Guid != GuidsList.guidMenuAndCommandsCmdSet)
-                return;
-
-            // This is one of our commands. Now what we want to do is to switch the visibility status
-            // of the two menus with dynamic visibility, so that if the user clicks on one, then this 
-            // will make it invisible and the other one visible.
-            if (command.CommandID.ID == PkgCmdIDList.cmdidDynVisibility1)
-            {
-                // The user clicked on the first one; make it invisible and show the second one.
-                dynamicVisibilityCommand1.Visible = false;
-                dynamicVisibilityCommand2.Visible = true;
-            }
-            else if (command.CommandID.ID == PkgCmdIDList.cmdidDynVisibility2)
-            {
-                // The user clicked on the second one; make it invisible and show the first one.
-                dynamicVisibilityCommand2.Visible = false;
-                dynamicVisibilityCommand1.Visible = true;
-            }
         }
         #endregion
     }
