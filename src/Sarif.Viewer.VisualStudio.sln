@@ -10,8 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D702C24-103A-4561-8D86-62DBB2831900}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
-		..\BeforeBuild.cmd = ..\BeforeBuild.cmd
-		..\scripts\BeforeBuild.ps1 = ..\scripts\BeforeBuild.ps1
 		build.common.props = build.common.props
 		build.netfx-only.props = build.netfx-only.props
 		build.old-project.props = build.old-project.props
