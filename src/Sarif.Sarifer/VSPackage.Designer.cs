@@ -61,7 +61,7 @@ public class VSPackage {
     }
     
     /// <summary>
-    ///   Looks up a localized string similar to MenuAndCommands.Sample.
+    ///   Looks up a localized string similar to Sarifer SARIF test data producer.
     /// </summary>
     public static string _110 {
         get {
@@ -70,7 +70,7 @@ public class VSPackage {
     }
     
     /// <summary>
-    ///   Looks up a localized string similar to Menu And Commands SDK sample.
+    ///   Looks up a localized string similar to Sarifer SARIF test data producer.
     /// </summary>
     public static string _112 {
         get {

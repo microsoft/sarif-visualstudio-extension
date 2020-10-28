@@ -20,7 +20,7 @@ namespace Microsoft.Samples.VisualStudio.MenuCommands
     /// provided by the Managed Package Framework (MPF).
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    //[InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", "2.1.20", IconResourceID = 400)]
     [Guid(GuidsList.guidMenuAndCommandsPkg_string)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
