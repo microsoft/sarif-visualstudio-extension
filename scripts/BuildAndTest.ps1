@@ -65,6 +65,12 @@ Import-Module -Force $PSScriptRoot\Projects.psm1
 $SolutionFile = "$SourceRoot\Sarif.Viewer.VisualStudio.sln"
 $BuildTarget = "Rebuild"
 
+function Update-VersionConstantsFiles {
+    foreach ($project in $Projects.All) {
+        & $PSScriptRoot\New-VersionConstantsFile.ps1 -OutputDirectory $SourceRoot\$project -Namespace "Microsoft.CodeAnalysis.$project"
+    }
+}
+
 function Invoke-Build {
     Write-Information "Building $SolutionFile..."
     msbuild /verbosity:minimal /target:$BuildTarget /property:Configuration=$Configuration /fileloggerparameters:Verbosity=detailed $SolutionFile
@@ -144,6 +150,7 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
+    Update-VersionConstantsFiles
     Invoke-Build
 }
 
