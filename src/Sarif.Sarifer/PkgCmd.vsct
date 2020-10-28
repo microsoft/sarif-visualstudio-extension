@@ -33,13 +33,6 @@ Copyright (c) Microsoft. All rights reserved.
   <!--This header contains the image monikers for various images-->
   <Include href="KnownImageIds.vsct"/>
 
-  <!--This header contains data for a custom image moniker-->
-  <!--
-  NOTE: The custom moniker data does not have to be defined in a separate file, it can also
-  be defined in this .vsct file.
-  -->
-  <Include href="CustomMoniker.vsct"/>
-  
   <!--
   The first section of this file is the Commands section. This is where we define
   the commands, menus and menu groups. This section uses a Guid to identify the
@@ -87,8 +80,6 @@ Copyright (c) Microsoft. All rights reserved.
       -->
       <Button guid="guidMenuAndCommandsCmdSet" id="cmdidMyCommand" priority="0x100" type="Button">
         <Parent guid="guidMenuAndCommandsCmdSet" id="MyMenuGroup"/>
-        <Icon guid="ImageCatalogGuid" id="GoToNext"/>
-        <CommandFlag>IconIsMoniker</CommandFlag>
         <Strings>
           <ButtonText>C# Command Sample</ButtonText>
         </Strings>

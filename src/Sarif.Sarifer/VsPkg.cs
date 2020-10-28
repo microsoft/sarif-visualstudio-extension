@@ -70,40 +70,11 @@ namespace Microsoft.Samples.VisualStudio.MenuCommands
 
         #region Commands Actions
         /// <summary>
-        /// This function prints text on the debug ouput and on the generic pane of the 
-        /// Output window.
-        /// </summary>
-        /// <param name="text"></param>
-        private void OutputCommandString(string text)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            // Build the string to write on the debugger and Output window.
-            StringBuilder outputText = new StringBuilder();
-            outputText.Append(" ================================================\n");
-            outputText.AppendFormat("  MenuAndCommands: {0}\n", text);
-            outputText.Append(" ================================================\n\n");
-
-            IVsOutputWindowPane windowPane = (IVsOutputWindowPane)GetService(typeof(SVsGeneralOutputWindowPane));
-            if (null == windowPane)
-            {
-                Debug.WriteLine("Failed to get a reference to the Output window General pane");
-                return;
-            }
-            if (Microsoft.VisualStudio.ErrorHandler.Failed(windowPane.OutputString(outputText.ToString())))
-            {
-                Debug.WriteLine("Failed to write on the Output window");
-            }
-        }
-
-        /// <summary>
         /// Event handler called when the user selects the Sample command.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:DoNotPassLiteralsAsLocalizedParameters", MessageId = "Microsoft.Samples.VisualStudio.MenuCommands.MenuCommandsPackage.OutputCommandString(System.String)")]
         private void MenuCommandCallback(object caller, EventArgs args)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            OutputCommandString("Sample Command Callback.");
         }
         #endregion
     }
