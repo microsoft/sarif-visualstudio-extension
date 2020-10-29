@@ -49,7 +49,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private static async Task<string> CreateTestDataFileAsync()
         {
-            using (Stream testDataResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestData.proof-of-concept.sarif"))
+            using (Stream testDataResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestData.ProofOfConcept.sarif"))
             using (TextReader reader = new StreamReader(testDataResourceStream))
             {
                 string testDataFileContents = await reader.ReadToEndAsync();

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SpellChecker",
+          "version": "1.0.0"
+        }
+      },
+      "originalUriBaseIds": {
+        "SRCROOT": {
+          "uri": "file:///C:/dev/sarif-visualstudio-extension/src/Sarif.Sarifer/TestData/"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SPELL1001",
+          "message": {
+            "text": "The word 'woord' is misspelled."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Example.cs",
+                  "uriBaseId": "SRCROOT",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 17,
+                  "endColumn": 22
+                }
+              }
+            }
+          ],
+          "fixes": [
+            {
+              "description": {
+                "text": "Correct the spelling."
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "NeedsFix.cs",
+                    "uriBaseId": "SRCROOT"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "startLine": 7,
+                        "startColumn": 17,
+                        "endColumn": 22
+                      },
+                      "insertedContent": {
+                        "text": "word"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "description": {
+                "text": "Remove the word."
+              },
+              "artifactChanges": [
+                {
+                  "artifactLocation": {
+                    "uri": "NeedsFix.cs",
+                    "uriBaseId": "SRCROOT"
+                  },
+                  "replacements": [
+                    {
+                      "deletedRegion": {
+                        "startLine": 7,
+                        "startColumn": 17,
+                        "endColumn": 23
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "Example.cs",
+            "uriBaseId": "SRCROOT"
+          },
+          "contents": {
+            "text": "using System;\n\npublic class NeedsFix\n{\n    public NeedsFix()\n    {\n        // This woord is spelled wrong.\n    }\n}"
+          }
+        }
+      ],
+      "columnKind": "utf16CodeUnits"
+    }
+  ]
+}
