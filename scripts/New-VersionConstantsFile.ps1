@@ -11,7 +11,6 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-$InformationPreference = "Continue"
 
 $versionPrefix, $versionSuffix = & "$PSScriptRoot\Get-VersionConstants.ps1"
 
