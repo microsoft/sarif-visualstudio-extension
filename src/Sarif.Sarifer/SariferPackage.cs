@@ -54,29 +54,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // of commands implemented by the package.
             if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
-                // Create one object derived from MenuCommand for each command defined in tje VSCU
-                // and add it to the command service.
-
-                // Each command has an id defined by a unique GUID/integer pair.
-                CommandID id = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData);
-
-                // Now create the OleMenuCommand object for this command. The EventHandler object is the
-                // function that will be called when the user will select the command.
-                OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);
+                var command = new GenerateTestDataCommand();
 
                 // Add the command to the command service.
                 mcs.AddCommand(command);
             }
         }
-
-        #region Commands Actions
-        /// <summary>
-        /// Event handler called when the user selects the Sample command.
-        /// </summary>
-        private void MenuCommandCallback(object caller, EventArgs args)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-        }
-        #endregion
     }
 }
