@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -52,31 +53,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
+            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs &&
+                await GetServiceAsync(typeof(SVsShell)) is IVsShell vsShell)
             {
-                // Create one object derived from MenuCommand for each command defined in tje VSCU
-                // and add it to the command service.
-
-                // Each command has an id defined by a unique GUID/integer pair.
-                CommandID id = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData);
-
-                // Now create the OleMenuCommand object for this command. The EventHandler object is the
-                // function that will be called when the user will select the command.
-                OleMenuCommand command = new OleMenuCommand(new EventHandler(MenuCommandCallback), id);
+                var command = new GenerateTestDataCommand(vsShell);
 
                 // Add the command to the command service.
                 mcs.AddCommand(command);
             }
         }
-
-        #region Commands Actions
-        /// <summary>
-        /// Event handler called when the user selects the Sample command.
-        /// </summary>
-        private void MenuCommandCallback(object caller, EventArgs args)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-        }
-        #endregion
     }
 }

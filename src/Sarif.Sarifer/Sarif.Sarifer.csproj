@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GenerateTestDataCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionConstants.cs" />
     <Compile Include="Guids.cs" />
@@ -51,6 +52,7 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="TestData\ProofOfConcept.sarif" />
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="SariferPackageCommands.vsct">
@@ -63,7 +65,12 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj">
+      <Project>{9d407555-d268-461e-bfaf-4251b0fbf7c9}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Interop</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
