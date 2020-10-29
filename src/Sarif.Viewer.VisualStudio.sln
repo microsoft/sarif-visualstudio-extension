@@ -9,11 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.U
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D702C24-103A-4561-8D86-62DBB2831900}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
-		..\BeforeBuild.cmd = ..\BeforeBuild.cmd
-		..\scripts\BeforeBuild.ps1 = ..\scripts\BeforeBuild.ps1
-		build.common.props = build.common.props
-		build.netfx-only.props = build.netfx-only.props
 		build.props = build.props
 		..\BuildAndTest.cmd = ..\BuildAndTest.cmd
 		..\scripts\BuildAndTest.ps1 = ..\scripts\BuildAndTest.ps1
@@ -30,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.Interop", "Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj", "{9D407555-D268-461E-BFAF-4251B0FBF7C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Sarifer", "Sarif.Sarifer\Sarif.Sarifer.csproj", "{F3E3199F-C005-4A14-B96B-974896986EDC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,6 +74,18 @@ Global
 		{9D407555-D268-461E-BFAF-4251B0FBF7C9}.Release|x64.Build.0 = Release|Any CPU
 		{9D407555-D268-461E-BFAF-4251B0FBF7C9}.Release|x86.ActiveCfg = Release|Any CPU
 		{9D407555-D268-461E-BFAF-4251B0FBF7C9}.Release|x86.Build.0 = Release|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Debug|x64.Build.0 = Debug|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Debug|x86.Build.0 = Debug|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x64.ActiveCfg = Release|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x64.Build.0 = Release|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x86.ActiveCfg = Release|Any CPU
+		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

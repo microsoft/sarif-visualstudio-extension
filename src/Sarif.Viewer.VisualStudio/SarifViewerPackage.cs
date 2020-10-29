@@ -13,6 +13,7 @@ using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -20,7 +21,7 @@ namespace Microsoft.Sarif.Viewer
     /// This is the class that implements the package exposed by this assembly.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", "2.0 beta", IconResourceID = 400)] // Info on this package for Help/About
+    [InstalledProductRegistration("#110", "#112", VersionConstants.AssemblyVersion, IconResourceID = 400)] // Info on this package for Help/About
     [Guid(SarifViewerPackage.PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(SarifExplorerWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
