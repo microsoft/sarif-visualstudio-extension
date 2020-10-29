@@ -55,7 +55,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 string testDataFileContents = await reader.ReadToEndAsync();
 
                 string testDataFilePath = Path.GetTempFileName();
-                File.WriteAllText(testDataFilePath, testDataFileContents); // Pity there's no async version.
+                using (var writer = new StreamWriter(testDataFilePath))
+                {
+                    await writer.WriteAsync(testDataFileContents);
+                }
 
                 return testDataFilePath;
             }
