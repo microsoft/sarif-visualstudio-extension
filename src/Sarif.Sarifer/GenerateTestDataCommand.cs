@@ -3,6 +3,9 @@
 
 using System;
 using System.ComponentModel.Design;
+using System.IO;
+using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -24,14 +27,37 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Event handler called when the user selects the Generate SARIF Test Data command.
         /// </summary>
-        private static void MenuCommandCallback(object caller, EventArgs args)
+        /// <remarks>
+        /// Since this is a menu item callback, it must return void.
+        /// </remarks>
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private static async void MenuCommandCallback(object caller, EventArgs args)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            string testDataFilePath = await CreateTestDataFilePathAsync();
 
             // TODO: Why does this never return true?
             if (!s_viewerInterop.IsViewerExtensionLoaded)
             {
                 s_viewerInterop.LoadViewerExtension();
+            }
+
+            await s_viewerInterop.OpenSarifLogAsync(testDataFilePath);
+        }
+
+        private static async Task<string> CreateTestDataFilePathAsync()
+        {
+            using (Stream testDataResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestData.proof-of-concept.sarif"))
+            using (TextReader reader = new StreamReader(testDataResourceStream))
+            {
+                string testDataFileContents = await reader.ReadToEndAsync();
+
+                string testDataFilePath = Path.GetTempFileName();
+                File.WriteAllText(testDataFilePath, testDataFileContents); // Pity there's no async version.
+
+                return testDataFilePath;
             }
         }
     }

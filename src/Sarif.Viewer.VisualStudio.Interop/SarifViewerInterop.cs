@@ -111,7 +111,7 @@ namespace Microsoft.Sarif.Viewer.Interop
 
             return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
             {
-                service.LoadSarifLogs(path);
+                service.LoadSarifLog(path);
                 return true;
             });
         }

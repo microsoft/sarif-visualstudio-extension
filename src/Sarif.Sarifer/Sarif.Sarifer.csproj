@@ -52,6 +52,7 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="TestData\proof-of-concept.sarif" />
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="SariferPackageCommands.vsct">
