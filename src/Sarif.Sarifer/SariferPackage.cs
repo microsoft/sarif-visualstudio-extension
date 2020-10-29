@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -52,9 +53,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
+            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs &&
+                await GetServiceAsync(typeof(SVsShell)) is IVsShell vsShell)
             {
-                var command = new GenerateTestDataCommand();
+                var command = new GenerateTestDataCommand(vsShell);
 
                 // Add the command to the command service.
                 mcs.AddCommand(command);

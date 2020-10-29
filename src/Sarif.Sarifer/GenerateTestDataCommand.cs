@@ -3,17 +3,22 @@
 
 using System;
 using System.ComponentModel.Design;
+using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class GenerateTestDataCommand : OleMenuCommand
+    internal class GenerateTestDataCommand : MenuCommand
     {
-        public GenerateTestDataCommand() :
+        private static SarifViewerInterop s_viewerInterop;
+
+        public GenerateTestDataCommand(IVsShell vsShell) :
             base(
                 new EventHandler(MenuCommandCallback),
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData))
         {
+            s_viewerInterop = new SarifViewerInterop(vsShell);
         }
 
         /// <summary>
@@ -22,6 +27,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private static void MenuCommandCallback(object caller, EventArgs args)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            // TODO: Why does this never return true?
+            if (!s_viewerInterop.IsViewerExtensionLoaded)
+            {
+                s_viewerInterop.LoadViewerExtension();
+            }
         }
     }
 }
