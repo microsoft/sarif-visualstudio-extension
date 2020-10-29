@@ -1,10 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <!--
 Copyright (c) Microsoft. All rights reserved. 
 Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 -->
-
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="2ec87711-16c7-4a58-8e1d-453f805ce112" Version="2.1.20" Language="en-US" Publisher="Microsoft Corporation" />

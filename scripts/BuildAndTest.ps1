@@ -71,6 +71,27 @@ function Update-VersionConstantsFiles {
     }
 }
 
+function Update-VsixManifest($project) {
+    $versionPrefix, $versionSuffix = & "$PSScriptRoot\Get-VersionConstants.ps1"
+    $version = $versionPrefix
+    if ($versionSuffix) {
+        $version += "-$versionSuffix"
+    }
+
+    $vsixManifestPath = "$SourceRoot\$project\source.extension.vsixmanifest"
+    $vsixManifest = [xml](Get-Content $vsixManifestPath)
+
+    $vsixManifest.PackageManifest.Metadata.Identity.Version = $version
+
+    $vsixManifest.Save($vsixManifestPath)
+}
+
+function Update-VsixManifests {
+    foreach ($project in $Projects.Vsix) {
+        Update-VsixManifest $project
+    }
+}
+
 function Invoke-Build {
     Write-Information "Building $SolutionFile..."
     msbuild /verbosity:minimal /target:$BuildTarget /property:Configuration=$Configuration /fileloggerparameters:Verbosity=detailed $SolutionFile
@@ -151,6 +172,7 @@ if (-not $NoRestore) {
 
 if (-not $NoBuild) {
     Update-VersionConstantsFiles
+    Update-VsixManifests
     Invoke-Build
 }
 
