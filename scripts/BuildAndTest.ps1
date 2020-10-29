@@ -73,15 +73,11 @@ function Update-VersionConstantsFiles {
 
 function Update-VsixManifest($project) {
     $versionPrefix, $versionSuffix = & "$PSScriptRoot\Get-VersionConstants.ps1"
-    $version = $versionPrefix
-    if ($versionSuffix) {
-        $version += "-$versionSuffix"
-    }
 
     $vsixManifestPath = "$SourceRoot\$project\source.extension.vsixmanifest"
     $vsixManifest = [xml](Get-Content $vsixManifestPath)
 
-    $vsixManifest.PackageManifest.Metadata.Identity.Version = $version
+    $vsixManifest.PackageManifest.Metadata.Identity.Version = $versionPrefix
 
     $vsixManifest.Save($vsixManifestPath)
 }
