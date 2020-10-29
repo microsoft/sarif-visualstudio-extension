@@ -9,7 +9,7 @@ param(
     [Parameter(Mandatory=$true)] $Namespace
 )
 
-$ErrorActionPreference = "Stop"
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $InformationPreference = "Continue"
 
