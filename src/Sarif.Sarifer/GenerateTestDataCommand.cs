@@ -36,7 +36,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            string testDataFilePath = await CreateTestDataFilePathAsync();
+            string testDataFilePath = await CreateTestDataFileAsync();
 
             // TODO: Why does this never return true?
             if (!s_viewerInterop.IsViewerExtensionLoaded)
@@ -47,7 +47,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             await s_viewerInterop.OpenSarifLogAsync(testDataFilePath);
         }
 
-        private static async Task<string> CreateTestDataFilePathAsync()
+        private static async Task<string> CreateTestDataFileAsync()
         {
             using (Stream testDataResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestData.proof-of-concept.sarif"))
             using (TextReader reader = new StreamReader(testDataResourceStream))
