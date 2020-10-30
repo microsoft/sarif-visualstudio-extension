@@ -40,6 +40,11 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fixes\EditActionPreviewProvider.cs" />
+    <Compile Include="Fixes\IPreviewProvider.cs" />
+    <Compile Include="Fixes\LineSpan.cs" />
+    <Compile Include="Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
+    <Compile Include="Fixes\SizeToFitHelper.cs" />
     <Compile Include="Properties\VersionConstants.cs" />
     <Compile Include="CodeAnalysisResultManager.cs" />
     <Compile Include="CodeFlowToTreeConverter.cs" />
@@ -64,6 +69,9 @@
     <Compile Include="ErrorList\ErrorListCommand.cs" />
     <Compile Include="ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="ErrorList\SarifResultTableEntry.cs" />
+    <Compile Include="Fixes\DisposableDifferenceViewerControl.xaml.cs">
+      <DependentUpon>DisposableDifferenceViewerControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Fixes\FixSuggestedAction.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
@@ -236,6 +244,10 @@
     <Page Include="Controls\VsDropDown.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Fixes\DisposableDifferenceViewerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\CallTreesStyles.xaml">
       <SubType>Designer</SubType>
