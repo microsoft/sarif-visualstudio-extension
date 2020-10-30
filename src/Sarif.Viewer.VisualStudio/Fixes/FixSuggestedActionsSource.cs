@@ -182,6 +182,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             };
         }
 
-        private FixSuggestedAction ToSuggestedAction(FixModel fix) => new FixSuggestedAction(fix);
+        private FixSuggestedAction ToSuggestedAction(FixModel fix) =>
+            new FixSuggestedAction(fix, this.textBuffer, this.previewProvider);
     }
 }

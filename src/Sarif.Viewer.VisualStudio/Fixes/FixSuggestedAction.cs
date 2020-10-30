@@ -9,19 +9,39 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Fixes
 {
     /// <summary>
-    /// An suggested action to resolve a result in a SARIF log file.
+    /// An suggested action to fix a result in a SARIF log file.
     /// </summary>
     internal class FixSuggestedAction : ISuggestedAction
     {
         private readonly FixModel fix;
+        private readonly ITextBuffer textBuffer;
+        private readonly IPreviewProvider previewProvider;
 
-        public FixSuggestedAction(FixModel fix)
+        /// <summary>
+        /// Creates a new instance of <see cref="FixSuggestedAction"/>.
+        /// </summary>
+        /// <param name="fix">
+        /// The SARIF <see cref="Fix"/> object that describes the action.
+        /// </param>
+        /// <param name="textBuffer">
+        /// The text buffer to which the fix will be applied.
+        /// </param>
+        /// <param name="previewProvider">
+        /// Creates the XAML UIControl that displays the preview.
+        /// </param>
+        public FixSuggestedAction(
+            FixModel fix,
+            ITextBuffer textBuffer,
+            IPreviewProvider previewProvider)
         {
             this.fix = fix;
+            this.textBuffer = textBuffer;
+            this.previewProvider = previewProvider;
             DisplayText = fix.Description;
         }
 
