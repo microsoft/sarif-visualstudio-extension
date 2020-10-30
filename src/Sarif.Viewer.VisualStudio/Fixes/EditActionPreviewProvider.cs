@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Projection;
 
-    [Export]
+    [Export(typeof(IPreviewProvider))]
     public class EditActionPreviewProvider : IPreviewProvider
     {
         private readonly ITextViewRoleSet previewRoleSet;

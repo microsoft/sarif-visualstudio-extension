@@ -24,6 +24,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
 #pragma warning disable IDE0044 // Assigned by MEF
         [Import]
         private IPersistentSpanFactory persistentSpanFactory;
+
+        [Import]
+        private IPreviewProvider previewProvider;
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
@@ -35,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 return null;
             }
 
-            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory);
+            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory, previewProvider);
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly ITextView textView;
         private readonly ITextBuffer textBuffer;
         private readonly IPersistentSpanFactory persistentSpanFactory;
+        private readonly IPreviewProvider previewProvider;
         private readonly ReadOnlyCollection<SarifErrorListItem> fixableErrors;
 
         /// <summary>
@@ -38,13 +39,21 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// A factory for creating the persistent spans that specify the error locations and the
         /// replacement locations (which are not necessarily the same).
         /// </param>
-        public FixSuggestedActionsSource(ITextView textView, ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
+        /// <param name="previewProvider">
+        /// Creates the XAML UIControl that displays the preview.
+        /// </param>
+        public FixSuggestedActionsSource(
+            ITextView textView,
+            ITextBuffer textBuffer,
+            IPersistentSpanFactory persistentSpanFactory,
+            IPreviewProvider previewProvider)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             this.textView = textView;
             this.textBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
+            this.previewProvider = previewProvider;
 
             // If this text buffer is not associated with a file, it cannot have any SARIF errors.
             if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
