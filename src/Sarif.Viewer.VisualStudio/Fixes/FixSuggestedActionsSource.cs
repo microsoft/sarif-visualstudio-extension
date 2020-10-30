@@ -128,11 +128,19 @@ namespace Microsoft.Sarif.Viewer.Fixes
             }
 
             // Calculate persistent spans for each region that must be replaced in every
-            // applyable fix. Not every fix is applyable because it might not have enough
-            // information to resolve the absolute path to every file that must be touched.
-            IEnumerable<FixModel> applyableFixes = errors
-                .SelectMany(error => error.Fixes)
-                .Where(fix => fix.CanBeApplied());
+            // applyable fix. Not every fix is applyable because (1) it might not have enough
+            // information to resolve the absolute path to every file that must be touched,
+            // and (2) it might change files other than the file containing the error.
+            // There's nothing fundamentally wrong with that, but we don't have a good UI
+            // experience for it.
+            IEnumerable<FixModel> applyableFixes = new List<FixModel>();
+            foreach (SarifErrorListItem error in errors)
+            {
+                foreach (FixModel fixModel in error.Fixes.Where(fix => fix.CanBeAppliedToFile(error.FileName)))
+                {
+                    applyableFixes.Append(fixModel);
+                }
+            }
 
             IEnumerable<ReplacementModel> replacementsNeedingPersistentSpans = applyableFixes
                 .SelectMany(fix => fix.ArtifactChanges)
@@ -172,9 +180,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             // Every error in the specified list has at least one fix that can be
             // applied, but we must provide only the apply-able ones.
-            IEnumerable<FixModel> allFixes = errors.SelectMany(error => error.Fixes);
-            IEnumerable<FixModel> applyableFixes = allFixes.Where(fix => fix.CanBeApplied());
-            IEnumerable<ISuggestedAction> suggestedActions = applyableFixes.Select(ToSuggestedAction);
+            var suggestedActions = new List<ISuggestedAction>();
+            foreach (SarifErrorListItem error in errors)
+            {
+                suggestedActions.AddRange(error.Fixes
+                    .Where(fix => fix.CanBeAppliedToFile(error.FileName))
+                    .Select(ToSuggestedAction));
+            }
 
             return new List<SuggestedActionSet>
             {

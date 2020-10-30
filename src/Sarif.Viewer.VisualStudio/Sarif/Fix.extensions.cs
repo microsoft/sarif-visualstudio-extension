@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
@@ -32,39 +33,32 @@ namespace Microsoft.Sarif.Viewer.Sarif
         }
 
         /// <summary>
-        /// Returns a value indicating whether a <see cref="FixModel"/> object contains enough
-        /// information to apply the fix.
+        /// Returns a value indicating whether a <see cref="FixModel"/> object describes a fix that
+        /// can be applied to a single specified file.
         /// </summary>
         /// <remarks>
-        /// For a fix to be applied, it's necessary to know the offset and length of every region
-        /// to be replaced.
+        /// For a fix to be applied to a single specified file, every change in the fix must apply
+        /// to that same file. For a fix to be applied at all, it's necessary to know the offset
+        /// and length of every region to be replaced.
         /// </remarks>
         /// <param name="fixModel">
         /// Represents the fix to be applied.
         /// </param>
-        /// <returns>
-        /// <code>true</code> if there is enough information to apply the fix, otherwise
-        /// <code>false</code>.
-        /// </returns>
-        public static bool CanBeApplied(this FixModel fixModel) =>
-            fixModel.ArtifactChanges.SelectMany(ac => ac.Replacements).All(HasOffsetAndLength);
-
-        /// <summary>
-        /// Returns a value indicating whether a <see cref="FixModel"/> object applies all
-        /// of its changes to a single specified file.
-        /// </summary>
-        /// <param name="fixModel">
-        /// Represents the fix to be applied.
-        /// </param>
         /// <param name="path">
-        /// The path to the file where the fixes must be applied.
+        /// The path to the file to which the fix should be applied.
         /// </param>
         /// <returns>
-        /// <code>true</code> if the changes for this fix are confined to the file specified by
-        /// <paramref name="path"/>, otherwise <code>false</code>.
+        /// <code>true</code> if the fix can be applied to the file specified by <paramref name="path"/>,
+        /// otherwise <code>false</code>.
         /// </returns>
-        public static bool AppliesToSingleFile(this FixModel fixModel, string path) =>
-            fixModel.ArtifactChanges.All(ac => ac.FilePath.Equals(path, StringComparison.OrdinalIgnoreCase));
+        public static bool CanBeAppliedToFile(this FixModel fixModel, string path)
+        {
+            ObservableCollection<ArtifactChangeModel> changes = fixModel.ArtifactChanges;
+
+            return
+                changes.All(ac => ac.FilePath.Equals(path, StringComparison.OrdinalIgnoreCase)) &&
+                changes.SelectMany(ac => ac.Replacements).All(HasOffsetAndLength);
+        }
 
         private static bool HasOffsetAndLength(ReplacementModel replacementModel) =>
             replacementModel.Offset >= 0 && replacementModel.DeletedLength >= 0;
