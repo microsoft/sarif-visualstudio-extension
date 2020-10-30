@@ -9,42 +9,46 @@ using System.Threading.Tasks;
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class GenerateTestDataCommand : MenuCommand
+    internal class GenerateTestDataCommand : SariferCommandBase
     {
-        private static SarifViewerInterop s_viewerInterop;
+        private const string SendDataToViewerFailureEventName = "SendDataToViewer/Failure";
 
-        public GenerateTestDataCommand(IVsShell vsShell) :
-            base(
-                new EventHandler(MenuCommandCallback),
-                new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData))
+        private readonly SarifViewerInterop viewerInterop;
+
+        public GenerateTestDataCommand(IVsShell vsShell, IMenuCommandService menuCommandService)
         {
-            s_viewerInterop = new SarifViewerInterop(vsShell);
+            this.viewerInterop = new SarifViewerInterop(vsShell);
+
+            MenuCommand menuCommand = new MenuCommand(
+                new EventHandler(this.MenuCommandCallback),
+                new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.GenerateTestData));
+
+            menuCommandService.AddCommand(menuCommand);
         }
 
         /// <summary>
         /// Event handler called when the user selects the Generate SARIF Test Data command.
         /// </summary>
-        /// <remarks>
-        /// Since this is a menu item callback, it must return void.
-        /// </remarks>
-#pragma warning disable VSTHRD100 // Avoid async void methods
-        private static async void MenuCommandCallback(object caller, EventArgs args)
-#pragma warning restore VSTHRD100 // Avoid async void methods
+        private void MenuCommandCallback(object caller, EventArgs args)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            this.SendDataToViewerAsync().FileAndForget(GetFileAndForgetEventName(SendDataToViewerFailureEventName));
+        }
 
-            string testDataFilePath = await CreateTestDataFileAsync();
+        private async Task SendDataToViewerAsync()
+        {
+            string testDataFilePath = await CreateTestDataFileAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             // TODO: Why does this never return true?
-            if (!s_viewerInterop.IsViewerExtensionLoaded)
+            if (!viewerInterop.IsViewerExtensionLoaded)
             {
-                s_viewerInterop.LoadViewerExtension();
+                this.viewerInterop.LoadViewerExtension();
             }
 
-            await s_viewerInterop.OpenSarifLogAsync(testDataFilePath);
+            await this.viewerInterop.OpenSarifLogAsync(testDataFilePath).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private static async Task<string> CreateTestDataFileAsync()
@@ -52,10 +56,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             using (Stream testDataResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("TestData.ProofOfConcept.sarif"))
             using (TextReader reader = new StreamReader(testDataResourceStream))
             {
-                string testDataFileContents = await reader.ReadToEndAsync();
+                // No need to continue on the UI thread because we're just doing file I/O.
+                string testDataFileContents = await reader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
 
                 string testDataFilePath = Path.GetTempFileName();
-                File.WriteAllText(testDataFilePath, testDataFileContents); // Pity there's no async version.
+                using (var writer = new StreamWriter(testDataFilePath))
+                {
+                    await writer.WriteAsync(testDataFileContents).ConfigureAwait(continueOnCapturedContext: false);
+                }
 
                 return testDataFilePath;
             }

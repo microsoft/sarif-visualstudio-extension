@@ -13,9 +13,9 @@ namespace Microsoft.Sarif.Viewer.Interop
 {
     public class SarifViewerInterop
     {
-        private static readonly string ViewerAssemblyFileName = "Microsoft.Sarif.Viewer";
-        private static readonly string ViewerLoadServiceInterfaceName = "SLoadSarifLogService";
-        private static readonly string ViewerCloseServiceInterfaceName = "SCloseSarifLogService";
+        private const string ViewerAssemblyFileName = "Microsoft.Sarif.Viewer";
+        private const string ViewerLoadServiceInterfaceName = "SLoadSarifLogService";
+        private const string ViewerCloseServiceInterfaceName = "SCloseSarifLogService";
         private bool? _isViewerExtensionInstalled;
         private bool? _isViewerExtensionLoaded;
         private Assembly _viewerExtensionAssembly;
@@ -184,7 +184,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             }
 
             // Get a service reference
-            dynamic serviceInterface = await ServiceProvider.GetGlobalServiceAsync(serviceType);
+            dynamic serviceInterface = await ServiceProvider.GetGlobalServiceAsync(serviceType).ConfigureAwait(continueOnCapturedContext: true);
 
             if (serviceInterface == null)
             {
