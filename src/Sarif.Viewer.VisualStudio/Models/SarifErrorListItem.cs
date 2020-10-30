@@ -636,7 +636,7 @@ namespace Microsoft.Sarif.Viewer
         /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
         /// </returns>
         public bool IsFixable() =>
-            !IsFixed && Fixes.Any(fix => fix.CanBeApplied());
+            !IsFixed && Fixes.Any(fix => fix.CanBeApplied() && fix.AppliesToSingleFile(this.FileName));
 
         /// <summary>
         /// Gets or sets a value indicating whether this error has been fixed.

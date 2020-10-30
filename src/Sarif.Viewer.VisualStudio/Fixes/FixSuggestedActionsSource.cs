@@ -55,7 +55,6 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.persistentSpanFactory = persistentSpanFactory;
             this.previewProvider = previewProvider;
 
-            // If this text buffer is not associated with a file, it cannot have any SARIF errors.
             if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
             {
                 IEnumerable<SarifErrorListItem> errorsInFile = GetErrorsInFile(fileName);
@@ -64,15 +63,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
             }
             else
             {
+                // If this text buffer is not associated with a file, it cannot have any SARIF errors.
                 this.fixableErrors = new List<SarifErrorListItem>().AsReadOnly();
             }
         }
-
-        private static ReadOnlyCollection<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
-            errors
-            .Where(error => error.IsFixable())
-            .ToList()
-            .AsReadOnly();
 
         private static IEnumerable<SarifErrorListItem> GetErrorsInFile(string fileName) =>
             CodeAnalysisResultManager
@@ -81,6 +75,12 @@ namespace Microsoft.Sarif.Viewer.Fixes
             .Values
             .SelectMany(runDataCache => runDataCache.SarifErrors)
             .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+        private static ReadOnlyCollection<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
+            errors
+            .Where(error => error.IsFixable())
+            .ToList()
+            .AsReadOnly();
 
 #pragma warning disable 0067
         public event EventHandler<EventArgs> SuggestedActionsChanged;

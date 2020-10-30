@@ -11,6 +11,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class SarifErrorListItemTests
     {
+        private const string FileName = "file.c";
+
         public SarifErrorListItemTests()
         {
             TestUtilities.InitializeTestEnvironment();
@@ -469,6 +471,132 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Level.Should().Be(FailureLevel.Error);
         }
 
+        [Fact]
+        public void SarifErrorListItem_WhenThereAreNoFixes_IsNotFixable()
+        {
+            var result = new Result
+            {
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+
+            item.IsFixable().Should().BeFalse();
+        }
+
+        [Fact]
+        public void SarifErrorListItem_WhenFixIsConfinedToOneFile_IsFixable()
+        {
+            var result = new Result
+            {
+                Fixes = new List<Fix>
+                {
+                    new Fix
+                    {
+                        ArtifactChanges = new List<ArtifactChange>
+                        {
+                            new ArtifactChange
+                            {
+                                ArtifactLocation = new ArtifactLocation
+                                {
+                                    Uri = new Uri(FileName, UriKind.Relative)
+                                },
+                                Replacements = new List<Replacement>
+                                {
+                                    new Replacement
+                                    {
+                                        DeletedRegion = new Region
+                                        {
+                                            CharOffset = 52,
+                                            CharLength = 5
+                                        }
+                                    }
+                                }
+                            },
+                            new ArtifactChange
+                            {
+                                ArtifactLocation = new ArtifactLocation
+                                {
+                                    Uri = new Uri(FileName, UriKind.Relative)
+                                },
+                                Replacements = new List<Replacement>
+                                {
+                                    new Replacement
+                                    {
+                                        DeletedRegion = new Region
+                                        {
+                                            CharOffset = 52,
+                                            CharLength = 5
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+
+            item.IsFixable().Should().BeTrue();
+        }
+
+        [Fact]
+        public void SarifErrorListItem_WhenFixSpansMultipleFiles_IsNotFixable()
+        {
+            var result = new Result
+            {
+                Fixes = new List<Fix>
+                {
+                    new Fix
+                    {
+                        ArtifactChanges = new List<ArtifactChange>
+                        {
+                            new ArtifactChange
+                            {
+                                ArtifactLocation = new ArtifactLocation
+                                {
+                                    Uri = new Uri(FileName, UriKind.Relative)
+                                },
+                                Replacements = new List<Replacement>
+                                {
+                                    new Replacement
+                                    {
+                                        DeletedRegion = new Region
+                                        {
+                                            CharOffset = 52,
+                                            CharLength = 5
+                                        }
+                                    }
+                                }
+                            },
+                            new ArtifactChange
+                            {
+                                ArtifactLocation = new ArtifactLocation
+                                {
+                                    Uri = new Uri("SomeOther" + FileName, UriKind.Relative)
+                                },
+                                Replacements = new List<Replacement>
+                                {
+                                    new Replacement
+                                    {
+                                        DeletedRegion = new Region
+                                        {
+                                            CharOffset = 52,
+                                            CharLength = 5
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+
+            item.IsFixable().Should().BeFalse();
+        }
+
         // Run object used in tests that don't require a populated run object.
         private static readonly Run EmptyRun = new Run();
 
@@ -485,7 +613,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 runIndex: 0,
                 result: result,
                 logFilePath: "log.sarif",
-                projectNameCache: new ProjectNameCache(solution: null));
+                projectNameCache: new ProjectNameCache(solution: null))
+            {
+                FileName = FileName
+            };
         }
     }
 }

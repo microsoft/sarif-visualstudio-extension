@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.Sarif;
@@ -47,6 +48,23 @@ namespace Microsoft.Sarif.Viewer.Sarif
         /// </returns>
         public static bool CanBeApplied(this FixModel fixModel) =>
             fixModel.ArtifactChanges.SelectMany(ac => ac.Replacements).All(HasOffsetAndLength);
+
+        /// <summary>
+        /// Returns a value indicating whether a <see cref="FixModel"/> object applies all
+        /// of its changes to a single specified file.
+        /// </summary>
+        /// <param name="fixModel">
+        /// Represents the fix to be applied.
+        /// </param>
+        /// <param name="path">
+        /// The path to the file where the fixes must be applied.
+        /// </param>
+        /// <returns>
+        /// <code>true</code> if the changes for this fix are confined to the file specified by
+        /// <paramref name="path"/>, otherwise <code>false</code>.
+        /// </returns>
+        public static bool AppliesToSingleFile(this FixModel fixModel, string path) =>
+            fixModel.ArtifactChanges.All(ac => ac.FilePath.Equals(path, StringComparison.OrdinalIgnoreCase));
 
         private static bool HasOffsetAndLength(ReplacementModel replacementModel) =>
             replacementModel.Offset >= 0 && replacementModel.DeletedLength >= 0;
