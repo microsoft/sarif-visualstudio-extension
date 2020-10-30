@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private async Task SendDataToViewerAsync()
         {
-            string testDataFilePath = await CreateTestDataFileAsync().ConfigureAwait(continueOnCapturedContext: false);
+            string testDataFilePath = await CreateTestDataFileAsync().ConfigureAwait(continueOnCapturedContext: true);
 
             // TODO: Why does this never return true?
             if (!viewerInterop.IsViewerExtensionLoaded)
