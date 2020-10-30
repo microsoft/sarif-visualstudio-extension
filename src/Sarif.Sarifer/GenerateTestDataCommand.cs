@@ -33,12 +33,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Event handler called when the user selects the Generate SARIF Test Data command.
         /// </summary>
-        /// <remarks>
-        /// Since this is a menu item callback, it must return void.
-        /// </remarks>
-#pragma warning disable VSTHRD100 // Avoid async void methods
         private void MenuCommandCallback(object caller, EventArgs args)
-#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             this.SendDataToViewerAsync().FileAndForget(GetFileAndForgetEventName(SendDataToViewerFailureEventName));
         }
