@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
@@ -56,10 +56,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs &&
                 await GetServiceAsync(typeof(SVsShell)) is IVsShell vsShell)
             {
-                var command = new GenerateTestDataCommand(vsShell);
-
-                // Add the command to the command service.
-                mcs.AddCommand(command);
+                _ = new GenerateTestDataCommand(vsShell, mcs);
             }
         }
     }
