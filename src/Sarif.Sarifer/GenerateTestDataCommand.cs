@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private async Task SendDataToViewerAsync()
         {
-            string testDataFilePath = await CreateTestDataFileAsync();
+            string testDataFilePath = await CreateTestDataFileAsync().ConfigureAwait(continueOnCapturedContext: true);
 
             // TODO: Why does this never return true?
             if (!viewerInterop.IsViewerExtensionLoaded)
@@ -48,7 +48,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.viewerInterop.LoadViewerExtension();
             }
 
-            await this.viewerInterop.OpenSarifLogAsync(testDataFilePath);
+            await this.viewerInterop.OpenSarifLogAsync(testDataFilePath).ConfigureAwait(continueOnCapturedContext: true);
         }
 
         private static async Task<string> CreateTestDataFileAsync()

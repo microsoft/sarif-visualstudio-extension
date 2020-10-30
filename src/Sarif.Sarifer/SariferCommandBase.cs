@@ -7,6 +7,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string FileAndForgetEventNamePrefix = "Microsoft/Sarifer/";
 
-        protected string GetFileAndForgetEventName(string suffix) => $"{FileAndForgetEventNamePrefix}{suffix}";
+        protected static string GetFileAndForgetEventName(string suffix) => $"{FileAndForgetEventNamePrefix}{suffix}";
     }
 }

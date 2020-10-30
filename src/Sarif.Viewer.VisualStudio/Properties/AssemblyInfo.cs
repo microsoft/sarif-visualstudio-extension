@@ -2,11 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio;
 
 [assembly: AssemblyTitle("Microsoft SARIF Viewer for Visual Studio")]
 [assembly: AssemblyDescription("Visual Studio Extension for viewing SARIF log files")]
+
+[assembly: NeutralResourcesLanguage("en")]
 
 [assembly: AssemblyVersion(VersionConstants.FileVersion)]
 [assembly: AssemblyFileVersion(VersionConstants.FileVersion)]

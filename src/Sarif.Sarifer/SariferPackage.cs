@@ -44,7 +44,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await base.InitializeAsync(cancellationToken, progress);
+            await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
 
             // When initialized asynchronously, we *may* be on a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
@@ -53,8 +53,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs &&
-                await GetServiceAsync(typeof(SVsShell)) is IVsShell vsShell)
+            if (await GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
+                await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
             }
