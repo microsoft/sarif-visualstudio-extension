@@ -3,10 +3,10 @@
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal abstract class SariferCommandBase
+    internal static class FileAndForget
     {
         private const string FileAndForgetEventNamePrefix = "Microsoft/Sarifer/";
 
-        protected static string GetFileAndForgetEventName(string suffix) => $"{FileAndForgetEventNamePrefix}{suffix}";
+        internal static string EventName(string suffix) => $"{FileAndForgetEventNamePrefix}{suffix}";
     }
 }
