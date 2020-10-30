@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Fixes
 {
     /// <summary>
     /// An suggested action to resolve a result in a SARIF log file.

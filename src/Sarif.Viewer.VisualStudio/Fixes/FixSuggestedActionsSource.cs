@@ -15,7 +15,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Task = System.Threading.Tasks.Task;
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Fixes
 {
     internal class FixSuggestedActionsSource : ISuggestedActionsSource
     {
