@@ -68,20 +68,6 @@ namespace Microsoft.Sarif.Viewer.Fixes
             }
         }
 
-        private static IEnumerable<SarifErrorListItem> GetErrorsInFile(string fileName) =>
-            CodeAnalysisResultManager
-            .Instance
-            .RunIndexToRunDataCache
-            .Values
-            .SelectMany(runDataCache => runDataCache.SarifErrors)
-            .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0);
-
-        private static ReadOnlyCollection<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
-            errors
-            .Where(error => error.IsFixable())
-            .ToList()
-            .AsReadOnly();
-
 #pragma warning disable 0067
         public event EventHandler<EventArgs> SuggestedActionsChanged;
 #pragma warning restore 0067
@@ -109,6 +95,20 @@ namespace Microsoft.Sarif.Viewer.Fixes
             return false;
         }
 
+        private static IEnumerable<SarifErrorListItem> GetErrorsInFile(string fileName) =>
+            CodeAnalysisResultManager
+            .Instance
+            .RunIndexToRunDataCache
+            .Values
+            .SelectMany(runDataCache => runDataCache.SarifErrors)
+            .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+
+        private static ReadOnlyCollection<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
+            errors
+            .Where(error => error.IsFixable())
+            .ToList()
+            .AsReadOnly();
+
         // Calculate persistent spans for each error location (because we want to display a
         // lightbulb any time the caret intersects such a span, even if the document has been
         // edited) and for each region that must be replaced when the error is fixed (because
@@ -133,13 +133,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
             // and (2) it might change files other than the file containing the error.
             // There's nothing fundamentally wrong with that, but we don't have a good UI
             // experience for it.
-            IEnumerable<FixModel> applyableFixes = new List<FixModel>();
+            var applyableFixes = new List<FixModel>();
             foreach (SarifErrorListItem error in errors)
             {
-                foreach (FixModel fixModel in error.Fixes.Where(fix => fix.CanBeAppliedToFile(error.FileName)))
-                {
-                    applyableFixes.Append(fixModel);
-                }
+                applyableFixes.AddRange(error.Fixes.Where(fix => fix.CanBeAppliedToFile(error.FileName)));
             }
 
             IEnumerable<ReplacementModel> replacementsNeedingPersistentSpans = applyableFixes

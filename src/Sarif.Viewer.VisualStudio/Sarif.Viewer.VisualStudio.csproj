@@ -44,6 +44,7 @@
     <Compile Include="Fixes\IPreviewProvider.cs" />
     <Compile Include="Fixes\LineSpan.cs" />
     <Compile Include="Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
+    <Compile Include="Fixes\ReplacementEdit.cs" />
     <Compile Include="Fixes\SizeToFitHelper.cs" />
     <Compile Include="Properties\VersionConstants.cs" />
     <Compile Include="CodeAnalysisResultManager.cs" />
@@ -89,7 +90,6 @@
     <Compile Include="Models\LocationCollection.cs" />
     <Compile Include="Models\LocationModel.cs" />
     <Compile Include="Models\ArtifactDetailsModel.cs" />
-    <Compile Include="Models\FixOffsetList.cs" />
     <Compile Include="Models\InvocationModel.cs" />
     <Compile Include="Models\ReplacementModel.cs" />
     <Compile Include="Models\ArtifactChangeModel.cs" />
