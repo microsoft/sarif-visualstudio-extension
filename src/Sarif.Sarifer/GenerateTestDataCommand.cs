@@ -13,8 +13,10 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class GenerateTestDataCommand
+    internal class GenerateTestDataCommand : SariferCommandBase
     {
+        private const string SendDataToViewerFailureEventName = "SendDataToViewer/Failure";
+
         private readonly SarifViewerInterop viewerInterop;
 
         public GenerateTestDataCommand(IVsShell vsShell, IMenuCommandService menuCommandService)
@@ -35,10 +37,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Since this is a menu item callback, it must return void.
         /// </remarks>
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        private async void MenuCommandCallback(object caller, EventArgs args)
+        private void MenuCommandCallback(object caller, EventArgs args)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
-            await SendDataToViewerAsync().ConfigureAwait(continueOnCapturedContext: false);
+            this.SendDataToViewerAsync().FileAndForget(GetFileAndForgetEventName(SendDataToViewerFailureEventName));
         }
 
         private async Task SendDataToViewerAsync()
