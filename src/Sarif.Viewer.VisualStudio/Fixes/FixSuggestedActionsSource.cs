@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Task = System.Threading.Tasks.Task;
@@ -25,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly IPreviewProvider previewProvider;
 
-        private readonly IEnumerable<SarifErrorListItem> errorsInFile;
+        private readonly IList<SarifErrorListItem> errorsInFile;
         private readonly IDictionary<FixSuggestedAction, SarifErrorListItem> fixToErrorDictionary;
 
         /// <summary>
@@ -61,7 +59,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
             // If this text buffer is not associated with a file, it cannot have any SARIF errors.
             this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
                 ? GetErrorsInFile(fileName)
-                : Enumerable.Empty<SarifErrorListItem>();
+                : Enumerable.Empty<SarifErrorListItem>().ToList();
+            CalculatePersistentSpans(this.errorsInFile);
 
             // Keep track of which error is associated with each suggested action, so that when
             // the action is invoked, the associated error can be marked as fixed. When we mark
@@ -86,9 +85,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
             // Recompute the list of fixable errors each time VS asks, because we might have fixed
             // some of them.
-            IList<SarifErrorListItem> fixableErrors = GetFixableErrors(this.errorsInFile);
-            CalculatePersistentSpans(fixableErrors);
-            IEnumerable<SarifErrorListItem> selectedFixableErrors = GetSelectedErrors(fixableErrors);
+            IList<SarifErrorListItem> selectedErrors = GetSelectedErrors(this.errorsInFile);
+            IList<SarifErrorListItem> selectedFixableErrors = GetFixableErrors(selectedErrors);
             return CreateActionSetFromErrors(selectedFixableErrors);
         }
 
@@ -107,13 +105,14 @@ namespace Microsoft.Sarif.Viewer.Fixes
             return false;
         }
 
-        private static IEnumerable<SarifErrorListItem> GetErrorsInFile(string fileName) =>
+        private static IList<SarifErrorListItem> GetErrorsInFile(string fileName) =>
             CodeAnalysisResultManager
             .Instance
             .RunIndexToRunDataCache
             .Values
             .SelectMany(runDataCache => runDataCache.SarifErrors)
-            .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+            .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0)
+            .ToList();
 
         private static IList<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
             errors
@@ -124,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         // lightbulb any time the caret intersects such a span, even if the document has been
         // edited) and for each region that must be replaced when the error is fixed (because
         // we want to apply the fix in the right place, even if the document has been edited).
-        private void CalculatePersistentSpans(IList<SarifErrorListItem> errors)
+        private void CalculatePersistentSpans(IEnumerable<SarifErrorListItem> errors)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -166,13 +165,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         // Find all errors in the given list any of whose locations intersect the caret. Those are
         // the locations where a lightbulb should appear.
-        private IEnumerable<SarifErrorListItem> GetSelectedErrors(IEnumerable<SarifErrorListItem> errors)
+        private IList<SarifErrorListItem> GetSelectedErrors(IEnumerable<SarifErrorListItem> errors)
         {
             SnapshotPoint caretSnapshotPoint = this.textView.Caret.Position.BufferPosition;
             var caretSpanCollection =
                 new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
-            return errors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection));
+            return errors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection)).ToList();
         }
 
         private bool CaretIntersectsAnyErrorLocation(SarifErrorListItem error, NormalizedSnapshotSpanCollection caretSpanCollection) =>
