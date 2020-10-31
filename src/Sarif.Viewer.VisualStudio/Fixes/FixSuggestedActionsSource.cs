@@ -11,6 +11,7 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Task = System.Threading.Tasks.Task;
@@ -23,7 +24,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly ITextBuffer textBuffer;
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly IPreviewProvider previewProvider;
-        private readonly ReadOnlyCollection<SarifErrorListItem> fixableErrors;
+
+        private readonly IEnumerable<SarifErrorListItem> errorsInFile;
+        private readonly IDictionary<FixSuggestedAction, SarifErrorListItem> fixToErrorDictionary;
 
         /// <summary>
         /// Creates a new instance of <see cref="FixSuggestedActionsSource"/>.
@@ -55,17 +58,16 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.persistentSpanFactory = persistentSpanFactory;
             this.previewProvider = previewProvider;
 
-            if (SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName))
-            {
-                IEnumerable<SarifErrorListItem> errorsInFile = GetErrorsInFile(fileName);
-                this.fixableErrors = GetFixableErrors(errorsInFile);
-                CalculatePersistentSpans(fixableErrors);
-            }
-            else
-            {
-                // If this text buffer is not associated with a file, it cannot have any SARIF errors.
-                this.fixableErrors = new List<SarifErrorListItem>().AsReadOnly();
-            }
+            // If this text buffer is not associated with a file, it cannot have any SARIF errors.
+            this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
+                ? GetErrorsInFile(fileName)
+                : Enumerable.Empty<SarifErrorListItem>();
+
+            // Keep track of which error is associated with each suggested action, so that when
+            // the action is invoked, the associated error can be marked as fixed. When we mark
+            // an error as fixed, we tell VS to recompute the list of suggested actions, so that
+            // it doesn't suggest actions for errors that are already fixed.
+            this.fixToErrorDictionary = new Dictionary<FixSuggestedAction, SarifErrorListItem>();
         }
 
 #pragma warning disable 0067
@@ -80,13 +82,15 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <inheritdoc/>
         public IEnumerable<SuggestedActionSet> GetSuggestedActions(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
-            IEnumerable<SarifErrorListItem> selectedFixableErrors = GetSelectedFixableErrors();
+            IList<SarifErrorListItem> fixableErrors = GetFixableErrors(this.errorsInFile);
+            CalculatePersistentSpans(fixableErrors);
+            IEnumerable<SarifErrorListItem> selectedFixableErrors = GetSelectedErrors(fixableErrors);
             return CreateActionSetFromErrors(selectedFixableErrors);
         }
 
         /// <inheritdoc/>
         public async Task<bool> HasSuggestedActionsAsync(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
-            => await Task.FromResult(GetSelectedFixableErrors().Any());
+            => await Task.FromResult(GetSuggestedActions(requestedActionCategories, range, cancellationToken).Any());
 
         /// <inheritdoc/>
         public bool TryGetTelemetryId(out Guid telemetryId)
@@ -103,17 +107,16 @@ namespace Microsoft.Sarif.Viewer.Fixes
             .SelectMany(runDataCache => runDataCache.SarifErrors)
             .Where(error => string.Compare(fileName, error.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
-        private static ReadOnlyCollection<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
+        private static IList<SarifErrorListItem> GetFixableErrors(IEnumerable<SarifErrorListItem> errors) =>
             errors
             .Where(error => error.IsFixable())
-            .ToList()
-            .AsReadOnly();
+            .ToList();
 
         // Calculate persistent spans for each error location (because we want to display a
         // lightbulb any time the caret intersects such a span, even if the document has been
         // edited) and for each region that must be replaced when the error is fixed (because
         // we want to apply the fix in the right place, even if the document has been edited).
-        private void CalculatePersistentSpans(ReadOnlyCollection<SarifErrorListItem> errors)
+        private void CalculatePersistentSpans(IList<SarifErrorListItem> errors)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -153,15 +156,15 @@ namespace Microsoft.Sarif.Viewer.Fixes
             }
         }
 
-        // Find all fixable errors any of whose locations intersect the caret. Those are the
-        // locations where a lightbulb should appear.
-        private IEnumerable<SarifErrorListItem> GetSelectedFixableErrors()
+        // Find all errors in the given list any of whose locations intersect the caret. Those are
+        // the locations where a lightbulb should appear.
+        private IEnumerable<SarifErrorListItem> GetSelectedErrors(IEnumerable<SarifErrorListItem> errors)
         {
             SnapshotPoint caretSnapshotPoint = this.textView.Caret.Position.BufferPosition;
             var caretSpanCollection =
                 new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
-            return this.fixableErrors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection));
+            return errors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection));
         }
 
         private bool CaretIntersectsAnyErrorLocation(SarifErrorListItem error, NormalizedSnapshotSpanCollection caretSpanCollection) =>
@@ -175,14 +178,20 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         private IEnumerable<SuggestedActionSet> CreateActionSetFromErrors(IEnumerable<SarifErrorListItem> errors)
         {
+            this.fixToErrorDictionary.Clear();
+
             // Every error in the specified list has at least one fix that can be
             // applied, but we must provide only the apply-able ones.
             var suggestedActions = new List<ISuggestedAction>();
             foreach (SarifErrorListItem error in errors)
             {
-                suggestedActions.AddRange(error.Fixes
-                    .Where(fix => fix.CanBeAppliedToFile(error.FileName))
-                    .Select(ToSuggestedAction));
+                foreach (FixModel fix in error.Fixes.Where(fix => fix.CanBeAppliedToFile(error.FileName)))
+                {
+                    var suggestedAction = new FixSuggestedAction(fix, this.textBuffer, this.previewProvider);
+                    this.fixToErrorDictionary.Add(suggestedAction, error);
+                    suggestedAction.FixApplied += SuggestedAction_FixApplied;
+                    suggestedActions.Add(suggestedAction);
+                }
             }
 
             return new List<SuggestedActionSet>
@@ -191,7 +200,19 @@ namespace Microsoft.Sarif.Viewer.Fixes
             };
         }
 
-        private FixSuggestedAction ToSuggestedAction(FixModel fix) =>
-            new FixSuggestedAction(fix, this.textBuffer, this.previewProvider);
+        private void SuggestedAction_FixApplied(object sender, EventArgs e)
+        {
+            if (sender is FixSuggestedAction suggestedAction)
+            {
+                if (this.fixToErrorDictionary.TryGetValue(suggestedAction, out SarifErrorListItem error))
+                {
+                    error.IsFixed = true;
+
+                    // Tell VS to recompute the list of suggested actions so we don't offer
+                    // a fix for an error that's already fixed.
+                    SuggestedActionsChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
     }
 }

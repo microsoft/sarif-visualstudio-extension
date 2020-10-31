@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (disposing)
             {
                 this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SarifErrorListEventSelectionService_SelectedItemChanged;
-                this.Disposed?.Invoke(this, new EventArgs());
+                this.Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
 

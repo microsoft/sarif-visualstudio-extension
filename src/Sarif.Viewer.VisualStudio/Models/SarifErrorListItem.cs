@@ -158,7 +158,6 @@ namespace Microsoft.Sarif.Viewer
                 foreach (Fix fix in result.Fixes)
                 {
                     FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
-                    fixModel.FixApplied += () => IsFixed = true;
                     Fixes.Add(fixModel);
                 }
             }
@@ -670,7 +669,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            Disposed?.Invoke(this, new EventArgs());
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()

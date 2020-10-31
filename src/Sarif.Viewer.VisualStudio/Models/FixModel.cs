@@ -18,8 +18,6 @@ namespace Microsoft.Sarif.Viewer.Models
             this._artifactChanges = new ObservableCollection<ArtifactChangeModel>();
         }
 
-        public event FixAppliedHandler FixApplied;
-
         public string Description
         {
             get
@@ -43,11 +41,6 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return _artifactChanges;
             }
-        }
-
-        internal void OnFixApplied()
-        {
-            FixApplied?.Invoke();
         }
     }
 }

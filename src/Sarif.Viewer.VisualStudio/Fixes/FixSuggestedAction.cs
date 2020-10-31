@@ -49,6 +49,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.edits = GetEditsFromFix(fix).AsReadOnly();
         }
 
+        public event EventHandler FixApplied;
+
+        #region ISuggestedAction
+
         /// <inheritdoc/>
         public bool HasActionSets => false;
 
@@ -97,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                     var currentSnapshot = this.textBuffer.CurrentSnapshot;
                     ApplyTextEdits(this.textBuffer, currentSnapshot);
 
-                    this.fix.OnFixApplied();
+                    FixApplied?.Invoke(this, EventArgs.Empty);
                 }
                 catch
                 {
@@ -112,6 +116,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
             telemetryId = Guid.Empty;
             return false;
         }
+
+        #endregion ISuggestedActionsSource
 
         private List<ReplacementEdit> GetEditsFromFix(FixModel fix) =>
             fix.ArtifactChanges.SelectMany(ac => ac.Replacements).Select(ToEdit).ToList();
