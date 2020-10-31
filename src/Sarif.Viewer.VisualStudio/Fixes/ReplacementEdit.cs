@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             this.Text = replacement.InsertedString ?? string.Empty;
 
-            ITrackingSpan replacementSpan = replacement.PersistentSpan.Span; // <=== THE REPLACEMENT DOESN'T YET HAVE ITS PERSISTENT SPAN.
+            ITrackingSpan replacementSpan = replacement.PersistentSpan.Span;
             SnapshotPoint start = replacementSpan.GetStartPoint(snapshot);
             SnapshotPoint end = replacementSpan.GetEndPoint(snapshot);
 
