@@ -82,6 +82,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <inheritdoc/>
         public IEnumerable<SuggestedActionSet> GetSuggestedActions(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // Recompute the list of fixable errors each time VS asks, because we might have fixed
+            // some of them.
             IList<SarifErrorListItem> fixableErrors = GetFixableErrors(this.errorsInFile);
             CalculatePersistentSpans(fixableErrors);
             IEnumerable<SarifErrorListItem> selectedFixableErrors = GetSelectedErrors(fixableErrors);
@@ -90,7 +94,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         /// <inheritdoc/>
         public async Task<bool> HasSuggestedActionsAsync(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
-            => await Task.FromResult(GetSuggestedActions(requestedActionCategories, range, cancellationToken).Any());
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            return await Task.FromResult(GetSuggestedActions(requestedActionCategories, range, cancellationToken).Any());
+        }
 
         /// <inheritdoc/>
         public bool TryGetTelemetryId(out Guid telemetryId)
@@ -194,10 +202,15 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 }
             }
 
-            return new List<SuggestedActionSet>
-            {
-                new SuggestedActionSet(suggestedActions)
-            };
+            // If there are no actions, return null rather than an empty list. Otherwise VS will display
+            // a light bulb with no suggestions in its dropdown. This way, VS refrains from displaying
+            // the dropdown.
+            return suggestedActions.Any() ?
+                new List<SuggestedActionSet>
+                {
+                    new SuggestedActionSet(suggestedActions)
+                } :
+                null;
         }
 
         private void SuggestedAction_FixApplied(object sender, EventArgs e)
