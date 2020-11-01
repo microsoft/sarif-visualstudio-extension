@@ -70,6 +70,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         }
 
 #pragma warning disable 0067
+        /// <inheritdoc/>
         public event EventHandler<EventArgs> SuggestedActionsChanged;
 #pragma warning restore 0067
 
