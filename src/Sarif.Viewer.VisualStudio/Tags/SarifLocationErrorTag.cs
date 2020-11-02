@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Tagging;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Tagging;
-
     /// <summary>
     /// Contains the data necessary to display a error tag (a underlined squiggle with a tool tip)
     /// inside Visual Studio's text views.

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
-    using System;
-
     /// <summary>
     /// Contains the methods for firing telemetry events from the SARIF viewer extension.
     /// </summary>

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System.ComponentModel;
+
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Tagging;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using System.ComponentModel;
-
-    using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Tagging;
-
     /// <summary>
     /// Contains the data necessary to display a text marker tag (a highlight)
     /// inside Visual Studio's text views.

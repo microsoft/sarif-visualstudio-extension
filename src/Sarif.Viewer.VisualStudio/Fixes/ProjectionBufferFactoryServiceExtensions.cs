@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
+using Microsoft.VisualStudio.Text.Projection;
+
 namespace Microsoft.Sarif.Viewer.Fixes
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Editor;
-    using Microsoft.VisualStudio.Text.Editor.OptionsExtensionMethods;
-    using Microsoft.VisualStudio.Text.Projection;
-
     internal static class ProjectionBufferFactoryServiceExtensions
     {
         // Code taken from https://github.com/dotnet/roslyn/blob/master/src/EditorFeatures/Core/Shared/Extensions/IProjectionBufferFactoryServiceExtensions.cs

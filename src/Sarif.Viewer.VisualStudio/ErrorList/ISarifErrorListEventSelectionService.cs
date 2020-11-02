@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    using System;
-
     /// <summary>
     /// Service interface that transforms the selections and navigations from Visual Studio's error list into selections
     /// of <see cref="SarifErrorListItem"/> items that the rest of the extension can leverage.
