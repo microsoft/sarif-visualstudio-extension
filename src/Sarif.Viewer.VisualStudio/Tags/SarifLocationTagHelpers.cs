@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// The text buffer whose tags are to be refeshed, or null if the tags for all text buffers
         /// are to be refreshed.
         /// </param>
-        public static void RefreshAllTags(ITextBuffer textBuffer = null)
+        public static void RefreshTags(ITextBuffer textBuffer = null)
         {
             IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
             if (componentModel != null)
@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
                 if (sarifLocationTaggerService != null)
                 {
-                    sarifLocationTaggerService.RefreshAllTags(textBuffer);
+                    sarifLocationTaggerService.RefreshTags(textBuffer);
                 }
             }
         }

@@ -139,7 +139,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 bufferEdit.Apply();
             }
 
-            SarifLocationTagHelpers.RefreshAllTags(textBuffer);
+            SarifLocationTagHelpers.RefreshTags(textBuffer);
         }
     }
 }

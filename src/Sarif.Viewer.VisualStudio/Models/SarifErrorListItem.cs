@@ -621,7 +621,7 @@ namespace Microsoft.Sarif.Viewer
             // After the file-paths have been remapped, we need to refresh the tags
             // as it may now be possible to create the persistent spans (since the file paths are now potentially valid)
             // or their file paths may have moved from one valid location to a different valid location.
-            SarifLocationTagHelpers.RefreshAllTags();
+            SarifLocationTagHelpers.RefreshTags();
         }
 
         /// <summary>

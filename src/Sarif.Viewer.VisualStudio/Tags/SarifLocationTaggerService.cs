@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         private readonly List<ISarifLocationTagger> sarifTaggers = new List<ISarifLocationTagger>();
 
         /// <inheritdoc/>
-        public void RefreshAllTags(ITextBuffer textBuffer = null)
+        public void RefreshTags(ITextBuffer textBuffer = null)
         {
             IEnumerable<ISarifLocationTagger> taggers;
             using (this.sarifTaggersLock.EnterReadLock())
