@@ -30,16 +30,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
-        private readonly ITextBuffer textBuffer;
 
         private List<ISarifLocationTag> currentTags;
         private bool tagsDirty = true;
-
-        /// <inheritdoc/>
-        public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
-
-        /// <inheritdoc/>
-        public event EventHandler Disposed;
 
         public SarifLocationTextMarkerTagger(
             ITextView textView,
@@ -55,7 +48,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            this.textBuffer = textBuffer;
+            TextBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
 
@@ -69,7 +62,10 @@ namespace Microsoft.Sarif.Viewer.Tags
             textViewCaretListenerService.CreateListener(textView, this);
         }
 
-        private void SelectedSarifItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e) => this.RefreshTags();
+        #region ITagger
+
+        /// <inheritdoc/>
+        public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         /// <inheritdoc/>
         public IEnumerable<ITagSpan<ITextMarkerTag>> GetTags(NormalizedSnapshotSpanCollection spans)
@@ -91,7 +87,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     SelectMany(runDataCache => runDataCache.SarifErrors).
                     Where(sarifListItem => sarifListItem.ResultId == currentlySelectedItem.ResultId).
                     Where(sarifListItem => string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0).
-                    SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
+                    SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
                     ToList();
 
                 // We need to subscribe to property change events from the provided tags
@@ -119,19 +115,52 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
+        #endregion ITagger
+
+        #region ISarifLocationTagger
+
+        /// <inheritdoc/>
+        public event EventHandler Disposed;
+
+        /// <inheritdoc/>
+        public ITextBuffer TextBuffer { get; }
+
         public void RefreshTags()
         {
             this.tagsDirty = true;
 
-            ITextSnapshot textSnapshot = this.textBuffer.CurrentSnapshot;
+            ITextSnapshot textSnapshot = TextBuffer.CurrentSnapshot;
             this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length)));
         }
+
+        #endregion ISarifLocationTagger
+
+        #region IDisposable
 
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            this.isDisposed = true;
+
+            if (disposing)
+            {
+                this.UnsubscribeFromTagEvents();
+                this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SelectedSarifItemChanged;
+                this.Disposed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        #endregion IDisposable
 
         private void SubscribeToTagEvents()
         {
@@ -169,25 +198,10 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (sender is ISarifLocationTag tag && tag.PersistentSpan.IsDocumentOpen)
             {
-                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(textBuffer.CurrentSnapshot)));
+                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(TextBuffer.CurrentSnapshot)));
             }
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.isDisposed)
-            {
-                return;
-            }
-
-            this.isDisposed = true;
-
-            if (disposing)
-            {
-                this.UnsubscribeFromTagEvents();
-                this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SelectedSarifItemChanged;
-                this.Disposed?.Invoke(this, EventArgs.Empty);
-            }
-        }
+        private void SelectedSarifItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e) => this.RefreshTags();
     }
 }
