@@ -29,6 +29,7 @@ namespace $Namespace
         public const string Version = AssemblyVersion + Prerelease;
     }
 }
+
 "@
 
 $outputFile = Join-Path $OutputDirectory Properties\VersionConstants.cs
