@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     using System.Windows;
     using Microsoft.VisualStudio.Text;
 
-    public interface IPreviewProvider
+    internal interface IPreviewProvider
     {
         Task<object> CreateChangePreviewAsync(
             ITextBuffer buffer,

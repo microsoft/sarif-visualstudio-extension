@@ -10,16 +10,13 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class FixExtensions
+    internal static class FixExtensions
     {
         public static FixModel ToFixModel(this Fix fix, IDictionary<string, ArtifactLocation> originalUriBaseIds, FileRegionsCache fileRegionsCache)
         {
-            if (fix == null)
-            {
-                return null;
-            }
+            fix = fix ?? throw new ArgumentNullException(nameof(fix));
 
-            FixModel model = new FixModel(fix.Description?.Text);
+            var model = new FixModel(fix.Description?.Text);
 
             if (fix.ArtifactChanges != null)
             {

@@ -77,16 +77,18 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 return Task.FromResult<object>(null);
             }
 
+            const string Separator = "\u2026"; // Horizontal ellipsis.
+
             var originalProjectionBuffer = this.projectionBufferFactoryService.CreateProjectionBufferWithoutIndentation(
                 this.editorOptionsFactoryService.GlobalOptions,
                 buffer.CurrentSnapshot,
-                "...",
+                Separator,
                 originalLineSpans.ToArray());
 
             var newProjectionBuffer = this.projectionBufferFactoryService.CreateProjectionBufferWithoutIndentation(
                 this.editorOptionsFactoryService.GlobalOptions,
                 bufferClone.CurrentSnapshot,
-                "...",
+                Separator,
                 changedLineSpans.ToArray());
 
             return this.CreateNewDifferenceViewerAsync(originalProjectionBuffer, newProjectionBuffer, description, additionalContent);

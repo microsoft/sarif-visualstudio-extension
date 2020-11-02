@@ -96,7 +96,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            return await Task.FromResult(GetSuggestedActions(requestedActionCategories, range, cancellationToken).Any());
+            return GetSuggestedActions(requestedActionCategories, range, cancellationToken).Any();
         }
 
         /// <inheritdoc/>
