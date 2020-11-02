@@ -1,15 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Utilities;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Linq;
+using System.Threading;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using Microsoft.VisualStudio.Utilities;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.Composition;
-    using System.Linq;
-    using System.Threading;
-
     [Export(typeof(ISarifLocationTaggerService))]
     internal class SarifLocationTaggerService: ISarifLocationTaggerService, IDisposable
     {
@@ -29,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         private readonly List<ISarifLocationTagger> sarifTaggers = new List<ISarifLocationTagger>();
 
         /// <inheritdoc/>
-        public void RefreshAllTags()
+        public void RefreshAllTags(ITextBuffer textBuffer = null)
         {
             IEnumerable<ISarifLocationTagger> taggers;
             using (this.sarifTaggersLock.EnterReadLock())
