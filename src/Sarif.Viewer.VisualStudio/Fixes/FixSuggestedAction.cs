@@ -128,7 +128,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         private void ApplyTextEdits(ITextBuffer textbuffer, ITextSnapshot snapshot)
         {
-            using (var bufferEdit = textbuffer.CreateEdit())
+            using (ITextEdit bufferEdit = textbuffer.CreateEdit())
             {
                 foreach (var edit in this.edits)
                 {
