@@ -22,13 +22,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// view" is already open and visible and a tagger is active for that "text view" when a
         /// SARIF log is loaded or cleared.
         /// </remarks>
-        void RefreshAllTags(ITextBuffer textBuffer = null);
+        void RefreshTags(ITextBuffer textBuffer = null);
 
         /// <summary>
         /// Adds a new tagger to the list of taggers known to this service.
         /// </summary>
         /// <remarks>
-        /// The taggers known to this service will be asked to refresh their tags when <see cref="ISarifLocationTaggerService.RefreshAllTags"/>
+        /// The taggers known to this service will be asked to refresh their tags when <see cref="ISarifLocationTaggerService.RefreshTags"/>
         /// is called by consumers of the service.
         /// </remarks>
         /// <param name="tagger">A new instance of <see cref="ISarifLocationTagger"/></param>.
