@@ -7,8 +7,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
+
     using FluentAssertions;
+
     using Microsoft.CodeAnalysis.Sarif.Converters;
+
     using Xunit;
 
     public class ConverterResourceTests : SarifViewerPackageUnitTests

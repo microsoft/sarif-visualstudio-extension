@@ -3,9 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+
 using FluentAssertions;
+
 using Microsoft.CodeAnalysis.Sarif;
+
 using Moq;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests

@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     using System;
     using System.Threading.Tasks;
     using System.Windows;
+
     using Microsoft.VisualStudio.Text;
 
     internal interface IPreviewProvider

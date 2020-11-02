@@ -7,6 +7,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
     using System.Threading;
+
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
     using Microsoft.VisualStudio.Utilities;

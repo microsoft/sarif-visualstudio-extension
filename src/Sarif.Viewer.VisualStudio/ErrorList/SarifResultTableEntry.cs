@@ -9,7 +9,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System.Linq;
     using System.Windows;
     using System.Windows.Documents;
+
     using EnvDTE;
+
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.Sarif.Viewer.Models;
     using Microsoft.VisualStudio.ComponentModelHost;

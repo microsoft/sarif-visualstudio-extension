@@ -3,9 +3,12 @@
 
 using System.Collections.Generic;
 using System.Windows;
+
 using FluentAssertions;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.VisualStudio;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.Models

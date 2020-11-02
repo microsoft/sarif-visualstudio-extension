@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
+
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Tags;

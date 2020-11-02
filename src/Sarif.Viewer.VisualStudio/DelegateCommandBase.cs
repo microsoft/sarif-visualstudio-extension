@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
+
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer

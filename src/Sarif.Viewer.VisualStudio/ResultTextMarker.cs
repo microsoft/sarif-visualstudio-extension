@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer
     using System;
     using System.Collections.Generic;
     using System.IO;
+
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.Sarif.Viewer.Tags;
     using Microsoft.VisualStudio.ComponentModelHost;

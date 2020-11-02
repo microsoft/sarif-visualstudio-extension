@@ -18,7 +18,7 @@ insert_final_newline = true
 #### .NET Coding Conventions ####
 
 # Organize usings
-dotnet_separate_import_directive_groups = false
+dotnet_separate_import_directive_groups = true
 dotnet_sort_system_directives_first = true
 
 # this. and Me. preferences

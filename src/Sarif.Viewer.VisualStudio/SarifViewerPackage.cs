@@ -7,12 +7,14 @@ using System.ComponentModel.Design;
 using System.Configuration;
 using System.Runtime.InteropServices;
 using System.Threading;
+
 using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Tagging;
+
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer

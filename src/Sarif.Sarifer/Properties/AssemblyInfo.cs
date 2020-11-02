@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using System.Resources;
+
 using Microsoft.CodeAnalysis.Sarif.Sarifer;
 
 [assembly: AssemblyTitle("Sarifer test data producer extension for Visual Studio")]

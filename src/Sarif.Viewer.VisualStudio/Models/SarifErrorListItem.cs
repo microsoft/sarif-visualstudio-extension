@@ -8,8 +8,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+
 using EnvDTE;
+
 using EnvDTE80;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -19,6 +22,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
+
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer

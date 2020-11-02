@@ -8,6 +8,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System.ComponentModel.Composition;
     using System.IO;
     using System.Linq;
+
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;

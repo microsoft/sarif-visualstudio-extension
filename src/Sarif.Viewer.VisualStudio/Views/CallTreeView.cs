@@ -8,6 +8,7 @@ namespace Microsoft.Sarif.Viewer.Views
     using System.ComponentModel;
     using System.Windows;
     using System.Windows.Controls;
+
     using Microsoft.Sarif.Viewer.Models;
 
     /// <summary>

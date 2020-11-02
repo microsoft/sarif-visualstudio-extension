@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
     using Microsoft.Sarif.Viewer.ErrorList;
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Text;
