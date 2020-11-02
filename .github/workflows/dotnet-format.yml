@@ -9,10 +9,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: check out code
+    - name: Check out code
       uses: actions/checkout@v2
 
-    - name: Setup .NET Core 3.1
+    - name: Set up .NET Core 3.1
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
@@ -20,5 +20,5 @@ jobs:
     - name: Install format tool
       run: dotnet tool install -g dotnet-format
 
-    - name: dotnet format
+    - name: Run dotnet format
       run: dotnet-format --folder --check
