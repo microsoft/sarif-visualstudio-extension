@@ -3,8 +3,9 @@
 
 namespace Microsoft.Sarif.Viewer
 {
-    using Microsoft.VisualStudio.Utilities;
     using System.ComponentModel.Composition;
+
+    using Microsoft.VisualStudio.Utilities;
 
     public static class ContentTypes
     {

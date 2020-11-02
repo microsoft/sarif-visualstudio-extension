@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System.Collections.ObjectModel;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
 
@@ -64,7 +65,8 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 if (_expandAllCommand == null)
                 {
-                    _expandAllCommand = new DelegateCommand(() => {
+                    _expandAllCommand = new DelegateCommand(() =>
+                    {
                         ExpandAll();
                     });
                 }

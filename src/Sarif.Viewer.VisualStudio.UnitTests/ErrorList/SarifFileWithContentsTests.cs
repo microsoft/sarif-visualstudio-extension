@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
+
 using FluentAssertions;
+
 using Microsoft.CodeAnalysis.Sarif;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
@@ -239,7 +242,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             fileText.Should().Be(ExpectedContents2);
         }
-       
+
         [Fact]
         public async Task SarifFileWithContents_DecodesTextContents()
         {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Windows.Data;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 

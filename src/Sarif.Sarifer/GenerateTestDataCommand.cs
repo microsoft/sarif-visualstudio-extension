@@ -6,9 +6,11 @@ using System.ComponentModel.Design;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer

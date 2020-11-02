@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Models
             this._message = message;
         }
 
-        public string  Message
+        public string Message
         {
             get
             {

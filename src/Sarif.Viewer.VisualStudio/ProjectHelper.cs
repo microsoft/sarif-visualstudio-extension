@@ -4,7 +4,9 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+
 using EnvDTE;
+
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer

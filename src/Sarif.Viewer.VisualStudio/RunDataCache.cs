@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 
@@ -42,7 +43,7 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache(Run run, int runIndex) :
-            this (run: run, runIndex: runIndex, logFilePath: null)
+            this(run: run, runIndex: runIndex, logFilePath: null)
         {
         }
 

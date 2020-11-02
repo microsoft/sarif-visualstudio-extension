@@ -8,6 +8,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using System.ComponentModel.Composition;
     using System.IO;
     using System.Linq;
+
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;
@@ -159,7 +160,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             sarifResult = null;
 
-            if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && 
+            if (entryHandle.TryGetEntry(out ITableEntry tableEntry) &&
                 tableEntry is SarifResultTableEntry sarifResultTableEntry) // Make sure the table entry is one of our table entry types
             {
                 sarifResult = sarifResultTableEntry.Error;

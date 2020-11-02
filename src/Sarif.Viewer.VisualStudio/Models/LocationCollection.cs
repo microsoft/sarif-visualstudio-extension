@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
-using Microsoft.VisualStudio.Shell;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+
+using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -65,7 +66,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public string  Message
+        public string Message
         {
             get
             {

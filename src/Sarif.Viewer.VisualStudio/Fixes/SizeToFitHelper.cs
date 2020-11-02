@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Differencing;
     using Microsoft.VisualStudio.Text.Editor;

@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -158,7 +159,7 @@ namespace Microsoft.Sarif.Viewer
                         // The SARIF producer has chosen not to specify a URI. See §3.14.14, NOTE 1, for an explanation.
                         target.Add(x.Key, x.Value.Uri.WithTrailingSlash());
                     }
-                }) ;
+                });
             }
         }
 
@@ -306,7 +307,7 @@ namespace Microsoft.Sarif.Viewer
 
             string directory = Path.GetDirectoryName(finalPath);
             Directory.CreateDirectory(directory);
-            
+
             if (!_fileSystem.FileExists(finalPath))
             {
                 string contents = fileData.GetContents();

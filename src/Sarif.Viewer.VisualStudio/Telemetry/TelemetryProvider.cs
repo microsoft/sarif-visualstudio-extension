@@ -10,6 +10,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -114,7 +115,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 // end up being a recursive MEF composition call.
                 MethodInfo extensionLoadedMethodInfo = typeof(Events).GetMethod(nameof(Events.ExtensionLoaded));
                 this.TelemetryClient.TrackEvent(
-                    string.Format(CultureInfo.InvariantCulture,"{0}.{1}",
+                    string.Format(CultureInfo.InvariantCulture, "{0}.{1}",
                     extensionLoadedMethodInfo.DeclaringType.FullName, extensionLoadedMethodInfo.Name));
             }
 

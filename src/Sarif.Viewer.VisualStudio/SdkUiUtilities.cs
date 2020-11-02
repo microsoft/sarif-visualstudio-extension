@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -18,7 +19,9 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
+
 using Newtonsoft.Json;
+
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
@@ -253,8 +256,8 @@ namespace Microsoft.Sarif.Viewer
                 {
                     Marshal.Release(docData);
                     docData = IntPtr.Zero;
-                } 
-                
+                }
+
                 if (ErrorHandler.Failed(hr))
                 {
                     throw Marshal.GetExceptionForHR(hr);
@@ -520,7 +523,7 @@ namespace Microsoft.Sarif.Viewer
                 return GetRelativePath(relativePathBase, fullPath);
             }
 
-            return fullPath;            
+            return fullPath;
         }
 
         /// <summary>
@@ -652,7 +655,7 @@ namespace Microsoft.Sarif.Viewer
                             inlines.Add(link);
                         }
                     }
-                    
+
                     if (target == null)
                     {
                         // Either we don't have a click handler, or the target text wasn't a valid int or Uri.

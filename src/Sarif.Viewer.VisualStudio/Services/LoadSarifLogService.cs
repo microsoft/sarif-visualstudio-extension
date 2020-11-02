@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
@@ -95,7 +96,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
                     taskHandler.Progress.Report(new TaskProgressData
                     {
-                        PercentComplete = (validPathIndex + 1 ) * 100 / validPaths.Count,
+                        PercentComplete = (validPathIndex + 1) * 100 / validPaths.Count,
                     });
                 }
             }

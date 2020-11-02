@@ -3,6 +3,7 @@
 
 using System;
 using System.Text;
+
 using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -10,7 +11,7 @@ namespace Microsoft.Sarif.Viewer.Models
     public class ArtifactDetailsModel
     {
         private ArtifactContent _artifactContent;
-        
+
         private readonly Lazy<string> _decodedContents;
 
         public ArtifactDetailsModel(Artifact artifact)

@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Models
             Replacements = new ObservableCollection<ReplacementModel>();
         }
 
-        public string  FilePath
+        public string FilePath
         {
             get
             {

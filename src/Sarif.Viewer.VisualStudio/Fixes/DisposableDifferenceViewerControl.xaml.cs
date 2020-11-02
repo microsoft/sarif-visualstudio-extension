@@ -7,6 +7,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Documents;
+
     using Microsoft.VisualStudio.Text.Differencing;
 
     /// <summary>
