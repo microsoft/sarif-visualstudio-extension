@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Language.Intellisense;
@@ -219,6 +220,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 if (this.fixToErrorDictionary.TryGetValue(suggestedAction, out SarifErrorListItem error))
                 {
                     error.IsFixed = true;
+
+                    SarifTableDataSource.Instance.RemoveError(error);
 
                     // Tell VS to recompute the list of suggested actions so we don't offer
                     // a fix for an error that's already fixed.

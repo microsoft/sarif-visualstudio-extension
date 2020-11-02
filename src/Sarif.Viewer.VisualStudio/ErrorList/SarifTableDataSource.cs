@@ -152,13 +152,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             using (this.tableEntriesLock.EnterWriteLock())
             {
-                IEnumerable<KeyValuePair<string, List<SarifResultTableEntry>>> logFileToTabkeEntriesToRemove = this.logFileToTableEntries.
+                IEnumerable<KeyValuePair<string, List<SarifResultTableEntry>>> logFileToTableEntriesToRemove = this.logFileToTableEntries.
                     Where((logFileToTableEntry) => logFiles.Contains(logFileToTableEntry.Key)).ToList();
 
-                entriesToRemove = logFileToTabkeEntriesToRemove.SelectMany((logFileToTableEntry) => logFileToTableEntry.Value).
+                entriesToRemove = logFileToTableEntriesToRemove.SelectMany((logFileToTableEntry) => logFileToTableEntry.Value).
                     ToImmutableList();
 
-                foreach (var logFilesToRemove in logFileToTabkeEntriesToRemove)
+                foreach (var logFilesToRemove in logFileToTableEntriesToRemove)
                 {
                     this.logFileToTableEntries.Remove(logFilesToRemove.Key);
                 }
@@ -186,6 +186,41 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             foreach (SarifResultTableEntry entryToRemove in logFileToTableEntriesToClear.Values.SelectMany(tableEntries => tableEntries))
             {
                 entryToRemove.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Remove the specified error from the Error List.
+        /// </summary>
+        /// <param name="errorToRemove">
+        /// The error to remove from the Error List.
+        /// </param>
+        public void RemoveError(SarifErrorListItem errorToRemove)
+        {
+            using (this.tableEntriesLock.EnterWriteLock())
+            {
+                // Find the dictionary entry for the one log file that contains the error to be
+                // removed. Any given error object can appear in at most one log file, even if
+                // multiple log files report the "same" error.
+                List<SarifResultTableEntry> tableEntryListWithSpecifiedError =
+                    this.logFileToTableEntries.Values
+                    .SingleOrDefault(tableEntryList => tableEntryList.Select(tableEntry => tableEntry.Error).Contains(errorToRemove));
+
+                if (tableEntryListWithSpecifiedError != null)
+                {
+                    // Any give error object can appear at most once in any log file, even if the
+                    // log file reports the "same" error multiple times. And we've already seen
+                    // that this error object does appear in this log file, so calling Single is
+                    // just fine.
+                    SarifResultTableEntry entryToRemove = tableEntryListWithSpecifiedError.Single(tableEntry => tableEntry.Error == errorToRemove);
+
+                    this.CallSinks(
+                        sink => sink.RemoveEntries(new List<SarifResultTableEntry> { entryToRemove }));
+
+                    tableEntryListWithSpecifiedError.Remove(entryToRemove);
+
+                    entryToRemove.Dispose();
+                }
             }
         }
 
