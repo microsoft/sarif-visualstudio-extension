@@ -7,13 +7,13 @@ using System.ComponentModel.Design;
 using System.Configuration;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Task = System.Threading.Tasks.Task;
+using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio;
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -109,7 +109,7 @@ namespace Microsoft.Sarif.Viewer
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
-        
+
             return;
         }
 

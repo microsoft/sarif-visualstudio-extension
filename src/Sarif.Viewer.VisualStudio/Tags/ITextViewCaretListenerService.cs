@@ -3,12 +3,12 @@
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
+    using System;
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
-    using System;
 
     internal interface ITextViewCaretListenerService<T>
-        where T: ITag
+        where T : ITag
     {
         /// <summary>
         /// Attaches a listener to Visual Studio's caret position for the specified <paramref name="textView"/>.

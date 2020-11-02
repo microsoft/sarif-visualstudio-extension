@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// to send notifications about the caret entering a tag.
     /// </summary>
     internal class TextViewCaretListener<T>
-        where T: ITag
+        where T : ITag
     {
         private readonly TextMarkerTagCompaerer textMarkerTagCompaerer = new TextMarkerTagCompaerer();
         private readonly ITagger<T> tagger;

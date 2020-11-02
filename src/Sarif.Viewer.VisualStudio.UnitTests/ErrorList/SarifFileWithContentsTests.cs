@@ -239,7 +239,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             fileText.Should().Be(ExpectedContents2);
         }
-       
+
         [Fact]
         public async Task SarifFileWithContents_DecodesTextContents()
         {

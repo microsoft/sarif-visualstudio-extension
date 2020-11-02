@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             this.pathFromPrompt = FirstRebaselinedFileName;
 
             var target = new CodeAnalysisResultManager(
-                this.fileSystem, 
+                this.fileSystem,
                 this.FakePromptForResolvedPath);
             RunDataCache dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);

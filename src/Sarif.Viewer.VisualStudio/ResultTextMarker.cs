@@ -12,9 +12,9 @@ namespace Microsoft.Sarif.Viewer
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Shell.Interop;
     using Microsoft.VisualStudio.Text;
+    using Microsoft.VisualStudio.Text.Adornments;
     using Microsoft.VisualStudio.Text.Editor;
     using Microsoft.VisualStudio.Text.Tagging;
-    using Microsoft.VisualStudio.Text.Adornments;
 
     /// <summary>
     /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic 
@@ -82,7 +82,7 @@ namespace Microsoft.Sarif.Viewer
         public string FullFilePath { get; }
 
         public string UriBaseId { get; }
-        
+
         /// <summary>
         /// Gets the non-highlighted color.
         /// </summary>
@@ -239,7 +239,7 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             bool documentWasOpened = false;
-            
+
             // Make sure to fully populate region.
             if (!this.TryToFullyPopulateRegionAndFilePath())
             {

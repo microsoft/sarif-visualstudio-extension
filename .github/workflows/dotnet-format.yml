@@ -1,25 +1,24 @@
-name: .NET Core
+name: dotnet format
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  check-format:
+    runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: check out code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core 3.1
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.301
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
+        dotnet-version: 3.1.x
+
+    - name: Install format tool
+      run: dotnet tool install -g dotnet-format
+
+    - name: dotnet format
+      run: dotnet-format --folder --check

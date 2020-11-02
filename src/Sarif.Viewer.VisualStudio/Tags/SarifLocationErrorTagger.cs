@@ -84,7 +84,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                             sarifLocationTag.ResultId == this.sarifErrorListEventSelectionService.SelectedItem.ResultId))) : Enumerable.Empty<ISarifLocationTag>();
 
                 IEnumerable<ISarifLocationTag> relevantTags = resultLocationTags.Concat(associatedLocationTags);
-      
+
                 // We need to make sure the list isn't modified underneath us while providing the tags, so executing ToList to get our copy.
                 this.currentTags = relevantTags.ToList();
             }

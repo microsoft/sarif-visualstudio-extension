@@ -3,6 +3,12 @@
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Windows;
+    using System.Windows.Documents;
     using EnvDTE;
     using Microsoft.CodeAnalysis.Sarif;
     using Microsoft.Sarif.Viewer.Models;
@@ -11,12 +17,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     using Microsoft.VisualStudio.Shell.Interop;
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Windows;
-    using System.Windows.Documents;
 
     internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
-        public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new [] {
+        public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new[] {
             StandardTableKeyNames2.TextInlines,
             StandardTableKeyNames.DocumentName,
             StandardTableKeyNames.ErrorCategory,
@@ -146,18 +146,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             switch (level)
             {
                 case FailureLevel.Error:
-                    {
-                        return __VSERRORCATEGORY.EC_ERROR;
-                    }
+                {
+                    return __VSERRORCATEGORY.EC_ERROR;
+                }
                 case FailureLevel.Warning:
-                    {
-                        return __VSERRORCATEGORY.EC_WARNING;
-                    }
+                {
+                    return __VSERRORCATEGORY.EC_WARNING;
+                }
                 case FailureLevel.None:
                 case FailureLevel.Note:
-                    {
-                        return __VSERRORCATEGORY.EC_MESSAGE;
-                    }
+                {
+                    return __VSERRORCATEGORY.EC_MESSAGE;
+                }
             }
             return __VSERRORCATEGORY.EC_WARNING;
         }
@@ -177,7 +177,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 // object under the current result. At present, we only support Location objects that
                 // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
                 // look in Result.CodeFlows or Result.Stacks.
-                LocationModel location = 
+                LocationModel location =
                     this.Error.RelatedLocations.
                     Concat(this.Error.Locations).
                     FirstOrDefault(l => l.Id == id);

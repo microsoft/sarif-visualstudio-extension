@@ -118,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         // It's an older v2 version, so send it through the pre-release compat transformer.
                         // Ask if they'd like to save the transformed log.
                         MessageDialogCommand response = promptOnLogConversions ?
-                            await PromptToSaveProcessedLogAsync(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)).ConfigureAwait(continueOnCapturedContext: false) : 
+                            await PromptToSaveProcessedLogAsync(string.Format(Resources.TransformPrereleaseV2_DialogMessage, VersionConstants.StableSarifVersion)).ConfigureAwait(continueOnCapturedContext: false) :
                             MessageDialogCommand.No;
 
                         if (response == MessageDialogCommand.Cancel)
@@ -176,7 +176,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 // The converter doesn't have async methods, so spin
                 // up a task to do this.
-                await System.Threading.Tasks.Task.Run(() => {
+                await System.Threading.Tasks.Task.Run(() =>
+                {
                     var sb = new StringBuilder();
                     using (FileStream fileStream = File.OpenRead(filePath))
                     {
@@ -469,7 +470,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 artifact.Hashes = new Dictionary<string, string>();
             }
-            
+
             if (!artifact.Hashes.ContainsKey("sha-256"))
             {
                 byte[] data = null;
@@ -496,7 +497,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             byte[] hash = hashFunction.ComputeHash(data);
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
-      
+
         private void StoreFileDetails(IList<Artifact> artifacts)
         {
             if (artifacts == null)

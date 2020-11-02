@@ -64,7 +64,8 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 if (_expandAllCommand == null)
                 {
-                    _expandAllCommand = new DelegateCommand(() => {
+                    _expandAllCommand = new DelegateCommand(() =>
+                    {
                         ExpandAll();
                     });
                 }

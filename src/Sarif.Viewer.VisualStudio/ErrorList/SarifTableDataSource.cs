@@ -128,7 +128,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             var tableEntries = errors.Select((error) => new SarifResultTableEntry(error)).ToImmutableList();
 
-            this.CallSinks(sink =>sink.AddEntries(tableEntries));
+            this.CallSinks(sink => sink.AddEntries(tableEntries));
 
             using (this.tableEntriesLock.EnterWriteLock())
             {

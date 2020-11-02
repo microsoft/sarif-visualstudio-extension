@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Line = 11,
                 Column = 1,
-                FullyQualifiedLogicalName ="My.Assembly.Main(string[] args)",
+                FullyQualifiedLogicalName = "My.Assembly.Main(string[] args)",
                 Module = "My.Module.dll",
             });
             stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)

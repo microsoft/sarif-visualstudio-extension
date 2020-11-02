@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer
                     properties.Add(propertyDescriptor);
                 }
             }
-            
+
             return new PropertyDescriptorCollection(properties.ToArray(), true);
         }
 

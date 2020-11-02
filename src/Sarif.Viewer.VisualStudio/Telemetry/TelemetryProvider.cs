@@ -114,7 +114,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 // end up being a recursive MEF composition call.
                 MethodInfo extensionLoadedMethodInfo = typeof(Events).GetMethod(nameof(Events.ExtensionLoaded));
                 this.TelemetryClient.TrackEvent(
-                    string.Format(CultureInfo.InvariantCulture,"{0}.{1}",
+                    string.Format(CultureInfo.InvariantCulture, "{0}.{1}",
                     extensionLoadedMethodInfo.DeclaringType.FullName, extensionLoadedMethodInfo.Name));
             }
 

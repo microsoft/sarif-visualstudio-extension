@@ -159,7 +159,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             sarifResult = null;
 
-            if (entryHandle.TryGetEntry(out ITableEntry tableEntry) && 
+            if (entryHandle.TryGetEntry(out ITableEntry tableEntry) &&
                 tableEntry is SarifResultTableEntry sarifResultTableEntry) // Make sure the table entry is one of our table entry types
             {
                 sarifResult = sarifResultTableEntry.Error;

@@ -17,9 +17,9 @@ using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 using XamlDoc = System.Windows.Documents;
-using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer
 {
@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 VSSuppressionState = VSSuppressionState.Suppressed;
             }
-            
+
             LogFilePath = logFilePath;
 
             if (Region != null)
@@ -643,7 +643,7 @@ namespace Microsoft.Sarif.Viewer
         public bool IsFixed { get; set; }
 
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
-            where T: ITag
+            where T : ITag
         {
             IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
             IEnumerable<ResultTextMarker> resultTextMarkers = this.CollectResultTextMarkers(includeChildTags: includeChildTags, includeResultTag: includeResultTag);

@@ -97,7 +97,7 @@ namespace Microsoft.Sarif.Viewer.Models
             // For all other nodes or Call nodes without a visible child, find the next visible sibling.
             CallTreeNode currentParent = currentNode.Parent;
             IList<CallTreeNode> nodeList;
- 
+
             if (currentParent == null)
             {
                 nodeList = this.TopLevelNodes;

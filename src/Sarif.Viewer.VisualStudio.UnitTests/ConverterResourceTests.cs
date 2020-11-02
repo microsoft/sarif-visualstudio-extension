@@ -35,7 +35,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     resourcePropertyInfo.Name.EndsWith(OpenLogFileCommands.FilterResourceNameSuffix, StringComparison.Ordinal))
                 {
                     string fieldName = resourcePropertyInfo.Name.Substring(
-                        OpenLogFileCommands.FilterResourceNamePrefix.Length, 
+                        OpenLogFileCommands.FilterResourceNamePrefix.Length,
                         resourcePropertyInfo.Name.Length - (OpenLogFileCommands.FilterResourceNamePrefix.Length + OpenLogFileCommands.FilterResourceNameSuffix.Length));
                     FieldInfo field = typeof(ToolFormat).GetField(fieldName);
                     field.Should().NotBeNull();

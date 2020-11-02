@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     /// <summary>
     /// Used as event arguments for the navigate and selection changed events from <see cref="SarifErrorListEventProcessor"/>.
     /// </summary>
-    internal class SarifErrorListSelectionChangedEventArgs: EventArgs
+    internal class SarifErrorListSelectionChangedEventArgs : EventArgs
     {
         /// <summary>
         /// Creates an instance of <see cref="SarifErrorListSelectionChangedEventArgs"/>.

@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache(Run run, int runIndex) :
-            this (run: run, runIndex: runIndex, logFilePath: null)
+            this(run: run, runIndex: runIndex, logFilePath: null)
         {
         }
 

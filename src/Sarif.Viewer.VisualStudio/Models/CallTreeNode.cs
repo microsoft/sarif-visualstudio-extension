@@ -134,7 +134,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
                         tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this),
-                        context:this);
+                        context: this);
                 }
 
                 return _lineMarker;

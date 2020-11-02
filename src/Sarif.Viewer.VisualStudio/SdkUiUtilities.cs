@@ -253,8 +253,8 @@ namespace Microsoft.Sarif.Viewer
                 {
                     Marshal.Release(docData);
                     docData = IntPtr.Zero;
-                } 
-                
+                }
+
                 if (ErrorHandler.Failed(hr))
                 {
                     throw Marshal.GetExceptionForHR(hr);
@@ -520,7 +520,7 @@ namespace Microsoft.Sarif.Viewer
                 return GetRelativePath(relativePathBase, fullPath);
             }
 
-            return fullPath;            
+            return fullPath;
         }
 
         /// <summary>
@@ -652,7 +652,7 @@ namespace Microsoft.Sarif.Viewer
                             inlines.Add(link);
                         }
                     }
-                    
+
                     if (target == null)
                     {
                         // Either we don't have a click handler, or the target text wasn't a valid int or Uri.
