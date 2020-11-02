@@ -31,16 +31,9 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
-        private readonly ITextBuffer textBuffer;
 
         private List<ISarifLocationTag> currentTags;
         private bool tagsDirty = true;
-
-        /// <inheritdoc/>
-        public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
-
-        /// <inheritdoc/>
-        public event EventHandler Disposed;
 
         public SarifLocationErrorTagger(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, ISarifErrorListEventSelectionService sarifErrorListEventSelectionService)
         {
@@ -51,11 +44,17 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            this.textBuffer = textBuffer;
+            TextBuffer = textBuffer;
+
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
             this.sarifErrorListEventSelectionService.SelectedItemChanged += SarifErrorListEventSelectionService_SelectedItemChanged;
         }
+
+        #region ITagger
+
+        /// <inheritdoc/>
+        public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         /// <inheritdoc/>
         public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
@@ -75,12 +74,12 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                 IEnumerable<ISarifLocationTag> resultLocationTags = errorsInCurrentFile
                     .SelectMany(sarifListItem =>
-                        sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true));
+                        sarifListItem.GetTags<IErrorTag>(TextBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true));
 
                 IEnumerable<ISarifLocationTag> associatedLocationTags = this.sarifErrorListEventSelectionService.SelectedItem != null
                     ? (errorsInCurrentFile
                         .SelectMany(sarifListItem =>
-                            sarifListItem.GetTags<IErrorTag>(this.textBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: false)
+                            sarifListItem.GetTags<IErrorTag>(TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: false)
                         .Where(sarifLocationTag =>
                             sarifLocationTag.ResultId == this.sarifErrorListEventSelectionService.SelectedItem.ResultId))) : Enumerable.Empty<ISarifLocationTag>();
 
@@ -108,13 +107,26 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
+        #endregion ITagger
+
+        #region ISarifLocationTagger
+
+        /// <inheritdoc/>
+        public event EventHandler Disposed;
+
+        public ITextBuffer TextBuffer { get; }
+
         public void RefreshTags()
         {
             this.tagsDirty = true;
 
-            ITextSnapshot textSnapshot = this.textBuffer.CurrentSnapshot;
+            ITextSnapshot textSnapshot = TextBuffer.CurrentSnapshot;
             this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length)));
         }
+
+        #endregion ISarifLocationTagger
+
+        #region IDisposable
 
         protected virtual void Dispose(bool disposing)
         {
@@ -137,6 +149,8 @@ namespace Microsoft.Sarif.Viewer.Tags
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        #endregion IDisposable
 
         private void SarifErrorListEventSelectionService_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
         {

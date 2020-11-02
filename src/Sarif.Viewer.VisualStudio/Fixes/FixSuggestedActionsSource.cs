@@ -12,7 +12,6 @@ using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.Fixes
 {
