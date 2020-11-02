@@ -1,15 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+
+using Microsoft.VisualStudio.Text.Differencing;
+
 namespace Microsoft.Sarif.Viewer.Fixes
 {
-    using System;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Documents;
-
-    using Microsoft.VisualStudio.Text.Differencing;
-
     /// <summary>
     /// Interaction logic for DisposableDifferenceViewerControl.xaml.
     /// </summary>

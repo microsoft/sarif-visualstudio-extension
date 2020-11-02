@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Tagging;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using System;
-
-    using Microsoft.VisualStudio.Text.Editor;
-    using Microsoft.VisualStudio.Text.Tagging;
-
     internal interface ITextViewCaretListenerService<T>
         where T : ITag
     {

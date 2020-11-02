@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    using System;
-
     /// <summary>
     /// Used as event arguments for the navigate and selection changed events from <see cref="SarifErrorListEventProcessor"/>.
     /// </summary>

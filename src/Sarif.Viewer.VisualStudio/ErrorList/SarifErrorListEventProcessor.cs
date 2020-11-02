@@ -1,18 +1,18 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.IO;
+using System.Linq;
+
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.TableControl;
+using Microsoft.VisualStudio.Shell.TableManager;
+
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.Composition;
-    using System.IO;
-    using System.Linq;
-
-    using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Shell.TableControl;
-    using Microsoft.VisualStudio.Shell.TableManager;
-
     /// <summary>
     /// Maintains currently selected and navigated to <see cref="SarifErrorListItem"/> from the Visual Studio error list.
     /// </summary>
