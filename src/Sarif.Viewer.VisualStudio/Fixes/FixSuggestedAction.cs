@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
@@ -137,6 +138,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
                 bufferEdit.Apply();
             }
+
+            SarifLocationTagHelpers.RefreshAllTags(textBuffer);
         }
     }
 }

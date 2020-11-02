@@ -38,6 +38,11 @@ namespace Microsoft.Sarif.Viewer.Tags
                 taggers = sarifTaggers.ToList();
             }
 
+            if (textBuffer != null)
+            {
+                taggers = taggers.Where(t => t.TextBuffer == textBuffer);
+            }
+
             foreach (ISarifLocationTagger tagger in taggers)
             {
                 tagger.RefreshTags();

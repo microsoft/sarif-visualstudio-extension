@@ -1,17 +1,22 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using Microsoft.VisualStudio.ComponentModelHost;
-    using Microsoft.VisualStudio.Shell;
-
     internal static class SarifLocationTagHelpers
     {
         /// <summary>
         /// Calls into the tagger service and asks it to refresh the tags being displayed in Visual Studio.
         /// </summary>
-        public static void RefreshAllTags()
+        /// <param name="textBuffer">
+        /// The text buffer whose tags are to be refeshed, or null if the tags for all text buffers
+        /// are to be refreshed.
+        /// </param>
+        public static void RefreshAllTags(ITextBuffer textBuffer = null)
         {
             IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
             if (componentModel != null)
@@ -19,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();
                 if (sarifLocationTaggerService != null)
                 {
-                    sarifLocationTaggerService.RefreshAllTags();
+                    sarifLocationTaggerService.RefreshAllTags(textBuffer);
                 }
             }
         }
