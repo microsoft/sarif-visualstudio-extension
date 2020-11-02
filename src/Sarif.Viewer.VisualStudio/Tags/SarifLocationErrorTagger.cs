@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Tagging;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Microsoft.Sarif.Viewer.ErrorList;
-    using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Tagging;
-
     /// <summary>
     /// Provides tags to Visual Studio from <see cref="SarifErrorListItem"/>s. The tags are in the form of a "squiggle" or a "tooltip" or both.
     /// </summary>

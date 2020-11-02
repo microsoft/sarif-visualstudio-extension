@@ -1,17 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Tagging;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
-    using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Editor;
-    using Microsoft.VisualStudio.Text.Tagging;
-
     /// <summary>
     /// Handles listening to caret and layout updates to the text view in order
     /// to send notifications about the caret entering a tag.

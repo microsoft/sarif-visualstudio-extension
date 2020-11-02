@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Differencing;
+using Microsoft.VisualStudio.Text.Editor;
+
 namespace Microsoft.Sarif.Viewer.Fixes
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Microsoft.VisualStudio.Text;
-    using Microsoft.VisualStudio.Text.Differencing;
-    using Microsoft.VisualStudio.Text.Editor;
-
     internal class SizeToFitHelper
     {
         private readonly IWpfDifferenceViewer diffViewer;

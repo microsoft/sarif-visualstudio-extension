@@ -1,25 +1,25 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
+using System.Windows.Documents;
+
+using EnvDTE;
+
+using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Models;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Shell.TableControl;
+using Microsoft.VisualStudio.Shell.TableManager;
+
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Windows;
-    using System.Windows.Documents;
-
-    using EnvDTE;
-
-    using Microsoft.CodeAnalysis.Sarif;
-    using Microsoft.Sarif.Viewer.Models;
-    using Microsoft.VisualStudio.ComponentModelHost;
-    using Microsoft.VisualStudio.Shell;
-    using Microsoft.VisualStudio.Shell.Interop;
-    using Microsoft.VisualStudio.Shell.TableControl;
-    using Microsoft.VisualStudio.Shell.TableManager;
-
     internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
         private bool isDisposed;
