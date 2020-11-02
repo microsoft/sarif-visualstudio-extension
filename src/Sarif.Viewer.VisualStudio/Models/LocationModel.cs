@@ -134,7 +134,7 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         /// <summary>
-        /// A persistent span that represents the this location's region.
+        /// A persistent span that represents the location's region.
         /// </summary>
         public IPersistentSpan PersistentSpan { get; set; }
     }

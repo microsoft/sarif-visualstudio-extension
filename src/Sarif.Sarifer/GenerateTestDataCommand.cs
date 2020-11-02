@@ -13,7 +13,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class GenerateTestDataCommand : SariferCommandBase
+    internal class GenerateTestDataCommand
     {
         private const string SendDataToViewerFailureEventName = "SendDataToViewer/Failure";
 
@@ -35,12 +35,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         private void MenuCommandCallback(object caller, EventArgs args)
         {
-            this.SendDataToViewerAsync().FileAndForget(GetFileAndForgetEventName(SendDataToViewerFailureEventName));
+            this.SendDataToViewerAsync().FileAndForget(FileAndForget.EventName(SendDataToViewerFailureEventName));
         }
 
         private async Task SendDataToViewerAsync()
         {
-            string testDataFilePath = await CreateTestDataFileAsync().ConfigureAwait(continueOnCapturedContext: false);
+            string testDataFilePath = await CreateTestDataFileAsync().ConfigureAwait(continueOnCapturedContext: true);
 
             // TODO: Why does this never return true?
             if (!viewerInterop.IsViewerExtensionLoaded)

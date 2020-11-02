@@ -67,7 +67,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.disposed = true;
 
-            this.Disposed?.Invoke(this, new EventArgs());
+            this.Disposed?.Invoke(this, EventArgs.Empty);
         }
     }
 }

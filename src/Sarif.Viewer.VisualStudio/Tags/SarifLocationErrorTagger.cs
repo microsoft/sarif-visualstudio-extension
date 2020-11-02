@@ -69,7 +69,9 @@ namespace Microsoft.Sarif.Viewer.Tags
                     .RunIndexToRunDataCache
                     .Values
                     .SelectMany(runDataCache => runDataCache.SarifErrors)
-                    .Where(sarifListItem => string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0);
+                    .Where(sarifListItem =>
+                        !sarifListItem.IsFixed // Don't squiggle an error that's already fixed.
+                        && string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0);
 
                 IEnumerable<ISarifLocationTag> resultLocationTags = errorsInCurrentFile
                     .SelectMany(sarifListItem =>
@@ -126,7 +128,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (disposing)
             {
                 this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SarifErrorListEventSelectionService_SelectedItemChanged;
-                this.Disposed?.Invoke(this, new EventArgs());
+                this.Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
 

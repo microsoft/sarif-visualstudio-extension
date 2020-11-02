@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
-namespace Microsoft.Sarif.Viewer
+namespace Microsoft.Sarif.Viewer.Fixes
 {
     /// <summary>
     /// Provides a <see cref="FixSuggestedActionsSource"/> for a specified <see cref="ITextView"/>
@@ -24,6 +24,9 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning disable IDE0044 // Assigned by MEF
         [Import]
         private IPersistentSpanFactory persistentSpanFactory;
+
+        [Import]
+        private IPreviewProvider previewProvider;
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
@@ -35,7 +38,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory);
+            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory, previewProvider);
         }
     }
 }

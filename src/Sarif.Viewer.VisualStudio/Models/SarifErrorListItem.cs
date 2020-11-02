@@ -158,7 +158,6 @@ namespace Microsoft.Sarif.Viewer
                 foreach (Fix fix in result.Fixes)
                 {
                     FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
-                    fixModel.FixApplied += () => IsFixed = true;
                     Fixes.Add(fixModel);
                 }
             }
@@ -636,7 +635,7 @@ namespace Microsoft.Sarif.Viewer
         /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
         /// </returns>
         public bool IsFixable() =>
-            !IsFixed && Fixes.Any(fix => fix.CanBeApplied());
+            !IsFixed && Fixes.Any(fix => fix.CanBeAppliedToFile(FileName));
 
         /// <summary>
         /// Gets or sets a value indicating whether this error has been fixed.
@@ -670,7 +669,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            Disposed?.Invoke(this, new EventArgs());
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()

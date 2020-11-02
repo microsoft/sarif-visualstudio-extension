@@ -186,7 +186,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 this.UnsubscribeFromTagEvents();
                 this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SelectedSarifItemChanged;
-                this.Disposed?.Invoke(this, new EventArgs());
+                this.Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
     }

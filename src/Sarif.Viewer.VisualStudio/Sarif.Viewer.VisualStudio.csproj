@@ -40,6 +40,12 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fixes\EditActionPreviewProvider.cs" />
+    <Compile Include="Fixes\IPreviewProvider.cs" />
+    <Compile Include="Fixes\LineSpan.cs" />
+    <Compile Include="Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
+    <Compile Include="Fixes\ReplacementEdit.cs" />
+    <Compile Include="Fixes\SizeToFitHelper.cs" />
     <Compile Include="Properties\VersionConstants.cs" />
     <Compile Include="CodeAnalysisResultManager.cs" />
     <Compile Include="CodeFlowToTreeConverter.cs" />
@@ -64,9 +70,12 @@
     <Compile Include="ErrorList\ErrorListCommand.cs" />
     <Compile Include="ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="ErrorList\SarifResultTableEntry.cs" />
-    <Compile Include="FixSuggestedAction.cs" />
-    <Compile Include="FixSuggestedActionsSource.cs" />
-    <Compile Include="FixSuggestedActionsSourceProvider.cs" />
+    <Compile Include="Fixes\DisposableDifferenceViewerControl.xaml.cs">
+      <DependentUpon>DisposableDifferenceViewerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Fixes\FixSuggestedAction.cs" />
+    <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
+    <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService2.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
@@ -81,7 +90,6 @@
     <Compile Include="Models\LocationCollection.cs" />
     <Compile Include="Models\LocationModel.cs" />
     <Compile Include="Models\ArtifactDetailsModel.cs" />
-    <Compile Include="Models\FixOffsetList.cs" />
     <Compile Include="Models\InvocationModel.cs" />
     <Compile Include="Models\ReplacementModel.cs" />
     <Compile Include="Models\ArtifactChangeModel.cs" />
@@ -236,6 +244,10 @@
     <Page Include="Controls\VsDropDown.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Fixes\DisposableDifferenceViewerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Themes\CallTreesStyles.xaml">
       <SubType>Designer</SubType>

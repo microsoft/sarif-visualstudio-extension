@@ -37,7 +37,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionConstants.cs" />
     <Compile Include="Guids.cs" />
-    <Compile Include="SariferCommandBase.cs" />
+    <Compile Include="FileAndForget.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="VSPackage.Designer.cs">
