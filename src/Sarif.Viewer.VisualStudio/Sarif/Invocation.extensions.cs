@@ -17,7 +17,8 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return new InvocationModel();
             }
 
-            model = new InvocationModel() {
+            model = new InvocationModel()
+            {
                 CommandLine = invocation.CommandLine,
                 StartTime = invocation.StartTimeUtc,
                 EndTime = invocation.EndTimeUtc,

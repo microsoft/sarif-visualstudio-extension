@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Windows.Forms;
+
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio;

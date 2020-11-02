@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System.Collections.Generic;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.Shell;
@@ -123,7 +124,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
                 Line = 11,
                 Column = 1,
-                FullyQualifiedLogicalName ="My.Assembly.Main(string[] args)",
+                FullyQualifiedLogicalName = "My.Assembly.Main(string[] args)",
                 Module = "My.Module.dll",
             });
             stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)

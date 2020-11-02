@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+
 using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Tags

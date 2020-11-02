@@ -4,6 +4,7 @@
 namespace Microsoft.Sarif.Viewer.Tags
 {
     using System.ComponentModel;
+
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Tagging;
 

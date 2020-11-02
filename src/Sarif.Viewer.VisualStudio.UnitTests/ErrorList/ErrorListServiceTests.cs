@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
 using FluentAssertions;
+
 using Microsoft.Sarif.Viewer.ErrorList;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
 
@@ -97,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.Models
             // For all other nodes or Call nodes without a visible child, find the next visible sibling.
             CallTreeNode currentParent = currentNode.Parent;
             IList<CallTreeNode> nodeList;
- 
+
             if (currentParent == null)
             {
                 nodeList = this.TopLevelNodes;

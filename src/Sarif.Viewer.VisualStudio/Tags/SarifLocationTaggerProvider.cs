@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;

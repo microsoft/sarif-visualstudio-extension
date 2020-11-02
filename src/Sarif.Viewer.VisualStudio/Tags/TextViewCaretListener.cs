@@ -6,6 +6,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
     using Microsoft.VisualStudio.Shell;
     using Microsoft.VisualStudio.Text;
     using Microsoft.VisualStudio.Text.Editor;
@@ -16,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// to send notifications about the caret entering a tag.
     /// </summary>
     internal class TextViewCaretListener<T>
-        where T: ITag
+        where T : ITag
     {
         private readonly TextMarkerTagCompaerer textMarkerTagCompaerer = new TextMarkerTagCompaerer();
         private readonly ITagger<T> tagger;

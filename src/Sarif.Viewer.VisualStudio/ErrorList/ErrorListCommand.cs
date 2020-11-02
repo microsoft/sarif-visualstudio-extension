@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Design;
+
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.ErrorList

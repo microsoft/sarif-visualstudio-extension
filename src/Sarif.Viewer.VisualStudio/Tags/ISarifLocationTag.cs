@@ -3,8 +3,8 @@
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using Microsoft.VisualStudio.Text;
     using Microsoft.Sarif.Viewer.Models;
+    using Microsoft.VisualStudio.Text;
 
     internal interface ISarifLocationTag
     {

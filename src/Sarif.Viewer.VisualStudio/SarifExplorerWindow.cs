@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
+
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Tags;
@@ -68,7 +69,7 @@ namespace Microsoft.Sarif.Viewer
         private void Control_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            
+
             // Subscribe to the error list event service so we
             // can properly update the data context of this control when the selection changes.
             if (this.sarifErrorListEventSelectionService != null)

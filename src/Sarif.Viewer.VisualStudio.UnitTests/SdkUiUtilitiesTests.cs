@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Documents;
+
 using FluentAssertions;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests

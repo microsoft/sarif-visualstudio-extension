@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 
@@ -13,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
         internal static List<CallTreeNode> Convert(CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {
             var root = new CallTreeNode(resultId: resultId, runIndex: runIndex)
-            { 
+            {
                 Children = new List<CallTreeNode>()
             };
 

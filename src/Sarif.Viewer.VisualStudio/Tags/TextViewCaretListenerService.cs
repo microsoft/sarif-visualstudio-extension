@@ -3,13 +3,14 @@
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
-    using Microsoft.VisualStudio.Text.Editor;
-    using Microsoft.VisualStudio.Text.Tagging;
-    using Microsoft.VisualStudio.Utilities;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
     using System.Threading;
+
+    using Microsoft.VisualStudio.Text.Editor;
+    using Microsoft.VisualStudio.Text.Tagging;
+    using Microsoft.VisualStudio.Utilities;
 
     /// <summary>
     /// This service provides consumers the ability to listen to the Visual Studio caret entering and leaving
@@ -17,8 +18,8 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [Export(typeof(ITextViewCaretListenerService<>))]
-    internal class TextViewCaretListenerService<T>: ITextViewCaretListenerService<T>, IDisposable
-        where T: ITag
+    internal class TextViewCaretListenerService<T> : ITextViewCaretListenerService<T>, IDisposable
+        where T : ITag
     {
         /// <summary>
         /// Protects access to the <see cref="ExistingListeners"/> list.

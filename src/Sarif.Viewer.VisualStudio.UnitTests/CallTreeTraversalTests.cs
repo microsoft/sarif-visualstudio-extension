@@ -2,8 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests

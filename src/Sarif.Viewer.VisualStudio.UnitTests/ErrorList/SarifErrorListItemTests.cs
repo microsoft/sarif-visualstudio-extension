@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+
 using FluentAssertions;
+
 using Microsoft.CodeAnalysis.Sarif;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
@@ -170,13 +173,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             item.Message.Should().Be(string.Empty);
         }
-        
+
         [Fact]
         public void SarifErrorListItem_WhenResultRefersToExistingMessageString_ContainsExpectedMessage()
         {
             var result = new Result
             {
-                RuleId = "TST0001", 
+                RuleId = "TST0001",
                 Message = new Message()
                 {
                     Arguments = new string[]

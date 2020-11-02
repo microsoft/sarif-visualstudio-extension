@@ -4,6 +4,7 @@
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
     using System.ComponentModel.Composition;
+
     using Microsoft.VisualStudio.Shell.TableControl;
     using Microsoft.VisualStudio.Shell.TableManager;
     using Microsoft.VisualStudio.Utilities;

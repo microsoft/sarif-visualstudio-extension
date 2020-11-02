@@ -4,6 +4,7 @@
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
+
 using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio;
 
 [assembly: AssemblyTitle("Microsoft SARIF Viewer for Visual Studio")]

@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.IO;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
 
