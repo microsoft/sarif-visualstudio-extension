@@ -10,7 +10,7 @@ steps:
     targetType: 'inline'
     script: echo $MSBUILDPATH
   env:
-    MSBUILDPATH: "::add-path::C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin"
+    MSBUILDPATH: "::add-path::C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin"
 
 - task: PowerShell@2
   displayName: Build and Test
