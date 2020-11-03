@@ -1,6 +1,7 @@
 # SARIF Viewer Visual Studio extension Release History
 
 ## **v2.1.20** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* Implement light bulb fixes for SARIF errors.
 * Build for .NET Framework 4.7.2 rather than 4.6.1. This is in preparation for adding some features which require NuGet packages which support only 4.7.2.
 
 ## **v2.1.19** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
