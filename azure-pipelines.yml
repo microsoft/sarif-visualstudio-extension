@@ -5,15 +5,15 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- task: Bash@3
+- task: MSBuild@1
   inputs:
-    targetType: 'inline'
-    script: echo $MSBUILDPATH
-  env:
-    MSBUILDPATH: "::add-path::C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin"
+    solution: '**/*.sln'
 
-- task: PowerShell@2
-  displayName: Build and Test
+- task: VSTest@2
   inputs:
-    targetType: filePath
-    filePath: ./scripts/BuildAndTest.ps1
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*UnitTests.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
