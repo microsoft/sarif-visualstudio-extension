@@ -217,8 +217,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     // just fine.
                     SarifResultTableEntry entryToRemove = tableEntryListWithSpecifiedError.Single(tableEntry => tableEntry.Error == errorToRemove);
 
-                    this.CallSinks(
-                        sink => sink.RemoveEntries(new [] { entryToRemove }));
+                    this.CallSinks(sink => sink.RemoveEntries(new [] { entryToRemove }));
 
                     tableEntryListWithSpecifiedError.Remove(entryToRemove);
 
