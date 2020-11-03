@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
 
         [ImportMany]
-        IEnumerable<ITableControlEventProcessorProvider> TableControlEventProcessorProviders { get; set; } = null;
+        private IEnumerable<ITableControlEventProcessorProvider> TableControlEventProcessorProviders { get; set; } = null;
 
         private SarifTableDataSource()
         {
@@ -75,7 +75,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             get
             {
                 if (_instance == null)
+                {
                     _instance = new SarifTableDataSource();
+                }
 
                 return _instance;
             }
@@ -133,9 +135,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             using (this.tableEntriesLock.EnterWriteLock())
             {
-                foreach (var tableEntry in tableEntries)
+                foreach (SarifResultTableEntry tableEntry in tableEntries)
                 {
-                    if (this.logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out var logFileTableEntryList))
+                    if (this.logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out List<SarifResultTableEntry> logFileTableEntryList))
                     {
                         logFileTableEntryList.Add(tableEntry);
                     }
@@ -159,7 +161,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 entriesToRemove = logFileToTableEntriesToRemove.SelectMany((logFileToTableEntry) => logFileToTableEntry.Value).
                     ToImmutableList();
 
-                foreach (var logFilesToRemove in logFileToTableEntriesToRemove)
+                foreach (KeyValuePair<string, List<SarifResultTableEntry>> logFilesToRemove in logFileToTableEntriesToRemove)
                 {
                     this.logFileToTableEntries.Remove(logFilesToRemove.Key);
                 }
@@ -215,8 +217,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     // just fine.
                     SarifResultTableEntry entryToRemove = tableEntryListWithSpecifiedError.Single(tableEntry => tableEntry.Error == errorToRemove);
 
-                    this.CallSinks(
-                        sink => sink.RemoveEntries(new List<SarifResultTableEntry> { entryToRemove }));
+                    this.CallSinks(sink => sink.RemoveEntries(new[] { entryToRemove }));
 
                     tableEntryListWithSpecifiedError.Remove(entryToRemove);
 
@@ -261,7 +262,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 sinkManagers = this.sinks.ToImmutableArray();
             }
 
-            foreach (var sinkManager in sinkManagers)
+            foreach (SarifTableDataSink sinkManager in sinkManagers)
             {
                 action(sinkManager);
             }
