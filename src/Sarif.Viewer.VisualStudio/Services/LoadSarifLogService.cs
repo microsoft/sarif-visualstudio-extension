@@ -50,10 +50,10 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
         {
-            LoadSarifLogAsync(paths, promptOnSchemaUpgrade).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
-        private async System.Threading.Tasks.Task LoadSarifLogAsync(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
+        private async System.Threading.Tasks.Task LoadSarifLogAsync(IEnumerable<string> paths)
         {
             List<string> validPaths = paths.Where(path => !string.IsNullOrEmpty(path)).ToList();
             if (validPaths.Count == 0)
