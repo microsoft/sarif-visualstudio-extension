@@ -5,10 +5,15 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+
 - task: MSBuild@1
   inputs:
     solution: '**/*.sln'
-    restoreNugetPackages: true
 
 - task: VSTest@2
   inputs:
