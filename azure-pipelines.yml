@@ -5,21 +5,14 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- task: NuGetCommand@2
+- task: BatchScript@1
+  displayName: 'Run VsDevCmd.bat'
   inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
-    feedsToUse: 'select'
+    filename: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat'
+    modifyEnvironment: true
 
-- task: MSBuild@1
+- task: PowerShell@2
+  displayName: Build and Test
   inputs:
-    solution: '**/*.sln'
-
-- task: VSTest@2
-  inputs:
-    testSelector: 'testAssemblies'
-    testAssemblyVer2: |
-      **\*UnitTests.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
+    targetType: filePath
+    filePath: ./scripts/BuildAndTest.ps1
