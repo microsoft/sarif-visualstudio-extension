@@ -173,7 +173,7 @@ if (-not $NoBuild) {
 }
 
 if (-not $NoTest) {
-    & $PSScriptRoot\Run-Tests.ps1
+    & $PSScriptRoot\Run-Tests.ps1 -Configuration $Configuration
     if (-not $?) {
         Exit-WithFailureMessage $ScriptName "RunTests failed."
     }
