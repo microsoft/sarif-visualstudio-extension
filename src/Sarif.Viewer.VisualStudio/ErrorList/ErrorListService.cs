@@ -33,6 +33,8 @@ using Microsoft.VisualStudio.TaskStatusCenter;
 
 using Newtonsoft.Json;
 
+using Task = System.Threading.Tasks.Task;
+
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
     public class ErrorListService
@@ -62,7 +64,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             taskHandler.RegisterTask(ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
         }
 
-        public static async System.Threading.Tasks.Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        public static async Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             SarifLog log = null;
             string logText = null;
@@ -334,7 +336,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async System.Threading.Tasks.Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        {
+            SarifLog sarifLog = SarifLog.Load(stream);
+            string logFilePath = Path.GetTempFileName();
+
+            await ProcessSarifLogAsync(sarifLog, logFilePath, showMessageOnNoResults, cleanErrors, openInEditor);
+        }
+
+        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.

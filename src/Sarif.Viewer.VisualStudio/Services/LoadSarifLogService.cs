@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,13 +12,15 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TaskStatusCenter;
 
+using Task = System.Threading.Tasks.Task;
+
 namespace Microsoft.Sarif.Viewer.Services
 {
     /// <summary>
     /// Provides an interface through which other extensions can interact with the this extension,
     /// in particular, to ask this extension to load a log file.
     /// </summary>
-    public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService, ILoadSarifLogService2
+    public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService, ILoadSarifLogService2, ILoadSarifLogService3
     {
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
@@ -53,7 +56,13 @@ namespace Microsoft.Sarif.Viewer.Services
             LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
-        private async System.Threading.Tasks.Task LoadSarifLogAsync(IEnumerable<string> paths)
+        /// <inheritdoc/>
+        public void LoadSarifLog(Stream stream)
+        {
+            LoadSarifLogAsync(stream).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+        }
+
+        private async Task LoadSarifLogAsync(IEnumerable<string> paths)
         {
             List<string> validPaths = paths.Where(path => !string.IsNullOrEmpty(path)).ToList();
             if (validPaths.Count == 0)
@@ -104,6 +113,11 @@ namespace Microsoft.Sarif.Viewer.Services
             {
                 taskCompletionSource.SetResult(true);
             }
+        }
+
+        private async Task LoadSarifLogAsync(Stream stream)
+        {
+            await ErrorListService.ProcessSarifLogAsync(stream, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }

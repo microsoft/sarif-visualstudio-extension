@@ -107,8 +107,8 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// The <see cref="Stream"/> from which the SARIF log file is to be read.
         /// </param>
         /// <returns>
-        /// <code>true</code> if a SARIF log file was successfully read from the <paramref name="stream"/>,
-        /// otherwise <code>false</code>.
+        /// <code>true</code> if the extensions service was successfully invoked (regardless of the
+        /// outcome), otherwise <code>false</code>.
         /// </returns>
         public Task<bool> OpenSarifLogAsync(Stream stream)
         {
@@ -116,6 +116,7 @@ namespace Microsoft.Sarif.Viewer.Interop
 
             return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
             {
+                service.LoadSarifLog(stream);
                 return true;
             });
         }
