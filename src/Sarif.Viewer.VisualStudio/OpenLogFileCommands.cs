@@ -139,7 +139,7 @@ namespace Microsoft.Sarif.Viewer
             string inputFile = menuCmdEventArgs.InValue as string;
             string logFile = null;
 
-            if (!String.IsNullOrWhiteSpace(inputFile))
+            if (!string.IsNullOrWhiteSpace(inputFile))
             {
                 // If the input file is a URL, download the file.
                 if (Uri.IsWellFormedUriString(inputFile, UriKind.Absolute))
@@ -197,7 +197,7 @@ namespace Microsoft.Sarif.Viewer
                     Multiselect = false
                 };
 
-                if (!String.IsNullOrWhiteSpace(inputFile))
+                if (!string.IsNullOrWhiteSpace(inputFile))
                 {
                     openFileDialog.FileName = Path.GetFileName(inputFile);
                     openFileDialog.InitialDirectory = Path.GetDirectoryName(inputFile);
@@ -271,7 +271,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        string ConvertSarifProtocol(string inputUrl)
+        private string ConvertSarifProtocol(string inputUrl)
         {
             int sarifProtocolLength;
             string replacementProtocol;
@@ -298,7 +298,7 @@ namespace Microsoft.Sarif.Viewer
             return newUrl;
         }
 
-        bool TryDownloadFile(string inputUrl, out string downloadedFilePath)
+        private bool TryDownloadFile(string inputUrl, out string downloadedFilePath)
         {
             Uri inputUri = new Uri(inputUrl, UriKind.Absolute);
             downloadedFilePath = Path.GetTempFileName();

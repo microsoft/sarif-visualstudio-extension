@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
-                using (StreamReader logStreamReader = new StreamReader(filePath, Encoding.UTF8))
+                using (var logStreamReader = new StreamReader(filePath, Encoding.UTF8))
                 {
                     logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
                 }
@@ -434,7 +434,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (run.Invocations != null)
             {
-                foreach (var invocation in run.Invocations)
+                foreach (Invocation invocation in run.Invocations)
                 {
                     if (invocation.ToolConfigurationNotifications != null)
                     {
@@ -509,7 +509,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            foreach (var file in artifacts)
+            foreach (Artifact file in artifacts)
             {
                 Uri uri = file.Location?.Uri;
                 if (uri != null)

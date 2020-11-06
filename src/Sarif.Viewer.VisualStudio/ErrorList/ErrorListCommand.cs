@@ -18,11 +18,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public const int ClearSarifResultsCommandId = 0x0300;
 
-        private static int[] s_commands = new int[]
-        {
-            ClearSarifResultsCommandId
-        };
-
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>

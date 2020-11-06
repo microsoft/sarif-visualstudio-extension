@@ -75,7 +75,7 @@ namespace Microsoft.Sarif.Viewer.Services
                 Title = Resources.ProcessLogFiles,
             };
 
-            TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
+            var taskCompletionSource = new TaskCompletionSource<bool>();
             ITaskHandler taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
             taskHandler.RegisterTask(taskCompletionSource.Task);
 
@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.Services
                         ProgressText = string.Format(CultureInfo.CurrentCulture, Resources.ProcessingLogFileFormat, validPaths[validPathIndex])
                     }); ;
 
-                    // We should not clean errors here, if the user wants to clear errors, they can call the close log service (ICloseSarifLogService::CloseAllSarifLogs)
+                    // We should not clean errors here. If the user wants to clear errors, they can call ICloseSarifLogService.CloseAllSarifLogs.
                     await ErrorListService.ProcessLogFileAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
 
                     taskHandler.Progress.Report(new TaskProgressData
