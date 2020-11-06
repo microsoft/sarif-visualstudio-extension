@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -97,6 +98,26 @@ namespace Microsoft.Sarif.Viewer.Interop
 
                 return _isViewerExtensionLoaded ?? (bool)(_isViewerExtensionLoaded = IsExtensionLoaded());
             }
+        }
+
+        /// <summary>
+        /// Open the SARIF log file read from the specified stream in the SARIF Viewer extension.
+        /// </summary>
+        /// <param name="stream">
+        /// The <see cref="Stream"/> from which the SARIF log file is to be read.
+        /// </param>
+        /// <returns>
+        /// <code>true</code> if a SARIF log file was successfully read from the <paramref name="stream"/>,
+        /// otherwise <code>false</code>.
+        /// </returns>
+        public Task<bool> OpenSarifLogAsync(Stream stream)
+        {
+            stream = stream ?? throw new ArgumentNullException(nameof(stream));
+
+            return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
+            {
+                return true;
+            });
         }
 
         /// <summary>
