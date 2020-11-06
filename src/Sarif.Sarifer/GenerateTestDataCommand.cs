@@ -17,6 +17,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class GenerateTestDataCommand
     {
+        private const string ProofOfConceptResourceName = "TestData.ProofOfConcept.sarif";
         private const string SendDataToViewerFailureEventName = "SendDataToViewer/Failure";
 
         private readonly SarifViewerInterop viewerInterop;
@@ -37,13 +38,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         private void MenuCommandCallback(object caller, EventArgs args)
         {
-            this.SendDataToViewerAsync().FileAndForget(FileAndForget.EventName(SendDataToViewerFailureEventName));
+            Stream testDataStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ProofOfConceptResourceName);
+
+            this.SendDataToViewerAsync(testDataStream).FileAndForget(FileAndForget.EventName(SendDataToViewerFailureEventName));
         }
 
-        private async Task SendDataToViewerAsync()
+        private async Task SendDataToViewerAsync(Stream testDataStream)
         {
-            Stream testDataStream = GetTestDataStream();
-
             // TODO: Why does this never return true?
             if (!viewerInterop.IsViewerExtensionLoaded)
             {
@@ -52,8 +53,5 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             await this.viewerInterop.OpenSarifLogAsync(testDataStream).ConfigureAwait(continueOnCapturedContext: false);
         }
-
-        private static Stream GetTestDataStream() =>
-            Assembly.GetExecutingAssembly().GetManifestResourceStream("TestData.ProofOfConcept.sarif");
     }
 }
