@@ -34,10 +34,11 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
     <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
+    <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalysisTriggeringTextViewCreationListener.cs" />
-    <Compile Include="FakeBackgroundAnalyzer.cs" />
+    <Compile Include="ProofOfConceptAnalysisTriggeringTextViewCreationListener.cs" />
+    <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\VersionConstants.cs" />
