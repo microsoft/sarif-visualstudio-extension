@@ -3,10 +3,12 @@
 
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Threading;
 
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Utilities;
 
 using Newtonsoft.Json;
 
@@ -21,7 +23,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalysisSink))]
     internal class SarifViewerBackgroundAnalysisSink : IBackgroundAnalysisSink
     {
-        // TODO: LazyCreate sarifViewerInterop.
+        private readonly ReaderWriterLockSlimWrapper interopLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private SarifViewerInterop sarifViewerInterop;
+
         /// <inheritdoc/>
         public void Receive(SarifLog log)
         {
@@ -34,15 +38,28 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             OpenSarifLogAsync(tempPath).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
-        private async static Task OpenSarifLogAsync(string tempPath)
+        private async Task OpenSarifLogAsync(string tempPath)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            IVsShell shell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
-
-            var sarifViewerInterop = new SarifViewerInterop(shell);
+            SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             await sarifViewerInterop.OpenSarifLogAsync(tempPath).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private async System.Threading.Tasks.Task<SarifViewerInterop> GetInteropObjectAsync()
+        {
+            using (this.interopLock.EnterWriteLock())
+            {
+                if (this.sarifViewerInterop == null)
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                    var shell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
+
+                    this.sarifViewerInterop = new SarifViewerInterop(shell);
+                }
+            }
+
+            return this.sarifViewerInterop;
         }
     }
 }
