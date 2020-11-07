@@ -10,6 +10,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// <summary>
     /// Performs static analysis in the background.
     /// </summary>
+    // TODO: Analyze any given buffer only once.
+    // TODO: Renalyze when buffer changes.
+    // TODO: Remove error list items when buffer closes.
+    // TODO: Why do I not see two errors when I open two different files?
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {

@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// TODO:
     /// - Offer fixes.
     [Export(typeof(IBackgroundAnalyzer))]
-    internal class ProofOfConceptBackgroundAnalyzer : IBackgroundAnalyzer
+    internal class ProofOfConceptBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
     {
         private const string TargetString = "public class";
 
