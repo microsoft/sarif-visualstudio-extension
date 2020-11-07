@@ -4,13 +4,16 @@
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
-    /// Interface for triggering static analysis in the background.
+    /// Interface for performing static analysis in the background.
     /// </summary>
     internal interface IBackgroundAnalysisService
     {
         /// <summary>
-        /// Begins background analysis.
+        /// Begins background analysis of the specified text.
         /// </summary>
-        void StartAnalysis();
+        /// <param name="text">
+        /// The text to be analyzed.
+        /// </param>
+        void StartAnalysis(string text);
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.Composition;
 
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
@@ -28,6 +27,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(ITextViewCreationListener))]
     public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener
     {
+        private const string AnyContentType = "any";
+
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
 
@@ -37,19 +38,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
-        private const string AnyContentType = "any";
-
         /// <inheritdoc/>
         public void TextViewCreated(ITextView textView)
         {
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
+            string text = textView.TextBuffer.CurrentSnapshot.GetText();
 
-            this.backgroundAnalysisService.StartAnalysis();
+            this.backgroundAnalysisService.StartAnalysis(text);
 
-            // For now, pretend that there is only one analyzer, and it will analyze any
-            // file type.
-            ProofOfConceptBackgroundAnalyzer.AnalyzeAsync(textView.TextBuffer.CurrentSnapshot.GetText())
-                .FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
     }
 }

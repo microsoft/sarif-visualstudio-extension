@@ -3,14 +3,23 @@
 
 using System.ComponentModel.Composition;
 
+using Microsoft.VisualStudio.Shell;
+
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
+    /// <summary>
+    /// Performs static analysis in the background.
+    /// </summary>
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
-        public void StartAnalysis()
+        /// <inheritdoc/>
+        public void StartAnalysis(string text)
         {
-            System.Diagnostics.Debug.WriteLine("Starting background analysis...");
+            // For now, pretend that there is only one analyzer, and it will analyze any
+            // file type.
+            ProofOfConceptBackgroundAnalyzer.AnalyzeAsync(text)
+                .FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
     }
 }
