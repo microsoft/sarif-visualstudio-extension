@@ -37,7 +37,9 @@
     <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ProofOfConceptAnalysisTriggeringTextViewCreationListener.cs" />
+    <Compile Include="BackgroundAnalysisService.cs" />
+    <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
+    <Compile Include="IBackgroundAnalysisService.cs" />
     <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

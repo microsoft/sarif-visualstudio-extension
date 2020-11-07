@@ -26,14 +26,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ContentType(AnyContentType)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [Export(typeof(ITextViewCreationListener))]
-    public class ProofOfConceptAnalysisTriggeringTextViewCreationListener : ITextViewCreationListener
+    public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener
     {
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+
+        [Import]
+        private IBackgroundAnalysisService backgroundAnalysisService;
+
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
+
         private const string AnyContentType = "any";
 
         /// <inheritdoc/>
         public void TextViewCreated(ITextView textView)
         {
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
+
+            this.backgroundAnalysisService.StartAnalysis();
 
             // For now, pretend that there is only one analyzer, and it will analyze any
             // file type.
