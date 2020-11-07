@@ -22,19 +22,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string TargetString = "public class";
 
-        public void StartAnalysis(string text, IEnumerable<IBackgroundAnalysisSink> sinks)
+        public void StartAnalysis(string text)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
-            sinks = sinks ?? throw new ArgumentNullException(nameof(sinks));
-            if (sinks.IsEmptyEnumerable())
-            {
-                throw new ArgumentException("No sinks were provided", nameof(sinks));
-            }
 
-            AnalyzeAsync(text, sinks).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+            AnalyzeAsync(text).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
-        private static Task AnalyzeAsync(string text, IEnumerable<IBackgroundAnalysisSink> sinks)
+        private Task AnalyzeAsync(string text)
         {
             var results = new List<Result>();
             int targetStringIndex = 0;
@@ -91,7 +86,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             };
 
             // TODO: Refactor. Every analyzer shouldn't have to do this.
-            foreach (IBackgroundAnalysisSink sink in sinks)
+            foreach (IBackgroundAnalysisSink sink in this.Sinks)
             {
                 sink.Receive(sarifLog);
             }

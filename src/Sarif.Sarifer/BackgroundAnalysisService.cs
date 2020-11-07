@@ -23,20 +23,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         [ImportMany]
         private IEnumerable<IBackgroundAnalyzer> analyzers { get; set; } = null;
 
-        [ImportMany]
-        private IEnumerable<IBackgroundAnalysisSink> sinks { get; set; } = null;
-
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
         public void StartAnalysis(string text)
         {
-            if (this.analyzers.Any() == true && this.sinks.Any() == true)
+            if (this.analyzers.Any() == true)
             {
                 foreach (IBackgroundAnalyzer analyzer in this.analyzers)
                 {
-                    analyzer.StartAnalysis(text, sinks);
+                    analyzer.StartAnalysis(text);
                 }
             }
         }

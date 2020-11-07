@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning disable IDE0044 // Assigned by MEF
 
         [ImportMany]
-        private IEnumerable<IBackgroundAnalysisSink> sinks { get; set; } = null;
+        protected IEnumerable<IBackgroundAnalysisSink> Sinks { get; set; } = null;
 
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
