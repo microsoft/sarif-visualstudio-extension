@@ -3,10 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
-using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.Shell;
 
 using Newtonsoft.Json;
+
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -17,22 +21,23 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// TODO:
     /// - Do it all in memory.
     /// - Offer fixes.
-    internal class ProofOfConceptBackgroundAnalyzer
+    [Export(typeof(IBackgroundAnalyzer))]
+    internal class ProofOfConceptBackgroundAnalyzer : IBackgroundAnalyzer
     {
         private const string TargetString = "public class";
 
-        public static async Task AnalyzeAsync(string bufferText)
+        public void StartAnalysis(string text)
         {
-            await Task.Run(() => AnalyzeBuffer(bufferText)).ConfigureAwait(continueOnCapturedContext: false);
+            AnalyzeAsync(text).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
-        private static void AnalyzeBuffer(string bufferText)
+        private static Task AnalyzeAsync(string text)
         {
             var results = new List<Result>();
             int targetStringIndex = 0;
-            while (targetStringIndex < bufferText.Length)
+            while (targetStringIndex < text.Length)
             {
-                targetStringIndex = bufferText.IndexOf(TargetString, targetStringIndex, StringComparison.Ordinal);
+                targetStringIndex = text.IndexOf(TargetString, targetStringIndex, StringComparison.Ordinal);
                 if (targetStringIndex == -1)
                 {
                     break;
@@ -84,6 +89,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             string tempPath = Path.GetTempFileName();
             File.WriteAllText(tempPath, JsonConvert.SerializeObject(sarifLog, Formatting.Indented));
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
-
-using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -13,13 +12,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+
+        [ImportMany]
+        private IEnumerable<IBackgroundAnalyzer> backgroundAnalyzers { get; set; } = null;
+
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
+
         /// <inheritdoc/>
         public void StartAnalysis(string text)
         {
-            // For now, pretend that there is only one analyzer, and it will analyze any
-            // file type.
-            ProofOfConceptBackgroundAnalyzer.AnalyzeAsync(text)
-                .FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+            if (this.backgroundAnalyzers != null)
+            {
+                foreach (IBackgroundAnalyzer analyzer in this.backgroundAnalyzers)
+                {
+                    analyzer.StartAnalysis(text);
+                }
+            }
         }
     }
 }

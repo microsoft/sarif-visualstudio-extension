@@ -40,6 +40,7 @@
     <Compile Include="BackgroundAnalysisService.cs" />
     <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
     <Compile Include="IBackgroundAnalysisService.cs" />
+    <Compile Include="IBackgroundAnalyzer.cs" />
     <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

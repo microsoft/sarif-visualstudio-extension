@@ -4,7 +4,7 @@
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
-    /// Interface for performing static analysis in the background.
+    /// Interface for performing multiple static analyses in the background.
     /// </summary>
     internal interface IBackgroundAnalysisService
     {
@@ -12,7 +12,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Begins background analysis of the specified text.
         /// </summary>
         /// <param name="text">
-        /// The text to be analyzed.
+        /// The text to analyze.
         /// </param>
         void StartAnalysis(string text);
     }
