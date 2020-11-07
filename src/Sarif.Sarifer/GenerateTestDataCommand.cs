@@ -17,8 +17,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class GenerateTestDataCommand
     {
-        private const string SendDataToViewerFailureEventName = "SendDataToViewer/Failure";
-
         private readonly SarifViewerInterop viewerInterop;
 
         public GenerateTestDataCommand(IVsShell vsShell, IMenuCommandService menuCommandService)
@@ -37,7 +35,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         private void MenuCommandCallback(object caller, EventArgs args)
         {
-            this.SendDataToViewerAsync().FileAndForget(FileAndForget.EventName(SendDataToViewerFailureEventName));
+            this.SendDataToViewerAsync().FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
         private async Task SendDataToViewerAsync()

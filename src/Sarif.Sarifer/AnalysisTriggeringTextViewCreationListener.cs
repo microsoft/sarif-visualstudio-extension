@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.Composition;
 
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
@@ -27,7 +28,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // For now, pretend that there is only one analyzer, and it will analyze any
             // file type.
-            new FakeBackgroundAnalyzer().Analyze(textView.TextBuffer);
+            FakeBackgroundAnalyzer.AnalyzeAsync(textView.TextBuffer)
+                .FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
     }
 }

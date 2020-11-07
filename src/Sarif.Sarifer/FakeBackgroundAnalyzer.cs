@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
@@ -12,11 +14,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// // TODO: Make it use the analyzer framework, stream out the results to a writer.
     internal class FakeBackgroundAnalyzer
     {
-        private ITextBuffer textBuffer;
-
-        public void Analyze(ITextBuffer textBuffer)
+        public static async Task AnalyzeAsync(ITextBuffer textBuffer)
         {
-            this.textBuffer = textBuffer;
+            await Task.Run(() => AnalyzeBuffer(textBuffer)).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private static void AnalyzeBuffer(ITextBuffer _)
+        {
+            System.Diagnostics.Debug.WriteLine("Analyzing buffer!");
         }
     }
 }
