@@ -1,5 +1,7 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Collections.Generic;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -14,6 +16,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="text">
         /// The text to analyze
         /// </param>
-        void StartAnalysis(string text);
+        void StartAnalysis(string text, IEnumerable<IBackgroundAnalysisSink> sinks);
     }
 }

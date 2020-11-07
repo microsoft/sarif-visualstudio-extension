@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 
 using Microsoft.VisualStudio.Shell;
-
-using Newtonsoft.Json;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -26,12 +23,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string TargetString = "public class";
 
-        public void StartAnalysis(string text)
+        public void StartAnalysis(string text, IEnumerable<IBackgroundAnalysisSink> sinks)
         {
-            AnalyzeAsync(text).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+            text = text ?? throw new ArgumentNullException(nameof(text));
+            sinks = sinks ?? throw new ArgumentNullException(nameof(sinks));
+            if (sinks.IsEmptyEnumerable())
+            {
+                throw new ArgumentException("No sinks were provided", nameof(sinks));
+            }
+
+            AnalyzeAsync(text, sinks).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
-        private static Task AnalyzeAsync(string text)
+        private static Task AnalyzeAsync(string text, IEnumerable<IBackgroundAnalysisSink> sinks)
         {
             var results = new List<Result>();
             int targetStringIndex = 0;
@@ -87,8 +91,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 }
             };
 
-            string tempPath = Path.GetTempFileName();
-            File.WriteAllText(tempPath, JsonConvert.SerializeObject(sarifLog, Formatting.Indented));
+            // TODO: Refactor. Every analyzer shouldn't have to do this.
+            foreach (IBackgroundAnalysisSink sink in sinks)
+            {
+                sink.Receive(sarifLog);
+            }
 
             return Task.CompletedTask;
         }

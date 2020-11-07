@@ -40,6 +40,7 @@
     <Compile Include="BackgroundAnalysisService.cs" />
     <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
     <Compile Include="IBackgroundAnalysisService.cs" />
+    <Compile Include="IBackgroundAnalysisSink.cs" />
     <Compile Include="IBackgroundAnalyzer.cs" />
     <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
@@ -49,6 +50,7 @@
     <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -1,8 +1,9 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -16,7 +17,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning disable IDE0044 // Assigned by MEF
 
         [ImportMany]
-        private IEnumerable<IBackgroundAnalyzer> backgroundAnalyzers { get; set; } = null;
+        private IEnumerable<IBackgroundAnalyzer> analyzers { get; set; } = null;
+
+        [ImportMany]
+        private IEnumerable<IBackgroundAnalysisSink> sinks { get; set; } = null;
 
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
@@ -24,11 +28,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public void StartAnalysis(string text)
         {
-            if (this.backgroundAnalyzers != null)
+            if (this.analyzers.Any() == true && this.sinks.Any() == true)
             {
-                foreach (IBackgroundAnalyzer analyzer in this.backgroundAnalyzers)
+                foreach (IBackgroundAnalyzer analyzer in this.analyzers)
                 {
-                    analyzer.StartAnalysis(text);
+                    analyzer.StartAnalysis(text, sinks);
                 }
             }
         }
