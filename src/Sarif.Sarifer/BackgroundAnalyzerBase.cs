@@ -1,8 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+
+using Microsoft.VisualStudio.Shell;
+
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -10,18 +15,57 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// Base class for background analyzers.
     /// </summary>
     /// <remarks>
-    /// The base class takes care of handling all the sinks (destinations for the analysis results).
-    /// Derived classes only have to worry about producing the SARIF log.
+    /// This class dispatches the analysis to a background thread, and sends the resulting
+    /// <see cref="SarifLog"/> to all exported implementations of <see cref="IBackgroundAnalysisSink"/>.
+    /// Derived classes need only override <see cref="CreateSarifLog(string)"/>.
     /// </remarks>
-    public class BackgroundAnalyzerBase
+    public abstract class BackgroundAnalyzerBase : IBackgroundAnalyzer
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
 
         [ImportMany]
-        protected IEnumerable<IBackgroundAnalysisSink> Sinks { get; set; } = null;
+        private IEnumerable<IBackgroundAnalysisSink> sinks;
 
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
+
+        /// <summary>
+        /// Start the analysis on a background thread.
+        /// </summary>
+        /// <param name="text">
+        /// The text to be analyzed.
+        /// </param>
+        public void StartAnalysis(string text)
+        {
+            text = text ?? throw new ArgumentNullException(nameof(text));
+
+            Task.Run(() => Analyze(text)).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+        }
+
+        /// <summary>
+        /// Perform the analysis.
+        /// </summary>
+        /// <remarks>
+        /// This method runs on a background thread, so there is no need for derived classes to
+        /// make anything async.
+        /// </remarks>
+        /// <param name="text">
+        /// The text to be analyzed.
+        /// </param>
+        /// <returns>
+        /// A <see cref="SarifLog"/> containing the results of the analysis.
+        /// </returns>
+        protected abstract SarifLog CreateSarifLog(string text);
+
+        private void Analyze(string text)
+        {
+            SarifLog sarifLog = CreateSarifLog(text);
+
+            foreach (IBackgroundAnalysisSink sink in sinks)
+            {
+                sink.Receive(sarifLog);
+            }
+        }
     }
 }

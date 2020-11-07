@@ -40,21 +40,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private async Task OpenSarifLogAsync(string tempPath)
         {
-            SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: false);
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
 
             await sarifViewerInterop.OpenSarifLogAsync(tempPath).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private async System.Threading.Tasks.Task<SarifViewerInterop> GetInteropObjectAsync()
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             using (this.interopLock.EnterWriteLock())
             {
                 if (this.sarifViewerInterop == null)
                 {
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
                     var shell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
-
                     this.sarifViewerInterop = new SarifViewerInterop(shell);
                 }
             }

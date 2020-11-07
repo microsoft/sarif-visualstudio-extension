@@ -5,10 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
-using Microsoft.VisualStudio.Shell;
-
-using Task = System.Threading.Tasks.Task;
-
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
@@ -22,14 +18,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string TargetString = "public class";
 
-        public void StartAnalysis(string text)
-        {
-            text = text ?? throw new ArgumentNullException(nameof(text));
-
-            AnalyzeAsync(text).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
-        }
-
-        private Task AnalyzeAsync(string text)
+        /// <inheritdoc/>
+        protected override SarifLog CreateSarifLog(string text)
         {
             var results = new List<Result>();
             int targetStringIndex = 0;
@@ -46,7 +36,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     RuleId = "TEST1001",
                     Message = new Message
                     {
-                        Text = "Public class contains should be internal."
+                        Text = "Public class should be internal."
                     },
                     Locations = new List<Location>
                     {
@@ -67,7 +57,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 targetStringIndex += TargetString.Length;
             }
 
-            var sarifLog = new SarifLog
+            return new SarifLog
             {
                 Runs = new List<Run>
                 {
@@ -84,14 +74,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     }
                 }
             };
-
-            // TODO: Refactor. Every analyzer shouldn't have to do this.
-            foreach (IBackgroundAnalysisSink sink in this.Sinks)
-            {
-                sink.Receive(sarifLog);
-            }
-
-            return Task.CompletedTask;
         }
     }
 }
