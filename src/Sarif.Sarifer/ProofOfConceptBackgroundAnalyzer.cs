@@ -16,7 +16,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// log to the SARIF Viewer extension.
     /// </summary>
     /// TODO:
-    /// - Do it all in memory.
     /// - Offer fixes.
     [Export(typeof(IBackgroundAnalyzer))]
     internal class ProofOfConceptBackgroundAnalyzer : IBackgroundAnalyzer

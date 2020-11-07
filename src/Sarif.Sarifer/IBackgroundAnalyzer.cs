@@ -8,7 +8,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// <summary>
     /// Interface for performing a single static analysis in the background.
     /// </summary>
-    internal interface IBackgroundAnalyzer
+    public interface IBackgroundAnalyzer
     {
         /// <summary>
         /// Performs a single analysis on the specified text.

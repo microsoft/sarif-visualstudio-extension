@@ -10,7 +10,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// A sink can process the log in any way it wishes, for example, sending it to the SARIF
     /// viewer's interop API or sending it to a file.
     /// </remarks>
-    internal interface IBackgroundAnalysisSink
+    public interface IBackgroundAnalysisSink
     {
         /// <summary>
         /// Receive the specified SARIF log.
