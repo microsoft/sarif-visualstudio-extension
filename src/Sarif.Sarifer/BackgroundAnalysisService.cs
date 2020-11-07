@@ -21,7 +21,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning disable IDE0044 // Assigned by MEF
 
         [ImportMany]
-        private IEnumerable<IBackgroundAnalyzer> analyzers { get; set; } = null;
+        private IEnumerable<IBackgroundAnalyzer> analyzers;
 
 #pragma warning restore IDE0044
 #pragma warning restore CS0649

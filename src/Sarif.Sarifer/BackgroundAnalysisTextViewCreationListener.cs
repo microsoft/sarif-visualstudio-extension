@@ -10,8 +10,7 @@ using Microsoft.VisualStudio.Utilities;
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
-    /// An <see cref="ITextViewCreationListener"/> that triggers background analysis that streams
-    /// its results as a SARIF log to the SARIF Viewer extension.
+    /// An <see cref="ITextViewCreationListener"/> that triggers background analysis.
     /// </summary>
     [ContentType(AnyContentType)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
