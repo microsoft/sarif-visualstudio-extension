@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
+using System.ComponentModel.Composition;
+
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
@@ -12,5 +15,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </remarks>
     public class BackgroundAnalyzerBase
     {
+#pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
+
+        [ImportMany]
+        private IEnumerable<IBackgroundAnalysisSink> sinks { get; set; } = null;
+
+#pragma warning restore IDE0044
+#pragma warning restore CS0649
     }
 }
