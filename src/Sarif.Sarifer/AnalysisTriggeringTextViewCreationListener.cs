@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved. 
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
+using System;
 using System.ComponentModel.Composition;
 
 using Microsoft.VisualStudio.Text.Editor;
@@ -22,6 +23,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public void TextViewCreated(ITextView textView)
         {
+            textView = textView ?? throw new ArgumentNullException(nameof(textView));
+
+            // For now, pretend that there is only one analyzer, and it will analyze any
+            // file type.
+            new FakeBackgroundAnalyzer().Analyze(textView.TextBuffer);
         }
     }
 }
