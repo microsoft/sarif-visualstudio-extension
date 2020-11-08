@@ -44,7 +44,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
 
-            await sarifViewerInterop.OpenSarifLogAsync(tempPath).ConfigureAwait(continueOnCapturedContext: false);
+            await sarifViewerInterop.OpenSarifLogAsync(tempPath, cleanErrors: false).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private async System.Threading.Tasks.Task<SarifViewerInterop> GetInteropObjectAsync()

@@ -5,6 +5,6 @@ namespace Microsoft.Sarif.Viewer.Services
 {
     internal interface ILoadSarifLogService
     {
-        void LoadSarifLog(string path);
+        void LoadSarifLog(string path, bool promptOnLogConversions = true, bool cleanErrors = true, bool openInEditor = false);
     }
 }

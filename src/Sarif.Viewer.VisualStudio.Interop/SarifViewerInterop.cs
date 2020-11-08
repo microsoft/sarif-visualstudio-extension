@@ -103,7 +103,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Opens the specified SARIF log file in the SARIF Viewer extension.
         /// </summary>
         /// <param name="path">The path of the log file.</param>
-        public Task<bool> OpenSarifLogAsync(string path)
+        public Task<bool> OpenSarifLogAsync(string path, bool cleanErrors = true, bool openInEditor = false)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -112,7 +112,7 @@ namespace Microsoft.Sarif.Viewer.Interop
 
             return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
             {
-                service.LoadSarifLog(path);
+                service.LoadSarifLog(path, promptOnLogConversions: true, cleanErrors: cleanErrors, openInEditor: openInEditor);
                 return true;
             });
         }

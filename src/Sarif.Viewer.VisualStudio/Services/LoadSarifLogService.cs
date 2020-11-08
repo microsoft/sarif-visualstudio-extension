@@ -31,14 +31,14 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void LoadSarifLog(string path)
+        public void LoadSarifLog(string path, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
             }
 
-            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true, openInEditor: false);
+            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions, cleanErrors, openInEditor);
         }
 
         /// <inheritdoc/>
