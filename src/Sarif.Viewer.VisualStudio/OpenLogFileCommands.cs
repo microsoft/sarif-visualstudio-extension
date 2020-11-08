@@ -271,7 +271,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private string ConvertSarifProtocol(string inputUrl)
+        private static string ConvertSarifProtocol(string inputUrl)
         {
             int sarifProtocolLength;
             string replacementProtocol;
@@ -298,12 +298,12 @@ namespace Microsoft.Sarif.Viewer
             return newUrl;
         }
 
-        private bool TryDownloadFile(string inputUrl, out string downloadedFilePath)
+        private static bool TryDownloadFile(string inputUrl, out string downloadedFilePath)
         {
-            Uri inputUri = new Uri(inputUrl, UriKind.Absolute);
+            var inputUri = new Uri(inputUrl, UriKind.Absolute);
             downloadedFilePath = Path.GetTempFileName();
-            string downloadUrl = null;
 
+            string downloadUrl;
             if (inputUri.Scheme.Equals("sarif", StringComparison.OrdinalIgnoreCase))
             {
                 downloadUrl = ConvertSarifProtocol(inputUrl);
@@ -321,7 +321,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 try
                 {
-                    using (WebClient webClient = new WebClient())
+                    using (var webClient = new WebClient())
                     {
                         webClient.UseDefaultCredentials = true;
                         webClient.DownloadFile(downloadUrl, downloadedFilePath);

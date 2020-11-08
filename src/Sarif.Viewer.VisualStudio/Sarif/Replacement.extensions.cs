@@ -8,7 +8,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class ReplacementExtensions
+    internal static class ReplacementExtensions
     {
         public static ReplacementModel ToReplacementModel(this Replacement replacement, FileRegionsCache fileRegionsCache, Uri uri)
         {

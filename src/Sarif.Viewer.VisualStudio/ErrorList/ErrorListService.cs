@@ -339,9 +339,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         internal static async Task ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = SarifLog.Load(stream);
-            string logFilePath = Path.GetTempFileName();
 
-            await ProcessSarifLogAsync(sarifLog, logFilePath, showMessageOnNoResults, cleanErrors, openInEditor);
+            await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
         }
 
         internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
