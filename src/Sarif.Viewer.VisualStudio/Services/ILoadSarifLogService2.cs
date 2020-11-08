@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.Sarif.Viewer.Services
 {
+    /// <summary>
+    /// Interface for loading SARIF logs from multiple files into the viewer.
+    /// </summary>
     internal interface ILoadSarifLogService2
     {
         /// <summary>
