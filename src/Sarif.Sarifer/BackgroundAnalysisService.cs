@@ -12,18 +12,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </summary>
     // TODO: Reanalyze when buffer changes.
     // TODO: Remove error list items when buffer closes.
-    // TODO: Provide file name.
-    // TODO: Get file path from text buffer.
     // TODO: Fill out text regions.
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
-
         [ImportMany]
         private IEnumerable<IBackgroundAnalyzer> analyzers;
-
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 

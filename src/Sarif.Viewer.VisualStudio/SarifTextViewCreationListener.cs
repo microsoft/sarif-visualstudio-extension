@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer
@@ -69,7 +70,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 textView.Closed -= this.TextView_Closed;
 
-                if (this.TryGetFileNameFromTextView(textView, out var filename))
+                if (this.TryGetFileNameFromTextView(textView, out string filename))
                 {
                     ErrorListService.CloseSarifLogs(new[] { filename });
                 }
@@ -81,13 +82,13 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
             fileName = null;
 
-            var vsTextView = this.vsEditorAdaptersFactoryService.Value.GetViewAdapter(textView);
+            IVsTextView vsTextView = this.vsEditorAdaptersFactoryService.Value.GetViewAdapter(textView);
             if (vsTextView == null)
             {
                 return false;
             }
 
-            if (vsTextView.GetBuffer(out var vsTextLines) != VSConstants.S_OK)
+            if (vsTextView.GetBuffer(out IVsTextLines vsTextLines) != VSConstants.S_OK)
             {
                 return false;
             }
