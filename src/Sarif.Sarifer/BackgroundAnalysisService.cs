@@ -10,9 +10,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// <summary>
     /// Performs static analysis in the background.
     /// </summary>
-    // TODO: Analyze any given buffer only once.
-    // TODO: Renalyze when buffer changes.
+    // TODO: Reanalyze when buffer changes.
     // TODO: Remove error list items when buffer closes.
+    // TODO: Provide file name.
+    // TODO: Get file path from text buffer.
+    // TODO: Fill out text regions.
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
@@ -26,13 +28,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public void StartAnalysis(string text)
+        public void StartAnalysis(string path, string text)
         {
             if (this.analyzers.Any() == true)
             {
                 foreach (IBackgroundAnalyzer analyzer in this.analyzers)
                 {
-                    analyzer.StartAnalysis(text);
+                    analyzer.StartAnalysis(path, text);
                 }
             }
         }

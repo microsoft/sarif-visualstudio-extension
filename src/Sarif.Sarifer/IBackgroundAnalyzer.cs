@@ -14,6 +14,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="text">
         /// The text to analyze
         /// </param>
-        void StartAnalysis(string text);
+        void StartAnalysis(string path, string text);
     }
 }

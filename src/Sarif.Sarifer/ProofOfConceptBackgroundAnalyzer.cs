@@ -19,8 +19,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private const string TargetString = "public class";
 
         /// <inheritdoc/>
-        protected override SarifLog CreateSarifLog(string text)
+        protected override SarifLog CreateSarifLog(string path, string text)
         {
+            var uri = new Uri(path, UriKind.Absolute);
             var results = new List<Result>();
             int targetStringIndex = 0;
             while (targetStringIndex < text.Length)
@@ -44,6 +45,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         {
                             PhysicalLocation = new PhysicalLocation
                             {
+                                ArtifactLocation = new ArtifactLocation
+                                {
+                                    Uri = uri
+                                },
                                 Region = new Region
                                 {
                                     CharOffset = targetStringIndex,

@@ -11,9 +11,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Begins background analysis of the specified text.
         /// </summary>
+        /// <param name="path">
+        /// The absolute path of the file being analyzed, or null if the text came from a VS text
+        /// buffer that was not attached to a file.
+        /// </param>
         /// <param name="text">
         /// The text to analyze.
         /// </param>
-        void StartAnalysis(string text);
+        void StartAnalysis(string path, string text);
     }
 }

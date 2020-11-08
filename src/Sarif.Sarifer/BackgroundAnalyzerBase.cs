@@ -33,14 +33,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Start the analysis on a background thread.
         /// </summary>
+        /// <param name="path">
+        /// The absolute path of the file being analyzed, or null if the text came from a VS text
+        /// buffer that was not attached to a file.
+        /// </param>
         /// <param name="text">
         /// The text to be analyzed.
         /// </param>
-        public void StartAnalysis(string text)
+        public void StartAnalysis(string path, string text)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
-            Task.Run(() => Analyze(text)).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+            Task.Run(() => Analyze(path, text)).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
         /// <summary>
@@ -50,17 +54,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// This method runs on a background thread, so there is no need for derived classes to
         /// make anything async.
         /// </remarks>
+        /// <param name="path">
+        /// The absolute path of the file being analyzed, or null if the text came from a VS text
+        /// buffer that was not attached to a file.
+        /// </param>
         /// <param name="text">
         /// The text to be analyzed.
         /// </param>
         /// <returns>
         /// A <see cref="SarifLog"/> containing the results of the analysis.
         /// </returns>
-        protected abstract SarifLog CreateSarifLog(string text);
+        protected abstract SarifLog CreateSarifLog(string path, string text);
 
-        private void Analyze(string text)
+        private void Analyze(string path, string text)
         {
-            SarifLog sarifLog = CreateSarifLog(text);
+            SarifLog sarifLog = CreateSarifLog(path, text);
 
             foreach (IBackgroundAnalysisSink sink in sinks)
             {

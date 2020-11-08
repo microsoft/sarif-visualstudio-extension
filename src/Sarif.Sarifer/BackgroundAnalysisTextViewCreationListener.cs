@@ -34,7 +34,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
             string text = textView.TextBuffer.CurrentSnapshot.GetText();
 
-            this.backgroundAnalysisService.StartAnalysis(text);
+            // TODO: Get the path from the text buffer.
+            string path = @"C:\test\file.cs";
+
+            this.backgroundAnalysisService.StartAnalysis(path, text);
 
         }
     }
