@@ -83,6 +83,7 @@
     <Compile Include="KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="Controls\BindableTextBlock.cs" />
     <Compile Include="Services\CloseSarifLogService.cs" />
+    <Compile Include="Services\ILoadSarifLogService3.cs" />
     <Compile Include="Services\LoadSarifLogService.cs" />
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />

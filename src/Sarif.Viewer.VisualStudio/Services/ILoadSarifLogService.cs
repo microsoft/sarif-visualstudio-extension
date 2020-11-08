@@ -3,8 +3,17 @@
 
 namespace Microsoft.Sarif.Viewer.Services
 {
+    /// <summary>
+    /// Interface for loading a SARIF log from a file.
+    /// </summary>
     internal interface ILoadSarifLogService
     {
+        /// <summary>
+        /// Loads a SARIF log from the specified file.
+        /// </summary>
+        /// <param name="path">
+        /// The path to the file from which the SARIF log should be loaded.
+        /// </param>
         void LoadSarifLog(string path);
     }
 }
