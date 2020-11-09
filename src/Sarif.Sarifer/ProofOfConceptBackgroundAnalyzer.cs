@@ -80,7 +80,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     break;
                 }
 
-                var result =  new Result
+                var result = new Result
                 {
                     RuleId = rule.Id,
                     Message = new Message

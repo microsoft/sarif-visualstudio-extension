@@ -73,7 +73,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
                 CreateSarifLog(path, text, writer);
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: true);
 
                 foreach (IBackgroundAnalysisSink sink in sinks)
                 {
