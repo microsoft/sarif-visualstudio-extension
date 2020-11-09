@@ -13,11 +13,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// <summary>
     /// A fake background analyzer that detects "public class" and suggests "internal class" instead.
     /// </summary>
-    /// TODO: Offer fixes.
     [Export(typeof(IBackgroundAnalyzer))]
     internal class ProofOfConceptBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
     {
         private const string TargetString = "public class";
+        private const string ReplacementString = "internal class";
 
         /// <inheritdoc/>
         protected override void CreateSarifLog(string path, string text, TextWriter writer)
@@ -36,11 +36,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
                 dataToRemove: OptionallyEmittedData.None,
                 tool: tool,
-                run: null,
-                analysisTargets: null,
-                invocationTokensToRedact: null,
-                invocationPropertiesToLog: null,
-                defaultFileEncoding: null,
                 closeWriterOnDispose: false))   // TODO: No implementers will remember to do this. Should we just pass in the stream instead of the writer?
             {
                 sarifLogger.AnalysisStarted();
@@ -66,7 +61,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     ["default"] = new MultiformatMessageString
                     {
-                        Text = "Public class should be internal."
+                        Text = "Public class could be internal."
                     }
                 }
             };
@@ -101,6 +96,41 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                                 {
                                     CharOffset = targetStringIndex,
                                     CharLength = TargetString.Length
+                                }
+                            }
+                        }
+                    },
+                    Fixes = new List<Fix>
+                    {
+                        new Fix
+                        {
+                            Description = new Message
+                            {
+                                Text = "Make class internal"
+                            },
+                            ArtifactChanges = new List<ArtifactChange>
+                            {
+                                new ArtifactChange
+                                {
+                                    ArtifactLocation = new ArtifactLocation
+                                    {
+                                        Uri = uri
+                                    },
+                                    Replacements = new List<Replacement>
+                                    {
+                                        new Replacement
+                                        {
+                                            DeletedRegion = new Region
+                                            {
+                                                CharOffset = targetStringIndex,
+                                                CharLength = TargetString.Length
+                                            },
+                                            InsertedContent = new ArtifactContent
+                                            {
+                                                Text = ReplacementString
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
