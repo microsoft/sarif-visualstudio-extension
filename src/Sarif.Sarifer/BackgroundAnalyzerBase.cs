@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -23,10 +24,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
-
         [ImportMany]
         private IEnumerable<IBackgroundAnalysisSink> sinks;
-
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
@@ -44,7 +43,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
-            Task.Run(() => Analyze(path, text)).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+            Task.Run(() => AnalyzeAsync(path, text)).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
 
         /// <summary>
@@ -62,17 +61,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// The text to be analyzed.
         /// </param>
         /// <returns>
-        /// A <see cref="SarifLog"/> containing the results of the analysis.
+        /// A readable <see cref="Stream"/> containing the results of the analysis in the form of a
+        /// serialized SARIF log.
         /// </returns>
-        protected abstract SarifLog CreateSarifLog(string path, string text);
+        protected abstract Stream CreateSarifLog(string path, string text);
 
-        private void Analyze(string path, string text)
+        private async Task AnalyzeAsync(string path, string text)
         {
-            SarifLog sarifLog = CreateSarifLog(path, text);
-
-            foreach (IBackgroundAnalysisSink sink in sinks)
+            using (Stream logStream = CreateSarifLog(path, text))
             {
-                sink.Receive(sarifLog);
+                foreach (IBackgroundAnalysisSink sink in sinks)
+                {
+                    await sink.ReceiveAsync(logStream).ConfigureAwait(continueOnCapturedContext: true);
+                }
             }
         }
     }

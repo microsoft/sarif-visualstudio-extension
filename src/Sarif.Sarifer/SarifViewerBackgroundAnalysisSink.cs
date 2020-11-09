@@ -10,8 +10,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Utilities;
 
-using Newtonsoft.Json;
-
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
@@ -27,24 +25,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private SarifViewerInterop sarifViewerInterop;
 
         /// <inheritdoc/>
-        public void Receive(SarifLog log)
-        {
-            // TODO: This is TEMPORARY. We write to a file because the PR that provides a stream-
-            // based interop API is not yet approved.
-            // https://github.com/microsoft/sarif-visualstudio-extension/pull/259
-            string tempPath = Path.GetTempFileName();
-            File.WriteAllText(tempPath, JsonConvert.SerializeObject(log, Formatting.Indented));
-
-            OpenSarifLogAsync(tempPath).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
-        }
-
-        private async Task OpenSarifLogAsync(string tempPath)
+        public async Task ReceiveAsync(Stream logStream)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
 
-            await sarifViewerInterop.OpenSarifLogAsync(tempPath, cleanErrors: false).ConfigureAwait(continueOnCapturedContext: false);
+            await sarifViewerInterop.OpenSarifLogAsync(logStream).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private async System.Threading.Tasks.Task<SarifViewerInterop> GetInteropObjectAsync()

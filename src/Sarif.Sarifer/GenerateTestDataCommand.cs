@@ -14,7 +14,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class GenerateTestDataCommand
     {
-        private const string ProofOfConceptResourceName = "TestData.ProofOfConcept.sarif";
+        private const string ProofOfConceptResourceName = "Microsoft.CodeAnalysis.Sarif.Sarifer.TestData.ProofOfConcept.sarif";
 
         private readonly SarifViewerInterop viewerInterop;
 

@@ -4,6 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
+using System.Text;
+
+using Newtonsoft.Json;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -12,6 +16,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// log to the SARIF Viewer extension.
     /// </summary>
     /// TODO:
+    /// - Base the analyzer on the Driver framework.
     /// - Offer fixes.
     [Export(typeof(IBackgroundAnalyzer))]
     internal class ProofOfConceptBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
@@ -19,7 +24,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private const string TargetString = "public class";
 
         /// <inheritdoc/>
-        protected override SarifLog CreateSarifLog(string path, string text)
+        protected override Stream CreateSarifLog(string path, string text)
         {
             var uri = new Uri(path, UriKind.Absolute);
             var results = new List<Result>();
@@ -62,7 +67,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 targetStringIndex += TargetString.Length;
             }
 
-            return new SarifLog
+            var sarifLog = new SarifLog
             {
                 Runs = new List<Run>
                 {
@@ -79,6 +84,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     }
                 }
             };
+
+            string logText = JsonConvert.SerializeObject(sarifLog);
+            byte[] logBytes = Encoding.UTF8.GetBytes(logText);
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            // The caller, BackgroundAnalyzerBase.Analyze, is responsible for
+            // disposing the stream.
+            var stream = new MemoryStream();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+            stream.Write(logBytes, 0, logBytes.Length);
+            stream.Seek(0L, SeekOrigin.Begin);
+
+            return stream;
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.IO;
+using System.Threading.Tasks;
+
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
@@ -8,16 +11,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </summary>
     /// <remarks>
     /// A sink can process the log in any way it wishes, for example, sending it to the SARIF
-    /// viewer's interop API or sending it to a file.
+    /// viewer's interop API or to a file.
     /// </remarks>
     public interface IBackgroundAnalysisSink
     {
         /// <summary>
         /// Receive the specified SARIF log.
         /// </summary>
-        /// <param name="log">
-        /// The SARIF log to receive.
+        /// <param name="logStream">
+        /// A readable <see cref="Stream"/> containing the results of the analysis in the form
+        /// of a serialized SARIF log.
         /// </param>
-        void Receive(SarifLog log);
+        /// <returns>
+        /// A <see cref="Task"/> that completes when the sink has finished processing
+        /// <paramref name="logStream"/>.
+        /// </returns>
+        Task ReceiveAsync(Stream logStream);
     }
 }
