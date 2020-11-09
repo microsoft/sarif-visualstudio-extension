@@ -5,29 +5,72 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Text;
 
-using Newtonsoft.Json;
+using Microsoft.CodeAnalysis.Sarif.Writers;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
-    /// A fake background analyzer that analyzes any file type, and streams its results as a SARIF
-    /// log to the SARIF Viewer extension.
+    /// A fake background analyzer that detects "public class" and suggests "internal class" instead.
     /// </summary>
-    /// TODO:
-    /// - Base the analyzer on the Driver framework.
-    /// - Offer fixes.
+    /// TODO: Offer fixes.
     [Export(typeof(IBackgroundAnalyzer))]
     internal class ProofOfConceptBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
     {
         private const string TargetString = "public class";
 
         /// <inheritdoc/>
-        protected override Stream CreateSarifLog(string path, string text)
+        protected override void CreateSarifLog(string path, string text, TextWriter writer)
         {
-            var uri = new Uri(path, UriKind.Absolute);
-            var results = new List<Result>();
+            var tool = new Tool
+            {
+                Driver = new ToolComponent
+                {
+                    Name = "PublicHider"
+                }
+            };
+
+            using (var sarifLogger = new SarifLogger(
+                writer,
+                LoggingOptions.None,
+                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
+                dataToRemove: OptionallyEmittedData.None,
+                tool: tool,
+                run: null,
+                analysisTargets: null,
+                invocationTokensToRedact: null,
+                invocationPropertiesToLog: null,
+                defaultFileEncoding: null,
+                closeWriterOnDispose: false))   // TODO: No implementers will remember to do this. Should we just pass in the stream instead of the writer?
+            {
+                sarifLogger.AnalysisStarted();
+
+                var uri = new Uri(path, UriKind.Absolute);
+                GenerateResults(sarifLogger, uri, text);
+
+                sarifLogger.AnalysisStopped(RuntimeConditions.None);
+            }
+        }
+
+        private static void GenerateResults(SarifLogger sarifLogger, Uri uri, string text)
+        {
+            // This POC analyzer has only one rule.
+            var rule = new ReportingDescriptor
+            {
+                Id = "TEST1001",
+                DefaultConfiguration = new ReportingConfiguration
+                {
+                    Level = FailureLevel.Note
+                },
+                MessageStrings = new Dictionary<string, MultiformatMessageString>
+                {
+                    ["default"] = new MultiformatMessageString
+                    {
+                        Text = "Public class should be internal."
+                    }
+                }
+            };
+
             int targetStringIndex = 0;
             while (targetStringIndex < text.Length)
             {
@@ -37,12 +80,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     break;
                 }
 
-                results.Add(new Result
+                var result =  new Result
                 {
-                    RuleId = "TEST1001",
+                    RuleId = rule.Id,
                     Message = new Message
                     {
-                        Text = "Public class should be internal."
+                        Id = "default"
                     },
                     Locations = new List<Location>
                     {
@@ -62,42 +105,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                             }
                         }
                     }
-                });
+                };
+
+                sarifLogger.Log(rule, result);
 
                 targetStringIndex += TargetString.Length;
             }
-
-            var sarifLog = new SarifLog
-            {
-                Runs = new List<Run>
-                {
-                    new Run
-                    {
-                        Tool = new Tool
-                        {
-                            Driver = new ToolComponent
-                            {
-                                Name = "PublicHider"
-                            }
-                        },
-                        Results = results
-                    }
-                }
-            };
-
-            string logText = JsonConvert.SerializeObject(sarifLog);
-            byte[] logBytes = Encoding.UTF8.GetBytes(logText);
-
-#pragma warning disable CA2000 // Dispose objects before losing scope
-            // The caller, BackgroundAnalyzerBase.Analyze, is responsible for
-            // disposing the stream.
-            var stream = new MemoryStream();
-#pragma warning restore CA2000 // Dispose objects before losing scope
-
-            stream.Write(logBytes, 0, logBytes.Length);
-            stream.Seek(0L, SeekOrigin.Begin);
-
-            return stream;
         }
     }
 }

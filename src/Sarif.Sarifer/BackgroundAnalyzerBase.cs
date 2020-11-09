@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Text;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -60,19 +61,24 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="text">
         /// The text to be analyzed.
         /// </param>
-        /// <returns>
-        /// A readable <see cref="Stream"/> containing the results of the analysis in the form of a
-        /// serialized SARIF log.
+        /// <param name="writer">
+        /// A <see cref="TextWriter"/> to which the analyzer should write the results of the
+        /// analysis, in the form of a SARIF log file.
         /// </returns>
-        protected abstract Stream CreateSarifLog(string path, string text);
+        protected abstract void CreateSarifLog(string path, string text, TextWriter writer);
 
         private async Task AnalyzeAsync(string path, string text)
         {
-            using (Stream logStream = CreateSarifLog(path, text))
+            using (Stream stream = new MemoryStream())
+            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
+                CreateSarifLog(path, text, writer);
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+
                 foreach (IBackgroundAnalysisSink sink in sinks)
                 {
-                    await sink.ReceiveAsync(logStream).ConfigureAwait(continueOnCapturedContext: true);
+                    stream.Seek(0L, SeekOrigin.Begin);
+                    await sink.ReceiveAsync(stream).ConfigureAwait(continueOnCapturedContext: true);
                 }
             }
         }
