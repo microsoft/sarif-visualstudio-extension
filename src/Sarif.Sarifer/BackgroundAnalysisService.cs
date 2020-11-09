@@ -12,7 +12,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </summary>
     // TODO: Reanalyze when buffer changes.
     // TODO: Remove error list items when buffer closes.
-    // TODO: Fill out text regions.
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
