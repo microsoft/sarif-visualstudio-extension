@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading;
 
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Imaging;
@@ -23,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// </summary>
         public const string InfoBarTextSpacing = "   ";
 
-        private readonly object showLock = new object();
+        private int showCount = 0;
 
         private readonly IVsInfoBarTextSpan[] content;
         private readonly Action<IVsInfoBarActionItem> clickAction;
@@ -73,29 +74,16 @@ namespace Microsoft.Sarif.Viewer.Controls
         }
 
         /// <summary>
-        /// Gets a value indicating whether the info bar is currently visible.
-        /// </summary>
-        public bool IsVisible { get; private set; }
-
-        /// <summary>
         /// Shows the info bar in all code windows, unless the user has closed it manually since the last reset.
         /// </summary>
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
         public async Task ShowAsync()
         {
-            if (this.IsVisible)
-            {
-                return;
-            }
-
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            lock (this.showLock)
+
+            if (Interlocked.Increment(ref this.showCount) == 1)
             {
-                // Check again, this value may have already changed.
-                if (this.IsVisible)
-                {
-                    return;
-                }
+                // It wasn't visible before, but it is now.
 
                 this.infoBarModel = new InfoBarModel(this.content, this.imageMoniker, isCloseButtonVisible: true);
 
@@ -119,8 +107,6 @@ namespace Microsoft.Sarif.Viewer.Controls
 
                 // Listen to InfoBar events such as hyperlink click
                 this.uiElement.Advise(this, out this.eventCookie);
-
-                this.IsVisible = true;
             }
         }
 
@@ -128,22 +114,11 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task CloseAsync()
         {
-            if (!this.IsVisible)
-            {
-                return;
-            }
-
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            lock (this.showLock)
+            if (Interlocked.Decrement(ref this.showCount) == 0)
             {
-                // Check again, this value may have already changed.
-                if (!this.IsVisible)
-                {
-                    return;
-                }
-
-                this.IsVisible = false;
+                // It was visible before, but it isn't now.
 
                 // Stop listening to infobar events
                 this.uiElement.Unadvise(this.eventCookie);
