@@ -23,17 +23,11 @@ namespace Microsoft.Sarif.Viewer.Services
         /// Loads the specified SARIF logs in the viewer.
         /// </summary>
         /// <param name="paths">The complete path to the SARIF log files.</param>
-        void LoadSarifLogs(IEnumerable<string> paths);
-
-        /// <summary>
-        /// Loads the specified SARIF logs in the viewer.
-        /// </summary>
-        /// <param name="paths">The complete path to the SARIF log files.</param>
         /// <param name="promptOnLogConversions">Specifies whether the viewer should prompt if a SARIF log needs to be converted.</param>
         /// <remarks>
         /// Reasons for SARIF log file conversion include a conversion from a tool's log to SARIF, or a the SARIF schema version is not the latest version.
         /// </remarks>
-        void LoadSarifLogs(IEnumerable<string> paths, bool promptOnLogConversions);
+        void LoadSarifLogs(IEnumerable<string> paths, bool promptOnLogConversions = false);
 
         /// <summary>
         /// Loads a SARIF log from the specified stream into the viewer.

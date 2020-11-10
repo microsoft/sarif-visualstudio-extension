@@ -45,13 +45,7 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void LoadSarifLogs(IEnumerable<string> paths)
-        {
-            this.LoadSarifLogs(paths, promptOnSchemaUpgrade: false);
-        }
-
-        /// <inheritdoc/>
-        public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
+        public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade = false)
         {
             LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
