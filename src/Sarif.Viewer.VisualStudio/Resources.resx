@@ -290,4 +290,7 @@
     <value>SARIF files (*.sarif)|*.sarif</value>
     <comment>Used in the import log open dialog. The (None) tool format is expected to be SARIF in the logic.</comment>
   </data>
+  <data name="ErrorInvalidSarifStream" xml:space="preserve">
+    <value>The SARIF viewer received one or more corrupted SARIF logs, and they were ignored.</value>
+  </data>
 </root>

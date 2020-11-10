@@ -1,0 +1,184 @@
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
+
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Imaging;
+using Microsoft.VisualStudio.Imaging.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+
+using Task = System.Threading.Tasks.Task;
+
+namespace Microsoft.Sarif.Viewer.Controls
+{
+    /// <summary>
+    /// Displays a banner with a message for the user.
+    /// </summary>
+    public class InfoBar : IVsInfoBarUIEvents
+    {
+        /// <summary>
+        /// Standard spacing between info bar text elements.
+        /// </summary>
+        public const string InfoBarTextSpacing = "   ";
+
+        private readonly object showLock = new object();
+
+        private readonly IVsInfoBarTextSpan[] content;
+        private readonly Action<IVsInfoBarActionItem> clickAction;
+        private readonly Action closeAction;
+        private readonly ImageMoniker imageMoniker;
+
+        private InfoBarModel infoBarModel;
+
+        private IVsInfoBarUIElement uiElement;
+        private uint eventCookie;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InfoBar"/> class.
+        /// </summary>
+        /// <param name="text">
+        /// The text to dislay.
+        /// </param>
+        /// <param name="clickAction">
+        /// An action to take when a user clicks on an <see cref="IVsInfoBarActionItem"/> (e.g. button) in the info bar.
+        /// </param>
+        /// <param name="closeAction">
+        /// An action to take when the info bar is closed.
+        /// </param>
+        public InfoBar(string text, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default(ImageMoniker))
+            : this(new IVsInfoBarTextSpan[] { new InfoBarTextSpan(text) }, clickAction, closeAction, imageMoniker)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InfoBar"/> class.
+        /// </summary>
+        /// <param name="content">
+        /// The content to dislay.
+        /// </param>
+        /// <param name="clickAction">
+        /// An action to take when a user clicks on an <see cref="IVsInfoBarActionItem"/> (e.g. button) in the info bar.
+        /// </param>
+        /// <param name="closeAction">
+        /// An action to take when the info bar is closed.
+        /// </param>
+        public InfoBar(IVsInfoBarTextSpan[] content, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default(ImageMoniker))
+        {
+            this.content = content;
+            this.clickAction = clickAction;
+            this.closeAction = closeAction;
+            this.imageMoniker = imageMoniker.Equals(default(ImageMoniker)) ? KnownMonikers.StatusError : imageMoniker;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the info bar is currently visible.
+        /// </summary>
+        public bool IsVisible { get; private set; }
+
+        /// <summary>
+        /// Shows the info bar in all code windows, unless the user has closed it manually since the last reset.
+        /// </summary>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        public async Task ShowAsync()
+        {
+            if (this.IsVisible)
+            {
+                return;
+            }
+
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            lock (this.showLock)
+            {
+                // Check again, this value may have already changed.
+                if (this.IsVisible)
+                {
+                    return;
+                }
+
+                this.infoBarModel = new InfoBarModel(this.content, this.imageMoniker, isCloseButtonVisible: true);
+
+                if (!(ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) is IVsShell shell)
+                    || shell.GetProperty((int)__VSSPROPID7.VSSPROPID_MainWindowInfoBarHost, out object infoBarHostObj) != VSConstants.S_OK
+                    || !(infoBarHostObj is IVsInfoBarHost mainWindowInforBarHost))
+                {
+                    return;
+                }
+
+                var infoBarUIFactory = ServiceProvider.GlobalProvider.GetService(typeof(SVsInfoBarUIFactory)) as IVsInfoBarUIFactory;
+                this.uiElement = infoBarUIFactory?.CreateInfoBar(this.infoBarModel);
+                if (this.uiElement == null)
+                {
+                    return;
+                }
+
+                // Add the InfoBar UI into the WindowFrame's host control.  This will put the InfoBar
+                // at the top of the WindowFrame's content
+                mainWindowInforBarHost.AddInfoBar(this.uiElement);
+
+                // Listen to InfoBar events such as hyperlink click
+                this.uiElement.Advise(this, out this.eventCookie);
+
+                this.IsVisible = true;
+            }
+        }
+
+        /// <summary>Closes the info bar from all views.</summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task CloseAsync()
+        {
+            if (!this.IsVisible)
+            {
+                return;
+            }
+
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            lock (this.showLock)
+            {
+                // Check again, this value may have already changed.
+                if (!this.IsVisible)
+                {
+                    return;
+                }
+
+                this.IsVisible = false;
+
+                // Stop listening to infobar events
+                this.uiElement.Unadvise(this.eventCookie);
+
+                // Close the info bar to correctly send OnClosed() event to the Shell
+                this.uiElement.Close();
+
+                this.uiElement = null;
+            }
+        }
+
+        /// <summary>
+        /// Event handler for when the info bar is manually closed by the user.
+        /// </summary>
+        /// <param name="infoBarUIElement">The info bar object.</param>
+        public void OnClosed(IVsInfoBarUIElement infoBarUIElement)
+        {
+            if (infoBarUIElement == this.uiElement)
+            {
+                this.closeAction?.Invoke();
+                this.CloseAsync().FileAndForget(FileAndForgetEventName.InfoBarCloseFailure);
+            }
+        }
+
+        /// <summary>
+        /// Event handler for when an action item in the info bar is clicked.
+        /// </summary>
+        /// <param name="infoBarUIElement">The info bar object.</param>
+        /// <param name="actionItem">The action item that was clicked.</param>
+        public void OnActionItemClicked(IVsInfoBarUIElement infoBarUIElement, IVsInfoBarActionItem actionItem)
+        {
+            if (infoBarUIElement == this.uiElement)
+            {
+                this.clickAction?.Invoke(actionItem);
+            }
+        }
+    }
+}
