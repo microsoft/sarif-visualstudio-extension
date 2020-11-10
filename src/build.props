@@ -37,10 +37,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   
-  <PropertyGroup Label="AssemblyAttributes">
+  <!--<PropertyGroup Label="AssemblyAttributes">
     <VersionPrefix Condition=" '$(VersionPrefix)' == ''">2.1.20</VersionPrefix>
     <VersionSuffix Condition=" '$(VersionSuffix)' == ''"></VersionSuffix>
-  </PropertyGroup>
+  </PropertyGroup>-->
   
   <!-- Configuration specific properties -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' " Label="Debug build">
