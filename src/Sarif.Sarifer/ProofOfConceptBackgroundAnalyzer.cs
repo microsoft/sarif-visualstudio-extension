@@ -16,8 +16,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalyzer))]
     internal class ProofOfConceptBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
     {
-        private const string TargetString = "public class";
-        private const string ReplacementString = "internal class";
+        private const string TargetString = "internal class";
+        private const string ReplacementString = "public class";
 
         /// <inheritdoc/>
         protected override void CreateSarifLog(string path, string text, TextWriter writer)
@@ -26,7 +26,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 Driver = new ToolComponent
                 {
-                    Name = "PublicHider"
+                    Name = "Publicizer"
                 }
             };
 
@@ -61,7 +61,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     ["default"] = new MultiformatMessageString
                     {
-                        Text = "Public class could be internal."
+                        Text = "Internal class could be public."
                     }
                 }
             };
@@ -106,7 +106,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         {
                             Description = new Message
                             {
-                                Text = "Make class internal"
+                                Text = "Make class public"
                             },
                             ArtifactChanges = new List<ArtifactChange>
                             {

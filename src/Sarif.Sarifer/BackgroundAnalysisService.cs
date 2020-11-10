@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -25,12 +24,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public void StartAnalysis(string path, string text)
         {
-            if (this.analyzers.Any() == true)
+            foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                foreach (IBackgroundAnalyzer analyzer in this.analyzers)
-                {
-                    analyzer.StartAnalysis(path, text);
-                }
+                analyzer.StartAnalysis(path, text);
             }
         }
     }
