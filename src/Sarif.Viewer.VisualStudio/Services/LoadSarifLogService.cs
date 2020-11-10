@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.Services
     /// Provides an interface through which other extensions can interact with the this extension,
     /// in particular, to ask this extension to load a log file.
     /// </summary>
-    public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService, ILoadSarifLogService2, ILoadSarifLogService3
+    public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService
     {
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
@@ -45,13 +45,7 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void LoadSarifLogs(IEnumerable<string> paths)
-        {
-            this.LoadSarifLogs(paths, promptOnSchemaUpgrade: false);
-        }
-
-        /// <inheritdoc/>
-        public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
+        public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade = false)
         {
             LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }

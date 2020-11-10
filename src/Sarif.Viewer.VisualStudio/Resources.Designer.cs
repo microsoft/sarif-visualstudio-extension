@@ -126,6 +126,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SARIF viewer received one or more corrupted SARIF logs, and they were ignored..
+        /// </summary>
+        public static string ErrorInvalidSarifStream {
+            get {
+                return ResourceManager.GetString("ErrorInvalidSarifStream", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SARIF Viewer.
         /// </summary>
         public static string ErrorListTableDataSourceDisplayName {

@@ -40,6 +40,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="Fixes\EditActionPreviewProvider.cs" />
     <Compile Include="Fixes\IPreviewProvider.cs" />
     <Compile Include="Fixes\LineSpan.cs" />
@@ -77,13 +79,11 @@
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
-    <Compile Include="Services\ILoadSarifLogService2.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
     <Compile Include="KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="Controls\BindableTextBlock.cs" />
     <Compile Include="Services\CloseSarifLogService.cs" />
-    <Compile Include="Services\ILoadSarifLogService3.cs" />
     <Compile Include="Services\LoadSarifLogService.cs" />
     <Compile Include="Models\CallTreeCollection.cs" />
     <Compile Include="Models\CallTree.cs" />
@@ -230,6 +230,7 @@
     <EmbeddedResource Include="Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
