@@ -20,21 +20,10 @@ namespace Microsoft.Sarif.Viewer.Services
     /// Provides an interface through which other extensions can interact with the this extension,
     /// in particular, to ask this extension to load a log file.
     /// </summary>
-    public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService, ILoadSarifLogService2, ILoadSarifLogService3
+    public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService
     {
         /// <inheritdoc/>
-        public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return;
-            }
-
-            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnSchemaUpgrade, cleanErrors: true, openInEditor: false);
-        }
-
-        /// <inheritdoc/>
-        public void LoadSarifLog(string path, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        public void LoadSarifLog(string path, bool promptOnLogConversions = true, bool cleanErrors = true, bool openInEditor = false)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -45,13 +34,7 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void LoadSarifLogs(IEnumerable<string> paths)
-        {
-            this.LoadSarifLogs(paths, promptOnSchemaUpgrade: false);
-        }
-
-        /// <inheritdoc/>
-        public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade)
+        public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade = false)
         {
             LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
