@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// Initializes a new instance of the <see cref="InfoBar"/> class.
         /// </summary>
         /// <param name="text">
-        /// The text to dislay.
+        /// The text to display.
         /// </param>
         /// <param name="clickAction">
         /// An action to take when a user clicks on an <see cref="IVsInfoBarActionItem"/> (e.g. button) in the info bar.
