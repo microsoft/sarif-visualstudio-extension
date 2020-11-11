@@ -3,9 +3,4 @@
 
 using System.Reflection;
 
-using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.UnitTests;
-
 [assembly: AssemblyTitle("Unit Tests for Microsoft SARIF Viewer for Visual Studio")]
-
-[assembly: AssemblyVersion(VersionConstants.FileVersion)]
-[assembly: AssemblyFileVersion(VersionConstants.FileVersion)]
