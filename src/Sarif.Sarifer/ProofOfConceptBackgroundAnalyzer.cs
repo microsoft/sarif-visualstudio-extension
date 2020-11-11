@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Sarif.Writers;
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
-    /// A fake background analyzer that detects "public class" and suggests "internal class" instead.
+    /// A fake background analyzer that detects an "internal class" and suggests "public class" instead.
     /// </summary>
     [Export(typeof(IBackgroundAnalyzer))]
     internal class ProofOfConceptBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
