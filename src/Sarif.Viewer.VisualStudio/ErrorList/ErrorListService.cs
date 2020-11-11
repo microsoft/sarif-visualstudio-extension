@@ -23,6 +23,7 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -338,9 +339,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         internal static async Task ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
-            SarifLog sarifLog = SarifLog.Load(stream);
+            SarifLog sarifLog = null;
+            try
+            {
+                sarifLog = SarifLog.Load(stream);
+            }
+            catch (JsonReaderException)
+            {
+            }
 
-            await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+            if (sarifLog != null)
+            {
+                await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+            }
+            else
+            {
+                new InfoBar(Resources.ErrorInvalidSarifStream).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+            }
         }
 
         internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)

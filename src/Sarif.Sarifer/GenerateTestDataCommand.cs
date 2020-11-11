@@ -15,7 +15,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     internal class GenerateTestDataCommand
     {
         private const string ProofOfConceptResourceName = "TestData.ProofOfConcept.sarif";
-        private const string SendDataToViewerFailureEventName = "SendDataToViewer/Failure";
 
         private readonly SarifViewerInterop viewerInterop;
 
@@ -43,7 +42,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.viewerInterop.LoadViewerExtension();
             }
 
-            this.viewerInterop.OpenSarifLogAsync(testDataStream).FileAndForget(FileAndForget.EventName(SendDataToViewerFailureEventName));
+            this.viewerInterop.OpenSarifLogAsync(testDataStream).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
         }
     }
 }
