@@ -61,15 +61,9 @@ function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $fra
 }
 
 function New-NuGetPackages($configuration, $projects, $frameworks) {
-    $versionPrefix, $versionSuffix = & $PSScriptRoot\Get-VersionConstants.ps1
-    if ($versionSuffix)
-    {
-        $version = "$versionPrefix-$versionSuffix"
-    } else {
-        $version = $versionPrefix
-    }
-
+    $version = (Get-Content "$SourceRoot\version.json" | ConvertFrom-Json).version
     foreach ($project in $Projects.NuGet) {
+        Write-Information $project
         foreach ($framework in $frameworks) {
             New-NuGetPackageFromNuSpecFile $configuration $project $version $framework
         }

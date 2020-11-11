@@ -167,7 +167,6 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
-    Update-VsixManifests
     Invoke-Build
 }
 

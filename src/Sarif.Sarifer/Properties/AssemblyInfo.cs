@@ -10,6 +10,3 @@ using Microsoft.CodeAnalysis.Sarif.Sarifer;
 [assembly: AssemblyDescription("Generates test data in SARIF format and provides it to the SARIF viewer extension, upon which it depends.")]
 
 [assembly: NeutralResourcesLanguage("en")]
-
-[assembly: AssemblyVersion(VersionConstants.FileVersion)]
-[assembly: AssemblyFileVersion(VersionConstants.FileVersion)]
