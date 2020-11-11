@@ -61,7 +61,8 @@ function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $fra
 }
 
 function New-NuGetPackages($configuration, $projects, $frameworks) {
-    $version = (Get-Content "$SourceRoot\version.json" | ConvertFrom-Json).version
+    dotnet tool install -g nbgv
+    $version = nbgv get-version -p src -v Version
     foreach ($project in $Projects.NuGet) {
         Write-Information $project
         foreach ($framework in $frameworks) {
