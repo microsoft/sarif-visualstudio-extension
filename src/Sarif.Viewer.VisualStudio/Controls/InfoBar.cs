@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <remarks>
         /// Exposed for testing purposes.
         /// </remarks>
-        public static List<InfoBar> InfoBars { get; } = new List<InfoBar>();
+        internal static List<InfoBar> InfoBars { get; } = new List<InfoBar>();
 
         /// <summary>
         /// Standard spacing between info bar text elements.
