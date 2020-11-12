@@ -23,7 +23,10 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <summary>
         /// List of info bars currently being shown shown.
         /// </summary>
-        public static List<InfoBarModel> InfoBars { get; } = new List<InfoBarModel>();
+        /// <remarks>
+        /// Exposed for test purposes.
+        /// </remarks>
+        internal static List<InfoBarModel> InfoBars { get; } = new List<InfoBarModel>();
 
         /// <summary>
         /// Standard spacing between info bar text elements.
