@@ -21,14 +21,9 @@ namespace Microsoft.Sarif.Viewer.Controls
     public class InfoBar : IVsInfoBarUIEvents
     {
         /// <summary>
-        /// Occurs when an info bar is shown.
+        /// List of info bars currently being shown shown.
         /// </summary>
-        public static event EventHandler<InfoBarEventArgs> Shown;
-
-        /// <summary>
-        /// Occurs when an info bar is closed.
-        /// </summary>
-        public static event EventHandler<InfoBarEventArgs> Closed;
+        public static List<InfoBarModel> InfoBars { get; } = new List<InfoBarModel>();
 
         /// <summary>
         /// Standard spacing between info bar text elements.
@@ -116,7 +111,7 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // at the top of the WindowFrame's content
                 mainWindowInforBarHost.AddInfoBar(this.uiElement);
 
-                Shown?.Invoke(this, new InfoBarEventArgs(this.uiElement, this.infoBarModel));
+                InfoBars.Add(this.infoBarModel);
 
                 // Listen to InfoBar events such as hyperlink click
                 this.uiElement.Advise(this, out this.eventCookie);
@@ -139,7 +134,7 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // Close the info bar to correctly send OnClosed() event to the Shell
                 this.uiElement.Close();
 
-                Closed?.Invoke(this, new InfoBarEventArgs(this.uiElement, this.infoBarModel));
+                InfoBars.Remove(this.infoBarModel);
 
                 this.uiElement = null;
             }
