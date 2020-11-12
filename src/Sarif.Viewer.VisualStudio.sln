@@ -13,7 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\BuildAndTest.cmd = ..\BuildAndTest.cmd
 		..\scripts\BuildAndTest.ps1 = ..\scripts\BuildAndTest.ps1
 		..\scripts\BuildPackagesFromSigningDirectory.ps1 = ..\scripts\BuildPackagesFromSigningDirectory.ps1
-		..\scripts\Get-VersionConstants.ps1 = ..\scripts\Get-VersionConstants.ps1
 		..\scripts\New-AtomXml.ps1 = ..\scripts\New-AtomXml.ps1
 		..\scripts\New-VersionConstantsFile.ps1 = ..\scripts\New-VersionConstantsFile.ps1
 		..\scripts\Projects.psm1 = ..\scripts\Projects.psm1
@@ -22,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\scripts\Run-Tests.ps1 = ..\scripts\Run-Tests.ps1
 		..\scripts\ScriptUtilities.psm1 = ..\scripts\ScriptUtilities.psm1
 		..\scripts\Unzip.ps1 = ..\scripts\Unzip.ps1
+		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.Interop", "Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj", "{9D407555-D268-461E-BFAF-4251B0FBF7C9}"

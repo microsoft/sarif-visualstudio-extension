@@ -65,29 +65,6 @@ Import-Module -Force $PSScriptRoot\Projects.psm1
 $SolutionFile = "$SourceRoot\Sarif.Viewer.VisualStudio.sln"
 $BuildTarget = "Rebuild"
 
-function Update-VersionConstantsFiles {
-    foreach ($project in $Projects.All) {
-        & $PSScriptRoot\New-VersionConstantsFile.ps1 -OutputDirectory $SourceRoot\$project -Namespace "Microsoft.CodeAnalysis.$project"
-    }
-}
-
-function Update-VsixManifest($project) {
-    $versionPrefix, $versionSuffix = & "$PSScriptRoot\Get-VersionConstants.ps1"
-
-    $vsixManifestPath = "$SourceRoot\$project\source.extension.vsixmanifest"
-    $vsixManifest = [xml](Get-Content $vsixManifestPath)
-
-    $vsixManifest.PackageManifest.Metadata.Identity.Version = $versionPrefix
-
-    $vsixManifest.Save($vsixManifestPath)
-}
-
-function Update-VsixManifests {
-    foreach ($project in $Projects.Vsix) {
-        Update-VsixManifest $project
-    }
-}
-
 function Invoke-Build {
     Write-Information "Building $SolutionFile..."
     msbuild /verbosity:minimal /target:$BuildTarget /property:Configuration=$Configuration /fileloggerparameters:Verbosity=detailed $SolutionFile
@@ -167,8 +144,6 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
-    Update-VersionConstantsFiles
-    Update-VsixManifests
     Invoke-Build
 }
 

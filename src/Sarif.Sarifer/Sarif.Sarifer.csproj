@@ -35,6 +35,11 @@
     <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
     <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
     <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <Version>3.3.37</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackgroundAnalysisService.cs" />
@@ -46,7 +51,6 @@
     <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\VersionConstants.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />

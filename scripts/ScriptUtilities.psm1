@@ -61,15 +61,10 @@ function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $fra
 }
 
 function New-NuGetPackages($configuration, $projects, $frameworks) {
-    $versionPrefix, $versionSuffix = & $PSScriptRoot\Get-VersionConstants.ps1
-    if ($versionSuffix)
-    {
-        $version = "$versionPrefix-$versionSuffix"
-    } else {
-        $version = $versionPrefix
-    }
-
+    dotnet tool install --global nbgv --version 3.3.37
+    $version = nbgv get-version --project src --variable Version
     foreach ($project in $Projects.NuGet) {
+        Write-Information $project
         foreach ($framework in $frameworks) {
             New-NuGetPackageFromNuSpecFile $configuration $project $version $framework
         }

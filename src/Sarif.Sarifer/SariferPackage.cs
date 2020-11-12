@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// provided by the Managed Package Framework (MPF).
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("#110", "#112", VersionConstants.AssemblyVersion, IconResourceID = 400)]
+    [InstalledProductRegistration("#110", "#112", ThisAssembly.AssemblyFileVersion, IconResourceID = 400)]
     [Guid(PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
