@@ -168,13 +168,5 @@ namespace Microsoft.Sarif.Viewer.Controls
                 this.clickAction?.Invoke(actionItem);
             }
         }
-
-        public ImageMoniker Image => throw new NotImplementedException();
-
-        public bool IsCloseButtonVisible => throw new NotImplementedException();
-
-        public IVsInfoBarTextSpanCollection TextSpans => throw new NotImplementedException();
-
-        public IVsInfoBarActionItemCollection ActionItems => throw new NotImplementedException();
     }
 }
