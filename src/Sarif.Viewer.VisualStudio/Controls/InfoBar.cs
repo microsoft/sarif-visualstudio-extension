@@ -21,12 +21,14 @@ namespace Microsoft.Sarif.Viewer.Controls
     public class InfoBar : IVsInfoBarUIEvents
     {
         /// <summary>
-        /// Gets a list of the active info bar instances created by this class.
+        /// Occurs when an info bar is shown.
         /// </summary>
-        /// <remarks>
-        /// Exposed for testing purposes.
-        /// </remarks>
-        internal static List<InfoBar> InfoBars { get; } = new List<InfoBar>();
+        public static event EventHandler<InfoBarEventArgs> Shown;
+
+        /// <summary>
+        /// Occurs when an info bar is closed.
+        /// </summary>
+        public static event EventHandler<InfoBarEventArgs> Closed;
 
         /// <summary>
         /// Standard spacing between info bar text elements.
@@ -114,7 +116,7 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // at the top of the WindowFrame's content
                 mainWindowInforBarHost.AddInfoBar(this.uiElement);
 
-                InfoBars.Add(this);
+                Shown?.Invoke(this, new InfoBarEventArgs(this.uiElement, this.infoBarModel));
 
                 // Listen to InfoBar events such as hyperlink click
                 this.uiElement.Advise(this, out this.eventCookie);
@@ -137,7 +139,7 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // Close the info bar to correctly send OnClosed() event to the Shell
                 this.uiElement.Close();
 
-                InfoBars.Remove(this);
+                Closed?.Invoke(this, new InfoBarEventArgs(this.uiElement, this.infoBarModel));
 
                 this.uiElement = null;
             }
@@ -168,5 +170,13 @@ namespace Microsoft.Sarif.Viewer.Controls
                 this.clickAction?.Invoke(actionItem);
             }
         }
+
+        public ImageMoniker Image => throw new NotImplementedException();
+
+        public bool IsCloseButtonVisible => throw new NotImplementedException();
+
+        public IVsInfoBarTextSpanCollection TextSpans => throw new NotImplementedException();
+
+        public IVsInfoBarActionItemCollection ActionItems => throw new NotImplementedException();
     }
 }
