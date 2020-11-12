@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 using Microsoft.VisualStudio;
@@ -19,6 +20,14 @@ namespace Microsoft.Sarif.Viewer.Controls
     /// </summary>
     public class InfoBar : IVsInfoBarUIEvents
     {
+        /// <summary>
+        /// List of info bars currently being shown shown.
+        /// </summary>
+        /// <remarks>
+        /// Exposed for test purposes.
+        /// </remarks>
+        internal static List<InfoBarModel> InfoBars { get; } = new List<InfoBarModel>();
+
         /// <summary>
         /// Standard spacing between info bar text elements.
         /// </summary>
@@ -40,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// Initializes a new instance of the <see cref="InfoBar"/> class.
         /// </summary>
         /// <param name="text">
-        /// The text to dislay.
+        /// The text to display.
         /// </param>
         /// <param name="clickAction">
         /// An action to take when a user clicks on an <see cref="IVsInfoBarActionItem"/> (e.g. button) in the info bar.
@@ -105,6 +114,8 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // at the top of the WindowFrame's content
                 mainWindowInforBarHost.AddInfoBar(this.uiElement);
 
+                InfoBars.Add(this.infoBarModel);
+
                 // Listen to InfoBar events such as hyperlink click
                 this.uiElement.Advise(this, out this.eventCookie);
             }
@@ -125,6 +136,8 @@ namespace Microsoft.Sarif.Viewer.Controls
 
                 // Close the info bar to correctly send OnClosed() event to the Shell
                 this.uiElement.Close();
+
+                InfoBars.Remove(this.infoBarModel);
 
                 this.uiElement = null;
             }
