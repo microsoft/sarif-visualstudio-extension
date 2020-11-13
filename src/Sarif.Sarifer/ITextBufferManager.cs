@@ -10,11 +10,16 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
     /// Interfaces exposed by objects that keep track of the set of <see cref="ITextView"/>s that
-    /// are open on each tracked <see cref="ITextBuffer"/>, and notifies subscribers when the last
-    /// view on a buffer is closed.
+    /// are open on each tracked <see cref="ITextBuffer"/>, and notifies subscribers when the first
+    /// view on a buffer is open or the last view on a buffer is closed.
     /// </summary>
     public interface ITextBufferManager
     {
+        /// <summary>
+        /// Occurs when the first <see cref="ITextView"/> on an <see cref="ITextBuffer"/> is opened.
+        /// </summary>
+        event EventHandler<FirstViewAddedEventArgs> FirstViewAdded;
+
         /// <summary>
         /// Occurs when the last <see cref="ITextView"/> on an <see cref="ITextBuffer"/> is closed.
         /// </summary>
@@ -27,7 +32,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="textView">
         /// The <see cref="ITextView"/> to be added.
         /// </param>
-        void AddTextView(ITextView textView);
+        void AddTextView(ITextView textView, string path, string text);
 
         /// <summary>
         /// Remove a <see cref="ITextView"/> frpm the list of views for that view's

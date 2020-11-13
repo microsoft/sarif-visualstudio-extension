@@ -45,6 +45,7 @@
     <Compile Include="BackgroundAnalysisService.cs" />
     <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
     <Compile Include="BackgroundAnalyzerBase.cs" />
+    <Compile Include="FirstViewAddedEventArgs.cs" />
     <Compile Include="IBackgroundAnalysisService.cs" />
     <Compile Include="IBackgroundAnalysisSink.cs" />
     <Compile Include="IBackgroundAnalyzer.cs" />

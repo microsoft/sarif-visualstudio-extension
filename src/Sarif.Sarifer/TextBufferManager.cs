@@ -12,28 +12,39 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
     /// Keeps track of the set of <see cref="ITextView"/>s that are open on each tracked
-    /// <see cref="ITextBuffer"/>, and notifies subscribers when the last view on a buffer
-    /// is closed.
+    /// <see cref="ITextBuffer"/>, and notifies subscribers when the first view on a buffer
+    /// is open or the last view on a buffer is closed.
     /// </summary>
     [Export(typeof(ITextBufferManager))]
     public class TextBufferManager : ITextBufferManager
     {
         private readonly IDictionary<ITextBuffer, List<ITextView>> bufferToViewsDictionary = new Dictionary<ITextBuffer, List<ITextView>>();
 
+        /// <inheritdoc/>
+        public event EventHandler<FirstViewAddedEventArgs> FirstViewAdded;
+
+        /// <inheritdoc/>
         public event EventHandler<LastViewRemovedEventArgs> LastViewRemoved;
 
         /// <inheritdoc/>
-        public void AddTextView(ITextView textView)
+        public void AddTextView(ITextView textView, string path, string text)
         {
+            bool first = false;
+
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
             if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out List<ITextView> textViews))
             {
+                first = true;
                 textViews = new List<ITextView>();
                 this.bufferToViewsDictionary.Add(textView.TextBuffer, textViews);
             }
 
             textViews.Add(textView);
+            if (first)
+            {
+                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(textView.TextBuffer, path, text));
+            }
         }
 
         /// <inheritdoc/>

@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Initializes a new instance of the <see cref="LastViewRemovedEventArgs"/> class.
         /// </summary>
         /// <param name="textBuffer">
-        /// The <see cref="ITextBuffer"/> whose last <see cref="ITextView"> has been closed.
+        /// The <see cref="ITextBuffer"/> whose last <see cref="ITextView"> was closed.
         /// </param>
         public LastViewRemovedEventArgs(ITextBuffer textBuffer)
         {

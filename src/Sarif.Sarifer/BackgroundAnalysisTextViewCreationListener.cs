@@ -52,6 +52,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 // never be removed from memory. This isn't a problem because the listener will
                 // never be removed from memory either; we want it to live as long as the extension
                 // is loaded.
+                this.textBufferManager.FirstViewAdded += this.TextBufferManager_FirstViewAdded;
                 this.textBufferManager.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
                 this.subscribed = true;
             }
@@ -62,9 +63,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string path = GetPathFromTextView(textView);
 
             textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
-            this.textBufferManager.AddTextView(textView);
+            this.textBufferManager.AddTextView(textView, path, text);
+        }
 
-            this.backgroundAnalysisService.Value.StartAnalysis(path, text);
+        private void TextBufferManager_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
+        {
+            this.backgroundAnalysisService.Value.StartAnalysis(e.Path, e.Text);
         }
 
         private void TextView_Closed(ITextView textView)
