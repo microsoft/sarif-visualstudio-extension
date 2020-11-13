@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.Composition;
 
+using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
@@ -31,8 +32,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         [Import]
         private Lazy<IVsEditorAdaptersFactoryService> vsEditorAdaptersFactoryService;
+
+        [Import]
+#pragma warning disable CA1823 // Avoid unused private fields
+        private ITextBufferManager textBufferManager;
+#pragma warning restore CA1823 // Avoid unused private fields
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BackgroundAnalysisTextViewCreationListener"/>
+        /// class.
+        /// </summary>
+        public BackgroundAnalysisTextViewCreationListener()
+        {
+            // ITextViewCreationListener is not IDisposable, so the ITextBufferManager will
+            // never be removed from memory. This isn't a problem because the listener will
+            // never be removed from memory either; we want it to live as long as the extension
+            // is loaded.
+            this.textBufferManager.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
+        }
 
         /// <inheritdoc/>
         public void TextViewCreated(ITextView textView)
@@ -44,8 +63,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string text = textView.TextBuffer.CurrentSnapshot.GetText();
             string path = GetPathFromTextView(textView);
 
-            this.backgroundAnalysisService.Value.StartAnalysis(path, text);
+            textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
+            this.textBufferManager.AddTextView(textView);
 
+            this.backgroundAnalysisService.Value.StartAnalysis(path, text);
+        }
+
+        private void TextView_Closed(ITextView textView)
+        {
+            this.textBufferManager.RemoveTextView(textView);
+        }
+
+        // If this is the last view on a buffer, remove any results for this buffer from the
+        // error list.
+        private void TextBufferManager_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Last text buffer closed...");
         }
 
         private string GetPathFromTextView(ITextView textView)

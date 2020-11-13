@@ -93,6 +93,10 @@
       <Project>{9d407555-d268-461e-bfaf-4251b0fbf7c9}</Project>
       <Name>Sarif.Viewer.VisualStudio.Interop</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Utilities\Sarif.Viewer.VisualStudio.Utilities.csproj">
+      <Project>{9a87cefd-52f5-43a8-bffa-685235cf7c09}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
