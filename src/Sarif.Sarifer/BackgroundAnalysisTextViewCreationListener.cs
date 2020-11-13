@@ -35,9 +35,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private Lazy<IVsEditorAdaptersFactoryService> vsEditorAdaptersFactoryService;
 
         [Import]
-#pragma warning disable CA1823 // Avoid unused private fields
-        private ITextBufferManager textBufferManager;
-#pragma warning restore CA1823 // Avoid unused private fields
+        private ITextBufferViewTracker textBufferViewTracker;
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
@@ -52,8 +50,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 // never be removed from memory. This isn't a problem because the listener will
                 // never be removed from memory either; we want it to live as long as the extension
                 // is loaded.
-                this.textBufferManager.FirstViewAdded += this.TextBufferManager_FirstViewAdded;
-                this.textBufferManager.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
+                this.textBufferViewTracker.FirstViewAdded += this.TextBufferManager_FirstViewAdded;
+                this.textBufferViewTracker.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
                 this.subscribed = true;
             }
 
@@ -63,7 +61,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string path = GetPathFromTextView(textView);
 
             textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
-            this.textBufferManager.AddTextView(textView, path, text);
+            this.textBufferViewTracker.AddTextView(textView, path, text);
         }
 
         private void TextBufferManager_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
@@ -73,7 +71,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextView_Closed(ITextView textView)
         {
-            this.textBufferManager.RemoveTextView(textView);
+            this.textBufferViewTracker.RemoveTextView(textView);
         }
 
         // If this is the last view on a buffer, remove any results for this buffer from the

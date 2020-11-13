@@ -13,7 +13,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// are open on each tracked <see cref="ITextBuffer"/>, and notifies subscribers when the first
     /// view on a buffer is open or the last view on a buffer is closed.
     /// </summary>
-    public interface ITextBufferManager
+    public interface ITextBufferViewTracker
     {
         /// <summary>
         /// Occurs when the first <see cref="ITextView"/> on an <see cref="ITextBuffer"/> is opened.

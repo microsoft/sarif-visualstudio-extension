@@ -49,7 +49,7 @@
     <Compile Include="IBackgroundAnalysisService.cs" />
     <Compile Include="IBackgroundAnalysisSink.cs" />
     <Compile Include="IBackgroundAnalyzer.cs" />
-    <Compile Include="ITextBufferManager.cs" />
+    <Compile Include="ITextBufferViewTracker.cs" />
     <Compile Include="LastViewRemovedEventArgs.cs" />
     <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
@@ -59,7 +59,7 @@
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
-    <Compile Include="TextBufferManager.cs" />
+    <Compile Include="TextBufferViewTracker.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

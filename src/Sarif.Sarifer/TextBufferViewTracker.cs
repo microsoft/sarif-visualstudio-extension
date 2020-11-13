@@ -15,8 +15,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// <see cref="ITextBuffer"/>, and notifies subscribers when the first view on a buffer
     /// is open or the last view on a buffer is closed.
     /// </summary>
-    [Export(typeof(ITextBufferManager))]
-    public class TextBufferManager : ITextBufferManager
+    [Export(typeof(ITextBufferViewTracker))]
+    public class TextBufferViewTracker : ITextBufferViewTracker
     {
         private readonly IDictionary<ITextBuffer, List<ITextView>> bufferToViewsDictionary = new Dictionary<ITextBuffer, List<ITextView>>();
 
