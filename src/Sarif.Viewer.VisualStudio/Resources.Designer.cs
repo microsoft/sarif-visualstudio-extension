@@ -315,6 +315,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SARIF viewer received one or more SARIF logs in which the analysis tool did not detect any results..
+        /// </summary>
+        public static string InfoNoResultsInLog {
+            get {
+                return ResourceManager.GetString("InfoNoResultsInLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The log file &apos;{0}&apos; is invalid and couldn&apos;t be opened..
         /// </summary>
         public static string LogOpenFail_InvalidFormat_DialogMessage {

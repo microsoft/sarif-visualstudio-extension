@@ -293,4 +293,7 @@
   <data name="ErrorInvalidSarifStream" xml:space="preserve">
     <value>The SARIF viewer received one or more corrupted SARIF logs, and they were ignored.</value>
   </data>
+  <data name="InfoNoResultsInLog" xml:space="preserve">
+    <value>The SARIF viewer received one or more SARIF logs in which the analysis tool did not detect any results.</value>
+  </data>
 </root>

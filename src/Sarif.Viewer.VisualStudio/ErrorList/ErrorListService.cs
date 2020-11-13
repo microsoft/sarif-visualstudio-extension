@@ -27,6 +27,7 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -351,6 +352,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (sarifLog != null)
             {
                 await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+                if (sarifLog.HasNoResults())
+                {
+                    new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+                }
             }
             else
             {
