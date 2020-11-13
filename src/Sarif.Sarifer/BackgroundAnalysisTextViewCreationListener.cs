@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.Composition;
 
+using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
@@ -23,6 +24,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener
     {
         private const string AnyContentType = "any";
+        private SarifViewerInterop sarifViewerInterop;
 
         private bool subscribed;
 
@@ -44,14 +46,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            if (this.sarifViewerInterop == null)
+            {
+                if (Package.GetGlobalService(typeof(SVsShell)) is IVsShell vsShell)
+                {
+                    this.sarifViewerInterop = new SarifViewerInterop(vsShell);
+                }
+            }
+
             if (!this.subscribed)
             {
                 // ITextViewCreationListener is not IDisposable, so the ITextBufferManager will
                 // never be removed from memory. This isn't a problem because the listener will
                 // never be removed from memory either; we want it to live as long as the extension
                 // is loaded.
-                this.textBufferViewTracker.FirstViewAdded += this.TextBufferManager_FirstViewAdded;
-                this.textBufferViewTracker.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
+                this.textBufferViewTracker.FirstViewAdded += this.TextBufferViewTracker_FirstViewAdded;
+                this.textBufferViewTracker.LastViewRemoved += this.TextBufferViewTracker_LastViewRemoved;
                 this.subscribed = true;
             }
 
@@ -65,7 +75,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
            this.textBufferViewTracker.AddTextView(textView, path, text);
         }
 
-        private void TextBufferManager_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
+        private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
             this.backgroundAnalysisService.Value.StartAnalysis(e.Path, e.Text);
         }
@@ -77,9 +87,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         // If this is the last view on a buffer, remove any results for this buffer from the
         // error list.
-        private void TextBufferManager_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
+        private void TextBufferViewTracker_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine($"Last text view closed: log = {e.LogId}");
+            this.sarifViewerInterop.CloseSarifLogAsync(new string[] { e.LogId }).FileAndForget(FileAndForgetEventName.CloseSarifLogsFailure);
         }
 
         private string GetPathFromTextView(ITextView textView)
