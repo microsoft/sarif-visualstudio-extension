@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <summary>
     /// Provides services for closing log files.
     /// </summary>
-    interface ICloseSarifLogService
+    internal interface ICloseSarifLogService
     {
         /// <summary>
         /// Closes the specified SARIF logs in the viewer.

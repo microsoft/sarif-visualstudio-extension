@@ -17,17 +17,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Initializes a new instance of the <see cref="LastViewRemovedEventArgs"/> class.
         /// </summary>
-        /// <param name="textBuffer">
-        /// The <see cref="ITextBuffer"/> whose last <see cref="ITextView"> was closed.
+        /// <param name="logId">
+        /// The unique id of the SARIF log associated with this text buffer.
         /// </param>
-        public LastViewRemovedEventArgs(ITextBuffer textBuffer)
+        public LastViewRemovedEventArgs(string logId)
         {
-            this.TextBuffer = textBuffer;
+            this.LogId = logId;
         }
 
         /// <summary>
-        /// Gets the <see cref="ITextBuffer"/> whose last <see cref="ITextView"/> was closed.
+        /// Gets the unique id of the SARIF log associated with this text buffer.
         /// </summary>
-        public ITextBuffer TextBuffer { get; }
+        public string LogId { get; }
     }
 }

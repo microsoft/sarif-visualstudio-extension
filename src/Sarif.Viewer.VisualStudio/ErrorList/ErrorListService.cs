@@ -342,7 +342,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(Stream stream, string logId, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = null;
             try
@@ -355,7 +355,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (sarifLog != null)
             {
-                await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+                await ProcessSarifLogAsync(sarifLog, logFilePath: logId, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
             }
             else
             {

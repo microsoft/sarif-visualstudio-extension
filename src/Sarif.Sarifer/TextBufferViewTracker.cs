@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(ITextBufferViewTracker))]
     public class TextBufferViewTracker : ITextBufferViewTracker
     {
-        private readonly IDictionary<ITextBuffer, List<ITextView>> bufferToViewsDictionary = new Dictionary<ITextBuffer, List<ITextView>>();
+        private readonly IDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new Dictionary<ITextBuffer, TextBufferViewTrackingInformation>();
 
         /// <inheritdoc/>
         public event EventHandler<FirstViewAddedEventArgs> FirstViewAdded;
@@ -33,17 +33,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
-            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out List<ITextView> textViews))
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
             {
                 first = true;
-                textViews = new List<ITextView>();
-                this.bufferToViewsDictionary.Add(textView.TextBuffer, textViews);
+                trackingInformation = new TextBufferViewTrackingInformation();
+                this.bufferToViewsDictionary.Add(textView.TextBuffer, trackingInformation);
             }
 
-            textViews.Add(textView);
+            trackingInformation.Add(textView);
             if (first)
             {
-                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(textView.TextBuffer, path, text));
+                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(path, text));
             }
         }
 
@@ -52,16 +52,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
-            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out List<ITextView> textViews))
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
             {
                 return;
             }
 
-            textViews.Remove(textView);
-            if (textViews.Count == 0)
+            trackingInformation.Remove(textView);
+            if (trackingInformation.Views.Count == 0)
             {
                 this.bufferToViewsDictionary.Remove(textView.TextBuffer);
-                LastViewRemoved?.Invoke(this, new LastViewRemovedEventArgs(textView.TextBuffer));
+                LastViewRemoved?.Invoke(
+                    this,
+                    new LastViewRemovedEventArgs(trackingInformation.LogId));
             }
         }
     }

@@ -61,7 +61,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string path = GetPathFromTextView(textView);
 
             textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
-            this.textBufferViewTracker.AddTextView(textView, path, text);
+
+           this.textBufferViewTracker.AddTextView(textView, path, text);
         }
 
         private void TextBufferManager_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
@@ -78,7 +79,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         // error list.
         private void TextBufferManager_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Last text buffer closed...");
+            System.Diagnostics.Debug.WriteLine($"Last text view closed: log = {e.LogId}");
         }
 
         private string GetPathFromTextView(ITextView textView)

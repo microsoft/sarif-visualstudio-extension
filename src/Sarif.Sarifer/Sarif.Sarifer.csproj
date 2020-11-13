@@ -60,6 +60,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
     <Compile Include="TextBufferViewTracker.cs" />
+    <Compile Include="TextBufferViewTrackingInformation.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

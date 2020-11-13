@@ -40,9 +40,9 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void LoadSarifLog(Stream stream)
+        public void LoadSarifLog(Stream stream, string logId = null)
         {
-            LoadSarifLogAsync(stream).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            LoadSarifLogAsync(stream, logId).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         private async Task LoadSarifLogAsync(IEnumerable<string> paths)
@@ -98,9 +98,9 @@ namespace Microsoft.Sarif.Viewer.Services
             }
         }
 
-        private async Task LoadSarifLogAsync(Stream stream)
+        private async Task LoadSarifLogAsync(Stream stream, string logId)
         {
-            await ErrorListService.ProcessSarifLogAsync(stream, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+            await ErrorListService.ProcessSarifLogAsync(stream, logId, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }
