@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.Composition;
 
-using Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
@@ -25,6 +24,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string AnyContentType = "any";
 
+        private bool subscribed;
+
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
         [Import]
@@ -40,23 +41,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BackgroundAnalysisTextViewCreationListener"/>
-        /// class.
-        /// </summary>
-        public BackgroundAnalysisTextViewCreationListener()
-        {
-            // ITextViewCreationListener is not IDisposable, so the ITextBufferManager will
-            // never be removed from memory. This isn't a problem because the listener will
-            // never be removed from memory either; we want it to live as long as the extension
-            // is loaded.
-            this.textBufferManager.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
-        }
-
         /// <inheritdoc/>
         public void TextViewCreated(ITextView textView)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (!this.subscribed)
+            {
+                // ITextViewCreationListener is not IDisposable, so the ITextBufferManager will
+                // never be removed from memory. This isn't a problem because the listener will
+                // never be removed from memory either; we want it to live as long as the extension
+                // is loaded.
+                this.textBufferManager.LastViewRemoved += this.TextBufferManager_LastViewRemoved;
+                this.subscribed = true;
+            }
 
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 

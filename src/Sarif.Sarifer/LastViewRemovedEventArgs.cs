@@ -6,7 +6,7 @@ using System;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 
-namespace Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
     /// Provides data for the event handler invoked when the last <see cref="ITextView"/> on an

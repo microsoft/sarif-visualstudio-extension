@@ -6,7 +6,7 @@ using System;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 
-namespace Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
     /// Interfaces exposed by objects that keep track of the set of <see cref="ITextView"/>s that

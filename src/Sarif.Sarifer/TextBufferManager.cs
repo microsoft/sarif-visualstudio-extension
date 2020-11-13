@@ -8,7 +8,7 @@ using System.ComponentModel.Composition;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 
-namespace Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     /// <summary>
     /// Keeps track of the set of <see cref="ITextView"/>s that are open on each tracked
@@ -25,6 +25,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities
         /// <inheritdoc/>
         public void AddTextView(ITextView textView)
         {
+            textView = textView ?? throw new ArgumentNullException(nameof(textView));
+
             if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out List<ITextView> textViews))
             {
                 textViews = new List<ITextView>();
@@ -37,6 +39,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Viewer.VisualStudio.Utilities
         /// <inheritdoc/>
         public void RemoveTextView(ITextView textView)
         {
+            textView = textView ?? throw new ArgumentNullException(nameof(textView));
+
             if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out List<ITextView> textViews))
             {
                 return;
