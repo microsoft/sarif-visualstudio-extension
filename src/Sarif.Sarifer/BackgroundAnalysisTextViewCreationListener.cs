@@ -72,7 +72,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
 
-           this.textBufferViewTracker.AddTextView(textView, path, text);
+            this.textBufferViewTracker.AddTextView(textView, path, text);
         }
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
