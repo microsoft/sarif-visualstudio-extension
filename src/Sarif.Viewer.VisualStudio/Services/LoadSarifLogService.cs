@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif.Converters;
+using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TaskStatusCenter;
@@ -54,6 +55,12 @@ namespace Microsoft.Sarif.Viewer.Services
         public void LoadSarifLog(Stream stream)
         {
             LoadSarifLogAsync(stream).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+        }
+
+        /// <inheritdoc/>
+        public void LoadSarifLog(IEnumerable<Stream> streams)
+        {
+            LoadSarifLogAsync(streams).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         private async Task LoadSarifLogAsync(IEnumerable<string> paths)
@@ -111,7 +118,20 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private async Task LoadSarifLogAsync(Stream stream)
         {
-            await ErrorListService.ProcessSarifLogAsync(stream, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+            ExceptionalConditions conditions = await ErrorListService.ProcessSarifLogAsync(stream, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+
+            InfoBar.CreateInfoBarsForExceptionalConditions(conditions);
+        }
+
+        public async Task LoadSarifLogAsync(IEnumerable<Stream> streams)
+        {
+            ExceptionalConditions conditions = ExceptionalConditions.None;
+            foreach (Stream stream in streams)
+            {
+                conditions |= await ErrorListService.ProcessSarifLogAsync(stream, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+            }
+
+            InfoBar.CreateInfoBarsForExceptionalConditions(conditions);
         }
     }
 }

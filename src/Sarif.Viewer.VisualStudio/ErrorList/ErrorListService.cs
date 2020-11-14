@@ -23,11 +23,9 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
-using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -343,7 +341,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task<ExceptionalConditions> ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = null;
             try
@@ -357,26 +355,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (sarifLog != null)
             {
                 await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
-
-                if (!sarifLog.HasResults())
-                {
-                    new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-                }
-
-                if (sarifLog.HasErrorLevelToolConfigurationNotifications())
-                {
-                    new InfoBar(Resources.ErrorLogHasErrorLevelToolConfigurationNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-                }
-
-                if (sarifLog.HasErrorLevelToolExecutionNotifications())
-                {
-                    new InfoBar(Resources.ErrorLogHasErrorLevelToolExecutionNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-                }
             }
-            else
-            {
-                new InfoBar(Resources.ErrorInvalidSarifStream).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+
+            return ExceptionalConditionsCalculator.Calculate(sarifLog);
         }
 
         internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)

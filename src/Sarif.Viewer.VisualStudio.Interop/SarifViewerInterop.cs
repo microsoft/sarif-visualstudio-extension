@@ -122,6 +122,27 @@ namespace Microsoft.Sarif.Viewer.Interop
         }
 
         /// <summary>
+        /// Open the SARIF log files read from the specified streams in the SARIF Viewer extension.
+        /// </summary>
+        /// <param name="streams">
+        /// The <see cref="Stream"/>s from which the SARIF log files are to be read.
+        /// </param>
+        /// <returns>
+        /// <code>true</code> if the extensions service was successfully invoked (regardless of the
+        /// outcome), otherwise <code>false</code>.
+        /// </returns>
+        public Task<bool> OpenSarifLogAsync(IEnumerable<Stream> streams)
+        {
+            streams = streams ?? throw new ArgumentNullException(nameof(streams));
+
+            return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
+            {
+                service.LoadSarifLog(streams);
+                return true;
+            });
+        }
+
+        /// <summary>
         /// Opens the specified SARIF log file in the SARIF Viewer extension.
         /// </summary>
         /// <param name="path">The path of the log file.</param>

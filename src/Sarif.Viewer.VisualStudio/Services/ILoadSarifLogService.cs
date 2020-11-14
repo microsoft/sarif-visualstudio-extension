@@ -36,5 +36,13 @@ namespace Microsoft.Sarif.Viewer.Services
         /// The stream from which the SARIF log should be loaded.
         /// </param>
         void LoadSarifLog(Stream stream);
+
+        /// <summary>
+        /// Loads SARIF logs from the specified streams into the viewer.
+        /// </summary>
+        /// <param name="streams">
+        /// The streams from which the SARIF log should be loaded.
+        /// </param>
+        void LoadSarifLog(IEnumerable<Stream> streams);
     }
 }
