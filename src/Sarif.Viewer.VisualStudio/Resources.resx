@@ -296,4 +296,10 @@
   <data name="InfoNoResultsInLog" xml:space="preserve">
     <value>The SARIF viewer received one or more SARIF logs in which the analysis tool did not detect any results.</value>
   </data>
+  <data name="ErrorLogHasErrorLevelToolConfigurationNotifications" xml:space="preserve">
+    <value>The SARIF viewer received one or more SARIF logs containing a run that failed due to a tool configuration error. These logs might contain incomplete results.</value>
+  </data>
+  <data name="ErrorLogHasErrorLevelToolExecutionNotifications" xml:space="preserve">
+    <value>The SARIF viewer received one or more SARIF logs containing a run that failed due to a tool execution error. These logs might contain incomplete results.</value>
+  </data>
 </root>

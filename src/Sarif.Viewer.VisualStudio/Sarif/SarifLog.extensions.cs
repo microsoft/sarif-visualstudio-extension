@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
         {
             if (sarifLog.Runs == null)
             {
-                return false;
+                return true;
             }
 
             foreach (Run run in sarifLog.Runs)
@@ -26,6 +26,42 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
 
             return true;
+        }
+
+        static internal bool HasErrorLevelToolConfigurationNotifications(this SarifLog sarifLog)
+        {
+            if (sarifLog.Runs == null)
+            {
+                return false;
+            }
+
+            foreach (Run run in sarifLog.Runs)
+            {
+                if (run.HasErrorLevelToolConfigurationNotifications())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static internal bool HasErrorLevelToolExecutionNotifications(this SarifLog sarifLog)
+        {
+            if (sarifLog.Runs == null)
+            {
+                return false;
+            }
+
+            foreach (Run run in sarifLog.Runs)
+            {
+                if (run.HasErrorLevelToolExecutionNotifications())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

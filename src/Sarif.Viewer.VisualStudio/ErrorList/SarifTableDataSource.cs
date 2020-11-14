@@ -135,7 +135,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             using (this.tableEntriesLock.EnterWriteLock())
             {
-                foreach (SarifResultTableEntry tableEntry in tableEntries)
+                foreach (SarifResultTableEntry tableEntry in tableEntries.Where(te => te.Error.LogFilePath != null))
                 {
                     if (this.logFileToTableEntries.TryGetValue(tableEntry.Error.LogFilePath, out List<SarifResultTableEntry> logFileTableEntryList))
                     {

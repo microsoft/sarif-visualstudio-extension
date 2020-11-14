@@ -238,8 +238,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (string logFile in logFiles)
             {
+                // The null conditional operator in the Where clause is necessary because log files
+                // that come in through the API ILoadSarifLogService.LoadSarifLog(Stream) don't have
+                // a file name. The good news is, we never close such a log file. If in future we
+                // do need to close such a log file, we'll need to synthesize a log file name so we
+                // know which runs belong to that file.
                 runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
-                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath.Equals(logFile, StringComparison.OrdinalIgnoreCase)).
+                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
             }
 
@@ -355,6 +360,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (sarifLog.HasNoResults())
                 {
                     new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+                }
+
+                if (sarifLog.HasErrorLevelToolConfigurationNotifications())
+                {
+                    new InfoBar(Resources.ErrorLogHasErrorLevelToolConfigurationNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+                }
+
+                if (sarifLog.HasErrorLevelToolExecutionNotifications())
+                {
+                    new InfoBar(Resources.ErrorLogHasErrorLevelToolExecutionNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
                 }
             }
             else

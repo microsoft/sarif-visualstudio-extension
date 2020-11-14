@@ -144,6 +144,24 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SARIF viewer received one or more SARIF logs containing a run that failed due to a tool configuration error. These logs might contain incomplete results..
+        /// </summary>
+        public static string ErrorLogHasErrorLevelToolConfigurationNotifications {
+            get {
+                return ResourceManager.GetString("ErrorLogHasErrorLevelToolConfigurationNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The SARIF viewer received one or more SARIF logs containing a run that failed due to a tool execution error. These logs might contain incomplete results..
+        /// </summary>
+        public static string ErrorLogHasErrorLevelToolExecutionNotifications {
+            get {
+                return ResourceManager.GetString("ErrorLogHasErrorLevelToolExecutionNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open File.
         /// </summary>
         public static string FileOpenFail_DialogCaption {

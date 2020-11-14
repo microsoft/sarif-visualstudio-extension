@@ -100,5 +100,41 @@ namespace Microsoft.Sarif.Viewer.Sarif
         }
 
         public static bool HasNoResults(this Run run) => run.Results?.Count == 0;
+
+        public static bool HasErrorLevelToolConfigurationNotifications(this Run run)
+        {
+            if (run.Invocations == null || run.Invocations.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (Invocation invocation in run.Invocations)
+            {
+                if (invocation.ToolConfigurationNotifications?.Any(not => not.Level == FailureLevel.Error) == true)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool HasErrorLevelToolExecutionNotifications(this Run run)
+        {
+            if (run.Invocations == null || run.Invocations.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (Invocation invocation in run.Invocations)
+            {
+                if (invocation.ToolExecutionNotifications?.Any(not => not.Level == FailureLevel.Error) == true)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
