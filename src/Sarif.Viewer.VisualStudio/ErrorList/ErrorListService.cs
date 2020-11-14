@@ -357,7 +357,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (sarifLog != null)
             {
                 await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
-                if (sarifLog.HasNoResults())
+
+                if (!sarifLog.HasResults())
                 {
                     new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
                 }

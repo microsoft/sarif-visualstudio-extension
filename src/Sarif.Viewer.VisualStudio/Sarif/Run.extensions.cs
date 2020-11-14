@@ -99,7 +99,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return run.Tool.Driver.FullName ?? run.Tool.Driver.Name;
         }
 
-        public static bool HasNoResults(this Run run) => run.Results?.Count == 0;
+        public static bool HasResults(this Run run) => run.Results?.Count > 0;
 
         public static bool HasErrorLevelToolConfigurationNotifications(this Run run)
         {

@@ -10,22 +10,22 @@ namespace Microsoft.Sarif.Viewer.Sarif
     /// </summary>
     internal static class SarifLogExtensions
     {
-        static internal bool HasNoResults(this SarifLog sarifLog)
+        static internal bool HasResults(this SarifLog sarifLog)
         {
             if (sarifLog.Runs == null)
             {
-                return true;
+                return false;
             }
 
             foreach (Run run in sarifLog.Runs)
             {
-                if (!run.HasNoResults())
+                if (run.HasResults())
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
 
         static internal bool HasErrorLevelToolConfigurationNotifications(this SarifLog sarifLog)

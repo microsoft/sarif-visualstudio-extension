@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="ExceptionalConditions.cs" />
+    <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="Fixes\EditActionPreviewProvider.cs" />
     <Compile Include="Fixes\IPreviewProvider.cs" />
