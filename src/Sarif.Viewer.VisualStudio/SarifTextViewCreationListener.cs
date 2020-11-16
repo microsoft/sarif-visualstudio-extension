@@ -54,7 +54,7 @@ namespace Microsoft.Sarif.Viewer
 
             textView.Closed += this.TextView_Closed;
 
-            if (this.TryGetFileNameFromTextView(textView, out var filename))
+            if (this.TryGetFileNameFromTextView(textView, out string filename))
             {
                 ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
             }
