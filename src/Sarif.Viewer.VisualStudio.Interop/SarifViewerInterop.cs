@@ -106,17 +106,20 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// <param name="stream">
         /// The <see cref="Stream"/> from which the SARIF log file is to be read.
         /// </param>
+        /// <param name="logId">
+        /// A unique identifier for this stream that can be used to close the log later.
+        /// </param>
         /// <returns>
         /// <code>true</code> if the extensions service was successfully invoked (regardless of the
         /// outcome), otherwise <code>false</code>.
         /// </returns>
-        public Task<bool> OpenSarifLogAsync(Stream stream)
+        public Task<bool> OpenSarifLogAsync(Stream stream, string logId = null)
         {
             stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
             return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
             {
-                service.LoadSarifLog(stream);
+                service.LoadSarifLog(stream, logId);
                 return true;
             });
         }
@@ -125,7 +128,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Opens the specified SARIF log file in the SARIF Viewer extension.
         /// </summary>
         /// <param name="path">The path of the log file.</param>
-        public Task<bool> OpenSarifLogAsync(string path)
+        public Task<bool> OpenSarifLogAsync(string path, bool cleanErrors = true, bool openInEditor = false)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
@@ -134,7 +137,7 @@ namespace Microsoft.Sarif.Viewer.Interop
 
             return this.CallServiceApiAsync(ViewerLoadServiceInterfaceName, (service) =>
             {
-                service.LoadSarifLog(path);
+                service.LoadSarifLog(path, promptOnLogConversions: true, cleanErrors: cleanErrors, openInEditor: openInEditor);
                 return true;
             });
         }

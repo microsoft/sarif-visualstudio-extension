@@ -237,8 +237,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (string logFile in logFiles)
             {
+                // The null conditional operator in the Where clause is necessary because log files
+                // that come in through the API ILoadSarifLogService.LoadSarifLog(Stream) don't have
+                // a file name. The good news is, we never close such a log file. If in future we
+                // do need to close such a log file, we'll need to synthesize a log file name so we
+                // know which runs belong to that file.
                 runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
-                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath.Equals(logFile, StringComparison.OrdinalIgnoreCase)).
+                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
             }
 
@@ -337,7 +342,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(Stream stream, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(Stream stream, string logId, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = null;
             try
@@ -350,7 +355,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (sarifLog != null)
             {
-                await ProcessSarifLogAsync(sarifLog, logFilePath: null, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+                await ProcessSarifLogAsync(sarifLog, logFilePath: logId, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
             }
             else
             {

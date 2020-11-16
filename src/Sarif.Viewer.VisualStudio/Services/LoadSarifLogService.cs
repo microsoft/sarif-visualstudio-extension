@@ -23,25 +23,14 @@ namespace Microsoft.Sarif.Viewer.Services
     public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService
     {
         /// <inheritdoc/>
-        public void LoadSarifLog(string path, bool promptOnSchemaUpgrade = true)
+        public void LoadSarifLog(string path, bool promptOnLogConversions = true, bool cleanErrors = true, bool openInEditor = false)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 return;
             }
 
-            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnSchemaUpgrade, cleanErrors: true, openInEditor: false);
-        }
-
-        /// <inheritdoc/>
-        public void LoadSarifLog(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return;
-            }
-
-            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions: true, cleanErrors: true, openInEditor: false);
+            ErrorListService.ProcessLogFile(path, ToolFormat.None, promptOnLogConversions, cleanErrors, openInEditor);
         }
 
         /// <inheritdoc/>
@@ -51,9 +40,9 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void LoadSarifLog(Stream stream)
+        public void LoadSarifLog(Stream stream, string logId = null)
         {
-            LoadSarifLogAsync(stream).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            LoadSarifLogAsync(stream, logId).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         private async Task LoadSarifLogAsync(IEnumerable<string> paths)
@@ -109,9 +98,9 @@ namespace Microsoft.Sarif.Viewer.Services
             }
         }
 
-        private async Task LoadSarifLogAsync(Stream stream)
+        private async Task LoadSarifLogAsync(Stream stream, string logId)
         {
-            await ErrorListService.ProcessSarifLogAsync(stream, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+            await ErrorListService.ProcessSarifLogAsync(stream, logId, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }
