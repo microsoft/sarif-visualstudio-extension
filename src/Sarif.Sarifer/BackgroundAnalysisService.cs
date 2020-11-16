@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,10 +27,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public async Task StartAnalysisAsync(string path, string text, CancellationToken cancellationToken)
         {
-            foreach (IBackgroundAnalyzer analyzer in this.analyzers)
-            {
-                await analyzer.StartAnalysisAsync(path, text, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            }
+            Task[] tasks = this.analyzers
+                .Select(async a => await a.StartAnalysisAsync(path, text, cancellationToken).ConfigureAwait(continueOnCapturedContext: false))
+                .ToArray();
+
+            // Start the analyzers in parallel; wait for them all to complete.
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }
