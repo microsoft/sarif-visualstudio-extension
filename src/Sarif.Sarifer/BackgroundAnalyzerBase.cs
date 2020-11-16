@@ -30,16 +30,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
-        /// <summary>
-        /// Start the analysis on a background thread.
-        /// </summary>
-        /// <param name="path">
-        /// The absolute path of the file being analyzed, or null if the text came from a VS text
-        /// buffer that was not attached to a file.
-        /// </param>
-        /// <param name="text">
-        /// The text to be analyzed.
-        /// </param>
+        /// <inheritdoc/>
         public async Task StartAnalysisAsync(string path, string text)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
