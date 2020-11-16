@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
 
@@ -20,7 +21,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private const string ReplacementString = "public class";
 
         /// <inheritdoc/>
-        protected override void CreateSarifLog(string path, string text, TextWriter writer)
+        protected override void CreateSarifLog(string path, string text, TextWriter writer, CancellationToken cancellationToken)
         {
             var tool = new Tool
             {
@@ -41,13 +42,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 sarifLogger.AnalysisStarted();
 
                 var uri = new Uri(path, UriKind.Absolute);
-                GenerateResults(sarifLogger, uri, text);
+                GenerateResults(sarifLogger, uri, text, cancellationToken);
 
                 sarifLogger.AnalysisStopped(RuntimeConditions.None);
             }
         }
 
-        private static void GenerateResults(SarifLogger sarifLogger, Uri uri, string text)
+        private static void GenerateResults(SarifLogger sarifLogger, Uri uri, string text, CancellationToken cancellationToken)
         {
             // This POC analyzer has only one rule.
             var rule = new ReportingDescriptor
@@ -69,6 +70,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             int targetStringIndex = 0;
             while (targetStringIndex < text.Length)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 targetStringIndex = text.IndexOf(TargetString, targetStringIndex, StringComparison.Ordinal);
                 if (targetStringIndex == -1)
                 {

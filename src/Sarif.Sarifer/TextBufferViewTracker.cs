@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             trackingInformation.Add(textView);
             if (first)
             {
-                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(path, text));
+                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(path, text, trackingInformation.CancellationToken));
             }
         }
 

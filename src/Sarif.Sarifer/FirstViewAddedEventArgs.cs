@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading;
 
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -24,10 +25,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="text">
         /// The contents of the text buffer being viewed.
         /// </param>
-        public FirstViewAddedEventArgs(string path, string text)
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> that can be used to cancel analysis of the buffer
+        /// being viewed.
+        /// </param>
+        public FirstViewAddedEventArgs(string path, string text, CancellationToken cancellationToken)
         {
-            this.Path = path;
-            this.Text = text;
+            Path = path;
+            Text = text;
+            CancellationToken = cancellationToken;
         }
 
         /// <summary>
@@ -40,5 +46,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Gets the contents of the text buffer being viewed.
         /// </summary>
         public string Text { get; }
+
+        /// <summary>
+        /// Gets a <see cref="CancellationToken"/> that can be used to cancel analysis of the
+        /// buffer being viewed.
+        /// </summary>
+        internal CancellationToken CancellationToken { get; }
     }
 }

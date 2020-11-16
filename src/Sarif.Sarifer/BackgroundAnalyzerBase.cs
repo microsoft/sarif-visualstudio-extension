@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -31,14 +32,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public async Task StartAnalysisAsync(string path, string text)
+        public async Task StartAnalysisAsync(string path, string text, CancellationToken cancellationToken)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                CreateSarifLog(path, text, writer);
+                CreateSarifLog(path, text, writer, cancellationToken);
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
                 foreach (IBackgroundAnalysisSink sink in sinks)
@@ -66,7 +67,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="writer">
         /// A <see cref="TextWriter"/> to which the analyzer should write the results of the
         /// analysis, in the form of a SARIF log file.
-        /// </returns>
-        protected abstract void CreateSarifLog(string path, string text, TextWriter writer);
+        /// </param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
+        /// </param>
+        protected abstract void CreateSarifLog(string path, string text, TextWriter writer, CancellationToken cancellationToken);
     }
 }

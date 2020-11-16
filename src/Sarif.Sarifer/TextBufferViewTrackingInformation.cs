@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -22,6 +23,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             Views = new List<ITextView>();
             LogId = Guid.NewGuid().ToString();
+            CancellationToken = new CancellationToken();
         }
 
         /// <summary>
@@ -37,6 +39,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// closes the last view on this text buffer.
         /// </remarks>
         internal string LogId { get; }
+
+        /// <summary>
+        /// Gets a <see cref="CancellationToken"/> that can be used to cancel analysis of this
+        /// <see cref="ITextBuffer"/>.
+        /// </summary>
+        internal CancellationToken CancellationToken { get; }
 
         /// <summary>
         /// Add a view to the list of views on the tracked text buffer.
