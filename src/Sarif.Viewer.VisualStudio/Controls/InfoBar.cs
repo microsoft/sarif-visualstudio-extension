@@ -46,6 +46,35 @@ namespace Microsoft.Sarif.Viewer.Controls
         private uint eventCookie;
 
         /// <summary>
+        /// Display info bars appropriate to the specified set of "exceptional conditions."
+        /// </summary>
+        /// <param name="conditions">
+        /// The conditions that require an info bar to be shown.
+        /// </param>
+        internal static void CreateInfoBarsForExceptionalConditions(ExceptionalConditions conditions)
+        {
+            if ((conditions & ExceptionalConditions.InvalidJson) != 0)
+            {
+                new InfoBar(Resources.ErrorInvalidSarifStream).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+            }
+
+            if ((conditions & ExceptionalConditions.ConfigurationError) != 0)
+            {
+                new InfoBar(Resources.ErrorLogHasErrorLevelToolConfigurationNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+            }
+
+            if ((conditions & ExceptionalConditions.ExecutionError) != 0)
+            {
+                new InfoBar(Resources.ErrorLogHasErrorLevelToolExecutionNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+            }
+
+            if ((conditions & ExceptionalConditions.NoResults) != 0)
+            {
+                new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="InfoBar"/> class.
         /// </summary>
         /// <param name="text">

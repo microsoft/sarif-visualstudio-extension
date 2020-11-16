@@ -12,12 +12,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class RunExtensions
+    internal static class RunExtensions
     {
-        static object s_syncRoot = new object();
-        static JObject s_ruleMetadata;
+        private static readonly object s_syncRoot = new object();
+        private static JObject s_ruleMetadata;
 
-        static JObject RuleMetadata
+        internal static JObject RuleMetadata
         {
             get
             {
@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     {
                         if (s_ruleMetadata == null)
                         {
-                            Byte[] ruleLookupBytes = Resources.RuleLookup;
+                            byte[] ruleLookupBytes = Resources.RuleLookup;
                             string ruleLookupText = Encoding.UTF8.GetString(ruleLookupBytes);
                             s_ruleMetadata = JObject.Parse(ruleLookupText);
                         }
@@ -97,6 +97,44 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
 
             return run.Tool.Driver.FullName ?? run.Tool.Driver.Name;
+        }
+
+        public static bool HasResults(this Run run) => run.Results?.Count > 0;
+
+        public static bool HasErrorLevelToolConfigurationNotifications(this Run run)
+        {
+            if (run.Invocations == null || run.Invocations.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (Invocation invocation in run.Invocations)
+            {
+                if (invocation.ToolConfigurationNotifications?.Any(not => not.Level == FailureLevel.Error) == true)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool HasErrorLevelToolExecutionNotifications(this Run run)
+        {
+            if (run.Invocations == null || run.Invocations.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (Invocation invocation in run.Invocations)
+            {
+                if (invocation.ToolExecutionNotifications?.Any(not => not.Level == FailureLevel.Error) == true)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

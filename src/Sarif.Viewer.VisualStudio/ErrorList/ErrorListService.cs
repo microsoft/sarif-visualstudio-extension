@@ -23,7 +23,6 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
-using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -342,7 +341,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(Stream stream, string logId, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task<ExceptionalConditions> ProcessSarifLogAsync(Stream stream, string logId, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = null;
             try
@@ -357,10 +356,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 await ProcessSarifLogAsync(sarifLog, logFilePath: logId, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
             }
-            else
-            {
-                new InfoBar(Resources.ErrorInvalidSarifStream).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+
+            return ExceptionalConditionsCalculator.Calculate(sarifLog);
         }
 
         internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)

@@ -6,8 +6,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
-  <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props"
-    Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props')" />
+  <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props')" />
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -49,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="ExceptionalConditions.cs" />
+    <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="Fixes\EditActionPreviewProvider.cs" />
     <Compile Include="Fixes\IPreviewProvider.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Fixes\FixSuggestedAction.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
+    <Compile Include="Sarif\SarifLog.extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
@@ -338,6 +340,5 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
-  <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets"
-    Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets')" />
+  <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets')" />
 </Project>
