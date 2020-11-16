@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -22,11 +23,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public void StartAnalysis(string path, string text)
+        public async Task StartAnalysisAsync(string path, string text)
         {
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                analyzer.StartAnalysis(path, text);
+                await analyzer.StartAnalysisAsync(path, text).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
     }

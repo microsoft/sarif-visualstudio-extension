@@ -40,11 +40,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="text">
         /// The text to be analyzed.
         /// </param>
-        public void StartAnalysis(string path, string text)
+        public async Task StartAnalysisAsync(string path, string text)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
-            Task.Run(() => AnalyzeAsync(path, text)).FileAndForget(FileAndForgetEventName.SendDataToViewerFailure);
+            using (Stream stream = new MemoryStream())
+            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                CreateSarifLog(path, text, writer);
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+                foreach (IBackgroundAnalysisSink sink in sinks)
+                {
+                    stream.Seek(0L, SeekOrigin.Begin);
+                    await sink.ReceiveAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
+                }
+            }
         }
 
         /// <summary>
@@ -66,21 +77,5 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// analysis, in the form of a SARIF log file.
         /// </returns>
         protected abstract void CreateSarifLog(string path, string text, TextWriter writer);
-
-        private async Task AnalyzeAsync(string path, string text)
-        {
-            using (Stream stream = new MemoryStream())
-            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
-            {
-                CreateSarifLog(path, text, writer);
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
-
-                foreach (IBackgroundAnalysisSink sink in sinks)
-                {
-                    stream.Seek(0L, SeekOrigin.Begin);
-                    await sink.ReceiveAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
-                }
-            }
-        }
     }
 }
