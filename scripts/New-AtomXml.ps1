@@ -41,14 +41,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $InformationPreference = "Continue"
 
-function Get-Version {
-    $buildPropsPath = ".\src\build.props";
-    $xPath = "/msbuild:Project/msbuild:PropertyGroup/msbuild:VersionPrefix/text()";
-    $namespace = @{msbuild = "http://schemas.microsoft.com/developer/msbuild/2003"};
-    $node = Select-Xml -Path $buildPropsPath -XPath $xPath -Namespace $namespace;
-    $node.Node.Value;
+function Get-Version {  
+    dotnet tool update --global nbgv --version 3.3.37
+    nbgv get-version --project src --variable Version
 }
-
 $now = (Get-Date).ToUniversalTime().ToString("O");
 $vsixId = "Microsoft.Sarif.Viewer.Michael C. Fanning.f17e897a-fd38-4e1f-99db-19fa34a4e184";
 $version = Get-Version;

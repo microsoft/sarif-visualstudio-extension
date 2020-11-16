@@ -9,19 +9,13 @@
 
 .PARAMETER Configuration
     The build configuration: Release or Debug. Default=Release
-
-.PARAMETER AppVeyor
-    True if the tests are running in AppVeyor.
 #>
 
 [CmdletBinding()]
 param(
     [string]
     [ValidateSet("Debug", "Release")]
-    $Configuration="Release",
-
-    [switch]
-    $AppVeyor
+    $Configuration="Release"
 )
 
 Set-StrictMode -Version Latest
@@ -33,18 +27,13 @@ Import-Module $PSScriptRoot\Projects.psm1 -Force
 
 $ScriptName = $([io.Path]::GetFileNameWithoutExtension($PSCommandPath))
 
-$ReporterOption = $null
-if ($AppVeyor) {
-    $ReporterOption = "-appveyor"
-}
-
 $TestRunnerRootPath = "$NuGetPackageRoot\xunit.runner.console\2.4.1\tools\"
 
 foreach ($project in $Projects.Test) {
     Write-Information "Running tests in ${project}..."
     Push-Location $BinRoot\${Platform}_$Configuration\$project
     $dll = "$project" + ".dll"
-    & ${TestRunnerRootPath}net472\xunit.console.exe $dll $ReporterOption -parallel none
+    & ${TestRunnerRootPath}net472\xunit.console.exe $dll -parallel none
     if ($LASTEXITCODE -ne 0) {
         Pop-Location
         Exit-WithFailureMessage $ScriptName "${project}: tests failed."

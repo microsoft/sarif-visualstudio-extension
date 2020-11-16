@@ -61,7 +61,7 @@ function New-NuGetPackageFromNuspecFile($configuration, $project, $version, $fra
 }
 
 function New-NuGetPackages($configuration, $projects, $frameworks) {
-    dotnet tool install --global nbgv --version 3.3.37
+    dotnet tool update --global nbgv --version 3.3.37
     $version = nbgv get-version --project src --variable Version
     foreach ($project in $Projects.NuGet) {
         Write-Information $project
