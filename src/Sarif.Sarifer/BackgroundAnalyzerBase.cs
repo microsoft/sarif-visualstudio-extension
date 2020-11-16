@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// Base class for background analyzers.
     /// </summary>
     /// <remarks>
-    /// This class dispatches the analysis to a background thread, and sends the resulting
+    /// This class invokes the analysis (implemented in derived classes), and sends the resulting
     /// <see cref="SarifLog"/> to all exported implementations of <see cref="IBackgroundAnalysisSink"/>.
     /// Derived classes need only override <see cref="CreateSarifLog(string)"/>.
     /// </remarks>
