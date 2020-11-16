@@ -7,6 +7,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string Prefix = "Microsoft/Sarifer/";
 
+        internal const string BackgroundAnalysisFailure = Prefix + "BackgroundAnalysis/Failure";
+        internal const string CloseSarifLogsFailure = Prefix + "CloseSarifLogs/Failure";
         internal const string SendDataToViewerFailure = Prefix + "SendDataToViewer/Failure";
     }
 }
