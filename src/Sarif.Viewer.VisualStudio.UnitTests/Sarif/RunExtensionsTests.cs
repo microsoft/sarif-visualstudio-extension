@@ -127,6 +127,213 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             }
         }.AsReadOnly();
 
+        private struct HasSuppressedResultsTestCase
+        {
+            internal string Name;
+            internal Run Run;
+            internal bool ExpectedResult;
+        }
+
+        private static readonly ReadOnlyCollection<HasSuppressedResultsTestCase> s_hasSuppressedResultsTestCases = new List<HasSuppressedResultsTestCase>
+        {
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Null results",
+                Run = new Run(),
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Empty results",
+                Run = new Run
+                {
+                    Results = new List<Result>()
+                },
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Null suppressions array",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result()
+                    }
+                },
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Empty suppressions array",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>()
+                        }
+                    }
+                },
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Accepted suppression",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Accepted
+                                }
+                            }
+                        }
+                    }
+                },
+                ExpectedResult = true
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Suppression under review",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.UnderReview
+                                }
+                            }
+                        }
+                    }
+                },
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Rejected suppression",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Rejected
+                                }
+                            }
+                        }
+                    }
+                },
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Suppressed result after result with rejected suppression",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Rejected
+                                }
+                            }
+                        },
+
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Accepted
+                                }
+                            }
+                        }
+                    }
+                },
+                ExpectedResult = true
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Suppressed result after result with null suppressions",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result(),
+
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Accepted
+                                }
+                            }
+                        }
+                    }
+                },
+                ExpectedResult = false
+            },
+
+            new HasSuppressedResultsTestCase
+            {
+                Name = "Suppression both rejected and accepted",
+                Run = new Run
+                {
+                    Results = new List<Result>
+                    {
+                        new Result(),
+
+                        new Result
+                        {
+                            Suppressions = new List<Suppression>
+                            {
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Accepted
+                                },
+                                new Suppression
+                                {
+                                    Status = SuppressionStatus.Rejected
+                                }
+                            }
+                        }
+                    }
+                },
+                ExpectedResult = false
+            }
+        }.AsReadOnly();
+
         [Fact]
         public void HasAbsentResults_ReturnsExpectedValue()
         {
@@ -135,6 +342,23 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             foreach (HasAbsentResultsTestCase testCase in s_hasAbsentResultsTestCases)
             {
                 bool actualResult = testCase.Run.HasAbsentResults();
+                if (actualResult != testCase.ExpectedResult)
+                {
+                    sb.AppendLine($"    {testCase.Name}: expected {testCase.ExpectedResult} but got {actualResult}");
+                }
+            }
+
+            sb.Length.Should().Be(0, "failed test cases:\n" + sb.ToString());
+        }
+
+        [Fact]
+        public void HasSuppressedResults_ReturnsExpectedValue()
+        {
+            var sb = new StringBuilder();
+
+            foreach (HasSuppressedResultsTestCase testCase in s_hasSuppressedResultsTestCases)
+            {
+                bool actualResult = testCase.Run.HasSuppressedResults();
                 if (actualResult != testCase.ExpectedResult)
                 {
                     sb.AppendLine($"    {testCase.Name}: expected {testCase.ExpectedResult} but got {actualResult}");
