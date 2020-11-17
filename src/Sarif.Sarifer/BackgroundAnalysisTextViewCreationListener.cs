@@ -9,12 +9,9 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.TaskStatusCenter;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
-
-using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -28,7 +25,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string AnyContentType = "any";
         private SarifViewerInterop sarifViewerInterop;
-        internal static ITaskHandler taskHandler; // internal static for test purposes, so the POC analyzer can report progress to it.
 
         private bool subscribed;
 
@@ -58,8 +54,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 }
             }
 
-            taskHandler = PreRegisterWithTaskStatusCenter();
-
             if (!this.subscribed)
             {
                 // ITextViewCreationListener is not IDisposable, so the ITextBufferManager will
@@ -83,8 +77,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            Task task = this.backgroundAnalysisService.Value.StartAnalysisAsync(e.Path, e.Text, e.CancellationToken);
-            taskHandler.RegisterTask(task);
+            this.backgroundAnalysisService.Value.StartAnalysisAsync(e.Path, e.Text, e.CancellationToken).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
         private void TextView_Closed(ITextView textView)
@@ -97,31 +90,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private void TextBufferViewTracker_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
         {
             this.sarifViewerInterop.CloseSarifLogAsync(new string[] { e.LogId }).FileAndForget(FileAndForgetEventName.CloseSarifLogsFailure);
-        }
-
-        private static ITaskHandler PreRegisterWithTaskStatusCenter()
-        {
-            ITaskHandler taskHandler = null;
-
-            if (Package.GetGlobalService(typeof(SVsTaskStatusCenterService)) is IVsTaskStatusCenterService taskStatusCenterService)
-            {
-                var taskProgressData = new TaskProgressData
-                {
-                    CanBeCanceled = false,
-                    ProgressText = null,
-                };
-
-                var taskHandlerOptions = new TaskHandlerOptions
-                {
-                    Title = Resources.PerformingBackgroundAnalysis,
-                    TaskSuccessMessage = Resources.BackgroundAnalysisComplete,
-                    ActionsAfterCompletion = CompletionActions.None
-                };
-
-                taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
-            }
-
-            return taskHandler;
         }
 
         private string GetPathFromTextView(ITextView textView)
