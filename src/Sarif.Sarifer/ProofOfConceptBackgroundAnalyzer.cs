@@ -8,6 +8,8 @@ using System.IO;
 using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.TaskStatusCenter;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -23,6 +25,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         protected override void CreateSarifLog(string path, string text, TextWriter writer, CancellationToken cancellationToken)
         {
+            BackgroundAnalysisTextViewCreationListener.taskHandler.Progress.Report(new TaskProgressData { PercentComplete = 33, ProgressText = "hello 0" });
+            Thread.Sleep(2000);
+            BackgroundAnalysisTextViewCreationListener.taskHandler.Progress.Report(new TaskProgressData { PercentComplete = 33, ProgressText = "hello 33" });
+            Thread.Sleep(2000);
+            BackgroundAnalysisTextViewCreationListener.taskHandler.Progress.Report(new TaskProgressData { PercentComplete = 67, ProgressText = "hello 67" });
+            Thread.Sleep(2000);
+            BackgroundAnalysisTextViewCreationListener.taskHandler.Progress.Report(new TaskProgressData { PercentComplete = 100, ProgressText = "hello 100" });
+            Thread.Sleep(2000);
+
             var tool = new Tool
             {
                 Driver = new ToolComponent

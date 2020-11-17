@@ -56,6 +56,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
@@ -69,6 +74,10 @@
     <Compile Include="SariferPackage.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
       <SubType>Designer</SubType>
