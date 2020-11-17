@@ -56,9 +56,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
+    <Compile Include="Rule.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
+    <Compile Include="SpamBackgroundAnalyzer.cs" />
     <Compile Include="TextBufferViewTracker.cs" />
     <Compile Include="TextBufferViewTrackingInformation.cs" />
     <Compile Include="VSPackage.Designer.cs">
