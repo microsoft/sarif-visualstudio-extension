@@ -178,6 +178,7 @@ namespace Microsoft.Sarif.Viewer.Controls
                 this.uiElement.Close();
 
                 InfoBars.Remove(this.infoBarModel);
+                s_infoBarToConditionDictionary.Remove(this);
 
                 this.uiElement = null;
             }
