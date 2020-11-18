@@ -177,8 +177,11 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // Close the info bar to correctly send OnClosed() event to the Shell
                 this.uiElement.Close();
 
-                InfoBars.Remove(this.infoBarModel);
-                s_infoBarToConditionDictionary.Remove(this);
+                using (s_infoBarLock.EnterWriteLock())
+                {
+                    InfoBars.Remove(this.infoBarModel);
+                    s_infoBarToConditionDictionary.Remove(this);
+                }
 
                 this.uiElement = null;
             }
@@ -216,6 +219,8 @@ namespace Microsoft.Sarif.Viewer.Controls
             string message,
             ImageMoniker imageMoniker)
         {
+            // It's safe to access and update the dictionary because this method is called inside
+            // the write lock.
             if ((detectedConditions & individualCondition) != 0 && !s_infoBarToConditionDictionary.Values.Contains(individualCondition))
             {
                 var infoBar = new InfoBar(message, imageMoniker: imageMoniker);
