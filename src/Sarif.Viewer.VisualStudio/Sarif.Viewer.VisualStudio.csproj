@@ -86,6 +86,7 @@
     <Compile Include="Fixes\FixSuggestedAction.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
+    <Compile Include="LogFileProcessedEventArgs.cs" />
     <Compile Include="Sarif\SarifLog.extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />

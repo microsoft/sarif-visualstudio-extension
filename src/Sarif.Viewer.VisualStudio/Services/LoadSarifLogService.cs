@@ -23,6 +23,14 @@ namespace Microsoft.Sarif.Viewer.Services
     /// </summary>
     public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LoadSarifLogService"/> class.
+        /// </summary>
+        public LoadSarifLogService()
+        {
+            ErrorListService.LogFileProcessed += this.ErrorListService_LogFileProcessed;
+        }
+
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnLogConversions = true, bool cleanErrors = true, bool openInEditor = false)
         {
@@ -107,20 +115,20 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private async Task LoadSarifLogAsync(Stream stream, string logId)
         {
-            ExceptionalConditions conditions = await ErrorListService.ProcessSarifLogAsync(stream, logId: logId, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
-
-            InfoBar.CreateInfoBarsForExceptionalConditions(conditions);
+            await ErrorListService.ProcessSarifLogAsync(stream, logId: logId, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public async Task LoadSarifLogAsync(IEnumerable<Stream> streams)
         {
-            ExceptionalConditions conditions = ExceptionalConditions.None;
             foreach (Stream stream in streams)
             {
-                conditions |= await ErrorListService.ProcessSarifLogAsync(stream, logId: null, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+                await ErrorListService.ProcessSarifLogAsync(stream, logId: null, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
             }
+        }
 
-            InfoBar.CreateInfoBarsForExceptionalConditions(conditions);
+        private void ErrorListService_LogFileProcessed(object sender, LogFileProcessedEventArgs e)
+        {
+            InfoBar.CreateInfoBarsForExceptionalConditions(e.ExceptionalConditions);
         }
     }
 }

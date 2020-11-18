@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Utilities;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -45,6 +46,9 @@ namespace Microsoft.Sarif.Viewer.Controls
         private IVsInfoBarUIElement uiElement;
         private uint eventCookie;
 
+        private static readonly ReaderWriterLockSlimWrapper s_infoBarLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private static readonly IDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new Dictionary<InfoBar, ExceptionalConditions>();
+
         /// <summary>
         /// Display info bars appropriate to the specified set of "exceptional conditions."
         /// </summary>
@@ -53,24 +57,31 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// </param>
         internal static void CreateInfoBarsForExceptionalConditions(ExceptionalConditions conditions)
         {
-            if ((conditions & ExceptionalConditions.InvalidJson) != 0)
+            using (s_infoBarLock.EnterWriteLock())
             {
-                new InfoBar(Resources.ErrorInvalidSarifStream).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+                AddInfoBarIfRequired(
+                    conditions,
+                    ExceptionalConditions.InvalidJson,
+                    Resources.ErrorInvalidSarifStream,
+                    KnownMonikers.StatusError);
 
-            if ((conditions & ExceptionalConditions.ConfigurationError) != 0)
-            {
-                new InfoBar(Resources.ErrorLogHasErrorLevelToolConfigurationNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+                AddInfoBarIfRequired(
+                    conditions,
+                    ExceptionalConditions.ConfigurationError,
+                    Resources.ErrorLogHasErrorLevelToolConfigurationNotifications,
+                    KnownMonikers.StatusError);
 
-            if ((conditions & ExceptionalConditions.ExecutionError) != 0)
-            {
-                new InfoBar(Resources.ErrorLogHasErrorLevelToolExecutionNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+                AddInfoBarIfRequired(
+                    ExceptionalConditions.ExecutionError,
+                    conditions,
+                    Resources.ErrorLogHasErrorLevelToolExecutionNotifications,
+                    KnownMonikers.StatusError);
 
-            if ((conditions & ExceptionalConditions.NoResults) != 0)
-            {
-                new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+                AddInfoBarIfRequired(
+                    ExceptionalConditions.NoResults,
+                    conditions,
+                    Resources.InfoNoResultsInLog,
+                    KnownMonikers.StatusInformation);
             }
         }
 
@@ -195,6 +206,20 @@ namespace Microsoft.Sarif.Viewer.Controls
             if (infoBarUIElement == this.uiElement)
             {
                 this.clickAction?.Invoke(actionItem);
+            }
+        }
+
+        private static void AddInfoBarIfRequired(
+            ExceptionalConditions detectedConditions,
+            ExceptionalConditions individualCondition,
+            string message,
+            ImageMoniker imageMoniker)
+        {
+            if ((detectedConditions & individualCondition) != 0 && !s_infoBarToConditionDictionary.Values.Contains(individualCondition))
+            {
+                var infoBar = new InfoBar(message, imageMoniker: imageMoniker);
+                infoBar.ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+                s_infoBarToConditionDictionary.Add(infoBar, individualCondition);
             }
         }
     }
