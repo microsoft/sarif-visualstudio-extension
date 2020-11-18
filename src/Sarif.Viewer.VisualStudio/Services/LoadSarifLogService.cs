@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Services
         /// </summary>
         public LoadSarifLogService()
         {
-            ErrorListService.LogFileProcessed += this.ErrorListService_LogFileProcessed;
+            ErrorListService.LogProcessed += this.ErrorListService_LogProcessed;
         }
 
         /// <inheritdoc/>
@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.Services
             }
         }
 
-        private void ErrorListService_LogFileProcessed(object sender, LogFileProcessedEventArgs e)
+        private void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
         {
             InfoBar.CreateInfoBarsForExceptionalConditions(e.ExceptionalConditions);
         }

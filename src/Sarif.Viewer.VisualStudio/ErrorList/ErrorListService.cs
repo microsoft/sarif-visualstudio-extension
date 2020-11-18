@@ -41,7 +41,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        internal static event EventHandler<LogFileProcessedEventArgs> LogFileProcessed;
+        internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
@@ -67,6 +67,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         public static async Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        {
+            try
+            {
+                await ProcessLogFileCoreAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
+            }
+            catch (JsonReaderException)
+            {
+                RaiseLogProcessed(ExceptionalConditions.InvalidJson);
+            }
+        }
+
+        public static async Task ProcessLogFileCoreAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             SarifLog log = null;
             string logText = null;
@@ -352,15 +364,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
             catch (JsonReaderException)
             {
-                LogFileProcessed?.Invoke(Instance, new LogFileProcessedEventArgs(ExceptionalConditions.InvalidJson));
+                RaiseLogProcessed(ExceptionalConditions.InvalidJson);
             }
 
             if (sarifLog != null)
             {
                 await ProcessSarifLogAsync(sarifLog, logFilePath: logId, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
             }
-
-            LogFileProcessed?.Invoke(Instance, new LogFileProcessedEventArgs(ExceptionalConditionsCalculator.Calculate(sarifLog)));
         }
 
         internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
@@ -428,6 +438,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                                 OLEMSGBUTTON.OLEMSGBUTTON_OK,
                                                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
             }
+
+            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
         }
 
         public static void CleanAllErrors()
@@ -551,6 +563,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     }
                 }
             }
+        }
+
+        private static void RaiseLogProcessed(ExceptionalConditions conditions)
+        {
+            LogProcessed?.Invoke(Instance, new LogProcessedEventArgs(conditions));
         }
     }
 }
