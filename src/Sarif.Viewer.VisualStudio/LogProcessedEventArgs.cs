@@ -4,7 +4,7 @@
 namespace Microsoft.Sarif.Viewer
 {
     // Provides data for the event handler invoked when the ErrorListService finishes
-    // finishes processing a SARIF log.
+    // processing a SARIF log.
     internal class LogProcessedEventArgs
     {
         internal LogProcessedEventArgs(ExceptionalConditions exceptionalConditions)

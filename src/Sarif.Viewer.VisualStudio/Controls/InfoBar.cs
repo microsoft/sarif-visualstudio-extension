@@ -71,8 +71,8 @@ namespace Microsoft.Sarif.Viewer.Controls
                     KnownMonikers.StatusError);
 
                 await AddInfoBarIfRequiredAsync(
-                    ExceptionalConditions.ExecutionError,
                     conditions,
+                    ExceptionalConditions.ExecutionError,
                     Resources.ErrorLogHasErrorLevelToolExecutionNotifications,
                     KnownMonikers.StatusError);
 
