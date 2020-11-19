@@ -83,8 +83,8 @@ namespace Microsoft.Sarif.Viewer.Controls
                     KnownMonikers.StatusError);
 
                 await AddInfoBarIfRequiredAsync(
-                    ExceptionalConditions.NoResults,
                     conditions,
+                    ExceptionalConditions.NoResults,
                     Resources.InfoNoResultsInLog,
                     KnownMonikers.StatusInformation);
             }
