@@ -48,6 +48,11 @@ namespace Microsoft.Sarif.Viewer.Controls
         private uint eventCookie;
 
         private static readonly ReaderWriterLockSlimWrapper s_infoBarLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+
+        // It might seem more natural to use the condition as the dictionary key, and the InfoBar
+        // as the value. We wrote it this way because when the user closes an InfoBar, it's easier
+        // to remove it from the dictionary if the InfoBar itself is the key -- rather than having
+        // to look up the KeyValuePair that has that InfoBar as its value. See CloseAsync below.
         private static readonly IDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new ConcurrentDictionary<InfoBar, ExceptionalConditions>();
 
         /// <summary>
