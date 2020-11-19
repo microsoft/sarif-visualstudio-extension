@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -47,7 +48,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         private uint eventCookie;
 
         private static readonly ReaderWriterLockSlimWrapper s_infoBarLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private static readonly IDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new Dictionary<InfoBar, ExceptionalConditions>();
+        private static readonly IDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new ConcurrentDictionary<InfoBar, ExceptionalConditions>();
 
         /// <summary>
         /// Display info bars appropriate to the specified set of "exceptional conditions."
