@@ -115,14 +115,14 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private async Task LoadSarifLogAsync(Stream stream, string logId)
         {
-            await ErrorListService.ProcessSarifLogAsync(stream, logId: logId, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+            await ErrorListService.ProcessSarifLogAsync(stream, logId: logId, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public async Task LoadSarifLogAsync(IEnumerable<Stream> streams)
         {
             foreach (Stream stream in streams)
             {
-                await ErrorListService.ProcessSarifLogAsync(stream, logId: null, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+                await ErrorListService.ProcessSarifLogAsync(stream, logId: null, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 

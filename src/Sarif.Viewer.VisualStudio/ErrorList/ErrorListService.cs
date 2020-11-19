@@ -235,7 +235,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            await ProcessSarifLogAsync(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
+            await ProcessSarifLogAsync(log, outputPath, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(Stream stream, string logId, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(Stream stream, string logId, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = null;
             try
@@ -369,11 +369,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (sarifLog != null)
             {
-                await ProcessSarifLogAsync(sarifLog, logFilePath: logId, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+                await ProcessSarifLogAsync(sarifLog, logFilePath: logId, cleanErrors: cleanErrors, openInEditor: openInEditor);
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor)
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.
@@ -428,15 +428,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
                 }
-            }
-            else if (showMessageOnNoResults)
-            {
-                VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                                string.Format(Resources.NoResults_DialogMessage, logFilePath),
-                                                null, // title
-                                                OLEMSGICON.OLEMSGICON_INFO,
-                                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
             }
 
             RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
