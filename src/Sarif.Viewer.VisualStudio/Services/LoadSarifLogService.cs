@@ -128,7 +128,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
         {
-            InfoBar.CreateInfoBarsForExceptionalConditions(e.ExceptionalConditions);
+            InfoBar.CreateInfoBarsForExceptionalConditionsAsync(e.ExceptionalConditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
         }
     }
 }

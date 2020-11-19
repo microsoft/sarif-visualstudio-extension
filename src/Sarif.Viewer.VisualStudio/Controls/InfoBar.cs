@@ -55,29 +55,34 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <param name="conditions">
         /// The conditions that require an info bar to be shown.
         /// </param>
-        internal static void CreateInfoBarsForExceptionalConditions(ExceptionalConditions conditions)
+        internal static async Task CreateInfoBarsForExceptionalConditionsAsync(ExceptionalConditions conditions)
         {
             using (s_infoBarLock.EnterWriteLock())
             {
-                AddInfoBarIfRequired(
+                // The most recently shown bar is displayed at the bottom, so show the bars in order
+                // of decreasing severity. Note that this only works within the info bars shown for
+                // a single SARIF log. Across logs, the "most recent" rule means that the bars are
+                // show in the order the logs are processed. So if the first log has an info-level bar
+                // and the second has an error-level bar, the info-level bar will be on top.
+                await AddInfoBarIfRequiredAsync(
                     conditions,
                     ExceptionalConditions.InvalidJson,
                     Resources.ErrorInvalidSarifStream,
                     KnownMonikers.StatusError);
 
-                AddInfoBarIfRequired(
-                    conditions,
-                    ExceptionalConditions.ConfigurationError,
-                    Resources.ErrorLogHasErrorLevelToolConfigurationNotifications,
-                    KnownMonikers.StatusError);
-
-                AddInfoBarIfRequired(
+                await AddInfoBarIfRequiredAsync(
                     ExceptionalConditions.ExecutionError,
                     conditions,
                     Resources.ErrorLogHasErrorLevelToolExecutionNotifications,
                     KnownMonikers.StatusError);
 
-                AddInfoBarIfRequired(
+                await AddInfoBarIfRequiredAsync(
+                    conditions,
+                    ExceptionalConditions.ConfigurationError,
+                    Resources.ErrorLogHasErrorLevelToolConfigurationNotifications,
+                    KnownMonikers.StatusError);
+
+                await AddInfoBarIfRequiredAsync(
                     ExceptionalConditions.NoResults,
                     conditions,
                     Resources.InfoNoResultsInLog,
@@ -213,7 +218,7 @@ namespace Microsoft.Sarif.Viewer.Controls
             }
         }
 
-        private static void AddInfoBarIfRequired(
+        private static async Task AddInfoBarIfRequiredAsync(
             ExceptionalConditions detectedConditions,
             ExceptionalConditions individualCondition,
             string message,
@@ -224,7 +229,7 @@ namespace Microsoft.Sarif.Viewer.Controls
             if ((detectedConditions & individualCondition) != 0 && !s_infoBarToConditionDictionary.Values.Contains(individualCondition))
             {
                 var infoBar = new InfoBar(message, imageMoniker: imageMoniker);
-                infoBar.ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+                await infoBar.ShowAsync();
                 s_infoBarToConditionDictionary.Add(infoBar, individualCondition);
             }
         }
