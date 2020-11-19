@@ -23,6 +23,7 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -42,6 +43,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static readonly ErrorListService Instance = new ErrorListService();
 
         internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
+
+        static ErrorListService()
+        {
+            LogProcessed += ErrorListService_LogProcessed;
+        }
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
@@ -559,6 +565,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private static void RaiseLogProcessed(ExceptionalConditions conditions)
         {
             LogProcessed?.Invoke(Instance, new LogProcessedEventArgs(conditions));
+        }
+
+        private static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+                InfoBar.CreateInfoBarsForExceptionalConditionsAsync(e.ExceptionalConditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+            }
         }
     }
 }

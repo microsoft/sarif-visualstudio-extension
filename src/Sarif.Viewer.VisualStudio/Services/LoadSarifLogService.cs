@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif.Converters;
-using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TaskStatusCenter;
@@ -23,14 +22,6 @@ namespace Microsoft.Sarif.Viewer.Services
     /// </summary>
     public class LoadSarifLogService : SLoadSarifLogService, ILoadSarifLogService
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LoadSarifLogService"/> class.
-        /// </summary>
-        public LoadSarifLogService()
-        {
-            ErrorListService.LogProcessed += this.ErrorListService_LogProcessed;
-        }
-
         /// <inheritdoc/>
         public void LoadSarifLog(string path, bool promptOnLogConversions = true, bool cleanErrors = true, bool openInEditor = false)
         {
@@ -124,11 +115,6 @@ namespace Microsoft.Sarif.Viewer.Services
             {
                 await ErrorListService.ProcessSarifLogAsync(stream, logId: null, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
             }
-        }
-
-        private void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
-        {
-            InfoBar.CreateInfoBarsForExceptionalConditionsAsync(e.ExceptionalConditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
         }
     }
 }
