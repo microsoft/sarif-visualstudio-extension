@@ -226,7 +226,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         {
             // It's safe to access and update the dictionary because this method is called inside
             // the write lock.
-            if ((detectedConditions & individualCondition) != 0 && !s_infoBarToConditionDictionary.Values.Contains(individualCondition))
+            if ((detectedConditions & individualCondition) == individualCondition && !s_infoBarToConditionDictionary.Values.Contains(individualCondition))
             {
                 var infoBar = new InfoBar(message, imageMoniker: imageMoniker);
                 await infoBar.ShowAsync();
