@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 
 using Microsoft.VisualStudio;
@@ -53,7 +54,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         // as the value. We wrote it this way because when the user closes an InfoBar, it's easier
         // to remove it from the dictionary if the InfoBar itself is the key -- rather than having
         // to look up the KeyValuePair that has that InfoBar as its value. See CloseAsync below.
-        private static readonly IDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new ConcurrentDictionary<InfoBar, ExceptionalConditions>();
+        private static readonly ConcurrentDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new ConcurrentDictionary<InfoBar, ExceptionalConditions>();
 
         /// <summary>
         /// Display info bars appropriate to the specified set of "exceptional conditions."
@@ -188,7 +189,7 @@ namespace Microsoft.Sarif.Viewer.Controls
                 using (s_infoBarLock.EnterWriteLock())
                 {
                     InfoBars.Remove(this.infoBarModel);
-                    s_infoBarToConditionDictionary.Remove(this);
+                    _ = s_infoBarToConditionDictionary.TryRemove(this, out ExceptionalConditions condition);
                 }
 
                 this.uiElement = null;
@@ -236,7 +237,14 @@ namespace Microsoft.Sarif.Viewer.Controls
                     if (!s_infoBarToConditionDictionary.Values.Contains(individualCondition))
                     {
                         infoBar = new InfoBar(message, imageMoniker: imageMoniker);
-                        s_infoBarToConditionDictionary.Add(infoBar, individualCondition);
+                        if (!s_infoBarToConditionDictionary.TryAdd(infoBar, individualCondition))
+                        {
+                            throw new InvalidOperationException(
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    Resources.ErrorInfoBarAlreadyPresent,
+                                    individualCondition));
+                        }
                     }
                 }
             }

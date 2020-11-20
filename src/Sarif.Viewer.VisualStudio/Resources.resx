@@ -298,4 +298,7 @@
   <data name="ErrorLogHasErrorLevelToolExecutionNotifications" xml:space="preserve">
     <value>The SARIF viewer received one or more SARIF logs containing a run that failed due to a tool execution error. These logs might contain incomplete results.</value>
   </data>
+  <data name="ErrorInfoBarAlreadyPresent" xml:space="preserve">
+    <value>The InfoBar for condition '{0}' is already present in the dictionary.</value>
+  </data>
 </root>
