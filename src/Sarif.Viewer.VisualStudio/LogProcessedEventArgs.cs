@@ -7,13 +7,13 @@ namespace Microsoft.Sarif.Viewer
     // processing a SARIF log.
     internal class LogProcessedEventArgs
     {
-        internal LogProcessedEventArgs(ExceptionalConditions exceptionalConditions)
+        public LogProcessedEventArgs(ExceptionalConditions exceptionalConditions)
         {
             ExceptionalConditions = exceptionalConditions;
         }
 
         // Gets any exceptional conditions (for example, an error-level tool execution
         // failure) that occurred during the processing of the log file.
-        internal ExceptionalConditions ExceptionalConditions { get; }
+        public ExceptionalConditions ExceptionalConditions { get; }
     }
 }
