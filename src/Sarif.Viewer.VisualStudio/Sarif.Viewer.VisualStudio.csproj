@@ -158,7 +158,7 @@
     <Compile Include="Sarif\Location.Extensions.cs" />
     <Compile Include="Sarif\Rule.Extensions.cs" />
     <Compile Include="Sarif\Invocation.Extensions.cs" />
-    <Compile Include="Sarif\Tool.extensions-x.cs" />
+    <Compile Include="Sarif\Tool.Extensions.cs" />
     <Compile Include="Sarif\Run.Extensions.cs" />
     <Compile Include="Tags\SarifLocationTaggerProvider.cs" />
     <Compile Include="Views\SarifViewerControl.xaml.cs">
