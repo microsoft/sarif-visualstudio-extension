@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif.Converters;
-using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TaskStatusCenter;
@@ -107,20 +106,15 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private async Task LoadSarifLogAsync(Stream stream, string logId)
         {
-            ExceptionalConditions conditions = await ErrorListService.ProcessSarifLogAsync(stream, logId: logId, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
-
-            InfoBar.CreateInfoBarsForExceptionalConditions(conditions);
+            await ErrorListService.ProcessSarifLogAsync(stream, logId: logId, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public async Task LoadSarifLogAsync(IEnumerable<Stream> streams)
         {
-            ExceptionalConditions conditions = ExceptionalConditions.None;
             foreach (Stream stream in streams)
             {
-                conditions |= await ErrorListService.ProcessSarifLogAsync(stream, logId: null, showMessageOnNoResults: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+                await ErrorListService.ProcessSarifLogAsync(stream, logId: null, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
             }
-
-            InfoBar.CreateInfoBarsForExceptionalConditions(conditions);
         }
     }
 }

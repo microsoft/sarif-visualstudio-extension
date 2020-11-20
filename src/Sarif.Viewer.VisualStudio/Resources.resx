@@ -161,10 +161,6 @@
     <value>The log file '{0}' is invalid and couldn't be opened.</value>
     <comment>{0} will be the name of the invalid file that couldn't be opened</comment>
   </data>
-  <data name="NoResults_DialogMessage" xml:space="preserve">
-    <value>SARIF Explorer found no results in analysis log '{0}'.</value>
-    <comment>{0} will be the name of the file that was opened</comment>
-  </data>
   <data name="OpenLogFileFail_DilogMessage" xml:space="preserve">
     <value>The log file '{0}' was not found.</value>
     <comment>{0} will be the full file path</comment>
@@ -301,5 +297,8 @@
   </data>
   <data name="ErrorLogHasErrorLevelToolExecutionNotifications" xml:space="preserve">
     <value>The SARIF viewer received one or more SARIF logs containing a run that failed due to a tool execution error. These logs might contain incomplete results.</value>
+  </data>
+  <data name="ErrorInfoBarAlreadyPresent" xml:space="preserve">
+    <value>The InfoBar for condition '{0}' is already present in the dictionary.</value>
   </data>
 </root>

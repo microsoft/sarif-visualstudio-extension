@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 
 using Microsoft.VisualStudio;
@@ -10,6 +12,7 @@ using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Utilities;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -45,33 +48,50 @@ namespace Microsoft.Sarif.Viewer.Controls
         private IVsInfoBarUIElement uiElement;
         private uint eventCookie;
 
+        private static readonly ReaderWriterLockSlimWrapper s_infoBarLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+
+        // It might seem more natural to use the condition as the dictionary key, and the InfoBar
+        // as the value. We wrote it this way because when the user closes an InfoBar, it's easier
+        // to remove it from the dictionary if the InfoBar itself is the key -- rather than having
+        // to look up the KeyValuePair that has that InfoBar as its value. See CloseAsync below.
+        private static readonly ConcurrentDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new ConcurrentDictionary<InfoBar, ExceptionalConditions>();
+
         /// <summary>
         /// Display info bars appropriate to the specified set of "exceptional conditions."
         /// </summary>
         /// <param name="conditions">
         /// The conditions that require an info bar to be shown.
         /// </param>
-        internal static void CreateInfoBarsForExceptionalConditions(ExceptionalConditions conditions)
+        internal static async Task CreateInfoBarsForExceptionalConditionsAsync(ExceptionalConditions conditions)
         {
-            if ((conditions & ExceptionalConditions.InvalidJson) != 0)
-            {
-                new InfoBar(Resources.ErrorInvalidSarifStream).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+            // The most recently shown bar is displayed at the bottom, so show the bars in order
+            // of decreasing severity. Note that this only works within the info bars shown for
+            // a single SARIF log. Across logs, the "most recent" rule means that the bars are
+            // show in the order the logs are processed. So if the first log has an info-level bar
+            // and the second has an error-level bar, the info-level bar will be on top.
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.InvalidJson,
+                Resources.ErrorInvalidSarifStream,
+                KnownMonikers.StatusError);
 
-            if ((conditions & ExceptionalConditions.ConfigurationError) != 0)
-            {
-                new InfoBar(Resources.ErrorLogHasErrorLevelToolConfigurationNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.ExecutionError,
+                Resources.ErrorLogHasErrorLevelToolExecutionNotifications,
+                KnownMonikers.StatusError);
 
-            if ((conditions & ExceptionalConditions.ExecutionError) != 0)
-            {
-                new InfoBar(Resources.ErrorLogHasErrorLevelToolExecutionNotifications).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.ConfigurationError,
+                Resources.ErrorLogHasErrorLevelToolConfigurationNotifications,
+                KnownMonikers.StatusError);
 
-            if ((conditions & ExceptionalConditions.NoResults) != 0)
-            {
-                new InfoBar(Resources.InfoNoResultsInLog, imageMoniker: KnownMonikers.StatusInformation).ShowAsync().FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-            }
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.NoResults,
+                Resources.InfoNoResultsInLog,
+                KnownMonikers.StatusInformation);
         }
 
         /// <summary>
@@ -166,7 +186,11 @@ namespace Microsoft.Sarif.Viewer.Controls
                 // Close the info bar to correctly send OnClosed() event to the Shell
                 this.uiElement.Close();
 
-                InfoBars.Remove(this.infoBarModel);
+                using (s_infoBarLock.EnterWriteLock())
+                {
+                    InfoBars.Remove(this.infoBarModel);
+                    _ = s_infoBarToConditionDictionary.TryRemove(this, out ExceptionalConditions condition);
+                }
 
                 this.uiElement = null;
             }
@@ -195,6 +219,39 @@ namespace Microsoft.Sarif.Viewer.Controls
             if (infoBarUIElement == this.uiElement)
             {
                 this.clickAction?.Invoke(actionItem);
+            }
+        }
+
+        private static async Task AddInfoBarIfRequiredAsync(
+            ExceptionalConditions detectedConditions,
+            ExceptionalConditions individualCondition,
+            string message,
+            ImageMoniker imageMoniker)
+        {
+            InfoBar infoBar = null;
+
+            if ((detectedConditions & individualCondition) == individualCondition)
+            {
+                using (s_infoBarLock.EnterWriteLock())
+                {
+                    if (!s_infoBarToConditionDictionary.Values.Contains(individualCondition))
+                    {
+                        infoBar = new InfoBar(message, imageMoniker: imageMoniker);
+                        if (!s_infoBarToConditionDictionary.TryAdd(infoBar, individualCondition))
+                        {
+                            throw new InvalidOperationException(
+                                string.Format(
+                                    CultureInfo.CurrentCulture,
+                                    Resources.ErrorInfoBarAlreadyPresent,
+                                    individualCondition));
+                        }
+                    }
+                }
+            }
+
+            if (infoBar != null)
+            {
+                await infoBar.ShowAsync();
             }
         }
     }

@@ -126,6 +126,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The InfoBar for condition &apos;{0}&apos; is already present in the dictionary..
+        /// </summary>
+        public static string ErrorInfoBarAlreadyPresent {
+            get {
+                return ResourceManager.GetString("ErrorInfoBarAlreadyPresent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The SARIF viewer received one or more corrupted SARIF logs, and they were ignored..
         /// </summary>
         public static string ErrorInvalidSarifStream {
@@ -347,15 +356,6 @@ namespace Microsoft.Sarif.Viewer {
         public static string LogOpenFail_InvalidFormat_DialogMessage {
             get {
                 return ResourceManager.GetString("LogOpenFail_InvalidFormat_DialogMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SARIF Explorer found no results in analysis log &apos;{0}&apos;..
-        /// </summary>
-        public static string NoResults_DialogMessage {
-            get {
-                return ResourceManager.GetString("NoResults_DialogMessage", resourceCulture);
             }
         }
         
