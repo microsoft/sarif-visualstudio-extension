@@ -63,37 +63,34 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// </param>
         internal static async Task CreateInfoBarsForExceptionalConditionsAsync(ExceptionalConditions conditions)
         {
-            using (s_infoBarLock.EnterWriteLock())
-            {
-                // The most recently shown bar is displayed at the bottom, so show the bars in order
-                // of decreasing severity. Note that this only works within the info bars shown for
-                // a single SARIF log. Across logs, the "most recent" rule means that the bars are
-                // show in the order the logs are processed. So if the first log has an info-level bar
-                // and the second has an error-level bar, the info-level bar will be on top.
-                await AddInfoBarIfRequiredAsync(
-                    conditions,
-                    ExceptionalConditions.InvalidJson,
-                    Resources.ErrorInvalidSarifStream,
-                    KnownMonikers.StatusError);
+            // The most recently shown bar is displayed at the bottom, so show the bars in order
+            // of decreasing severity. Note that this only works within the info bars shown for
+            // a single SARIF log. Across logs, the "most recent" rule means that the bars are
+            // show in the order the logs are processed. So if the first log has an info-level bar
+            // and the second has an error-level bar, the info-level bar will be on top.
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.InvalidJson,
+                Resources.ErrorInvalidSarifStream,
+                KnownMonikers.StatusError);
 
-                await AddInfoBarIfRequiredAsync(
-                    conditions,
-                    ExceptionalConditions.ExecutionError,
-                    Resources.ErrorLogHasErrorLevelToolExecutionNotifications,
-                    KnownMonikers.StatusError);
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.ExecutionError,
+                Resources.ErrorLogHasErrorLevelToolExecutionNotifications,
+                KnownMonikers.StatusError);
 
-                await AddInfoBarIfRequiredAsync(
-                    conditions,
-                    ExceptionalConditions.ConfigurationError,
-                    Resources.ErrorLogHasErrorLevelToolConfigurationNotifications,
-                    KnownMonikers.StatusError);
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.ConfigurationError,
+                Resources.ErrorLogHasErrorLevelToolConfigurationNotifications,
+                KnownMonikers.StatusError);
 
-                await AddInfoBarIfRequiredAsync(
-                    conditions,
-                    ExceptionalConditions.NoResults,
-                    Resources.InfoNoResultsInLog,
-                    KnownMonikers.StatusInformation);
-            }
+            await AddInfoBarIfRequiredAsync(
+                conditions,
+                ExceptionalConditions.NoResults,
+                Resources.InfoNoResultsInLog,
+                KnownMonikers.StatusInformation);
         }
 
         /// <summary>
@@ -230,13 +227,23 @@ namespace Microsoft.Sarif.Viewer.Controls
             string message,
             ImageMoniker imageMoniker)
         {
-            // It's safe to access and update the dictionary because this method is called inside
-            // the write lock.
-            if ((detectedConditions & individualCondition) == individualCondition && !s_infoBarToConditionDictionary.Values.Contains(individualCondition))
+            InfoBar infoBar = null;
+
+            if ((detectedConditions & individualCondition) == individualCondition)
             {
-                var infoBar = new InfoBar(message, imageMoniker: imageMoniker);
+                using (s_infoBarLock.EnterWriteLock())
+                {
+                    if (!s_infoBarToConditionDictionary.Values.Contains(individualCondition))
+                    {
+                        infoBar = new InfoBar(message, imageMoniker: imageMoniker);
+                        s_infoBarToConditionDictionary.Add(infoBar, individualCondition);
+                    }
+                }
+            }
+
+            if (infoBar != null)
+            {
                 await infoBar.ShowAsync();
-                s_infoBarToConditionDictionary.Add(infoBar, individualCondition);
             }
         }
     }
