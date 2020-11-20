@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class RegionExtensions
+    internal static class RegionExtensions
     {
         public static bool Include(this Region region, Region location)
         {
