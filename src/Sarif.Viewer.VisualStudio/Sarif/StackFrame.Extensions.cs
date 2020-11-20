@@ -10,7 +10,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
     {
         public static StackFrameModel ToStackFrameModel(this StackFrame stackFrame, int resultId, int runIndex)
         {
-            StackFrameModel model = new StackFrameModel(resultId, runIndex);
+            var model = new StackFrameModel(resultId, runIndex);
 
             model.FullyQualifiedLogicalName = stackFrame.Location.LogicalLocation.FullyQualifiedName;
             model.Message = stackFrame.Location?.Message?.Text;
