@@ -23,6 +23,7 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -40,6 +41,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         public static readonly ErrorListService Instance = new ErrorListService();
+
+        internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
+
+        static ErrorListService()
+        {
+            LogProcessed += ErrorListService_LogProcessed;
+        }
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
@@ -65,6 +73,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         public static async Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        {
+            try
+            {
+                await ProcessLogFileCoreAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
+            }
+            catch (JsonReaderException)
+            {
+                RaiseLogProcessed(ExceptionalConditions.InvalidJson);
+            }
+        }
+
+        public static async Task ProcessLogFileCoreAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             SarifLog log = null;
             string logText = null;
@@ -221,7 +241,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            await ProcessSarifLogAsync(log, outputPath, showMessageOnNoResults: promptOnLogConversions, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
+            await ProcessSarifLogAsync(log, outputPath, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         /// <summary>
@@ -341,7 +361,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task<ExceptionalConditions> ProcessSarifLogAsync(Stream stream, string logId, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(Stream stream, string logId, bool cleanErrors, bool openInEditor)
         {
             SarifLog sarifLog = null;
             try
@@ -350,17 +370,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
             catch (JsonReaderException)
             {
+                RaiseLogProcessed(ExceptionalConditions.InvalidJson);
             }
 
             if (sarifLog != null)
             {
-                await ProcessSarifLogAsync(sarifLog, logFilePath: logId, showMessageOnNoResults: showMessageOnNoResults, cleanErrors: cleanErrors, openInEditor: openInEditor);
+                await ProcessSarifLogAsync(sarifLog, logFilePath: logId, cleanErrors: cleanErrors, openInEditor: openInEditor);
             }
-
-            return ExceptionalConditionsCalculator.Calculate(sarifLog);
         }
 
-        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool showMessageOnNoResults, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor)
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.
@@ -416,15 +435,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
                 }
             }
-            else if (showMessageOnNoResults)
-            {
-                VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                                string.Format(Resources.NoResults_DialogMessage, logFilePath),
-                                                null, // title
-                                                OLEMSGICON.OLEMSGICON_INFO,
-                                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-            }
+
+            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
         }
 
         public static void CleanAllErrors()
@@ -547,6 +559,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(uri.ToPath(), fileDetails);
                     }
                 }
+            }
+        }
+
+        private static void RaiseLogProcessed(ExceptionalConditions conditions)
+        {
+            LogProcessed?.Invoke(Instance, new LogProcessedEventArgs(conditions));
+        }
+
+        private static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+                InfoBar.CreateInfoBarsForExceptionalConditionsAsync(e.ExceptionalConditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
             }
         }
     }
