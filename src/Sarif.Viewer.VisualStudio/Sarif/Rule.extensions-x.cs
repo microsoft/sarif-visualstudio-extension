@@ -8,7 +8,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class RuleExtensions
+    internal static class RuleExtensions
     {
         public static RuleModel ToRuleModel(this ReportingDescriptor rule, string defaultRuleId)
         {

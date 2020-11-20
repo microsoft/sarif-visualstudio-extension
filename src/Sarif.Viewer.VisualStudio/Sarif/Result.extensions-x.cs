@@ -10,10 +10,8 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class ResultExtensions
+    internal static class ResultExtensions
     {
-        const string NOTARGETFILEPATH = "NOTARGETFILEPATH";
-
         public static string GetPrimaryTargetFile(this Result result, Run run)
         {
             if (result == null)

@@ -87,7 +87,7 @@
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
     <Compile Include="LogProcessedEventArgs.cs" />
-    <Compile Include="Sarif\SarifLog.extensions.cs" />
+    <Compile Include="Sarif\SarifLog.extensions-x.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
     <Compile Include="IToolWindow.cs" />
@@ -143,23 +143,23 @@
     <Compile Include="Views\SarifToolWindowControl.xaml.cs">
       <DependentUpon>SarifToolWindowControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Sarif\Replacement.extensions.cs" />
-    <Compile Include="Sarif\ArtifactChange.extensions.cs" />
-    <Compile Include="Sarif\Fix.extensions.cs" />
-    <Compile Include="Sarif\StackFrame.extensions.cs" />
-    <Compile Include="Sarif\Stack.extensions.cs" />
-    <Compile Include="Sarif\CodeFlow.extensions.cs" />
+    <Compile Include="Sarif\Replacement.extensions-x.cs" />
+    <Compile Include="Sarif\ArtifactChange.extensions-x.cs" />
+    <Compile Include="Sarif\Fix.extensions-x.cs" />
+    <Compile Include="Sarif\StackFrame.extensions-x.cs" />
+    <Compile Include="Sarif\Stack.extensions-x.cs" />
+    <Compile Include="Sarif\CodeFlow.extensions-x.cs" />
     <Compile Include="Models\RuleModel.cs" />
     <Compile Include="Models\ToolModel.cs" />
-    <Compile Include="Sarif\ThreadFlowLocation.extensions.cs" />
-    <Compile Include="Sarif\Region.extensions.cs" />
-    <Compile Include="Sarif\FailureLevel.extensions.cs" />
-    <Compile Include="Sarif\Result.extensions.cs" />
-    <Compile Include="Sarif\Location.extensions.cs" />
-    <Compile Include="Sarif\Rule.extensions.cs" />
-    <Compile Include="Sarif\Invocation.extensions.cs" />
+    <Compile Include="Sarif\ThreadFlowLocation.extensions-x.cs" />
+    <Compile Include="Sarif\Region.extensions-x.cs" />
+    <Compile Include="Sarif\FailureLevel.extensions-x.cs" />
+    <Compile Include="Sarif\Result.extensions-x.cs" />
+    <Compile Include="Sarif\Location.extensions-x.cs" />
+    <Compile Include="Sarif\Rule.extensions-x.cs" />
+    <Compile Include="Sarif\Invocation.extensions-x.cs" />
     <Compile Include="Sarif\Tool.extensions.cs" />
-    <Compile Include="Sarif\Run.extensions.cs" />
+    <Compile Include="Sarif\Run.extensions-x.cs" />
     <Compile Include="Tags\SarifLocationTaggerProvider.cs" />
     <Compile Include="Views\SarifViewerControl.xaml.cs">
       <DependentUpon>SarifViewerControl.xaml</DependentUpon>

@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class CodeFlowExtensions
+    internal static class CodeFlowExtensions
     {
         public static LocationCollection ToThreadFlowLocationCollection(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {

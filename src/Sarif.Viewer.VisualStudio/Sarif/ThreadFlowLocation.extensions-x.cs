@@ -6,11 +6,11 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class ThreadFlowLocationExtensions
+    internal static class ThreadFlowLocationExtensions
     {
         public static LocationModel ToLocationModel(this ThreadFlowLocation threadFlowLocation, Run run, int resultId, int runIndex)
         {
-            var model = threadFlowLocation.Location != null
+            LocationModel model = threadFlowLocation.Location != null
                 ? threadFlowLocation.Location.ToLocationModel(run, resultId, runIndex)
                 : new LocationModel(resultId, runIndex);
 
