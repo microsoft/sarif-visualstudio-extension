@@ -12,15 +12,15 @@ using Microsoft.CodeAnalysis.Sarif.Writers;
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     [Export(typeof(IBackgroundAnalyzer))]
-    internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase, IBackgroundAnalyzer
+    internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
-        private readonly List<Rule> rules;
+        private readonly List<SpamRule> rules;
 
         public SpamBackgroundAnalyzer()
         {
-            rules = new List<Rule>
+            rules = new List<SpamRule>
             {
-                new Rule(
+                new SpamRule(
                     id: "TEST1001",
                     searchPattern: "internal class",
                     replacePattern: "public class",
@@ -58,7 +58,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void ProcessRules(SarifLogger sarifLogger, Uri uri, string text)
         {
-            foreach (Rule item in rules)
+            foreach (SpamRule item in rules)
             {
                 // This POC analyzer has only one rule.
                 var rule = new ReportingDescriptor
@@ -91,7 +91,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 foreach (Match match in matches)
                 {
                     // generating line number
-                    var line = text.Substring(charOffset, match.Index).Split(delimiter, StringSplitOptions.RemoveEmptyEntries).Length;
+                    int line = text.Substring(charOffset, match.Index).Split(delimiter, StringSplitOptions.RemoveEmptyEntries).Length;
                     charOffset = match.Index;
 
                     locations.Add(new Location

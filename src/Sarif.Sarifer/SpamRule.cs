@@ -3,26 +3,21 @@
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class Rule
+    internal class SpamRule
     {
-        public string Id { get; set; }
-        public string SearchPattern { get; set; }
-        public string ReplacePattern { get; set; }
-        public string Message { get; set; }
-        public string Description { get; set; }
+        public string Id { get; }
+        public string SearchPattern { get; }
+        public string ReplacePattern { get; }
+        public string Message { get; }
+        public string Description { get; }
 
-        public Rule(string id, string searchPattern, string replacePattern, string description, string message)
+        public SpamRule(string id, string searchPattern, string replacePattern, string description, string message)
         {
             this.Id = id;
             this.SearchPattern = searchPattern;
             this.ReplacePattern = replacePattern;
             this.Description = description;
             this.Message = message;
-        }
-
-        public Rule()
-        {
-
         }
     }
 }

@@ -51,12 +51,11 @@
     <Compile Include="IBackgroundAnalyzer.cs" />
     <Compile Include="ITextBufferViewTracker.cs" />
     <Compile Include="LastViewRemovedEventArgs.cs" />
-    <Compile Include="ProofOfConceptBackgroundAnalyzer.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
-    <Compile Include="Rule.cs" />
+    <Compile Include="SpamRule.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
