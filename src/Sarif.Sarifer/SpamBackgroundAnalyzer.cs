@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
@@ -77,8 +78,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     }
                 };
 
-                Regex regex = new Regex(item.SearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-                MatchCollection matches = regex.Matches(text);
+                MatchCollection matches = item.SearchPatternRegex.Matches(text);
                 if (matches.Count == 0)
                 {
                     continue;
@@ -91,7 +91,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 foreach (Match match in matches)
                 {
                     // generating line number
-                    int line = text.Substring(charOffset, match.Index).Split(delimiter, StringSplitOptions.RemoveEmptyEntries).Length;
+                    string[] lines = text.Substring(charOffset, match.Index).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
+                    int linesLength = lines.Sum(l => l.Length);
+                    int lineBreaks = lines.Length + 1;
                     charOffset = match.Index;
 
                     locations.Add(new Location
@@ -106,7 +108,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                             {
                                 CharOffset = match.Index,
                                 CharLength = match.Length,
-                                StartLine = line + 1,
+                                StartLine = lineBreaks,
+                                EndLine = lineBreaks,
+                                StartColumn = match.Index - linesLength - lineBreaks,
+                                EndColumn = match.Index + match.Length - linesLength - lineBreaks,
                             }
                         }
                     });
