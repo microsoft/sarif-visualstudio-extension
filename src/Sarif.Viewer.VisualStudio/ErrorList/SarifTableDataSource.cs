@@ -113,7 +113,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             using (this.tableEntriesLock.EnterReadLock())
             {
-                entriesToNotify = logFileToTableEntries.Values.SelectMany((tableEntries) => tableEntries).ToImmutableList();
+                entriesToNotify = logFileToTableEntries.Values.SelectMany(tableEntries => tableEntries).ToImmutableList();
             }
 
             sarifTableDataSink.AddEntries(entriesToNotify);
@@ -129,7 +129,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            var tableEntries = errors.Select((error) => new SarifResultTableEntry(error)).ToImmutableList();
+            var tableEntries = errors.Select(error => new SarifResultTableEntry(error)).ToImmutableList();
 
             this.CallSinks(sink => sink.AddEntries(tableEntries));
 

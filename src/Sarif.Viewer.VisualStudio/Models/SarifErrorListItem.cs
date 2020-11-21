@@ -73,6 +73,9 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
+            bool runHasSuppressions = run.HasSuppressedResults();
+            bool runHasAbsentResults = run.HasAbsentResults();
+
             RunIndex = runIndex;
             ResultId = Interlocked.Increment(ref CurrentResultId);
             ReportingDescriptor rule = result.GetRule(run);
@@ -87,14 +90,11 @@ namespace Microsoft.Sarif.Viewer
             }
             FileName = result.GetPrimaryTargetFile(run);
             ProjectName = projectNameCache.GetName(FileName);
-            Category = result.GetCategory();
+            Category = runHasAbsentResults ? result.GetCategory() : nameof(BaselineState.None);
             Region = result.GetPrimaryTargetRegion();
             Level = GetEffectiveLevel(result);
 
-            if (result.Suppressions?.Count > 0)
-            {
-                VSSuppressionState = VSSuppressionState.Suppressed;
-            }
+            VSSuppressionState = runHasSuppressions && result.IsSuppressed() ? VSSuppressionState.Suppressed : VSSuppressionState.Active;
 
             LogFilePath = logFilePath;
 
