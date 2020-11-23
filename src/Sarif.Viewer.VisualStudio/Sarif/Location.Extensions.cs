@@ -8,7 +8,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class LocationExtensions
+    internal static class LocationExtensions
     {
         public static LocationModel ToLocationModel(this Location location, Run run, int resultId, int runIndex)
         {

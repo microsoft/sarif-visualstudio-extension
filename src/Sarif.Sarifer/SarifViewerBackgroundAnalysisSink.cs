@@ -25,13 +25,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private SarifViewerInterop sarifViewerInterop;
 
         /// <inheritdoc/>
-        public async Task ReceiveAsync(Stream logStream)
+        public async Task ReceiveAsync(Stream logStream, string logId)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
 
-            await sarifViewerInterop.OpenSarifLogAsync(logStream).ConfigureAwait(continueOnCapturedContext: false);
+            await sarifViewerInterop.OpenSarifLogAsync(logStream, logId).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private async System.Threading.Tasks.Task<SarifViewerInterop> GetInteropObjectAsync()

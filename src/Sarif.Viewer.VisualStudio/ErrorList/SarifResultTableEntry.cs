@@ -78,7 +78,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
 
-            var supressionState = this.Error.VSSuppressionState.ToString();
+            string supressionState = this.Error.VSSuppressionState.ToString();
             this.columnKeyToContent["suppressionstatus"] = supressionState;
             this.columnKeyToContent["suppressionstate"] = supressionState;
             this.columnKeyToContent["suppression"] = supressionState;
@@ -88,7 +88,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
             {
                 string message = this.Error.Message;
-                var inlines = SdkUIUtilities.GetMessageInlines(message, this.ErrorListInlineLink_Click);
+                List<Inline> inlines = SdkUIUtilities.GetMessageInlines(message, this.ErrorListInlineLink_Click);
 
                 if (inlines.Count > 0)
                 {
