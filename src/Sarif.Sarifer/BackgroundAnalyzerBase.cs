@@ -44,7 +44,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 foreach (IBackgroundAnalysisSink sink in sinks)
                 {
                     stream.Seek(0L, SeekOrigin.Begin);
-                    await sink.ReceiveAsync(stream).ConfigureAwait(continueOnCapturedContext: false);
+                    await sink.ReceiveAsync(stream, path).ConfigureAwait(continueOnCapturedContext: false);
                 }
             }
         }

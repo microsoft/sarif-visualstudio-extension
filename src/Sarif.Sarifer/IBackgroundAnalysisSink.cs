@@ -25,7 +25,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <returns>
         /// A <see cref="Task"/> that completes when the sink has finished processing
         /// <paramref name="logStream"/>.
+        /// A unique id for the SARIF log, used when the results associated with this log must be
+        /// removed from the error list.
         /// </returns>
-        Task ReceiveAsync(Stream logStream);
+        Task ReceiveAsync(Stream logStream, string logId);
     }
 }
