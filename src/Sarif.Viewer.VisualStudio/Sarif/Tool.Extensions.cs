@@ -6,7 +6,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class ToolExtensions
+    internal static class ToolExtensions
     {
         public static ToolModel ToToolModel(this Tool tool)
         {
@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            ToolModel model = new ToolModel()
+            var model = new ToolModel()
             {
                 Name = tool.Driver?.Name,
                 FullName = tool.Driver?.FullName,

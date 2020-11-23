@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class FailureLevelExtensions
+    internal static class FailureLevelExtensions
     {
         public static string FormatForVisualStudio(this FailureLevel level)
         {

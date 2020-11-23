@@ -6,11 +6,11 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class StackFrameExtensions
+    internal static class StackFrameExtensions
     {
         public static StackFrameModel ToStackFrameModel(this StackFrame stackFrame, int resultId, int runIndex)
         {
-            StackFrameModel model = new StackFrameModel(resultId, runIndex);
+            var model = new StackFrameModel(resultId, runIndex);
 
             model.FullyQualifiedLogicalName = stackFrame.Location.LogicalLocation.FullyQualifiedName;
             model.Message = stackFrame.Location?.Message?.Text;

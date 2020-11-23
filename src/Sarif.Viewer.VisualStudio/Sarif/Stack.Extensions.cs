@@ -6,7 +6,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class StackExtensions
+    internal static class StackExtensions
     {
         public static StackCollection ToStackCollection(this Stack stack, int resultId, int runIndex)
         {
@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            StackCollection model = new StackCollection(stack.Message?.Text);
+            var model = new StackCollection(stack.Message?.Text);
 
             if (stack.Frames != null)
             {

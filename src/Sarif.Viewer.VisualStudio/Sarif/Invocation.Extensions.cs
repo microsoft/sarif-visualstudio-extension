@@ -6,7 +6,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class InvocationExtensions
+    internal static class InvocationExtensions
     {
         public static InvocationModel ToInvocationModel(this Invocation invocation)
         {
