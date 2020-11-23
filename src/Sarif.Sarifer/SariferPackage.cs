@@ -59,6 +59,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
+                _ = new AnalyzeSolutionCommand(vsShell, mcs);
+                _ = new AnalyzeProjectCommand(vsShell, mcs);
             }
         }
     }

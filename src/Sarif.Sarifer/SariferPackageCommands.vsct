@@ -93,17 +93,17 @@ Copyright (c) Microsoft. All rights reserved.
         </Strings>
       </Button>
 
-      <Button guid="guidSariferCommandSet" id="cmdidBackgroundAnalyzeSolution" priority="0x100" type="Button">
+      <Button guid="guidSariferCommandSet" id="cmdidAnalyzeSolution" priority="0x100" type="Button">
         <Parent guid="guidSariferCommandSet" id="SariferSolutionContextMenuGroup"/>
         <Strings>
-          <ButtonText>Run Background Analyzers on Solution</ButtonText>
+          <ButtonText>Run Static Analyzers</ButtonText>
         </Strings>
       </Button>
 
-      <Button guid="guidSariferCommandSet" id="cmdidBackgroundAnalyzeProject" priority="0x100" type="Button">
+      <Button guid="guidSariferCommandSet" id="cmdidAnalyzeProject" priority="0x100" type="Button">
         <Parent guid="guidSariferCommandSet" id="SariferProjectContextMenuGroup"/>
         <Strings>
-          <ButtonText>Run Background Analyzers on Project</ButtonText>
+          <ButtonText>Run Static Analyzers</ButtonText>
         </Strings>
       </Button>
 
@@ -139,10 +139,10 @@ Copyright (c) Microsoft. All rights reserved.
       <IDSymbol name="cmdidGenerateTestData" value="0x2010" />
 
       <IDSymbol name="SariferSolutionContextMenuGroup" value="0x1020"/>
-      <IDSymbol name="cmdidBackgroundAnalyzeSolution" value="0x2020"/>
+      <IDSymbol name="cmdidAnalyzeSolution" value="0x2020"/>
 
       <IDSymbol name="SariferProjectContextMenuGroup" value="0x1030"/>
-      <IDSymbol name="cmdidBackgroundAnalyzeProject" value="0x2030"/>
+      <IDSymbol name="cmdidAnalyzeProject" value="0x2030"/>
     </GuidSymbol>
 
   </Symbols>
