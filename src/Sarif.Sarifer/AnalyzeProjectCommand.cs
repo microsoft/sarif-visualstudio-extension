@@ -4,6 +4,10 @@
 using System;
 using System.ComponentModel.Design;
 
+using EnvDTE;
+
+using EnvDTE80;
+
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -32,12 +36,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                       "Analyze project",
-                       null, // title
-                       OLEMSGICON.OLEMSGICON_INFO,
-                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
+            object[] activeSolutionProjects = dte.ActiveSolutionProjects as object[];
+            if (activeSolutionProjects != null)
+            {
+                foreach (object item in activeSolutionProjects)
+                {
+                    var project = item as Project;
+                    string message = project != null
+                        ? $"Project: {project.FullName}"
+                        : $"Not a project: '{item.GetType().FullName}': '{item}'";
+
+                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
+                               message,
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                }
+            }
         }
     }
 }
