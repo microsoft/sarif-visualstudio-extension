@@ -77,7 +77,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             Task task = ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
             taskHandler.RegisterTask(task);
 
-            await task;
+            await task.ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public static async Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
