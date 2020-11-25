@@ -51,6 +51,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
+            ThreadHelper.JoinableTaskFactory.Run(() => ProcessLogFileWrapperAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
+        }
+
+        public static async Task ProcessLogFileWrapperAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        {
             var taskStatusCenterService = (IVsTaskStatusCenterService)Package.GetGlobalService(typeof(SVsTaskStatusCenterService));
             var taskProgressData = new TaskProgressData
             {
@@ -69,7 +74,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             ITaskHandler taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
 
-            taskHandler.RegisterTask(ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
+            Task task = ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
+            taskHandler.RegisterTask(task);
+
+            await task.ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public static async Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
