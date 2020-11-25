@@ -49,6 +49,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
+        public Task StartProjectAnalysisAsync(string projectName, IEnumerable<string> projectFiles)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Perform the analysis.
         /// </summary>
