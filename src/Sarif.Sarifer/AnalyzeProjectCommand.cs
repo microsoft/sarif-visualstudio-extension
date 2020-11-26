@@ -63,7 +63,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 foreach (Project project in selectedProjects)
                 {
-                    var projectFiles = new List<string>();
+                    var projectMemberFiles = new List<string>();
 
                     ProjectItems projectItems = project.ProjectItems;
                     for (int i = 0; i < projectItems.Count; ++i)
@@ -71,11 +71,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         ProjectItem projectItem = projectItems.Item(i + 1); // One-based index.
                         for (short j = 0; j < projectItem.FileCount; ++j)
                         {
-                            projectFiles.Add(projectItem.FileNames[j]);
+                            projectMemberFiles.Add(projectItem.FileNames[j]);
                         }
                     }
 
-                    this.backgroundAnalysisService.StartProjectAnalysisAsync(project.FileName, projectFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+                    this.backgroundAnalysisService.StartProjectAnalysisAsync(project.FullName, projectMemberFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
             }
         }

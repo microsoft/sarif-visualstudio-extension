@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using Microsoft.VisualStudio.Shell;
@@ -49,13 +50,32 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        public Task StartProjectAnalysisAsync(string projectName, IEnumerable<string> projectFiles)
+        public async Task StartProjectAnalysisAsync(string projectName, IEnumerable<string> projectFiles)
         {
-            throw new NotImplementedException();
+            projectName = projectName ?? throw new ArgumentNullException(nameof(projectName));
+            projectFiles = projectFiles ?? throw new ArgumentNullException(nameof(projectFiles));
+
+            if (!projectFiles.Any())
+            {
+                return;
+            }
+
+            using (Stream stream = new MemoryStream())
+            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                CreateSarifLog(projectName, projectFiles, writer);
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+                foreach (IBackgroundAnalysisSink sink in sinks)
+                {
+                    stream.Seek(0L, SeekOrigin.Begin);
+                    await sink.ReceiveAsync(stream, projectName).ConfigureAwait(continueOnCapturedContext: false);
+                }
+            }
         }
 
         /// <summary>
-        /// Perform the analysis.
+        /// Analyze a single file.
         /// </summary>
         /// <remarks>
         /// This method runs on a background thread, so there is no need for derived classes to
@@ -73,5 +93,24 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// analysis, in the form of a SARIF log file.
         /// </returns>
         protected abstract void CreateSarifLog(string path, string text, TextWriter writer);
+
+        /// <summary>
+        /// Analyze a project.
+        /// </summary>
+        /// <remarks>
+        /// This method runs on a background thread, so there is no need for derived classes to
+        /// make anything async.
+        /// </remarks>
+        /// <param name="projectFile">
+        /// The absolute path of the project file whose member files are to be analyzed.
+        /// </param>
+        /// <param name="projectMemberFiles">
+        /// The absolute paths of the files to be analyzed.
+        /// </param>
+        /// <param name="writer">
+        /// A <see cref="TextWriter"/> to which the analyzer should write the results of the
+        /// analysis, in the form of a SARIF log file.
+        /// </returns>
+        protected abstract void CreateSarifLog(string projectFile, IEnumerable<string> projectMemberFiles, TextWriter writer);
     }
 }

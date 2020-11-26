@@ -57,6 +57,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
+        protected override void CreateSarifLog(string projectFile, IEnumerable<string> projectMemberFiles, TextWriter writer)
+        {
+            throw new NotImplementedException();
+        }
+
         private void ProcessRules(SarifLogger sarifLogger, Uri uri, string text)
         {
             foreach (SpamRule item in rules)

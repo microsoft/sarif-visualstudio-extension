@@ -29,15 +29,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Begins background analysis of the specified project.
         /// </summary>
-        /// <param name="projectName">
-        /// The name of the project to analyze.
+        /// <param name="projectFile">
+        /// The absolute path of the project file whose member files are to be analyzed.
         /// </param>
-        /// <param name="projectFiles">
-        /// The absolute paths of the project files to be analyzed.
+        /// <param name="projectMemberFiles">
+        /// The absolute paths of the files to be analyzed.
         /// </param>
         /// <returns>
         /// A <see cref="Task"/> that represents the completion of the background analysis.
         /// </returns>
-        Task StartProjectAnalysisAsync(string projectName, IEnumerable<string> projectFiles);
+        Task StartProjectAnalysisAsync(string projectFile, IEnumerable<string> projectMemberFiles);
     }
 }

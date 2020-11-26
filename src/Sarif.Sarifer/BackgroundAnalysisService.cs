@@ -35,13 +35,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <inheritdoc/>
-        public async Task StartProjectAnalysisAsync(string projectName, IEnumerable<string> projectFiles)
+        public async Task StartProjectAnalysisAsync(string projectFile, IEnumerable<string> projectMemberFiles)
         {
             var tasks = new List<Task>(analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                tasks.Add(analyzer.StartProjectAnalysisAsync(projectName, projectFiles));
+                tasks.Add(analyzer.StartProjectAnalysisAsync(projectFile, projectMemberFiles));
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
