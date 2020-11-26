@@ -59,7 +59,32 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected override void CreateSarifLog(string projectFile, IEnumerable<string> projectMemberFiles, TextWriter writer)
         {
-            throw new NotImplementedException();
+            var tool = new Tool
+            {
+                Driver = new ToolComponent
+                {
+                    Name = "Spam"
+                }
+            };
+
+            using (var sarifLogger = new SarifLogger(
+                writer,
+                LoggingOptions.None,
+                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
+                dataToRemove: OptionallyEmittedData.None,
+                tool: tool,
+                closeWriterOnDispose: false))   // TODO: No implementers will remember to do this. Should we just pass in the stream instead of the writer?
+            {
+                sarifLogger.AnalysisStarted();
+
+                foreach (string projectMemberFile in projectMemberFiles)
+                {
+                    var uri = new Uri(projectMemberFile, UriKind.Absolute);
+                    ProcessRules(sarifLogger, uri, File.ReadAllText(projectMemberFile));
+                }
+
+                sarifLogger.AnalysisStopped(RuntimeConditions.None);
+            }
         }
 
         private void ProcessRules(SarifLogger sarifLogger, Uri uri, string text)
