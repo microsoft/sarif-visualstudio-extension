@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.IO;
 using System.Linq;
 
 using EnvDTE;
@@ -71,7 +72,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         ProjectItem projectItem = projectItems.Item(i + 1); // One-based index.
                         for (short j = 0; j < projectItem.FileCount; ++j)
                         {
-                            projectMemberFiles.Add(projectItem.FileNames[j]);
+                            string projectMemberFile = projectItem.FileNames[j];
+
+                            // Make sure it's a file and not a directory.
+                            if (File.Exists(projectMemberFile))
+                            {
+                                projectMemberFiles.Add(projectMemberFile);
+                            }
                         }
                     }
 
