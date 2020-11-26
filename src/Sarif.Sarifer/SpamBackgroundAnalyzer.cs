@@ -116,16 +116,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 var locations = new List<Location>(matches.Count);
                 var artifactChanges = new List<ArtifactChange>(matches.Count);
-                int charOffset = 0;
-                char[] delimiter = new char[] { '\r', '\n' };
                 foreach (Match match in matches)
                 {
-                    // generating line number
-                    string[] lines = text.Substring(charOffset, match.Index).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
-                    int linesLength = lines.Sum(l => l.Length);
-                    int lineBreaks = lines.Length + 1;
-                    charOffset = match.Index;
-
                     locations.Add(new Location
                     {
                         PhysicalLocation = new PhysicalLocation
@@ -137,11 +129,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                             Region = new Region
                             {
                                 CharOffset = match.Index,
-                                CharLength = match.Length,
-                                StartLine = lineBreaks,
-                                EndLine = lineBreaks,
-                                StartColumn = match.Index - linesLength - lineBreaks,
-                                EndColumn = match.Index + match.Length - linesLength - lineBreaks,
+                                CharLength = match.Length
                             }
                         }
                     });
