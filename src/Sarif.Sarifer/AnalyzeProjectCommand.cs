@@ -18,8 +18,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class AnalyzeProjectCommand
     {
-        private IComponentModel componentModel;
         private DTE2 dte;
+        private IComponentModel componentModel;
         private IBackgroundAnalysisService backgroundAnalysisService;
 
         public AnalyzeProjectCommand(IMenuCommandService menuCommandService)
@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         }
                     }
 
-                    this.backgroundAnalysisService.StartProjectAnalysisAsync(project.FullName, projectMemberFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, projectMemberFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
             }
         }

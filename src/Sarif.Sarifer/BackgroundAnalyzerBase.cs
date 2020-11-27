@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public async Task StartAnalysisAsync(string path, string text)
+        public async Task AnalyzeAsync(string path, string text)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
@@ -50,12 +50,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        public async Task StartProjectAnalysisAsync(string projectName, IEnumerable<string> projectFiles)
+        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
         {
-            projectName = projectName ?? throw new ArgumentNullException(nameof(projectName));
-            projectFiles = projectFiles ?? throw new ArgumentNullException(nameof(projectFiles));
+            logId = logId ?? throw new ArgumentNullException(nameof(logId));
+            targetFiles = targetFiles ?? throw new ArgumentNullException(nameof(targetFiles));
 
-            if (!projectFiles.Any())
+            if (!targetFiles.Any())
             {
                 return;
             }
@@ -63,30 +63,30 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                CreateSarifLog(projectName, projectFiles, writer);
+                CreateSarifLog(logId, targetFiles, writer);
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
                 foreach (IBackgroundAnalysisSink sink in sinks)
                 {
                     stream.Seek(0L, SeekOrigin.Begin);
-                    await sink.ReceiveAsync(stream, projectName).ConfigureAwait(continueOnCapturedContext: false);
+                    await sink.ReceiveAsync(stream, logId).ConfigureAwait(continueOnCapturedContext: false);
                 }
             }
         }
 
         /// <summary>
-        /// Analyze a single file.
+        /// Analyzes the specified text.
         /// </summary>
         /// <remarks>
         /// This method runs on a background thread, so there is no need for derived classes to
         /// make anything async.
         /// </remarks>
         /// <param name="path">
-        /// The absolute path of the file being analyzed, or null if the text came from a VS text
+        /// The absolute path of the file to analyze, or null if the text came from a VS text
         /// buffer that was not attached to a file.
         /// </param>
         /// <param name="text">
-        /// The text to be analyzed.
+        /// The text to analyze.
         /// </param>
         /// <param name="writer">
         /// A <see cref="TextWriter"/> to which the analyzer should write the results of the
@@ -95,22 +95,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         protected abstract void CreateSarifLog(string path, string text, TextWriter writer);
 
         /// <summary>
-        /// Analyze a project.
+        /// Analyzes the specified files.
         /// </summary>
         /// <remarks>
         /// This method runs on a background thread, so there is no need for derived classes to
         /// make anything async.
         /// </remarks>
-        /// <param name="projectFile">
-        /// The absolute path of the project file whose member files are to be analyzed.
+        /// <param name="logId">
+        /// A unique identifier for this analysis.
         /// </param>
-        /// <param name="projectMemberFiles">
-        /// The absolute paths of the files to be analyzed.
+        /// <param name="targetFiles">
+        /// The absolute paths of the files to analyze.
         /// </param>
         /// <param name="writer">
         /// A <see cref="TextWriter"/> to which the analyzer should write the results of the
         /// analysis, in the form of a SARIF log file.
         /// </returns>
-        protected abstract void CreateSarifLog(string projectFile, IEnumerable<string> projectMemberFiles, TextWriter writer);
+        protected abstract void CreateSarifLog(string logId, IEnumerable<string> targetFiles, TextWriter writer);
     }
 }

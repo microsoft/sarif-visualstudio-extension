@@ -12,10 +12,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     internal interface IBackgroundAnalysisService
     {
         /// <summary>
-        /// Begins background analysis of the specified text.
+        /// Analyzes the specified text.
         /// </summary>
         /// <param name="path">
-        /// The absolute path of the file being analyzed, or null if the text came from a VS text
+        /// The absolute path of the file to analyze, or null if the text came from a VS text
         /// buffer that was not attached to a file.
         /// </param>
         /// <param name="text">
@@ -24,20 +24,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <returns>
         /// A <see cref="Task"/> that represents the completion of the background analysis.
         /// </returns>
-        Task StartAnalysisAsync(string path, string text);
+        Task AnalyzeAsync(string path, string text);
 
         /// <summary>
-        /// Begins background analysis of the specified project.
+        /// Analyzes the specified files.
         /// </summary>
-        /// <param name="projectFile">
-        /// The absolute path of the project file whose member files are to be analyzed.
+        /// <param name="logId">
+        /// A unique identifier for this analysis.
         /// </param>
-        /// <param name="projectMemberFiles">
-        /// The absolute paths of the files to be analyzed.
+        /// <param name="targetFiles">
+        /// The absolute paths of the files to analyze.
         /// </param>
         /// <returns>
-        /// A <see cref="Task"/> that represents the completion of the background analysis.
+        /// A <see cref="Task"/> that represents the completion of the analysis.
         /// </returns>
-        Task StartProjectAnalysisAsync(string projectFile, IEnumerable<string> projectMemberFiles);
+        Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles);
     }
 }

@@ -57,7 +57,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        protected override void CreateSarifLog(string projectFile, IEnumerable<string> projectMemberFiles, TextWriter writer)
+        protected override void CreateSarifLog(string logId, IEnumerable<string> targetFiles, TextWriter writer)
         {
             var tool = new Tool
             {
@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 sarifLogger.AnalysisStarted();
 
-                foreach (string projectMemberFile in projectMemberFiles)
+                foreach (string projectMemberFile in targetFiles)
                 {
                     var uri = new Uri(projectMemberFile, UriKind.Absolute);
                     ProcessRules(sarifLogger, uri, File.ReadAllText(projectMemberFile));

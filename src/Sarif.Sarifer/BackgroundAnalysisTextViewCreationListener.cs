@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            this.backgroundAnalysisService.Value.StartAnalysisAsync(e.Path, e.Text).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
         private void TextView_Closed(ITextView textView)
