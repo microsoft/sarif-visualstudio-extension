@@ -4,20 +4,12 @@
 using System;
 using System.ComponentModel.Design;
 
-using Microsoft.Sarif.Viewer.Interop;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
-
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class AnalyzeSolutionCommand
     {
-        private readonly SarifViewerInterop viewerInterop;
-
-        public AnalyzeSolutionCommand(IVsShell vsShell, IMenuCommandService menuCommandService)
+        public AnalyzeSolutionCommand(IMenuCommandService menuCommandService)
         {
-            this.viewerInterop = new SarifViewerInterop(vsShell);
-
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeSolution));
@@ -30,14 +22,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         private void MenuCommandCallback(object caller, EventArgs args)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                       "Analyze solution",
-                       null, // title
-                       OLEMSGICON.OLEMSGICON_INFO,
-                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
         }
     }
 }

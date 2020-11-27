@@ -11,25 +11,19 @@ using EnvDTE;
 
 using EnvDTE80;
 
-using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class AnalyzeProjectCommand
     {
-        private readonly SarifViewerInterop viewerInterop;
-
         private IComponentModel componentModel;
         private DTE2 dte;
         private IBackgroundAnalysisService backgroundAnalysisService;
 
-        public AnalyzeProjectCommand(IVsShell vsShell, IMenuCommandService menuCommandService)
+        public AnalyzeProjectCommand(IMenuCommandService menuCommandService)
         {
-            this.viewerInterop = new SarifViewerInterop(vsShell);
-
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject));
