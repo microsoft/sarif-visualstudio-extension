@@ -30,8 +30,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                await analyzer.AnalyzeAsync(path, text).ConfigureAwait(continueOnCapturedContext: false);
+                tasks.Add(analyzer.AnalyzeAsync(path, text));
             }
+
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         /// <inheritdoc/>
