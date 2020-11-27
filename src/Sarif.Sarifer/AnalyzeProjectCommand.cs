@@ -58,8 +58,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 foreach (Project project in selectedProjects)
                 {
-                    var projectMemberFiles = new List<string>();
+                    var targetFiles = new List<string>();
 
+                    // TODO: DRY this out into ProjectHelper.AppendProjectMemberFiles(IList<string> fileList).
                     ProjectItems projectItems = project.ProjectItems;
                     for (int i = 0; i < projectItems.Count; ++i)
                     {
@@ -71,12 +72,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                             // Make sure it's a file and not a directory.
                             if (File.Exists(projectMemberFile))
                             {
-                                projectMemberFiles.Add(projectMemberFile);
+                                targetFiles.Add(projectMemberFile);
                             }
                         }
                     }
 
-                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, projectMemberFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
             }
         }
