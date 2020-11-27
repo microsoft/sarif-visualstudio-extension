@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class SpamRule
+    public class SpamRule
     {
         public string Id { get; }
         public string SearchPattern { get; }

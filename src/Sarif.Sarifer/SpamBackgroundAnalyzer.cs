@@ -4,16 +4,21 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
+
+using Newtonsoft.Json;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     [Export(typeof(IBackgroundAnalyzer))]
     internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
-        private readonly List<SpamRule> rules;
+        private readonly List<SpamRule> Rules = new List<SpamRule>();
+
+        private string CurrentSolutionDirectory = string.Empty;
 
         /// <inheritdoc/>
         public override string ToolName => "Spam";
@@ -24,22 +29,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public override string ToolSemanticVersion => "0.1.0";
 
-        public SpamBackgroundAnalyzer()
-        {
-            rules = new List<SpamRule>
-            {
-                new SpamRule(
-                    id: "TEST1001",
-                    searchPattern: "internal class",
-                    replacePattern: "public class",
-                    description: "Make class public",
-                    message: "Internal class could be public"),
-            };
-        }
-
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger)
         {
-            foreach (SpamRule item in rules)
+            if (string.IsNullOrEmpty(solutionDirectory) 
+                || !CurrentSolutionDirectory.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase))
+            {
+                // clear older rules
+                this.Rules.Clear();
+                CurrentSolutionDirectory = solutionDirectory ?? string.Empty;
+                LoadFiles();
+            }
+
+            foreach (SpamRule item in this.Rules)
             {
                 // This POC analyzer has only one rule.
                 var rule = new ReportingDescriptor
@@ -131,6 +132,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 sarifLogger.Log(rule, result);
             }
+        }
+
+        private void LoadFiles()
+        {
+            string spamDirectory = Path.Combine(CurrentSolutionDirectory, ".spam");
+            if (!Directory.Exists(spamDirectory))
+            {
+                return;
+            }
+
+            foreach (string filePath in  Directory.EnumerateFiles(spamDirectory))
+            {
+                LoadRules(filePath);
+            }
+        }
+
+        private void LoadRules(string filePath)
+        {
+            string json = File.ReadAllText(filePath);
+            this.Rules.AddRange(JsonConvert.DeserializeObject<List<SpamRule>>(json));
         }
     }
 }
