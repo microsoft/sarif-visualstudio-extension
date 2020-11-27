@@ -69,6 +69,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
+        /// <inheritdoc/>
         public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
         {
             logId = logId ?? throw new ArgumentNullException(nameof(logId));
