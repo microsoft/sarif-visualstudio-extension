@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
@@ -16,6 +14,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
         private readonly List<SpamRule> rules;
+
+        /// <inheritdoc/>
+        public override string ToolName => "Spam";
+
+        /// <inheritdoc/>
+        public override string ToolVersion => "0.1.0";
+
+        /// <inheritdoc/>
+        public override string ToolSemanticVersion => "0.1.0";
 
         public SpamBackgroundAnalyzer()
         {
@@ -30,64 +37,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             };
         }
 
-        protected override void CreateSarifLog(string path, string text, TextWriter writer)
-        {
-            var tool = new Tool
-            {
-                Driver = new ToolComponent
-                {
-                    Name = "Spam"
-                }
-            };
-
-            using (var sarifLogger = new SarifLogger(
-                writer,
-                LoggingOptions.None,
-                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
-                dataToRemove: OptionallyEmittedData.None,
-                tool: tool,
-                closeWriterOnDispose: false))   // TODO: No implementers will remember to do this. Should we just pass in the stream instead of the writer?
-            {
-                sarifLogger.AnalysisStarted();
-
-                var uri = new Uri(path, UriKind.Absolute);
-                ProcessRules(sarifLogger, uri, text);
-
-                sarifLogger.AnalysisStopped(RuntimeConditions.None);
-            }
-        }
-
-        protected override void CreateSarifLog(string logId, IEnumerable<string> targetFiles, TextWriter writer)
-        {
-            var tool = new Tool
-            {
-                Driver = new ToolComponent
-                {
-                    Name = "Spam"
-                }
-            };
-
-            using (var sarifLogger = new SarifLogger(
-                writer,
-                LoggingOptions.None,
-                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
-                dataToRemove: OptionallyEmittedData.None,
-                tool: tool,
-                closeWriterOnDispose: false))   // TODO: No implementers will remember to do this. Should we just pass in the stream instead of the writer?
-            {
-                sarifLogger.AnalysisStarted();
-
-                foreach (string projectMemberFile in targetFiles)
-                {
-                    var uri = new Uri(projectMemberFile, UriKind.Absolute);
-                    ProcessRules(sarifLogger, uri, File.ReadAllText(projectMemberFile));
-                }
-
-                sarifLogger.AnalysisStopped(RuntimeConditions.None);
-            }
-        }
-
-        private void ProcessRules(SarifLogger sarifLogger, Uri uri, string text)
+        protected override void AnalyzeCore(Uri uri, string text, SarifLogger sarifLogger)
         {
             foreach (SpamRule item in rules)
             {

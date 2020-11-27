@@ -12,6 +12,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     public interface IBackgroundAnalyzer
     {
         /// <summary>
+        /// Gets the name of the tool performing the analysis.
+        /// </summary>
+        string ToolName { get; }
+
+        /// <summary>
+        /// Gets the version of the tool performing the analysis.
+        /// </summary>
+        string ToolVersion { get; }
+
+        /// <summary>
+        /// Gets the semantic version of the tool performing the analysis.
+        /// </summary>
+        string ToolSemanticVersion { get; }
+
+        /// <summary>
         /// Analyzes the specified text.
         /// </summary>
         /// <param name="path">
