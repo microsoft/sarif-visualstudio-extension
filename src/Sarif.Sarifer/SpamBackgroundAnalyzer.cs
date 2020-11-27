@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
@@ -16,6 +14,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
         private readonly List<SpamRule> rules;
+
+        /// <inheritdoc/>
+        public override string ToolName => "Spam";
+
+        /// <inheritdoc/>
+        public override string ToolVersion => "0.1.0";
+
+        /// <inheritdoc/>
+        public override string ToolSemanticVersion => "0.1.0";
 
         public SpamBackgroundAnalyzer()
         {
@@ -30,34 +37,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             };
         }
 
-        protected override void CreateSarifLog(string path, string text, TextWriter writer)
-        {
-            var tool = new Tool
-            {
-                Driver = new ToolComponent
-                {
-                    Name = "Spam"
-                }
-            };
-
-            using (var sarifLogger = new SarifLogger(
-                writer,
-                LoggingOptions.None,
-                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
-                dataToRemove: OptionallyEmittedData.None,
-                tool: tool,
-                closeWriterOnDispose: false))   // TODO: No implementers will remember to do this. Should we just pass in the stream instead of the writer?
-            {
-                sarifLogger.AnalysisStarted();
-
-                var uri = new Uri(path, UriKind.Absolute);
-                ProcessRules(sarifLogger, uri, text);
-
-                sarifLogger.AnalysisStopped(RuntimeConditions.None);
-            }
-        }
-
-        private void ProcessRules(SarifLogger sarifLogger, Uri uri, string text)
+        protected override void AnalyzeCore(Uri uri, string text, SarifLogger sarifLogger)
         {
             foreach (SpamRule item in rules)
             {
@@ -86,16 +66,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 var locations = new List<Location>(matches.Count);
                 var artifactChanges = new List<ArtifactChange>(matches.Count);
-                int charOffset = 0;
-                char[] delimiter = new char[] { '\r', '\n' };
                 foreach (Match match in matches)
                 {
-                    // generating line number
-                    string[] lines = text.Substring(charOffset, match.Index).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
-                    int linesLength = lines.Sum(l => l.Length);
-                    int lineBreaks = lines.Length + 1;
-                    charOffset = match.Index;
-
                     locations.Add(new Location
                     {
                         PhysicalLocation = new PhysicalLocation
@@ -107,11 +79,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                             Region = new Region
                             {
                                 CharOffset = match.Index,
-                                CharLength = match.Length,
-                                StartLine = lineBreaks,
-                                EndLine = lineBreaks,
-                                StartColumn = match.Index - linesLength - lineBreaks,
-                                EndColumn = match.Index + match.Length - linesLength - lineBreaks,
+                                CharLength = match.Length
                             }
                         }
                     });

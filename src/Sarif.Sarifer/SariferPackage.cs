@@ -24,6 +24,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Guid(PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
+    [ProvideService(typeof(IBackgroundAnalysisService))]
     public sealed class SariferPackage : AsyncPackage
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
@@ -53,12 +54,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // Otherwise, remove the switch to the UI thread if you don't need it.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
+            ((IServiceContainer)this).AddService(
+                typeof(IBackgroundAnalysisService),
+                new BackgroundAnalysisService());
+
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
             if (await GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
                 await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
+                _ = new AnalyzeSolutionCommand(mcs);
+                _ = new AnalyzeProjectCommand(mcs);
             }
         }
     }

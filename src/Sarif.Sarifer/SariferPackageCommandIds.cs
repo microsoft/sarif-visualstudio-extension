@@ -9,6 +9,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </summary>
     internal static class SariferPackageCommandIds
     {
-        public const int GenerateTestData = 0x2001;
+        public const int GenerateTestData = 0x2010;
+        public const int AnalyzeSolution = 0x2020;
+        public const int AnalyzeProject = 0x2030;
     }
 }

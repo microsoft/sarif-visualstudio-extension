@@ -5,11 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Linq;
 using System.Text;
 
+using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.VisualStudio.Shell;
 
 using Task = System.Threading.Tasks.Task;
+
+// TODO: Include tool name in logId. Replace non-alphanum chars with underscore for guaranteed file system compat.
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
@@ -31,42 +35,122 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public async Task StartAnalysisAsync(string path, string text)
+        public abstract string ToolName {get;}
+
+        /// <inheritdoc/>
+        public abstract string ToolVersion { get; }
+
+        /// <inheritdoc/>
+        public abstract string ToolSemanticVersion { get; }
+
+        /// <inheritdoc/>
+        public async Task AnalyzeAsync(string path, string text)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                CreateSarifLog(path, text, writer);
+                using (SarifLogger sarifLogger = MakeSarifLogger(writer))
+                {
+                    sarifLogger.AnalysisStarted();
+
+                    // TODO: What do we do when path is null (text buffer with no backing file)?
+                    Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
+
+                    AnalyzeCore(uri, text, sarifLogger);
+
+                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                }
+
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                foreach (IBackgroundAnalysisSink sink in sinks)
+                await WriteToSinksAsync(path, stream).ConfigureAwait(false);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
+        {
+            logId = logId ?? throw new ArgumentNullException(nameof(logId));
+            targetFiles = targetFiles ?? throw new ArgumentNullException(nameof(targetFiles));
+
+            if (!targetFiles.Any())
+            {
+                return;
+            }
+
+            using (Stream stream = new MemoryStream())
+            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
+            {
+                using (SarifLogger sarifLogger = MakeSarifLogger(writer))
                 {
-                    stream.Seek(0L, SeekOrigin.Begin);
-                    await sink.ReceiveAsync(stream, path).ConfigureAwait(continueOnCapturedContext: false);
+                    sarifLogger.AnalysisStarted();
+
+                    foreach (string targetFile in targetFiles)
+                    {
+                        var uri = new Uri(targetFile, UriKind.Absolute);
+                        string text = File.ReadAllText(targetFile);
+
+                        AnalyzeCore(uri, text, sarifLogger);
+                    }
+
+                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
+
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+                await WriteToSinksAsync(logId, stream).ConfigureAwait(false);
             }
         }
 
         /// <summary>
-        /// Perform the analysis.
+        /// Analyzes the specified text.
         /// </summary>
         /// <remarks>
         /// This method runs on a background thread, so there is no need for derived classes to
         /// make anything async.
         /// </remarks>
-        /// <param name="path">
-        /// The absolute path of the file being analyzed, or null if the text came from a VS text
+        /// <param name="uri">
+        /// The absolute URI of the file to analyze, or null if the text came from a VS text
         /// buffer that was not attached to a file.
         /// </param>
         /// <param name="text">
-        /// The text to be analyzed.
+        /// The text to analyze.
         /// </param>
-        /// <param name="writer">
-        /// A <see cref="TextWriter"/> to which the analyzer should write the results of the
-        /// analysis, in the form of a SARIF log file.
-        /// </returns>
-        protected abstract void CreateSarifLog(string path, string text, TextWriter writer);
+        /// <param name="sarifLogger">
+        /// A <see cref="SarifLogger"/> to which the analyzer should log the results of the
+        /// analysis.
+        /// </param>
+        protected abstract void AnalyzeCore(Uri uri, string text, SarifLogger sarifLogger);
+
+        private SarifLogger MakeSarifLogger(TextWriter writer) =>
+            new SarifLogger(
+                writer,
+                LoggingOptions.None,
+                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
+                dataToRemove: OptionallyEmittedData.None,
+                tool: MakeTool(),
+                closeWriterOnDispose: false);
+
+        private Tool MakeTool() =>
+            new Tool
+            {
+                Driver = new ToolComponent
+                {
+                    Name = ToolName,
+                    Version = ToolVersion,
+                    SemanticVersion = ToolSemanticVersion
+                }
+            };
+
+        private async Task WriteToSinksAsync(string logId, Stream stream)
+        {
+            foreach (IBackgroundAnalysisSink sink in sinks)
+            {
+                stream.Seek(0L, SeekOrigin.Begin);
+                await sink.ReceiveAsync(stream, logId).ConfigureAwait(continueOnCapturedContext: false);
+            }
+        }
     }
 }

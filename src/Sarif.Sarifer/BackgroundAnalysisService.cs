@@ -24,13 +24,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public async Task StartAnalysisAsync(string path, string text)
+        public async Task AnalyzeAsync(string path, string text)
         {
-            List<Task> tasks = new List<Task>(analyzers.Count());
+            var tasks = new List<Task>(analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                tasks.Add(analyzer.StartAnalysisAsync(path, text));
+                tasks.Add(analyzer.AnalyzeAsync(path, text));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        /// <inheritdoc/>
+        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
+        {
+            var tasks = new List<Task>(analyzers.Count());
+
+            foreach (IBackgroundAnalyzer analyzer in this.analyzers)
+            {
+                tasks.Add(analyzer.AnalyzeAsync(logId, targetFiles));
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
