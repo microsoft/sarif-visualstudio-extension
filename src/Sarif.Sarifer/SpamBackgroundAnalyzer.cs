@@ -37,7 +37,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             };
         }
 
-        protected override void AnalyzeCore(Uri uri, string text, SarifLogger sarifLogger)
+        protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger)
         {
             foreach (SpamRule item in rules)
             {

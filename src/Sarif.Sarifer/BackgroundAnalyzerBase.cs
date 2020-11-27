@@ -7,6 +7,11 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+
+using EnvDTE;
+
+using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.VisualStudio.Shell;
@@ -48,6 +53,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
+            string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
+
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
@@ -58,7 +65,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     // TODO: What do we do when path is null (text buffer with no backing file)?
                     Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                    AnalyzeCore(uri, text, sarifLogger);
+                    AnalyzeCore(uri, text, solutionDirectory, sarifLogger);
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
@@ -80,6 +87,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 return;
             }
 
+            string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
+
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
@@ -92,7 +101,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         var uri = new Uri(targetFile, UriKind.Absolute);
                         string text = File.ReadAllText(targetFile);
 
-                        AnalyzeCore(uri, text, sarifLogger);
+                        AnalyzeCore(uri, text, solutionDirectory, sarifLogger);
                     }
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
@@ -118,11 +127,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="text">
         /// The text to analyze.
         /// </param>
+        /// <param name="solutionDirectory">
+        /// The root directory of the current solution, or null if no solution is open.
+        /// </param>
         /// <param name="sarifLogger">
         /// A <see cref="SarifLogger"/> to which the analyzer should log the results of the
         /// analysis.
         /// </param>
-        protected abstract void AnalyzeCore(Uri uri, string text, SarifLogger sarifLogger);
+        protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger);
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(
@@ -143,6 +155,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     SemanticVersion = ToolSemanticVersion
                 }
             };
+
+        // Returns the solution directory, or null if no solution is open.
+        private static async Task<string> GetSolutionDirectoryAsync()
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            var dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+            string solutionFilePath = dte.Solution?.FullName;
+            if (string.IsNullOrEmpty(solutionFilePath))
+            {
+                return null;
+            }
+
+            return Path.GetDirectoryName(solutionFilePath);
+        }
 
         private async Task WriteToSinksAsync(string logId, Stream stream)
         {
