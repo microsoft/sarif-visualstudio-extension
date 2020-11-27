@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.IO;
 using System.Linq;
 
 using EnvDTE;
@@ -58,24 +57,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 foreach (Project project in selectedProjects)
                 {
-                    var targetFiles = new List<string>();
-
-                    // TODO: DRY this out into ProjectHelper.AppendProjectMemberFiles(IList<string> fileList).
-                    ProjectItems projectItems = project.ProjectItems;
-                    for (int i = 0; i < projectItems.Count; ++i)
-                    {
-                        ProjectItem projectItem = projectItems.Item(i + 1); // One-based index.
-                        for (short j = 0; j < projectItem.FileCount; ++j)
-                        {
-                            string projectMemberFile = projectItem.FileNames[j];
-
-                            // Make sure it's a file and not a directory.
-                            if (File.Exists(projectMemberFile))
-                            {
-                                targetFiles.Add(projectMemberFile);
-                            }
-                        }
-                    }
+                    List<string> targetFiles = project.GetMemberFiles();
 
                     this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
