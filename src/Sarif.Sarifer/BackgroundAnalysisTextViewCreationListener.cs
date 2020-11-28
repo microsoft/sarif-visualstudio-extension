@@ -27,6 +27,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private const string AnyContentType = "any";
         private SarifViewerInterop sarifViewerInterop;
         private bool subscribed;
+        private bool disposedValue;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 #pragma warning disable CS0649 // Filled in by MEF
@@ -39,7 +40,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         [Import]
         private ITextBufferViewTracker textBufferViewTracker;
-        private bool disposedValue;
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
