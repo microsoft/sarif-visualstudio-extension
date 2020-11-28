@@ -22,11 +22,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private IComponentModel componentModel;
         private IBackgroundAnalysisService backgroundAnalysisService;
         private readonly CancellationTokenSource cancellationTokenSource;
-        private bool disposedValue;
+        private bool disposed;
 
         public AnalyzeProjectCommand(IMenuCommandService menuCommandService)
         {
-            cancellationTokenSource = new CancellationTokenSource();
+            this.cancellationTokenSource = new CancellationTokenSource();
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject));
@@ -63,7 +63,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     List<string> targetFiles = project.GetMemberFiles();
 
-                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles, cancellationTokenSource.Token)
+                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles, this.cancellationTokenSource.Token)
                         .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
             }
@@ -71,20 +71,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!this.disposed)
             {
                 if (disposing)
                 {
-                    cancellationTokenSource.Dispose();
+                    this.cancellationTokenSource.Dispose();
                 }
 
-                disposedValue = true;
+                this.disposed = true;
             }
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

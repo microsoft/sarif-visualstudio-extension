@@ -37,7 +37,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             Stream testDataStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ProofOfConceptResourceName);
 
             // TODO: Why does this never return true?
-            if (!viewerInterop.IsViewerExtensionLoaded)
+            if (!this.viewerInterop.IsViewerExtensionLoaded)
             {
                 this.viewerInterop.LoadViewerExtension();
             }

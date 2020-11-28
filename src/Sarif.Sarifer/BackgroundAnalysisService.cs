@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task>(analyzers.Count());
+            var tasks = new List<Task>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task>(analyzers.Count());
+            var tasks = new List<Task>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {

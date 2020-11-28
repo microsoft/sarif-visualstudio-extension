@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private const string AnyContentType = "any";
         private SarifViewerInterop sarifViewerInterop;
         private bool subscribed;
-        private bool disposedValue;
+        private bool disposed;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 #pragma warning disable CS0649 // Filled in by MEF
@@ -70,7 +70,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
             string text = textView.TextBuffer.CurrentSnapshot.GetText();
-            string path = GetPathFromTextView(textView);
+            string path = this.GetPathFromTextView(textView);
 
             textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
 
@@ -79,7 +79,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text, cancellationTokenSource.Token)
+            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text, this.cancellationTokenSource.Token)
                 .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
@@ -122,20 +122,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!this.disposed)
             {
                 if (disposing)
                 {
-                    cancellationTokenSource.Dispose();
+                    this.cancellationTokenSource.Dispose();
                 }
 
-                disposedValue = true;
+                this.disposed = true;
             }
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

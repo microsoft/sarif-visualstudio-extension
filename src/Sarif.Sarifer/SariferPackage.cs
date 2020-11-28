@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
-        private bool disposedValue;
+        private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
         private AnalyzeProjectCommand analyzeProjectCommand;
 
@@ -63,26 +63,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
-                await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
+            if (await this.GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
+                await this.GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
-                analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
-                analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
+                this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
+                this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!this.disposed)
             {
                 if (disposing)
                 {
-                    analyzeSolutionCommand?.Dispose();
-                    analyzeProjectCommand?.Dispose();
+                    this.analyzeSolutionCommand?.Dispose();
+                    this.analyzeProjectCommand?.Dispose();
                 }
 
-                disposedValue = true;
+                this.disposed = true;
             }
 
             base.Dispose(disposing);
@@ -90,7 +90,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         public SpamBackgroundAnalyzer()
         {
-            rules = new List<SpamRule>
+            this.rules = new List<SpamRule>
             {
                 new SpamRule(
                     id: "TEST1001",
@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
-            foreach (SpamRule item in rules)
+            foreach (SpamRule item in this.rules)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
