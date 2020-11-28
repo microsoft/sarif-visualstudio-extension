@@ -55,6 +55,7 @@
     <Compile Include="Models\ReplacementModelTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />
+    <Compile Include="Sarif\RunExtensionsTests.cs" />
     <Compile Include="SdkUIUtilitiesTests.cs" />
     <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
