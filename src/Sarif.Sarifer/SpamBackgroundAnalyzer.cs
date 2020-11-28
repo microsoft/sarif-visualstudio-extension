@@ -32,7 +32,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger)
         {
             if (string.IsNullOrEmpty(solutionDirectory)
-                || !CurrentSolutionDirectory.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase))
+                || (CurrentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
             {
                 // clear older rules
                 this.rules.Clear();
