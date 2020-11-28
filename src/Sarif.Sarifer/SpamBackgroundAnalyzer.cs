@@ -16,9 +16,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalyzer))]
     internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
-        private readonly List<SpamRule> Rules = new List<SpamRule>();
+        private readonly List<SpamRule> rules = new List<SpamRule>();
 
-        private string CurrentSolutionDirectory = string.Empty;
+        private string CurrentSolutionDirectory;
 
         /// <inheritdoc/>
         public override string ToolName => "Spam";
@@ -31,16 +31,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger)
         {
-            if (string.IsNullOrEmpty(solutionDirectory) 
+            if (string.IsNullOrEmpty(solutionDirectory)
                 || !CurrentSolutionDirectory.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase))
             {
                 // clear older rules
-                this.Rules.Clear();
-                CurrentSolutionDirectory = solutionDirectory ?? string.Empty;
-                LoadFiles();
+                this.rules.Clear();
+                CurrentSolutionDirectory = solutionDirectory;
+
+                if (CurrentSolutionDirectory != null)
+                {
+                    this.rules.AddRange(LoadPatternFiles(CurrentSolutionDirectory));
+                }
             }
 
-            foreach (SpamRule item in this.Rules)
+            foreach (SpamRule item in this.rules)
             {
                 // This POC analyzer has only one rule.
                 var rule = new ReportingDescriptor
@@ -134,24 +138,32 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        private void LoadFiles()
+        internal static List<SpamRule> LoadPatternFiles(string solutionDirectory)
         {
-            string spamDirectory = Path.Combine(CurrentSolutionDirectory, ".spam");
+            var currentRules = new List<SpamRule>();
+            string spamDirectory = Path.Combine(solutionDirectory, ".spam");
             if (!Directory.Exists(spamDirectory))
             {
-                return;
+                return currentRules;
             }
 
-            foreach (string filePath in  Directory.EnumerateFiles(spamDirectory))
+            foreach (string filePath in Directory.EnumerateFiles(spamDirectory))
             {
-                LoadRules(filePath);
+                currentRules.AddRange(LoadRules(filePath));
             }
+
+            return currentRules;
         }
 
-        private void LoadRules(string filePath)
+        private static List<SpamRule> LoadRules(string filePath)
         {
-            string json = File.ReadAllText(filePath);
-            this.Rules.AddRange(JsonConvert.DeserializeObject<List<SpamRule>>(json));
+            var jsonSerializer = new JsonSerializer();
+            using (FileStream fileStream = File.Open(filePath, FileMode.Open))
+            using (var streamReader = new StreamReader(fileStream))
+            using (var jsonTextReader = new JsonTextReader(streamReader))
+            {
+                return jsonSerializer.Deserialize<List<SpamRule>>(jsonTextReader);
+            }
         }
     }
 }
