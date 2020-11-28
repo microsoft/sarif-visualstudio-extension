@@ -25,10 +25,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
-    public sealed class SariferPackage : AsyncPackage
+    public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
+        private bool disposed;
+        private AnalyzeSolutionCommand analyzeSolutionCommand;
+        private AnalyzeProjectCommand analyzeProjectCommand;
 
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
@@ -60,13 +63,35 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
-                await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
+            if (await this.GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
+                await this.GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
-                _ = new AnalyzeSolutionCommand(mcs);
-                _ = new AnalyzeProjectCommand(mcs);
+                this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
+                this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    this.analyzeSolutionCommand?.Dispose();
+                    this.analyzeProjectCommand?.Dispose();
+                }
+
+                this.disposed = true;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

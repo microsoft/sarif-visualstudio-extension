@@ -29,7 +29,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            SarifViewerInterop sarifViewerInterop = await GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
+            SarifViewerInterop sarifViewerInterop = await this.GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
 
             await sarifViewerInterop.OpenSarifLogAsync(logStream, logId).ConfigureAwait(continueOnCapturedContext: false);
         }
