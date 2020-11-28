@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
 
@@ -37,11 +38,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             };
         }
 
-        protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger)
+        protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
             foreach (SpamRule item in rules)
             {
-                // This POC analyzer has only one rule.
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var rule = new ReportingDescriptor
                 {
                     Id = item.Id,

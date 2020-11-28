@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using System.Threading;
 
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio;
@@ -21,12 +22,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ContentType(AnyContentType)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [Export(typeof(ITextViewCreationListener))]
-    public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener
+    public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener, IDisposable
     {
         private const string AnyContentType = "any";
         private SarifViewerInterop sarifViewerInterop;
-
         private bool subscribed;
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -38,6 +39,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         [Import]
         private ITextBufferViewTracker textBufferViewTracker;
+        private bool disposedValue;
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
@@ -77,7 +79,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text, cancellationTokenSource.Token)
+                .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
         private void TextView_Closed(ITextView textView)
@@ -115,6 +118,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             return persistFile.GetCurFile(out string path, out _) == VSConstants.S_OK
                 ? path
                 : null;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    cancellationTokenSource.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

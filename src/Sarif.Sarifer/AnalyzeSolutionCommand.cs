@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Threading;
 
 using EnvDTE;
 
@@ -14,14 +15,17 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class AnalyzeSolutionCommand
+    internal class AnalyzeSolutionCommand : IDisposable
     {
         private DTE2 dte;
         private IComponentModel componentModel;
         private IBackgroundAnalysisService backgroundAnalysisService;
+        private readonly CancellationTokenSource cancellationTokenSource;
+        private bool disposedValue;
 
         public AnalyzeSolutionCommand(IMenuCommandService menuCommandService)
         {
+            cancellationTokenSource = new CancellationTokenSource();
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeSolution));
@@ -69,7 +73,27 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 targetFiles.AddRange(project.GetMemberFiles());
             }
 
-            this.backgroundAnalysisService.AnalyzeAsync(solution.FullName, targetFiles).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+            this.backgroundAnalysisService.AnalyzeAsync(solution.FullName, targetFiles, cancellationTokenSource.Token)
+                .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    cancellationTokenSource.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

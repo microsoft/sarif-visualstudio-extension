@@ -25,10 +25,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
-    public sealed class SariferPackage : AsyncPackage
+    public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
+        private bool disposedValue;
+        private AnalyzeSolutionCommand analyzeSolutionCommand;
+        private AnalyzeProjectCommand analyzeProjectCommand;
 
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
@@ -64,9 +67,31 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
-                _ = new AnalyzeSolutionCommand(mcs);
-                _ = new AnalyzeProjectCommand(mcs);
+                analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
+                analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    analyzeSolutionCommand?.Dispose();
+                    analyzeProjectCommand?.Dispose();
+                }
+
+                disposedValue = true;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

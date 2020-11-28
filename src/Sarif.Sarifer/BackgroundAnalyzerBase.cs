@@ -7,6 +7,7 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using EnvDTE;
@@ -49,7 +50,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public abstract string ToolSemanticVersion { get; }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string path, string text)
+        public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
@@ -65,7 +66,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     // TODO: What do we do when path is null (text buffer with no backing file)?
                     Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                    AnalyzeCore(uri, text, solutionDirectory, sarifLogger);
+                    AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
@@ -77,7 +78,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
+        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
             logId = logId ?? throw new ArgumentNullException(nameof(logId));
             targetFiles = targetFiles ?? throw new ArgumentNullException(nameof(targetFiles));
@@ -101,7 +102,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         var uri = new Uri(targetFile, UriKind.Absolute);
                         string text = File.ReadAllText(targetFile);
 
-                        AnalyzeCore(uri, text, solutionDirectory, sarifLogger);
+                        AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
                     }
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
@@ -134,7 +135,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A <see cref="SarifLogger"/> to which the analyzer should log the results of the
         /// analysis.
         /// </param>
-        protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger);
+        protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(
