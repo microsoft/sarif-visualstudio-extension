@@ -138,7 +138,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        internal static List<SpamRule> LoadPatternFiles(string solutionDirectory)
+        private static List<SpamRule> LoadPatternFiles(string solutionDirectory)
         {
             var currentRules = new List<SpamRule>();
             string spamDirectory = Path.Combine(solutionDirectory, ".spam");
