@@ -7,6 +7,7 @@ using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using EnvDTE;
@@ -40,7 +41,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public abstract string ToolName {get;}
+        public abstract string ToolName { get; }
 
         /// <inheritdoc/>
         public abstract string ToolVersion { get; }
@@ -49,7 +50,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public abstract string ToolSemanticVersion { get; }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string path, string text)
+        public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
@@ -58,26 +59,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                using (SarifLogger sarifLogger = MakeSarifLogger(writer))
+                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
                 {
                     sarifLogger.AnalysisStarted();
 
                     // TODO: What do we do when path is null (text buffer with no backing file)?
                     Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                    AnalyzeCore(uri, text, solutionDirectory, sarifLogger);
+                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
 
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                await WriteToSinksAsync(path, stream).ConfigureAwait(false);
+                await this.WriteToSinksAsync(path, stream).ConfigureAwait(false);
             }
         }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
+        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
             logId = logId ?? throw new ArgumentNullException(nameof(logId));
             targetFiles = targetFiles ?? throw new ArgumentNullException(nameof(targetFiles));
@@ -92,7 +93,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                using (SarifLogger sarifLogger = MakeSarifLogger(writer))
+                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
                 {
                     sarifLogger.AnalysisStarted();
 
@@ -101,7 +102,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                         var uri = new Uri(targetFile, UriKind.Absolute);
                         string text = File.ReadAllText(targetFile);
 
-                        AnalyzeCore(uri, text, solutionDirectory, sarifLogger);
+                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
                     }
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
@@ -109,7 +110,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                await WriteToSinksAsync(logId, stream).ConfigureAwait(false);
+                await this.WriteToSinksAsync(logId, stream).ConfigureAwait(false);
             }
         }
 
@@ -134,7 +135,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A <see cref="SarifLogger"/> to which the analyzer should log the results of the
         /// analysis.
         /// </param>
-        protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger);
+        protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(
@@ -142,7 +143,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 LoggingOptions.None,
                 dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
                 dataToRemove: OptionallyEmittedData.None,
-                tool: MakeTool(),
+                tool: this.MakeTool(),
                 closeWriterOnDispose: false);
 
         private Tool MakeTool() =>
@@ -173,7 +174,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private async Task WriteToSinksAsync(string logId, Stream stream)
         {
-            foreach (IBackgroundAnalysisSink sink in sinks)
+            foreach (IBackgroundAnalysisSink sink in this.sinks)
             {
                 stream.Seek(0L, SeekOrigin.Begin);
                 await sink.ReceiveAsync(stream, logId).ConfigureAwait(continueOnCapturedContext: false);

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
@@ -24,26 +25,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning restore CS0649
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string path, string text)
+        public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task>(analyzers.Count());
+            var tasks = new List<Task>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                tasks.Add(analyzer.AnalyzeAsync(path, text));
+                tasks.Add(analyzer.AnalyzeAsync(path, text, cancellationToken));
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles)
+        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task>(analyzers.Count());
+            var tasks = new List<Task>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                tasks.Add(analyzer.AnalyzeAsync(logId, targetFiles));
+                tasks.Add(analyzer.AnalyzeAsync(logId, targetFiles, cancellationToken));
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
