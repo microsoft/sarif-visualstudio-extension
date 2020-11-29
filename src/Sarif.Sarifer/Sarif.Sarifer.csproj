@@ -54,6 +54,8 @@
     <Compile Include="IBackgroundAnalysisService.cs" />
     <Compile Include="IBackgroundAnalysisSink.cs" />
     <Compile Include="IBackgroundAnalyzer.cs" />
+    <Compile Include="IFileSystem.cs" />
+    <Compile Include="FileSystem.cs" />
     <Compile Include="ITextBufferViewTracker.cs" />
     <Compile Include="LastViewRemovedEventArgs.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
