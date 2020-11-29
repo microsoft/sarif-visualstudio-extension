@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private readonly List<SpamRule> rules = new List<SpamRule>();
         private readonly IFileSystem fileSystem;
-        private string CurrentSolutionDirectory;
+        private string currentSolutionDirectory;
 
         /// <inheritdoc/>
         public override string ToolName => "Spam";
@@ -38,15 +38,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(solutionDirectory)
-                || (this.CurrentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
+                || (this.currentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
             {
                 // clear older rules
                 this.rules.Clear();
-                this.CurrentSolutionDirectory = solutionDirectory;
+                this.currentSolutionDirectory = solutionDirectory;
 
-                if (this.CurrentSolutionDirectory != null)
+                if (this.currentSolutionDirectory != null)
                 {
-                    this.rules.AddRange(LoadPatternFiles(this.fileSystem, this.CurrentSolutionDirectory));
+                    this.rules.AddRange(LoadPatternFiles(this.fileSystem, this.currentSolutionDirectory));
                 }
             }
 
