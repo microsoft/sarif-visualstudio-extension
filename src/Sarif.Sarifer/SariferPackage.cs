@@ -32,7 +32,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
-        public static readonly Guid PackageGuid = new Guid(PackageGuidString);
         private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
         private AnalyzeProjectCommand analyzeProjectCommand;
@@ -75,16 +74,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
 
+            // Respond to solution loaded events by analyzing the solution, as if the user had
+            // invoked the appropriate command from the solution's context menu.
+
             // Since this package might not be initialized until after a solution has finished loading,
             // we need to check if a solution has already been loaded and then handle it.
             bool isSolutionLoaded = await this.IsSolutionLoadedAsync().ConfigureAwait(continueOnCapturedContext: true);
             if (isSolutionLoaded)
             {
-                this.HandleOpenSolution();
+                this.OnSolutionLoaded();
             }
 
             // Listen for subsequent solution loaded events.
-            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.HandleOpenSolution;
+            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.OnSolutionLoaded;
         }
 
         protected override void Dispose(bool disposing)
@@ -121,10 +123,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             return value is bool isSolutionOpen && isSolutionOpen;
         }
 
-        private void HandleOpenSolution(object sender = null, EventArgs e = null)
+        private void OnSolutionLoaded(object sender = null, EventArgs e = null)
         {
-            // Handle the open solution and try to do as much work
-            // on a background thread as possible
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            this.analyzeSolutionCommand.MenuCommandCallback(this, EventArgs.Empty);
         }
     }
 }

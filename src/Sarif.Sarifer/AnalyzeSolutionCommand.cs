@@ -36,7 +36,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Event handler called when the user selects the Analyze Project command.
         /// </summary>
-        private void MenuCommandCallback(object caller, EventArgs args)
+        internal void MenuCommandCallback(object caller, EventArgs args)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
