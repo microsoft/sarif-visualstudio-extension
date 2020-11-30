@@ -5,7 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
+#pragma warning disable CA1812 // Class is used for JSON deserialization
     internal class SpamRule
+#pragma warning restore CA1812
     {
         public string Id { get; }
         public string SearchPattern { get; }

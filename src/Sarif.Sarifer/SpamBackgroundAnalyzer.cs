@@ -4,17 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
+
+using Newtonsoft.Json;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     [Export(typeof(IBackgroundAnalyzer))]
     internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
-        private readonly List<SpamRule> rules;
+        private readonly List<SpamRule> rules = new List<SpamRule>();
+        private readonly IFileSystem fileSystem;
+        private string currentSolutionDirectory;
 
         /// <inheritdoc/>
         public override string ToolName => "Spam";
@@ -27,19 +32,24 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         public SpamBackgroundAnalyzer()
         {
-            this.rules = new List<SpamRule>
-            {
-                new SpamRule(
-                    id: "TEST1001",
-                    searchPattern: "internal class",
-                    replacePattern: "public class",
-                    description: "Make class public",
-                    message: "Internal class could be public"),
-            };
+            this.fileSystem = FileSystem.Instance;
         }
 
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(solutionDirectory)
+                || (this.currentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
+            {
+                // clear older rules
+                this.rules.Clear();
+                this.currentSolutionDirectory = solutionDirectory;
+
+                if (this.currentSolutionDirectory != null)
+                {
+                    this.rules.AddRange(LoadPatternFiles(this.fileSystem, this.currentSolutionDirectory));
+                }
+            }
+
             foreach (SpamRule item in this.rules)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -132,6 +142,34 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 };
 
                 sarifLogger.Log(rule, result);
+            }
+        }
+
+        internal static List<SpamRule> LoadPatternFiles(IFileSystem fileSystem, string solutionDirectory)
+        {
+            var currentRules = new List<SpamRule>();
+            string spamDirectory = Path.Combine(solutionDirectory, ".spam");
+            if (!fileSystem.DirectoryExists(spamDirectory))
+            {
+                return currentRules;
+            }
+
+            foreach (string filePath in fileSystem.DirectoryEnumerateFiles(spamDirectory))
+            {
+                currentRules.AddRange(LoadRules(fileSystem, filePath));
+            }
+
+            return currentRules;
+        }
+
+        private static List<SpamRule> LoadRules(IFileSystem fileSystem, string filePath)
+        {
+            var jsonSerializer = new JsonSerializer();
+            using (Stream stream = fileSystem.FileOpenRead(filePath))
+            using (var streamReader = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(streamReader))
+            {
+                return jsonSerializer.Deserialize<List<SpamRule>>(jsonTextReader);
             }
         }
     }

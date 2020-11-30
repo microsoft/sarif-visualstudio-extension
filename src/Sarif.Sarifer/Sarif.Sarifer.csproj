@@ -34,6 +34,9 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
     <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>10.0.3</Version>
+    </PackageReference>
     <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
@@ -51,6 +54,8 @@
     <Compile Include="IBackgroundAnalysisService.cs" />
     <Compile Include="IBackgroundAnalysisSink.cs" />
     <Compile Include="IBackgroundAnalyzer.cs" />
+    <Compile Include="IFileSystem.cs" />
+    <Compile Include="FileSystem.cs" />
     <Compile Include="ITextBufferViewTracker.cs" />
     <Compile Include="LastViewRemovedEventArgs.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />

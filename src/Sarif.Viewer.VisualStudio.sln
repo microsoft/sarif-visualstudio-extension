@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Sarifer", "Sarif.Sarifer\Sarif.Sarifer.csproj", "{F3E3199F-C005-4A14-B96B-974896986EDC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Sarifer.UnitTests", "Sarif.Sarifer.UnitTests\Sarif.Sarifer.UnitTests.csproj", "{52579A83-C0BF-4307-95CD-39C388070736}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -87,6 +89,18 @@ Global
 		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x64.Build.0 = Release|Any CPU
 		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x86.ActiveCfg = Release|Any CPU
 		{F3E3199F-C005-4A14-B96B-974896986EDC}.Release|x86.Build.0 = Release|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Debug|x64.Build.0 = Debug|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Debug|x86.Build.0 = Debug|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Release|x64.ActiveCfg = Release|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Release|x64.Build.0 = Release|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Release|x86.ActiveCfg = Release|Any CPU
+		{52579A83-C0BF-4307-95CD-39C388070736}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
