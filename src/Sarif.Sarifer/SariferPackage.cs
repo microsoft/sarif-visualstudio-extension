@@ -6,9 +6,11 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
+using SolutionEvents = Microsoft.VisualStudio.Shell.Events.SolutionEvents;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
@@ -25,6 +27,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
+    // The following line will schedule the package to be initialized when a solution is being opened.
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionOpening_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
@@ -70,6 +74,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
+
+            // Since this package might not be initialized until after a solution has finished loading,
+            // we need to check if a solution has already been loaded and then handle it.
+            bool isSolutionLoaded = await this.IsSolutionLoadedAsync().ConfigureAwait(continueOnCapturedContext: true);
+            if (isSolutionLoaded)
+            {
+                this.HandleOpenSolution();
+            }
+
+            // Listen for subsequent solution loaded events.
+            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.HandleOpenSolution;
         }
 
         protected override void Dispose(bool disposing)
@@ -92,6 +107,24 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        private async System.Threading.Tasks.Task<bool> IsSolutionLoadedAsync()
+        {
+            await this.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            IVsSolution solutionService = await this.GetServiceAsync(typeof(SVsSolution)).ConfigureAwait(continueOnCapturedContext: true) as IVsSolution
+                ?? throw new InvalidOperationException("Cannot load solution service.");
+
+            ErrorHandler.ThrowOnFailure(solutionService.GetProperty((int)__VSPROPID.VSPROPID_IsSolutionOpen, out object value));
+
+            return value is bool isSolutionOpen && isSolutionOpen;
+        }
+
+        private void HandleOpenSolution(object sender = null, EventArgs e = null)
+        {
+            // Handle the open solution and try to do as much work
+            // on a background thread as possible
         }
     }
 }
