@@ -20,12 +20,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private DTE2 dte;
         private IComponentModel componentModel;
         private IBackgroundAnalysisService backgroundAnalysisService;
-        private readonly CancellationTokenSource cancellationTokenSource;
+        private CancellationTokenSource cancellationTokenSource;
         private bool disposed;
 
         public AnalyzeSolutionCommand(IMenuCommandService menuCommandService)
         {
-            this.cancellationTokenSource = new CancellationTokenSource();
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeSolution));
@@ -34,11 +33,23 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <summary>
+        /// Cancel current analysis.
+        /// </summary>
+        public void Cancel()
+        {
+            this.cancellationTokenSource?.Cancel();
+        }
+
+        /// <summary>
         /// Event handler called when the user selects the Analyze Project command.
         /// </summary>
         private void MenuCommandCallback(object caller, EventArgs args)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            // Always cancel before start.
+            this.cancellationTokenSource?.Cancel();
+            this.cancellationTokenSource = new CancellationTokenSource();
 
             if (this.dte == null)
             {
@@ -83,7 +94,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 if (disposing)
                 {
-                    this.cancellationTokenSource.Dispose();
+                    this.cancellationTokenSource?.Cancel();
+                    this.cancellationTokenSource?.Dispose();
                 }
 
                 this.disposed = true;
