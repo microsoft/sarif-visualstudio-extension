@@ -40,7 +40,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // always cancel before start
+            // Always cancel before start.
             this.cancellationTokenSource?.Cancel();
             this.cancellationTokenSource = new CancellationTokenSource();
 
