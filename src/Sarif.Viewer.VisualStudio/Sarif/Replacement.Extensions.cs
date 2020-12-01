@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             ReplacementModel model = new ReplacementModel
             {
                 Region = uri.IsAbsoluteUri
-                    ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion.DeepClone(), uri, populateSnippet: false)
+                    ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion, uri, populateSnippet: false)
                     : replacement.DeletedRegion
             };
 
