@@ -135,6 +135,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A <see cref="SarifLogger"/> to which the analyzer should log the results of the
         /// analysis.
         /// </param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
+        /// </param>
         protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>

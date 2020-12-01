@@ -33,6 +33,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <summary>
+        /// Cancel current analysis.
+        /// </summary>
+        public void Cancel()
+        {
+            this.cancellationTokenSource?.Cancel();
+        }
+
+        /// <summary>
         /// Event handler called when the user selects the Analyze Project command.
         /// </summary>
         private void MenuCommandCallback(object caller, EventArgs args)

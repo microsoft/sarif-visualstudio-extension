@@ -6,7 +6,9 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 
 using Task = System.Threading.Tasks.Task;
@@ -70,6 +72,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
+
+            SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+        }
+
+        private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
+        {
+            // Cancelling analysis from project / solution when the solution is closed.
+            this.analyzeProjectCommand.Cancel();
+            this.analyzeSolutionCommand.Cancel();
         }
 
         protected override void Dispose(bool disposing)
