@@ -9,7 +9,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class ArtifactChangeExtensions
+    internal static class ArtifactChangeExtensions
     {
         public static ArtifactChangeModel ToArtifactChangeModel(this ArtifactChange fileChange, IDictionary<string, ArtifactLocation> originalUriBaseIds, FileRegionsCache fileRegionsCache)
         {

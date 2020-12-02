@@ -10,7 +10,7 @@
 # default for csharp files.
 # Note: This is only used by command line
 ###############################################################################
-#*.cs     diff=csharp
+*.cs     diff=windiff
 
 ###############################################################################
 # Set the merge driver for project and solution files
@@ -40,9 +40,10 @@
 #
 # image files are treated as binary by default.
 ###############################################################################
-#*.jpg   binary
-#*.png   binary
-#*.gif   binary
+.gitmodules binary
+*.jpg      binary
+*.png      binary
+*.gif      binary
 
 ###############################################################################
 # diff behavior for common document formats

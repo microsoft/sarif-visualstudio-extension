@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{52579A83-C0BF-4307-95CD-39C388070736}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Sarif.Sarifer.UnitTests</RootNamespace>
+    <AssemblyName>Sarif.Sarifer.UnitTests</AssemblyName>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SpamBackgroundAnalyzerTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.console" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Moq" Version="4.14.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\RE2.Managed\RE2.Managed.csproj">
+      <Project>{a4df60a6-f128-4bff-ab1e-e042a3279073}</Project>
+      <Name>RE2.Managed</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Driver\Sarif.Driver.csproj">
+      <Project>{acfa4370-a4ec-4252-99e7-a7fa489126db}</Project>
+      <Name>Sarif.Driver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
+      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
+      <Name>Sarif</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\SarifPatternMatcher\SarifPatternMatcher.csproj">
+      <Project>{007d6089-0680-4b57-b825-80260467c552}</Project>
+      <Name>SarifPatternMatcher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\String8\String8.csproj">
+      <Project>{92010d71-d8b9-4176-8adf-c0a49d7007fa}</Project>
+      <Name>String8</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Sarifer\Sarif.Sarifer.csproj">
+      <Project>{f3e3199f-c005-4a14-b96b-974896986edc}</Project>
+      <Name>Sarif.Sarifer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy $(OutputPath)runtimes\win-x86\native\RE2.Native.x86.dll $(OutputPath)
+xcopy $(OutputPath)runtimes\win-x86\native\RE2.Native.x86.pdb $(OutputPath)
+xcopy $(OutputPath)runtimes\win-x64\native\RE2.Native.x64.dll $(OutputPath)
+xcopy $(OutputPath)runtimes\win-x64\native\RE2.Native.x64.pdb $(OutputPath)
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

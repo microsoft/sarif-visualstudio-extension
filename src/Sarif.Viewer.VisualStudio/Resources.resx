@@ -301,4 +301,8 @@
   <data name="ErrorInfoBarAlreadyPresent" xml:space="preserve">
     <value>The InfoBar for condition '{0}' is already present in the dictionary.</value>
   </data>
+  <data name="ImportFlawFinderFilter" xml:space="preserve">
+    <value>FlawFinder log files (*.csv)|*.csv</value>
+    <comment>Used in the import log open dialog</comment>
+  </data>
 </root>

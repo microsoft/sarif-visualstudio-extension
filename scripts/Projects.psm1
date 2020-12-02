@@ -14,7 +14,7 @@ $Projects = @{}
 $Projects.Vsix = @("Sarif.Viewer.VisualStudio", "Sarif.Sarifer")
 $Projects.NuGet = @("Sarif.Viewer.VisualStudio.Interop")
 $Projects.Product = $Projects.Vsix + $Projects.NuGet
-$Projects.Test = @("Sarif.Viewer.VisualStudio.UnitTests")
+$Projects.Test = @("Sarif.Viewer.VisualStudio.UnitTests", "Sarif.Sarifer.UnitTests")
 $Projects.All = $Projects.Product + $Projects.Test
 
 Export-ModuleMember -Variable Frameworks, Projects

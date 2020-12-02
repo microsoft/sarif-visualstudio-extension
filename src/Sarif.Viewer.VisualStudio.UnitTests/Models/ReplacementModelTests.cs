@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
 
-            FileRegionsCache fileRegionsCache = new FileRegionsCache(run, FileRegionsCacheCapacity, mockFileSystem.Object);
+            FileRegionsCache fileRegionsCache = new FileRegionsCache(FileRegionsCacheCapacity, mockFileSystem.Object);
 
             ReplacementModel actualModel = replacement.ToReplacementModel(fileRegionsCache, fileUri);
 

@@ -457,7 +457,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-            RunDataCache dataCache = new RunDataCache(run, runIndex, logFilePath);
+            RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
@@ -466,7 +466,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             var projectNameCache = new ProjectNameCache(dte?.Solution);
 
-            StoreFileDetails(run.Artifacts);
+            this.StoreFileDetails(run.Artifacts);
 
             if (run.Results != null)
             {
@@ -535,7 +535,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 if (data != null)
                 {
-                    string hashString = GenerateHash(data);
+                    string hashString = this.GenerateHash(data);
                     artifact.Hashes.Add("sha-256", hashString);
                 }
             }
@@ -562,7 +562,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     if (file.Contents != null)
                     {
-                        EnsureHashExists(file);
+                        this.EnsureHashExists(file);
                         var fileDetails = new ArtifactDetailsModel(file);
                         CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(uri.ToPath(), fileDetails);
                     }

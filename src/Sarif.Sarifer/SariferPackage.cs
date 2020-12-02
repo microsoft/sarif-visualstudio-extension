@@ -6,7 +6,9 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 
 using Task = System.Threading.Tasks.Task;
@@ -24,10 +26,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Guid(PackageGuidString)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
-    public sealed class SariferPackage : AsyncPackage
+    [ProvideService(typeof(IBackgroundAnalysisService))]
+    public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
+        private bool disposed;
+        private AnalyzeSolutionCommand analyzeSolutionCommand;
+        private AnalyzeProjectCommand analyzeProjectCommand;
 
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
@@ -53,13 +59,50 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // Otherwise, remove the switch to the UI thread if you don't need it.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
+            ((IServiceContainer)this).AddService(
+                typeof(IBackgroundAnalysisService),
+                new BackgroundAnalysisService());
+
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
-                await GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
+            if (await this.GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
+                await this.GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
+                this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
+                this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
+
+            SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+        }
+
+        private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
+        {
+            // Cancelling analysis from project / solution when the solution is closed.
+            this.analyzeProjectCommand.Cancel();
+            this.analyzeSolutionCommand.Cancel();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    this.analyzeSolutionCommand?.Dispose();
+                    this.analyzeProjectCommand?.Dispose();
+                }
+
+                this.disposed = true;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

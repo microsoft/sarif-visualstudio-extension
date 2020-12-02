@@ -20,8 +20,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         internal TextBufferViewTrackingInformation()
         {
-            Views = new List<ITextView>();
-            LogId = Guid.NewGuid().ToString();
+            this.Views = new List<ITextView>();
+            this.LogId = Guid.NewGuid().ToString();
         }
 
         /// <summary>

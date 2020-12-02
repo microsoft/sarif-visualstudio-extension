@@ -249,7 +249,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var resultManager = new CodeAnalysisResultManager(fileSystem: null, promptForResolvedPathDelegate: null);
 
             int runIndex = resultManager.GetNextRunIndex();
-            RunDataCache dataCache = new RunDataCache(run, runIndex);
+            RunDataCache dataCache = new RunDataCache(runIndex);
             resultManager.RunIndexToRunDataCache.Add(runIndex, dataCache);
             resultManager.CacheUriBasePaths(run);
 

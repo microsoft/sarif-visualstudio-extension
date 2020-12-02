@@ -5,6 +5,9 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- checkout: self
+  submodules: recursive
+  
 - task: BatchScript@1
   displayName: 'Run VsDevCmd.bat'
   inputs:
@@ -16,3 +19,4 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./scripts/BuildAndTest.ps1
+    

@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using System.Threading;
 
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio;
@@ -21,12 +22,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ContentType(AnyContentType)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [Export(typeof(ITextViewCreationListener))]
-    public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener
+    public class BackgroundAnalysisTextViewCreationListener : ITextViewCreationListener, IDisposable
     {
         private const string AnyContentType = "any";
         private SarifViewerInterop sarifViewerInterop;
-
         private bool subscribed;
+        private bool disposed;
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
@@ -68,7 +70,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
             string text = textView.TextBuffer.CurrentSnapshot.GetText();
-            string path = GetPathFromTextView(textView);
+            string path = this.GetPathFromTextView(textView);
 
             textView.Closed += (object sender, EventArgs e) => this.TextView_Closed(textView);
 
@@ -77,7 +79,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            this.backgroundAnalysisService.Value.StartAnalysisAsync(e.Path, e.Text).FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
+            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text, this.cancellationTokenSource.Token)
+                .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
         private void TextView_Closed(ITextView textView)
@@ -115,6 +118,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             return persistFile.GetCurFile(out string path, out _) == VSConstants.S_OK
                 ? path
                 : null;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    this.cancellationTokenSource.Dispose();
+                }
+
+                this.disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

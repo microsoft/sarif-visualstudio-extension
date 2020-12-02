@@ -1,0 +1,3 @@
+[submodule "src/sarif-pattern-matcher"]
+	path = src/sarif-pattern-matcher
+	url = https://github.com/microsoft/sarif-pattern-matcher/

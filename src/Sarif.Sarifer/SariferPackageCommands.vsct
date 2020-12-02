@@ -67,6 +67,14 @@ Copyright (c) Microsoft. All rights reserved.
       <Group guid="guidSariferCommandSet" id="SariferMenuGroup" priority="0x600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS"/>
       </Group>
+
+      <Group guid="guidSariferCommandSet" id="SariferSolutionContextMenuGroup" priority="0x600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_SOLNNODE"/>
+      </Group>
+
+      <Group guid="guidSariferCommandSet" id="SariferProjectContextMenuGroup" priority="0x600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+      </Group>
     </Groups>
 
     <!--
@@ -82,6 +90,20 @@ Copyright (c) Microsoft. All rights reserved.
         <Parent guid="guidSariferCommandSet" id="SariferMenuGroup"/>
         <Strings>
           <ButtonText>Generate SARIF Test Data</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidSariferCommandSet" id="cmdidAnalyzeSolution" priority="0x100" type="Button">
+        <Parent guid="guidSariferCommandSet" id="SariferSolutionContextMenuGroup"/>
+        <Strings>
+          <ButtonText>Run Static Analyzers</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidSariferCommandSet" id="cmdidAnalyzeProject" priority="0x100" type="Button">
+        <Parent guid="guidSariferCommandSet" id="SariferProjectContextMenuGroup"/>
+        <Strings>
+          <ButtonText>Run Static Analyzers</ButtonText>
         </Strings>
       </Button>
 
@@ -112,11 +134,15 @@ Copyright (c) Microsoft. All rights reserved.
     <GuidSymbol name="guidSariferPackage" value="{F70132AB-4095-477F-AAD2-81D3D581113B}" />
     
     
-    <!--The GUID for the command set is the one that contains the numeric IDs used in this sample
-        with the only exception of the one used for the bitmap.-->
     <GuidSymbol name="guidSariferCommandSet" value="{CD8EE607-A630-4652-B2BA-748F534235C1}">
       <IDSymbol name="SariferMenuGroup" value="0x1010" />
-      <IDSymbol name="cmdidGenerateTestData" value="0x2001" />
+      <IDSymbol name="cmdidGenerateTestData" value="0x2010" />
+
+      <IDSymbol name="SariferSolutionContextMenuGroup" value="0x1020"/>
+      <IDSymbol name="cmdidAnalyzeSolution" value="0x2020"/>
+
+      <IDSymbol name="SariferProjectContextMenuGroup" value="0x1030"/>
+      <IDSymbol name="cmdidAnalyzeProject" value="0x2030"/>
     </GuidSymbol>
 
   </Symbols>

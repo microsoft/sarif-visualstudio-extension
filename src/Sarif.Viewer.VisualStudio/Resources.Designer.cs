@@ -243,6 +243,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FlawFinder log files (*.csv)|*.csv.
+        /// </summary>
+        public static string ImportFlawFinderFilter {
+            get {
+                return ResourceManager.GetString("ImportFlawFinderFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fortify log files (*.xml)|*.xml.
         /// </summary>
         public static string ImportFortifyFilter {
