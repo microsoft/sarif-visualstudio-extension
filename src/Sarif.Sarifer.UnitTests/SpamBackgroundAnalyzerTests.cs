@@ -60,7 +60,7 @@ namespace Sarif.Sarifer.UnitTests
 
             var definitions = new SearchDefinitions()
             {
-                Definitions = new List<SearchDefinition>(new[]
+                Definitions = new List<SearchDefinition>
                 {
                     new SearchDefinition()
                     {
@@ -86,7 +86,7 @@ namespace Sarif.Sarifer.UnitTests
                             }
                         })
                     }
-                })
+                }
             };
 
             string definitionsText = JsonConvert.SerializeObject(definitions);
