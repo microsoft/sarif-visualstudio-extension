@@ -8,7 +8,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 
+using Microsoft.CodeAnalysis.Sarif.Driver;
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.CodeAnalysis.SarifPatternMatcher;
 
 using Newtonsoft.Json;
 
@@ -17,9 +19,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalyzer))]
     internal class SpamBackgroundAnalyzer : BackgroundAnalyzerBase
     {
-        private readonly List<SpamRule> rules = new List<SpamRule>();
         private readonly IFileSystem fileSystem;
         private string currentSolutionDirectory;
+        private ISet<Skimmer<AnalyzeContext>> rules;
 
         /// <inheritdoc/>
         public override string ToolName => "Spam";
@@ -41,136 +43,46 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 || (this.currentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
             {
                 // clear older rules
-                this.rules.Clear();
+                this.rules?.Clear();
                 this.currentSolutionDirectory = solutionDirectory;
 
                 if (this.currentSolutionDirectory != null)
                 {
-                    this.rules.AddRange(LoadPatternFiles(this.fileSystem, this.currentSolutionDirectory));
+                    this.rules = LoadSearchDefinitionsFiles(this.fileSystem, this.currentSolutionDirectory);
                 }
             }
 
-            foreach (SpamRule item in this.rules)
+            var disabledSkimmers = new HashSet<string>();
+
+            var context = new AnalyzeContext
+            {
+                TargetUri = uri,
+                FileContents = text,
+                Logger = sarifLogger
+            };
+
+            using (context)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-
-                var rule = new ReportingDescriptor
-                {
-                    Id = item.Id,
-                    DefaultConfiguration = new ReportingConfiguration
-                    {
-                        Level = FailureLevel.Note
-                    },
-                    MessageStrings = new Dictionary<string, MultiformatMessageString>
-                    {
-                        ["default"] = new MultiformatMessageString
-                        {
-                            Text = item.Message
-                        }
-                    }
-                };
-
-                MatchCollection matches = item.SearchPatternRegex.Matches(text);
-                if (matches.Count == 0)
-                {
-                    continue;
-                }
-
-                var locations = new List<Location>(matches.Count);
-                var artifactChanges = new List<ArtifactChange>(matches.Count);
-                foreach (Match match in matches)
-                {
-                    locations.Add(new Location
-                    {
-                        PhysicalLocation = new PhysicalLocation
-                        {
-                            ArtifactLocation = new ArtifactLocation
-                            {
-                                Uri = uri
-                            },
-                            Region = new Region
-                            {
-                                CharOffset = match.Index,
-                                CharLength = match.Length
-                            }
-                        }
-                    });
-
-                    artifactChanges.Add(new ArtifactChange
-                    {
-                        ArtifactLocation = new ArtifactLocation
-                        {
-                            Uri = uri
-                        },
-                        Replacements = new List<Replacement>
-                        {
-                            new Replacement
-                            {
-                                DeletedRegion = new Region
-                                {
-                                    CharOffset = match.Index,
-                                    CharLength = match.Length
-                                },
-                                InsertedContent = new ArtifactContent
-                                {
-                                    Text = item.ReplacePattern
-                                }
-                            }
-                        }
-                    });
-                }
-
-                var result = new Result
-                {
-                    RuleId = rule.Id,
-                    Message = new Message
-                    {
-                        Id = "default"
-                    },
-                    Locations = locations,
-                    Fixes = new List<Fix>
-                    {
-                        new Fix
-                        {
-                            Description = new Message
-                            {
-                                Text = item.Description
-                            },
-                            ArtifactChanges = artifactChanges
-                        }
-                    }
-                };
-
-                sarifLogger.Log(rule, result);
+                AnalyzeCommand.AnalyzeTargetHelper(context, this.rules, disabledSkimmers);
             }
         }
 
-        internal static List<SpamRule> LoadPatternFiles(IFileSystem fileSystem, string solutionDirectory)
+        internal static ISet<Skimmer<AnalyzeContext>> LoadSearchDefinitionsFiles(IFileSystem fileSystem, string solutionDirectory)
         {
-            var currentRules = new List<SpamRule>();
             string spamDirectory = Path.Combine(solutionDirectory, ".spam");
             if (!fileSystem.DirectoryExists(spamDirectory))
             {
-                return currentRules;
+                return new HashSet<Skimmer<AnalyzeContext>>();
             }
 
-            foreach (string filePath in fileSystem.DirectoryEnumerateFiles(spamDirectory))
+            var definitionsPaths = new List<string>();
+            foreach(string definitionsPath in fileSystem.DirectoryGetFiles(spamDirectory, "*.json"))
             {
-                currentRules.AddRange(LoadRules(fileSystem, filePath));
+                definitionsPaths.Add(definitionsPath);
             }
 
-            return currentRules;
-        }
-
-        private static List<SpamRule> LoadRules(IFileSystem fileSystem, string filePath)
-        {
-            var jsonSerializer = new JsonSerializer();
-            using (Stream stream = fileSystem.FileOpenRead(filePath))
-            using (var streamReader = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(streamReader))
-            {
-                return jsonSerializer.Deserialize<List<SpamRule>>(jsonTextReader);
-            }
+            return AnalyzeCommand.CreateSkimmersFromDefinitionsFiles(fileSystem, definitionsPaths);
         }
     }
 }

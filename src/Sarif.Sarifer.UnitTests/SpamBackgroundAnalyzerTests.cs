@@ -4,13 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using FluentAssertions;
 
+using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.CodeAnalysis.Sarif.Driver;
 using Microsoft.CodeAnalysis.Sarif.Sarifer;
+using Microsoft.CodeAnalysis.SarifPatternMatcher;
 
 using Moq;
+
+using Newtonsoft.Json;
 
 using Xunit;
 
@@ -24,7 +30,7 @@ namespace Sarif.Sarifer.UnitTests
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
-            List<SpamRule> rules = SpamBackgroundAnalyzer.LoadPatternFiles(mockFileSystem.Object, Guid.NewGuid().ToString());
+            ISet<Skimmer<AnalyzeContext>> rules = SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, Guid.NewGuid().ToString());
 
             rules.Should().BeEmpty();
         }
@@ -40,7 +46,8 @@ namespace Sarif.Sarifer.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(Path.Combine(ProjectDirectory, SpamDirectory))).Returns(true);
             mockFileSystem.Setup(fs => fs.DirectoryEnumerateFiles(It.IsAny<string>())).Returns(new string[] { });
 
-            List<SpamRule> rules = SpamBackgroundAnalyzer.LoadPatternFiles(mockFileSystem.Object, ProjectDirectory);
+            ISet<Skimmer<AnalyzeContext>> rules =
+                SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, ProjectDirectory );
 
             rules.Should().BeEmpty();
         }
@@ -50,18 +57,50 @@ namespace Sarif.Sarifer.UnitTests
         {
             const string SpamDirectory = ".spam";
             const string ProjectDirectory = @"C:\some-project-folder";
-            const string RulesJson = "[{\"id\" : \"TEST1001\", \"searchPattern\": \"internal class\", \"replacePattern\":\"public class\", \"description\": \"make class public\", \"message\": \"internal class could be public\"}]";
+
+            var definitions = new SearchDefinitions()
+            {
+                Definitions = new List<SearchDefinition>(new[]
+                {
+                    new SearchDefinition()
+                    {
+                        Name = "MinimalRule", Id = "Test1002",
+                        Level = FailureLevel.Error, DefaultNameRegex = "(?i)\\.test$",
+                        Message = "A problem occurred in '{0:scanTarget}'.",
+                        MatchExpressions = new List<MatchExpression>(new[]
+                        {
+                            new MatchExpression()
+                            {
+                                ContentsRegex = "foo",
+                                Fixes = new Dictionary<string, SimpleFix>()
+                                {
+                                    {
+                                        "convertToPublic", new SimpleFix()
+                                        {
+                                            Description = "Make class public.",
+                                            Find = "foo",
+                                            ReplaceWith = "bar"
+                                        }
+                                    }
+                                }
+                            }
+                        })
+                    }
+                })
+            };
+
+            string definitionsText = JsonConvert.SerializeObject(definitions);
 
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
             mockFileSystem.Setup(fs => fs.DirectoryExists(Path.Combine(ProjectDirectory, SpamDirectory))).Returns(true);
-            mockFileSystem.Setup(fs => fs.DirectoryEnumerateFiles(It.IsAny<string>())).Returns(new string[] { Guid.NewGuid().ToString() });
-            mockFileSystem.Setup(fs => fs.FileOpenRead(It.IsAny<string>())).Returns(new MemoryStream(Encoding.UTF8.GetBytes(RulesJson)));
+            mockFileSystem.Setup(fs => fs.DirectoryGetFiles(It.IsAny<string>(), It.IsAny<string>())).Returns(new string[] { Guid.NewGuid().ToString() });
+            mockFileSystem.Setup(fs => fs.FileReadAllText(It.IsAny<string>())).Returns(definitionsText);
 
-            List<SpamRule> rules = SpamBackgroundAnalyzer.LoadPatternFiles(mockFileSystem.Object, ProjectDirectory);
+            ISet<Skimmer<AnalyzeContext>> rules = SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, ProjectDirectory);
 
             rules.Should().HaveCount(1);
-            rules[0].Id.Should().Be("TEST1001");
+            rules.First().Id.Should().Be("Test1002");
         }
     }
 }

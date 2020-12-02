@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class RunDataCache
     {
-        private IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
+        private readonly IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
 
         public IDictionary<string, ArtifactDetailsModel> FileDetails { get; } = new Dictionary<string, ArtifactDetailsModel>();
 
@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer
         {
             this.RunIndex = runIndex;
             this.LogFilePath = logFilePath;
-            this.FileRegionsCache = new FileRegionsCache(run);
+            this.FileRegionsCache = new FileRegionsCache();
         }
     }
 }

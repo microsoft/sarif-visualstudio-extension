@@ -20,7 +20,7 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Moq" Version="4.14.7" />
     <!-- Necessary to resolve version conflict on Newtonsoft.Json: -->
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -70,6 +70,14 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Converters\Sarif.Converters.csproj">
+      <Project>{ba882944-7d32-4543-959a-964b7795f11e}</Project>
+      <Name>Sarif.Converters</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
+      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
+      <Name>Sarif</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio\Sarif.Viewer.VisualStudio.csproj">
       <Project>{689AF24B-33F0-44E9-AA2E-FACA775736A8}</Project>
       <Name>Sarif.Viewer.VisualStudio</Name>

@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.Models
     public class ArtifactChangeModelTests
     {
         private static readonly IDictionary<string, ArtifactLocation> s_emptyOriginalUriBaseIds = new Dictionary<string, ArtifactLocation>();
-        private static readonly FileRegionsCache s_emptyFileRegionsCache = new FileRegionsCache(new Run());
+        private static readonly FileRegionsCache s_emptyFileRegionsCache = new FileRegionsCache();
 
         [Fact]
         public void ArtifactChangeModel_FromArtifactChange_LocalPath()

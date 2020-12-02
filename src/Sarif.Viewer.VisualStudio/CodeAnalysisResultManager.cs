@@ -311,9 +311,9 @@ namespace Microsoft.Sarif.Viewer
             if (!_fileSystem.FileExists(finalPath))
             {
                 string contents = fileData.GetContents();
-                _fileSystem.WriteAllText(finalPath, contents);
+                _fileSystem.FileWriteAllText(finalPath, contents);
                 // File should be readonly, because it is embedded.
-                _fileSystem.SetAttributes(finalPath, FileAttributes.ReadOnly);
+                _fileSystem.FileSetAttributes(finalPath, FileAttributes.ReadOnly);
             }
 
             if (!fileDetailsDictionary.ContainsKey(finalPath))

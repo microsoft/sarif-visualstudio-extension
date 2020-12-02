@@ -35,9 +35,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
     <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
     <PackageReference Include="Newtonsoft.Json">
-      <Version>10.0.3</Version>
+      <Version>11.0.2</Version>
     </PackageReference>
-    <PackageReference Include="Sarif.Sdk" Version="2.3.6" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -54,8 +53,6 @@
     <Compile Include="IBackgroundAnalysisService.cs" />
     <Compile Include="IBackgroundAnalysisSink.cs" />
     <Compile Include="IBackgroundAnalyzer.cs" />
-    <Compile Include="IFileSystem.cs" />
-    <Compile Include="FileSystem.cs" />
     <Compile Include="ITextBufferViewTracker.cs" />
     <Compile Include="LastViewRemovedEventArgs.cs" />
     <Compile Include="GenerateTestDataCommand.cs" />
@@ -103,6 +100,22 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Driver\Sarif.Driver.csproj">
+      <Project>{acfa4370-a4ec-4252-99e7-a7fa489126db}</Project>
+      <Name>Sarif.Driver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
+      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
+      <Name>Sarif</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\SarifPatternMatcher\SarifPatternMatcher.csproj">
+      <Project>{007d6089-0680-4b57-b825-80260467c552}</Project>
+      <Name>SarifPatternMatcher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\String8\String8.csproj">
+      <Project>{92010d71-d8b9-4176-8adf-c0a49d7007fa}</Project>
+      <Name>String8</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj">
       <Project>{9d407555-d268-461e-bfaf-4251b0fbf7c9}</Project>
       <Name>Sarif.Viewer.VisualStudio.Interop</Name>
