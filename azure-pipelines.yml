@@ -11,8 +11,7 @@ steps:
     filename: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat'
     modifyEnvironment: true
 
-- task: PowerShell@2
-  displayName: Build and Test
+- task: BatchScript@1
+  displayName: 'Run BuildAndTest.cmd'
   inputs:
-    targetType: filePath
-    filePath: ./scripts/BuildAndTest.ps1
+    filename: 'BuildAndTest.cmd'

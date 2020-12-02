@@ -144,7 +144,7 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
-    ..\src\sarif-pattern-matcher\BuildAndTest.cmd
+    .\src\sarif-pattern-matcher\BuildAndTest.cmd
     Invoke-Build
 }
 
