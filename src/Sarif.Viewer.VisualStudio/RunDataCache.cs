@@ -35,19 +35,19 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache() :
-            this(run: null, runIndex: 0, logFilePath: null)
+            this(runIndex: 0, logFilePath: null)
         {
         }
 
         /// <summary>
         /// Used for testing.
         /// </summary>
-        internal RunDataCache(Run run, int runIndex) :
-            this(run: run, runIndex: runIndex, logFilePath: null)
+        internal RunDataCache(int runIndex) :
+            this(runIndex: runIndex, logFilePath: null)
         {
         }
 
-        public RunDataCache(Run run, int runIndex, string logFilePath)
+        public RunDataCache(int runIndex, string logFilePath)
         {
             this.RunIndex = runIndex;
             this.LogFilePath = logFilePath;

@@ -5,14 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Driver;
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.CodeAnalysis.SarifPatternMatcher;
-
-using Newtonsoft.Json;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
