@@ -144,7 +144,11 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
-    & $RepoRoot\src\sarif-pattern-matcher\BuildAndTest.cmd
+    $RepoRoot\src\sarif-pattern-matcher\BuildAndTest.cmd
+    if ($LASTEXITCODE -ne 0) {
+        Exit-WithFailureMessage $ScriptName "sarif-pattern-matcher failed."
+    }
+
     Invoke-Build
 }
 

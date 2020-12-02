@@ -5,6 +5,9 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- checkout: self
+  submodules: recursive
+  
 - task: BatchScript@1
   displayName: 'Run VsDevCmd.bat'
   inputs:
