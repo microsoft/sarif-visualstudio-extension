@@ -74,7 +74,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             var definitionsPaths = new List<string>();
-            foreach(string definitionsPath in fileSystem.DirectoryGetFiles(spamDirectory, "*.json"))
+            foreach (string definitionsPath in fileSystem.DirectoryGetFiles(spamDirectory, "*.json"))
             {
                 definitionsPaths.Add(definitionsPath);
             }

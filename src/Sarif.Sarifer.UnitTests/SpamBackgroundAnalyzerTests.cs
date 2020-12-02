@@ -47,7 +47,7 @@ namespace Sarif.Sarifer.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryEnumerateFiles(It.IsAny<string>())).Returns(new string[] { });
 
             ISet<Skimmer<AnalyzeContext>> rules =
-                SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, ProjectDirectory );
+                SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, ProjectDirectory);
 
             rules.Should().BeEmpty();
         }
