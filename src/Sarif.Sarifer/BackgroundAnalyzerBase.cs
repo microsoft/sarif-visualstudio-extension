@@ -54,31 +54,39 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 return Stream.Null;
             }
 
-            var stream = new MemoryStream();
-            using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
+            try
             {
-                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+                var stream = new MemoryStream();
+                using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
                 {
-                    sarifLogger.AnalysisStarted();
+                    using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+                    {
+                        sarifLogger.AnalysisStarted();
 
-                    // TODO: What do we do when path is null (text buffer with no backing file)?
-                    Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
+                        // TODO: What do we do when path is null (text buffer with no backing file)?
+                        Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
-                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                        sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                    }
+
+                    await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
                 }
 
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                return stream;
             }
-
-            return stream;
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
+            {
+                return Stream.Null;
+            }
         }
 
         /// <inheritdoc/>
-        public async Task<Stream> AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
+        public async Task<Stream> AnalyzeAsync(IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
-            logId = logId ?? throw new ArgumentNullException(nameof(logId));
             targetFiles = targetFiles ?? throw new ArgumentNullException(nameof(targetFiles));
 
             if (!targetFiles.Any())
@@ -88,28 +96,37 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-            var stream = new MemoryStream();
-            using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
+            try
             {
-                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+                var stream = new MemoryStream();
+                using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
                 {
-                    sarifLogger.AnalysisStarted();
-
-                    foreach (string targetFile in targetFiles)
+                    using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
                     {
-                        var uri = new Uri(targetFile, UriKind.Absolute);
-                        string text = File.ReadAllText(targetFile);
+                        sarifLogger.AnalysisStarted();
 
-                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                        foreach (string targetFile in targetFiles)
+                        {
+                            var uri = new Uri(targetFile, UriKind.Absolute);
+                            string text = File.ReadAllText(targetFile);
+
+                            this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                        }
+
+                        sarifLogger.AnalysisStopped(RuntimeConditions.None);
                     }
 
-                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                    await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
                 }
 
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                return stream;
             }
-
-            return stream;
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch (Exception)
+#pragma warning restore CA1031 // Do not catch general exception types
+            {
+                return Stream.Null;
+            }
         }
 
         /// <summary>

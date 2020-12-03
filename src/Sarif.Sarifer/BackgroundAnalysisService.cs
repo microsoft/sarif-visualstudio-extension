@@ -55,7 +55,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                tasks.Add(analyzer.AnalyzeAsync(logId, targetFiles, cancellationToken));
+                tasks.Add(analyzer.AnalyzeAsync(targetFiles, cancellationToken));
             }
 
             Stream[] streams = await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);

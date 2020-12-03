@@ -49,9 +49,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Analyzes the specified files.
         /// </summary>
-        /// <param name="logId">
-        /// A unique identifier for this analysis.
-        /// </param>
         /// <param name="targetFiles">
         /// The absolute paths of the files to analyze.
         /// </param>
@@ -61,6 +58,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <returns>
         /// A <see cref="Task{Stream}"/> that represents the result of the background analysis.
         /// </returns>
-        Task<Stream> AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken);
+        Task<Stream> AnalyzeAsync(IEnumerable<string> targetFiles, CancellationToken cancellationToken);
     }
 }
