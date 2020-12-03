@@ -32,6 +32,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public SpamBackgroundAnalyzer()
         {
             this.fileSystem = FileSystem.Instance;
+            this.rules = new HashSet<Skimmer<AnalyzeContext>>();
         }
 
         protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
@@ -40,7 +41,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 || (this.currentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
             {
                 // clear older rules
-                this.rules?.Clear();
+                this.rules.Clear();
                 this.currentSolutionDirectory = solutionDirectory;
 
                 if (this.currentSolutionDirectory != null)

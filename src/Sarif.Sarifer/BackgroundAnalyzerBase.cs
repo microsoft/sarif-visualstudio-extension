@@ -54,6 +54,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
+            // If we don't have a solutionDirectory, then, we don't need to analyze.
+            if (string.IsNullOrEmpty(solutionDirectory))
+            {
+                return;
+            }
+
             using (Stream stream = new MemoryStream())
             using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
             {
