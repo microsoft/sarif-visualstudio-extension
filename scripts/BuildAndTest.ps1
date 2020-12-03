@@ -148,11 +148,6 @@ if (-not $NoBuild) {
     if ($LASTEXITCODE -ne 0) {
         Exit-WithFailureMessage $ScriptName "sarif-pattern-matcher failed."
     }
-    
-    & $RepoRoot\src\sarif-pattern-matcher\Src\sarif-sdk\BuildAndTest.cmd -NoTest
-    if ($LASTEXITCODE -ne 0) {
-        Exit-WithFailureMessage $ScriptName "sarif-pattern-matcher failed."
-    }
 
     Invoke-Build
 }
