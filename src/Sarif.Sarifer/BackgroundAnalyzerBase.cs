@@ -54,9 +54,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 return Stream.Null;
             }
 
+            var stream = new MemoryStream();
             try
             {
-                var stream = new MemoryStream();
                 using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
                 {
                     using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
@@ -80,6 +80,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             catch (Exception)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
+                stream.Dispose();
                 return Stream.Null;
             }
         }
@@ -96,9 +97,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
+            var stream = new MemoryStream();
             try
             {
-                var stream = new MemoryStream();
                 using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
                 {
                     using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
@@ -125,6 +126,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             catch (Exception)
 #pragma warning restore CA1031 // Do not catch general exception types
             {
+                stream.Dispose();
                 return Stream.Null;
             }
         }
