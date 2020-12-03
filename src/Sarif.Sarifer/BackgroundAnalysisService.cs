@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,32 +21,39 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning disable IDE0044, CS0649 // Provided by MEF
         [ImportMany]
         private IEnumerable<IBackgroundAnalyzer> analyzers;
+
+        [ImportMany]
+        private IEnumerable<IBackgroundAnalysisSink> sinks;
 #pragma warning restore IDE0044, CS0649
 
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task>(this.analyzers.Count());
+            var tasks = new List<Task<Stream>>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
                 tasks.Add(analyzer.AnalyzeAsync(path, text, cancellationToken));
             }
 
-            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            Stream[] streams = await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            await this.WriteStreamsToSinksAsync(path, streams, cleanAll: false).ConfigureAwait(continueOnCapturedContext: false);
+            DisposeStreams(streams);
         }
 
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
-            var tasks = new List<Task>(this.analyzers.Count());
+            var tasks = new List<Task<Stream>>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
                 tasks.Add(analyzer.AnalyzeAsync(logId, targetFiles, cancellationToken));
             }
 
-            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            Stream[] streams = await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+            await this.WriteStreamsToSinksAsync(logId, streams, cleanAll: true).ConfigureAwait(continueOnCapturedContext: false);
+            DisposeStreams(streams);
         }
 
         /// <inheritdoc/>
@@ -53,12 +61,50 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             var tasks = new List<Task>(this.analyzers.Count());
 
-            foreach (IBackgroundAnalyzer analyzer in this.analyzers)
+            foreach (IBackgroundAnalysisSink sink in this.sinks)
             {
-                tasks.Add(analyzer.ClearResultsAsync());
+                tasks.Add(sink.CloseAsync());
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        private Task WriteStreamsToSinksAsync(string logId, Stream[] streams, bool cleanAll)
+        {
+            var sinkTasks = new List<Task>(this.analyzers.Count());
+            foreach (Stream stream in streams)
+            {
+                sinkTasks.Add(this.WriteToSinksAsync(logId, stream, cleanAll));
+            }
+
+            return Task.WhenAll(sinkTasks);
+        }
+
+        private async Task WriteToSinksAsync(string logId, Stream stream, bool cleanAll)
+        {
+            foreach (IBackgroundAnalysisSink sink in this.sinks)
+            {
+                stream.Seek(0L, SeekOrigin.Begin);
+
+                if (cleanAll)
+                {
+                    await sink.CloseAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    await sink.CloseAsync(new[] { logId }).ConfigureAwait(false);
+                }
+
+                await sink.ReceiveAsync(stream, logId).ConfigureAwait(false);
+            }
+        }
+
+        private static void DisposeStreams(Stream[] streams)
+        {
+            foreach (Stream stream in streams)
+            {
+                stream.Dispose();
+            }
         }
     }
 }

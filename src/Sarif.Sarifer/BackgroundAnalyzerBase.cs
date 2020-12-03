@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,8 +15,6 @@ using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.VisualStudio.Shell;
-
-using Task = System.Threading.Tasks.Task;
 
 // TODO: Include tool name in logId. Replace non-alphanum chars with underscore for guaranteed file system compat.
 
@@ -33,11 +30,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </remarks>
     public abstract class BackgroundAnalyzerBase : IBackgroundAnalyzer
     {
-#pragma warning disable IDE0044, CS0649 // Provided by MEF
-        [ImportMany]
-        private IEnumerable<IBackgroundAnalysisSink> sinks;
-#pragma warning restore IDE0044, CS0649
-
         /// <inheritdoc/>
         public abstract string ToolName { get; }
 
@@ -48,7 +40,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public abstract string ToolSemanticVersion { get; }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
+        public async Task<Stream> AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
@@ -57,74 +49,61 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // If we don't have a solutionDirectory, then, we don't need to analyze.
             if (string.IsNullOrEmpty(solutionDirectory))
             {
-                return;
+                return Stream.Null;
             }
 
-            using (Stream stream = new MemoryStream())
-            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream, Encoding.UTF8);
+            using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
             {
-                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
-                {
-                    sarifLogger.AnalysisStarted();
+                sarifLogger.AnalysisStarted();
 
-                    // TODO: What do we do when path is null (text buffer with no backing file)?
-                    Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
+                // TODO: What do we do when path is null (text buffer with no backing file)?
+                Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
-                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
-                }
-
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
-
-                await this.WriteToSinksAsync(path, stream, cleanAll: false).ConfigureAwait(continueOnCapturedContext: false);
+                sarifLogger.AnalysisStopped(RuntimeConditions.None);
             }
+
+            await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+            return stream;
         }
 
         /// <inheritdoc/>
-        public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
+        public async Task<Stream> AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
             logId = logId ?? throw new ArgumentNullException(nameof(logId));
             targetFiles = targetFiles ?? throw new ArgumentNullException(nameof(targetFiles));
 
             if (!targetFiles.Any())
             {
-                return;
+                return Stream.Null;
             }
 
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-            using (Stream stream = new MemoryStream())
-            using (TextWriter writer = new StreamWriter(stream, Encoding.UTF8))
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream, Encoding.UTF8);
+            using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
             {
-                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+                sarifLogger.AnalysisStarted();
+
+                foreach (string targetFile in targetFiles)
                 {
-                    sarifLogger.AnalysisStarted();
+                    var uri = new Uri(targetFile, UriKind.Absolute);
+                    string text = File.ReadAllText(targetFile);
 
-                    foreach (string targetFile in targetFiles)
-                    {
-                        var uri = new Uri(targetFile, UriKind.Absolute);
-                        string text = File.ReadAllText(targetFile);
-
-                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
-                    }
-
-                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
                 }
 
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
-
-                await this.WriteToSinksAsync(logId, stream, cleanAll: true).ConfigureAwait(continueOnCapturedContext: false);
+                sarifLogger.AnalysisStopped(RuntimeConditions.None);
             }
-        }
 
-        /// <inheritdoc/>
-        public async Task ClearResultsAsync()
-        {
-            foreach (IBackgroundAnalysisSink sink in this.sinks)
-            {
-                await sink.CloseAsync().ConfigureAwait(false);
-            }
+            await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+            return stream;
         }
 
         /// <summary>
@@ -186,25 +165,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             return Path.GetDirectoryName(solutionFilePath);
-        }
-
-        private async Task WriteToSinksAsync(string logId, Stream stream, bool cleanAll)
-        {
-            foreach (IBackgroundAnalysisSink sink in this.sinks)
-            {
-                stream.Seek(0L, SeekOrigin.Begin);
-
-                if (cleanAll)
-                {
-                    await sink.CloseAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    await sink.CloseAsync(new[] { logId }).ConfigureAwait(false);
-                }
-
-                await sink.ReceiveAsync(stream, logId).ConfigureAwait(continueOnCapturedContext: false);
-            }
         }
     }
 }
