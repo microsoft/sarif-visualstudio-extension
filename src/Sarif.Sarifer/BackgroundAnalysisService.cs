@@ -87,6 +87,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             var sinkTasks = new List<Task>(this.analyzers.Count());
             foreach (Stream stream in streams)
             {
+                if (stream == Stream.Null)
+                {
+                    continue;
+                }
+
                 sinkTasks.Add(this.WriteToSinksAsync(logId, stream, cleanAll));
             }
 
