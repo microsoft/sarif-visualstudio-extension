@@ -49,13 +49,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <inheritdoc/>
-        public async Task ClearAsync()
+        public async Task ClearResultsAsync()
         {
             var tasks = new List<Task>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
-                tasks.Add(analyzer.ClearAsync());
+                tasks.Add(analyzer.ClearResultsAsync());
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);

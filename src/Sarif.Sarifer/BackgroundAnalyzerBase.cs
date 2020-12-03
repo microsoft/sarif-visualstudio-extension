@@ -118,7 +118,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        public async Task ClearAsync()
+        /// <inheritdoc/>
+        public async Task ClearResultsAsync()
         {
             foreach (IBackgroundAnalysisSink sink in this.sinks)
             {

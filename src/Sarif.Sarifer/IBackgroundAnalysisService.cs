@@ -50,6 +50,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Clear all results.
         /// </summary>
-        Task ClearAsync();
+        Task ClearResultsAsync();
     }
 }
