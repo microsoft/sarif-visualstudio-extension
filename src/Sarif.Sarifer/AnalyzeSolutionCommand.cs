@@ -37,6 +37,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// </summary>
         public void Cancel()
         {
+            this.backgroundAnalysisService.ClearAsync()
+                .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
             this.cancellationTokenSource?.Cancel();
         }
 

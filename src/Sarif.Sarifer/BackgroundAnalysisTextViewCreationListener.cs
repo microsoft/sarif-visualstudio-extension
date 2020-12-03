@@ -30,8 +30,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private bool disposed;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-#pragma warning disable CS0649 // Filled in by MEF
-#pragma warning disable IDE0044 // Assigned by MEF
+#pragma warning disable IDE0044, CS0649 // Assigned,Filled in by MEF
         [Import]
         private Lazy<IBackgroundAnalysisService> backgroundAnalysisService;
 
@@ -40,8 +39,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         [Import]
         private ITextBufferViewTracker textBufferViewTracker;
-#pragma warning restore IDE0044
-#pragma warning restore CS0649
+#pragma warning restore IDE0044, CS0649
 
         /// <inheritdoc/>
         public void TextViewCreated(ITextView textView)

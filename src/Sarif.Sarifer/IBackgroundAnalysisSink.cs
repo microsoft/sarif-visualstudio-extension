@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -31,5 +32,16 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <paramref name="logStream"/>.
         /// </returns>
         Task ReceiveAsync(Stream logStream, string logId);
+
+        /// <summary>
+        /// Closes all SARIF logs opened in the viewer.
+        /// </summary>
+        Task CloseAsync();
+
+        /// <summary>
+        /// Closes the specified SARIF log files in the SARIF Viewer extension.
+        /// </summary>
+        /// <param name="paths">The paths to the log files.</param>
+        Task CloseAsync(IEnumerable<string> paths);
     }
 }

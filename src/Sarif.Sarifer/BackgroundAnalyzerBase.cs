@@ -33,12 +33,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </remarks>
     public abstract class BackgroundAnalyzerBase : IBackgroundAnalyzer
     {
-#pragma warning disable CS0649 // Filled in by MEF
-#pragma warning disable IDE0044 // Assigned by MEF
+#pragma warning disable IDE0044, CS0649 // Assigned,Filled by MEF
         [ImportMany]
         private IEnumerable<IBackgroundAnalysisSink> sinks;
-#pragma warning restore IDE0044
-#pragma warning restore CS0649
+#pragma warning restore IDE0044, CS0649
 
         /// <inheritdoc/>
         public abstract string ToolName { get; }
@@ -73,7 +71,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                await this.WriteToSinksAsync(path, stream).ConfigureAwait(false);
+                await this.WriteToSinksAsync(path, stream, false).ConfigureAwait(false);
             }
         }
 
@@ -110,7 +108,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                await this.WriteToSinksAsync(logId, stream).ConfigureAwait(false);
+                await this.WriteToSinksAsync(logId, stream, true).ConfigureAwait(false);
+            }
+        }
+
+        public async Task ClearAsync()
+        {
+            foreach (IBackgroundAnalysisSink sink in this.sinks)
+            {
+                await sink.CloseAsync().ConfigureAwait(false);
             }
         }
 
@@ -175,11 +181,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             return Path.GetDirectoryName(solutionFilePath);
         }
 
-        private async Task WriteToSinksAsync(string logId, Stream stream)
+        private async Task WriteToSinksAsync(string logId, Stream stream, bool cleanAll)
         {
             foreach (IBackgroundAnalysisSink sink in this.sinks)
             {
                 stream.Seek(0L, SeekOrigin.Begin);
+
+                if (cleanAll)
+                {
+                    await sink.CloseAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    await sink.CloseAsync(new[] { logId }).ConfigureAwait(false);
+                }
+
                 await sink.ReceiveAsync(stream, logId).ConfigureAwait(continueOnCapturedContext: false);
             }
         }

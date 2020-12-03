@@ -17,12 +17,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
-#pragma warning disable CS0649 // Filled in by MEF
-#pragma warning disable IDE0044 // Assigned by MEF
+#pragma warning disable IDE0044, CS0649 // Assigned,Filled in by MEF
         [ImportMany]
         private IEnumerable<IBackgroundAnalyzer> analyzers;
-#pragma warning restore IDE0044
-#pragma warning restore CS0649
+#pragma warning restore IDE0044, CS0649
 
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
@@ -45,6 +43,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
             {
                 tasks.Add(analyzer.AnalyzeAsync(logId, targetFiles, cancellationToken));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        /// <inheritdoc/>
+        public async Task ClearAsync()
+        {
+            var tasks = new List<Task>(this.analyzers.Count());
+
+            foreach (IBackgroundAnalyzer analyzer in this.analyzers)
+            {
+                tasks.Add(analyzer.ClearAsync());
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);

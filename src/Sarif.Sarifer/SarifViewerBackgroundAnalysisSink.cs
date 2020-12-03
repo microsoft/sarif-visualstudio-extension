@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Threading;
@@ -32,6 +33,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             SarifViewerInterop sarifViewerInterop = await this.GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
 
             await sarifViewerInterop.OpenSarifLogAsync(logStream, logId).ConfigureAwait(continueOnCapturedContext: false);
+        }
+
+        /// <inheritdoc/>
+        public async Task CloseAsync()
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            SarifViewerInterop sarifViewerInterop = await this.GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
+
+            await sarifViewerInterop.CloseAllSarifLogsAsync().ConfigureAwait(false);
+        }
+
+        /// <inheritdoc/>
+        public async Task CloseAsync(IEnumerable<string> paths)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            SarifViewerInterop sarifViewerInterop = await this.GetInteropObjectAsync().ConfigureAwait(continueOnCapturedContext: true);
+
+            await sarifViewerInterop.CloseSarifLogAsync(paths).ConfigureAwait(false);
         }
 
         private async System.Threading.Tasks.Task<SarifViewerInterop> GetInteropObjectAsync()
