@@ -37,8 +37,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             Stream[] streams = await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
-            await this.WriteStreamsToSinksAsync(path, streams, cleanAll: false).ConfigureAwait(continueOnCapturedContext: false);
-            DisposeStreams(streams);
+
+            try
+            {
+                await this.WriteStreamsToSinksAsync(path, streams, cleanAll: false).ConfigureAwait(continueOnCapturedContext: false);
+            }
+            finally
+            {
+                DisposeStreams(streams);
+            }
         }
 
         /// <inheritdoc/>
@@ -52,8 +59,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             Stream[] streams = await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
-            await this.WriteStreamsToSinksAsync(logId, streams, cleanAll: true).ConfigureAwait(continueOnCapturedContext: false);
-            DisposeStreams(streams);
+            try
+            {
+                await this.WriteStreamsToSinksAsync(logId, streams, cleanAll: true).ConfigureAwait(continueOnCapturedContext: false);
+            }
+            finally
+            {
+                DisposeStreams(streams);
+            }
         }
 
         /// <inheritdoc/>

@@ -39,6 +39,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public abstract string ToolSemanticVersion { get; }
 
+        private const int DefaultBufferSize = 1024;
+
         /// <inheritdoc/>
         public async Task<Stream> AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
@@ -53,20 +55,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             var stream = new MemoryStream();
-            var writer = new StreamWriter(stream, Encoding.UTF8);
-            using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+            using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
             {
-                sarifLogger.AnalysisStarted();
+                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+                {
+                    sarifLogger.AnalysisStarted();
 
-                // TODO: What do we do when path is null (text buffer with no backing file)?
-                Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
+                    // TODO: What do we do when path is null (text buffer with no backing file)?
+                    Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
-                sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                }
+
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
             }
-
-            await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             return stream;
         }
@@ -85,23 +89,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             var stream = new MemoryStream();
-            var writer = new StreamWriter(stream, Encoding.UTF8);
-            using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+            using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
             {
-                sarifLogger.AnalysisStarted();
-
-                foreach (string targetFile in targetFiles)
+                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
                 {
-                    var uri = new Uri(targetFile, UriKind.Absolute);
-                    string text = File.ReadAllText(targetFile);
+                    sarifLogger.AnalysisStarted();
 
-                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                    foreach (string targetFile in targetFiles)
+                    {
+                        var uri = new Uri(targetFile, UriKind.Absolute);
+                        string text = File.ReadAllText(targetFile);
+
+                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                    }
+
+                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
 
-                sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
             }
-
-            await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             return stream;
         }
