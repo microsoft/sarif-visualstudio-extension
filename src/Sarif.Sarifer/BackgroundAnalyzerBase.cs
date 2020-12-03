@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </remarks>
     public abstract class BackgroundAnalyzerBase : IBackgroundAnalyzer
     {
-#pragma warning disable IDE0044, CS0649 // Assigned,Filled by MEF
+#pragma warning disable IDE0044, CS0649 // Provided by MEF
         [ImportMany]
         private IEnumerable<IBackgroundAnalysisSink> sinks;
 #pragma warning restore IDE0044, CS0649
@@ -77,7 +77,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                await this.WriteToSinksAsync(path, stream, false).ConfigureAwait(false);
+                await this.WriteToSinksAsync(path, stream, cleanAll: false).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
 
-                await this.WriteToSinksAsync(logId, stream, true).ConfigureAwait(false);
+                await this.WriteToSinksAsync(logId, stream, cleanAll: true).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
 

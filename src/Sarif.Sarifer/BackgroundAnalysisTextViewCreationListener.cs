@@ -30,7 +30,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private bool disposed;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-#pragma warning disable IDE0044, CS0649 // Assigned,Filled in by MEF
+#pragma warning disable IDE0044, CS0649 // Provided by MEF
         [Import]
         private Lazy<IBackgroundAnalysisService> backgroundAnalysisService;
 

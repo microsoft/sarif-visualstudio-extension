@@ -17,7 +17,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
-#pragma warning disable IDE0044, CS0649 // Assigned,Filled in by MEF
+#pragma warning disable IDE0044, CS0649 // Provided by MEF
         [ImportMany]
         private IEnumerable<IBackgroundAnalyzer> analyzers;
 #pragma warning restore IDE0044, CS0649
