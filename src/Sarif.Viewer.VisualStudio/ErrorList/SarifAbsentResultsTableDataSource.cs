@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.Shell.TableManager;
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
     // A "stub" data source whose sole purpose is to cause the Category column
-    // to be displayed.
+    // to be displayed. It never actually adds entries to the Error List.
     //
     // For an explanation of why these this source is necessary, see the comment
     // near the top of SarifResultTableEntry.cs
@@ -47,8 +47,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public override string DisplayName => Resources.ErrorListAbsentResultsDataSourceDisplayName;
 
         public override IDisposable Subscribe(ITableDataSink sink)
-        {
-            throw new NotImplementedException();
-        }
+            => new SarifTableDataSink(sink);
     }
 }
