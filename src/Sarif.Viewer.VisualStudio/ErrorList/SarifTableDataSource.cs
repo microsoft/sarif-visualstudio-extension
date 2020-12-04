@@ -4,13 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
 
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.Utilities;
 
@@ -26,12 +23,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
         private bool disposedValue;
 
-        [Import]
-        private ITableManagerProvider TableManagerProvider { get; set; } = null;
-
-        [ImportMany]
-        private IEnumerable<ITableControlEventProcessorProvider> TableControlEventProcessorProviders { get; set; } = null;
-
         private SarifTableDataSource()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -40,33 +31,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
                 this.Initialize();
-            }
-        }
-
-        private void Initialize()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var compositionService = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel)) as IComponentModel;
-
-            // The composition service will only be null in unit tests.
-            if (compositionService != null)
-            {
-                compositionService.DefaultCompositionService.SatisfyImportsOnce(this);
-
-                if (this.TableManagerProvider == null)
-                {
-                    this.TableManagerProvider = compositionService.GetService<ITableManagerProvider>();
-                }
-
-                if (this.TableControlEventProcessorProviders == null)
-                {
-                    this.TableControlEventProcessorProviders = new[]
-                        { compositionService.GetService<ITableControlEventProcessorProvider>() };
-                }
-
-                ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, SarifResultTableEntry.BasicColumns);
             }
         }
 
@@ -84,22 +48,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         #region ITableDataSource members
-        public string SourceTypeIdentifier
+        public override string SourceTypeIdentifier
         {
             get { return StandardTableDataSources.ErrorTableDataSource; }
         }
 
-        public string Identifier
+        public override string Identifier
         {
             get { return Guids.GuidVSPackageString; }
         }
 
-        public string DisplayName
+        public override string DisplayName
         {
             get { return Resources.ErrorListTableDataSourceDisplayName; }
         }
 
-        public IDisposable Subscribe(ITableDataSink sink)
+        public override IDisposable Subscribe(ITableDataSink sink)
         {
             var sarifTableDataSink = new SarifTableDataSink(sink);
             sarifTableDataSink.Disposed += this.TableSink_Disposed;
