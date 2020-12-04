@@ -55,34 +55,24 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             var stream = new MemoryStream();
-            try
+            using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
             {
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
+                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
                 {
-                    using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
-                    {
-                        sarifLogger.AnalysisStarted();
+                    sarifLogger.AnalysisStarted();
 
-                        // TODO: What do we do when path is null (text buffer with no backing file)?
-                        Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
+                    // TODO: What do we do when path is null (text buffer with no backing file)?
+                    Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
-                        sarifLogger.AnalysisStopped(RuntimeConditions.None);
-                    }
-
-                    await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
 
-                return stream;
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
             }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception)
-#pragma warning restore CA1031 // Do not catch general exception types
-            {
-                stream.Dispose();
-                return Stream.Null;
-            }
+
+            return stream;
         }
 
         /// <inheritdoc/>
@@ -98,37 +88,27 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             var stream = new MemoryStream();
-            try
+            using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
             {
-                using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
+                using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
                 {
-                    using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
+                    sarifLogger.AnalysisStarted();
+
+                    foreach (string targetFile in targetFiles)
                     {
-                        sarifLogger.AnalysisStarted();
+                        var uri = new Uri(targetFile, UriKind.Absolute);
+                        string text = File.ReadAllText(targetFile);
 
-                        foreach (string targetFile in targetFiles)
-                        {
-                            var uri = new Uri(targetFile, UriKind.Absolute);
-                            string text = File.ReadAllText(targetFile);
-
-                            this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
-                        }
-
-                        sarifLogger.AnalysisStopped(RuntimeConditions.None);
+                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
                     }
 
-                    await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                    sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
 
-                return stream;
+                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
             }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception)
-#pragma warning restore CA1031 // Do not catch general exception types
-            {
-                stream.Dispose();
-                return Stream.Null;
-            }
+
+            return stream;
         }
 
         /// <summary>
