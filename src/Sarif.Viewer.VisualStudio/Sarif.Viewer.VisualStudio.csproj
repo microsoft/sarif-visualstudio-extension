@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="ErrorList\SarifDataTableSourceBase.cs" />
     <Compile Include="ExceptionalConditions.cs" />
     <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />

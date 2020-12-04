@@ -16,7 +16,7 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    internal class SarifTableDataSource : ITableDataSource, IDisposable
+    internal class SarifTableDataSource : SarifDataTableSourceBase, ITableDataSource, IDisposable
     {
         private static SarifTableDataSource _instance;
         private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
