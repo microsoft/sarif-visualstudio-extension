@@ -462,7 +462,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
-            var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
             var projectNameCache = new ProjectNameCache(dte?.Solution);
 
@@ -505,6 +505,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
+            if (run.HasAbsentResults())
+            {
+                this.ShowFilteredCategoryColumn();
+            }
+
+            if (run.HasSuppressedResults())
+            {
+                this.ShowFilteredSuppressionColumn();
+            }
+
             (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
 
@@ -512,6 +522,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifLocationTagHelpers.RefreshTags();
 
             return sarifErrors.Count;
+        }
+
+        private void ShowFilteredSuppressionColumn()
+        {
+        }
+
+        private void ShowFilteredCategoryColumn()
+        {
         }
 
         private void EnsureHashExists(Artifact artifact)

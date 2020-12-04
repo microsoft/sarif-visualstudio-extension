@@ -66,7 +66,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, SarifResultTableEntry.SupportedColumns);
+                manager.AddSource(this, SarifResultTableEntry.BasicColumns);
             }
         }
 

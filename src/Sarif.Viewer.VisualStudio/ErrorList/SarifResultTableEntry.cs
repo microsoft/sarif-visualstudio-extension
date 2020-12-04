@@ -26,10 +26,29 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
-        public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new[] {
+        // The set of columns we display depends on the contents of the displayed log file.
+        // Per https://github.com/microsoft/sarif-visualstudio-extension/issues/114, we do not
+        // display "suppressed" or "absent" issues by default.
+        //
+        // If we open a log file that contains a suppressed issue, we display the "Suppression
+        // state" column, setting its filter to NOT display the suppressed items. The appearance
+        // of the column is a hint to the user that there are suppressed results available to examine.
+        //
+        // Similarly, if we open a log file that contains absent issues, we display the "Category"
+        // column, setting its filter to NOT display the absent items. The appearance of the column
+        // is a hint to the user that there are absent results available to examine.
+        //
+        // There is not a direct mechanism to add or remove columns based on an individual entry.
+        // You can, however, add a new ITableDataSource (ITableManager.AddSource(source[, columns])
+        // where you can specify the columns you want to appear in the table (at which point VS adds
+        // the column to the table, though it won’t be shown to the user unless it is visible).
+        // Removing the data source removes the column (although we don't have a requirement to do
+        // that), unless some other source also added the same column.
+
+        // The "basic" columns are only displayed.
+        public static readonly ReadOnlyCollection<string> BasicColumns = new ReadOnlyCollection<string>(new[] {
             StandardTableKeyNames2.TextInlines,
             StandardTableKeyNames.DocumentName,
-            StandardTableKeyNames.ErrorCategory,
             StandardTableKeyNames.Line,
             StandardTableKeyNames.Column,
             StandardTableKeyNames.Text,
@@ -41,11 +60,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             StandardTableKeyNames.ErrorCode,
             StandardTableKeyNames.ProjectName,
             StandardTableKeyNames.HelpLink,
-            StandardTableKeyNames.ErrorCodeToolTip,
+            StandardTableKeyNames.ErrorCodeToolTip
+        });
+
+        public static readonly ReadOnlyCollection<string> SuppressedIssueColumns = new ReadOnlyCollection<string>(new[]
+        {
             "suppressionstatus",
             "suppressionstate",
             "suppression"
         });
+
+        public static readonly ReadOnlyCollection<string> AbsentIssueColumns = new ReadOnlyCollection<string>(new[]
+        {
+            StandardTableKeyNames.ErrorCategory
+        });
+
 
         public SarifResultTableEntry(SarifErrorListItem error)
         {
