@@ -526,10 +526,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void ShowFilteredSuppressionColumn()
         {
+            // Creating this table source causes the Suppressions column to appear.
+            SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
         }
 
         private void ShowFilteredCategoryColumn()
         {
+            // Creating this table source causes the Category column to appear.
+            SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
         }
 
         private void EnsureHashExists(Artifact artifact)
