@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public abstract string DisplayName { get; }
 
-        protected void Initialize()
+        protected void Initialize(IReadOnlyCollection<string> columns)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -59,7 +59,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
 
                 ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, SarifResultTableEntry.BasicColumns);
+                manager.AddSource(this, columns);
             }
         }
 

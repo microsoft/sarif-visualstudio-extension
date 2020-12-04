@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
-                this.Initialize();
+                this.Initialize(SarifResultTableEntry.BasicColumns);
             }
         }
 
@@ -48,6 +48,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         #region ITableDataSource members
+
         public override string SourceTypeIdentifier
         {
             get { return StandardTableDataSources.ErrorTableDataSource; }
