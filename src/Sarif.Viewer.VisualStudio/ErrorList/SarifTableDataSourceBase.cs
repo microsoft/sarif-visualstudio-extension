@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     //
     // For an explanation of why these three sources are necessary, see the comment
     // near the top of SarifResultTableEntry.cs
-    internal abstract class SarifDataTableSourceBase : ITableDataSource
+    internal abstract class SarifTableDataSourceBase : ITableDataSource
     {
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;

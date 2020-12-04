@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    internal class SarifTableDataSource : SarifDataTableSourceBase, ITableDataSource, IDisposable
+    internal class SarifTableDataSource : SarifTableDataSourceBase, ITableDataSource, IDisposable
     {
         private static SarifTableDataSource _instance;
         private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
@@ -30,6 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+
                 this.Initialize(SarifResultTableEntry.BasicColumns);
             }
         }
@@ -49,15 +50,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         #region ITableDataSource members
 
-        public override string Identifier
-        {
-            get { return Guids.GuidVSPackageString; }
-        }
+        public override string Identifier => Guids.GuidVSPackageString;
 
-        public override string DisplayName
-        {
-            get { return Resources.ErrorListTableDataSourceDisplayName; }
-        }
+        public override string DisplayName => Resources.ErrorListTableDataSourceDisplayName;
 
         public override IDisposable Subscribe(ITableDataSink sink)
         {
@@ -80,6 +75,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             return sarifTableDataSink;
         }
+
         #endregion
 
         public void AddErrors(IEnumerable<SarifErrorListItem> errors)

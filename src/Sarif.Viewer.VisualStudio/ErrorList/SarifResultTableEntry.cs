@@ -63,14 +63,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             StandardTableKeyNames.ErrorCodeToolTip
         });
 
-        public static readonly ReadOnlyCollection<string> SuppressedIssueColumns = new ReadOnlyCollection<string>(new[]
+        public static readonly ReadOnlyCollection<string> SuppressedResultColumns = new ReadOnlyCollection<string>(new[]
         {
             "suppressionstatus",
             "suppressionstate",
             "suppression"
         });
 
-        public static readonly ReadOnlyCollection<string> AbsentIssueColumns = new ReadOnlyCollection<string>(new[]
+        public static readonly ReadOnlyCollection<string> AbsentResultColumns = new ReadOnlyCollection<string>(new[]
         {
             StandardTableKeyNames.ErrorCategory
         });
