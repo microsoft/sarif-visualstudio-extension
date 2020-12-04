@@ -49,6 +49,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 }
             }
 
+            if (this.rules == null)
+            {
+                return;
+            }
+
             var disabledSkimmers = new HashSet<string>();
 
             var context = new AnalyzeContext

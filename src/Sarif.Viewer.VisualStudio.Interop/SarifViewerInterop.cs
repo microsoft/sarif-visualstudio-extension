@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.Interop
                 if (this._viewerExtensionAssembly == null)
                 {
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                    this._viewerExtensionAssembly = assemblies.Where(a => a.GetName().Name == ViewerAssemblyFileName).FirstOrDefault();
+                    this._viewerExtensionAssembly = assemblies.FirstOrDefault(a => a.GetName().Name == ViewerAssemblyFileName);
                 }
 
                 return this._viewerExtensionAssembly;
@@ -110,8 +110,8 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// A unique identifier for this stream that can be used to close the log later.
         /// </param>
         /// <returns>
-        /// <code>true</code> if the extensions service was successfully invoked (regardless of the
-        /// outcome), otherwise <code>false</code>.
+        /// <c>true</c> if the extensions service was successfully invoked (regardless of the
+        /// outcome), otherwise <c>false</c>.
         /// </returns>
         public Task<bool> OpenSarifLogAsync(Stream stream, string logId = null)
         {
@@ -131,8 +131,8 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// The <see cref="Stream"/>s from which the SARIF log files are to be read.
         /// </param>
         /// <returns>
-        /// <code>true</code> if the extensions service was successfully invoked (regardless of the
-        /// outcome), otherwise <code>false</code>.
+        /// <c>true</c> if the extensions service was successfully invoked (regardless of the
+        /// outcome), otherwise <c>false</c>.
         /// </returns>
         public Task<bool> OpenSarifLogAsync(IEnumerable<Stream> streams)
         {
@@ -223,9 +223,9 @@ namespace Microsoft.Sarif.Viewer.Interop
 
             // Get the service interface type
             Type[] types = this.ViewerExtensionAssembly.GetTypes();
-            Type serviceType = types.Where(t => t.Name == serviceInterfaceName).FirstOrDefault();
+            Type serviceType = types.FirstOrDefault(t => t.Name == serviceInterfaceName);
 
-            if (serviceType == default(Type))
+            if (serviceType == default)
             {
                 return false;
             }
@@ -252,7 +252,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             ThreadHelper.ThrowIfNotOnUIThread();
 
             Guid serviceGuid = ViewerExtensionGuid;
-            IVsPackage package = null; ;
+            IVsPackage package = null;
 
             if (this.IsViewerExtensionInstalled)
             {

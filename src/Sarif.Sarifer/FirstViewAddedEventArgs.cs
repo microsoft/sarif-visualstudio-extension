@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Initializes a new instance of the <see cref="FirstViewAddedEventArgs"/> class.
         /// </summary>
         /// <param name="path">
-        /// The path to the file whose contents are being viewed, or <code>null</code> if
+        /// The path to the file whose contents are being viewed, or <c>null</c> if
         /// <paramref name="textBuffer"/> is not associated with a file.
         /// </param>
         /// <param name="text">
@@ -31,7 +31,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <summary>
-        /// Gets the path to the file whose contents are being viewed, or <code>null</code> if
+        /// Gets the path to the file whose contents are being viewed, or <c>null</c> if
         /// <see cref="TextBuffer"/> is not associated with a file.
         /// </summary>
         public string Path { get; }

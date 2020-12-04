@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,16 +42,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
         /// </param>
         /// <returns>
-        /// A <see cref="Task"/> that represents the completion of the background analysis.
+        /// A <see cref="Task{Stream}"/> that represents the result of the background analysis.
         /// </returns>
-        Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken);
+        Task<Stream> AnalyzeAsync(string path, string text, CancellationToken cancellationToken);
 
         /// <summary>
         /// Analyzes the specified files.
         /// </summary>
-        /// <param name="logId">
-        /// A unique identifier for this analysis.
-        /// </param>
         /// <param name="targetFiles">
         /// The absolute paths of the files to analyze.
         /// </param>
@@ -58,8 +56,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
         /// </param>
         /// <returns>
-        /// A <see cref="Task"/> that represents the completion of the background analysis.
+        /// A <see cref="Task{Stream}"/> that represents the result of the background analysis.
         /// </returns>
-        Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken);
+        Task<Stream> AnalyzeAsync(IEnumerable<string> targetFiles, CancellationToken cancellationToken);
     }
 }
