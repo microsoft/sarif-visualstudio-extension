@@ -49,11 +49,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         #region ITableDataSource members
 
-        public override string SourceTypeIdentifier
-        {
-            get { return StandardTableDataSources.ErrorTableDataSource; }
-        }
-
         public override string Identifier
         {
             get { return Guids.GuidVSPackageString; }

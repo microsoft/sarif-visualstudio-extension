@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         [ImportMany]
         private IEnumerable<ITableControlEventProcessorProvider> TableControlEventProcessorProviders { get; set; } = null;
 
-        public abstract string SourceTypeIdentifier { get; }
+        public string SourceTypeIdentifier => StandardTableDataSources.ErrorTableDataSource;
 
         public abstract string Identifier { get; }
 
