@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        public override string Identifier => throw new NotImplementedException();
+        public override string Identifier => $"{Guids.GuidVSPackageString}-{nameof(SarifAbsentResultsTableDataSource)}";
 
         public override string DisplayName => Resources.ErrorListAbsentResultsDataSourceDisplayName;
 
