@@ -36,7 +36,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
             {
                 first = true;
-                trackingInformation = new TextBufferViewTrackingInformation();
+                trackingInformation = new TextBufferViewTrackingInformation(path);
                 this.bufferToViewsDictionary.Add(textView.TextBuffer, trackingInformation);
             }
 
@@ -63,7 +63,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.bufferToViewsDictionary.Remove(textView.TextBuffer);
                 LastViewRemoved?.Invoke(
                     this,
-                    new LastViewRemovedEventArgs(trackingInformation.LogId));
+                    new LastViewRemovedEventArgs(trackingInformation.Path));
             }
         }
     }

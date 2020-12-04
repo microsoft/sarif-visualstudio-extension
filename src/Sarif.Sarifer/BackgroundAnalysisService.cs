@@ -20,15 +20,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
 #pragma warning disable IDE0044, CS0649 // Provided by MEF
         [ImportMany]
-        private IEnumerable<IBackgroundAnalyzer> analyzers;
+        private readonly IEnumerable<IBackgroundAnalyzer> analyzers;
 
         [ImportMany]
-        private IEnumerable<IBackgroundAnalysisSink> sinks;
+        private readonly IEnumerable<IBackgroundAnalysisSink> sinks;
 #pragma warning restore IDE0044, CS0649
+
+        private bool canAnalyzeFile = true;
 
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
+            if (!this.canAnalyzeFile)
+            {
+                return;
+            }
+
             var tasks = new List<Task<Stream>>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
@@ -51,6 +58,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
+            this.canAnalyzeFile = false;
             var tasks = new List<Task<Stream>>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
@@ -67,6 +75,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 DisposeStreams(streams);
             }
+            this.canAnalyzeFile = true;
         }
 
         /// <inheritdoc/>

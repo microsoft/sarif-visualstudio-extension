@@ -18,11 +18,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Initializes a new instance of the <see cref="TextBufferViewTrackingInformation"/> class.
         /// </summary>
-        internal TextBufferViewTrackingInformation()
+        internal TextBufferViewTrackingInformation(string filePath)
         {
-            this.Views = new List<ITextView>();
+            this.Path = filePath;
             this.LogId = Guid.NewGuid().ToString();
+            this.Views = new List<ITextView>();
         }
+
+        /// <summary>
+        /// Get the path of the file.
+        /// </summary>
+        public string Path { get; }
 
         /// <summary>
         /// Get the list of views currently open on the tracked text buffer.

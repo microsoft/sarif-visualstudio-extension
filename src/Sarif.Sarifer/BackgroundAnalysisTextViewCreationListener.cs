@@ -90,7 +90,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         // error list.
         private void TextBufferViewTracker_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
         {
-            this.sarifViewerInterop.CloseSarifLogAsync(new string[] { e.LogId }).FileAndForget(FileAndForgetEventName.CloseSarifLogsFailure);
+            this.sarifViewerInterop.CloseSarifLogAsync(new string[] { e.Path })
+                .FileAndForget(FileAndForgetEventName.CloseSarifLogsFailure);
         }
 
         private string GetPathFromTextView(ITextView textView)
@@ -124,6 +125,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 if (disposing)
                 {
+                    this.cancellationTokenSource.Cancel();
                     this.cancellationTokenSource.Dispose();
                 }
 
