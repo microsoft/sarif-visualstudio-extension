@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         // Removing the data source removes the column (although we don't have a requirement to do
         // that), unless some other source also added the same column.
 
-        // The "basic" columns are only displayed.
+        // The "basic" columns are always displayed.
         public static readonly ReadOnlyCollection<string> BasicColumns = new ReadOnlyCollection<string>(new[] {
             StandardTableKeyNames2.TextInlines,
             StandardTableKeyNames.DocumentName,

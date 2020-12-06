@@ -7,22 +7,19 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    /// <summary>
-    /// Simple wrapper that holds an <see cref="ITableDataSink"/> and raises an event when
-    /// Visual Studio disposes it (the wrapper).
-    /// </summary>
-    /// <remarks>
-    /// When a client (such as the viewer) adds a new table data source by calling
-    /// <see cref="ITableManager.AddSource(ITableDataSource, string[]))"/>, Visual Studio
-    /// calls <see cref="ITableDataSource.Subscribe(ITableDataSink)"/> on the new source.
-    /// In return VS expects to receive a disposable object associated with the sink. When
-    /// the source is removed, Visual Studio calls dispose on this object, at which point
-    /// the client must stop making calls to the sink.
-    ///
-    /// This object discharges that responsibility by raising an event when Visual Studio
-    /// ddisposes it. It is the receiver's responsibility to remove it from the list of sinks
-    /// that the receiver maintains. See <see cref="SarifTableDataSource.TableSink_Disposed(object, EventArgs)"/>.
-    /// </remarks>
+    // Simple wrapper class that holds an ITableDataSink, and raises an event when
+    // Visual Studio disposes it.
+    //
+    // When a client such as the viewer calls ITableManager.AddSource to add a new
+    // table data source, Visual Studio calls ITableDataSource.Subscribe on the source,
+    // providing a "sink": an object that implements ITableDataSink. In return, VS
+    // receives a disposable object associated with the sink. When the source is
+    // removed, VS calls Dispose on this object, at which point the client must
+    // stop making calls to that sink.
+    //
+    // To accomplish this, SinkWrapper raises an event when VS disposes it. The
+    // receiver must remove the associated sink from the list of sinks it maintains.
+    // See SarifTableDataSource.TableSink_Disposed.
     internal class SinkWrapper : IDisposable
     {
         private bool disposed;
@@ -32,10 +29,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public ITableDataSink Sink { get; }
 
         /// <summary>
-        /// Creates a new instance of a disposable table data sink to return back to Visual Studio.
+        /// Creates a new instance of the SinkWrapper class.
         /// </summary>
         /// <param name="sink">
-        /// The Visual Studio table data sink that will receive notifications about SARIF error entries.
+        /// A Visual Studio table data sink that will receive notifications about
+        /// SARIF error entries.
         /// </param>
         public SinkWrapper(ITableDataSink sink)
         {
