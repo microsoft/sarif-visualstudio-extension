@@ -47,6 +47,7 @@
     <Compile Include="Controls\InfoBar.cs" />
     <Compile Include="ErrorList\SarifAbsentResultsTableDataSource.cs" />
     <Compile Include="ErrorList\SarifTableDataSourceBase.cs" />
+    <Compile Include="ErrorList\StubDisposable.cs" />
     <Compile Include="ExceptionalConditions.cs" />
     <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />

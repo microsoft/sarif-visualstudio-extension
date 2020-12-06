@@ -46,7 +46,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public override string DisplayName => Resources.ErrorListSuppressedResultsDataSourceDisplayName;
 
-        public override IDisposable Subscribe(ITableDataSink sink)
-            => new SarifTableDataSink(sink);
+        public override IDisposable Subscribe(ITableDataSink sink) => new StubDisposable();
     }
 }
