@@ -526,7 +526,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void ShowFilteredSuppressionColumn()
         {
-            // Creating this table source causes the Suppressions column to appear.
+            // Creating this table source causes the Suppression State column to appear.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
         }
 
