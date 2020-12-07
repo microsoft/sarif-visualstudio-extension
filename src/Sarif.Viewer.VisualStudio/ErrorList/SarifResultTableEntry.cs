@@ -22,6 +22,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
+        private const string SuppressionStateColumnName = "suppression";
+
         private bool isDisposed;
 
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
@@ -31,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         // display "suppressed" or "absent" issues by default.
         //
         // If we open a log file that contains a suppressed issue, we display the "Suppression
-        // state" column, setting its filter to NOT display the suppressed items. The appearance
+        // State" column, setting its filter to NOT display the suppressed items. The appearance
         // of the column is a hint to the user that there are suppressed results available to examine.
         //
         // Similarly, if we open a log file that contains absent issues, we display the "Category"
@@ -41,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         // There is not a direct mechanism to add or remove columns based on an individual entry.
         // You can, however, add a new ITableDataSource (ITableManager.AddSource(source[, columns])
         // where you can specify the columns you want to appear in the table (at which point VS adds
-        // the column to the table, though it won’t be shown to the user unless it is visible).
+        // the column to the table, though it won't be shown to the user unless it is visible).
         // Removing the data source removes the column (although we don't have a requirement to do
         // that), unless some other source also added the same column.
 
@@ -65,9 +67,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static readonly ReadOnlyCollection<string> SuppressedResultColumns = new ReadOnlyCollection<string>(new[]
         {
-            "suppressionstatus",
-            "suppressionstate",
-            "suppression"
+            SuppressionStateColumnName
         });
 
         public static readonly ReadOnlyCollection<string> AbsentResultColumns = new ReadOnlyCollection<string>(new[]
@@ -108,9 +108,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
 
             string supressionState = this.Error.VSSuppressionState.ToString();
-            this.columnKeyToContent["suppressionstatus"] = supressionState;
-            this.columnKeyToContent["suppressionstate"] = supressionState;
-            this.columnKeyToContent["suppression"] = supressionState;
+            this.columnKeyToContent[SuppressionStateColumnName] = supressionState;
 
             // Anything that's a bit more complex, we will make a "lazy" value and evaluate
             // it when it's asked for.
@@ -267,7 +265,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }
