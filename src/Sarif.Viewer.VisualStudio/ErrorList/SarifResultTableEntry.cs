@@ -75,7 +75,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             StandardTableKeyNames.ErrorCategory
         });
 
-
         public SarifResultTableEntry(SarifErrorListItem error)
         {
             this.Identity = error.GetHashCode();
