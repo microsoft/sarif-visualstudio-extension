@@ -46,5 +46,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A <see cref="Task"/> that represents the completion of the analysis.
         /// </returns>
         Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Clear all results.
+        /// </summary>
+        Task ClearResultsAsync();
     }
 }
