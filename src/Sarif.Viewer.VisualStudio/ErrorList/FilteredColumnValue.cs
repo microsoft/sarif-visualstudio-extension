@@ -13,8 +13,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public FilteredColumnValue(string columnName, string filteredValue)
         {
-            this.ColumnName = columnName;
-            this.FilteredValue = filteredValue;
+            this.ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
+            this.FilteredValue = filteredValue ?? throw new ArgumentNullException(nameof(filteredValue));
         }
 
         public override bool Equals(object obj) =>
