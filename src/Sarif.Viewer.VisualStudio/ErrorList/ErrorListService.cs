@@ -557,40 +557,35 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Creating this table source adds "Suppression State" to the list of available columns.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
 
-            // Filter out suppressed results by default. But if the user ever shows them,
-            // don't ever hide them again.
-            var filteredColumnValue = new FilteredColumnValue(columnName: SarifResultTableEntry.SuppressionStateColumnName, filteredValue: VSSuppressionState.Suppressed.ToString());
-            if (this.filteredColumnValues.Contains(filteredColumnValue))
-            {
-                ITableColumnDefinition suppressionStateColumnDefinition =
-                    this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(SarifResultTableEntry.SuppressionStateColumnName);
-
-                this.ErrorListTableControl.SetFilter(
-                    SarifResultTableEntry.SuppressionStateColumnName,
-                    new ColumnHashSetFilter(
-                        suppressionStateColumnDefinition,
-                        VSSuppressionState.Suppressed.ToString()));
-
-                this.filteredColumnValues.Add(filteredColumnValue);
-            }
+            this.FilterOut(
+                columnName: SarifResultTableEntry.SuppressionStateColumnName,
+                filteredValue: VSSuppressionState.Suppressed.ToString());
         }
 
         private void ShowFilteredCategoryColumn()
         {
             // Creating this table source adds "Category" to the list of available columns.
-            // (Actually, it appears to be there by default, so this might not be necessary:
+            // (Actually, it appears to be there by default, so this might not be necessary:)
             SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
 
-            // Filter out absent results by default. But if the user ever shows them,
-            // don't ever hide them again.
-            ITableColumnDefinition categoryColumnDefinition =
-                this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(StandardTableKeyNames.ErrorCategory);
+            this.FilterOut(
+                columnName: StandardTableKeyNames.ErrorCategory,
+                filteredValue: BaselineState.Absent.ToString());
+        }
 
-            var filteredColumnValue = new FilteredColumnValue(columnName: StandardTableKeyNames.ErrorCategory, filteredValue: BaselineState.Absent.ToString());
+        // Filter out the specified value from the specified column by default. But do it only once,
+        // because if the user checks the box for that value in the UI, we shouldn't ever turn it
+        // off again.
+        private void FilterOut(string columnName, string filteredValue)
+        {
+            var filteredColumnValue = new FilteredColumnValue(columnName, filteredValue);
             if (!this.filteredColumnValues.Contains(filteredColumnValue))
             {
+                ITableColumnDefinition categoryColumnDefinition =
+                    this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(columnName);
+
                 this.ErrorListTableControl.SetFilter(
-                    StandardTableKeyNames.ErrorCategory,
+                    columnName,
                     new ColumnHashSetFilter(
                         categoryColumnDefinition,
                         BaselineState.Absent.ToString()));
