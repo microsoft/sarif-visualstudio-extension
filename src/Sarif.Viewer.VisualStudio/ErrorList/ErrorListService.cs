@@ -459,8 +459,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
