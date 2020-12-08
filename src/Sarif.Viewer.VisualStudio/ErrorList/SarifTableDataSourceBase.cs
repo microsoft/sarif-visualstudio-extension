@@ -39,18 +39,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             var compositionService = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel)) as IComponentModel;
 
             // The composition service will only be null in unit tests.
-            if (compositionService != null)
+            if (compositionService == null)
             {
-                compositionService.DefaultCompositionService.SatisfyImportsOnce(this);
-
-                if (this.TableManagerProvider == null)
-                {
-                    this.TableManagerProvider = compositionService.GetService<ITableManagerProvider>();
-                }
-
-                ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, columns);
+                return;
             }
+
+            compositionService.DefaultCompositionService.SatisfyImportsOnce(this);
+
+            if (this.TableManagerProvider == null)
+            {
+                this.TableManagerProvider = compositionService.GetService<ITableManagerProvider>();
+            }
+
+            ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
+            manager.AddSource(this, columns);
         }
 
         public abstract IDisposable Subscribe(ITableDataSink sink);
