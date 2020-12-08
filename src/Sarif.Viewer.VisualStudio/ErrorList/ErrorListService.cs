@@ -46,8 +46,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static readonly ErrorListService Instance = new ErrorListService();
 
         private IWpfTableControl errorListTableControl;
-        private bool isFirstTimeFilteringAbsentResults = true;
-        private bool isFirstTimeFilteringSuppressedResults = true;
+
+        // The set of column/
+        private readonly HashSet<FilteredColumnValue> filteredColumnValues = new HashSet<FilteredColumnValue>();
 
         private IWpfTableControl ErrorListTableControl
         {
@@ -558,7 +559,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             // Filter out suppressed results by default. But if the user ever shows them,
             // don't ever hide them again.
-            if (this.isFirstTimeFilteringSuppressedResults)
+            var filteredColumnValue = new FilteredColumnValue(columnName: SarifResultTableEntry.SuppressionStateColumnName, filteredValue: VSSuppressionState.Suppressed.ToString());
+            if (this.filteredColumnValues.Contains(filteredColumnValue))
             {
                 ITableColumnDefinition suppressionStateColumnDefinition =
                     this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(SarifResultTableEntry.SuppressionStateColumnName);
@@ -569,7 +571,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         suppressionStateColumnDefinition,
                         VSSuppressionState.Suppressed.ToString()));
 
-                this.isFirstTimeFilteringSuppressedResults = false;
+                this.filteredColumnValues.Add(filteredColumnValue);
             }
         }
 
@@ -584,7 +586,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ITableColumnDefinition categoryColumnDefinition =
                 this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(StandardTableKeyNames.ErrorCategory);
 
-            if (this.isFirstTimeFilteringAbsentResults)
+            var filteredColumnValue = new FilteredColumnValue(columnName: StandardTableKeyNames.ErrorCategory, filteredValue: BaselineState.Absent.ToString());
+            if (!this.filteredColumnValues.Contains(filteredColumnValue))
             {
                 this.ErrorListTableControl.SetFilter(
                     StandardTableKeyNames.ErrorCategory,
@@ -592,7 +595,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         categoryColumnDefinition,
                         BaselineState.Absent.ToString()));
 
-                this.isFirstTimeFilteringAbsentResults = false;
+                this.filteredColumnValues.Add(filteredColumnValue);
             }
         }
 
