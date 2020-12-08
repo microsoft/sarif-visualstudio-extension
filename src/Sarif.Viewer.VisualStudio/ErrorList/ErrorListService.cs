@@ -459,6 +459,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
@@ -529,6 +531,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void ShowFilteredSuppressionStateColumn()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // Creating this table source adds "Suppression State" to the list of available columns.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
 
@@ -539,6 +543,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void ShowFilteredCategoryColumn()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             // Creating this table source adds "Category" to the list of available columns.
             // (Actually, it appears to be there by default, so this might not be necessary:)
             SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;

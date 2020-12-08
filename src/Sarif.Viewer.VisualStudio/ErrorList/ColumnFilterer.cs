@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
@@ -25,13 +25,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
                 if (this.errorListTableControl == null)
                 {
-                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-
-                    IErrorListTableControlProvider errorListTableControlProvider = componentModel.GetService<IErrorListTableControlProvider>();
-
-                    this.errorListTableControl = errorListTableControlProvider.GetErrorListTableControl();
+                    var errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
+                    if (errorList != null)
+                    {
+                        this.errorListTableControl = errorList.TableControl;
+                    }
                 }
 
                 return this.errorListTableControl;
@@ -40,6 +42,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public void FilterOut(string columnName, string filteredValue)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var filteredColumnValue = new FilteredColumnValue(columnName, filteredValue);
             if (!this.filteredColumnValues.Contains(filteredColumnValue))
             {
