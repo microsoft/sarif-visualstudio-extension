@@ -32,6 +32,7 @@ using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
+using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.TaskStatusCenter;
 
 using Newtonsoft.Json;
@@ -553,6 +554,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Creating this table source adds "Suppression State" to the list of available columns.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
 
+            // Remove suppressed results by default.
+            // TODO: Should we only do this once? If ever the user turns them on, we don't want them
+            // to keep disappearing.
             ITableColumnDefinition suppressionStateColumnDefinition =
                 this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(SarifResultTableEntry.SuppressionStateColumnName);
 
@@ -566,7 +570,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private void ShowFilteredCategoryColumn()
         {
             // Creating this table source adds "Category" to the list of available columns.
+            // (Actually, it appears to be there by default, so this might not be necessary:
             SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
+
+            // Remove absent results by default.
+            // TODO: Should we only do this once? If ever the user turns them on, we don't want them
+            // to keep disappearing.
+            ITableColumnDefinition categoryColumnDefinition =
+                this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(StandardTableKeyNames.ErrorCategory);
+
+            this.ErrorListTableControl.SetFilter(
+                StandardTableKeyNames.ErrorCategory,
+                new ColumnHashSetFilter(
+                    categoryColumnDefinition,
+                    BaselineState.Absent.ToString()));
         }
 
         private void EnsureHashExists(Artifact artifact)
