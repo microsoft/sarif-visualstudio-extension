@@ -16,15 +16,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal class SarifTableDataSource : SarifTableDataSourceBase, IDisposable
     {
         private static SarifTableDataSource _instance;
-        private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private readonly List<SinkHolder> sinkHolders = new List<SinkHolder>();
+        private readonly ReaderWriterLockSlimWrapper sinksLock;
+        private readonly List<SinkHolder> sinkHolders;
 
-        private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+        private readonly ReaderWriterLockSlimWrapper tableEntriesLock;
+        private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries;
         private bool disposedValue;
 
         private SarifTableDataSource()
         {
+            this.sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+            this.sinkHolders = new List<SinkHolder>();
+
+            this.tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+            this.logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+
             if (!SarifViewerPackage.IsUnitTesting)
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
@@ -212,13 +218,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void CallSinks(Action<ITableDataSink> action)
         {
-            IReadOnlyList<SinkHolder> sinkHolers;
+            IReadOnlyList<SinkHolder> sinkHolders;
             using (this.sinksLock.EnterReadLock())
             {
-                sinkHolers = this.sinkHolders.ToImmutableArray();
+                sinkHolders = this.sinkHolders.ToImmutableArray();
             }
 
-            foreach (SinkHolder sinkHolder in sinkHolers)
+            foreach (SinkHolder sinkHolder in sinkHolders)
             {
                 action(sinkHolder.Sink);
             }
