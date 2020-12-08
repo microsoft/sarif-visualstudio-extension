@@ -23,7 +23,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private IWpfTableControl ErrorListTableControl
         {
-            // TODO: Inject the table control provider. That means ColumnFilterer must MEF export a (marker) interface.
             get
             {
                 if (this.errorListTableControl == null)
