@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private static SarifTableDataSource _instance;
         private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private readonly List<SinkHolder> sinkWrappers = new List<SinkHolder>();
+        private readonly List<SinkHolder> sinkHolders = new List<SinkHolder>();
 
         private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
         private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
@@ -56,12 +56,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public override IDisposable Subscribe(ITableDataSink sink)
         {
-            var sinkWrapper = new SinkHolder(sink);
-            sinkWrapper.Disposed += this.TableSink_Disposed;
+            var sinkHolder = new SinkHolder(sink);
+            sinkHolder.Disposed += this.TableSink_Disposed;
 
             using (this.sinksLock.EnterWriteLock())
             {
-                this.sinkWrappers.Add(sinkWrapper);
+                this.sinkHolders.Add(sinkHolder);
             }
 
             IImmutableList<SarifResultTableEntry> entriesToNotify;
@@ -73,7 +73,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             sink.AddEntries(entriesToNotify);
 
-            return sinkWrapper;
+            return sinkHolder;
         }
 
         #endregion
@@ -212,15 +212,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void CallSinks(Action<ITableDataSink> action)
         {
-            IReadOnlyList<SinkHolder> sinkWrappers;
+            IReadOnlyList<SinkHolder> sinkHolers;
             using (this.sinksLock.EnterReadLock())
             {
-                sinkWrappers = this.sinkWrappers.ToImmutableArray();
+                sinkHolers = this.sinkHolders.ToImmutableArray();
             }
 
-            foreach (SinkHolder sinkWrapper in sinkWrappers)
+            foreach (SinkHolder sinkHolder in sinkHolers)
             {
-                action(sinkWrapper.Sink);
+                action(sinkHolder.Sink);
             }
         }
 
@@ -234,7 +234,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     using (this.sinksLock.EnterWriteLock())
                     {
-                        this.sinkWrappers.Clear();
+                        this.sinkHolders.Clear();
                     }
 
                     using (this.tableEntriesLock.EnterWriteLock())
@@ -264,13 +264,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            if (sender is SinkHolder sinkWrapper)
+            if (sender is SinkHolder sinkHolder)
             {
-                sinkWrapper.Disposed -= this.TableSink_Disposed;
+                sinkHolder.Disposed -= this.TableSink_Disposed;
 
                 using (this.sinksLock.EnterWriteLock())
                 {
-                    this.sinkWrappers.Remove(sinkWrapper);
+                    this.sinkHolders.Remove(sinkHolder);
                 }
             }
         }

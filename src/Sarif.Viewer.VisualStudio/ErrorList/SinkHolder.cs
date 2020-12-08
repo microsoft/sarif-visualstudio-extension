@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     // removed, VS calls Dispose on this object, at which point the client must
     // stop making calls to that sink.
     //
-    // To accomplish this, SinkWrapper raises an event when VS disposes it. The
+    // To accomplish this, SinkHolder raises an event when VS disposes it. The
     // receiver must remove the associated sink from the list of sinks it maintains.
     // See SarifTableDataSource.TableSink_Disposed.
     internal class SinkHolder : IDisposable
