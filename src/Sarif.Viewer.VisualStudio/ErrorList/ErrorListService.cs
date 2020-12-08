@@ -46,6 +46,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static readonly ErrorListService Instance = new ErrorListService();
 
         private IWpfTableControl errorListTableControl;
+        private bool isFirstTimeFilteringAbsentResults = true;
+        private bool isFirstTimeFilteringSuppressedResults = true;
 
         private IWpfTableControl ErrorListTableControl
         {
@@ -554,17 +556,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Creating this table source adds "Suppression State" to the list of available columns.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
 
-            // Remove suppressed results by default.
-            // TODO: Should we only do this once? If ever the user turns them on, we don't want them
-            // to keep disappearing.
-            ITableColumnDefinition suppressionStateColumnDefinition =
-                this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(SarifResultTableEntry.SuppressionStateColumnName);
+            // Filter out suppressed results by default. But if the user ever shows them,
+            // don't ever hide them again.
+            if (this.isFirstTimeFilteringSuppressedResults)
+            {
+                ITableColumnDefinition suppressionStateColumnDefinition =
+                    this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(SarifResultTableEntry.SuppressionStateColumnName);
 
-            this.ErrorListTableControl.SetFilter(
-                SarifResultTableEntry.SuppressionStateColumnName,
-                new ColumnHashSetFilter(
-                    suppressionStateColumnDefinition,
-                    VSSuppressionState.Suppressed.ToString()));
+                this.ErrorListTableControl.SetFilter(
+                    SarifResultTableEntry.SuppressionStateColumnName,
+                    new ColumnHashSetFilter(
+                        suppressionStateColumnDefinition,
+                        VSSuppressionState.Suppressed.ToString()));
+
+                this.isFirstTimeFilteringSuppressedResults = false;
+            }
         }
 
         private void ShowFilteredCategoryColumn()
@@ -573,17 +579,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // (Actually, it appears to be there by default, so this might not be necessary:
             SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
 
-            // Remove absent results by default.
-            // TODO: Should we only do this once? If ever the user turns them on, we don't want them
-            // to keep disappearing.
+            // Filter out absent results by default. But if the user ever shows them,
+            // don't ever hide them again.
             ITableColumnDefinition categoryColumnDefinition =
                 this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(StandardTableKeyNames.ErrorCategory);
 
-            this.ErrorListTableControl.SetFilter(
-                StandardTableKeyNames.ErrorCategory,
-                new ColumnHashSetFilter(
-                    categoryColumnDefinition,
-                    BaselineState.Absent.ToString()));
+            if (this.isFirstTimeFilteringAbsentResults)
+            {
+                this.ErrorListTableControl.SetFilter(
+                    StandardTableKeyNames.ErrorCategory,
+                    new ColumnHashSetFilter(
+                        categoryColumnDefinition,
+                        BaselineState.Absent.ToString()));
+
+                this.isFirstTimeFilteringAbsentResults = false;
+            }
         }
 
         private void EnsureHashExists(Artifact artifact)
