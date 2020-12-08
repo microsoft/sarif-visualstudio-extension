@@ -27,11 +27,9 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.TaskStatusCenter;
 
@@ -43,30 +41,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     public class ErrorListService
     {
+        private readonly ColumnFilterer columnFilterer = new ColumnFilterer();
+
         public static readonly ErrorListService Instance = new ErrorListService();
-
-        private IWpfTableControl errorListTableControl;
-
-        // The set of column/
-        private readonly HashSet<FilteredColumnValue> filteredColumnValues = new HashSet<FilteredColumnValue>();
-
-        private IWpfTableControl ErrorListTableControl
-        {
-            // TODO: Inject the table control provider. That means ErrorListService must MEF export a (marker) interface.
-            get
-            {
-                if (this.errorListTableControl == null)
-                {
-                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-
-                    IErrorListTableControlProvider errorListTableControlProvider = componentModel.GetService<IErrorListTableControlProvider>();
-
-                    this.errorListTableControl = errorListTableControlProvider.GetErrorListTableControl();
-                }
-
-                return this.errorListTableControl;
-            }
-        }
 
         internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
 
@@ -557,7 +534,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Creating this table source adds "Suppression State" to the list of available columns.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
 
-            this.FilterOut(
+            this.columnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
                 filteredValue: VSSuppressionState.Suppressed.ToString());
         }
@@ -568,30 +545,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // (Actually, it appears to be there by default, so this might not be necessary:)
             SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
 
-            this.FilterOut(
+            this.columnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,
                 filteredValue: BaselineState.Absent.ToString());
-        }
-
-        // Filter out the specified value from the specified column by default. But do it only once,
-        // because if the user checks the box for that value in the UI, we shouldn't ever turn it
-        // off again.
-        private void FilterOut(string columnName, string filteredValue)
-        {
-            var filteredColumnValue = new FilteredColumnValue(columnName, filteredValue);
-            if (!this.filteredColumnValues.Contains(filteredColumnValue))
-            {
-                ITableColumnDefinition categoryColumnDefinition =
-                    this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(columnName);
-
-                this.ErrorListTableControl.SetFilter(
-                    columnName,
-                    new ColumnHashSetFilter(
-                        categoryColumnDefinition,
-                        BaselineState.Absent.ToString()));
-
-                this.filteredColumnValues.Add(filteredColumnValue);
-            }
         }
 
         private void EnsureHashExists(Artifact artifact)

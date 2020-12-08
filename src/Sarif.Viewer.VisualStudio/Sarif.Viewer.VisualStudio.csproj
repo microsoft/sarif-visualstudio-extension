@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="ErrorList\ColumnFilterer.cs" />
     <Compile Include="ErrorList\ErrorListTableControlProvider.cs" />
     <Compile Include="ErrorList\FilteredColumnValue.cs" />
     <Compile Include="ErrorList\SarifAbsentResultsTableDataSource.cs" />
