@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    // Simple wrapper class that holds an ITableDataSink, and raises an event when
+    // Simple holder class that holds an ITableDataSink, and raises an event when
     // Visual Studio disposes it.
     //
     // When a client such as the viewer calls ITableManager.AddSource to add a new
@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     // To accomplish this, SinkWrapper raises an event when VS disposes it. The
     // receiver must remove the associated sink from the list of sinks it maintains.
     // See SarifTableDataSource.TableSink_Disposed.
-    internal class SinkWrapper : IDisposable
+    internal class SinkHolder : IDisposable
     {
         private bool disposed;
 
@@ -29,13 +29,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public ITableDataSink Sink { get; }
 
         /// <summary>
-        /// Creates a new instance of the SinkWrapper class.
+        /// Creates a new instance of the SinkHolder class.
         /// </summary>
         /// <param name="sink">
         /// A Visual Studio table data sink that will receive notifications about
         /// SARIF error entries.
         /// </param>
-        public SinkWrapper(ITableDataSink sink)
+        public SinkHolder(ITableDataSink sink)
         {
             this.Sink = sink;
         }

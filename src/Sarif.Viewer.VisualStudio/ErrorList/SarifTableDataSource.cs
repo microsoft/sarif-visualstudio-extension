@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private static SarifTableDataSource _instance;
         private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private readonly List<SinkWrapper> sinkWrappers = new List<SinkWrapper>();
+        private readonly List<SinkHolder> sinkWrappers = new List<SinkHolder>();
 
         private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
         private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
@@ -56,7 +56,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public override IDisposable Subscribe(ITableDataSink sink)
         {
-            var sinkWrapper = new SinkWrapper(sink);
+            var sinkWrapper = new SinkHolder(sink);
             sinkWrapper.Disposed += this.TableSink_Disposed;
 
             using (this.sinksLock.EnterWriteLock())
@@ -212,13 +212,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private void CallSinks(Action<ITableDataSink> action)
         {
-            IReadOnlyList<SinkWrapper> sinkWrappers;
+            IReadOnlyList<SinkHolder> sinkWrappers;
             using (this.sinksLock.EnterReadLock())
             {
                 sinkWrappers = this.sinkWrappers.ToImmutableArray();
             }
 
-            foreach (SinkWrapper sinkWrapper in sinkWrappers)
+            foreach (SinkHolder sinkWrapper in sinkWrappers)
             {
                 action(sinkWrapper.Sink);
             }
@@ -264,7 +264,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            if (sender is SinkWrapper sinkWrapper)
+            if (sender is SinkHolder sinkWrapper)
             {
                 sinkWrapper.Disposed -= this.TableSink_Disposed;
 
