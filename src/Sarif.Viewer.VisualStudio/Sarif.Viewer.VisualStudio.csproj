@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="ErrorList\ErrorListTableControlProvider.cs" />
     <Compile Include="ErrorList\SarifAbsentResultsTableDataSource.cs" />
     <Compile Include="ErrorList\SarifTableDataSourceBase.cs" />
     <Compile Include="ErrorList\StubDisposable.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Fixes\FixSuggestedAction.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
+    <Compile Include="ErrorList\IErrorListTableControlProvider.cs" />
     <Compile Include="LogProcessedEventArgs.cs" />
     <Compile Include="ErrorList\SarifSuppressedResultsTableDataSource.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />

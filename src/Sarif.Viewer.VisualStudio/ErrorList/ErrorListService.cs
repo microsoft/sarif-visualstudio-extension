@@ -27,9 +27,11 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.TaskStatusCenter;
 
 using Newtonsoft.Json;
@@ -41,6 +43,26 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         public static readonly ErrorListService Instance = new ErrorListService();
+
+        private IWpfTableControl errorListTableControl;
+
+        private IWpfTableControl ErrorListTableControl
+        {
+            // TODO: Inject the table control provider. That means ErrorListService must MEF export a (marker) interface.
+            get
+            {
+                if (this.errorListTableControl == null)
+                {
+                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+
+                    IErrorListTableControlProvider errorListTableControlProvider = componentModel.GetService<IErrorListTableControlProvider>();
+
+                    this.errorListTableControl = errorListTableControlProvider.GetErrorListTableControl();
+                }
+
+                return this.errorListTableControl;
+            }
+        }
 
         internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
 
@@ -456,6 +478,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
@@ -512,7 +536,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (run.HasSuppressedResults())
             {
-                this.ShowFilteredSuppressionColumn();
+                this.ShowFilteredSuppressionStateColumn();
             }
 
             (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
@@ -524,15 +548,24 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return sarifErrors.Count;
         }
 
-        private void ShowFilteredSuppressionColumn()
+        private void ShowFilteredSuppressionStateColumn()
         {
-            // Creating this table source causes the Suppression State column to appear.
+            // Creating this table source adds "Suppression State" to the list of available columns.
             SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
+
+            ITableColumnDefinition suppressionStateColumnDefinition =
+                this.ErrorListTableControl.ColumnDefinitionManager.GetColumnDefinition(SarifResultTableEntry.SuppressionStateColumnName);
+
+            this.ErrorListTableControl.SetFilter(
+                SarifResultTableEntry.SuppressionStateColumnName,
+                new ColumnHashSetFilter(
+                    suppressionStateColumnDefinition,
+                    VSSuppressionState.Suppressed.ToString()));
         }
 
         private void ShowFilteredCategoryColumn()
         {
-            // Creating this table source causes the Category column to appear.
+            // Creating this table source adds "Category" to the list of available columns.
             SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
         }
 

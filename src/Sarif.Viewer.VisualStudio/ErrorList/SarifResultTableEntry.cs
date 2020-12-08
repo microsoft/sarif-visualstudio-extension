@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
-        private const string SuppressionStateColumnName = "suppression";
+        internal const string SuppressionStateColumnName = "suppression";
 
         private bool isDisposed;
 
