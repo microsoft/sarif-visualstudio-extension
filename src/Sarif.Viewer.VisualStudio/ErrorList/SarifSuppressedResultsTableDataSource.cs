@@ -19,28 +19,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private SarifSuppressedResultsTableDataSource()
         {
-            if (!SarifViewerPackage.IsUnitTesting)
-            {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
-                ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+            ThreadHelper.ThrowIfNotOnUIThread();
 
-                this.Initialize(SarifResultTableEntry.SuppressedResultColumns);
-            }
+            this.Initialize(SarifResultTableEntry.SuppressedResultColumns);
         }
 
-        public static SarifSuppressedResultsTableDataSource Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new SarifSuppressedResultsTableDataSource();
-                }
-
-                return _instance;
-            }
-        }
+        public static SarifSuppressedResultsTableDataSource Instance =>
+            _instance ?? (_instance = new SarifSuppressedResultsTableDataSource());
 
         public override string Identifier => $"{Guids.GuidVSPackageString}-{nameof(SarifSuppressedResultsTableDataSource)}";
 

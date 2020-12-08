@@ -7,7 +7,6 @@ using System.ComponentModel.Composition;
 
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
@@ -26,9 +25,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         [Import]
         private ITableManagerProvider TableManagerProvider { get; set; } = null;
-
-        [ImportMany]
-        private IEnumerable<ITableControlEventProcessorProvider> TableControlEventProcessorProviders { get; set; } = null;
 
         public string SourceTypeIdentifier => StandardTableDataSources.ErrorTableDataSource;
 
@@ -50,12 +46,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (this.TableManagerProvider == null)
                 {
                     this.TableManagerProvider = compositionService.GetService<ITableManagerProvider>();
-                }
-
-                if (this.TableControlEventProcessorProviders == null)
-                {
-                    this.TableControlEventProcessorProviders = new[]
-                        { compositionService.GetService<ITableControlEventProcessorProvider>() };
                 }
 
                 ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);

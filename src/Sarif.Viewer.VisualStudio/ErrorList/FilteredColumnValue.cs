@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
     // Associates an error list column with a value that has been filtered from it.
-    internal class FilteredColumnValue
+    internal struct FilteredColumnValue
     {
         public string ColumnName { get; }
         public string FilteredValue { get; }

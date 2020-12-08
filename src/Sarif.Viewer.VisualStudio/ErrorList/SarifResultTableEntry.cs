@@ -49,20 +49,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         // The "basic" columns are always displayed.
         public static readonly ReadOnlyCollection<string> BasicColumns = new ReadOnlyCollection<string>(new[] {
-            StandardTableKeyNames2.TextInlines,
-            StandardTableKeyNames.DocumentName,
-            StandardTableKeyNames.Line,
-            StandardTableKeyNames.Column,
-            StandardTableKeyNames.Text,
-            StandardTableKeyNames.FullText,
-            StandardTableKeyNames.ErrorSeverity,
-            StandardTableKeyNames.Priority,
-            StandardTableKeyNames.ErrorSource,
-            StandardTableKeyNames.BuildTool,
-            StandardTableKeyNames.ErrorCode,
-            StandardTableKeyNames.ProjectName,
-            StandardTableKeyNames.HelpLink,
-            StandardTableKeyNames.ErrorCodeToolTip
+            StandardTableColumnDefinitions.DocumentName,
+            StandardTableColumnDefinitions.Line,
+            StandardTableColumnDefinitions.Column,
+            StandardTableColumnDefinitions.Text,
+            StandardTableColumnDefinitions.ErrorSeverity,
+            StandardTableColumnDefinitions.Priority,
+            StandardTableColumnDefinitions.ErrorSource,
+            StandardTableColumnDefinitions.BuildTool,
+            StandardTableColumnDefinitions.ErrorCode,
+            StandardTableColumnDefinitions.ProjectName
         });
 
         public static readonly ReadOnlyCollection<string> SuppressedResultColumns = new ReadOnlyCollection<string>(new[]
