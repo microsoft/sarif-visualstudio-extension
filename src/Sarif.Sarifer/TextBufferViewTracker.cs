@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             trackingInformation.Add(textView);
             if (first)
             {
-                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(path, text));
+                FirstViewAdded?.Invoke(this, new FirstViewAddedEventArgs(path, text, trackingInformation.CancellationTokenSource.Token));
             }
         }
 
@@ -61,10 +61,23 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             if (trackingInformation.Views.Count == 0)
             {
                 this.bufferToViewsDictionary.Remove(textView.TextBuffer);
+                trackingInformation.CancellationTokenSource.Dispose();
                 LastViewRemoved?.Invoke(
                     this,
                     new LastViewRemovedEventArgs(trackingInformation.Path));
             }
+        }
+
+        /// <inheritdoc/>
+        public void Clear()
+        {
+            foreach (KeyValuePair<ITextBuffer, TextBufferViewTrackingInformation> item in this.bufferToViewsDictionary)
+            {
+                item.Value.CancellationTokenSource.Cancel();
+                item.Value.CancellationTokenSource.Dispose();
+            }
+
+            this.bufferToViewsDictionary.Clear();
         }
     }
 }

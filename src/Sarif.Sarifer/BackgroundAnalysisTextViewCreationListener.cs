@@ -28,7 +28,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private SarifViewerInterop sarifViewerInterop;
         private bool subscribed;
         private bool disposed;
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 #pragma warning disable IDE0044, CS0649 // Provided by MEF
         [Import]
@@ -77,7 +76,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text, this.cancellationTokenSource.Token)
+            this.backgroundAnalysisService.Value.AnalyzeAsync(e.Path, e.Text, e.CancellationToken)
                 .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
@@ -125,8 +124,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 if (disposing)
                 {
-                    this.cancellationTokenSource.Cancel();
-                    this.cancellationTokenSource.Dispose();
+                    this.textBufferViewTracker.Clear();
                 }
 
                 this.disposed = true;
