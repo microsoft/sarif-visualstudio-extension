@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -28,6 +29,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private bool canAnalyzeFile = true;
 
+        public event EventHandler AnalysisCompleted;
+
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
@@ -53,6 +56,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 DisposeStreams(streams);
             }
+
+            AnalysisCompleted?.Invoke(this, null);
         }
 
         /// <inheritdoc/>
@@ -75,6 +80,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 DisposeStreams(streams);
             }
+
+            AnalysisCompleted?.Invoke(this, null);
             this.canAnalyzeFile = true;
         }
 
