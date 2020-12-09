@@ -529,6 +529,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return sarifErrors.Count;
         }
 
+        // Show the Suppression State column. The first time it is shown, filter out "Suppressed"
+        // results. If the user ever adjusts the filter to show Suppressed results, don't ever
+        // filter them out again during the current VS session. The ColumnFilterer class
+        // implements that behavior.
         private void ShowFilteredSuppressionStateColumn()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -541,6 +545,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 filteredValue: VSSuppressionState.Suppressed.ToString());
         }
 
+        // Show the Category column, which we currently overload to show Baseline State.
+        // The first time it is shown, filter out "Absent" results. If the user ever adjusts
+        // the filter to show Suppressed results, don't ever filter them out again during
+        // the current VS session. The ColumnFilterer class implements that behavior.
         private void ShowFilteredCategoryColumn()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
