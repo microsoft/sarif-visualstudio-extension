@@ -48,11 +48,8 @@
     <Compile Include="ErrorList\ColumnFilterer.cs" />
     <Compile Include="ErrorList\FilteredColumnValue.cs" />
     <Compile Include="ErrorList\BaselineStateTableDataSource.cs" />
-    <Compile Include="ErrorList\ITableDataSourceProvider.cs" />
     <Compile Include="ErrorList\SarifTableDataSourceBase.cs" />
-    <Compile Include="ErrorList\STableDataSourceProvider.cs" />
     <Compile Include="ErrorList\StubDisposable.cs" />
-    <Compile Include="ErrorList\TableDataSourceProvider.cs" />
     <Compile Include="ExceptionalConditions.cs" />
     <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
