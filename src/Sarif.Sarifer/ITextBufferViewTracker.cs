@@ -35,12 +35,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         void AddTextView(ITextView textView, string path, string text);
 
         /// <summary>
-        /// Remove a <see cref="ITextView"/> frpm the list of views for that view's
+        /// Remove a <see cref="ITextView"/> from the list of views for that view's
         /// <see cref="ITextBuffer"/>.
         /// </summary>
         /// <param name="textView">
         /// The <see cref="ITextView"/> to be removed.
         /// </param>
         void RemoveTextView(ITextView textView);
+
+        /// <summary>
+        /// Clear all <see cref="ITextView"/>s tracked.
+        /// </summary>
+        void Clear();
     }
 }

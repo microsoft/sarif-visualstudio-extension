@@ -66,7 +66,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             using (context)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                AnalyzeCommand.AnalyzeTargetHelper(context, this.rules, disabledSkimmers);
+
+                // Filtering file before analyzing.
+                IEnumerable<Skimmer<AnalyzeContext>> applicableSkimmers = AnalyzeCommand.DetermineApplicabilityForTargetHelper(context, this.rules, disabledSkimmers);
+                AnalyzeCommand.AnalyzeTargetHelper(context, applicableSkimmers, disabledSkimmers);
             }
         }
 

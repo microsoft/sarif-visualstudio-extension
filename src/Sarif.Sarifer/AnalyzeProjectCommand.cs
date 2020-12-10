@@ -21,6 +21,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private DTE2 dte;
         private IComponentModel componentModel;
         private IBackgroundAnalysisService backgroundAnalysisService;
+        private readonly IMenuCommandService menuCommandService;
         private CancellationTokenSource cancellationTokenSource;
         private bool disposed;
 
@@ -31,6 +32,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject));
 
             menuCommandService.AddCommand(menuCommand);
+            this.menuCommandService = menuCommandService;
         }
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             if (this.backgroundAnalysisService == null)
             {
                 this.backgroundAnalysisService = this.componentModel.GetService<IBackgroundAnalysisService>();
+                this.backgroundAnalysisService.AnalysisCompleted += this.BackgroundAnalysisService_AnalysisCompleted;
             }
 
             IEnumerable<Project> selectedProjects = (this.dte.ActiveSolutionProjects as object[]).OfType<Project>();
@@ -74,12 +77,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 foreach (Project project in selectedProjects)
                 {
+                    // Disable the menu click when we are analysing.
+                    SariferPackageCommand.DisableAnalyzeCommands(this.menuCommandService);
                     List<string> targetFiles = project.GetMemberFiles();
 
                     this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles, this.cancellationTokenSource.Token)
                         .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
             }
+        }
+
+        private void BackgroundAnalysisService_AnalysisCompleted(object sender, EventArgs e)
+        {
+            SariferPackageCommand.EnableAnalyzeCommands(this.menuCommandService);
         }
 
         protected virtual void Dispose(bool disposing)

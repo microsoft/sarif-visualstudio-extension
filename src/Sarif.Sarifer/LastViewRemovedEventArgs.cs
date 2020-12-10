@@ -17,17 +17,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Initializes a new instance of the <see cref="LastViewRemovedEventArgs"/> class.
         /// </summary>
-        /// <param name="logId">
-        /// The unique id of the SARIF log associated with this text buffer.
+        /// <param name="path">
+        /// The path to the file whose contents are being viewed.
         /// </param>
-        public LastViewRemovedEventArgs(string logId)
+        public LastViewRemovedEventArgs(string path)
         {
-            this.LogId = logId;
+            this.Path = path;
         }
 
         /// <summary>
-        /// Gets the unique id of the SARIF log associated with this text buffer.
+        /// Gets the path to the file whose contents are being viewed, or <c>null</c> if
+        /// <see cref="TextBuffer"/> is not associated with a file.
         /// </summary>
-        public string LogId { get; }
+        public string Path { get; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -18,17 +19,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {
-#pragma warning disable IDE0044, CS0649 // Provided by MEF
+#pragma warning disable CS0649 // Provided by MEF
         [ImportMany]
-        private IEnumerable<IBackgroundAnalyzer> analyzers;
+        private readonly IEnumerable<IBackgroundAnalyzer> analyzers;
 
         [ImportMany]
-        private IEnumerable<IBackgroundAnalysisSink> sinks;
-#pragma warning restore IDE0044, CS0649
+        private readonly IEnumerable<IBackgroundAnalysisSink> sinks;
+#pragma warning restore CS0649
+
+        private bool canAnalyzeFile = true;
+
+        public event EventHandler AnalysisCompleted;
 
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
+            if (!this.canAnalyzeFile)
+            {
+                return;
+            }
+
             var tasks = new List<Task<Stream>>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
@@ -44,6 +54,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
             finally
             {
+                AnalysisCompleted?.Invoke(this, null);
                 DisposeStreams(streams);
             }
         }
@@ -51,6 +62,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <inheritdoc/>
         public async Task AnalyzeAsync(string logId, IEnumerable<string> targetFiles, CancellationToken cancellationToken)
         {
+            this.canAnalyzeFile = false;
             var tasks = new List<Task<Stream>>(this.analyzers.Count());
 
             foreach (IBackgroundAnalyzer analyzer in this.analyzers)
@@ -65,6 +77,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
             finally
             {
+                AnalysisCompleted?.Invoke(this, null);
+                this.canAnalyzeFile = true;
                 DisposeStreams(streams);
             }
         }
