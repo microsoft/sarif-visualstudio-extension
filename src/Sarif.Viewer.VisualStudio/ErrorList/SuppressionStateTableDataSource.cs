@@ -13,21 +13,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     //
     // For an explanation of why these this is necessary, see the comment near the top
     // of SarifResultTableEntry.cs
-    internal class SarifSuppressedResultsTableDataSource : SarifTableDataSourceBase
+    internal class SuppressionStateTableDataSource : SarifTableDataSourceBase
     {
-        private static SarifSuppressedResultsTableDataSource _instance;
+        private static SuppressionStateTableDataSource _instance;
 
-        private SarifSuppressedResultsTableDataSource()
+        private SuppressionStateTableDataSource()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             this.Initialize(SarifResultTableEntry.SuppressedResultColumns);
         }
 
-        public static SarifSuppressedResultsTableDataSource Instance =>
-            _instance ?? (_instance = new SarifSuppressedResultsTableDataSource());
+        public static SuppressionStateTableDataSource Instance =>
+            _instance ?? (_instance = new SuppressionStateTableDataSource());
 
-        public override string Identifier => $"{Guids.GuidVSPackageString}-{nameof(SarifSuppressedResultsTableDataSource)}";
+        public override string Identifier => $"{Guids.GuidVSPackageString}-{nameof(SuppressionStateTableDataSource)}";
 
         public override string DisplayName => Resources.ErrorListSuppressedResultsDataSourceDisplayName;
 

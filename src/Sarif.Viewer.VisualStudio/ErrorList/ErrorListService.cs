@@ -538,7 +538,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // Creating this table source adds "Suppression State" to the list of available columns.
-            SarifSuppressedResultsTableDataSource _ = SarifSuppressedResultsTableDataSource.Instance;
+            SuppressionStateTableDataSource _ = SuppressionStateTableDataSource.Instance;
 
             this.columnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
@@ -555,7 +555,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             // Creating this table source adds "Category" to the list of available columns.
             // (Actually, it appears to be there by default, so this might not be necessary:)
-            SarifAbsentResultsTableDataSource _ = SarifAbsentResultsTableDataSource.Instance;
+            BaselineStateTableDataSource _ = BaselineStateTableDataSource.Instance;
 
             this.columnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,

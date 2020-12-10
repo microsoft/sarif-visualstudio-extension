@@ -13,21 +13,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     //
     // For an explanation of why these this source is necessary, see the comment
     // near the top of SarifResultTableEntry.cs
-    internal class SarifAbsentResultsTableDataSource : SarifTableDataSourceBase
+    internal class BaselineStateTableDataSource : SarifTableDataSourceBase
     {
-        private static SarifAbsentResultsTableDataSource _instance;
+        private static BaselineStateTableDataSource _instance;
 
-        private SarifAbsentResultsTableDataSource()
+        private BaselineStateTableDataSource()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             this.Initialize(SarifResultTableEntry.AbsentResultColumns);
         }
 
-        public static SarifAbsentResultsTableDataSource Instance =>
-            _instance ?? (_instance = new SarifAbsentResultsTableDataSource());
+        public static BaselineStateTableDataSource Instance =>
+            _instance ?? (_instance = new BaselineStateTableDataSource());
 
-        public override string Identifier => $"{Guids.GuidVSPackageString}-{nameof(SarifAbsentResultsTableDataSource)}";
+        public override string Identifier => $"{Guids.GuidVSPackageString}-{nameof(BaselineStateTableDataSource)}";
 
         public override string DisplayName => Resources.ErrorListAbsentResultsDataSourceDisplayName;
 
