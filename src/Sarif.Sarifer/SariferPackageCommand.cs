@@ -9,15 +9,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         public static void DisableAnalyzeCommands(IMenuCommandService menuCommandService)
         {
-            ChangeAnalyzeCommands(menuCommandService, enabled: false);
+            UpdateAnalyzeCommandsState(menuCommandService, enabled: false);
         }
 
         public static void EnableAnalyzeCommands(IMenuCommandService menuCommandService)
         {
-            ChangeAnalyzeCommands(menuCommandService, enabled: true);
+            UpdateAnalyzeCommandsState(menuCommandService, enabled: true);
         }
 
-        private static void ChangeAnalyzeCommands(IMenuCommandService menuCommandService, bool enabled)
+        private static void UpdateAnalyzeCommandsState(IMenuCommandService menuCommandService, bool enabled)
         {
             var analyzeProjectCommandId = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject);
             var analyzeSolutionCommandId = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeSolution);

@@ -18,8 +18,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Initializes a new instance of the <see cref="LastViewRemovedEventArgs"/> class.
         /// </summary>
         /// <param name="path">
-        /// The path to the file whose contents are being viewed, or <c>null</c> if
-        /// <paramref name="textBuffer"/> is not associated with a file.
+        /// The path to the file whose contents are being viewed.
         /// </param>
         public LastViewRemovedEventArgs(string path)
         {
