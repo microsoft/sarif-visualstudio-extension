@@ -31,6 +31,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ISarifLocationTaggerService))]
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
+    [ProvideService(typeof(STableDataSourceProvider))]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         /// <summary>
@@ -68,6 +69,7 @@ namespace Microsoft.Sarif.Viewer
             { typeof(SCloseSarifLogService), new ServiceInformation { Creator = type => new CloseSarifLogService(), Promote = true } },
             { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService (), Promote = false } },
             { typeof(ISarifErrorListEventSelectionService), new ServiceInformation { Creator = type => new SarifErrorListEventProcessor(), Promote = false } },
+            { typeof(STableDataSourceProvider), new ServiceInformation {Creator = type => new TableDataSourceProvider(), Promote = true } },
 
             // Services that are exposed as templates are a bit "different", you expose them as
             // ITextViewCaretListenerService<> and then you have to differentiate them when they are
