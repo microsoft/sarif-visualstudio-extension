@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -18,11 +19,23 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Initializes a new instance of the <see cref="TextBufferViewTrackingInformation"/> class.
         /// </summary>
-        internal TextBufferViewTrackingInformation()
+        internal TextBufferViewTrackingInformation(string filePath)
         {
-            this.Views = new List<ITextView>();
+            this.Path = filePath;
             this.LogId = Guid.NewGuid().ToString();
+            this.Views = new List<ITextView>();
+            this.CancellationTokenSource = new CancellationTokenSource();
         }
+
+        /// <summary>
+        /// Get the path of the file.
+        /// </summary>
+        public string Path { get; }
+
+        /// <summary>
+        /// Gets the CancellationTokenSource.
+        /// </summary>
+        public CancellationTokenSource CancellationTokenSource { get; }
 
         /// <summary>
         /// Get the list of views currently open on the tracked text buffer.
