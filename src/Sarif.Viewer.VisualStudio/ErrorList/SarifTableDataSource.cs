@@ -165,6 +165,18 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     this.logFileToTableEntries.Remove(logFilesToRemove.Key);
                 }
+
+                // checking if logFiles exists in any analysis
+                if (this.logFileToTableEntries.Any(log => log.Value.Any(error => logFiles.Contains(error.Error.FileName))))
+                {
+                    KeyValuePair<string, List<SarifResultTableEntry>> kvp = this.logFileToTableEntries
+                        .First(log => log.Value.Any(error => logFiles.Contains(error.Error.FileName)));
+                    SarifResultTableEntry sarifResult = kvp.Value.First(result => logFiles.Contains(result.Error.FileName));
+                    kvp.Value.Remove(sarifResult);
+                    this.logFileToTableEntries[kvp.Key] = kvp.Value;
+
+                    entriesToRemove.Add(sarifResult);
+                }
             }
 
             this.CallSinks(sink => sink.RemoveEntries(entriesToRemove));

@@ -272,6 +272,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
                     Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
+
+                if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                    .Any(kvp => kvp.Value.SarifErrors
+                        .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true)))
+                {
+                    KeyValuePair<int, RunDataCache> cache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                        .First(kvp => kvp.Value.SarifErrors
+                            .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true));
+                    SarifErrorListItem sarifError = cache.Value.SarifErrors.First(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
+                    cache.Value.SarifErrors.Remove(sarifError);
+
+                    CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
+                }
             }
 
             foreach (int runIdToClear in runIdsToClear)
