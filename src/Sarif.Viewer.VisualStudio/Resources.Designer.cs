@@ -144,6 +144,24 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SARIF Viewer: Absent results &quot;stub&quot; display source.
+        /// </summary>
+        public static string ErrorListAbsentResultsDataSourceDisplayName {
+            get {
+                return ResourceManager.GetString("ErrorListAbsentResultsDataSourceDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SARIF Viewer: Suppressed results &quot;stub&quot; display source.
+        /// </summary>
+        public static string ErrorListSuppressedResultsDataSourceDisplayName {
+            get {
+                return ResourceManager.GetString("ErrorListSuppressedResultsDataSourceDisplayName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SARIF Viewer.
         /// </summary>
         public static string ErrorListTableDataSourceDisplayName {

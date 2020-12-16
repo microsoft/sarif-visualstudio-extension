@@ -30,6 +30,7 @@ using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.TaskStatusCenter;
 
 using Newtonsoft.Json;
@@ -40,6 +41,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     public class ErrorListService
     {
+        private readonly ColumnFilterer columnFilterer = new ColumnFilterer();
+
         public static readonly ErrorListService Instance = new ErrorListService();
 
         internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
@@ -456,13 +459,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
 
-            var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
             var projectNameCache = new ProjectNameCache(dte?.Solution);
 
@@ -505,6 +510,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
+            if (run.HasAbsentResults())
+            {
+                this.ShowFilteredCategoryColumn();
+            }
+
+            if (run.HasSuppressedResults())
+            {
+                this.ShowFilteredSuppressionStateColumn();
+            }
+
             (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
             SarifTableDataSource.Instance.AddErrors(sarifErrors);
 
@@ -512,6 +527,39 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifLocationTagHelpers.RefreshTags();
 
             return sarifErrors.Count;
+        }
+
+        // Show the Suppression State column. The first time it is shown, filter out "Suppressed"
+        // results. If the user ever adjusts the filter to show Suppressed results, don't ever
+        // filter them out again during the current VS session. The ColumnFilterer class
+        // implements that behavior.
+        private void ShowFilteredSuppressionStateColumn()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // Creating this table source adds "Suppression State" to the list of available columns.
+            SuppressionStateTableDataSource _ = SuppressionStateTableDataSource.Instance;
+
+            this.columnFilterer.FilterOut(
+                columnName: SarifResultTableEntry.SuppressionStateColumnName,
+                filteredValue: VSSuppressionState.Suppressed.ToString());
+        }
+
+        // Show the Category column, which we currently overload to show Baseline State.
+        // The first time it is shown, filter out "Absent" results. If the user ever adjusts
+        // the filter to show Suppressed results, don't ever filter them out again during
+        // the current VS session. The ColumnFilterer class implements that behavior.
+        private void ShowFilteredCategoryColumn()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // Creating this table source adds "Category" to the list of available columns.
+            // (Actually, it appears to be there by default, so this might not be necessary:)
+            BaselineStateTableDataSource _ = BaselineStateTableDataSource.Instance;
+
+            this.columnFilterer.FilterOut(
+                columnName: StandardTableKeyNames.ErrorCategory,
+                filteredValue: BaselineState.Absent.ToString());
         }
 
         private void EnsureHashExists(Artifact artifact)
