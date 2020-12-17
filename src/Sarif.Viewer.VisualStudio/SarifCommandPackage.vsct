@@ -71,6 +71,12 @@
       </Button>
       
       <!-- Error list context menu commands -->
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackCommand" priority="0x0080" type="Button">
+        <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
+        <Strings>
+          <ButtonText>Is This Result Useful?</ButtonText>
+        </Strings>
+      </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidClearSarifItemsErrorListCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <Strings>
@@ -99,6 +105,7 @@
     <GuidSymbol name="guidSarifErrorListCmdSet" value="{76648814-13bf-4ecf-ad5c-2a7e2953e62f}">
       <IDSymbol name="ErrorListContextMenuGroup" value="0x1021" />
       <IDSymbol name="cmdidClearSarifItemsErrorListCommand" value="0x0300" />
+      <IDSymbol name="cmdidProvideFeedbackCommand" value="0x0301" />
     </GuidSymbol>
 
   </Symbols>
