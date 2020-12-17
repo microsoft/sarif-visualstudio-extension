@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel.Design;
 
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
@@ -14,9 +15,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal sealed class ErrorListCommand
     {
         /// <summary>
-        /// Command ID.
+        /// Command id for "Clear all SARIF results".
         /// </summary>
         public const int ClearSarifResultsCommandId = 0x0300;
+
+        /// <summary>
+        /// Command id for "Is This Result Useful?".
+        /// </summary>
+        public const int ProvideFeedbackCommandId = 0x0301;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -47,6 +53,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 var menuCommandID = new CommandID(CommandSet, ClearSarifResultsCommandId);
                 var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+                commandService.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(CommandSet, ProvideFeedbackCommandId);
+                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
         }
@@ -89,12 +99,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             MenuCommand menuCommand = (MenuCommand)sender;
 
             switch (menuCommand.CommandID.ID)
             {
                 case ClearSarifResultsCommandId:
                     ErrorListService.CleanAllErrors();
+                    break;
+
+                case ProvideFeedbackCommandId:
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                               "Provide feedback menu item clicked",
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                     break;
             }
         }
