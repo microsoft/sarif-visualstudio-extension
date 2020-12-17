@@ -31,6 +31,15 @@
     group; your package should define its own command set in order to avoid collisions
     with command ids defined by other packages. -->
 
+    <Menus>
+      <Menu guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" priority="0x0080" type="Menu">
+        <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
+        <Strings>
+          <ButtonText>Is This Result Useful?</ButtonText>
+        </Strings>
+      </Menu>
+    </Menus>
+
     <!-- In this section you can define new menu groups. A menu group is a container for
          other menus or buttons (commands); from a visual point of view you can see the
          group as the part of a menu contained between two lines. The parent of a group
@@ -42,16 +51,10 @@
       <Group guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ERRORLIST" />
       </Group>
+      <Group guid="guidSarifErrorListCmdSet" id="FeedbackMenuGroup" priority="0x100">
+        <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
+      </Group>
     </Groups>
-
-    <Menus>
-      <Menu guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" priority="0x0080" type="Menu">
-        <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
-        <Strings>
-          <ButtonText>Is This Result Useful?</ButtonText>
-        </Strings>
-      </Menu>
-    </Menus>
 
     <!--Buttons section. -->
     <!--This section defines the elements the user can interact with, like a menu command or a button
@@ -80,8 +83,8 @@
       </Button>
       
       <!-- Error list context menu commands -->
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideYesFeedbackCommand" priority="0x0080" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideYesFeedbackCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSarifErrorListCmdSet" id="FeedbackMenuGroup" />
         <Strings>
           <ButtonText>Yes</ButtonText>
         </Strings>
@@ -113,6 +116,7 @@
     
     <GuidSymbol name="guidSarifErrorListCmdSet" value="{76648814-13bf-4ecf-ad5c-2a7e2953e62f}">
       <IDSymbol name="ErrorListContextMenuGroup" value="0x1021" />
+      <IDSymbol name="FeedbackMenuGroup" value="0x1022" />
       <IDSymbol name="cmdidClearSarifItemsErrorListCommand" value="0x0300" />
       <IDSymbol name="cmdidProvideFeedbackSubmenu" value="0x0301" />
       <IDSymbol name="cmdidProvideYesFeedbackCommand" value="0x0302" />

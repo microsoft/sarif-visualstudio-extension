@@ -20,9 +20,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int ClearSarifResultsCommandId = 0x0300;
 
         /// <summary>
-        /// Command id for "Is This Result Useful?".
+        /// Command id for "Yes" (this result is useful).
         /// </summary>
-        public const int ProvideFeedbackCommandId = 0x0301;
+        public const int ProvideYesFeedbackCommandId = 0x0302;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -55,7 +55,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, ProvideYesFeedbackCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
@@ -108,9 +108,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     ErrorListService.CleanAllErrors();
                     break;
 
-                case ProvideFeedbackCommandId:
+                case ProvideYesFeedbackCommandId:
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "Provide feedback menu item clicked",
+                               "\"Yes\" menu item clicked",
                                null, // title
                                OLEMSGICON.OLEMSGICON_INFO,
                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
