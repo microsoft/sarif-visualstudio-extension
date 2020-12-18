@@ -51,7 +51,10 @@
       <Group guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ERRORLIST" />
       </Group>
-      <Group guid="guidSarifErrorListCmdSet" id="FeedbackMenuGroup" priority="0x100">
+      <Group guid="guidSarifErrorListCmdSet" id="YesFeedbackMenuGroup" priority="0x100">
+        <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
+      </Group>
+      <Group guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" priority="0x200">
         <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
       </Group>
     </Groups>
@@ -84,9 +87,15 @@
       
       <!-- Error list context menu commands -->
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideYesFeedbackCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="FeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="YesFeedbackMenuGroup" />
         <Strings>
           <ButtonText>Yes</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideFalsePositiveFeedbackCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" />
+        <Strings>
+          <ButtonText>No, False Positive...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidClearSarifItemsErrorListCommand" priority="0x0100" type="Button">
@@ -116,10 +125,12 @@
     
     <GuidSymbol name="guidSarifErrorListCmdSet" value="{76648814-13bf-4ecf-ad5c-2a7e2953e62f}">
       <IDSymbol name="ErrorListContextMenuGroup" value="0x1021" />
-      <IDSymbol name="FeedbackMenuGroup" value="0x1022" />
+      <IDSymbol name="YesFeedbackMenuGroup" value="0x1022" />
+      <IDSymbol name="NoFeedbackMenuGroup" value="0x1023" />
       <IDSymbol name="cmdidClearSarifItemsErrorListCommand" value="0x0300" />
       <IDSymbol name="cmdidProvideFeedbackSubmenu" value="0x0301" />
       <IDSymbol name="cmdidProvideYesFeedbackCommand" value="0x0302" />
+      <IDSymbol name="cmdidProvideFalsePositiveFeedbackCommand" value="0x0303"/>
     </GuidSymbol>
 
   </Symbols>

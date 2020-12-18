@@ -25,6 +25,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int ProvideYesFeedbackCommandId = 0x0302;
 
         /// <summary>
+        /// Command id for "No. False Positive"
+        /// </summary>
+        public const int ProvideFalsePositiveFeedbackCommandId = 0x0303;
+
+        /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
@@ -56,6 +61,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 commandService.AddCommand(menuItem);
 
                 menuCommandID = new CommandID(CommandSet, ProvideYesFeedbackCommandId);
+                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+                commandService.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(CommandSet, ProvideFalsePositiveFeedbackCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
@@ -111,6 +120,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 case ProvideYesFeedbackCommandId:
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                "\"Yes\" menu item clicked",
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    break;
+
+                case ProvideFalsePositiveFeedbackCommandId:
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                               "\"No, False Positive\" menu item clicked",
                                null, // title
                                OLEMSGICON.OLEMSGICON_INFO,
                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
