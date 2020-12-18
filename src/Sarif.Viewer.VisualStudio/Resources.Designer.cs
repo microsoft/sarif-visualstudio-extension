@@ -61,15 +61,6 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to non-shipping code.
-        /// </summary>
-        public static string CodeDoesNotShipFeedbackType {
-            get {
-                return ResourceManager.GetString("CodeDoesNotShipFeedbackType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Done processing SARIF log &apos;{0}&apos; is complete..
         /// </summary>
         public static string CompletedProcessingLogFileFormat {
@@ -200,9 +191,9 @@ namespace Microsoft.Sarif.Viewer {
         /// <summary>
         ///   Looks up a localized string similar to false positive.
         /// </summary>
-        public static string FalsePositiveFeedbackType {
+        public static string FalsePositiveResult {
             get {
-                return ResourceManager.GetString("FalsePositiveFeedbackType", resourceCulture);
+                return ResourceManager.GetString("FalsePositiveResult", resourceCulture);
             }
         }
         
@@ -407,36 +398,45 @@ namespace Microsoft.Sarif.Viewer {
         /// <summary>
         ///   Looks up a localized string similar to low value.
         /// </summary>
-        public static string LowValueFeedbackType {
+        public static string LowValueResult {
             get {
-                return ResourceManager.GetString("LowValueFeedbackType", resourceCulture);
+                return ResourceManager.GetString("LowValueResult", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to non-actionable.
         /// </summary>
-        public static string NotActionableFeedbackType {
+        public static string NonActionableResult {
             get {
-                return ResourceManager.GetString("NotActionableFeedbackType", resourceCulture);
+                return ResourceManager.GetString("NonActionableResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to non-shipping code.
+        /// </summary>
+        public static string NonShippingCodeResult {
+            get {
+                return ResourceManager.GetString("NonShippingCodeResult", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The log file &apos;{0}&apos; was not found..
         /// </summary>
-        public static string OpenLogFileFail_DilogMessage {
+        public static string OpenLogFileFail_DialogMessage {
             get {
-                return ResourceManager.GetString("OpenLogFileFail_DilogMessage", resourceCulture);
+                return ResourceManager.GetString("OpenLogFileFail_DialogMessage", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to other.
         /// </summary>
-        public static string OtherFeedbackType {
+        public static string OtherResult {
             get {
-                return ResourceManager.GetString("OtherFeedbackType", resourceCulture);
+                return ResourceManager.GetString("OtherResult", resourceCulture);
             }
         }
         

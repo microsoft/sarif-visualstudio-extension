@@ -161,7 +161,7 @@
     <value>The log file '{0}' is invalid and couldn't be opened.</value>
     <comment>{0} will be the name of the invalid file that couldn't be opened</comment>
   </data>
-  <data name="OpenLogFileFail_DilogMessage" xml:space="preserve">
+  <data name="OpenLogFileFail_DialogMessage" xml:space="preserve">
     <value>The log file '{0}' was not found.</value>
     <comment>{0} will be the full file path</comment>
   </data>
@@ -311,19 +311,19 @@
   <data name="ErrorListSuppressedResultsDataSourceDisplayName" xml:space="preserve">
     <value>SARIF Viewer: Suppressed results "stub" display source</value>
   </data>
-  <data name="CodeDoesNotShipFeedbackType" xml:space="preserve">
+  <data name="NonShippingCodeResult" xml:space="preserve">
     <value>non-shipping code</value>
   </data>
-  <data name="FalsePositiveFeedbackType" xml:space="preserve">
+  <data name="FalsePositiveResult" xml:space="preserve">
     <value>false positive</value>
   </data>
-  <data name="LowValueFeedbackType" xml:space="preserve">
+  <data name="LowValueResult" xml:space="preserve">
     <value>low value</value>
   </data>
-  <data name="NotActionableFeedbackType" xml:space="preserve">
+  <data name="NonActionableResult" xml:space="preserve">
     <value>non-actionable</value>
   </data>
-  <data name="OtherFeedbackType" xml:space="preserve">
+  <data name="OtherResult" xml:space="preserve">
     <value>other</value>
   </data>
   <data name="ReportResultTitle" xml:space="preserve">

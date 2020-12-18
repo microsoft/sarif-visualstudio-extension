@@ -33,9 +33,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int FalsePositiveResultCommandId = 0x0303;
 
         /// <summary>
-        /// Command id for "Not actionable"
+        /// Command id for "Non-actionable"
         /// </summary>
-        public const int NonactionableResultCommandId = 0x0304;
+        public const int NonActionableResultCommandId = 0x0304;
 
         /// <summary>
         /// Command id for "Low value"
@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <summary>
         /// Command id for "Non-shipping code"
         /// </summary>
-        public const int NonshippingCodeResultCommandId = 0x0306;
+        public const int NonShippingCodeResultCommandId = 0x0306;
 
         /// <summary>
         /// Command id for "Other"
@@ -63,50 +63,44 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private readonly Package package;
 
         /// <summary>
+        /// Service for accessing menu commands.
+        /// </summary>
+        private readonly IMenuCommandService menuCommandService;
+
+        /// <summary>
+        /// Service that provides access to the currently selected Error List item, if any.
+        /// </summary>
+        private readonly ISarifErrorListEventSelectionService selectionService;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ErrorListCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file)
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         private ErrorListCommand(Package package)
         {
-            if (package == null)
-            {
-                throw new ArgumentNullException(nameof(package));
-            }
+            this.package = package ?? throw new ArgumentNullException(nameof(package));
 
-            this.package = package;
+            this.menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as IMenuCommandService;
+            Assumes.Present(this.menuCommandService);
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (commandService != null)
-            {
-                var menuCommandID = new CommandID(CommandSet, ClearSarifResultsCommandId);
-                var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
+            this.AddMenuItem(ClearSarifResultsCommandId);
+            this.AddMenuItem(UsefulResultCommandId);
+            this.AddMenuItem(FalsePositiveResultCommandId);
+            this.AddMenuItem(NonActionableResultCommandId);
+            this.AddMenuItem(LowValueResultCommandId);
+            this.AddMenuItem(NonShippingCodeResultCommandId);
+            this.AddMenuItem(OtherResultCommandId);
 
-                menuCommandID = new CommandID(CommandSet, UsefulResultCommandId);
-                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
+            this.selectionService = this.ServiceProvider.GetService(typeof(ISarifErrorListEventSelectionService)) as ISarifErrorListEventSelectionService;
+            Assumes.Present(this.selectionService);
+        }
 
-                menuCommandID = new CommandID(CommandSet, FalsePositiveResultCommandId);
-                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
-
-                menuCommandID = new CommandID(CommandSet, NonactionableResultCommandId);
-                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
-
-                menuCommandID = new CommandID(CommandSet, LowValueResultCommandId);
-                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
-
-                menuCommandID = new CommandID(CommandSet, NonshippingCodeResultCommandId);
-                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
-
-                menuCommandID = new CommandID(CommandSet, OtherResultCommandId);
-                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-                commandService.AddCommand(menuItem);
-            }
+        private void AddMenuItem(int commandId)
+        {
+            var menuCommandID = new CommandID(CommandSet, commandId);
+            var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+            this.menuCommandService.AddCommand(menuItem);
         }
 
         /// <summary>
@@ -148,8 +142,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private void MenuItemCallback(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            MenuCommand menuCommand = (MenuCommand)sender;
 
+            if (this.selectionService.SelectedItem == null)
+            {
+                //return;
+            }
+
+            MenuCommand menuCommand = (MenuCommand)sender;
             switch (menuCommand.CommandID.ID)
             {
                 case ClearSarifResultsCommandId:
@@ -166,9 +165,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     break;
 
                 case FalsePositiveResultCommandId:
-                case NonactionableResultCommandId:
+                case NonActionableResultCommandId:
                 case LowValueResultCommandId:
-                case NonshippingCodeResultCommandId:
+                case NonShippingCodeResultCommandId:
                 case OtherResultCommandId:
                     DisplayFeedbackDialog(menuCommand.CommandID.ID);
                     break;
@@ -182,11 +181,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private static readonly ReadOnlyDictionary<int, string> s_feedbackTypeDictionary = new ReadOnlyDictionary<int, string>(
             new Dictionary<int, string>
             {
-                [FalsePositiveResultCommandId] = Resources.FalsePositiveFeedbackType,
-                [NonactionableResultCommandId] = Resources.NotActionableFeedbackType,
-                [LowValueResultCommandId] = Resources.LowValueFeedbackType,
-                [NonshippingCodeResultCommandId] = Resources.CodeDoesNotShipFeedbackType,
-                [OtherResultCommandId] = Resources.OtherFeedbackType
+                [FalsePositiveResultCommandId] = Resources.FalsePositiveResult,
+                [NonActionableResultCommandId] = Resources.NonActionableResult,
+                [LowValueResultCommandId] = Resources.LowValueResult,
+                [NonShippingCodeResultCommandId] = Resources.NonShippingCodeResult,
+                [OtherResultCommandId] = Resources.OtherResult
             });
 
         private static void DisplayFeedbackDialog(int commandId)

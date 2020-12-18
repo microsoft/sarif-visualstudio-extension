@@ -490,7 +490,7 @@ namespace Microsoft.Sarif.Viewer
                 else
                 {
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                                                    string.Format(Resources.OpenLogFileFail_DilogMessage, LogFilePath),
+                                                    string.Format(Resources.OpenLogFileFail_DialogMessage, LogFilePath),
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_CRITICAL,
                                                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
