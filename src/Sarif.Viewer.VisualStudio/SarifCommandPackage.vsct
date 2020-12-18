@@ -35,7 +35,7 @@
       <Menu guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" priority="0x0080" type="Menu">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <Strings>
-          <ButtonText>Is This Result Useful?</ButtonText>
+          <ButtonText>Provide feedback on result</ButtonText>
         </Strings>
       </Menu>
     </Menus>
@@ -51,10 +51,10 @@
       <Group guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ERRORLIST" />
       </Group>
-      <Group guid="guidSarifErrorListCmdSet" id="YesFeedbackMenuGroup" priority="0x100">
+      <Group guid="guidSarifErrorListCmdSet" id="UsefulResultMenuGroup" priority="0x100">
         <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
       </Group>
-      <Group guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" priority="0x200">
+      <Group guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" priority="0x200">
         <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
       </Group>
     </Groups>
@@ -87,45 +87,45 @@
       
       <!-- Error list context menu commands -->
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideYesFeedbackCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="YesFeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="UsefulResultMenuGroup" />
         <Strings>
-          <ButtonText>Yes</ButtonText>
+          <ButtonText>Useful</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideFalsePositiveFeedbackCommand" priority="0x0100" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
-          <ButtonText>No, False Positive...</ButtonText>
+          <ButtonText>False positive...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideNotActionableFeedbackCommand" priority="0x0200" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
-          <ButtonText>No, Not Actionable...</ButtonText>
+          <ButtonText>Not actionable...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideLowValueFeedbackCommand" priority="0x0300" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
-          <ButtonText>No, Low Value...</ButtonText>
+          <ButtonText>Low value...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideCodeDoesNotShipFeedbackCommand" priority="0x0400" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
-          <ButtonText>No, Code Does Not Ship...</ButtonText>
+          <ButtonText>Occurs in non-shipping code...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideOtherFeedbackCommand" priority="0x0500" type="Button">
-        <Parent guid="guidSarifErrorListCmdSet" id="NoFeedbackMenuGroup" />
+        <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
-          <ButtonText>No, Other...</ButtonText>
+          <ButtonText>Other...</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidClearSarifItemsErrorListCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <Strings>
-          <ButtonText>Clear All SARIF Results</ButtonText>
+          <ButtonText>Clear all SARIF results</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -149,8 +149,8 @@
     
     <GuidSymbol name="guidSarifErrorListCmdSet" value="{76648814-13bf-4ecf-ad5c-2a7e2953e62f}">
       <IDSymbol name="ErrorListContextMenuGroup" value="0x1021" />
-      <IDSymbol name="YesFeedbackMenuGroup" value="0x1022" />
-      <IDSymbol name="NoFeedbackMenuGroup" value="0x1023" />
+      <IDSymbol name="UsefulResultMenuGroup" value="0x1022" />
+      <IDSymbol name="NonusefulResultMenuGroup" value="0x1023" />
       <IDSymbol name="cmdidClearSarifItemsErrorListCommand" value="0x0300" />
       <IDSymbol name="cmdidProvideFeedbackSubmenu" value="0x0301" />
       <IDSymbol name="cmdidProvideYesFeedbackCommand" value="0x0302" />

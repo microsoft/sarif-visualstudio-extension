@@ -312,21 +312,21 @@
     <value>SARIF Viewer: Suppressed results "stub" display source</value>
   </data>
   <data name="CodeDoesNotShipFeedbackType" xml:space="preserve">
-    <value>Code Does Not Ship</value>
+    <value>non-shipping code</value>
   </data>
   <data name="FalsePositiveFeedbackType" xml:space="preserve">
-    <value>False Positive</value>
+    <value>false positive</value>
   </data>
   <data name="LowValueFeedbackType" xml:space="preserve">
-    <value>Low Value</value>
+    <value>low value</value>
   </data>
   <data name="NotActionableFeedbackType" xml:space="preserve">
-    <value>Not Actionable</value>
+    <value>non-actionable</value>
   </data>
   <data name="OtherFeedbackType" xml:space="preserve">
-    <value>Other</value>
+    <value>other</value>
   </data>
   <data name="ReportResultTitle" xml:space="preserve">
-    <value>Report "{0}" Result</value>
+    <value>Report {0} result</value>
   </data>
 </root>

@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Code Does Not Ship.
+        ///   Looks up a localized string similar to non-shipping code.
         /// </summary>
         public static string CodeDoesNotShipFeedbackType {
             get {
@@ -198,7 +198,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to False Positive.
+        ///   Looks up a localized string similar to false positive.
         /// </summary>
         public static string FalsePositiveFeedbackType {
             get {
@@ -405,7 +405,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Low Value.
+        ///   Looks up a localized string similar to low value.
         /// </summary>
         public static string LowValueFeedbackType {
             get {
@@ -414,7 +414,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Not Actionable.
+        ///   Looks up a localized string similar to non-actionable.
         /// </summary>
         public static string NotActionableFeedbackType {
             get {
@@ -432,7 +432,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Other.
+        ///   Looks up a localized string similar to other.
         /// </summary>
         public static string OtherFeedbackType {
             get {
@@ -468,7 +468,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report &quot;{0}&quot; Result.
+        ///   Looks up a localized string similar to Report {0} result.
         /// </summary>
         public static string ReportResultTitle {
             get {
