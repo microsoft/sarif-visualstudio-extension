@@ -10,9 +10,11 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             this.RuleId = ruleId;
             this.SendSnippet = true;
+            this.Comment = string.Empty;
         }
 
         public string RuleId { get; }
         public bool SendSnippet { get; set; }
+        public string Comment { get; set; }
     }
 }
