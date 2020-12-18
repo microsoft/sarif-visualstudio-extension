@@ -23,34 +23,34 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int ClearSarifResultsCommandId = 0x0300;
 
         /// <summary>
-        /// Command id for "Yes" (this result is useful).
+        /// Command id for "Useful result".
         /// </summary>
-        public const int ProvideYesFeedbackCommandId = 0x0302;
+        public const int UsefulResultCommandId = 0x0302;
 
         /// <summary>
-        /// Command id for "No, False Positive"
+        /// Command id for "False positive"
         /// </summary>
-        public const int ProvideFalsePositiveFeedbackCommandId = 0x0303;
+        public const int FalsePositiveResultCommandId = 0x0303;
 
         /// <summary>
-        /// Command id for "No, Not Actionable"
+        /// Command id for "Not actionable"
         /// </summary>
-        public const int ProvideNotActionableFeedbackCommandId = 0x0304;
+        public const int NonactionableResultCommandId = 0x0304;
 
         /// <summary>
-        /// Command id for "No, Low Value"
+        /// Command id for "Low value"
         /// </summary>
-        public const int ProvideLowValueFeedbackCommandId = 0x0305;
+        public const int LowValueResultCommandId = 0x0305;
 
         /// <summary>
-        /// Command id for "No, Code Does Not Ship"
+        /// Command id for "Non-shipping code"
         /// </summary>
-        public const int ProvideCodeDoesNotShipFeedbackCommandId = 0x0306;
+        public const int NonshippingCodeResultCommandId = 0x0306;
 
         /// <summary>
-        /// Command id for "No, Other"
+        /// Command id for "Other"
         /// </summary>
-        public const int ProvideOtherFeedbackCommandId = 0x0307;
+        public const int OtherResultCommandId = 0x0307;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -83,27 +83,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideYesFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, UsefulResultCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideFalsePositiveFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, FalsePositiveResultCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideNotActionableFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, NonactionableResultCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideLowValueFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, LowValueResultCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideCodeDoesNotShipFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, NonshippingCodeResultCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
 
-                menuCommandID = new CommandID(CommandSet, ProvideOtherFeedbackCommandId);
+                menuCommandID = new CommandID(CommandSet, OtherResultCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
@@ -156,7 +156,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     ErrorListService.CleanAllErrors();
                     break;
 
-                case ProvideYesFeedbackCommandId:
+                case UsefulResultCommandId:
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                "\"Yes\" menu item clicked",
                                null, // title
@@ -165,11 +165,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                     break;
 
-                case ProvideFalsePositiveFeedbackCommandId:
-                case ProvideNotActionableFeedbackCommandId:
-                case ProvideLowValueFeedbackCommandId:
-                case ProvideCodeDoesNotShipFeedbackCommandId:
-                case ProvideOtherFeedbackCommandId:
+                case FalsePositiveResultCommandId:
+                case NonactionableResultCommandId:
+                case LowValueResultCommandId:
+                case NonshippingCodeResultCommandId:
+                case OtherResultCommandId:
                     DisplayFeedbackDialog(menuCommand.CommandID.ID);
                     break;
 
@@ -182,11 +182,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private static readonly ReadOnlyDictionary<int, string> s_feedbackTypeDictionary = new ReadOnlyDictionary<int, string>(
             new Dictionary<int, string>
             {
-                [ProvideFalsePositiveFeedbackCommandId] = Resources.FalsePositiveFeedbackType,
-                [ProvideNotActionableFeedbackCommandId] = Resources.NotActionableFeedbackType,
-                [ProvideLowValueFeedbackCommandId] = Resources.LowValueFeedbackType,
-                [ProvideCodeDoesNotShipFeedbackCommandId] = Resources.CodeDoesNotShipFeedbackType,
-                [ProvideOtherFeedbackCommandId] = Resources.OtherFeedbackType
+                [FalsePositiveResultCommandId] = Resources.FalsePositiveFeedbackType,
+                [NonactionableResultCommandId] = Resources.NotActionableFeedbackType,
+                [LowValueResultCommandId] = Resources.LowValueFeedbackType,
+                [NonshippingCodeResultCommandId] = Resources.CodeDoesNotShipFeedbackType,
+                [OtherResultCommandId] = Resources.OtherFeedbackType
             });
 
         private static void DisplayFeedbackDialog(int commandId)

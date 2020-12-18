@@ -86,37 +86,37 @@
       </Button>
       
       <!-- Error list context menu commands -->
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideYesFeedbackCommand" priority="0x0100" type="Button">
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidUsefulResultCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="UsefulResultMenuGroup" />
         <Strings>
           <ButtonText>Useful</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideFalsePositiveFeedbackCommand" priority="0x0100" type="Button">
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidFalsePositiveResultCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
           <ButtonText>False positive...</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideNotActionableFeedbackCommand" priority="0x0200" type="Button">
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidNonactionableResultCommand" priority="0x0200" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
           <ButtonText>Not actionable...</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideLowValueFeedbackCommand" priority="0x0300" type="Button">
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidLowValueResultCommand" priority="0x0300" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
           <ButtonText>Low value...</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideCodeDoesNotShipFeedbackCommand" priority="0x0400" type="Button">
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidNonshippingCodeResultCommand" priority="0x0400" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
           <ButtonText>Occurs in non-shipping code...</ButtonText>
         </Strings>
       </Button>
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidProvideOtherFeedbackCommand" priority="0x0500" type="Button">
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidOtherResultCommand" priority="0x0500" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="NonusefulResultMenuGroup" />
         <Strings>
           <ButtonText>Other...</ButtonText>
@@ -153,12 +153,12 @@
       <IDSymbol name="NonusefulResultMenuGroup" value="0x1023" />
       <IDSymbol name="cmdidClearSarifItemsErrorListCommand" value="0x0300" />
       <IDSymbol name="cmdidProvideFeedbackSubmenu" value="0x0301" />
-      <IDSymbol name="cmdidProvideYesFeedbackCommand" value="0x0302" />
-      <IDSymbol name="cmdidProvideFalsePositiveFeedbackCommand" value="0x0303"/>
-      <IDSymbol name="cmdidProvideNotActionableFeedbackCommand" value="0x0304"/>
-      <IDSymbol name="cmdidProvideLowValueFeedbackCommand" value="0x0305"/>
-      <IDSymbol name="cmdidProvideCodeDoesNotShipFeedbackCommand" value="0x0306"/>
-      <IDSymbol name="cmdidProvideOtherFeedbackCommand" value="0x0307"/>
+      <IDSymbol name="cmdidUsefulResultCommand" value="0x0302" />
+      <IDSymbol name="cmdidFalsePositiveResultCommand" value="0x0303"/>
+      <IDSymbol name="cmdidNonactionableResultCommand" value="0x0304"/>
+      <IDSymbol name="cmdidLowValueResultCommand" value="0x0305"/>
+      <IDSymbol name="cmdidNonshippingCodeResultCommand" value="0x0306"/>
+      <IDSymbol name="cmdidOtherResultCommand" value="0x0307"/>
     </GuidSymbol>
 
   </Symbols>
