@@ -4,18 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Microsoft.Sarif.Viewer.Controls"
-             mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="300">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="50" />
-        </Grid.RowDefinitions>
-        <CheckBox Grid.Row="0" Margin="10">Send code snippet from file?</CheckBox>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+             mc:Ignorable="d" >
+    <StackPanel>
+        <CheckBox Margin="10">Send code snippet from file?</CheckBox>
+        <Label Margin="10,0,0,0" Padding="0">Comments:</Label>
+        <TextBox
+            Height="300"
+            Width="350"
+            TextWrapping="Wrap"
+            AcceptsReturn="True"
+            Margin="10,5,10,10"
+            VerticalScrollBarVisibility="Auto" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
             <Button Width="100" Height="30" Margin="10">Report</Button>
             <Button Width="100" Height="30" Margin="10">Cancel</Button>
         </StackPanel>
-    </Grid>
+    </StackPanel>
 </UserControl>
