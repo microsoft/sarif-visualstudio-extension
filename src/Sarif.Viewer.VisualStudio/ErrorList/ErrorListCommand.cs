@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.Design;
 
+using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -146,6 +147,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             MenuCommand menuCommand = (MenuCommand)sender;
+            FeedbackDialog feedbackDialog;
 
             switch (menuCommand.CommandID.ID)
             {
@@ -163,50 +165,33 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     break;
 
                 case ProvideFalsePositiveFeedbackCommandId:
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"No, False Positive\" menu item clicked",
-                               null, // title
-                               OLEMSGICON.OLEMSGICON_INFO,
-                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.FalsePositiveFeedbackType));
+                    feedbackDialog.ShowModal();
                     break;
 
                 case ProvideNotActionableFeedbackCommandId:
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"No, Not Actionable\" menu item clicked",
-                               null, // title
-                               OLEMSGICON.OLEMSGICON_INFO,
-                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.NotActionableFeedbackType));
+                    feedbackDialog.ShowModal();
                     break;
 
                 case ProvideLowValueFeedbackCommandId:
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"No, Low Value\" menu item clicked",
-                               null, // title
-                               OLEMSGICON.OLEMSGICON_INFO,
-                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.LowValueFeedbackType));
+                    feedbackDialog.ShowModal();
                     break;
 
                 case ProvideCodeDoesNotShipFeedbackCommandId:
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"No, Code Does Not Ship\" menu item clicked",
-                               null, // title
-                               OLEMSGICON.OLEMSGICON_INFO,
-                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.CodeDoesNotShipFeedbackType));
+                    feedbackDialog.ShowModal();
                     break;
 
                 case ProvideOtherFeedbackCommandId:
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"No, Other\" menu item clicked",
-                               null, // title
-                               OLEMSGICON.OLEMSGICON_INFO,
-                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.OtherFeedbackType));
+                    feedbackDialog.ShowModal();
                     break;
             }
         }
+
+        private static string CreateTitle(string feedbackType) =>
+            string.Format(Resources.ReportResultTitle, feedbackType);
     }
 }

@@ -44,6 +44,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\FeedbackControl.xaml.cs">
+      <DependentUpon>FeedbackControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FeedbackDialog.cs" />
     <Compile Include="Controls\InfoBar.cs" />
     <Compile Include="ErrorList\ColumnFilterer.cs" />
     <Compile Include="ErrorList\FilteredColumnValue.cs" />
@@ -252,6 +256,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\FeedbackControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\InternetHyperlink.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

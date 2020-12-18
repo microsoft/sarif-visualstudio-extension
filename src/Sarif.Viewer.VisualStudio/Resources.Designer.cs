@@ -61,6 +61,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Code Does Not Ship.
+        /// </summary>
+        public static string CodeDoesNotShipFeedbackType {
+            get {
+                return ResourceManager.GetString("CodeDoesNotShipFeedbackType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Done processing SARIF log &apos;{0}&apos; is complete..
         /// </summary>
         public static string CompletedProcessingLogFileFormat {
@@ -185,6 +194,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string ErrorLogHasErrorLevelToolExecutionNotifications {
             get {
                 return ResourceManager.GetString("ErrorLogHasErrorLevelToolExecutionNotifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to False Positive.
+        /// </summary>
+        public static string FalsePositiveFeedbackType {
+            get {
+                return ResourceManager.GetString("FalsePositiveFeedbackType", resourceCulture);
             }
         }
         
@@ -387,11 +405,38 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Low Value.
+        /// </summary>
+        public static string LowValueFeedbackType {
+            get {
+                return ResourceManager.GetString("LowValueFeedbackType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Actionable.
+        /// </summary>
+        public static string NotActionableFeedbackType {
+            get {
+                return ResourceManager.GetString("NotActionableFeedbackType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The log file &apos;{0}&apos; was not found..
         /// </summary>
         public static string OpenLogFileFail_DilogMessage {
             get {
                 return ResourceManager.GetString("OpenLogFileFail_DilogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        public static string OtherFeedbackType {
+            get {
+                return ResourceManager.GetString("OtherFeedbackType", resourceCulture);
             }
         }
         
@@ -419,6 +464,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string ProcessLogFilesComplete {
             get {
                 return ResourceManager.GetString("ProcessLogFilesComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report &quot;{0}&quot; Result.
+        /// </summary>
+        public static string ReportResultTitle {
+            get {
+                return ResourceManager.GetString("ReportResultTitle", resourceCulture);
             }
         }
         

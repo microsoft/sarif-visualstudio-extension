@@ -311,4 +311,22 @@
   <data name="ErrorListSuppressedResultsDataSourceDisplayName" xml:space="preserve">
     <value>SARIF Viewer: Suppressed results "stub" display source</value>
   </data>
+  <data name="CodeDoesNotShipFeedbackType" xml:space="preserve">
+    <value>Code Does Not Ship</value>
+  </data>
+  <data name="FalsePositiveFeedbackType" xml:space="preserve">
+    <value>False Positive</value>
+  </data>
+  <data name="LowValueFeedbackType" xml:space="preserve">
+    <value>Low Value</value>
+  </data>
+  <data name="NotActionableFeedbackType" xml:space="preserve">
+    <value>Not Actionable</value>
+  </data>
+  <data name="OtherFeedbackType" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ReportResultTitle" xml:space="preserve">
+    <value>Report "{0}" Result</value>
+  </data>
 </root>
