@@ -468,7 +468,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report {0} result.
+        ///   Looks up a localized string similar to Report {0} result: {1}.
         /// </summary>
         public static string ReportResultTitle {
             get {

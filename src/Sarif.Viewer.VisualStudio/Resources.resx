@@ -327,6 +327,6 @@
     <value>other</value>
   </data>
   <data name="ReportResultTitle" xml:space="preserve">
-    <value>Report {0} result</value>
+    <value>Report {0} result: {1}</value>
   </data>
 </root>

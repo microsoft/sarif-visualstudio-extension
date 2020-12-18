@@ -171,7 +171,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 case LowValueResultCommandId:
                 case NonShippingCodeResultCommandId:
                 case OtherResultCommandId:
-                    DisplayFeedbackDialog(menuCommand.CommandID.ID);
+                    DisplayFeedbackDialog(menuCommand.CommandID.ID, this.selectionService.SelectedItem);
                     break;
 
                 default:
@@ -190,11 +190,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 [OtherResultCommandId] = Resources.OtherResult
             });
 
-        private static void DisplayFeedbackDialog(int commandId)
+        private static void DisplayFeedbackDialog(int commandId, SarifErrorListItem sarifErrorListItem)
         {
             string feedbackType = s_feedbackTypeDictionary[commandId];
-            string title = string.Format(Resources.ReportResultTitle, feedbackType);
-            var feedbackDialog = new FeedbackDialog(title);
+            string title = string.Format(Resources.ReportResultTitle, feedbackType, sarifErrorListItem.Rule.Id);
+            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem);
             feedbackDialog.ShowModal();
         }
     }

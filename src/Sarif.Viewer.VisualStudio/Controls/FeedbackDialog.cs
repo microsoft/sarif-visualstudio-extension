@@ -9,11 +9,15 @@ namespace Microsoft.Sarif.Viewer.Controls
 {
     internal class FeedbackDialog : DialogWindow
     {
-        public FeedbackDialog(string title)
+        private readonly SarifErrorListItem sarifErrorListItem;
+
+        public FeedbackDialog(string title, SarifErrorListItem sarifErrorListItem)
         {
             this.Title = title;
             this.SizeToContent = SizeToContent.WidthAndHeight;
             this.Content = new FeedbackControl();
+
+            this.sarifErrorListItem = sarifErrorListItem;
         }
     }
 }
