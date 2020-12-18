@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Microsoft.Sarif.Viewer.Controls"
              mc:Ignorable="d" >
     <StackPanel>
-        <CheckBox Margin="10">Send code snippet from file?</CheckBox>
+        <CheckBox Margin="10" IsChecked="True">Send code snippet from file?</CheckBox>
         <Label Margin="10,0,0,0" Padding="0">Comments:</Label>
         <TextBox
             Height="300"

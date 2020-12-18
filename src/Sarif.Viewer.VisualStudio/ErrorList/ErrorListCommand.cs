@@ -148,7 +148,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 //return;
             }
 
-            MenuCommand menuCommand = (MenuCommand)sender;
+            var menuCommand = (MenuCommand)sender;
             switch (menuCommand.CommandID.ID)
             {
                 case ClearSarifResultsCommandId:
@@ -157,7 +157,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 case UsefulResultCommandId:
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"Yes\" menu item clicked",
+                               "\"Useful result\" menu item clicked",
                                null, // title
                                OLEMSGICON.OLEMSGICON_INFO,
                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
