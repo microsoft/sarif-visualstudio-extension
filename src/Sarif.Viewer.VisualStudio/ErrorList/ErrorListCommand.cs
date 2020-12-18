@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 
 using Microsoft.Sarif.Viewer.Controls;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -67,9 +68,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         private readonly IMenuCommandService menuCommandService;
 
-        /// <summary>
-        /// Service that provides access to the currently selected Error List item, if any.
-        /// </summary>
+        // Service that provides access to the currently selected Error List item, if any.
         private readonly ISarifErrorListEventSelectionService selectionService;
 
         /// <summary>
@@ -92,15 +91,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.AddMenuItem(NonShippingCodeResultCommandId);
             this.AddMenuItem(OtherResultCommandId);
 
-            this.selectionService = this.ServiceProvider.GetService(typeof(ISarifErrorListEventSelectionService)) as ISarifErrorListEventSelectionService;
-            Assumes.Present(this.selectionService);
-        }
+            var componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
+            Assumes.Present(componentModel);
 
-        private void AddMenuItem(int commandId)
-        {
-            var menuCommandID = new CommandID(CommandSet, commandId);
-            var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
-            this.menuCommandService.AddCommand(menuItem);
+            this.selectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+            Assumes.Present(this.selectionService);
         }
 
         /// <summary>
@@ -132,6 +127,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             Instance = new ErrorListCommand(package);
         }
 
+        private void AddMenuItem(int commandId)
+        {
+            var menuCommandID = new CommandID(CommandSet, commandId);
+            var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+            this.menuCommandService.AddCommand(menuItem);
+        }
+
         /// <summary>
         /// This function is the callback used to execute the command when the menu item is clicked.
         /// See the constructor to see how the menu item is associated with this function using
@@ -145,7 +147,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (this.selectionService.SelectedItem == null)
             {
-                //return;
+                return;
             }
 
             var menuCommand = (MenuCommand)sender;

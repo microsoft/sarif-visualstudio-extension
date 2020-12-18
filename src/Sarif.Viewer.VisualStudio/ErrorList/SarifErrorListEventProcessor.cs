@@ -22,6 +22,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private SarifErrorListItem currentlySelectedItem;
         private SarifErrorListItem currentlyNavigatedItem;
 
+        internal SarifErrorListEventProcessor()
+        {
+        }
+
         #region ISarifErrorListEventSelectionService
         /// <inheritdoc/>
         public SarifErrorListItem SelectedItem
