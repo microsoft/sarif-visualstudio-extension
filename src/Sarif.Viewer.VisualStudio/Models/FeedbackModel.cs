@@ -9,8 +9,10 @@ namespace Microsoft.Sarif.Viewer.Models
         public FeedbackModel(string ruleId)
         {
             this.RuleId = ruleId;
+            this.SendSnippet = true;
         }
 
         public string RuleId { get; }
+        public bool SendSnippet { get; set; }
     }
 }
