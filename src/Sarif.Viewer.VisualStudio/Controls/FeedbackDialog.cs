@@ -3,6 +3,8 @@
 
 using Microsoft.VisualStudio.PlatformUI;
 
+using System.Windows;
+
 namespace Microsoft.Sarif.Viewer.Controls
 {
     internal class FeedbackDialog : DialogWindow
@@ -10,6 +12,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         public FeedbackDialog(string title)
         {
             this.Title = title;
+            this.SizeToContent = SizeToContent.WidthAndHeight;
             this.Content = new FeedbackControl();
         }
     }
