@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 
 using Microsoft.Sarif.Viewer.Controls;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -176,21 +177,33 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private static readonly ReadOnlyDictionary<int, string> s_feedbackTypeDictionary = new ReadOnlyDictionary<int, string>(
-            new Dictionary<int, string>
+        private struct FeedbackInfo
+        {
+            public readonly string Description;
+            public readonly FeedbackType FeedbackType;
+
+            public FeedbackInfo(string description, FeedbackType feedbackType)
             {
-                [FalsePositiveResultCommandId] = Resources.FalsePositiveResult,
-                [NonActionableResultCommandId] = Resources.NonActionableResult,
-                [LowValueResultCommandId] = Resources.LowValueResult,
-                [NonShippingCodeResultCommandId] = Resources.NonShippingCodeResult,
-                [OtherResultCommandId] = Resources.OtherResult
+                this.Description = description;
+                this.FeedbackType = feedbackType;
+            }
+        }
+
+        private static readonly ReadOnlyDictionary<int, FeedbackInfo> s_commandToResultDescriptionDictionary = new ReadOnlyDictionary<int, FeedbackInfo>(
+            new Dictionary<int, FeedbackInfo>
+            {
+                [FalsePositiveResultCommandId] = new FeedbackInfo(Resources.FalsePositiveResult, FeedbackType.FalsePositiveResult),
+                [NonActionableResultCommandId] = new FeedbackInfo(Resources.NonActionableResult, FeedbackType.NonActionableResult),
+                [LowValueResultCommandId] = new FeedbackInfo(Resources.LowValueResult, FeedbackType.LowValueResult),
+                [NonShippingCodeResultCommandId] = new FeedbackInfo(Resources.NonShippingCodeResult, FeedbackType.NonShippingCodeResult),
+                [OtherResultCommandId] = new FeedbackInfo(Resources.OtherResult, FeedbackType.OtherResult)
             });
 
         private static void DisplayFeedbackDialog(int commandId, SarifErrorListItem sarifErrorListItem)
         {
-            string feedbackType = s_feedbackTypeDictionary[commandId];
-            string title = string.Format(Resources.ReportResultTitle, feedbackType, sarifErrorListItem.Rule.Id);
-            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem);
+            FeedbackInfo feedbackInfo = s_commandToResultDescriptionDictionary[commandId];
+            string title = string.Format(Resources.ReportResultTitle, feedbackInfo.Description, sarifErrorListItem.Rule.Id);
+            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem, feedbackInfo.FeedbackType);
             feedbackDialog.ShowModal();
         }
     }

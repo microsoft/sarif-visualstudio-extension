@@ -11,14 +11,16 @@ namespace Microsoft.Sarif.Viewer.Models
     {
         private DelegateCommand sendFeedbackCommand;
 
-        public FeedbackModel(string ruleId)
+        public FeedbackModel(string ruleId, FeedbackType feedbackType)
         {
             this.RuleId = ruleId;
+            this.FeedbackType = feedbackType;
             this.SendSnippet = true;
             this.Comment = string.Empty;
         }
 
         public string RuleId { get; }
+        public FeedbackType FeedbackType { get; }
         public bool SendSnippet { get; set; }
         public string Comment { get; set; }
 
@@ -34,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         ThreadHelper.ThrowIfNotOnUIThread();
 
                         VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                   $"Comment: {this.Comment}",
+                                   $"FeedbackType: {this.FeedbackType}, Comment: {this.Comment}",
                                    null, // title
                                    OLEMSGICON.OLEMSGICON_INFO,
                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
