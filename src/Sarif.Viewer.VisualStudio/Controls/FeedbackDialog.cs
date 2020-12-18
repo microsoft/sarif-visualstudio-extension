@@ -3,21 +3,21 @@
 
 using System.Windows;
 
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.VisualStudio.PlatformUI;
 
 namespace Microsoft.Sarif.Viewer.Controls
 {
     internal class FeedbackDialog : DialogWindow
     {
-        private readonly SarifErrorListItem sarifErrorListItem;
-
         public FeedbackDialog(string title, SarifErrorListItem sarifErrorListItem)
         {
             this.Title = title;
             this.SizeToContent = SizeToContent.WidthAndHeight;
-            this.Content = new FeedbackControl();
 
-            this.sarifErrorListItem = sarifErrorListItem;
+            var model = new FeedbackModel(sarifErrorListItem.Rule.Id);
+
+            this.Content = new FeedbackControl(model);
         }
     }
 }
