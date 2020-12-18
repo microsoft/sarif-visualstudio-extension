@@ -25,9 +25,29 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int ProvideYesFeedbackCommandId = 0x0302;
 
         /// <summary>
-        /// Command id for "No. False Positive"
+        /// Command id for "No, False Positive"
         /// </summary>
         public const int ProvideFalsePositiveFeedbackCommandId = 0x0303;
+
+        /// <summary>
+        /// Command id for "No, Not Actionable"
+        /// </summary>
+        public const int ProvideNotActionableFeedbackCommandId = 0x0304;
+
+        /// <summary>
+        /// Command id for "No, Low Value"
+        /// </summary>
+        public const int ProvideLowValueFeedbackCommandId = 0x0305;
+
+        /// <summary>
+        /// Command id for "No, Code Does Not Ship"
+        /// </summary>
+        public const int ProvideCodeDoesNotShipFeedbackCommandId = 0x0306;
+
+        /// <summary>
+        /// Command id for "No, Other"
+        /// </summary>
+        public const int ProvideOtherFeedbackCommandId = 0x0307;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -65,6 +85,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 commandService.AddCommand(menuItem);
 
                 menuCommandID = new CommandID(CommandSet, ProvideFalsePositiveFeedbackCommandId);
+                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+                commandService.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(CommandSet, ProvideNotActionableFeedbackCommandId);
+                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+                commandService.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(CommandSet, ProvideLowValueFeedbackCommandId);
+                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+                commandService.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(CommandSet, ProvideCodeDoesNotShipFeedbackCommandId);
+                menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+                commandService.AddCommand(menuItem);
+
+                menuCommandID = new CommandID(CommandSet, ProvideOtherFeedbackCommandId);
                 menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
                 commandService.AddCommand(menuItem);
             }
@@ -129,6 +165,42 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 case ProvideFalsePositiveFeedbackCommandId:
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
                                "\"No, False Positive\" menu item clicked",
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    break;
+
+                case ProvideNotActionableFeedbackCommandId:
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                               "\"No, Not Actionable\" menu item clicked",
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    break;
+
+                case ProvideLowValueFeedbackCommandId:
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                               "\"No, Low Value\" menu item clicked",
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    break;
+
+                case ProvideCodeDoesNotShipFeedbackCommandId:
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                               "\"No, Code Does Not Ship\" menu item clicked",
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_INFO,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    break;
+
+                case ProvideOtherFeedbackCommandId:
+                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                               "\"No, Other\" menu item clicked",
                                null, // title
                                OLEMSGICON.OLEMSGICON_INFO,
                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
