@@ -17,7 +17,7 @@
             VerticalScrollBarVisibility="Auto"
             Text="{Binding Path=Comment}"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
-            <Button Width="100" Height="30" Margin="10">Report</Button>
+            <Button Width="100" Height="30" Margin="10" Command="{Binding Path=SendFeedbackCommand}">Report</Button>
             <Button Width="100" Height="30" Margin="10" IsCancel="True">Cancel</Button>
         </StackPanel>
     </StackPanel>

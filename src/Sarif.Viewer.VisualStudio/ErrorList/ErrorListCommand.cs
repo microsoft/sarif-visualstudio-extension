@@ -29,27 +29,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int UsefulResultCommandId = 0x0302;
 
         /// <summary>
-        /// Command id for "False positive"
+        /// Command id for "False positive result"
         /// </summary>
         public const int FalsePositiveResultCommandId = 0x0303;
 
         /// <summary>
-        /// Command id for "Non-actionable"
+        /// Command id for "Non-actionable result"
         /// </summary>
         public const int NonActionableResultCommandId = 0x0304;
 
         /// <summary>
-        /// Command id for "Low value"
+        /// Command id for "Low value result"
         /// </summary>
         public const int LowValueResultCommandId = 0x0305;
 
         /// <summary>
-        /// Command id for "Non-shipping code"
+        /// Command id for "Non-shipping code result"
         /// </summary>
         public const int NonShippingCodeResultCommandId = 0x0306;
 
         /// <summary>
-        /// Command id for "Other"
+        /// Command id for "Other result"
         /// </summary>
         public const int OtherResultCommandId = 0x0307;
 
@@ -58,14 +58,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
 
-        /// <summary>
         /// VS Package that provides this command, not null.
-        /// </summary>
         private readonly Package package;
 
-        /// <summary>
         /// Service for accessing menu commands.
-        /// </summary>
         private readonly IMenuCommandService menuCommandService;
 
         // Service that provides access to the currently selected Error List item, if any.
