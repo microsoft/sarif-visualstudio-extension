@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 
 using Microsoft.Sarif.Viewer.Controls;
@@ -147,7 +149,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             MenuCommand menuCommand = (MenuCommand)sender;
-            FeedbackDialog feedbackDialog;
 
             switch (menuCommand.CommandID.ID)
             {
@@ -165,33 +166,35 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     break;
 
                 case ProvideFalsePositiveFeedbackCommandId:
-                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.FalsePositiveFeedbackType));
-                    feedbackDialog.ShowModal();
-                    break;
-
                 case ProvideNotActionableFeedbackCommandId:
-                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.NotActionableFeedbackType));
-                    feedbackDialog.ShowModal();
-                    break;
-
                 case ProvideLowValueFeedbackCommandId:
-                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.LowValueFeedbackType));
-                    feedbackDialog.ShowModal();
-                    break;
-
                 case ProvideCodeDoesNotShipFeedbackCommandId:
-                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.CodeDoesNotShipFeedbackType));
-                    feedbackDialog.ShowModal();
+                case ProvideOtherFeedbackCommandId:
+                    DisplayFeedbackDialog(menuCommand.CommandID.ID);
                     break;
 
-                case ProvideOtherFeedbackCommandId:
-                    feedbackDialog = new FeedbackDialog(CreateTitle(Resources.OtherFeedbackType));
-                    feedbackDialog.ShowModal();
+                default:
+                    // Unrecognized command; do nothing.
                     break;
             }
         }
 
-        private static string CreateTitle(string feedbackType) =>
-            string.Format(Resources.ReportResultTitle, feedbackType);
+        private static readonly ReadOnlyDictionary<int, string> s_feedbackTypeDictionary = new ReadOnlyDictionary<int, string>(
+            new Dictionary<int, string>
+            {
+                [ProvideFalsePositiveFeedbackCommandId] = Resources.FalsePositiveFeedbackType,
+                [ProvideNotActionableFeedbackCommandId] = Resources.NotActionableFeedbackType,
+                [ProvideLowValueFeedbackCommandId] = Resources.LowValueFeedbackType,
+                [ProvideCodeDoesNotShipFeedbackCommandId] = Resources.CodeDoesNotShipFeedbackType,
+                [ProvideOtherFeedbackCommandId] = Resources.OtherFeedbackType
+            });
+
+        private static void DisplayFeedbackDialog(int commandId)
+        {
+            string feedbackType = s_feedbackTypeDictionary[commandId];
+            string title = string.Format(Resources.ReportResultTitle, feedbackType);
+            var feedbackDialog = new FeedbackDialog(title);
+            feedbackDialog.ShowModal();
+        }
     }
 }
