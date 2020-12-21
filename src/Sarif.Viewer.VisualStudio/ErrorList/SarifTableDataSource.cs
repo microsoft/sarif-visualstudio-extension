@@ -41,18 +41,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        public static SarifTableDataSource Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new SarifTableDataSource();
-                }
-
-                return _instance;
-            }
-        }
+        public static SarifTableDataSource Instance => _instance ??= new SarifTableDataSource();
 
         #region ITableDataSource members
 

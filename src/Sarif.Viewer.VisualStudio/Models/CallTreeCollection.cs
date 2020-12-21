@@ -61,42 +61,14 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public DelegateCommand ExpandAllCommand
         {
-            get
-            {
-                if (this._expandAllCommand == null)
-                {
-                    this._expandAllCommand = new DelegateCommand(() =>
-                    {
-                        this.ExpandAll();
-                    });
-                }
-
-                return this._expandAllCommand;
-            }
-            set
-            {
-                this._expandAllCommand = value;
-            }
+            get => this._expandAllCommand ??= new DelegateCommand(() => this.ExpandAll());
+            set => this._expandAllCommand = value;
         }
 
         public DelegateCommand CollapseAllCommand
         {
-            get
-            {
-                if (this._collapseAllCommand == null)
-                {
-                    this._collapseAllCommand = new DelegateCommand(() =>
-                    {
-                        this.CollapseAll();
-                    });
-                }
-
-                return this._collapseAllCommand;
-            }
-            set
-            {
-                this._collapseAllCommand = value;
-            }
+            get => this._collapseAllCommand ??= new DelegateCommand(() => this.CollapseAll());
+            set => this._collapseAllCommand = value;
         }
 
         public DelegateCommand IntelligentExpandCommand

@@ -289,18 +289,7 @@ namespace Microsoft.Sarif.Viewer
         public string Message { get; set; }
 
         [Browsable(false)]
-        public ObservableCollection<XamlDoc.Inline> MessageInlines
-        {
-            get
-            {
-                if (this._messageInlines == null)
-                {
-                    this._messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.Message));
-                }
-
-                return this._messageInlines;
-            }
-        }
+        public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??= new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.Message));
 
         [Browsable(false)]
         public bool HasEmbeddedLinks
@@ -454,9 +443,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (this._openLogFileCommand == null)
-                {
-                    this._openLogFileCommand = new DelegateCommand(() =>
+                return this._openLogFileCommand ??= new DelegateCommand(() =>
                     {
                         // For now this is being done on the UI thread
                         // and is only required due to the message box being shown below.
@@ -466,9 +453,6 @@ namespace Microsoft.Sarif.Viewer
 
                         this.OpenLogFile();
                     });
-                }
-
-                return this._openLogFileCommand;
             }
         }
 
