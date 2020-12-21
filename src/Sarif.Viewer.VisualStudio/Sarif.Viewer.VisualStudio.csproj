@@ -45,11 +45,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\InfoBar.cs" />
+    <Compile Include="ErrorList\BaselineStateTableDataSource.cs" />
     <Compile Include="ErrorList\ColumnFilterer.cs" />
     <Compile Include="ErrorList\FilteredColumnValue.cs" />
-    <Compile Include="ErrorList\BaselineStateTableDataSource.cs" />
     <Compile Include="ErrorList\SarifTableDataSourceBase.cs" />
+    <Compile Include="ErrorList\SinkHolder.cs" />
     <Compile Include="ErrorList\StubDisposable.cs" />
+    <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
     <Compile Include="ExceptionalConditions.cs" />
     <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
@@ -89,7 +91,6 @@
     <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
     <Compile Include="LogProcessedEventArgs.cs" />
-    <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
@@ -185,7 +186,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\SarifErrorListItem.cs" />
     <Compile Include="SdkUIUtilities.cs" />
-    <Compile Include="ErrorList\SinkHolder.cs" />
     <Compile Include="ErrorList\SarifTableDataSource.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="WeakEventHandlerManager.cs" />
