@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
                 ? GetErrorsInFile(fileName)
                 : Enumerable.Empty<SarifErrorListItem>().ToList();
-            CalculatePersistentSpans(this.errorsInFile);
+            this.CalculatePersistentSpans(this.errorsInFile);
 
             // Keep track of which error is associated with each suggested action, so that when
             // the action is invoked, the associated error can be marked as fixed. When we mark
@@ -87,9 +87,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
             // Recompute the list of fixable errors each time VS asks, because we might have fixed
             // some of them.
-            IList<SarifErrorListItem> selectedErrors = GetSelectedErrors(this.errorsInFile);
+            IList<SarifErrorListItem> selectedErrors = this.GetSelectedErrors(this.errorsInFile);
             IList<SarifErrorListItem> selectedFixableErrors = GetFixableErrors(selectedErrors);
-            return CreateActionSetFromErrors(selectedFixableErrors);
+            return this.CreateActionSetFromErrors(selectedFixableErrors);
         }
 
         /// <inheritdoc/>
@@ -97,7 +97,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            return GetSuggestedActions(requestedActionCategories, range, cancellationToken)?.Any() == true;
+            return this.GetSuggestedActions(requestedActionCategories, range, cancellationToken)?.Any() == true;
         }
 
         /// <inheritdoc/>
@@ -173,13 +173,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
             var caretSpanCollection =
                 new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
-            return errors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection)).ToList();
+            return errors.Where(error => this.CaretIntersectsAnyErrorLocation(error, caretSpanCollection)).ToList();
         }
 
         private bool CaretIntersectsAnyErrorLocation(SarifErrorListItem error, NormalizedSnapshotSpanCollection caretSpanCollection) =>
             error
             .Locations
-            ?.Any(locationModel => CaretIntersectsSingleErrorLocation(locationModel, caretSpanCollection)) == true;
+            ?.Any(locationModel => this.CaretIntersectsSingleErrorLocation(locationModel, caretSpanCollection)) == true;
 
         private bool CaretIntersectsSingleErrorLocation(LocationModel locationModel, NormalizedSnapshotSpanCollection caretSpanCollection) =>
             caretSpanCollection.Any(
@@ -198,7 +198,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 {
                     var suggestedAction = new FixSuggestedAction(fix, this.textBuffer, this.previewProvider);
                     this.fixToErrorDictionary.Add(suggestedAction, error);
-                    suggestedAction.FixApplied += SuggestedAction_FixApplied;
+                    suggestedAction.FixApplied += this.SuggestedAction_FixApplied;
                     suggestedActions.Add(suggestedAction);
                 }
             }

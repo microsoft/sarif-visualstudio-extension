@@ -36,19 +36,19 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade = false)
         {
-            LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            this.LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLog(Stream stream, string logId = null)
         {
-            LoadSarifLogAsync(stream, logId).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            this.LoadSarifLogAsync(stream, logId).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLog(IEnumerable<Stream> streams)
         {
-            LoadSarifLogAsync(streams).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            this.LoadSarifLogAsync(streams).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         private async Task LoadSarifLogAsync(IEnumerable<string> paths)

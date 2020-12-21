@@ -129,7 +129,9 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
             FileCodeModel fileCodeModel = projectItem.FileCodeModel;
             if (fileCodeModel == null)
+            {
                 return Guid.Empty;
+            }
 
             return new Guid(fileCodeModel.Language);
         }

@@ -22,15 +22,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _description;
+                return this._description;
             }
             set
             {
                 if (value != this._description)
                 {
-                    _description = value;
+                    this._description = value;
 
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -39,7 +39,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _artifactChanges;
+                return this._artifactChanges;
             }
         }
     }

@@ -9,7 +9,7 @@ namespace Microsoft.Sarif.Viewer
     {
         public LogProcessedEventArgs(ExceptionalConditions exceptionalConditions)
         {
-            ExceptionalConditions = exceptionalConditions;
+            this.ExceptionalConditions = exceptionalConditions;
         }
 
         // Gets any exceptional conditions (for example, an error-level tool execution

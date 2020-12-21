@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._commandLine)
                 {
                     this._commandLine = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._startTime)
                 {
                     this._startTime = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._endTime)
                 {
                     this._endTime = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._machine)
                 {
                     this._machine = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._account)
                 {
                     this._account = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -108,7 +108,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._processId)
                 {
                     this._processId = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -124,7 +124,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._fileName)
                 {
                     this._fileName = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -140,7 +140,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._workingDirectory)
                 {
                     this._workingDirectory = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -156,7 +156,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._environmentVariables)
                 {
                     this._environmentVariables = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }

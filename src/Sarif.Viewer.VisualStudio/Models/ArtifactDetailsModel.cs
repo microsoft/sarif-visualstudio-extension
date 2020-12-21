@@ -19,31 +19,31 @@ namespace Microsoft.Sarif.Viewer.Models
             string sha256Hash;
             if (artifact.Hashes.TryGetValue("sha-256", out sha256Hash))
             {
-                Sha256Hash = sha256Hash;
+                this.Sha256Hash = sha256Hash;
             }
 
-            _artifactContent = artifact.Contents;
-            _decodedContents = new Lazy<string>(DecodeContents);
+            this._artifactContent = artifact.Contents;
+            this._decodedContents = new Lazy<string>(this.DecodeContents);
         }
 
         public string Sha256Hash { get; }
 
         public string GetContents()
         {
-            return _decodedContents.Value;
+            return this._decodedContents.Value;
         }
 
         private string DecodeContents()
         {
-            string content = _artifactContent.Text;
+            string content = this._artifactContent.Text;
 
             if (content == null)
             {
-                byte[] data = Convert.FromBase64String(_artifactContent.Binary);
+                byte[] data = Convert.FromBase64String(this._artifactContent.Binary);
                 content = Encoding.UTF8.GetString(data);
             }
 
-            _artifactContent = null; // Clear _fileContent to save memory.
+            this._artifactContent = null; // Clear _fileContent to save memory.
             return content;
         }
     }

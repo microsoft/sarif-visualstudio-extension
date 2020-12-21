@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer
         /// This is the original region from the SARIF log file before
         /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegionAndFilePath" method./>
         /// </summary>
-        private Region region;
+        private readonly Region region;
 
         /// <summary>
         /// Contains the fully mapped region information mapped to a file on disk.
@@ -168,16 +168,16 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
         {
-            ResultId = resultId;
-            RunIndex = runIndex;
-            UriBaseId = uriBaseId;
-            FullFilePath = fullFilePath;
+            this.ResultId = resultId;
+            this.RunIndex = runIndex;
+            this.UriBaseId = uriBaseId;
+            this.FullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
-            NonHighlightedColor = nonHighlightedColor;
-            HighlightedColor = highlightedColor;
-            ToolTipContent = tooltipContent;
-            ErrorType = errorType;
-            Context = context;
+            this.NonHighlightedColor = nonHighlightedColor;
+            this.HighlightedColor = highlightedColor;
+            this.ToolTipContent = tooltipContent;
+            this.ErrorType = errorType;
+            this.Context = context;
         }
 
         /// <summary>
@@ -374,16 +374,16 @@ namespace Microsoft.Sarif.Viewer
                 return this.regionAndFilePathAreFullyPopulated.Value;
             }
 
-            if (string.IsNullOrEmpty(FullFilePath))
+            if (string.IsNullOrEmpty(this.FullFilePath))
             {
                 return false;
             }
 
-            if (File.Exists(FullFilePath))
+            if (File.Exists(this.FullFilePath))
             {
-                this.resolvedFullFilePath = FullFilePath;
+                this.resolvedFullFilePath = this.FullFilePath;
             }
-            else if (!CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: FullFilePath, resolvedPath: out this.resolvedFullFilePath))
+            else if (!CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FullFilePath, resolvedPath: out this.resolvedFullFilePath))
             {
                 this.regionAndFilePathAreFullyPopulated = false;
                 return false;
@@ -448,7 +448,7 @@ namespace Microsoft.Sarif.Viewer
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

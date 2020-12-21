@@ -53,7 +53,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod((T)o), (o) => canExecuteMethod((T)o))
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
 
             TypeInfo genericTypeInfo = typeof(T).GetTypeInfo();
 
@@ -121,7 +123,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod((T)o), (o) => canExecuteMethod((T)o))
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
         }
 
     }
@@ -152,7 +156,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod(), (o) => canExecuteMethod())
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
         }
 
         /// <summary>
@@ -181,7 +187,7 @@ namespace Microsoft.Sarif.Viewer
         ///</summary>
         public virtual async Task ExecuteAsync()
         {
-            await ExecuteAsync(null);
+            await this.ExecuteAsync(null);
         }
 
         /// <summary>
@@ -190,7 +196,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>Returns <see langword="true"/> if the command can execute, otherwise returns <see langword="false"/>.</returns>
         public virtual bool CanExecute()
         {
-            return CanExecute(null);
+            return this.CanExecute(null);
         }
 
         private DelegateCommand(Func<Task> executeMethod)
@@ -202,7 +208,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod(), (o) => canExecuteMethod())
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
         }
     }
 }

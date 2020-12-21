@@ -98,7 +98,7 @@ namespace Microsoft.Sarif.Viewer
         {
             await base.InitializeAsync(cancellationToken, progress);
 
-            ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
+            ServiceCreatorCallback callback = new ServiceCreatorCallback(this.CreateService);
             foreach (KeyValuePair<Type, ServiceInformation> serviceInformationKVP in ServiceTypeToServiceInformation)
             {
                 ((IServiceContainer)this).AddService(serviceInformationKVP.Key, callback, promote: serviceInformationKVP.Value.Promote);

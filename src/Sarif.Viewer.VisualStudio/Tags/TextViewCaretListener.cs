@@ -28,11 +28,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.tagger = tagger;
             this.textView = textView;
-            this.textView.Closed += TextView_Closed;
-            this.textView.LayoutChanged += TextView_LayoutChanged;
-            this.textView.Caret.PositionChanged += Caret_PositionChanged;
-            this.textView.GotAggregateFocus += TextView_GotAggregateFocus;
-            this.textView.LostAggregateFocus += TextView_LostAggregateFocus;
+            this.textView.Closed += this.TextView_Closed;
+            this.textView.LayoutChanged += this.TextView_LayoutChanged;
+            this.textView.Caret.PositionChanged += this.Caret_PositionChanged;
+            this.textView.GotAggregateFocus += this.TextView_GotAggregateFocus;
+            this.textView.LostAggregateFocus += this.TextView_LostAggregateFocus;
 
             // Send an update of the initial caret position for this text view.
             // This allows the SARIF explorer to properly receive the caret
@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // If a new snapshot wasn't generated, then skip this layout
             if (e.NewViewState.EditSnapshot != e.OldViewState.EditSnapshot)
             {
-                UpdateAtCaretPosition(textView.Caret.Position);
+                this.UpdateAtCaretPosition(this.textView.Caret.Position);
             }
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return;
             }
 
-            UpdateAtCaretPosition(e.NewPosition);
+            this.UpdateAtCaretPosition(e.NewPosition);
         }
 
         private void TextView_GotAggregateFocus(object sender, EventArgs e)

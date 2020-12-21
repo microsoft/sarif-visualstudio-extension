@@ -12,23 +12,23 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public ArtifactChangeModel()
         {
-            Replacements = new ObservableCollection<ReplacementModel>();
+            this.Replacements = new ObservableCollection<ReplacementModel>();
         }
 
         public string FilePath
         {
             get
             {
-                return _filePath;
+                return this._filePath;
             }
             set
             {
                 if (value != this._filePath)
                 {
-                    _filePath = value;
+                    this._filePath = value;
 
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged(nameof(this.FileName));
+                    this.NotifyPropertyChanged();
+                    this.NotifyPropertyChanged(nameof(this.FileName));
                 }
             }
         }

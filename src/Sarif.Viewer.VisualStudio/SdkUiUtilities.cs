@@ -420,7 +420,7 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private static readonly char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
         /// Creates a relative path from one directory to another directory or file
@@ -633,7 +633,7 @@ namespace Microsoft.Sarif.Viewer
                         {
                             target = id;
                         }
-                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out var uri))
+                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out Uri uri))
                         {
                             // This is super dangerous! We are launching URIs for SARIF logs
                             // that can point to anything.

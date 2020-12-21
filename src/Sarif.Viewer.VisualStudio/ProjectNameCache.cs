@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public sealed class ProjectNameCache
     {
-        private Dictionary<string, string> projectNames = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> projectNames = new Dictionary<string, string>();
 
         private readonly Solution solution;
 
@@ -29,8 +29,8 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
-            SetName(fileName);
-            return projectNames[fileName];
+            this.SetName(fileName);
+            return this.projectNames[fileName];
         }
 
         private void SetName(string fileName)
@@ -42,19 +42,19 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
             }
 
-            if (projectNames.ContainsKey(fileName))
+            if (this.projectNames.ContainsKey(fileName))
             {
                 return;
             }
 
-            var project = solution?.FindProjectItem(fileName);
+            ProjectItem project = this.solution?.FindProjectItem(fileName);
             if (project?.ContainingProject != null)
             {
-                projectNames[fileName] = project.ContainingProject.Name;
+                this.projectNames[fileName] = project.ContainingProject.Name;
             }
             else
             {
-                projectNames[fileName] = string.Empty;
+                this.projectNames[fileName] = string.Empty;
             }
         }
     }

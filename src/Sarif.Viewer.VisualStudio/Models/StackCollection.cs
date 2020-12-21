@@ -19,13 +19,13 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _message;
+                return this._message;
             }
             set
             {
                 if (value != this._message)
                 {
-                    _message = value;
+                    this._message = value;
 
                     this.OnPropertyChanged(new PropertyChangedEventArgs("Message"));
                 }

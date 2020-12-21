@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             IEnumerable<ISarifLocationTagger> taggers;
             using (this.sarifTaggersLock.EnterReadLock())
             {
-                taggers = sarifTaggers.ToList();
+                taggers = this.sarifTaggers.ToList();
             }
 
             if (textBuffer != null)
@@ -94,7 +94,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

@@ -11,33 +11,34 @@ namespace Microsoft.Sarif.Viewer
     /// The property is always grouped/displayed in the Properties category
     /// in the Properties tool window.
     /// </summary>
-    class KeyValuePairPropertyDescriptor : PropertyDescriptor
+    internal class KeyValuePairPropertyDescriptor : PropertyDescriptor
     {
-        string _key, _value;
+        private readonly string _key;
+        private string _value;
 
         internal KeyValuePairPropertyDescriptor(string key, string value)
             : base(key, null)
         {
-            _key = key;
-            _value = value;
+            this._key = key;
+            this._value = value;
         }
 
         public override Type PropertyType
         {
             get
             {
-                return _key.GetType();
+                return this._key.GetType();
             }
         }
 
         public override void SetValue(object component, object value)
         {
-            _value = value.ToString();
+            this._value = value.ToString();
         }
 
         public override object GetValue(object component)
         {
-            return _value;
+            return this._value;
         }
 
         public override bool IsReadOnly

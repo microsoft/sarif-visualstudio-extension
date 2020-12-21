@@ -12,7 +12,7 @@ namespace Microsoft.Sarif.Viewer.Views
     {
         public SarifViewerControl()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _verbosity;
+                return this._verbosity;
             }
             set
             {
@@ -34,16 +34,16 @@ namespace Microsoft.Sarif.Viewer.Models
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
                 }
 
-                if (_verbosity != value)
+                if (this._verbosity != value)
                 {
-                    _verbosity = value;
+                    this._verbosity = value;
 
                     ThreadFlowLocationImportance importance;
-                    if (_verbosity >= 200)
+                    if (this._verbosity >= 200)
                     {
                         importance = ThreadFlowLocationImportance.Unimportant;
                     }
-                    else if (_verbosity >= 100)
+                    else if (this._verbosity >= 100)
                     {
                         importance = ThreadFlowLocationImportance.Important;
                     }
@@ -52,9 +52,9 @@ namespace Microsoft.Sarif.Viewer.Models
                         importance = ThreadFlowLocationImportance.Essential;
                     }
 
-                    SetVerbosity(importance);
+                    this.SetVerbosity(importance);
 
-                    SelectVisibleNode();
+                    this.SelectVisibleNode();
                 }
             }
         }
@@ -63,19 +63,19 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                if (_expandAllCommand == null)
+                if (this._expandAllCommand == null)
                 {
-                    _expandAllCommand = new DelegateCommand(() =>
+                    this._expandAllCommand = new DelegateCommand(() =>
                     {
-                        ExpandAll();
+                        this.ExpandAll();
                     });
                 }
 
-                return _expandAllCommand;
+                return this._expandAllCommand;
             }
             set
             {
-                _expandAllCommand = value;
+                this._expandAllCommand = value;
             }
         }
 
@@ -83,19 +83,19 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                if (_collapseAllCommand == null)
+                if (this._collapseAllCommand == null)
                 {
-                    _collapseAllCommand = new DelegateCommand(() =>
+                    this._collapseAllCommand = new DelegateCommand(() =>
                     {
-                        CollapseAll();
+                        this.CollapseAll();
                     });
                 }
 
-                return _collapseAllCommand;
+                return this._collapseAllCommand;
             }
             set
             {
-                _collapseAllCommand = value;
+                this._collapseAllCommand = value;
             }
         }
 
@@ -110,19 +110,19 @@ namespace Microsoft.Sarif.Viewer.Models
 #pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
                 }
 
-                if (_intelligentExpandCommand == null)
+                if (this._intelligentExpandCommand == null)
                 {
-                    _intelligentExpandCommand = new DelegateCommand(() =>
+                    this._intelligentExpandCommand = new DelegateCommand(() =>
                     {
-                        IntelligentExpand();
+                        this.IntelligentExpand();
                     });
                 }
 
-                return _intelligentExpandCommand;
+                return this._intelligentExpandCommand;
             }
             set
             {
-                _intelligentExpandCommand = value;
+                this._intelligentExpandCommand = value;
             }
         }
 

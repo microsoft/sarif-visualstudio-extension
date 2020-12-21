@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     public class CallTreeTests
     {
-        const string Expected = "expected";
+        private const string Expected = "expected";
 
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_NullList()
@@ -468,7 +468,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_ExpandAll()
         {
-            CallTree tree = CreateCallTree();
+            CallTree tree = this.CreateCallTree();
             tree.ExpandAll();
 
             tree.TopLevelNodes[0].IsExpanded.Should().BeTrue();
@@ -482,7 +482,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_CollapseAll()
         {
-            CallTree tree = CreateCallTree();
+            CallTree tree = this.CreateCallTree();
             tree.CollapseAll();
 
             tree.TopLevelNodes[0].IsExpanded.Should().BeFalse();
@@ -496,7 +496,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_IntelligentExpand()
         {
-            CallTree tree = CreateCallTree();
+            CallTree tree = this.CreateCallTree();
             tree.IntelligentExpand();
 
             tree.TopLevelNodes[0].IsExpanded.Should().BeTrue();
@@ -510,7 +510,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_SetVerbosity_Essential()
         {
-            CallTree tree = CreateCallTree();
+            CallTree tree = this.CreateCallTree();
             tree.SetVerbosity(ThreadFlowLocationImportance.Essential);
 
             tree.TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
@@ -524,7 +524,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_SetVerbosity_Important()
         {
-            CallTree tree = CreateCallTree();
+            CallTree tree = this.CreateCallTree();
             tree.SetVerbosity(ThreadFlowLocationImportance.Important);
 
             tree.TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
@@ -538,7 +538,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_SetVerbosity_Unimportant()
         {
-            CallTree tree = CreateCallTree();
+            CallTree tree = this.CreateCallTree();
             tree.SetVerbosity(ThreadFlowLocationImportance.Unimportant);
 
             tree.TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
@@ -551,7 +551,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         private CallTree CreateCallTree()
         {
-            var codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
+            CodeFlow codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
             {
                 new ThreadFlowLocation
                 {

@@ -33,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._message)
                 {
                     this._message = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._filePath)
                 {
                     base.FilePath = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._module)
                 {
                     this._module = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._logicalLocation)
                 {
                     this._logicalLocation = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._isEssential)
                 {
                     this._isEssential = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -129,7 +129,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._isSelected)
                 {
                     this._isSelected = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }

@@ -15,8 +15,8 @@ namespace Microsoft.Sarif.Viewer.ViewModels
     /// </summary>
     internal static class ViewModelLocator
     {
-        static object _syncroot = new object();
-        static SarifErrorListItem _designTime = null;
+        private static readonly object _syncroot = new object();
+        private static SarifErrorListItem _designTime = null;
 
         // This is the view model displayed by the Visual Studio designer.
         public static SarifErrorListItem DesignTime

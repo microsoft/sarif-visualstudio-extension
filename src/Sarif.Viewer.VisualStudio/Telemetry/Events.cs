@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
     /// namespace of T to compute the application insights event name.
     /// </code>
     /// </remarks>
-    internal class Events
+    internal static class Events
     {
         /// <summary>
         /// Does nothing.

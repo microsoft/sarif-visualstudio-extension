@@ -15,13 +15,13 @@ namespace Microsoft.Sarif.Viewer.Controls
 
         public ObservableCollection<Inline> InlineList
         {
-            get { return (ObservableCollection<Inline>)GetValue(InlineListProperty); }
-            set { SetValue(InlineListProperty, value); }
+            get { return (ObservableCollection<Inline>)this.GetValue(InlineListProperty); }
+            set { this.SetValue(InlineListProperty, value); }
         }
 
         private static void OnPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            if (e != null && e.NewValue != null)
+            if (e != default && e.NewValue != null)
             {
                 BindableTextBlock textBlock = sender as BindableTextBlock;
                 ObservableCollection<Inline> list = e.NewValue as ObservableCollection<Inline>;

@@ -12,33 +12,33 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     internal class CallTree : NotifyPropertyChangedObject
     {
-        CallTreeNode _selectedItem;
-        DelegateCommand<TreeView> _selectPreviousCommand;
-        DelegateCommand<TreeView> _selectNextCommand;
+        private CallTreeNode _selectedItem;
+        private DelegateCommand<TreeView> _selectPreviousCommand;
+        private DelegateCommand<TreeView> _selectNextCommand;
 
         private ObservableCollection<CallTreeNode> _topLevelNodes;
 
         public CallTree(IList<CallTreeNode> topLevelNodes)
         {
-            TopLevelNodes = new ObservableCollection<CallTreeNode>(topLevelNodes);
+            this.TopLevelNodes = new ObservableCollection<CallTreeNode>(topLevelNodes);
         }
 
         public ObservableCollection<CallTreeNode> TopLevelNodes
         {
             get
             {
-                return _topLevelNodes;
+                return this._topLevelNodes;
             }
             set
             {
-                _topLevelNodes = value;
+                this._topLevelNodes = value;
 
                 // Set this object as the CallTree for the child nodes.
-                if (_topLevelNodes != null)
+                if (this._topLevelNodes != null)
                 {
-                    for (int i = 0; i < _topLevelNodes.Count; i++)
+                    for (int i = 0; i < this._topLevelNodes.Count; i++)
                     {
-                        _topLevelNodes[i].CallTree = this;
+                        this._topLevelNodes[i].CallTree = this;
                     }
                 }
             }
@@ -48,13 +48,13 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _selectedItem;
+                return this._selectedItem;
             }
             set
             {
-                if (_selectedItem != value)
+                if (this._selectedItem != value)
                 {
-                    _selectedItem = value;
+                    this._selectedItem = value;
 
                     this.NotifyPropertyChanged();
                 }
@@ -114,7 +114,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
 
             // Walk up the tree trying to find the next node.
-            return FindNext(currentParent, false);
+            return this.FindNext(currentParent, false);
         }
 
         internal CallTreeNode FindPrevious(CallTreeNode currentNode, bool includeChildren)
@@ -158,7 +158,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
 
             // Walk up the tree trying to find the previous node.
-            return FindPrevious(currentParent, false);
+            return this.FindPrevious(currentParent, false);
         }
 
         internal static bool TryGetNextSibling(IList<CallTreeNode> items, CallTreeNode currentItem, out CallTreeNode nextSibling)
@@ -244,7 +244,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal CallTreeNode FindNext()
         {
-            CallTreeNode next = FindNext(this.SelectedItem, true);
+            CallTreeNode next = this.FindNext(this.SelectedItem, true);
             if (next == null)
             {
                 // no next exists, current remains selected
@@ -259,7 +259,7 @@ namespace Microsoft.Sarif.Viewer.Models
         // go to parent, find self, find previous/next, make sure not to roll off
         internal CallTreeNode FindPrevious()
         {
-            CallTreeNode previous = FindPrevious(this.SelectedItem, true);
+            CallTreeNode previous = this.FindPrevious(this.SelectedItem, true);
             if (previous == null)
             {
                 // no previous exists, current remains selected
@@ -276,17 +276,17 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                if (_selectPreviousCommand == null)
+                if (this._selectPreviousCommand == null)
                 {
-                    _selectPreviousCommand = new DelegateCommand<TreeView>(treeView =>
+                    this._selectPreviousCommand = new DelegateCommand<TreeView>(treeView =>
                     {
                         TreeView control = treeView as TreeView;
                         CallTree model = control.DataContext as CallTree;
-                        model.SelectedItem = FindPrevious();
+                        model.SelectedItem = this.FindPrevious();
                     });
                 }
 
-                return _selectPreviousCommand;
+                return this._selectPreviousCommand;
             }
         }
 
@@ -296,25 +296,25 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                if (_selectNextCommand == null)
+                if (this._selectNextCommand == null)
                 {
-                    _selectNextCommand = new DelegateCommand<TreeView>(treeView =>
+                    this._selectNextCommand = new DelegateCommand<TreeView>(treeView =>
                     {
                         TreeView control = treeView as TreeView;
                         CallTree model = control.DataContext as CallTree;
-                        model.SelectedItem = FindNext();
+                        model.SelectedItem = this.FindNext();
                     });
                 }
 
-                return _selectNextCommand;
+                return this._selectNextCommand;
             }
         }
 
         internal void ExpandAll()
         {
-            if (TopLevelNodes != null)
+            if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in TopLevelNodes)
+                foreach (CallTreeNode child in this.TopLevelNodes)
                 {
                     child.ExpandAll();
                 }
@@ -323,9 +323,9 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void CollapseAll()
         {
-            if (TopLevelNodes != null)
+            if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in TopLevelNodes)
+                foreach (CallTreeNode child in this.TopLevelNodes)
                 {
                     child.CollapseAll();
                 }
@@ -334,9 +334,9 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void IntelligentExpand()
         {
-            if (TopLevelNodes != null)
+            if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in TopLevelNodes)
+                foreach (CallTreeNode child in this.TopLevelNodes)
                 {
                     child.IntelligentExpand();
                 }
@@ -345,9 +345,9 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void SetVerbosity(ThreadFlowLocationImportance importance)
         {
-            if (TopLevelNodes != null)
+            if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in TopLevelNodes)
+                foreach (CallTreeNode child in this.TopLevelNodes)
                 {
                     child.SetVerbosity(importance);
                 }

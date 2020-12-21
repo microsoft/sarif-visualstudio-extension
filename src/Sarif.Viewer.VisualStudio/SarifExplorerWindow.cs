@@ -38,10 +38,10 @@ namespace Microsoft.Sarif.Viewer
         private ITrackSelection _trackSelection;
         private SelectionContainer _selectionContainer;
 
-        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
-        private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
+        private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
+        private readonly ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
 
-        internal SarifToolWindowControl Control => Content as SarifToolWindowControl;
+        internal SarifToolWindowControl Control => this.Content as SarifToolWindowControl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifExplorerWindow"/> class.
@@ -54,9 +54,9 @@ namespace Microsoft.Sarif.Viewer
             // This is the user control hosted by the tool window; Note that, even if this class implements IDisposable,
             // we are not calling Dispose on this object. This is because ToolWindowPane calls Dispose on
             // the object returned by the Content property.
-            Content = new SarifToolWindowControl();
-            Control.Loaded += this.Control_Loaded;
-            Control.Unloaded += this.Control_Unloaded;
+            this.Content = new SarifToolWindowControl();
+            this.Control.Loaded += this.Control_Loaded;
+            this.Control.Unloaded += this.Control_Unloaded;
 
             IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
             if (componentModel != null)
@@ -86,8 +86,8 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // Update the selection.
-            this._trackSelection = GetService(typeof(STrackSelection)) as ITrackSelection;
-            this._trackSelection.OnSelectChange(_selectionContainer);
+            this._trackSelection = this.GetService(typeof(STrackSelection)) as ITrackSelection;
+            this._trackSelection.OnSelectChange(this._selectionContainer);
         }
 
         private void Control_Unloaded(object sender, System.Windows.RoutedEventArgs e)
@@ -142,20 +142,20 @@ namespace Microsoft.Sarif.Viewer
         public void Show()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            ((IVsWindowFrame)Frame).Show();
+            ((IVsWindowFrame)this.Frame).Show();
         }
 
         public void UpdateSelectionList(params object[] items)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            _selectionContainer = new SelectionContainer(selectableReadOnly: true, selectedReadOnly: false);
+            this._selectionContainer = new SelectionContainer(selectableReadOnly: true, selectedReadOnly: false);
 
-            _selectionContainer.SelectableObjects = items;
-            _selectionContainer.SelectedObjects = items;
+            this._selectionContainer.SelectableObjects = items;
+            this._selectionContainer.SelectedObjects = items;
 
             // This is null until the control is loaded.
-            this._trackSelection?.OnSelectChange(_selectionContainer);
+            this._trackSelection?.OnSelectChange(this._selectionContainer);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            UpdateSelectionList(Control?.DataContext);
+            this.UpdateSelectionList(this.Control?.DataContext);
         }
 
         private void UpdateDataContext(SarifErrorListItem sarifErrorListItem)
@@ -174,7 +174,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.Control.DataContext is SarifErrorListItem previousSarifErrorListItem)
             {
-                previousSarifErrorListItem.Disposed -= SarifErrorListItem_Disposed;
+                previousSarifErrorListItem.Disposed -= this.SarifErrorListItem_Disposed;
             }
 
             // Resetting the data context to null causes the correct tab in the SARIF explorer
@@ -184,10 +184,10 @@ namespace Microsoft.Sarif.Viewer
 
             if (sarifErrorListItem != null)
             {
-                sarifErrorListItem.Disposed += SarifErrorListItem_Disposed;
+                sarifErrorListItem.Disposed += this.SarifErrorListItem_Disposed;
             }
 
-            UpdateSelectionList(sarifErrorListItem);
+            this.UpdateSelectionList(sarifErrorListItem);
         }
 
         private void SarifErrorListItem_Disposed(object sender, EventArgs e)
@@ -196,7 +196,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.Control.DataContext == sender)
             {
-                UpdateDataContext(sarifErrorListItem: null);
+                this.UpdateDataContext(sarifErrorListItem: null);
             }
         }
 

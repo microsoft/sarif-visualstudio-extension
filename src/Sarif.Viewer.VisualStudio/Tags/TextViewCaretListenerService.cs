@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return;
                 }
 
-                using (ExistingListenersLock.EnterWriteLock())
+                using (this.ExistingListenersLock.EnterWriteLock())
                 {
                     TextViewCaretListener<T> newTagger = new TextViewCaretListener<T>(textView, tagger);
                     this.ExistingListeners.Add(textView, newTagger);
@@ -94,7 +94,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             this.isDisposed = true;
 
-            using (ExistingListenersLock.EnterWriteLock())
+            using (this.ExistingListenersLock.EnterWriteLock())
             {
                 foreach (KeyValuePair<ITextView, TextViewCaretListener<T>> textViewAndTagger in this.ExistingListeners)
                 {
@@ -112,7 +112,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

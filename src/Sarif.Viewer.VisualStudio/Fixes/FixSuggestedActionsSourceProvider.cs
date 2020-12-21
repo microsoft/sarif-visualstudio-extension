@@ -39,7 +39,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 return null;
             }
 
-            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory, previewProvider);
+            return new FixSuggestedActionsSource(textView, textBuffer, this.persistentSpanFactory, this.previewProvider);
         }
     }
 }

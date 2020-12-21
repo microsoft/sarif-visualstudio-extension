@@ -27,10 +27,12 @@ namespace Microsoft.Sarif.Viewer
         protected DelegateCommandBase(Action<object> executeMethod, Func<object, bool> canExecuteMethod)
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
 
-            _executeMethod = (arg) => { executeMethod(arg); return System.Threading.Tasks.Task.Delay(0); };
-            _canExecuteMethod = canExecuteMethod;
+            this._executeMethod = (arg) => { executeMethod(arg); return System.Threading.Tasks.Task.Delay(0); };
+            this._canExecuteMethod = canExecuteMethod;
         }
 
         /// <summary>
@@ -41,10 +43,12 @@ namespace Microsoft.Sarif.Viewer
         protected DelegateCommandBase(Func<object, System.Threading.Tasks.Task> executeMethod, Func<object, bool> canExecuteMethod)
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
 
-            _executeMethod = executeMethod;
-            _canExecuteMethod = canExecuteMethod;
+            this._executeMethod = executeMethod;
+            this._canExecuteMethod = canExecuteMethod;
         }
 
         /// <summary>
@@ -53,7 +57,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         protected virtual void OnCanExecuteChanged()
         {
-            WeakEventHandlerManager.CallWeakReferenceHandlers(this, _canExecuteChangedHandlers);
+            WeakEventHandlerManager.CallWeakReferenceHandlers(this, this._canExecuteChangedHandlers);
         }
 
 
@@ -65,17 +69,17 @@ namespace Microsoft.Sarif.Viewer
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1030:UseEventsWhereAppropriate")]
         public void RaiseCanExecuteChanged()
         {
-            OnCanExecuteChanged();
+            this.OnCanExecuteChanged();
         }
 
         void ICommand.Execute(object parameter)
         {
-            ThreadHelper.JoinableTaskFactory.Run(async delegate { await ExecuteAsync(parameter); });
+            ThreadHelper.JoinableTaskFactory.Run(async delegate { await this.ExecuteAsync(parameter); });
         }
 
         bool ICommand.CanExecute(object parameter)
         {
-            return CanExecute(parameter);
+            return this.CanExecute(parameter);
         }
 
         /// <summary>
@@ -84,7 +88,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="parameter"></param>
         protected async System.Threading.Tasks.Task ExecuteAsync(object parameter)
         {
-            await _executeMethod(parameter);
+            await this._executeMethod(parameter);
         }
 
         /// <summary>
@@ -94,7 +98,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>Returns <see langword="true"/> if the command can execute.  <see langword="False"/> otherwise.</returns>
         protected bool CanExecute(object parameter)
         {
-            return _canExecuteMethod == null || _canExecuteMethod(parameter);
+            return this._canExecuteMethod == null || this._canExecuteMethod(parameter);
         }
 
         /// <summary>
@@ -121,11 +125,11 @@ namespace Microsoft.Sarif.Viewer
         {
             add
             {
-                WeakEventHandlerManager.AddWeakReferenceHandler(ref _canExecuteChangedHandlers, value, 2);
+                WeakEventHandlerManager.AddWeakReferenceHandler(ref this._canExecuteChangedHandlers, value, 2);
             }
             remove
             {
-                WeakEventHandlerManager.RemoveWeakReferenceHandler(_canExecuteChangedHandlers, value);
+                WeakEventHandlerManager.RemoveWeakReferenceHandler(this._canExecuteChangedHandlers, value);
             }
         }
     }

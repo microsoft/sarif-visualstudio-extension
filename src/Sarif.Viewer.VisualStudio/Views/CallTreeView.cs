@@ -28,9 +28,9 @@ namespace Microsoft.Sarif.Viewer.Views
     {
         public CallTreeView()
         {
-            SelectedItemChanged += CallTree_TreeView_SelectionChanged;
-            Loaded += CallTree_TreeView_Loaded;
-            Unloaded += CallTree_TreeView_Unloaded;
+            SelectedItemChanged += this.CallTree_TreeView_SelectionChanged;
+            Loaded += this.CallTree_TreeView_Loaded;
+            Unloaded += this.CallTree_TreeView_Unloaded;
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -40,9 +40,9 @@ namespace Microsoft.Sarif.Viewer.Views
             // Subscribe to the call tree's property changed notification
             // so that this control can properly handle any changes to the selected item
             // (selected call tree node).
-            if (DataContext is INotifyPropertyChanged notifyPropertyChanged)
+            if (this.DataContext is INotifyPropertyChanged notifyPropertyChanged)
             {
-                notifyPropertyChanged.PropertyChanged += CallTree_PropertyChanged;
+                notifyPropertyChanged.PropertyChanged += this.CallTree_PropertyChanged;
             }
         }
 
@@ -58,7 +58,7 @@ namespace Microsoft.Sarif.Viewer.Views
         {
             if (e.PropertyName == nameof(CallTree.SelectedItem) &&
                 sender is CallTree callTree &&
-                callTree.SelectedItem != SelectedItem)
+                callTree.SelectedItem != this.SelectedItem)
             {
                 EnsureNodeIsVisibleAndSelected(this, callTree.SelectedItem);
             }
@@ -67,7 +67,7 @@ namespace Microsoft.Sarif.Viewer.Views
         private void CallTree_TreeView_SelectionChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             // Reflect the change in selection in the tree view back to the call tree.
-            if (DataContext is CallTree callTree)
+            if (this.DataContext is CallTree callTree)
             {
                 callTree.SelectedItem = e.NewValue as CallTreeNode;
             }
@@ -75,21 +75,21 @@ namespace Microsoft.Sarif.Viewer.Views
 
         private void CallTree_TreeView_Unloaded(object sender, RoutedEventArgs e)
         {
-            SelectedItemChanged -= CallTree_TreeView_SelectionChanged;
-            Unloaded -= CallTree_TreeView_Unloaded;
-            Loaded -= CallTree_TreeView_Loaded;
+            SelectedItemChanged -= this.CallTree_TreeView_SelectionChanged;
+            Unloaded -= this.CallTree_TreeView_Unloaded;
+            Loaded -= this.CallTree_TreeView_Loaded;
 
-            if (DataContext is INotifyPropertyChanged notifyPropertyChanged)
+            if (this.DataContext is INotifyPropertyChanged notifyPropertyChanged)
             {
-                notifyPropertyChanged.PropertyChanged -= CallTree_PropertyChanged;
+                notifyPropertyChanged.PropertyChanged -= this.CallTree_PropertyChanged;
             }
         }
 
         private void CallTree_TreeView_Loaded(object sender, RoutedEventArgs e)
         {
             // On initial load, attempt to select the desired item from the data model.
-            if (SelectedItem == null &&
-                DataContext is CallTree callTree &&
+            if (this.SelectedItem == null &&
+                this.DataContext is CallTree callTree &&
                 callTree.SelectedItem != null)
             {
                 EnsureNodeIsVisibleAndSelected(this, callTree.SelectedItem);

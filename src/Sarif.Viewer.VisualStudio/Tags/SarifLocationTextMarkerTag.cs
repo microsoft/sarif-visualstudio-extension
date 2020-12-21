@@ -15,8 +15,8 @@ namespace Microsoft.Sarif.Viewer.Tags
     internal class SarifLocationTextMarkerTag : SarifLocationTagBase, ITextMarkerTag, ISarifLocationTagCaretNotify, INotifyPropertyChanged
     {
         private string currentTextMarkerTagType;
-        private string highlightedTextMarkerTagType;
-        private string nonHighlightedTextMarkerTagType;
+        private readonly string highlightedTextMarkerTagType;
+        private readonly string nonHighlightedTextMarkerTagType;
 
         /// <summary>
         /// <param name="persistentSpan">The persistent span for the tag within a document.</param>

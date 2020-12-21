@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.Models
             // Subscribe to collection changed events so we can listen
             // to property change notifications from our child items
             // and set our selected item property.
-            this.CollectionChanged += LocationCollection_CollectionChanged;
+            this.CollectionChanged += this.LocationCollection_CollectionChanged;
         }
 
         private void LocationCollection_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -35,7 +35,7 @@ namespace Microsoft.Sarif.Viewer.Models
                     {
                         if (newItem is INotifyPropertyChanged notifyPropertyChanged)
                         {
-                            notifyPropertyChanged.PropertyChanged += LocationModelPropertyChanged;
+                            notifyPropertyChanged.PropertyChanged += this.LocationModelPropertyChanged;
                         }
                     }
                 }
@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Models
                     {
                         if (oldItem is INotifyPropertyChanged notifyPropertyChanged)
                         {
-                            notifyPropertyChanged.PropertyChanged -= LocationModelPropertyChanged;
+                            notifyPropertyChanged.PropertyChanged -= this.LocationModelPropertyChanged;
                         }
                     }
                 }
@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (e.PropertyName == nameof(LocationModel.IsSelected) && sender is LocationModel locationModel)
             {
-                SelectedItem = locationModel;
+                this.SelectedItem = locationModel;
             }
         }
 
@@ -70,13 +70,13 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _message;
+                return this._message;
             }
             set
             {
                 if (value != this._message)
                 {
-                    _message = value;
+                    this._message = value;
 
                     this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.Message)));
                 }
@@ -95,7 +95,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _selectedItem;
+                return this._selectedItem;
             }
             set
             {
@@ -126,16 +126,16 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                if (_selectedCommand == null)
+                if (this._selectedCommand == null)
                 {
-                    _selectedCommand = new DelegateCommand<LocationModel>(l => this.SelectionChanged(l));
+                    this._selectedCommand = new DelegateCommand<LocationModel>(l => this.SelectionChanged(l));
                 }
 
-                return _selectedCommand;
+                return this._selectedCommand;
             }
             set
             {
-                _selectedCommand = value;
+                this._selectedCommand = value;
             }
         }
 

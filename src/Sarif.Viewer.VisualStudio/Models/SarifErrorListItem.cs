@@ -57,11 +57,11 @@ namespace Microsoft.Sarif.Viewer
 
         internal SarifErrorListItem()
         {
-            Locations = new LocationCollection(string.Empty);
-            RelatedLocations = new LocationCollection(string.Empty);
-            CallTrees = new CallTreeCollection();
-            Stacks = new ObservableCollection<StackCollection>();
-            Fixes = new ObservableCollection<FixModel>();
+            this.Locations = new LocationCollection(string.Empty);
+            this.RelatedLocations = new LocationCollection(string.Empty);
+            this.CallTrees = new CallTreeCollection();
+            this.Stacks = new ObservableCollection<StackCollection>();
+            this.Fixes = new ObservableCollection<FixModel>();
         }
 
         public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache) : this()
@@ -76,45 +76,45 @@ namespace Microsoft.Sarif.Viewer
             bool runHasSuppressions = run.HasSuppressedResults();
             bool runHasAbsentResults = run.HasAbsentResults();
 
-            RunIndex = runIndex;
-            ResultId = Interlocked.Increment(ref CurrentResultId);
+            this.RunIndex = runIndex;
+            this.ResultId = Interlocked.Increment(ref CurrentResultId);
             ReportingDescriptor rule = result.GetRule(run);
-            Tool = run.Tool.ToToolModel();
-            Rule = rule.ToRuleModel(result.RuleId);
-            Invocation = run.Invocations?[0]?.ToInvocationModel();
-            Message = result.GetMessageText(rule, concise: false).Trim();
-            ShortMessage = result.GetMessageText(rule, concise: true).Trim();
-            if (!Message.EndsWith("."))
+            this.Tool = run.Tool.ToToolModel();
+            this.Rule = rule.ToRuleModel(result.RuleId);
+            this.Invocation = run.Invocations?[0]?.ToInvocationModel();
+            this.Message = result.GetMessageText(rule, concise: false).Trim();
+            this.ShortMessage = result.GetMessageText(rule, concise: true).Trim();
+            if (!this.Message.EndsWith("."))
             {
-                ShortMessage = ShortMessage.TrimEnd('.');
+                this.ShortMessage = this.ShortMessage.TrimEnd('.');
             }
-            FileName = result.GetPrimaryTargetFile(run);
-            ProjectName = projectNameCache.GetName(FileName);
-            Category = runHasAbsentResults ? result.GetCategory() : nameof(BaselineState.None);
-            Region = result.GetPrimaryTargetRegion();
-            Level = GetEffectiveLevel(result);
+            this.FileName = result.GetPrimaryTargetFile(run);
+            this.ProjectName = projectNameCache.GetName(this.FileName);
+            this.Category = runHasAbsentResults ? result.GetCategory() : nameof(BaselineState.None);
+            this.Region = result.GetPrimaryTargetRegion();
+            this.Level = this.GetEffectiveLevel(result);
 
-            VSSuppressionState = runHasSuppressions && result.IsSuppressed() ? VSSuppressionState.Suppressed : VSSuppressionState.Active;
+            this.VSSuppressionState = runHasSuppressions && result.IsSuppressed() ? VSSuppressionState.Suppressed : VSSuppressionState.Active;
 
-            LogFilePath = logFilePath;
+            this.LogFilePath = logFilePath;
 
-            if (Region != null)
+            if (this.Region != null)
             {
-                LineNumber = Region.StartLine;
-                ColumnNumber = Region.StartColumn;
+                this.LineNumber = this.Region.StartLine;
+                this.ColumnNumber = this.Region.StartColumn;
             }
 
-            Tool = run.Tool.ToToolModel();
-            Rule = rule.ToRuleModel(result.RuleId);
-            Invocation = run.Invocations?[0]?.ToInvocationModel();
-            WorkingDirectory = Path.Combine(Path.GetTempPath(), RunIndex.ToString());
+            this.Tool = run.Tool.ToToolModel();
+            this.Rule = rule.ToRuleModel(result.RuleId);
+            this.Invocation = run.Invocations?[0]?.ToInvocationModel();
+            this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
 
             if (result.Locations?.Any() == true)
             {
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = result.Locations.Count - 1; i >= 0; --i)
                 {
-                    Locations.Add(result.Locations[i].ToLocationModel(run, resultId: ResultId, runIndex: RunIndex));
+                    this.Locations.Add(result.Locations[i].ToLocationModel(run, resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 
@@ -122,7 +122,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
                 {
-                    RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, resultId: ResultId, runIndex: RunIndex));
+                    this.RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, resultId: this.ResultId, runIndex: this.RunIndex));
                 }
 
             }
@@ -131,29 +131,29 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTree callTree = codeFlow.ToCallTree(run, resultId: ResultId, runIndex: RunIndex);
+                    CallTree callTree = codeFlow.ToCallTree(run, resultId: this.ResultId, runIndex: this.RunIndex);
                     if (callTree != null)
                     {
-                        CallTrees.Add(callTree);
+                        this.CallTrees.Add(callTree);
                     }
                 }
 
-                CallTrees.Verbosity = 100;
-                CallTrees.IntelligentExpand();
+                this.CallTrees.Verbosity = 100;
+                this.CallTrees.IntelligentExpand();
             }
 
             if (result.Stacks != null)
             {
                 foreach (Stack stack in result.Stacks)
                 {
-                    Stacks.Add(stack.ToStackCollection(resultId: ResultId, runIndex: RunIndex));
+                    this.Stacks.Add(stack.ToStackCollection(resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 
             if (result.Fixes != null)
             {
                 IDictionary<int, RunDataCache> runIndexToRunDataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
-                if (!runIndexToRunDataCache.TryGetValue(RunIndex, out RunDataCache runDataCache))
+                if (!runIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
                 {
                     runDataCache = null;
                 }
@@ -162,7 +162,7 @@ namespace Microsoft.Sarif.Viewer
                 foreach (Fix fix in result.Fixes)
                 {
                     FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
-                    Fixes.Add(fixModel);
+                    this.Fixes.Add(fixModel);
                 }
             }
         }
@@ -196,7 +196,7 @@ namespace Microsoft.Sarif.Viewer
                 case ResultKind.Fail:
                 case ResultKind.None:   // Should never happen.
                 default:                // Should never happen.
-                    effectiveLevel = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
+                    effectiveLevel = result.Level != FailureLevel.Warning ? result.Level : this.Rule.FailureLevel;
                     break;
             }
 
@@ -206,7 +206,7 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            RunIndex = runIndex;
+            this.RunIndex = runIndex;
             string ruleId = null;
 
             if (notification.AssociatedRule != null)
@@ -219,25 +219,25 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            Message = notification.Message.Text?.Trim() ?? string.Empty;
-            ShortMessage = ExtensionMethods.GetFirstSentence(Message);
+            this.Message = notification.Message.Text?.Trim() ?? string.Empty;
+            this.ShortMessage = ExtensionMethods.GetFirstSentence(this.Message);
 
             // This is not locale friendly.
-            if (!Message.EndsWith("."))
+            if (!this.Message.EndsWith("."))
             {
-                ShortMessage = ShortMessage.TrimEnd('.');
+                this.ShortMessage = this.ShortMessage.TrimEnd('.');
             }
 
-            Level = notification.Level;
-            LogFilePath = logFilePath;
-            FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, RunIndex) ?? string.Empty;
-            ProjectName = projectNameCache.GetName(FileName);
-            Locations.Add(new LocationModel(resultId: ResultId, runIndex: RunIndex) { FilePath = FileName });
+            this.Level = notification.Level;
+            this.LogFilePath = logFilePath;
+            this.FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, this.RunIndex) ?? string.Empty;
+            this.ProjectName = projectNameCache.GetName(this.FileName);
+            this.Locations.Add(new LocationModel(resultId: this.ResultId, runIndex: this.RunIndex) { FilePath = FileName });
 
-            Tool = run.Tool.ToToolModel();
-            Rule = rule.ToRuleModel(ruleId);
-            Invocation = run.Invocations?[0]?.ToInvocationModel();
-            WorkingDirectory = Path.Combine(Path.GetTempPath(), RunIndex.ToString());
+            this.Tool = run.Tool.ToToolModel();
+            this.Rule = rule.ToRuleModel(ruleId);
+            this.Invocation = run.Invocations?[0]?.ToInvocationModel();
+            this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
         }
 
         /// <summary>
@@ -262,14 +262,14 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _fileName;
+                return this._fileName;
             }
 
             set
             {
-                if (value == _fileName) { return; }
-                _fileName = value;
-                NotifyPropertyChanged();
+                if (value == this._fileName) { return; }
+                this._fileName = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -293,12 +293,12 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (_messageInlines == null)
+                if (this._messageInlines == null)
                 {
-                    _messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
+                    this._messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.Message));
                 }
 
-                return _messageInlines;
+                return this._messageInlines;
             }
         }
 
@@ -307,7 +307,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return MessageInlines.Any();
+                return this.MessageInlines.Any();
             }
         }
 
@@ -316,9 +316,9 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return !HasEmbeddedLinks &&
-                    !string.IsNullOrWhiteSpace(Message) &&
-                    Message != ShortMessage;
+                return !this.HasEmbeddedLinks &&
+                    !string.IsNullOrWhiteSpace(this.Message) &&
+                    this.Message != this.ShortMessage;
             }
         }
 
@@ -353,12 +353,12 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _tool;
+                return this._tool;
             }
             set
             {
-                _tool = value;
-                NotifyPropertyChanged();
+                this._tool = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -367,12 +367,12 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _rule;
+                return this._rule;
             }
             set
             {
-                _rule = value;
-                NotifyPropertyChanged();
+                this._rule = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -381,12 +381,12 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _invocation;
+                return this._invocation;
             }
             set
             {
-                _invocation = value;
-                NotifyPropertyChanged();
+                this._invocation = value;
+                this.NotifyPropertyChanged();
             }
         }
 
@@ -395,12 +395,12 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return _selectedTab;
+                return this._selectedTab;
             }
             set
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                _selectedTab = value;
+                this._selectedTab = value;
 
                 // If a new tab is selected, reset the Properties window.
                 SarifExplorerWindow.Find()?.ResetSelection();
@@ -427,7 +427,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return Locations.Any() || RelatedLocations.Any() || CallTrees.Any() || Stacks.Any() || Fixes.Any();
+                return this.Locations.Any() || this.RelatedLocations.Any() || this.CallTrees.Any() || this.Stacks.Any() || this.Fixes.Any();
             }
         }
 
@@ -436,7 +436,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return Locations.Count + RelatedLocations.Count;
+                return this.Locations.Count + this.RelatedLocations.Count;
             }
         }
 
@@ -445,7 +445,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                return LocationsCount > 1;
+                return this.LocationsCount > 1;
             }
         }
 
@@ -454,9 +454,9 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (_openLogFileCommand == null)
+                if (this._openLogFileCommand == null)
                 {
-                    _openLogFileCommand = new DelegateCommand(() =>
+                    this._openLogFileCommand = new DelegateCommand(() =>
                     {
                         // For now this is being done on the UI thread
                         // and is only required due to the message box being shown below.
@@ -464,11 +464,11 @@ namespace Microsoft.Sarif.Viewer
                         // is fixed.
                         ThreadHelper.ThrowIfNotOnUIThread();
 
-                        OpenLogFile();
+                        this.OpenLogFile();
                     });
                 }
 
-                return _openLogFileCommand;
+                return this._openLogFileCommand;
             }
         }
 
@@ -480,17 +480,17 @@ namespace Microsoft.Sarif.Viewer
             // is fixed.
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (LogFilePath != null)
+            if (this.LogFilePath != null)
             {
-                if (File.Exists(LogFilePath))
+                if (File.Exists(this.LogFilePath))
                 {
                     var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
-                    dte.ExecuteCommand("File.OpenFile", $@"""{LogFilePath}"" /e:""JSON Editor""");
+                    dte.ExecuteCommand("File.OpenFile", $@"""{this.LogFilePath}"" /e:""JSON Editor""");
                 }
                 else
                 {
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                                                    string.Format(Resources.OpenLogFileFail_DilogMessage, LogFilePath),
+                                                    string.Format(Resources.OpenLogFileFail_DilogMessage, this.LogFilePath),
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_CRITICAL,
                                                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
@@ -501,7 +501,7 @@ namespace Microsoft.Sarif.Viewer
 
         public override string ToString()
         {
-            return Message;
+            return this.Message;
         }
 
         [Browsable(false)]
@@ -509,16 +509,16 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (_lineMarker == null && Region != null && Region.StartLine > 0)
+                if (this._lineMarker == null && this.Region != null && this.Region.StartLine > 0)
                 {
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
-                    _lineMarker = new ResultTextMarker(
-                        resultId: ResultId,
-                        runIndex: RunIndex,
-                        uriBaseId: Locations?.FirstOrDefault()?.UriBaseId,
-                        region: Region,
-                        fullFilePath: FileName,
+                    this._lineMarker = new ResultTextMarker(
+                        resultId: this.ResultId,
+                        runIndex: this.RunIndex,
+                        uriBaseId: this.Locations?.FirstOrDefault()?.UriBaseId,
+                        region: this.Region,
+                        fullFilePath: this.FileName,
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
@@ -526,11 +526,11 @@ namespace Microsoft.Sarif.Viewer
                         context: this);
                 }
 
-                return _lineMarker;
+                return this._lineMarker;
             }
             set
             {
-                _lineMarker = value;
+                this._lineMarker = value;
             }
         }
 
@@ -539,23 +539,14 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             var uri = new Uri(remappedPath, UriKind.Absolute);
-            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[RunIndex].FileRegionsCache;
+            FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.RunIndex].FileRegionsCache;
 
-            if (FileName.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
+            if (this.FileName.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
             {
-                FileName = remappedPath;
+                this.FileName = remappedPath;
             }
 
-            foreach (LocationModel location in Locations)
-            {
-                if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    location.FilePath = remappedPath;
-                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
-                }
-            }
-
-            foreach (LocationModel location in RelatedLocations)
+            foreach (LocationModel location in this.Locations)
             {
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
@@ -564,7 +555,16 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            foreach (CallTree callTree in CallTrees)
+            foreach (LocationModel location in this.RelatedLocations)
+            {
+                if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    location.FilePath = remappedPath;
+                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
+                }
+            }
+
+            foreach (CallTree callTree in this.CallTrees)
             {
                 Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
 
@@ -599,7 +599,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            foreach (StackCollection stackCollection in Stacks)
+            foreach (StackCollection stackCollection in this.Stacks)
             {
                 foreach (StackFrameModel stackFrame in stackCollection)
                 {
@@ -611,7 +611,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            foreach (FixModel fixModel in Fixes)
+            foreach (FixModel fixModel in this.Fixes)
             {
                 foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
                 {
@@ -639,7 +639,7 @@ namespace Microsoft.Sarif.Viewer
         /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
         /// </returns>
         public bool IsFixable() =>
-            !IsFixed && Fixes.Any(fix => fix.CanBeAppliedToFile(FileName));
+            !this.IsFixed && this.Fixes.Any(fix => fix.CanBeAppliedToFile(this.FileName));
 
         /// <summary>
         /// Gets or sets a value indicating whether this error has been fixed.
@@ -679,7 +679,7 @@ namespace Microsoft.Sarif.Viewer
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -695,10 +695,10 @@ namespace Microsoft.Sarif.Viewer
 
             if (includeChildTags)
             {
-                resultTextMarkers = resultTextMarkers.Concat(Locations.Select(location => location.LineMarker));
-                resultTextMarkers = resultTextMarkers.Concat(RelatedLocations.Select(relatedLocation => relatedLocation.LineMarker));
+                resultTextMarkers = resultTextMarkers.Concat(this.Locations.Select(location => location.LineMarker));
+                resultTextMarkers = resultTextMarkers.Concat(this.RelatedLocations.Select(relatedLocation => relatedLocation.LineMarker));
 
-                foreach (CallTree callTree in CallTrees)
+                foreach (CallTree callTree in this.CallTrees)
                 {
                     Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
                     List<CallTreeNode> allCallTreeNodes = new List<CallTreeNode>();
@@ -723,7 +723,7 @@ namespace Microsoft.Sarif.Viewer
                     resultTextMarkers = resultTextMarkers.Concat(allCallTreeNodes.Select(callTreeNode => callTreeNode.LineMarker));
                 }
 
-                foreach (StackCollection stackCollection in Stacks)
+                foreach (StackCollection stackCollection in this.Stacks)
                 {
                     resultTextMarkers = resultTextMarkers.Concat(stackCollection.Select(stack => stack.LineMarker));
                 }

@@ -14,14 +14,14 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _name;
+                return this._name;
             }
             set
             {
-                if (value != _name)
+                if (value != this._name)
                 {
-                    _name = value;
-                    NotifyPropertyChanged();
+                    this._name = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -30,14 +30,14 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _fullName;
+                return this._fullName;
             }
             set
             {
-                if (value != _fullName)
+                if (value != this._fullName)
                 {
-                    _fullName = value;
-                    NotifyPropertyChanged();
+                    this._fullName = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -46,14 +46,14 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _version;
+                return this._version;
             }
             set
             {
-                if (value != _version)
+                if (value != this._version)
                 {
-                    _version = value;
-                    NotifyPropertyChanged();
+                    this._version = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -62,14 +62,14 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _semanticVersion;
+                return this._semanticVersion;
             }
             set
             {
-                if (value != _semanticVersion)
+                if (value != this._semanticVersion)
                 {
-                    _semanticVersion = value;
-                    NotifyPropertyChanged();
+                    this._semanticVersion = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }

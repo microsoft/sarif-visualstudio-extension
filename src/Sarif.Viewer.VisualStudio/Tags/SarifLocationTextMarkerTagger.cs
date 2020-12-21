@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            TextBuffer = textBuffer;
+            this.TextBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
 
@@ -88,7 +88,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     SelectMany(runDataCache => runDataCache.SarifErrors).
                     Where(sarifListItem => sarifListItem.ResultId == currentlySelectedItem.ResultId).
                     Where(sarifListItem => string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0).
-                    SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
+                    SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(this.TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
                     ToList();
 
                 // We need to subscribe to property change events from the provided tags
@@ -130,7 +130,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.tagsDirty = true;
 
-            ITextSnapshot textSnapshot = TextBuffer.CurrentSnapshot;
+            ITextSnapshot textSnapshot = this.TextBuffer.CurrentSnapshot;
             this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length)));
         }
 
@@ -140,7 +140,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -199,7 +199,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (sender is ISarifLocationTag tag && tag.PersistentSpan.IsDocumentOpen)
             {
-                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(TextBuffer.CurrentSnapshot)));
+                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(this.TextBuffer.CurrentSnapshot)));
             }
         }
 

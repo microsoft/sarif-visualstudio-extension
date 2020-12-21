@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
     /// </summary>
     internal static class TelemetryProvider
     {
-        private static ReaderWriterLockSlimWrapper s_initializeLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private static readonly ReaderWriterLockSlimWrapper s_initializeLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
 
         /// <summary>
         /// Initializes the static instance of the TelemetryProvider.
@@ -101,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                     InstrumentationKey = telemetryKey
                 };
 
-                this.TelemetryClient = new TelemetryClient(telemetryConfiguration);
+                this.TelemetryClient = new TelemetryClient(this.telemetryConfiguration);
 
                 // When this service is constructed, this indicates that "some" piece
                 // of code in the extension has been loaded and fired an event.
@@ -124,7 +124,6 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             /// </summary>
             public TelemetryClient TelemetryClient;
 
-            /// </inheritdoc>
             public void Dispose()
             {
                 this.TelemetryClient.Flush();

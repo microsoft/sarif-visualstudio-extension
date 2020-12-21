@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.Controls
 
         public InternetHyperlink()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         /// <summary>

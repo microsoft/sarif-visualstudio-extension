@@ -102,7 +102,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifErrorListItem selectedSarifErrorItem = null;
             if (selectedTableEntry != null)
             {
-                TryGetSarifResult(selectedTableEntry, out selectedSarifErrorItem);
+                this.TryGetSarifResult(selectedTableEntry, out selectedSarifErrorItem);
             }
 
             SarifErrorListItem previouslySelectedItem = this.currentlySelectedItem;

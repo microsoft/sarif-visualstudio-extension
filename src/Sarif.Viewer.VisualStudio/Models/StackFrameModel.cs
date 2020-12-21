@@ -34,7 +34,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._message)
                 {
                     this._message = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -50,8 +50,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._line)
                 {
                     this._line = value;
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
+                    this.NotifyPropertyChanged();
+                    this.NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._column)
                 {
                     this._column = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._address)
                 {
                     this._address = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._offset)
                 {
                     this._offset = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -115,7 +115,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._filePath)
                 {
                     base.FilePath = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -139,8 +139,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._fullyQualifiedLogicalName)
                 {
                     this._fullyQualifiedLogicalName = value;
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
+                    this.NotifyPropertyChanged();
+                    this.NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
                 }
             }
         }
@@ -156,8 +156,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._module)
                 {
                     this._module = value;
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
+                    this.NotifyPropertyChanged();
+                    this.NotifyPropertyChanged(nameof(this.FullyQualifiedLocation));
                 }
             }
         }
@@ -168,16 +168,16 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 string val = string.Empty;
 
-                if (!string.IsNullOrWhiteSpace(Module))
+                if (!string.IsNullOrWhiteSpace(this.Module))
                 {
-                    val += Module + "!";
+                    val += this.Module + "!";
                 }
 
-                val += FullyQualifiedLogicalName;
+                val += this.FullyQualifiedLogicalName;
 
-                if (Line > 0)
+                if (this.Line > 0)
                 {
-                    val += " Line " + Line;
+                    val += " Line " + this.Line;
                 }
 
                 return val;
@@ -188,12 +188,12 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                _navigateCommand = _navigateCommand ?? new DelegateCommand(Navigate);
-                return _navigateCommand;
+                this._navigateCommand = this._navigateCommand ?? new DelegateCommand(this.Navigate);
+                return this._navigateCommand;
             }
             set
             {
-                _navigateCommand = value;
+                this._navigateCommand = value;
             }
         }
 
