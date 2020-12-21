@@ -22,29 +22,53 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
     {
+        internal const string SuppressionStateColumnName = "suppression";
+
         private bool isDisposed;
 
         private readonly Dictionary<string, object> columnKeyToContent = new Dictionary<string, object>(StringComparer.InvariantCulture);
 
-        public static readonly ReadOnlyCollection<string> SupportedColumns = new ReadOnlyCollection<string>(new[] {
-            StandardTableKeyNames2.TextInlines,
-            StandardTableKeyNames.DocumentName,
-            StandardTableKeyNames.ErrorCategory,
-            StandardTableKeyNames.Line,
-            StandardTableKeyNames.Column,
-            StandardTableKeyNames.Text,
-            StandardTableKeyNames.FullText,
-            StandardTableKeyNames.ErrorSeverity,
-            StandardTableKeyNames.Priority,
-            StandardTableKeyNames.ErrorSource,
-            StandardTableKeyNames.BuildTool,
-            StandardTableKeyNames.ErrorCode,
-            StandardTableKeyNames.ProjectName,
-            StandardTableKeyNames.HelpLink,
-            StandardTableKeyNames.ErrorCodeToolTip,
-            "suppressionstatus",
-            "suppressionstate",
-            "suppression"
+        // The set of columns we display depends on the contents of the displayed log file.
+        // Per https://github.com/microsoft/sarif-visualstudio-extension/issues/114, we do not
+        // display "suppressed" or "absent" issues by default.
+        //
+        // If we open a log file that contains a suppressed issue, we display the "Suppression
+        // State" column, setting its filter to NOT display the suppressed items. The appearance
+        // of the column is a hint to the user that there are suppressed results available to examine.
+        //
+        // Similarly, if we open a log file that contains absent issues, we display the "Category"
+        // column, setting its filter to NOT display the absent items. The appearance of the column
+        // is a hint to the user that there are absent results available to examine.
+        //
+        // There is not a direct mechanism to add or remove columns based on an individual entry.
+        // You can, however, add a new ITableDataSource (ITableManager.AddSource(source[, columns])
+        // where you can specify the columns you want to appear in the table (at which point VS adds
+        // the column to the table, though it won't be shown to the user unless it is visible).
+        // Removing the data source removes the column (although we don't have a requirement to do
+        // that), unless some other source also added the same column.
+
+        // The "basic" columns are always displayed.
+        public static readonly ReadOnlyCollection<string> BasicColumns = new ReadOnlyCollection<string>(new[] {
+            StandardTableColumnDefinitions.DocumentName,
+            StandardTableColumnDefinitions.Line,
+            StandardTableColumnDefinitions.Column,
+            StandardTableColumnDefinitions.Text,
+            StandardTableColumnDefinitions.ErrorSeverity,
+            StandardTableColumnDefinitions.Priority,
+            StandardTableColumnDefinitions.ErrorSource,
+            StandardTableColumnDefinitions.BuildTool,
+            StandardTableColumnDefinitions.ErrorCode,
+            StandardTableColumnDefinitions.ProjectName
+        });
+
+        public static readonly ReadOnlyCollection<string> SuppressedResultColumns = new ReadOnlyCollection<string>(new[]
+        {
+            SuppressionStateColumnName
+        });
+
+        public static readonly ReadOnlyCollection<string> AbsentResultColumns = new ReadOnlyCollection<string>(new[]
+        {
+            StandardTableKeyNames.ErrorCategory
         });
 
         public SarifResultTableEntry(SarifErrorListItem error)
@@ -79,9 +103,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
 
             string supressionState = this.Error.VSSuppressionState.ToString();
-            this.columnKeyToContent["suppressionstatus"] = supressionState;
-            this.columnKeyToContent["suppressionstate"] = supressionState;
-            this.columnKeyToContent["suppression"] = supressionState;
+            this.columnKeyToContent[SuppressionStateColumnName] = supressionState;
 
             // Anything that's a bit more complex, we will make a "lazy" value and evaluate
             // it when it's asked for.
@@ -238,7 +260,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

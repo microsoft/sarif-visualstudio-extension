@@ -64,10 +64,10 @@
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(OutputPath)runtimes\win-x86\native\RE2.Native.x86.dll $(OutputPath)
-xcopy $(OutputPath)runtimes\win-x86\native\RE2.Native.x86.pdb $(OutputPath)
-xcopy $(OutputPath)runtimes\win-x64\native\RE2.Native.x64.dll $(OutputPath)
-xcopy $(OutputPath)runtimes\win-x64\native\RE2.Native.x64.pdb $(OutputPath)
+    <PostBuildEvent>xcopy $(OutputPath)runtimes\win-x86\native\RE2.Native.x86.dll $(OutputPath) /Y
+xcopy $(OutputPath)runtimes\win-x86\native\RE2.Native.x86.pdb $(OutputPath) /Y
+xcopy $(OutputPath)runtimes\win-x64\native\RE2.Native.x64.dll $(OutputPath) /Y
+xcopy $(OutputPath)runtimes\win-x64\native\RE2.Native.x64.pdb $(OutputPath) /Y
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

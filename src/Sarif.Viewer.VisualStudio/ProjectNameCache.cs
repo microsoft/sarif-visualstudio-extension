@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning restore VSTHRD108
             }
 
             SetName(fileName);
@@ -39,7 +39,7 @@ namespace Microsoft.Sarif.Viewer
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning restore VSTHRD108
             }
 
             if (projectNames.ContainsKey(fileName))
