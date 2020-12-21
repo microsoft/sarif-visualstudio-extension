@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                     ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning restore VSTHRD108
                 }
 
                 if (this._verbosity != value)
@@ -107,7 +107,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                     ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning restore VSTHRD108
                 }
 
                 if (this._intelligentExpandCommand == null)
@@ -148,7 +148,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning restore VSTHRD108
             }
             foreach (CallTree callTree in this)
             {
@@ -174,7 +174,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning restore VSTHRD108
             }
 
             foreach (CallTree callTree in this)

@@ -96,7 +96,7 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            await base.InitializeAsync(cancellationToken, progress);
+            await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
 
             ServiceCreatorCallback callback = new ServiceCreatorCallback(this.CreateService);
             foreach (KeyValuePair<Type, ServiceInformation> serviceInformationKVP in ServiceTypeToServiceInformation)

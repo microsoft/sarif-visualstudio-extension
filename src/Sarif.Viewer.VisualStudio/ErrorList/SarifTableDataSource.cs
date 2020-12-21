@@ -4,69 +4,40 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
 
-using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    internal class SarifTableDataSource : ITableDataSource, IDisposable
+    internal class SarifTableDataSource : SarifTableDataSourceBase, IDisposable
     {
         private static SarifTableDataSource _instance;
-        private readonly ReaderWriterLockSlimWrapper sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private readonly List<SarifTableDataSink> sinks = new List<SarifTableDataSink>();
+        private readonly ReaderWriterLockSlimWrapper sinksLock;
+        private readonly List<SinkHolder> sinkHolders;
 
-        private readonly ReaderWriterLockSlimWrapper tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+        private readonly ReaderWriterLockSlimWrapper tableEntriesLock;
+        private Dictionary<string, List<SarifResultTableEntry>> logFileToTableEntries;
         private bool disposedValue;
-
-        [Import]
-        private ITableManagerProvider TableManagerProvider { get; set; } = null;
-
-        [ImportMany]
-        private IEnumerable<ITableControlEventProcessorProvider> TableControlEventProcessorProviders { get; set; } = null;
 
         private SarifTableDataSource()
         {
+            this.sinksLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+            this.sinkHolders = new List<SinkHolder>();
+
+            this.tableEntriesLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+            this.logFileToTableEntries = new Dictionary<string, List<SarifResultTableEntry>>(StringComparer.InvariantCulture);
+
             if (!SarifViewerPackage.IsUnitTesting)
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally
-                this.Initialize();
-            }
-        }
+#pragma warning restore VSTHRD108
 
-        private void Initialize()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var compositionService = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel)) as IComponentModel;
-
-            // The composition service will only be null in unit tests.
-            if (compositionService != null)
-            {
-                compositionService.DefaultCompositionService.SatisfyImportsOnce(this);
-
-                if (this.TableManagerProvider == null)
-                {
-                    this.TableManagerProvider = compositionService.GetService<ITableManagerProvider>();
-                }
-
-                if (this.TableControlEventProcessorProviders == null)
-                {
-                    this.TableControlEventProcessorProviders = new[]
-                        { compositionService.GetService<ITableControlEventProcessorProvider>() };
-                }
-
-                ITableManager manager = this.TableManagerProvider.GetTableManager(StandardTables.ErrorsTable);
-                manager.AddSource(this, SarifResultTableEntry.SupportedColumns);
+                this.Initialize(SarifResultTableEntry.BasicColumns);
             }
         }
 
@@ -84,29 +55,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         #region ITableDataSource members
-        public string SourceTypeIdentifier
-        {
-            get { return StandardTableDataSources.ErrorTableDataSource; }
-        }
 
-        public string Identifier
-        {
-            get { return Guids.GuidVSPackageString; }
-        }
+        public override string Identifier => Guids.GuidVSPackageString;
 
-        public string DisplayName
-        {
-            get { return Resources.ErrorListTableDataSourceDisplayName; }
-        }
+        public override string DisplayName => Resources.ErrorListTableDataSourceDisplayName;
 
-        public IDisposable Subscribe(ITableDataSink sink)
+        public override IDisposable Subscribe(ITableDataSink sink)
         {
-            var sarifTableDataSink = new SarifTableDataSink(sink);
-            sarifTableDataSink.Disposed += this.TableSink_Disposed;
+            var sinkHolder = new SinkHolder(sink);
+            sinkHolder.Disposed += this.TableSink_Disposed;
 
             using (this.sinksLock.EnterWriteLock())
             {
-                this.sinks.Add(sarifTableDataSink);
+                this.sinkHolders.Add(sinkHolder);
             }
 
             IImmutableList<SarifResultTableEntry> entriesToNotify;
@@ -116,10 +77,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 entriesToNotify = this.logFileToTableEntries.Values.SelectMany(tableEntries => tableEntries).ToImmutableList();
             }
 
-            sarifTableDataSink.AddEntries(entriesToNotify);
+            sink.AddEntries(entriesToNotify);
 
-            return sarifTableDataSink;
+            return sinkHolder;
         }
+
         #endregion
 
         public void AddErrors(IEnumerable<SarifErrorListItem> errors)
@@ -254,17 +216,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private void CallSinks(Action<SarifTableDataSink> action)
+        private void CallSinks(Action<ITableDataSink> action)
         {
-            IReadOnlyList<SarifTableDataSink> sinkManagers;
+            IReadOnlyList<SinkHolder> sinkHolders;
             using (this.sinksLock.EnterReadLock())
             {
-                sinkManagers = this.sinks.ToImmutableArray();
+                sinkHolders = this.sinkHolders.ToImmutableArray();
             }
 
-            foreach (SarifTableDataSink sinkManager in sinkManagers)
+            foreach (SinkHolder sinkHolder in sinkHolders)
             {
-                action(sinkManager);
+                action(sinkHolder.Sink);
             }
         }
 
@@ -278,7 +240,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     using (this.sinksLock.EnterWriteLock())
                     {
-                        this.sinks.Clear();
+                        this.sinkHolders.Clear();
                     }
 
                     using (this.tableEntriesLock.EnterWriteLock())
@@ -308,13 +270,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return;
             }
 
-            if (sender is SarifTableDataSink sarifTableDataSourceSink)
+            if (sender is SinkHolder sinkHolder)
             {
-                sarifTableDataSourceSink.Disposed -= this.TableSink_Disposed;
+                sinkHolder.Disposed -= this.TableSink_Disposed;
 
                 using (this.sinksLock.EnterWriteLock())
                 {
-                    this.sinks.Remove(sarifTableDataSourceSink);
+                    this.sinkHolders.Remove(sinkHolder);
                 }
             }
         }

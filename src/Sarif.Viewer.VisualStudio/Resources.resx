@@ -305,4 +305,10 @@
     <value>FlawFinder log files (*.csv)|*.csv</value>
     <comment>Used in the import log open dialog</comment>
   </data>
+  <data name="ErrorListAbsentResultsDataSourceDisplayName" xml:space="preserve">
+    <value>SARIF Viewer: Absent results "stub" display source</value>
+  </data>
+  <data name="ErrorListSuppressedResultsDataSourceDisplayName" xml:space="preserve">
+    <value>SARIF Viewer: Suppressed results "stub" display source</value>
+  </data>
 </root>
