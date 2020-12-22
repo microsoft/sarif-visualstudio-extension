@@ -108,13 +108,13 @@
       <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
       <Name>Sarif</Name>
     </ProjectReference>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\SarifPatternMatcher\SarifPatternMatcher.csproj">
-      <Project>{007d6089-0680-4b57-b825-80260467c552}</Project>
-      <Name>SarifPatternMatcher</Name>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\Sarif.PatternMatcher\Sarif.PatternMatcher.csproj">
+      <Project>{141a7597-cc51-4eac-a168-d2691149ab5b}</Project>
+      <Name>Sarif.PatternMatcher</Name>
     </ProjectReference>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\String8\String8.csproj">
-      <Project>{92010d71-d8b9-4176-8adf-c0a49d7007fa}</Project>
-      <Name>String8</Name>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\Strings.Interop\Strings.Interop.csproj">
+      <Project>{aa731ff3-5423-49f9-84c9-d05543fba360}</Project>
+      <Name>Strings.Interop</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj">
       <Project>{9d407555-d268-461e-bfaf-4251b0fbf7c9}</Project>

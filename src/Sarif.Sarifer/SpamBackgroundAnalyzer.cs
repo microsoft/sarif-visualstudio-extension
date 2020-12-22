@@ -9,7 +9,7 @@ using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Driver;
 using Microsoft.CodeAnalysis.Sarif.Writers;
-using Microsoft.CodeAnalysis.SarifPatternMatcher;
+using Microsoft.CodeAnalysis.Sarif.PatternMatcher;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
