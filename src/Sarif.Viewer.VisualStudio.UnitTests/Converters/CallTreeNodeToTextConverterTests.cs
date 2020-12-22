@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNodeToTextConverter_HandlesLocationMessage()
         {
-            string message = "my_function";
+            const string message = "my_function";
 
             var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
@@ -47,7 +47,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNodeToTextConverter_HandlesRegionSnippet()
         {
-            string snippet = "    int x = 42;";
+            const string snippet = "    int x = 42;";
 
             var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
@@ -99,8 +99,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNodeToTextConverter_HandlesMessageAndSnippet()
         {
-            string snippet = "    int x = 42;";
-            string message = "my_function";
+            const string snippet = "    int x = 42;";
+            const string message = "my_function";
 
             var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {
@@ -133,8 +133,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CallTreeNodeToTextConverter_HandlesNullMessage()
         {
-            string snippet = "    int x = 42;";
-            string message = null;
+            const string snippet = "    int x = 42;";
+            const string message = null;
 
             var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
             {

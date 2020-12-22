@@ -86,8 +86,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     RunIndexToRunDataCache.
                     Values.
                     SelectMany(runDataCache => runDataCache.SarifErrors).
-                    Where(sarifListItem => sarifListItem.ResultId == currentlySelectedItem.ResultId).
-                    Where(sarifListItem => string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0).
+                    Where(sarifListItem => sarifListItem.ResultId == currentlySelectedItem.ResultId && string.Compare(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase) == 0).
                     SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
                     ToList();
 

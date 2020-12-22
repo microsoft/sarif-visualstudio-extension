@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _message = value;
 
-                    this.OnPropertyChanged(new PropertyChangedEventArgs("Message"));
+                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(Message)));
                 }
             }
         }

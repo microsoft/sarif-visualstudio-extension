@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer
 {
-    internal class SarifFileAndContentDefinitions
+    internal static class SarifFileAndContentDefinitions
     {
         [Export]
         [Name("sarif")]

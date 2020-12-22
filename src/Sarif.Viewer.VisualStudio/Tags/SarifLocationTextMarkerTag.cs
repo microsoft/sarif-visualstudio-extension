@@ -15,8 +15,8 @@ namespace Microsoft.Sarif.Viewer.Tags
     internal class SarifLocationTextMarkerTag : SarifLocationTagBase, ITextMarkerTag, ISarifLocationTagCaretNotify, INotifyPropertyChanged
     {
         private string currentTextMarkerTagType;
-        private string highlightedTextMarkerTagType;
-        private string nonHighlightedTextMarkerTagType;
+        private readonly string highlightedTextMarkerTagType;
+        private readonly string nonHighlightedTextMarkerTagType;
 
         /// <summary>
         /// <param name="persistentSpan">The persistent span for the tag within a document.</param>
@@ -33,7 +33,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.highlightedTextMarkerTagType = highlightedTextMarkerTagType;
             this.nonHighlightedTextMarkerTagType = nonHighlightedTextMarkerTagType;
         }
-
 
         #region IErrorTag
         /// <inheritdoc/>
@@ -67,6 +66,5 @@ namespace Microsoft.Sarif.Viewer.Tags
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.Type)));
             }
         }
-
     }
 }

@@ -13,14 +13,7 @@ namespace Microsoft.Sarif.Viewer.Converters
         {
             var collection = value as ICollection;
 
-            if (collection == null || collection.Count == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return collection == null || collection.Count == 0 ? false : (object)true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

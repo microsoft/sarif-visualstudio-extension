@@ -26,7 +26,6 @@ using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
-
     public static class SdkUIUtilities
     {
         // Embedded link format: [link text](n|uri) where n is a non-negative integer, or uri is an absolute URL
@@ -146,7 +145,8 @@ namespace Microsoft.Sarif.Viewer
                     // The scope below ensures that if a document is not yet open, it is opened in the preview pane.
                     // For documents that are already open, they will remain in their current pane, which may be the preview
                     // pane or the full editor pane.
-                    using (new NewDocumentStateScope(__VSNEWDOCUMENTSTATE.NDS_Provisional | __VSNEWDOCUMENTSTATE.NDS_NoActivate, Microsoft.VisualStudio.VSConstants.NewDocumentStateReason.Navigation))
+                    using (new NewDocumentStateScope(__VSNEWDOCUMENTSTATE.NDS_Provisional
+                        | __VSNEWDOCUMENTSTATE.NDS_NoActivate, VSConstants.NewDocumentStateReason.Navigation))
                     {
                         return OpenDocumentInCurrentScope(provider, file);
                     }
@@ -203,12 +203,10 @@ namespace Microsoft.Sarif.Viewer
                 cookieDocLock = FindDocument(runningDocTable, file);
             }
 
-            if (windowFrame != null)
-            {
-                // This will make the document visible to the user and switch focus to it. ShowNoActivate doesn't help because for tabbed documents they
-                // are not brought to the front if they are already opened.
-                windowFrame.Show();
-            }
+            // This will make the document visible to the user and switch focus to it. ShowNoActivate doesn't help because for tabbed documents they
+            // are not brought to the front if they are already opened.
+            windowFrame?.Show();
+
             return windowFrame;
         }
 
@@ -420,7 +418,7 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private static readonly char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
         /// Creates a relative path from one directory to another directory or file
@@ -438,9 +436,9 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // If toPath is on a different drive then there is no relative path
-            if (0 != string.Compare(Path.GetPathRoot(fromDirectory),
+            if (string.Compare(Path.GetPathRoot(fromDirectory),
                                     Path.GetPathRoot(toPath),
-                                    StringComparison.OrdinalIgnoreCase))
+                                    StringComparison.OrdinalIgnoreCase) != 0)
             {
                 return toPath;
             }
@@ -460,9 +458,9 @@ namespace Microsoft.Sarif.Viewer
             // Find the common root
             for (; firstDifference < length; firstDifference++)
             {
-                if (0 != string.Compare(fromDirectories[firstDifference],
+                if (string.Compare(fromDirectories[firstDifference],
                                         toDirectories[firstDifference],
-                                        StringComparison.OrdinalIgnoreCase))
+                                        StringComparison.OrdinalIgnoreCase) != 0)
                 {
                     break;
                 }
@@ -633,7 +631,7 @@ namespace Microsoft.Sarif.Viewer
                         {
                             target = id;
                         }
-                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out var uri))
+                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out Uri uri))
                         {
                             // This is super dangerous! We are launching URIs for SARIF logs
                             // that can point to anything.

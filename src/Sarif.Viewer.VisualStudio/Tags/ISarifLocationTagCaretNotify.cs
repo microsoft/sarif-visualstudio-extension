@@ -6,7 +6,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// <summary>
     /// Implemented by tags that wish to receive caret notifications from <see cref="ITextViewCaretListenerService{T}"/>.
     /// </summary>
-    interface ISarifLocationTagCaretNotify
+    internal interface ISarifLocationTagCaretNotify
     {
         /// <summary>
         /// Called by the <see cref="ISarifLocationTaggerService"/> when the caret from the text editor enters this tag.

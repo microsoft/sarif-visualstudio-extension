@@ -76,12 +76,12 @@ namespace Microsoft.Sarif.Viewer
                 if (cfgManager != null)
                 {
                     Configuration activeConfig = cfgManager.ActiveConfiguration;
-                    if (activeConfig != null && activeConfig.Properties != null)
+                    if (activeConfig?.Properties != null)
                     {
                         Properties properties = activeConfig.Properties;
 
                         Property property = properties.Item("CLRSupport");
-                        if (property != null && property.Value != null)
+                        if (property?.Value != null)
                         {
                             // If we can't parse value of this property than we will return by default 'false'
                             bool.TryParse(property.Value.ToString(), out result);
@@ -128,10 +128,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             FileCodeModel fileCodeModel = projectItem.FileCodeModel;
-            if (fileCodeModel == null)
-                return Guid.Empty;
-
-            return new Guid(fileCodeModel.Language);
+            return fileCodeModel == null ? Guid.Empty : new Guid(fileCodeModel.Language);
         }
 
         internal static ProjectItem FindProjectItem(ProjectItems projectItems, string lookupName)

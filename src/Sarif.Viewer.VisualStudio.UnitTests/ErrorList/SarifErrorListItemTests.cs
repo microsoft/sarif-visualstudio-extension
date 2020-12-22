@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenRegionHasStartLine_HasLineMarker()
         {
-            SarifErrorListItem item = new SarifErrorListItem
+            var item = new SarifErrorListItem
             {
                 FileName = "file.ext",
                 Region = new Region
@@ -41,7 +41,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenRegionHasNoStartLine_HasNoLineMarker()
         {
-            SarifErrorListItem item = new SarifErrorListItem
+            var item = new SarifErrorListItem
             {
                 FileName = "file.ext",
                 Region = new Region
@@ -58,7 +58,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenRegionIsAbsent_HasNoLineMarker()
         {
-            SarifErrorListItem item = new SarifErrorListItem
+            var item = new SarifErrorListItem
             {
                 FileName = "file.ext"
             };
@@ -71,9 +71,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenMessageIsAbsent_ContainsBlankMessage()
         {
-            var result = new Result
-            {
-            };
+            var result = new Result();
 
             SarifErrorListItem item = MakeErrorListItem(result);
 
@@ -347,8 +345,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_ResultMessageFormat_MultipleSentences()
         {
-            string s1 = "The quick brown fox.";
-            string s2 = "Jumps over the lazy dog.";
+            const string s1 = "The quick brown fox.";
+            const string s2 = "Jumps over the lazy dog.";
             var result = new Result
             {
                 Message = new Message()
@@ -365,7 +363,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_ResultMessageFormat_NoTrailingPeriod()
         {
-            string s1 = "The quick brown fox";
+            const string s1 = "The quick brown fox";
             var result = new Result
             {
                 Message = new Message()
@@ -382,8 +380,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_HasEmbeddedLinks_MultipleSentencesWithEmbeddedLinks()
         {
-            string s1 = "The quick [brown](1) fox.";
-            string s2 = "Jumps over the [lazy](2) dog.";
+            const string s1 = "The quick [brown](1) fox.";
+            const string s2 = "Jumps over the [lazy](2) dog.";
             var result = new Result
             {
                 Message = new Message()
@@ -477,9 +475,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifErrorListItem_WhenThereAreNoFixes_IsNotFixable()
         {
-            var result = new Result
-            {
-            };
+            var result = new Result();
 
             SarifErrorListItem item = MakeErrorListItem(result);
 

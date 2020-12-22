@@ -23,7 +23,7 @@ namespace Microsoft.Sarif.Viewer
     /// {
     ///     this.submitCommand = new DelegateCommand&lt;int?&gt;(this.Submit, this.CanSubmit);
     /// }
-    /// 
+    ///
     /// private bool CanSubmit(int? customerId)
     /// {
     ///     return (customerId.HasValue &amp;&amp; customers.Contains(customerId.Value));
@@ -53,7 +53,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod((T)o), (o) => canExecuteMethod((T)o))
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
 
             TypeInfo genericTypeInfo = typeof(T).GetTypeInfo();
 
@@ -66,7 +68,6 @@ namespace Microsoft.Sarif.Viewer
                     throw new InvalidCastException("Invalid generic payload type");
                 }
             }
-
         }
 
         /// <summary>
@@ -111,7 +112,6 @@ namespace Microsoft.Sarif.Viewer
             await base.ExecuteAsync(parameter);
         }
 
-
         private DelegateCommand(Func<T, Task> executeMethod)
             : this(executeMethod, (o) => true)
         {
@@ -121,9 +121,10 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod((T)o), (o) => canExecuteMethod((T)o))
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
         }
-
     }
 
     /// <summary>
@@ -152,7 +153,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod(), (o) => canExecuteMethod())
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
         }
 
         /// <summary>
@@ -202,7 +205,9 @@ namespace Microsoft.Sarif.Viewer
             : base((o) => executeMethod(), (o) => canExecuteMethod())
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
         }
     }
 }

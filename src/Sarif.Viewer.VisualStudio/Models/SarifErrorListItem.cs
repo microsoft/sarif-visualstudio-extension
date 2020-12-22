@@ -124,7 +124,6 @@ namespace Microsoft.Sarif.Viewer
                 {
                     RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, resultId: ResultId, runIndex: RunIndex));
                 }
-
             }
 
             if (result.CodeFlows != null)
@@ -178,29 +177,22 @@ namespace Microsoft.Sarif.Viewer
 
         private FailureLevel GetEffectiveLevel(Result result)
         {
-            FailureLevel effectiveLevel;
-
             switch (result.Kind)
             {
                 case ResultKind.Review:
                 case ResultKind.Open:
-                    effectiveLevel = FailureLevel.Warning;
-                    break;
+                    return FailureLevel.Warning;
 
                 case ResultKind.NotApplicable:
                 case ResultKind.Informational:
                 case ResultKind.Pass:
-                    effectiveLevel = FailureLevel.Note;
-                    break;
+                    return FailureLevel.Note;
 
                 case ResultKind.Fail:
                 case ResultKind.None:   // Should never happen.
                 default:                // Should never happen.
-                    effectiveLevel = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
-                    break;
+                    return result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
             }
-
-            return effectiveLevel;
         }
 
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
@@ -289,18 +281,8 @@ namespace Microsoft.Sarif.Viewer
         public string Message { get; set; }
 
         [Browsable(false)]
-        public ObservableCollection<XamlDoc.Inline> MessageInlines
-        {
-            get
-            {
-                if (_messageInlines == null)
-                {
-                    _messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
-                }
-
-                return _messageInlines;
-            }
-        }
+        public ObservableCollection<XamlDoc.Inline> MessageInlines => _messageInlines
+            ?? (_messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message)));
 
         [Browsable(false)]
         public bool HasEmbeddedLinks
@@ -450,27 +432,16 @@ namespace Microsoft.Sarif.Viewer
         }
 
         [Browsable(false)]
-        public DelegateCommand OpenLogFileCommand
+        public DelegateCommand OpenLogFileCommand => _openLogFileCommand ?? (_openLogFileCommand = new DelegateCommand(() =>
         {
-            get
-            {
-                if (_openLogFileCommand == null)
-                {
-                    _openLogFileCommand = new DelegateCommand(() =>
-                    {
-                        // For now this is being done on the UI thread
-                        // and is only required due to the message box being shown below.
-                        // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-                        // is fixed.
-                        ThreadHelper.ThrowIfNotOnUIThread();
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
 
-                        OpenLogFile();
-                    });
-                }
-
-                return _openLogFileCommand;
-            }
-        }
+            OpenLogFile();
+        }));
 
         internal void OpenLogFile()
         {
@@ -509,7 +480,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (_lineMarker == null && Region != null && Region.StartLine > 0)
+                if (_lineMarker == null && Region?.StartLine > 0)
                 {
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
@@ -578,8 +549,7 @@ namespace Microsoft.Sarif.Viewer
                     CallTreeNode current = nodesToProcess.Pop();
                     try
                     {
-                        if (current.FilePath != null &&
-                            current.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
+                        if (current.FilePath?.Equals(originalPath, StringComparison.OrdinalIgnoreCase) == true)
                         {
                             current.FilePath = remappedPath;
                             current.Region = regionsCache.PopulateTextRegionProperties(current.Region, uri, true);
@@ -636,7 +606,7 @@ namespace Microsoft.Sarif.Viewer
         /// applied, and it is not already fixed.
         /// </remarks>
         /// <returns>
-        /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
+        /// <c>true</c> if the error is fixable; otherwise <c>false</c>.
         /// </returns>
         public bool IsFixable() =>
             !IsFixed && Fixes.Any(fix => fix.CanBeAppliedToFile(FileName));

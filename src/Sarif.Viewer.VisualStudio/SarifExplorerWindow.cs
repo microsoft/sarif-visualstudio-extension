@@ -38,8 +38,8 @@ namespace Microsoft.Sarif.Viewer
         private ITrackSelection _trackSelection;
         private SelectionContainer _selectionContainer;
 
-        private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
-        private ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
+        private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
+        private readonly ITextViewCaretListenerService<ITextMarkerTag> textViewCaretListenerService;
 
         internal SarifToolWindowControl Control => Content as SarifToolWindowControl;
 

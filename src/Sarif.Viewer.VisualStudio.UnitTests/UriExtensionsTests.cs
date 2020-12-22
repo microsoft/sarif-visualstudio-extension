@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void ToPath_ValidUrls()
         {
-            Uri uri = new Uri("http://raw.githubusercontent.com/foo/bar.cpp");
+            var uri = new Uri("http://raw.githubusercontent.com/foo/bar.cpp");
             uri.ToPath().Should().Be(uri.OriginalString);
 
             uri = new Uri("HTTP://RAW.githubusercontent.com/FOO/bar.cpp");
@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void ToPath_ValidLocalPaths()
         {
-            Uri uri = new Uri(@"C:\Temp\foo\bar.cpp");
+            var uri = new Uri(@"C:\Temp\foo\bar.cpp");
             uri.ToPath().Should().Be(uri.OriginalString);
 
             uri = new Uri(@"\Temp\foo\bar.cpp", UriKind.Relative);
@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void ToPath_InvalidUrls()
         {
-            Uri uri = new Uri("ftp://raw.githubusercontent.com/foo/bar.cpp");
+            var uri = new Uri("ftp://raw.githubusercontent.com/foo/bar.cpp");
             uri.ToPath().Should().Be("/foo/bar.cpp");
         }
 

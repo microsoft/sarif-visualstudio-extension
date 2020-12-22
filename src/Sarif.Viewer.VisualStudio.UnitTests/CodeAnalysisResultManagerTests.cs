@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache();
+            var dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
@@ -87,7 +87,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 this.fileSystem,
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache();
+            var dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // First, rebase a file to prime the list of mappings.
@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache();
+            var dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
@@ -153,7 +153,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache();
+            var dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
@@ -180,7 +180,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache();
+            var dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
@@ -191,8 +191,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Length.Should().Be(1);
-            remappedPathPrefixes[0].Item1.Should().Be(@"C:");
-            remappedPathPrefixes[0].Item2.Should().Be(@"D:");
+            remappedPathPrefixes[0].Item1.Should().Be("C:");
+            remappedPathPrefixes[0].Item2.Should().Be("D:");
         }
 
         [Fact]
@@ -209,7 +209,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var target = new CodeAnalysisResultManager(
                 null,                               // This test never touches the file system.
                 this.FakePromptForResolvedPath);
-            RunDataCache dataCache = new RunDataCache();
+            var dataCache = new RunDataCache();
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
@@ -220,7 +220,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Length.Should().Be(1);
-            remappedPathPrefixes[0].Item1.Should().Be(@"C:");
+            remappedPathPrefixes[0].Item1.Should().Be("C:");
             remappedPathPrefixes[0].Item2.Should().Be(@"C:\Users\Mary");
         }
 
@@ -249,7 +249,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var resultManager = new CodeAnalysisResultManager(fileSystem: null, promptForResolvedPathDelegate: null);
 
             int runIndex = resultManager.GetNextRunIndex();
-            RunDataCache dataCache = new RunDataCache(runIndex);
+            var dataCache = new RunDataCache(runIndex);
             resultManager.RunIndexToRunDataCache.Add(runIndex, dataCache);
             resultManager.CacheUriBasePaths(run);
 

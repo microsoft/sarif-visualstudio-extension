@@ -16,10 +16,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifSnapshot_TryGetValue_LineNumber()
         {
-            int lineNumber = 10;
+            const int lineNumber = 10;
 
-            SarifErrorListItem errorItem = new SarifErrorListItem();
-            errorItem.LineNumber = lineNumber;
+            var errorItem = new SarifErrorListItem
+            {
+                LineNumber = lineNumber
+            };
 
             var tableEntry = new SarifResultTableEntry(errorItem);
 
@@ -31,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifSnapshot_TryGetValue_NoLineNumber()
         {
-            SarifErrorListItem errorItem = new SarifErrorListItem();
+            var errorItem = new SarifErrorListItem();
 
             var tableEntry = new SarifResultTableEntry(errorItem);
 
@@ -43,10 +45,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifSnapshot_TryGetValue_NegativeLineNumber()
         {
-            int lineNumber = -10;
+            const int lineNumber = -10;
 
-            SarifErrorListItem errorItem = new SarifErrorListItem();
-            errorItem.LineNumber = lineNumber;
+            var errorItem = new SarifErrorListItem
+            {
+                LineNumber = lineNumber
+            };
 
             var tableEntry = new SarifResultTableEntry(errorItem);
 
