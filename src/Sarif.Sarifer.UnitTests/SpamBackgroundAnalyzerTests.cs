@@ -11,8 +11,8 @@ using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Driver;
-using Microsoft.CodeAnalysis.Sarif.Sarifer;
 using Microsoft.CodeAnalysis.Sarif.PatternMatcher;
+using Microsoft.CodeAnalysis.Sarif.Sarifer;
 
 using Moq;
 
