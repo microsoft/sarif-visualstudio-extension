@@ -47,7 +47,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                 using (ExistingListenersLock.EnterWriteLock())
                 {
-                    TextViewCaretListener<T> newTagger = new TextViewCaretListener<T>(textView, tagger);
+                    var newTagger = new TextViewCaretListener<T>(textView, tagger);
                     this.ExistingListeners.Add(textView, newTagger);
 
                     newTagger.CaretEnteredTag += this.Tagger_CaretEnteredTag;

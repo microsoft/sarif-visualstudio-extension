@@ -99,12 +99,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             SnapshotPoint caretSnapshotPoint = caretPosition.BufferPosition;
 
-            NormalizedSnapshotSpanCollection normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
+            var normalizedSnapshotSpanCollection = new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
             // Handling the aggregate focus allows tags to have their highlights removed when the focus moves from
             // one document to another rather than having a bunch of views with highlights that don't correspond
             // with what's being selected in the solution explorer.
-            List<ISarifLocationTag> tagsCaretIsCurrentlyIn = (this.textView.HasAggregateFocus
+            var tagsCaretIsCurrentlyIn = (this.textView.HasAggregateFocus
                 ? this.tagger.GetTags(normalizedSnapshotSpanCollection).
                     Where(tag => tag.Tag is ISarifLocationTag).
                     Select(tag => tag.Tag as ISarifLocationTag)

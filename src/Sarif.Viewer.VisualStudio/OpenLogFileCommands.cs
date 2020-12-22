@@ -76,10 +76,10 @@ namespace Microsoft.Sarif.Viewer
 
             this.package = package;
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            var commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
             {
-                OleMenuCommand oleCommand = new OleMenuCommand(
+                var oleCommand = new OleMenuCommand(
                         this.MenuItemCallback,
                         new CommandID(CommandSet, ImportAnalysisLogCommandId));
                 oleCommand.ParametersDescription = "$";
@@ -133,8 +133,8 @@ namespace Microsoft.Sarif.Viewer
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            OleMenuCommand menuCommand = (OleMenuCommand)sender;
-            OleMenuCmdEventArgs menuCmdEventArgs = (OleMenuCmdEventArgs)e;
+            var menuCommand = (OleMenuCommand)sender;
+            var menuCmdEventArgs = (OleMenuCmdEventArgs)e;
 
             string inputFile = menuCmdEventArgs.InValue as string;
             string logFile = null;
@@ -189,7 +189,7 @@ namespace Microsoft.Sarif.Viewer
                         fieldInfoToOpenFileDialogFilterDisplayString.Where(kvp => kvp.Key != noneFieldInfo.Key).
                             OrderBy(kvp => kvp.Value));
 
-                OpenFileDialog openFileDialog = new OpenFileDialog()
+                var openFileDialog = new OpenFileDialog()
                 {
                     Title = Resources.ImportLogOpenFileDialogTitle,
                     Filter = string.Join("|", orderedFilters.Select(kvp => kvp.Value)),
@@ -205,7 +205,7 @@ namespace Microsoft.Sarif.Viewer
 
                 // Read the user's last tool format selection.
                 int collectionExists;
-                IVsSettingsManager vsSettingsManager = Package.GetGlobalService(typeof(SVsSettingsManager)) as IVsSettingsManager;
+                var vsSettingsManager = Package.GetGlobalService(typeof(SVsSettingsManager)) as IVsSettingsManager;
                 if (vsSettingsManager != null &&
                     vsSettingsManager.GetReadOnlySettingsStore((uint)__VsEnclosingScopes.EnclosingScopes_UserSettings, out IVsSettingsStore vsSettingsStore) == VSConstants.S_OK &&
                     vsSettingsStore.CollectionExists(nameof(SarifViewerPackage), out collectionExists) == VSConstants.S_OK &&

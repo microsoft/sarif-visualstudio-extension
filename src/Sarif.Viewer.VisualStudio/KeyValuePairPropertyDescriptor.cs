@@ -23,13 +23,7 @@ namespace Microsoft.Sarif.Viewer
             _value = value;
         }
 
-        public override Type PropertyType
-        {
-            get
-            {
-                return _key.GetType();
-            }
-        }
+        public override Type PropertyType => _key.GetType();
 
         public override void SetValue(object component, object value)
         {
@@ -41,21 +35,9 @@ namespace Microsoft.Sarif.Viewer
             return _value;
         }
 
-        public override bool IsReadOnly
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool IsReadOnly => true;
 
-        public override Type ComponentType
-        {
-            get
-            {
-                return null;
-            }
-        }
+        public override Type ComponentType => null;
 
         public override bool CanResetValue(object component)
         {
@@ -71,12 +53,6 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        public override string Category
-        {
-            get
-            {
-                return "Properties";
-            }
-        }
+        public override string Category => "Properties";
     }
 }

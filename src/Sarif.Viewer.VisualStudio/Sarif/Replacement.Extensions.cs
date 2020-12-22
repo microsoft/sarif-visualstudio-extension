@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            ReplacementModel model = new ReplacementModel
+            var model = new ReplacementModel
             {
                 Region = uri.IsAbsoluteUri
                     ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion, uri, populateSnippet: false)

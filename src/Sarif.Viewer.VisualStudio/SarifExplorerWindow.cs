@@ -58,7 +58,7 @@ namespace Microsoft.Sarif.Viewer
             Control.Loaded += this.Control_Loaded;
             Control.Unloaded += this.Control_Unloaded;
 
-            IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+            var componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
             if (componentModel != null)
             {
                 this.sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
@@ -149,10 +149,11 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            _selectionContainer = new SelectionContainer(selectableReadOnly: true, selectedReadOnly: false);
-
-            _selectionContainer.SelectableObjects = items;
-            _selectionContainer.SelectedObjects = items;
+            _selectionContainer = new SelectionContainer(selectableReadOnly: true, selectedReadOnly: false)
+            {
+                SelectableObjects = items,
+                SelectedObjects = items
+            };
 
             // This is null until the control is loaded.
             this._trackSelection?.OnSelectChange(_selectionContainer);
@@ -206,8 +207,7 @@ namespace Microsoft.Sarif.Viewer
         public static SarifExplorerWindow Find()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            IVsShell vsShell = ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) as IVsShell;
-            if (vsShell == null)
+            if (!(ServiceProvider.GlobalProvider.GetService(typeof(SVsShell)) is IVsShell vsShell))
             {
                 return null;
             }

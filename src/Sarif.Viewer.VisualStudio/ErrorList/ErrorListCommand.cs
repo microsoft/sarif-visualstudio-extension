@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.package = package;
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
+            var commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (commandService != null)
             {
                 var menuCommandID = new CommandID(CommandSet, ClearSarifResultsCommandId);
@@ -89,7 +89,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <param name="e">Event args.</param>
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            MenuCommand menuCommand = (MenuCommand)sender;
+            var menuCommand = (MenuCommand)sender;
 
             switch (menuCommand.CommandID.ID)
             {

@@ -100,15 +100,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                string text = String.Empty;
+                string text = string.Empty;
 
-                if (!String.IsNullOrEmpty(FilePath))
+                if (!string.IsNullOrEmpty(FilePath))
                 {
                     text = Path.GetFileName(FilePath) + " ";
                 }
 
                 Region region = Location?.Location?.PhysicalLocation?.Region;
-                if (region != null && region.StartLine > 0)
+                if (region?.StartLine > 0)
                 {
                     text += region.FormatForVisualStudio();
                 }
@@ -289,7 +289,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                Dictionary<string, string> properties = new Dictionary<string, string>();
+                var properties = new Dictionary<string, string>();
 
                 if (Location?.PropertyNames != null)
                 {
@@ -358,7 +358,7 @@ namespace Microsoft.Sarif.Viewer.Models
         internal void SetVerbosity(ThreadFlowLocationImportance importance)
         {
             Visibility visibility = Visibility.Visible;
-            ThreadFlowLocationImportance myImportance = (Location?.Importance).GetValueOrDefault(ThreadFlowLocationImportance.Unimportant);
+            ThreadFlowLocationImportance myImportance = (Location?.Importance) ?? ThreadFlowLocationImportance.Unimportant;
 
             switch (importance)
             {

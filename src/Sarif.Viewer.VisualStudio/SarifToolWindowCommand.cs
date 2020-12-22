@@ -46,8 +46,7 @@ namespace Microsoft.Sarif.Viewer
 
             this.package = package;
 
-            OleMenuCommandService commandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
-            if (commandService != null)
+            if (this.ServiceProvider.GetService(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
             {
                 var menuCommandID = new CommandID(CommandSet, CommandId);
                 var menuItem = new MenuCommand(this.ShowToolWindow, menuCommandID);
@@ -67,13 +66,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IServiceProvider ServiceProvider
-        {
-            get
-            {
-                return this.package;
-            }
-        }
+        private IServiceProvider ServiceProvider => this.package;
 
         /// <summary>
         /// Initializes the singleton instance of the command.
@@ -101,7 +94,7 @@ namespace Microsoft.Sarif.Viewer
                 throw new NotSupportedException("Cannot create tool window");
             }
 
-            IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
+            var windowFrame = (IVsWindowFrame)window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
     }

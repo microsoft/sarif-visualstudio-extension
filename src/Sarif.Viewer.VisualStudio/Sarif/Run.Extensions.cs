@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             if (run?.Tool?.Driver?.Rules != null && ruleId != null)
             {
-                List<ReportingDescriptor> rules = run.Tool.Driver.Rules as List<ReportingDescriptor>;
+                var rules = run.Tool.Driver.Rules as List<ReportingDescriptor>;
                 reportingDescriptor = rules.Where(r => r.Id == ruleId).FirstOrDefault();
             }
             else if (ruleId != null)

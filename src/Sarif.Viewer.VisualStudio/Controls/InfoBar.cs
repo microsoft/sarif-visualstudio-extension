@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Controls
     public class InfoBar : IVsInfoBarUIEvents
     {
         /// <summary>
-        /// List of info bars currently being shown shown.
+        /// List of info bars currently being shown.
         /// </summary>
         /// <remarks>
         /// Exposed for test purposes.

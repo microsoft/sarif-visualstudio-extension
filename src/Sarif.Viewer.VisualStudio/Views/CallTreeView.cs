@@ -101,8 +101,8 @@ namespace Microsoft.Sarif.Viewer.Views
             // In order to set the current node, we need to find it in the tree by navigating
             // the hierarchy from the root down
 
-            Stack<CallTreeNode> pathToNode = new Stack<CallTreeNode>();
-            CallTreeNode currentNode = newSelectedNode as CallTreeNode;
+            var pathToNode = new Stack<CallTreeNode>();
+            var currentNode = newSelectedNode as CallTreeNode;
 
             // Construct the path to the new node
             while (currentNode != null)

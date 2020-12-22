@@ -83,13 +83,13 @@ namespace Microsoft.Sarif.Viewer
         /// <returns></returns>
         internal static T GetStoredObject<T>(string storageFileName) where T : class
         {
-            IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
             if (store.FileExists(storageFileName))
             {
-                using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(storageFileName, FileMode.Open, store))
+                using (var stream = new IsolatedStorageFileStream(storageFileName, FileMode.Open, store))
                 {
-                    using (StreamReader reader = new StreamReader(stream))
+                    using (var reader = new StreamReader(stream))
                     {
                         return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
                     }
@@ -107,11 +107,11 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="storageFileName">The isolated storage file.</param>
         internal static void StoreObject<T>(T t, string storageFileName)
         {
-            IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
-            using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(storageFileName, FileMode.Create, store))
+            using (var stream = new IsolatedStorageFileStream(storageFileName, FileMode.Create, store))
             {
-                using (StreamWriter writer = new StreamWriter(stream))
+                using (var writer = new StreamWriter(stream))
                 {
                     writer.Write(JsonConvert.SerializeObject(t, Formatting.Indented));
                 }
@@ -279,8 +279,7 @@ namespace Microsoft.Sarif.Viewer
         {
             wpfTextView = null;
 
-            IVsUserData userData = textView as IVsUserData;
-            if (userData == null)
+            if (!(textView is IVsUserData userData))
             {
                 return false;
             }
@@ -291,9 +290,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IWpfTextViewHost textViewHost = wpfTextViewHost as IWpfTextViewHost;
-
-            if (textViewHost == null)
+            if (!(wpfTextViewHost is IWpfTextViewHost textViewHost))
             {
                 return false;
             }
@@ -342,8 +339,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IPersistFileFormat persistFileFormat = vsTextBuffer as IPersistFileFormat;
-            if (persistFileFormat == null)
+            if (!(vsTextBuffer is IPersistFileFormat persistFileFormat))
             {
                 return false;
             }
@@ -368,8 +364,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IVsTextManager2 textManager2 = Package.GetGlobalService(typeof(SVsTextManager)) as IVsTextManager2;
-            if (textManager2 == null)
+            if (!(Package.GetGlobalService(typeof(SVsTextManager)) is IVsTextManager2 textManager2))
             {
                 return false;
             }
@@ -436,9 +431,9 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // If toPath is on a different drive then there is no relative path
-            if (string.Compare(Path.GetPathRoot(fromDirectory),
+            if (!string.Equals(Path.GetPathRoot(fromDirectory),
                                     Path.GetPathRoot(toPath),
-                                    StringComparison.OrdinalIgnoreCase) != 0)
+                                    StringComparison.OrdinalIgnoreCase))
             {
                 return toPath;
             }
@@ -458,15 +453,15 @@ namespace Microsoft.Sarif.Viewer
             // Find the common root
             for (; firstDifference < length; firstDifference++)
             {
-                if (string.Compare(fromDirectories[firstDifference],
+                if (!string.Equals(fromDirectories[firstDifference],
                                         toDirectories[firstDifference],
-                                        StringComparison.OrdinalIgnoreCase) != 0)
+                                        StringComparison.OrdinalIgnoreCase))
                 {
                     break;
                 }
             }
 
-            StringCollection relativePath = new StringCollection();
+            var relativePath = new StringCollection();
 
             // Add relative paths to get from fromDirectory to the common root
             for (int i = firstDifference; i < fromDirectories.Length; i++)
@@ -641,10 +636,11 @@ namespace Microsoft.Sarif.Viewer
 
                         if (target != null)
                         {
-                            var link = new XamlDoc.Hyperlink();
-
-                            // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
-                            link.Tag = target;
+                            var link = new XamlDoc.Hyperlink
+                            {
+                                // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
+                                Tag = target
+                            };
 
                             // Set the hyperlink text
                             link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));
