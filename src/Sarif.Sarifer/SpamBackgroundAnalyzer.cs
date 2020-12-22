@@ -8,8 +8,8 @@ using System.IO;
 using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Driver;
+using Microsoft.CodeAnalysis.Sarif.PatternMatcher;
 using Microsoft.CodeAnalysis.Sarif.Writers;
-using Microsoft.CodeAnalysis.SarifPatternMatcher;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
