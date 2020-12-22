@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal class CodeLocationObjectTypeDescriptor : ICustomTypeDescriptor
     {
-        CodeLocationObject _item;
+        private readonly CodeLocationObject _item;
 
         public CodeLocationObjectTypeDescriptor(CodeLocationObject item)
         {

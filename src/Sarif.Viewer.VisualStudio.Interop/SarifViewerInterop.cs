@@ -42,28 +42,16 @@ namespace Microsoft.Sarif.Viewer.Interop
                 if (this._viewerExtensionAssembly == null)
                 {
                     Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                    this._viewerExtensionAssembly = assemblies.FirstOrDefault(a => a.GetName().Name == ViewerAssemblyFileName);
+                    this._viewerExtensionAssembly = Array.Find(assemblies, a => a.GetName().Name == ViewerAssemblyFileName);
                 }
 
                 return this._viewerExtensionAssembly;
             }
         }
 
-        private AssemblyName ViewerExtensionAssemblyName
-        {
-            get
-            {
-                return this._viewerExtensionAssemblyName ?? (this._viewerExtensionAssemblyName = this.ViewerExtensionAssembly.GetName());
-            }
-        }
+        private AssemblyName ViewerExtensionAssemblyName => this._viewerExtensionAssemblyName ??= this.ViewerExtensionAssembly.GetName();
 
-        private Version ViewerExtensionVersion
-        {
-            get
-            {
-                return this._viewerExtensionVersion ?? (this._viewerExtensionVersion = this.ViewerExtensionAssemblyName.Version);
-            }
-        }
+        private Version ViewerExtensionVersion => this._viewerExtensionVersion ??= this.ViewerExtensionAssemblyName.Version;
         #endregion
 
         /// <summary>
@@ -223,7 +211,7 @@ namespace Microsoft.Sarif.Viewer.Interop
 
             // Get the service interface type
             Type[] types = this.ViewerExtensionAssembly.GetTypes();
-            Type serviceType = types.FirstOrDefault(t => t.Name == serviceInterfaceName);
+            Type serviceType = Array.Find(types, t => t.Name == serviceInterfaceName);
 
             if (serviceType == default)
             {

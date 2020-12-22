@@ -15,14 +15,14 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     public class CallTreeTests
     {
-        const string Expected = "expected";
+        private const string Expected = "expected";
 
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_NullList()
         {
             List<CallTreeNode> list = null;
 
-            CallTreeNode node = new CallTreeNode(resultId: 0, runIndex: 0);
+            var node = new CallTreeNode(resultId: 0, runIndex: 0);
 
             int index;
             bool result = CallTree.TryGetIndexInCallTreeNodeList(list, node, out index);
@@ -33,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_NullNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             int index;
@@ -45,8 +45,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_FirstNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -61,8 +61,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_LastNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
@@ -77,8 +77,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_MiddleNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -93,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetIndexInCallTreeNodeList_DoesNotExistNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -109,7 +109,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             List<CallTreeNode> list = null;
 
-            CallTreeNode node = new CallTreeNode(resultId: 0, runIndex: 0);
+            var node = new CallTreeNode(resultId: 0, runIndex: 0);
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetNextSibling(list, node, out resultNode);
@@ -120,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_NullNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
@@ -132,8 +132,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_FirstNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -148,8 +148,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_LastNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
@@ -163,8 +163,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_MiddleNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
@@ -179,8 +179,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_SkipNonVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
@@ -197,8 +197,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_NoVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
@@ -213,7 +213,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetNextSibling_DoesNotExistNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
@@ -230,7 +230,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             List<CallTreeNode> list = null;
 
-            CallTreeNode node = new CallTreeNode(resultId: 0, runIndex: 0);
+            var node = new CallTreeNode(resultId: 0, runIndex: 0);
 
             CallTreeNode resultNode;
             bool result = CallTree.TryGetPreviousSibling(list, node, out resultNode);
@@ -241,7 +241,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_NullNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
 
             CallTreeNode resultNode;
@@ -253,8 +253,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_FirstNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -268,8 +268,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_LastNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(target);
@@ -284,8 +284,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_MiddleNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(target);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -300,8 +300,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_SkipNonVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
@@ -318,8 +318,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_NoVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
             list.Add(target);
@@ -334,7 +334,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetPreviousSibling_DoesNotExistNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
@@ -360,7 +360,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetFirstItem_FirstNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
@@ -375,7 +375,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetFirstItem_SkipNonVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
@@ -391,8 +391,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetFirstItem_NoVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
@@ -416,7 +416,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetLastItem_LastNode()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
@@ -431,7 +431,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetLastItem_SkipNonVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
+            var list = new List<CallTreeNode>();
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0));
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { FilePath = Expected });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
@@ -447,8 +447,8 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_TryGetLastItem_NoVisibleNodes()
         {
-            List<CallTreeNode> list = new List<CallTreeNode>();
-            CallTreeNode target = new CallTreeNode(resultId: 0, runIndex: 0);
+            var list = new List<CallTreeNode>();
+            var target = new CallTreeNode(resultId: 0, runIndex: 0);
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Collapsed });
             list.Add(new CallTreeNode(resultId: 0, runIndex: 0) { Visibility = Visibility.Hidden });
 
@@ -461,7 +461,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTree_ExpandAll_NoNodes()
         {
-            CallTree tree = new CallTree(new List<CallTreeNode>());
+            var tree = new CallTree(new List<CallTreeNode>());
             tree.ExpandAll();
         }
 
@@ -551,7 +551,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         private CallTree CreateCallTree()
         {
-            var codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
+            CodeFlow codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
             {
                 new ThreadFlowLocation
                 {
@@ -585,7 +585,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             });
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
+            var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
             return callTree;
         }

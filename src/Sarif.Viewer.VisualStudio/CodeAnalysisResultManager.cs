@@ -38,12 +38,12 @@ namespace Microsoft.Sarif.Viewer
 
         // Cookie for registration and unregistration
         private uint m_solutionEventsCookie;
-        private List<string> _allowedDownloadHosts;
+        private readonly List<string> _allowedDownloadHosts;
 
         private readonly IFileSystem _fileSystem;
 
         internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
-        readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
+        private readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         // This ctor is internal rather than private for unit test purposes.
         internal CodeAnalysisResultManager(
@@ -91,8 +91,7 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // Register this object to listen for IVsSolutionEvents
-            IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-            if (solution == null)
+            if (!(ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) is IVsSolution solution))
             {
                 throw Marshal.GetExceptionForHR(E_FAIL);
             }
@@ -109,8 +108,7 @@ namespace Microsoft.Sarif.Viewer
             // Unregister this object from IVsSolutionEvents events
             if (m_solutionEventsCookie != VSCOOKIE_NIL)
             {
-                IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
-                if (solution != null)
+                if (ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) is IVsSolution solution)
                 {
                     solution.UnadviseSolutionEvents(m_solutionEventsCookie);
                     m_solutionEventsCookie = VSCOOKIE_NIL;
@@ -192,7 +190,6 @@ namespace Microsoft.Sarif.Viewer
             }
             else
             {
-
                 if (uriBaseId != null
                     && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
                     && Uri.TryCreate(baseUri, relativePath, out Uri uri)
@@ -244,7 +241,7 @@ namespace Microsoft.Sarif.Viewer
                     resolvedPath = GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
                 }
 
-                if (String.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
@@ -264,7 +261,7 @@ namespace Microsoft.Sarif.Viewer
         // Contents are embedded in SARIF. Create a file from these contents.
         internal string CreateFileFromContents(IDictionary<string, ArtifactDetailsModel> fileDetailsDictionary, string fileName)
         {
-            var fileData = fileDetailsDictionary[fileName];
+            ArtifactDetailsModel fileData = fileDetailsDictionary[fileName];
 
             string finalPath = TemporaryFilePath;
 
@@ -334,7 +331,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal string DownloadFile(SarifErrorListItem sarifErrorListItem, string fileUrl)
         {
-            if (String.IsNullOrEmpty(fileUrl))
+            if (string.IsNullOrEmpty(fileUrl))
             {
                 return fileUrl;
             }
@@ -489,10 +486,7 @@ namespace Microsoft.Sarif.Viewer
             }
             finally
             {
-                if (elementWithFocus != null)
-                {
-                    elementWithFocus.Focus();
-                }
+                elementWithFocus?.Focus();
             }
         }
 
@@ -538,7 +532,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     var dir = new DirectoryInfo(TemporaryFilePath) { Attributes = FileAttributes.Normal };
 
-                    foreach (var info in dir.GetFileSystemInfos("*", SearchOption.AllDirectories))
+                    foreach (FileSystemInfo info in dir.GetFileSystemInfos("*", SearchOption.AllDirectories))
                     {
                         // Clear any read-only attributes
                         info.Attributes = FileAttributes.Normal;

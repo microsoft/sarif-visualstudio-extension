@@ -27,7 +27,9 @@ namespace Microsoft.Sarif.Viewer
         protected DelegateCommandBase(Action<object> executeMethod, Func<object, bool> canExecuteMethod)
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
 
             _executeMethod = (arg) => { executeMethod(arg); return System.Threading.Tasks.Task.Delay(0); };
             _canExecuteMethod = canExecuteMethod;
@@ -41,21 +43,22 @@ namespace Microsoft.Sarif.Viewer
         protected DelegateCommandBase(Func<object, System.Threading.Tasks.Task> executeMethod, Func<object, bool> canExecuteMethod)
         {
             if (executeMethod == null || canExecuteMethod == null)
+            {
                 throw new ArgumentNullException(nameof(executeMethod), nameof(executeMethod) + " cannot be null");
+            }
 
             _executeMethod = executeMethod;
             _canExecuteMethod = canExecuteMethod;
         }
 
         /// <summary>
-        /// Raises <see cref="ICommand.CanExecuteChanged"/> on the UI thread so every 
+        /// Raises <see cref="ICommand.CanExecuteChanged"/> on the UI thread so every
         /// command invoker can requery <see cref="ICommand.CanExecute"/>.
         /// </summary>
         protected virtual void OnCanExecuteChanged()
         {
             WeakEventHandlerManager.CallWeakReferenceHandlers(this, _canExecuteChangedHandlers);
         }
-
 
         /// <summary>
         /// Raises <see cref="DelegateCommandBase.CanExecuteChanged"/> on the UI thread so every command invoker
@@ -102,8 +105,8 @@ namespace Microsoft.Sarif.Viewer
         /// reference to the handler to avoid garbage collection and unexpected results. See remarks for more information.
         /// </summary>
         /// <remarks>
-        /// When subscribing to the <see cref="ICommand.CanExecuteChanged"/> event using 
-        /// code (not when binding using XAML) will need to keep a hard reference to the event handler. This is to prevent 
+        /// When subscribing to the <see cref="ICommand.CanExecuteChanged"/> event using
+        /// code (not when binding using XAML) will need to keep a hard reference to the event handler. This is to prevent
         /// garbage collection of the event handler because the command implements the Weak Event pattern so it does not have
         /// a hard reference to this handler. An example implementation can be seen in the CompositeCommand and CommandBehaviorBase
         /// classes. In most scenarios, there is no reason to sign up to the CanExecuteChanged event directly, but if you do, you

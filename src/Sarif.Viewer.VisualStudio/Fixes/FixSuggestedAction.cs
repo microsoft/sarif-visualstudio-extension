@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         public string DisplayText { get; }
 
         /// <inheritdoc/>
-        public ImageMoniker IconMoniker => default(ImageMoniker);
+        public ImageMoniker IconMoniker => default;
 
         /// <inheritdoc/>
         public string IconAutomationText => null;

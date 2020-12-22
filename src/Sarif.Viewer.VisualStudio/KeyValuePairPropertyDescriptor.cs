@@ -11,9 +11,10 @@ namespace Microsoft.Sarif.Viewer
     /// The property is always grouped/displayed in the Properties category
     /// in the Properties tool window.
     /// </summary>
-    class KeyValuePairPropertyDescriptor : PropertyDescriptor
+    internal class KeyValuePairPropertyDescriptor : PropertyDescriptor
     {
-        string _key, _value;
+        private readonly string _key;
+        private string _value;
 
         internal KeyValuePairPropertyDescriptor(string key, string value)
             : base(key, null)

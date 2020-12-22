@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
     /// </summary>
     internal static class TelemetryProvider
     {
-        private static ReaderWriterLockSlimWrapper s_initializeLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private static readonly ReaderWriterLockSlimWrapper s_initializeLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
 
         /// <summary>
         /// Initializes the static instance of the TelemetryProvider.

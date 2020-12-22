@@ -41,7 +41,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (package == null)
             {
-                throw new ArgumentNullException("package");
+                throw new ArgumentNullException(nameof(package));
             }
 
             this.package = package;
@@ -96,7 +96,7 @@ namespace Microsoft.Sarif.Viewer
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
             window = this.package.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
-            if ((null == window) || (null == window.Frame))
+            if ((window == null) || (window.Frame == null))
             {
                 throw new NotSupportedException("Cannot create tool window");
             }

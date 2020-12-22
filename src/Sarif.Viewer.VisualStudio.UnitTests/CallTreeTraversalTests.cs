@@ -43,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             });
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
+            var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
             callTree.FindPrevious().Should().Be(null);
             callTree.FindNext().Should().Be(null);
@@ -80,7 +80,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 }
             });
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
+            var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
             callTree.SelectedItem = callTree.TopLevelNodes[0];
             callTree.FindPrevious().Should().Be(callTree.TopLevelNodes[0]);

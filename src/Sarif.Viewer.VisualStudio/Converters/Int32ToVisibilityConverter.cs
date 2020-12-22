@@ -11,9 +11,9 @@ namespace Microsoft.Sarif.Viewer.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value is int)
+            if (value is int intValue)
             {
-                return (int)value > 0 ? Visibility.Visible : Visibility.Collapsed;
+                return intValue > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             else
             {

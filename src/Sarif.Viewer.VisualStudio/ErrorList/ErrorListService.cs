@@ -555,7 +555,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.columnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
-                filteredValue: VSSuppressionState.Suppressed.ToString());
+                filteredValue: nameof(VSSuppressionState.Suppressed));
         }
 
         // Show the Category column, which we currently overload to show Baseline State.
@@ -572,7 +572,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.columnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,
-                filteredValue: BaselineState.Absent.ToString());
+                filteredValue: nameof(BaselineState.Absent));
         }
 
         private void EnsureHashExists(Artifact artifact)

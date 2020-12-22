@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetInlinesForErrorMessage_DoesNotCreateLinks()
         {
-            string message = @"The quick [brown fox](2) jumps over the lazy dog.";
+            const string message = @"The quick [brown fox](2) jumps over the lazy dog.";
 
             var expected = new List<Inline>
             {
@@ -43,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             // That is, the fact that the link destination doesn't look like a URL
             // doesn't bother it.
-            string message = @"The quick [brown fox](some text) jumps over the lazy dog.";
+            const string message = @"The quick [brown fox](some text) jumps over the lazy dog.";
 
             var expected = new List<Inline>
             {
@@ -65,7 +65,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetMessageInlines_DoesNotGenerateLinkForEscapedBrackets()
         {
-            string message = @"The quick \[brown fox\] jumps over the lazy dog.";
+            const string message = @"The quick \[brown fox\] jumps over the lazy dog.";
 
             // Because there are no embedded links, we shouldn't get anything back
             var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
@@ -76,7 +76,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetMessageInlines_RendersOneLink()
         {
-            string message = @"The quick [brown fox](1) jumps over the lazy dog.";
+            const string message = @"The quick [brown fox](1) jumps over the lazy dog.";
 
             var link = new Hyperlink();
             link.Tag = 1;
@@ -101,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetMessageInlines_RendersTwoLinksAndHandlesLinkAtTheEnd()
         {
-            string message = @"The quick [brown fox](1) jumps over the [lazy dog](2)";
+            const string message = @"The quick [brown fox](1) jumps over the [lazy dog](2)";
 
             var link1 = new Hyperlink();
             link1.Tag = 1;
@@ -132,7 +132,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetMessageInlines_RendersOneLinkPlusLiteralBrackets()
         {
-            string message = @"The quick [brown fox](1) jumps over the \[lazy dog\].";
+            const string message = @"The quick [brown fox](1) jumps over the \[lazy dog\].";
 
             var link = new Hyperlink();
             link.Tag = 1;
@@ -157,7 +157,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetMessageInlines_RendersWebLink()
         {
-            string url = "http://example.com";
+            const string url = "http://example.com";
             string message = $"The quick [brown fox]({url}) jumps over the lazy dog.";
 
             var link = new Hyperlink();
@@ -183,7 +183,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void GetMessageInlines_RendersWebLinkWithBackslashesInLinkText()
         {
-            string url = "http://example.com";
+            const string url = "http://example.com";
             string message = $@"The file [..\directory\file.cpp]({url}) has a problem.";
 
             var link = new Hyperlink();
@@ -216,8 +216,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             actual.Should().BeOfType(expected.GetType());
 
-            Hyperlink expectedLink = expected as Hyperlink;
-            Hyperlink actualLink = actual as Hyperlink;
+            var expectedLink = expected as Hyperlink;
+            var actualLink = actual as Hyperlink;
 
             actualLink.Inlines.Count.Should().Be(expectedLink.Inlines.Count);
             (actualLink.Inlines.FirstInline as Run).Text.Should().Be((expectedLink.Inlines.FirstInline as Run).Text);
