@@ -23,8 +23,8 @@ namespace Microsoft.Sarif.Viewer.Controls
         {
             if (e != null && e.NewValue != null)
             {
-                BindableTextBlock textBlock = sender as BindableTextBlock;
-                ObservableCollection<Inline> list = e.NewValue as ObservableCollection<Inline>;
+                var textBlock = sender as BindableTextBlock;
+                var list = e.NewValue as ObservableCollection<Inline>;
                 textBlock.Inlines.Clear();
                 textBlock.Inlines.AddRange(list);
             }

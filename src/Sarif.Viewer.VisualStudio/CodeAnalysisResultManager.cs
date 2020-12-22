@@ -336,7 +336,7 @@ namespace Microsoft.Sarif.Viewer
                 return fileUrl;
             }
 
-            Uri sourceUri = new Uri(fileUrl);
+            var sourceUri = new Uri(fileUrl);
 
             string destinationFile = Path.Combine(sarifErrorListItem.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
@@ -344,7 +344,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (!_fileSystem.FileExists(destinationFile))
             {
-                using (WebClient client = new WebClient())
+                using (var client = new WebClient())
                 {
                     client.DownloadFile(sourceUri, destinationFile);
                 }

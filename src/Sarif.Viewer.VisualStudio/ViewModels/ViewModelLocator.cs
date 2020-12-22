@@ -43,27 +43,29 @@ namespace Microsoft.Sarif.Viewer.ViewModels
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            SarifErrorListItem viewModel = new SarifErrorListItem();
-            viewModel.Message = "Potential mismatch between sizeof and countof quantities. Use sizeof() to scale byte sizes.";
-
-            viewModel.Tool = new ToolModel()
+            var viewModel = new SarifErrorListItem
             {
-                Name = "FxCop",
-                Version = "1.0.0.0",
-            };
+                Message = "Potential mismatch between sizeof and countof quantities. Use sizeof() to scale byte sizes.",
 
-            viewModel.Rule = new RuleModel()
-            {
-                Id = "CA1823",
-                Name = "Avoid unused private fields",
-                HelpUri = "http://aka.ms/analysis/ca1823",
-                DefaultFailureLevel = FailureLevel.None
-            };
+                Tool = new ToolModel()
+                {
+                    Name = "FxCop",
+                    Version = "1.0.0.0",
+                },
 
-            viewModel.Invocation = new InvocationModel()
-            {
-                CommandLine = @"""C:\Temp\Foo.exe"" target.file /o out.sarif",
-                FileName = @"C:\Temp\Foo.exe",
+                Rule = new RuleModel()
+                {
+                    Id = "CA1823",
+                    Name = "Avoid unused private fields",
+                    HelpUri = "http://aka.ms/analysis/ca1823",
+                    DefaultFailureLevel = FailureLevel.None
+                },
+
+                Invocation = new InvocationModel()
+                {
+                    CommandLine = @"""C:\Temp\Foo.exe"" target.file /o out.sarif",
+                    FileName = @"C:\Temp\Foo.exe",
+                }
             };
 
             viewModel.Locations.Add(new LocationModel(resultId: 0, runIndex: 0)
@@ -117,7 +119,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                     }
                 }));
 
-            StackCollection stack1 = new StackCollection("Stack A1")
+            var stack1 = new StackCollection("Stack A1")
             {
                 new StackFrameModel(resultId: 0, runIndex: 0)
                 {

@@ -193,7 +193,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            List<ISarifLocationTag> tags = new List<ISarifLocationTag>();
+            var tags = new List<ISarifLocationTag>();
 
             if (!this.TryCreatePersistentSpan(textBuffer, persistentSpanFactory))
             {
@@ -289,7 +289,7 @@ namespace Microsoft.Sarif.Viewer
                         return false;
                     }
 
-                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
                     if (componentModel == null)
                     {
                         return false;

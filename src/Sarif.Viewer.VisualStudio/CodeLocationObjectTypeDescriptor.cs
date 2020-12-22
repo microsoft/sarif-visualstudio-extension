@@ -72,7 +72,7 @@ namespace Microsoft.Sarif.Viewer
 
         public PropertyDescriptorCollection GetProperties(Attribute[] attributes)
         {
-            List<PropertyDescriptor> properties = new List<PropertyDescriptor>();
+            var properties = new List<PropertyDescriptor>();
 
             foreach (PropertyDescriptor propertyDescriptor in TypeDescriptor.GetProperties(_item, true))
             {
@@ -80,7 +80,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     // These are the SARIF properties.
                     // Convert the key value pairs to individual properties.
-                    Dictionary<string, string> propertyBag = propertyDescriptor.GetValue(_item) as Dictionary<string, string>;
+                    var propertyBag = propertyDescriptor.GetValue(_item) as Dictionary<string, string>;
 
                     foreach (string key in propertyBag.Keys)
                     {

@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            ArtifactChangeModel model = new ArtifactChangeModel();
+            var model = new ArtifactChangeModel();
 
             if (fileChange.Replacements != null)
             {

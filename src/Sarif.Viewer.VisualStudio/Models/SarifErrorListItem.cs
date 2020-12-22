@@ -130,7 +130,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTree callTree = codeFlow.ToCallTree(run, resultId: ResultId, runIndex: RunIndex);
+                    var callTree = codeFlow.ToCallTree(run, resultId: ResultId, runIndex: RunIndex);
                     if (callTree != null)
                     {
                         CallTrees.Add(callTree);
@@ -160,7 +160,7 @@ namespace Microsoft.Sarif.Viewer
                 FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
                 foreach (Fix fix in result.Fixes)
                 {
-                    FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
+                    var fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
                     Fixes.Add(fixModel);
                 }
             }
@@ -285,24 +285,12 @@ namespace Microsoft.Sarif.Viewer
             ?? (_messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message)));
 
         [Browsable(false)]
-        public bool HasEmbeddedLinks
-        {
-            get
-            {
-                return MessageInlines.Any();
-            }
-        }
+        public bool HasEmbeddedLinks => MessageInlines.Any();
 
         [Browsable(false)]
-        public bool HasDetailsContent
-        {
-            get
-            {
-                return !HasEmbeddedLinks &&
-                    !string.IsNullOrWhiteSpace(Message) &&
-                    Message != ShortMessage;
-            }
-        }
+        public bool HasDetailsContent => !HasEmbeddedLinks
+            && !string.IsNullOrWhiteSpace(Message)
+            && Message != ShortMessage;
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
@@ -405,31 +393,13 @@ namespace Microsoft.Sarif.Viewer
         public ObservableCollection<FixModel> Fixes { get; }
 
         [Browsable(false)]
-        public bool HasDetails
-        {
-            get
-            {
-                return Locations.Any() || RelatedLocations.Any() || CallTrees.Any() || Stacks.Any() || Fixes.Any();
-            }
-        }
+        public bool HasDetails => Locations.Any() || RelatedLocations.Any() || CallTrees.Any() || Stacks.Any() || Fixes.Any();
 
         [Browsable(false)]
-        public int LocationsCount
-        {
-            get
-            {
-                return Locations.Count + RelatedLocations.Count;
-            }
-        }
+        public int LocationsCount => Locations.Count + RelatedLocations.Count;
 
         [Browsable(false)]
-        public bool HasMultipleLocations
-        {
-            get
-            {
-                return LocationsCount > 1;
-            }
-        }
+        public bool HasMultipleLocations => LocationsCount > 1;
 
         [Browsable(false)]
         public DelegateCommand OpenLogFileCommand => _openLogFileCommand ?? (_openLogFileCommand = new DelegateCommand(() =>
@@ -485,8 +455,8 @@ namespace Microsoft.Sarif.Viewer
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
                     _lineMarker = new ResultTextMarker(
-                        resultId: ResultId,
                         runIndex: RunIndex,
+                        resultId: ResultId,
                         uriBaseId: Locations?.FirstOrDefault()?.UriBaseId,
                         region: Region,
                         fullFilePath: FileName,
@@ -537,7 +507,7 @@ namespace Microsoft.Sarif.Viewer
 
             foreach (CallTree callTree in CallTrees)
             {
-                Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
+                var nodesToProcess = new Stack<CallTreeNode>();
 
                 foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
                 {
@@ -670,8 +640,8 @@ namespace Microsoft.Sarif.Viewer
 
                 foreach (CallTree callTree in CallTrees)
                 {
-                    Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
-                    List<CallTreeNode> allCallTreeNodes = new List<CallTreeNode>();
+                    var nodesToProcess = new Stack<CallTreeNode>();
+                    var allCallTreeNodes = new List<CallTreeNode>();
 
                     foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
                     {

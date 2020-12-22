@@ -279,8 +279,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _selectPreviousCommand = new DelegateCommand<TreeView>(treeView =>
                     {
-                        TreeView control = treeView as TreeView;
-                        CallTree model = control.DataContext as CallTree;
+                        var control = treeView as TreeView;
+                        var model = control.DataContext as CallTree;
                         model.SelectedItem = FindPrevious();
                     });
                 }
@@ -298,8 +298,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _selectNextCommand = new DelegateCommand<TreeView>(treeView =>
                     {
-                        TreeView control = treeView as TreeView;
-                        CallTree model = control.DataContext as CallTree;
+                        var control = treeView as TreeView;
+                        var model = control.DataContext as CallTree;
                         model.SelectedItem = FindNext();
                     });
                 }

@@ -127,7 +127,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                             return;
                         }
 
-                        JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
+                        var settingsV1 = new JsonSerializerSettings()
                         {
                             ContractResolver = SarifContractResolverVersionOne.Instance
                         };
@@ -263,7 +263,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
 
-            List<int> runIdsToClear = new List<int>();
+            var runIdsToClear = new List<int>();
 
             foreach (string logFile in logFiles)
             {
@@ -475,10 +475,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ThreadHelper.ThrowIfNotOnUIThread();
 
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-            RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
+            var dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
-            List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
+            var sarifErrors = new List<SarifErrorListItem>();
 
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
@@ -604,7 +604,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         internal string GenerateHash(byte[] data)
         {
-            SHA256Managed hashFunction = new SHA256Managed();
+            var hashFunction = new SHA256Managed();
             byte[] hash = hashFunction.ComputeHash(data);
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
