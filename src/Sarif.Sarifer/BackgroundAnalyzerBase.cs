@@ -55,6 +55,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             var stream = new MemoryStream();
+            bool wasAnalyzed;
             using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
             {
                 using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
@@ -64,12 +65,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     // TODO: What do we do when path is null (text buffer with no backing file)?
                     Uri uri = path != null ? new Uri(path, UriKind.Absolute) : null;
 
-                    this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                    wasAnalyzed = this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
 
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                if (wasAnalyzed)
+                {
+                    await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                }
+            }
+
+            if (!wasAnalyzed)
+            {
+                stream.Dispose();
+                return Stream.Null;
             }
 
             return stream;
@@ -88,6 +98,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             var stream = new MemoryStream();
+            bool wasAnalyzed = false;
             using (var writer = new StreamWriter(stream, Encoding.UTF8, DefaultBufferSize, leaveOpen: true))
             {
                 using (SarifLogger sarifLogger = this.MakeSarifLogger(writer))
@@ -96,16 +107,31 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                     foreach (string targetFile in targetFiles)
                     {
+                        bool currentAnalysis;
                         var uri = new Uri(targetFile, UriKind.Absolute);
                         string text = File.ReadAllText(targetFile);
 
-                        this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+                        currentAnalysis = this.AnalyzeCore(uri, text, solutionDirectory, sarifLogger, cancellationToken);
+
+                        if (!wasAnalyzed && currentAnalysis)
+                        {
+                            wasAnalyzed = currentAnalysis;
+                        }
                     }
 
                     sarifLogger.AnalysisStopped(RuntimeConditions.None);
                 }
 
-                await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                if (wasAnalyzed)
+                {
+                    await writer.FlushAsync().ConfigureAwait(continueOnCapturedContext: false);
+                }
+            }
+
+            if (!wasAnalyzed)
+            {
+                stream.Dispose();
+                return Stream.Null;
             }
 
             return stream;
@@ -135,7 +161,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
         /// </param>
-        protected abstract void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
+        protected abstract bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(
