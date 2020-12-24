@@ -94,7 +94,7 @@ namespace Sarif.Sarifer.UnitTests
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
             mockFileSystem.Setup(fs => fs.DirectoryExists(Path.Combine(ProjectDirectory, SpamDirectory))).Returns(true);
-            mockFileSystem.Setup(fs => fs.DirectoryGetFiles(It.IsAny<string>(), It.IsAny<string>())).Returns(new string[] { Guid.NewGuid().ToString() });
+            mockFileSystem.Setup(fs => fs.DirectoryEnumerateFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new string[] { Guid.NewGuid().ToString() });
             mockFileSystem.Setup(fs => fs.FileReadAllText(It.IsAny<string>())).Returns(definitionsText);
 
             ISet<Skimmer<AnalyzeContext>> rules = SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, ProjectDirectory);

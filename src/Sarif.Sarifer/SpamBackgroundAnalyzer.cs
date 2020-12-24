@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             this.fileSystem = FileSystem.Instance;
         }
 
-        protected override void AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
+        protected override bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(solutionDirectory)
                 || (this.currentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
@@ -49,9 +49,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 }
             }
 
-            if (this.rules == null)
+            if (this.rules == null || this.rules.Count == 0)
             {
-                return;
+                return false;
             }
 
             var disabledSkimmers = new HashSet<string>();
@@ -71,6 +71,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 IEnumerable<Skimmer<AnalyzeContext>> applicableSkimmers = AnalyzeCommand.DetermineApplicabilityForTargetHelper(context, this.rules, disabledSkimmers);
                 AnalyzeCommand.AnalyzeTargetHelper(context, applicableSkimmers, disabledSkimmers);
             }
+
+            return true;
         }
 
         internal static ISet<Skimmer<AnalyzeContext>> LoadSearchDefinitionsFiles(IFileSystem fileSystem, string solutionDirectory)
@@ -82,7 +84,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             var definitionsPaths = new List<string>();
-            foreach (string definitionsPath in fileSystem.DirectoryGetFiles(spamDirectory, "*.json"))
+            foreach (string definitionsPath in fileSystem.DirectoryEnumerateFiles(spamDirectory, "*.json", SearchOption.AllDirectories))
             {
                 definitionsPaths.Add(definitionsPath);
             }
