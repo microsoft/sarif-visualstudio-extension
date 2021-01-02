@@ -83,11 +83,11 @@ namespace Microsoft.Sarif.Viewer
             Rule = rule.ToRuleModel(result.RuleId);
             Invocation = run.Invocations?[0]?.ToInvocationModel();
             Message = result.GetMessageText(rule, concise: false).Trim();
-            ShortMessage = result.GetMessageText(rule, concise: true).Trim();
-            if (!Message.EndsWith("."))
-            {
-                ShortMessage = ShortMessage.TrimEnd('.');
-            }
+
+            // 'concise' should be set to true here again when this issue is fixed.
+            // https://github.com/microsoft/sarif-visualstudio-extension/issues/330
+            ShortMessage = result.GetMessageText(rule, concise: false).Trim();
+            
             FileName = result.GetPrimaryTargetFile(run);
             ProjectName = projectNameCache.GetName(FileName);
             Category = runHasAbsentResults ? result.GetCategory() : nameof(BaselineState.None);

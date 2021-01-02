@@ -129,6 +129,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 if (this.Error.HasDetailsContent)
                 {
+                    // TODO: why isn't setting the full text resulting in 
+                    // expanders on the Visual Studio error list entries?
+                    // https://github.com/microsoft/sarif-visualstudio-extension/issues/330
                     return SdkUIUtilities.UnescapeBrackets(this.Error.Message);
                 }
 
