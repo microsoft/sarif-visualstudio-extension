@@ -100,6 +100,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\RE2.Managed\RE2.Managed.csproj">
+      <Project>{a4df60a6-f128-4bff-ab1e-e042a3279073}</Project>
+      <Name>RE2.Managed</Name>
+    </ProjectReference>
     <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Driver\Sarif.Driver.csproj">
       <Project>{acfa4370-a4ec-4252-99e7-a7fa489126db}</Project>
       <Name>Sarif.Driver</Name>
