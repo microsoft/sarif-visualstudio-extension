@@ -86,51 +86,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             var targetFiles = new List<string>();
             foreach (Project project in projects)
             {
-                targetFiles.AddRange(GetFiles(project));
+                targetFiles.AddRange(SariferPackageCommand.GetFiles(project));
             }
 
             // Disable the menu click when we are analysing.
             SariferPackageCommand.DisableAnalyzeCommands(this.menuCommandService);
             this.backgroundAnalysisService.AnalyzeAsync(solution.FullName, targetFiles, this.cancellationTokenSource.Token)
                 .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
-        }
-
-        private static List<string> GetFiles(Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var targetFiles = new List<string>();
-
-            foreach (ProjectItem projectItem in project.ProjectItems)
-            {
-                GetFilesRecursive(targetFiles, projectItem);
-            }
-
-            return targetFiles;
-        }
-
-        private static void GetFilesRecursive(List<string> targetFiles, ProjectItem projectItem)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (projectItem.GetType().ToString().EndsWith("OAFolderItem", StringComparison.InvariantCulture))
-            {
-                foreach (ProjectItem projectFolder in projectItem.ProjectItems)
-                {
-                    GetFilesRecursive(targetFiles, projectFolder);
-                }
-            }
-            else
-            {
-                foreach (Property property in projectItem.Properties)
-                {
-                    if (property.Name == "LocalPath")
-                    {
-                        targetFiles.Add(property.Value.ToString());
-                        break;
-                    }
-                }
-            }
         }
 
         private void BackgroundAnalysisService_AnalysisCompleted(object sender, EventArgs e)
