@@ -34,7 +34,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
         private AnalyzeProjectCommand analyzeProjectCommand;
-        private OutputWindowTraceListener outputWindowTraceListener;
+        private OutputWindowTracerListener outputWindowTraceListener;
 
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             if (await GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
             {
-                outputWindowTraceListener = new OutputWindowTraceListener(output, "Sarifer");
+                outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarifer");
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;

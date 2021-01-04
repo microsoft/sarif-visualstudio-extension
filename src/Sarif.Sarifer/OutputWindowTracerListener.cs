@@ -3,20 +3,19 @@
 
 using System;
 using System.Diagnostics;
-using System.Windows.Threading;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class OutputWindowTraceListener : TraceListener
+    internal class OutputWindowTracerListener : TraceListener
     {
         private IVsOutputWindowPane pane;
         private IVsOutputWindow _outputWindowService;
         private string _name;
 
-        public OutputWindowTraceListener(IVsOutputWindow outputWindowService, string name)
+        public OutputWindowTracerListener(IVsOutputWindow outputWindowService, string name)
         {
             _outputWindowService = outputWindowService;
             _name = name;

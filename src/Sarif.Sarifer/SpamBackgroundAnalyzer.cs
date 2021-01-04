@@ -48,6 +48,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 if (this.currentSolutionDirectory != null)
                 {
                     this.rules = LoadSearchDefinitionsFiles(this.fileSystem, this.currentSolutionDirectory);
+                    Trace.WriteLine($"Rules loaded: {this.rules.Count}");
                 }
             }
 
@@ -56,7 +57,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 return false;
             }
 
-            Trace.WriteLine($"Rules loaded: {this.rules.Count}");
+            Trace.WriteLine($"Analyzing {uri}...");
 
             var disabledSkimmers = new HashSet<string>();
 
