@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Driver;
@@ -46,6 +48,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 if (this.currentSolutionDirectory != null)
                 {
                     this.rules = LoadSearchDefinitionsFiles(this.fileSystem, this.currentSolutionDirectory);
+                    Trace.WriteLine($"Rules loaded: {this.rules.Count}");
                 }
             }
 
@@ -53,6 +56,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 return false;
             }
+
+            Trace.WriteLine($"Analyzing {uri}...");
 
             var disabledSkimmers = new HashSet<string>();
 
@@ -69,6 +74,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 // Filtering file before analyzing.
                 IEnumerable<Skimmer<AnalyzeContext>> applicableSkimmers = AnalyzeCommand.DetermineApplicabilityForTargetHelper(context, this.rules, disabledSkimmers);
+
+                Trace.WriteLine($"Rules filtered: {applicableSkimmers.Count()}");
+
                 AnalyzeCommand.AnalyzeTargetHelper(context, applicableSkimmers, disabledSkimmers);
             }
 
