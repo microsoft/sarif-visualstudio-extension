@@ -6,19 +6,20 @@
              xmlns:local="clr-namespace:Microsoft.Sarif.Viewer.Controls"
              mc:Ignorable="d" >
     <StackPanel>
-        <CheckBox Margin="10" IsChecked="{Binding Path=SendSnippet}">Send code snippet from file?</CheckBox>
+        <TextBlock Margin="10" Text="{Binding Path=Summary}" Width="350" TextWrapping="WrapWithOverflow"></TextBlock>
+        <CheckBox Margin="10" IsChecked="{Binding Path=SendSnippet}">Send code snippet from file?</CheckBox>        
         <Label Margin="10,0,0,0" Padding="0">Comments:</Label>
         <TextBox
-            Height="300"
+            Height="120"
             Width="350"
             TextWrapping="Wrap"
             AcceptsReturn="True"
-            Margin="10,5,10,10"
+            Margin="10,5,10,0"
             VerticalScrollBarVisibility="Auto"
             Text="{Binding Path=Comment}"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0">
-            <Button Width="100" Height="30" Margin="10" Command="{Binding Path=SendFeedbackCommand}">Report</Button>
-            <Button Width="100" Height="30" Margin="10" IsCancel="True">Cancel</Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,2,0">
+            <Button Width="80" Height="21" Margin="5" Command="{Binding Path=SendFeedbackCommand}">Report</Button>
+            <Button Width="80" Height="21" Margin="10" IsCancel="True">Cancel</Button>
         </StackPanel>
     </StackPanel>
 </UserControl>

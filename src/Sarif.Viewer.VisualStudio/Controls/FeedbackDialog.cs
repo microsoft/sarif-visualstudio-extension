@@ -10,12 +10,13 @@ namespace Microsoft.Sarif.Viewer.Controls
 {
     internal class FeedbackDialog : DialogWindow
     {
-        public FeedbackDialog(string title, SarifErrorListItem sarifErrorListItem, FeedbackType feedbackType)
+        public FeedbackDialog(string title, SarifErrorListItem sarifErrorListItem, FeedbackType feedbackType, string summary)
         {
             this.Title = title;
             this.SizeToContent = SizeToContent.WidthAndHeight;
+            this.ResizeMode = ResizeMode.NoResize;
 
-            var model = new FeedbackModel(sarifErrorListItem.Rule.Id, feedbackType);
+            var model = new FeedbackModel(sarifErrorListItem.Rule.Id, feedbackType, summary);
 
             this.Content = new FeedbackControl(model);
         }

@@ -198,6 +198,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Report a result that was not useful because it did not flag an actual problem (i.e., it is a false positive), for {0} rule ‘{1}’..
+        /// </summary>
+        public static string FalsePositiveSummary {
+            get {
+                return ResourceManager.GetString("FalsePositiveSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open File.
         /// </summary>
         public static string FileOpenFail_DialogCaption {
@@ -405,6 +414,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Report a result that was accurate but not useful, because the code improvement to resolve is relatively low value, for {0} rule ‘{1}’..
+        /// </summary>
+        public static string LowValueSummary {
+            get {
+                return ResourceManager.GetString("LowValueSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to non-actionable.
         /// </summary>
         public static string NonActionableResult {
@@ -414,11 +432,29 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Report a result that was not useful because the information provided for it was not actionable (could not be understood or was incomplete), for {0} rule ‘{1}’..
+        /// </summary>
+        public static string NonActionableSummary {
+            get {
+                return ResourceManager.GetString("NonActionableSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to non-shipping code.
         /// </summary>
         public static string NonShippingCodeResult {
             get {
                 return ResourceManager.GetString("NonShippingCodeResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report a result that was not useful because it was reported against non-shipping code, for {0} rule ‘{1}’..
+        /// </summary>
+        public static string NonShippingCodeSummary {
+            get {
+                return ResourceManager.GetString("NonShippingCodeSummary", resourceCulture);
             }
         }
         
@@ -437,6 +473,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string OtherResult {
             get {
                 return ResourceManager.GetString("OtherResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report a result that was not useful, for {0} rule ‘{1}’.
+        /// </summary>
+        public static string OtherSummary {
+            get {
+                return ResourceManager.GetString("OtherSummary", resourceCulture);
             }
         }
         
@@ -468,7 +513,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report {0} result: {1}.
+        ///   Looks up a localized string similar to Report a {0} result.
         /// </summary>
         public static string ReportResultTitle {
             get {

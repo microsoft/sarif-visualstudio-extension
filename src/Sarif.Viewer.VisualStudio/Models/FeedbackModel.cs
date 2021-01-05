@@ -11,18 +11,20 @@ namespace Microsoft.Sarif.Viewer.Models
     {
         private DelegateCommand sendFeedbackCommand;
 
-        public FeedbackModel(string ruleId, FeedbackType feedbackType)
+        public FeedbackModel(string ruleId, FeedbackType feedbackType, string summary)
         {
             this.RuleId = ruleId;
             this.FeedbackType = feedbackType;
             this.SendSnippet = true;
             this.Comment = string.Empty;
+            this.Summary = summary;
         }
 
         public string RuleId { get; }
         public FeedbackType FeedbackType { get; }
         public bool SendSnippet { get; set; }
         public string Comment { get; set; }
+        public string Summary { get; set; }
 
         public DelegateCommand SendFeedbackCommand
         {
