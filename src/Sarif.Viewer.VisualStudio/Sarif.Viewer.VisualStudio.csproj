@@ -146,6 +146,7 @@
     <Compile Include="Tags\TextViewCaretListener.cs" />
     <Compile Include="Tags\TextViewCaretListenerService.cs" />
     <Compile Include="Telemetry\Events.cs" />
+    <Compile Include="Telemetry\FeedbackTelemetryEvent.cs" />
     <Compile Include="Telemetry\TelemetryProvider.cs" />
     <Compile Include="Views\CallTreeView.cs" />
     <Compile Include="Uri.extensions.cs" />
