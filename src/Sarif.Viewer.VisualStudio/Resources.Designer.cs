@@ -189,7 +189,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to false positive.
+        ///   Looks up a localized string similar to False positive.
         /// </summary>
         public static string FalsePositiveResult {
             get {
@@ -198,7 +198,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report a result that was not useful because it did not flag an actual problem (i.e., it is a false positive), for {0} rule ‘{1}’..
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because it didn&apos;t flag an actual problem (i.e., it is a false positive)..
         /// </summary>
         public static string FalsePositiveSummary {
             get {
@@ -414,7 +414,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report a result that was accurate but not useful, because the code improvement to resolve is relatively low value, for {0} rule ‘{1}’..
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; was accurate but not useful because the code improvement to resolve is relatively low value..
         /// </summary>
         public static string LowValueSummary {
             get {
@@ -423,7 +423,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to non-actionable.
+        ///   Looks up a localized string similar to Non-actionable.
         /// </summary>
         public static string NonActionableResult {
             get {
@@ -432,7 +432,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report a result that was not useful because the information provided for it was not actionable (could not be understood or was incomplete), for {0} rule ‘{1}’..
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because the information provided for it wasn&apos;t actionable (couldn&apos;t be understood or was incomplete)..
         /// </summary>
         public static string NonActionableSummary {
             get {
@@ -441,7 +441,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to non-shipping code.
+        ///   Looks up a localized string similar to Non-shipping code.
         /// </summary>
         public static string NonShippingCodeResult {
             get {
@@ -450,7 +450,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report a result that was not useful because it was reported against non-shipping code, for {0} rule ‘{1}’..
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because it was reported against non-shipping code..
         /// </summary>
         public static string NonShippingCodeSummary {
             get {
@@ -468,7 +468,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to other.
+        ///   Looks up a localized string similar to Other.
         /// </summary>
         public static string OtherResult {
             get {
@@ -477,7 +477,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report a result that was not useful, for {0} rule ‘{1}’.
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful.
         /// </summary>
         public static string OtherSummary {
             get {
@@ -513,7 +513,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Report a {0} result.
+        ///   Looks up a localized string similar to Report &quot;{0}&quot; Result.
         /// </summary>
         public static string ReportResultTitle {
             get {
@@ -600,6 +600,24 @@ namespace Microsoft.Sarif.Viewer {
         public static string SaveTransformedV1Log_DialogTitle {
             get {
                 return ResourceManager.GetString("SaveTransformedV1Log_DialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred sending your feedback.
+        /// </summary>
+        public static string SendFeedbackFailed {
+            get {
+                return ResourceManager.GetString("SendFeedbackFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Completed sending your feedback.
+        /// </summary>
+        public static string SendFeedbackSucceeded {
+            get {
+                return ResourceManager.GetString("SendFeedbackSucceeded", resourceCulture);
             }
         }
         

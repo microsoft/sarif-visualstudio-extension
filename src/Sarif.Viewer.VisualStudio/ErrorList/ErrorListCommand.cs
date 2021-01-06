@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
+using System.Linq;
 
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -155,12 +157,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     break;
 
                 case UsefulResultCommandId:
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                               "\"Useful result\" menu item clicked",
-                               null, // title
-                               OLEMSGICON.OLEMSGICON_INFO,
-                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    var feedback = new FeedbackModel(
+                        this.selectionService.SelectedItem.Rule.Id, this.selectionService.SelectedItem.Tool.Name, 
+                        this.selectionService.SelectedItem.Tool.Version, this.selectionService.SelectedItem.Locations.FirstOrDefault().ExtractSnippet(), 
+                        FeedbackType.UsefulResult, null);
+                    ErrorListService.SendFeedback(feedback);
                     break;
 
                 case FalsePositiveResultCommandId:
@@ -205,8 +206,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             FeedbackInfo feedbackInfo = s_commandToResultDescriptionDictionary[commandId];
             string title = string.Format(Resources.ReportResultTitle, feedbackInfo.Description);
-            string comment = string.Format(feedbackInfo.Summary, sarifErrorListItem.Tool.Name, sarifErrorListItem.Rule.Id);
-            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem, feedbackInfo.FeedbackType, comment);
+            string summary = string.Format(feedbackInfo.Summary, sarifErrorListItem.Tool.Name, sarifErrorListItem.Rule.Id);
+            string snippet = sarifErrorListItem.Locations.FirstOrDefault().ExtractSnippet();
+            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem, feedbackInfo.FeedbackType, snippet, summary);
             feedbackDialog.ShowModal();
         }
     }

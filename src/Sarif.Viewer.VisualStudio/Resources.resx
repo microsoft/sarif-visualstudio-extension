@@ -312,36 +312,42 @@
     <value>SARIF Viewer: Suppressed results "stub" display source</value>
   </data>
   <data name="NonShippingCodeResult" xml:space="preserve">
-    <value>non-shipping code</value>
+    <value>Non-shipping code</value>
   </data>
   <data name="FalsePositiveResult" xml:space="preserve">
-    <value>false positive</value>
+    <value>False positive</value>
   </data>
   <data name="LowValueResult" xml:space="preserve">
     <value>low value</value>
   </data>
   <data name="NonActionableResult" xml:space="preserve">
-    <value>non-actionable</value>
+    <value>Non-actionable</value>
   </data>
   <data name="OtherResult" xml:space="preserve">
-    <value>other</value>
+    <value>Other</value>
   </data>
   <data name="ReportResultTitle" xml:space="preserve">
-    <value>Report a {0} result</value>
+    <value>Report "{0}" Result</value>
   </data>
   <data name="FalsePositiveSummary" xml:space="preserve">
-    <value>Report a result that was not useful because it did not flag an actual problem (i.e., it is a false positive), for {0} rule ‘{1}’.</value>
+    <value>{0} rule "{1}" wasn't useful because it didn't flag an actual problem (i.e., it is a false positive).</value>
   </data>
   <data name="LowValueSummary" xml:space="preserve">
-    <value>Report a result that was accurate but not useful, because the code improvement to resolve is relatively low value, for {0} rule ‘{1}’.</value>
+    <value>{0} rule "{1}" was accurate but not useful because the code improvement to resolve is relatively low value.</value>
   </data>
   <data name="NonActionableSummary" xml:space="preserve">
-    <value>Report a result that was not useful because the information provided for it was not actionable (could not be understood or was incomplete), for {0} rule ‘{1}’.</value>
+    <value>{0} rule "{1}" wasn't useful because the information provided for it wasn't actionable (couldn't be understood or was incomplete).</value>
   </data>
   <data name="NonShippingCodeSummary" xml:space="preserve">
-    <value>Report a result that was not useful because it was reported against non-shipping code, for {0} rule ‘{1}’.</value>
+    <value>{0} rule "{1}" wasn't useful because it was reported against non-shipping code.</value>
   </data>
   <data name="OtherSummary" xml:space="preserve">
-    <value>Report a result that was not useful, for {0} rule ‘{1}’</value>
+    <value>{0} rule "{1}" wasn't useful</value>
+  </data>
+  <data name="SendFeedbackFailed" xml:space="preserve">
+    <value>An error occurred sending your feedback</value>
+  </data>
+  <data name="SendFeedbackSucceeded" xml:space="preserve">
+    <value>Completed sending your feedback</value>
   </data>
 </root>
