@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 
 using System;
+using System.IO;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
@@ -39,6 +40,62 @@ namespace Microsoft.Sarif.Viewer.Sarif
             model.LogicalLocation = location.LogicalLocation?.FullyQualifiedName;
 
             return model;
+        }
+
+        public static string ExtractSnippet(this Location location, Run run)
+        {
+            var physicalLocation = location.PhysicalLocation;
+            var artifactLocation = location.PhysicalLocation?.ArtifactLocation;
+            var region = location.PhysicalLocation?.Region;
+            var uri = location.PhysicalLocation?.ArtifactLocation?.Uri;
+                        
+            if (uri == null || region == null || region.IsBinaryRegion || physicalLocation == null)
+            {
+                return string.Empty;
+            }
+
+            if (region.Snippet != null)
+            {
+                return region.Snippet.Text;
+            }
+
+            if (artifactLocation.Uri == null && artifactLocation.Index >= 0)
+            {
+                // Uri is not stored at result level, but we have an index to go look in run.Artifacts
+                // we must pick the ArtifactLocation details from run.artifacts array
+                Artifact artifactFromRun = run.Artifacts[artifactLocation.Index];
+                artifactLocation = artifactFromRun.Location;
+            }
+
+            // If we can resolve a file location to a newly constructed
+            // absolute URI, we will prefer that
+            if (!artifactLocation.TryReconstructAbsoluteUri(run.OriginalUriBaseIds, out Uri resolvedUri))
+            {
+                resolvedUri = artifactLocation.Uri;
+            }
+
+            if (!resolvedUri.IsAbsoluteUri)
+            {
+                return string.Empty;
+            }
+
+            FileRegionsCache fileRegionsCache = new FileRegionsCache();
+            var expandedRegion = fileRegionsCache.PopulateTextRegionProperties(region, resolvedUri, populateSnippet: true);
+            return expandedRegion.Snippet != null ? expandedRegion.Snippet.Text : string.Empty;
+        }
+
+        public static string ExtractSnippet(this LocationModel location)
+        {
+            if (File.Exists(location.FilePath) &&
+                Uri.TryCreate(location.FilePath, UriKind.Absolute, out Uri uri))
+            {
+                // Fill out the region's properties
+                FileRegionsCache regionsCache = new FileRegionsCache();
+                var fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(location.Region, uri, populateSnippet: true);
+                return fullyPopulatedRegion?.Snippet != null ? fullyPopulatedRegion.Snippet.Text : string.Empty;
+            }
+
+            return string.Empty;
         }
     }
 }
