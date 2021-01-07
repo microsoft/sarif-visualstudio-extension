@@ -6,10 +6,10 @@ using System.Collections.Generic;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {
-    static class UriExtensions
+    internal static class UriExtensions
     {
         // The acceptable URI schemes
-        static HashSet<string> s_httpSchemes = new HashSet<string>(new string[] { Uri.UriSchemeHttp, Uri.UriSchemeHttps },
+        private static readonly HashSet<string> s_httpSchemes = new HashSet<string>(new string[] { Uri.UriSchemeHttp, Uri.UriSchemeHttps },
                                                                    StringComparer.OrdinalIgnoreCase);
 
         public static string ToPath(this Uri uri)
@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             const string Slash = "/";
 
             string uriString = uri.ToString();
-            return uriString.EndsWith(Slash) ? uri : new Uri(uriString.ToString() + Slash, UriKind.RelativeOrAbsolute);
+            return uriString.EndsWith(Slash) ? uri : new Uri(uriString + Slash, UriKind.RelativeOrAbsolute);
         }
     }
 }

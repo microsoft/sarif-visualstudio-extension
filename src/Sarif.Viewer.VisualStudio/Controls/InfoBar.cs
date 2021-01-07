@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Controls
     public class InfoBar : IVsInfoBarUIEvents
     {
         /// <summary>
-        /// List of info bars currently being shown shown.
+        /// List of info bars currently being shown.
         /// </summary>
         /// <remarks>
         /// Exposed for test purposes.
@@ -106,7 +106,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <param name="closeAction">
         /// An action to take when the info bar is closed.
         /// </param>
-        public InfoBar(string text, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default(ImageMoniker))
+        public InfoBar(string text, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default)
             : this(new IVsInfoBarTextSpan[] { new InfoBarTextSpan(text) }, clickAction, closeAction, imageMoniker)
         {
         }
@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <param name="closeAction">
         /// An action to take when the info bar is closed.
         /// </param>
-        public InfoBar(IVsInfoBarTextSpan[] content, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default(ImageMoniker))
+        public InfoBar(IVsInfoBarTextSpan[] content, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default)
         {
             this.content = content;
             this.clickAction = clickAction;

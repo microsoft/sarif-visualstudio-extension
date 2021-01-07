@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer
 {
     public sealed class ProjectNameCache
     {
-        private Dictionary<string, string> projectNames = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> projectNames = new Dictionary<string, string>();
 
         private readonly Solution solution;
 
@@ -47,7 +47,7 @@ namespace Microsoft.Sarif.Viewer
                 return;
             }
 
-            var project = solution?.FindProjectItem(fileName);
+            ProjectItem project = solution?.FindProjectItem(fileName);
             if (project?.ContainingProject != null)
             {
                 projectNames[fileName] = project.ContainingProject.Name;

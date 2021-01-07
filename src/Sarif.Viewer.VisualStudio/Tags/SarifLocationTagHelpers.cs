@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </param>
         public static void RefreshTags(ITextBuffer textBuffer = null)
         {
-            IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
             if (componentModel != null)
             {
                 ISarifLocationTaggerService sarifLocationTaggerService = componentModel.GetService<ISarifLocationTaggerService>();

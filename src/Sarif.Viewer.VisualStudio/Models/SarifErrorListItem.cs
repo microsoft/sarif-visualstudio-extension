@@ -124,14 +124,13 @@ namespace Microsoft.Sarif.Viewer
                 {
                     RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, resultId: ResultId, runIndex: RunIndex));
                 }
-
             }
 
             if (result.CodeFlows != null)
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    CallTree callTree = codeFlow.ToCallTree(run, resultId: ResultId, runIndex: RunIndex);
+                    var callTree = codeFlow.ToCallTree(run, resultId: ResultId, runIndex: RunIndex);
                     if (callTree != null)
                     {
                         CallTrees.Add(callTree);
@@ -161,7 +160,7 @@ namespace Microsoft.Sarif.Viewer
                 FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
                 foreach (Fix fix in result.Fixes)
                 {
-                    FixModel fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
+                    var fixModel = fix.ToFixModel(run.OriginalUriBaseIds, regionsCache);
                     Fixes.Add(fixModel);
                 }
             }
@@ -178,29 +177,22 @@ namespace Microsoft.Sarif.Viewer
 
         private FailureLevel GetEffectiveLevel(Result result)
         {
-            FailureLevel effectiveLevel;
-
             switch (result.Kind)
             {
                 case ResultKind.Review:
                 case ResultKind.Open:
-                    effectiveLevel = FailureLevel.Warning;
-                    break;
+                    return FailureLevel.Warning;
 
                 case ResultKind.NotApplicable:
                 case ResultKind.Informational:
                 case ResultKind.Pass:
-                    effectiveLevel = FailureLevel.Note;
-                    break;
+                    return FailureLevel.Note;
 
                 case ResultKind.Fail:
                 case ResultKind.None:   // Should never happen.
                 default:                // Should never happen.
-                    effectiveLevel = result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
-                    break;
+                    return result.Level != FailureLevel.Warning ? result.Level : Rule.FailureLevel;
             }
-
-            return effectiveLevel;
         }
 
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache) : this()
@@ -289,38 +281,16 @@ namespace Microsoft.Sarif.Viewer
         public string Message { get; set; }
 
         [Browsable(false)]
-        public ObservableCollection<XamlDoc.Inline> MessageInlines
-        {
-            get
-            {
-                if (_messageInlines == null)
-                {
-                    _messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message));
-                }
-
-                return _messageInlines;
-            }
-        }
+        public ObservableCollection<XamlDoc.Inline> MessageInlines => _messageInlines
+            ?? (_messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(Message)));
 
         [Browsable(false)]
-        public bool HasEmbeddedLinks
-        {
-            get
-            {
-                return MessageInlines.Any();
-            }
-        }
+        public bool HasEmbeddedLinks => MessageInlines.Any();
 
         [Browsable(false)]
-        public bool HasDetailsContent
-        {
-            get
-            {
-                return !HasEmbeddedLinks &&
-                    !string.IsNullOrWhiteSpace(Message) &&
-                    Message != ShortMessage;
-            }
-        }
+        public bool HasDetailsContent => !HasEmbeddedLinks
+            && !string.IsNullOrWhiteSpace(Message)
+            && Message != ShortMessage;
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
@@ -423,54 +393,25 @@ namespace Microsoft.Sarif.Viewer
         public ObservableCollection<FixModel> Fixes { get; }
 
         [Browsable(false)]
-        public bool HasDetails
-        {
-            get
-            {
-                return Locations.Any() || RelatedLocations.Any() || CallTrees.Any() || Stacks.Any() || Fixes.Any();
-            }
-        }
+        public bool HasDetails => Locations.Any() || RelatedLocations.Any() || CallTrees.Any() || Stacks.Any() || Fixes.Any();
 
         [Browsable(false)]
-        public int LocationsCount
-        {
-            get
-            {
-                return Locations.Count + RelatedLocations.Count;
-            }
-        }
+        public int LocationsCount => Locations.Count + RelatedLocations.Count;
 
         [Browsable(false)]
-        public bool HasMultipleLocations
-        {
-            get
-            {
-                return LocationsCount > 1;
-            }
-        }
+        public bool HasMultipleLocations => LocationsCount > 1;
 
         [Browsable(false)]
-        public DelegateCommand OpenLogFileCommand
+        public DelegateCommand OpenLogFileCommand => _openLogFileCommand ?? (_openLogFileCommand = new DelegateCommand(() =>
         {
-            get
-            {
-                if (_openLogFileCommand == null)
-                {
-                    _openLogFileCommand = new DelegateCommand(() =>
-                    {
-                        // For now this is being done on the UI thread
-                        // and is only required due to the message box being shown below.
-                        // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
-                        // is fixed.
-                        ThreadHelper.ThrowIfNotOnUIThread();
+            // For now this is being done on the UI thread
+            // and is only required due to the message box being shown below.
+            // This will be addressed when https://github.com/microsoft/sarif-visualstudio-extension/issues/160
+            // is fixed.
+            ThreadHelper.ThrowIfNotOnUIThread();
 
-                        OpenLogFile();
-                    });
-                }
-
-                return _openLogFileCommand;
-            }
-        }
+            OpenLogFile();
+        }));
 
         internal void OpenLogFile()
         {
@@ -509,13 +450,13 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (_lineMarker == null && Region != null && Region.StartLine > 0)
+                if (_lineMarker == null && Region?.StartLine > 0)
                 {
                     FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
 
                     _lineMarker = new ResultTextMarker(
-                        resultId: ResultId,
                         runIndex: RunIndex,
+                        resultId: ResultId,
                         uriBaseId: Locations?.FirstOrDefault()?.UriBaseId,
                         region: Region,
                         fullFilePath: FileName,
@@ -566,7 +507,7 @@ namespace Microsoft.Sarif.Viewer
 
             foreach (CallTree callTree in CallTrees)
             {
-                Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
+                var nodesToProcess = new Stack<CallTreeNode>();
 
                 foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
                 {
@@ -578,8 +519,7 @@ namespace Microsoft.Sarif.Viewer
                     CallTreeNode current = nodesToProcess.Pop();
                     try
                     {
-                        if (current.FilePath != null &&
-                            current.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
+                        if (current.FilePath?.Equals(originalPath, StringComparison.OrdinalIgnoreCase) == true)
                         {
                             current.FilePath = remappedPath;
                             current.Region = regionsCache.PopulateTextRegionProperties(current.Region, uri, true);
@@ -636,7 +576,7 @@ namespace Microsoft.Sarif.Viewer
         /// applied, and it is not already fixed.
         /// </remarks>
         /// <returns>
-        /// <code>true</code> if the error is fixable; otherwise <code>false</code>.
+        /// <c>true</c> if the error is fixable; otherwise <c>false</c>.
         /// </returns>
         public bool IsFixable() =>
             !IsFixed && Fixes.Any(fix => fix.CanBeAppliedToFile(FileName));
@@ -700,8 +640,8 @@ namespace Microsoft.Sarif.Viewer
 
                 foreach (CallTree callTree in CallTrees)
                 {
-                    Stack<CallTreeNode> nodesToProcess = new Stack<CallTreeNode>();
-                    List<CallTreeNode> allCallTreeNodes = new List<CallTreeNode>();
+                    var nodesToProcess = new Stack<CallTreeNode>();
+                    var allCallTreeNodes = new List<CallTreeNode>();
 
                     foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
                     {

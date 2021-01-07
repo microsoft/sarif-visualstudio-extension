@@ -79,7 +79,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     // Disable the menu click when we are analysing.
                     SariferPackageCommand.DisableAnalyzeCommands(this.menuCommandService);
-                    List<string> targetFiles = project.GetMemberFiles();
+
+                    List<string> targetFiles = SariferPackageCommand.GetFiles(project);
 
                     this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles, this.cancellationTokenSource.Token)
                         .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);

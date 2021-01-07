@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         public string DisplayText { get; }
 
         /// <inheritdoc/>
-        public ImageMoniker IconMoniker => default(ImageMoniker);
+        public ImageMoniker IconMoniker => default;
 
         /// <inheritdoc/>
         public string IconAutomationText => null;
@@ -100,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             {
                 try
                 {
-                    var currentSnapshot = this.textBuffer.CurrentSnapshot;
+                    ITextSnapshot currentSnapshot = this.textBuffer.CurrentSnapshot;
                     ApplyTextEdits(this.textBuffer, currentSnapshot);
 
                     FixApplied?.Invoke(this, EventArgs.Empty);
@@ -131,9 +131,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             using (ITextEdit bufferEdit = textbuffer.CreateEdit())
             {
-                foreach (var edit in this.edits)
+                foreach (ReplacementEdit edit in this.edits)
                 {
-                    var translatedSpan = edit.Span.TranslateTo(snapshot, SpanTrackingMode.EdgeExclusive);
+                    SnapshotSpan translatedSpan = edit.Span.TranslateTo(snapshot, SpanTrackingMode.EdgeExclusive);
                     bufferEdit.Replace(translatedSpan.Span, edit.Text);
                 }
 

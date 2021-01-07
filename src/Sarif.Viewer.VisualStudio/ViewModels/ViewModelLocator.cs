@@ -10,13 +10,13 @@ using Microsoft.VisualStudio.Shell;
 namespace Microsoft.Sarif.Viewer.ViewModels
 {
     /// <summary>
-    /// This type is only used by the VS designer. It provides the data which is 
-    /// displayed in the designer. 
+    /// This type is only used by the VS designer. It provides the data which is
+    /// displayed in the designer.
     /// </summary>
     internal static class ViewModelLocator
     {
-        static object _syncroot = new object();
-        static SarifErrorListItem _designTime = null;
+        private static readonly object _syncroot = new object();
+        private static SarifErrorListItem _designTime;
 
         // This is the view model displayed by the Visual Studio designer.
         public static SarifErrorListItem DesignTime
@@ -43,27 +43,29 @@ namespace Microsoft.Sarif.Viewer.ViewModels
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            SarifErrorListItem viewModel = new SarifErrorListItem();
-            viewModel.Message = "Potential mismatch between sizeof and countof quantities. Use sizeof() to scale byte sizes.";
-
-            viewModel.Tool = new ToolModel()
+            var viewModel = new SarifErrorListItem
             {
-                Name = "FxCop",
-                Version = "1.0.0.0",
-            };
+                Message = "Potential mismatch between sizeof and countof quantities. Use sizeof() to scale byte sizes.",
 
-            viewModel.Rule = new RuleModel()
-            {
-                Id = "CA1823",
-                Name = "Avoid unused private fields",
-                HelpUri = "http://aka.ms/analysis/ca1823",
-                DefaultFailureLevel = FailureLevel.None
-            };
+                Tool = new ToolModel()
+                {
+                    Name = "FxCop",
+                    Version = "1.0.0.0",
+                },
 
-            viewModel.Invocation = new InvocationModel()
-            {
-                CommandLine = @"""C:\Temp\Foo.exe"" target.file /o out.sarif",
-                FileName = @"C:\Temp\Foo.exe",
+                Rule = new RuleModel()
+                {
+                    Id = "CA1823",
+                    Name = "Avoid unused private fields",
+                    HelpUri = "http://aka.ms/analysis/ca1823",
+                    DefaultFailureLevel = FailureLevel.None
+                },
+
+                Invocation = new InvocationModel()
+                {
+                    CommandLine = @"""C:\Temp\Foo.exe"" target.file /o out.sarif",
+                    FileName = @"C:\Temp\Foo.exe",
+                }
             };
 
             viewModel.Locations.Add(new LocationModel(resultId: 0, runIndex: 0)
@@ -117,33 +119,35 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                     }
                 }));
 
-            StackCollection stack1 = new StackCollection("Stack A1");
-            stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)
+            var stack1 = new StackCollection("Stack A1")
             {
-                Message = "Message A1.1",
-                FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Line = 11,
-                Column = 1,
-                FullyQualifiedLogicalName = "My.Assembly.Main(string[] args)",
-                Module = "My.Module.dll",
-            });
-            stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)
-            {
-                Message = "Message A1.2",
-                FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Line = 12,
-                Column = 1,
-                FullyQualifiedLogicalName = "Our.Shared.Library.Method(int param)",
-                Module = "My.Module.dll",
-            });
-            stack1.Add(new StackFrameModel(resultId: 0, runIndex: 0)
-            {
-                Message = "Message A1.3",
-                FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
-                Line = 1,
-                Column = 1,
-                FullyQualifiedLogicalName = "Your.PIA.External()",
-            });
+                new StackFrameModel(resultId: 0, runIndex: 0)
+                {
+                    Message = "Message A1.1",
+                    FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
+                    Line = 11,
+                    Column = 1,
+                    FullyQualifiedLogicalName = "My.Assembly.Main(string[] args)",
+                    Module = "My.Module.dll",
+                },
+                new StackFrameModel(resultId: 0, runIndex: 0)
+                {
+                    Message = "Message A1.2",
+                    FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
+                    Line = 12,
+                    Column = 1,
+                    FullyQualifiedLogicalName = "Our.Shared.Library.Method(int param)",
+                    Module = "My.Module.dll",
+                },
+                new StackFrameModel(resultId: 0, runIndex: 0)
+                {
+                    Message = "Message A1.3",
+                    FilePath = @"D:\GitHub\NuGet.Services.Metadata\src\Ng\Catalog2Dnx.cs",
+                    Line = 1,
+                    Column = 1,
+                    FullyQualifiedLogicalName = "Your.PIA.External()",
+                }
+            };
             viewModel.Stacks.Add(stack1);
 
             return viewModel;

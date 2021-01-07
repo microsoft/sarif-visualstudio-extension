@@ -402,7 +402,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 ExceptionalConditions actualResult = ExceptionalConditionsCalculator.Calculate(testCase.Log);
                 if (actualResult != testCase.ExpectedResult)
                 {
-                    sb.AppendLine($"    {testCase.Name}: expected {testCase.ExpectedResult} but got {actualResult}");
+                    sb.Append("    ").Append(testCase.Name).Append(": expected ").Append(testCase.ExpectedResult)
+                        .Append(" but got ").Append(actualResult).AppendLine();
                 }
             }
 

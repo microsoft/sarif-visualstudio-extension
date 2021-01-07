@@ -128,7 +128,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                             return;
                         }
 
-                        JsonSerializerSettings settingsV1 = new JsonSerializerSettings()
+                        var settingsV1 = new JsonSerializerSettings()
                         {
                             ContractResolver = SarifContractResolverVersionOne.Instance
                         };
@@ -264,7 +264,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
 
-            List<int> runIdsToClear = new List<int>();
+            var runIdsToClear = new List<int>();
 
             foreach (string logFile in logFiles)
             {
@@ -276,6 +276,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
                     Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
+
+                if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                    .Any(kvp => kvp.Value.SarifErrors
+                        .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true)))
+                {
+                    KeyValuePair<int, RunDataCache> cache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                        .First(kvp => kvp.Value.SarifErrors
+                            .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true));
+                    SarifErrorListItem sarifError = cache.Value.SarifErrors.First(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
+                    cache.Value.SarifErrors.Remove(sarifError);
+
+                    CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
+                }
             }
 
             foreach (int runIdToClear in runIdsToClear)
@@ -481,10 +494,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ThreadHelper.ThrowIfNotOnUIThread();
 
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-            RunDataCache dataCache = new RunDataCache(runIndex, logFilePath);
+            var dataCache = new RunDataCache(runIndex, logFilePath);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
-            List<SarifErrorListItem> sarifErrors = new List<SarifErrorListItem>();
+            var sarifErrors = new List<SarifErrorListItem>();
 
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
@@ -561,7 +574,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.columnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
-                filteredValue: VSSuppressionState.Suppressed.ToString());
+                filteredValue: nameof(VSSuppressionState.Suppressed));
         }
 
         // Show the Category column, which we currently overload to show Baseline State.
@@ -578,7 +591,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             this.columnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,
-                filteredValue: BaselineState.Absent.ToString());
+                filteredValue: nameof(BaselineState.Absent));
         }
 
         private void EnsureHashExists(Artifact artifact)
@@ -610,7 +623,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         internal string GenerateHash(byte[] data)
         {
-            SHA256Managed hashFunction = new SHA256Managed();
+            var hashFunction = new SHA256Managed();
             byte[] hash = hashFunction.ComputeHash(data);
             return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }

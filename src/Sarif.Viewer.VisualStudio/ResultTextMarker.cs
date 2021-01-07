@@ -18,7 +18,7 @@ using Microsoft.VisualStudio.Text.Tagging;
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
-    /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic 
+    /// This class represents an instance of a "highlighted" line in the editor, holds necessary Shell objects and logic
     /// to managed life cycle and appearance.
     /// </summary>
     /// <remarks>
@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer
         /// This is the original region from the SARIF log file before
         /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegionAndFilePath" method./>
         /// </summary>
-        private Region region;
+        private readonly Region region;
 
         /// <summary>
         /// Contains the fully mapped region information mapped to a file on disk.
@@ -193,7 +193,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            List<ISarifLocationTag> tags = new List<ISarifLocationTag>();
+            var tags = new List<ISarifLocationTag>();
 
             if (!this.TryCreatePersistentSpan(textBuffer, persistentSpanFactory))
             {
@@ -289,7 +289,7 @@ namespace Microsoft.Sarif.Viewer
                         return false;
                     }
 
-                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
                     if (componentModel == null)
                     {
                         return false;
@@ -307,7 +307,6 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
             }
-
 
             if (!this.PersistentSpanValid())
             {
@@ -388,7 +387,6 @@ namespace Microsoft.Sarif.Viewer
                 this.regionAndFilePathAreFullyPopulated = false;
                 return false;
             }
-
 
             if (File.Exists(this.resolvedFullFilePath) &&
                 Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out Uri uri))

@@ -24,19 +24,19 @@ namespace Microsoft.Sarif.Viewer.Telemetry
     /// The documentation should also contain "why" the telemetry is being fired, i.e., why is this data needed?
     /// You should ask yourself, if the telemetry data is sent, what changes you would make based on having that data?
     /// You should know in advance what changes you would make based on the data BEFORE adding telemetry.
-    /// 
+    ///
     /// Adding a new event would follow this pattern.
     /// <code>
     /// public static void MyNewEvent()
     /// {
     ///    TelemetryProvder.TrackEvent<Events>();
     /// }
-    /// 
+    ///
     /// TelemetryProvider.TrackEvent{T} uses the <see cref="System.Runtime.CompilerServices.CallerLineNumberAttribute"/> and the
     /// namespace of T to compute the application insights event name.
     /// </code>
     /// </remarks>
-    internal class Events
+    internal static class Events
     {
         /// <summary>
         /// Does nothing.
@@ -54,8 +54,8 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
         ///<!--
         /// Adding a new event would follow this pattern.
-        /// 
-        /// 
+        ///
+        ///
         ///-->
         /// public static void LoadSarifsLogApiInvoked() =>
         ///    TelemetryProvider.TrackEvent<Events>();

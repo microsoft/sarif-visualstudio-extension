@@ -17,7 +17,6 @@ namespace Microsoft.Sarif.Viewer
         protected string _filePath;
         protected string _uriBaseId;
 
-
         public CodeLocationObject(int resultId, int runIndex)
         {
             ResultId = resultId;
@@ -71,15 +70,10 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public string RegionDisplayString
-        {
-            get
-            {
-                // If startLine is zero, we haven't populated the region yet.
-                // Since startLine is always part of this string, we avoid invalid strings like "(0)".
-                return Region != null && Region.StartLine > 0 ? Region.FormatForVisualStudio() : null;
-            }
-        }
+        public string RegionDisplayString =>
+            // If startLine is zero, we haven't populated the region yet.
+            // Since startLine is always part of this string, we avoid invalid strings like "(0)".
+            Region?.StartLine > 0 ? Region.FormatForVisualStudio() : null;
 
         public virtual string FilePath
         {

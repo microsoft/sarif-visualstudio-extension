@@ -83,10 +83,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 return;
             }
 
-            var targetFiles = new List<string>(projects.Count);
+            var targetFiles = new List<string>();
             foreach (Project project in projects)
             {
-                targetFiles.AddRange(project.GetMemberFiles());
+                targetFiles.AddRange(SariferPackageCommand.GetFiles(project));
             }
 
             // Disable the menu click when we are analysing.

@@ -217,7 +217,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 // may be a related location.
                 if (this.Error.HasDetails)
                 {
-                    IComponentModel componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
                     if (componentModel != null)
                     {
                         ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();

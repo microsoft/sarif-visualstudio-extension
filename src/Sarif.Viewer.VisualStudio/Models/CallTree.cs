@@ -12,9 +12,9 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     internal class CallTree : NotifyPropertyChangedObject
     {
-        CallTreeNode _selectedItem;
-        DelegateCommand<TreeView> _selectPreviousCommand;
-        DelegateCommand<TreeView> _selectNextCommand;
+        private CallTreeNode _selectedItem;
+        private DelegateCommand<TreeView> _selectPreviousCommand;
+        private DelegateCommand<TreeView> _selectNextCommand;
 
         private ObservableCollection<CallTreeNode> _topLevelNodes;
 
@@ -145,14 +145,13 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (includeChildren && TryGetLastItem(previousNode.Children, out previousNodeChild))
                 {
                     return previousNodeChild;
-
                 }
                 else
                 {
                     return previousNode;
                 }
             }
-            else if (currentParent != null && currentParent.Visibility == System.Windows.Visibility.Visible)
+            else if (currentParent?.Visibility == System.Windows.Visibility.Visible)
             {
                 return currentParent;
             }
@@ -280,8 +279,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _selectPreviousCommand = new DelegateCommand<TreeView>(treeView =>
                     {
-                        TreeView control = treeView as TreeView;
-                        CallTree model = control.DataContext as CallTree;
+                        var control = treeView as TreeView;
+                        var model = control.DataContext as CallTree;
                         model.SelectedItem = FindPrevious();
                     });
                 }
@@ -289,7 +288,6 @@ namespace Microsoft.Sarif.Viewer.Models
                 return _selectPreviousCommand;
             }
         }
-
 
         public DelegateCommand<TreeView> SelectNextCommand
         {
@@ -300,8 +298,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     _selectNextCommand = new DelegateCommand<TreeView>(treeView =>
                     {
-                        TreeView control = treeView as TreeView;
-                        CallTree model = control.DataContext as CallTree;
+                        var control = treeView as TreeView;
+                        var model = control.DataContext as CallTree;
                         model.SelectedItem = FindNext();
                     });
                 }

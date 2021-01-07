@@ -11,8 +11,8 @@ using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Driver;
+using Microsoft.CodeAnalysis.Sarif.PatternMatcher;
 using Microsoft.CodeAnalysis.Sarif.Sarifer;
-using Microsoft.CodeAnalysis.SarifPatternMatcher;
 
 using Moq;
 
@@ -65,7 +65,7 @@ namespace Sarif.Sarifer.UnitTests
                     new SearchDefinition()
                     {
                         Name = "MinimalRule", Id = "Test1002",
-                        Level = FailureLevel.Error, DefaultNameRegex = "(?i)\\.test$",
+                        Level = FailureLevel.Error, FileNameAllowRegex = "(?i)\\.test$",
                         Message = "A problem occurred in '{0:scanTarget}'.",
                         MatchExpressions = new List<MatchExpression>(new[]
                         {
@@ -94,7 +94,7 @@ namespace Sarif.Sarifer.UnitTests
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
             mockFileSystem.Setup(fs => fs.DirectoryExists(Path.Combine(ProjectDirectory, SpamDirectory))).Returns(true);
-            mockFileSystem.Setup(fs => fs.DirectoryGetFiles(It.IsAny<string>(), It.IsAny<string>())).Returns(new string[] { Guid.NewGuid().ToString() });
+            mockFileSystem.Setup(fs => fs.DirectoryEnumerateFiles(It.IsAny<string>(), It.IsAny<string>(), SearchOption.AllDirectories)).Returns(new string[] { Guid.NewGuid().ToString() });
             mockFileSystem.Setup(fs => fs.FileReadAllText(It.IsAny<string>())).Returns(definitionsText);
 
             ISet<Skimmer<AnalyzeContext>> rules = SpamBackgroundAnalyzer.LoadSearchDefinitionsFiles(mockFileSystem.Object, ProjectDirectory);

@@ -11,16 +11,7 @@ namespace Microsoft.Sarif.Viewer.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var collection = value as ICollection;
-
-            if (collection == null || collection.Count == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return !(value is ICollection collection) || collection.Count == 0 ? false : (object)true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

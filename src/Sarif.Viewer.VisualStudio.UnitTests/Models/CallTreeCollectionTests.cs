@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTreeCollection_ExpandAll()
         {
-            CallTreeCollection collection = new CallTreeCollection();
+            var collection = new CallTreeCollection();
             collection.Add(CreateCallTree());
             collection.ExpandAll();
 
@@ -39,7 +39,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTreeCollection_CollapseAll()
         {
-            CallTreeCollection collection = new CallTreeCollection();
+            var collection = new CallTreeCollection();
             collection.Add(CreateCallTree());
             collection.CollapseAll();
 
@@ -60,7 +60,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTreeCollection_IntelligentExpand()
         {
-            CallTreeCollection collection = new CallTreeCollection();
+            var collection = new CallTreeCollection();
             collection.Add(CreateCallTree());
             collection.IntelligentExpand();
 
@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTreeCollection_SetVerbosity_Essential()
         {
-            CallTreeCollection collection = new CallTreeCollection();
+            var collection = new CallTreeCollection();
             collection.Add(CreateCallTree());
             collection.Verbosity = 1;
 
@@ -102,7 +102,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTreeCollection_SetVerbosity_Important()
         {
-            CallTreeCollection collection = new CallTreeCollection();
+            var collection = new CallTreeCollection();
             collection.Add(CreateCallTree());
             collection.Verbosity = 100;
 
@@ -123,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void CallTreeCollection_SetVerbosity_Unimportant()
         {
-            CallTreeCollection collection = new CallTreeCollection();
+            var collection = new CallTreeCollection();
             collection.Add(CreateCallTree());
             collection.Verbosity = 200;
 
@@ -207,7 +207,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             });
 
-            CallTree callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
+            var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
             return callTree;
         }

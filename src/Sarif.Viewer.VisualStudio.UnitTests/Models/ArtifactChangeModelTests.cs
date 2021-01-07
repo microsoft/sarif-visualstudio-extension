@@ -21,7 +21,7 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void ArtifactChangeModel_FromArtifactChange_LocalPath()
         {
-            ArtifactChange change = new ArtifactChange
+            var change = new ArtifactChange
             {
                 ArtifactLocation = new ArtifactLocation
                 {
@@ -30,14 +30,14 @@ namespace Microsoft.Sarif.Viewer.Models
                 Replacements = new List<Replacement>()
             };
 
-            ArtifactChangeModel model = change.ToArtifactChangeModel(s_emptyOriginalUriBaseIds, s_emptyFileRegionsCache);
+            var model = change.ToArtifactChangeModel(s_emptyOriginalUriBaseIds, s_emptyFileRegionsCache);
             model.FilePath.Should().Be(@"C:\src\tools\util.cs");
         }
 
         [Fact]
         public void ArtifactChangeModel_FromArtifactChange_RelativePath()
         {
-            ArtifactChange change = new ArtifactChange
+            var change = new ArtifactChange
             {
                 ArtifactLocation = new ArtifactLocation
                 {
@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 Replacements = new List<Replacement>()
             };
 
-            ArtifactChangeModel model = change.ToArtifactChangeModel(s_emptyOriginalUriBaseIds, s_emptyFileRegionsCache);
+            var model = change.ToArtifactChangeModel(s_emptyOriginalUriBaseIds, s_emptyFileRegionsCache);
             model.FilePath.Should().Be(@"\src\tools\util.cs");
         }
     }

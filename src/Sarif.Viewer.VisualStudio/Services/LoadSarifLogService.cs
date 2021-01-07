@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private async Task LoadSarifLogAsync(IEnumerable<string> paths)
         {
-            List<string> validPaths = paths.Where(path => !string.IsNullOrEmpty(path)).ToList();
+            var validPaths = paths.Where(path => !string.IsNullOrEmpty(path)).ToList();
             if (validPaths.Count == 0)
             {
                 return;

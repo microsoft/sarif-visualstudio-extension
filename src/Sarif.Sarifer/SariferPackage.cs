@@ -34,6 +34,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
         private AnalyzeProjectCommand analyzeProjectCommand;
+        private OutputWindowTracerListener outputWindowTraceListener;
 
         /// <summary>
         /// Default constructor of the package. VS uses this constructor to create an instance of
@@ -73,6 +74,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
             }
 
+            if (await GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
+            {
+                outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarifer");
+            }
+
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
         }
 
@@ -91,6 +97,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     this.analyzeSolutionCommand?.Dispose();
                     this.analyzeProjectCommand?.Dispose();
+                    this.outputWindowTraceListener?.Dispose();
                 }
 
                 this.disposed = true;

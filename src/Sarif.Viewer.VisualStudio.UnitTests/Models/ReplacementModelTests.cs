@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.Models
         public void ToReplacementModel_WhenUriIsRelativeAndReplacementRegionIsCharOffsetLength_ProducesExpectedModel()
         {
             const string FilePath = "test.txt";
-            Uri fileUri = new Uri(FilePath, UriKind.Relative);
+            var fileUri = new Uri(FilePath, UriKind.Relative);
 
             const int DeletedCharOffset = 12;
             const int DeletedCharLength = 2;
@@ -43,11 +43,11 @@ namespace Microsoft.Sarif.Viewer.Models
 
             var run = new Run();
 
-            Mock<IFileSystem> mockFileSystem = new Mock<IFileSystem>();
+            var mockFileSystem = new Mock<IFileSystem>();
 
-            FileRegionsCache fileRegionsCache = new FileRegionsCache(FileRegionsCacheCapacity, mockFileSystem.Object);
+            var fileRegionsCache = new FileRegionsCache(FileRegionsCacheCapacity, mockFileSystem.Object);
 
-            ReplacementModel actualModel = replacement.ToReplacementModel(fileRegionsCache, fileUri);
+            var actualModel = replacement.ToReplacementModel(fileRegionsCache, fileUri);
 
             actualModel.Region.CharOffset.Should().Be(DeletedCharOffset);
             actualModel.Region.CharLength.Should().Be(DeletedCharLength);

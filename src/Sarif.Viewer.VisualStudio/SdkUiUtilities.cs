@@ -26,7 +26,6 @@ using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
-
     public static class SdkUIUtilities
     {
         // Embedded link format: [link text](n|uri) where n is a non-negative integer, or uri is an absolute URL
@@ -84,13 +83,13 @@ namespace Microsoft.Sarif.Viewer
         /// <returns></returns>
         internal static T GetStoredObject<T>(string storageFileName) where T : class
         {
-            IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
             if (store.FileExists(storageFileName))
             {
-                using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(storageFileName, FileMode.Open, store))
+                using (var stream = new IsolatedStorageFileStream(storageFileName, FileMode.Open, store))
                 {
-                    using (StreamReader reader = new StreamReader(stream))
+                    using (var reader = new StreamReader(stream))
                     {
                         return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
                     }
@@ -108,11 +107,11 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="storageFileName">The isolated storage file.</param>
         internal static void StoreObject<T>(T t, string storageFileName)
         {
-            IsolatedStorageFile store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
-            using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(storageFileName, FileMode.Create, store))
+            using (var stream = new IsolatedStorageFileStream(storageFileName, FileMode.Create, store))
             {
-                using (StreamWriter writer = new StreamWriter(stream))
+                using (var writer = new StreamWriter(stream))
                 {
                     writer.Write(JsonConvert.SerializeObject(t, Formatting.Indented));
                 }
@@ -146,7 +145,8 @@ namespace Microsoft.Sarif.Viewer
                     // The scope below ensures that if a document is not yet open, it is opened in the preview pane.
                     // For documents that are already open, they will remain in their current pane, which may be the preview
                     // pane or the full editor pane.
-                    using (new NewDocumentStateScope(__VSNEWDOCUMENTSTATE.NDS_Provisional | __VSNEWDOCUMENTSTATE.NDS_NoActivate, Microsoft.VisualStudio.VSConstants.NewDocumentStateReason.Navigation))
+                    using (new NewDocumentStateScope(__VSNEWDOCUMENTSTATE.NDS_Provisional
+                        | __VSNEWDOCUMENTSTATE.NDS_NoActivate, VSConstants.NewDocumentStateReason.Navigation))
                     {
                         return OpenDocumentInCurrentScope(provider, file);
                     }
@@ -203,12 +203,10 @@ namespace Microsoft.Sarif.Viewer
                 cookieDocLock = FindDocument(runningDocTable, file);
             }
 
-            if (windowFrame != null)
-            {
-                // This will make the document visible to the user and switch focus to it. ShowNoActivate doesn't help because for tabbed documents they
-                // are not brought to the front if they are already opened.
-                windowFrame.Show();
-            }
+            // This will make the document visible to the user and switch focus to it. ShowNoActivate doesn't help because for tabbed documents they
+            // are not brought to the front if they are already opened.
+            windowFrame?.Show();
+
             return windowFrame;
         }
 
@@ -281,8 +279,7 @@ namespace Microsoft.Sarif.Viewer
         {
             wpfTextView = null;
 
-            IVsUserData userData = textView as IVsUserData;
-            if (userData == null)
+            if (!(textView is IVsUserData userData))
             {
                 return false;
             }
@@ -293,9 +290,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IWpfTextViewHost textViewHost = wpfTextViewHost as IWpfTextViewHost;
-
-            if (textViewHost == null)
+            if (!(wpfTextViewHost is IWpfTextViewHost textViewHost))
             {
                 return false;
             }
@@ -344,8 +339,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IPersistFileFormat persistFileFormat = vsTextBuffer as IPersistFileFormat;
-            if (persistFileFormat == null)
+            if (!(vsTextBuffer is IPersistFileFormat persistFileFormat))
             {
                 return false;
             }
@@ -370,8 +364,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            IVsTextManager2 textManager2 = Package.GetGlobalService(typeof(SVsTextManager)) as IVsTextManager2;
-            if (textManager2 == null)
+            if (!(Package.GetGlobalService(typeof(SVsTextManager)) is IVsTextManager2 textManager2))
             {
                 return false;
             }
@@ -420,7 +413,7 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        private static char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private static readonly char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
         /// Creates a relative path from one directory to another directory or file
@@ -438,7 +431,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // If toPath is on a different drive then there is no relative path
-            if (0 != string.Compare(Path.GetPathRoot(fromDirectory),
+            if (!string.Equals(Path.GetPathRoot(fromDirectory),
                                     Path.GetPathRoot(toPath),
                                     StringComparison.OrdinalIgnoreCase))
             {
@@ -460,7 +453,7 @@ namespace Microsoft.Sarif.Viewer
             // Find the common root
             for (; firstDifference < length; firstDifference++)
             {
-                if (0 != string.Compare(fromDirectories[firstDifference],
+                if (!string.Equals(fromDirectories[firstDifference],
                                         toDirectories[firstDifference],
                                         StringComparison.OrdinalIgnoreCase))
                 {
@@ -468,7 +461,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            StringCollection relativePath = new StringCollection();
+            var relativePath = new StringCollection();
 
             // Add relative paths to get from fromDirectory to the common root
             for (int i = firstDifference; i < fromDirectories.Length; i++)
@@ -633,7 +626,7 @@ namespace Microsoft.Sarif.Viewer
                         {
                             target = id;
                         }
-                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out var uri))
+                        else if (Uri.TryCreate(targetText, UriKind.Absolute, out Uri uri))
                         {
                             // This is super dangerous! We are launching URIs for SARIF logs
                             // that can point to anything.
@@ -643,10 +636,11 @@ namespace Microsoft.Sarif.Viewer
 
                         if (target != null)
                         {
-                            var link = new XamlDoc.Hyperlink();
-
-                            // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
-                            link.Tag = target;
+                            var link = new XamlDoc.Hyperlink
+                            {
+                                // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
+                                Tag = target
+                            };
 
                             // Set the hyperlink text
                             link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));
