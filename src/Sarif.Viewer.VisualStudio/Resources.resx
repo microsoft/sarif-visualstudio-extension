@@ -318,7 +318,7 @@
     <value>False positive</value>
   </data>
   <data name="LowValueResult" xml:space="preserve">
-    <value>low value</value>
+    <value>Low value</value>
   </data>
   <data name="NonActionableResult" xml:space="preserve">
     <value>Non-actionable</value>

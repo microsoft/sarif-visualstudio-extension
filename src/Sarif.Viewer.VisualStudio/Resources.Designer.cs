@@ -405,7 +405,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to low value.
+        ///   Looks up a localized string similar to Low value.
         /// </summary>
         public static string LowValueResult {
             get {
