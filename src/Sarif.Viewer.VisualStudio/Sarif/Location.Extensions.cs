@@ -48,7 +48,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             var artifactLocation = location.PhysicalLocation?.ArtifactLocation;
             var region = location.PhysicalLocation?.Region;
             var uri = location.PhysicalLocation?.ArtifactLocation?.Uri;
-                        
+
             if (uri == null || region == null || region.IsBinaryRegion || physicalLocation == null)
             {
                 return string.Empty;

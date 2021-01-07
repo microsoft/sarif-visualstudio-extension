@@ -158,8 +158,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 case UsefulResultCommandId:
                     var feedback = new FeedbackModel(
-                        this.selectionService.SelectedItem.Rule.Id, this.selectionService.SelectedItem.Tool.Name, 
-                        this.selectionService.SelectedItem.Tool.Version, this.selectionService.SelectedItem.Locations.FirstOrDefault().ExtractSnippet(), 
+                        this.selectionService.SelectedItem.Rule.Id, this.selectionService.SelectedItem.Tool.Name,
+                        this.selectionService.SelectedItem.Tool.Version, this.selectionService.SelectedItem.Locations.FirstOrDefault().ExtractSnippet(),
                         FeedbackType.UsefulResult, null);
                     ErrorListService.SendFeedback(feedback);
                     break;
