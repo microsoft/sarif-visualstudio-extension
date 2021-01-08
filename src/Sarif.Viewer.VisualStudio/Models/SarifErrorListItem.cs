@@ -673,5 +673,17 @@ namespace Microsoft.Sarif.Viewer
             // "region" being set. So let's filter out the nulls from the callers.
             return resultTextMarkers.Where(resultTextMarker => resultTextMarker != null);
         }
+
+        public IEnumerable<string> GetCodeSnippets()
+        {
+            IDictionary<int, RunDataCache> runIndexToRunDataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
+            if (!runIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
+            {
+                runDataCache = null;
+            }
+
+            FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
+            return this.Locations.Select(location => location.ExtractSnippet(regionsCache));
+        }
     }
 }

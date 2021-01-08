@@ -1,14 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 
 using Microsoft.Sarif.Viewer.ErrorList;
-using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -17,13 +14,13 @@ namespace Microsoft.Sarif.Viewer.Models
     {
         private Microsoft.VisualStudio.PlatformUI.DelegateCommand sendFeedbackCommand;
 
-        public FeedbackModel(string ruleId, string toolName, string toolVersion, string snippet, FeedbackType feedbackType, string summary)
+        public FeedbackModel(string ruleId, string toolName, string toolVersion, IEnumerable<string> snippets, FeedbackType feedbackType, string summary)
         {
             this.RuleId = ruleId;
             this.FeedbackType = feedbackType;
             this.ToolName = toolName;
             this.ToolVersion = toolVersion;
-            this.Snippet = snippet;
+            this.Snippets = snippets;
             this.SendSnippet = true;
             this.Comment = string.Empty;
             this.Summary = summary;
@@ -36,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.Models
         public bool SendSnippet { get; set; }
         public string Comment { get; set; }
         public string Summary { get; set; }
-        public string Snippet { get; set; }
+        public IEnumerable<string> Snippets { get; set; }
 
         public Microsoft.VisualStudio.PlatformUI.DelegateCommand SendFeedbackCommand
         {

@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return model;
         }
 
-        public static string ExtractSnippet(this Location location, Run run)
+        public static string ExtractSnippet(this Location location, Run run, FileRegionsCache fileRegionsCache)
         {
             var physicalLocation = location.PhysicalLocation;
             var artifactLocation = location.PhysicalLocation?.ArtifactLocation;
@@ -79,19 +79,20 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return string.Empty;
             }
 
-            FileRegionsCache fileRegionsCache = new FileRegionsCache();
+            fileRegionsCache ??= new FileRegionsCache();
             var expandedRegion = fileRegionsCache.PopulateTextRegionProperties(region, resolvedUri, populateSnippet: true);
             return expandedRegion.Snippet != null ? expandedRegion.Snippet.Text : string.Empty;
         }
 
-        public static string ExtractSnippet(this LocationModel location)
+        public static string ExtractSnippet(this LocationModel location, FileRegionsCache fileRegionsCache)
         {
+            
             if (File.Exists(location.FilePath) &&
                 Uri.TryCreate(location.FilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
-                FileRegionsCache regionsCache = new FileRegionsCache();
-                var fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(location.Region, uri, populateSnippet: true);
+                fileRegionsCache ??= new FileRegionsCache();
+                var fullyPopulatedRegion = fileRegionsCache.PopulateTextRegionProperties(location.Region, uri, populateSnippet: true);
                 return fullyPopulatedRegion?.Snippet != null ? fullyPopulatedRegion.Snippet.Text : string.Empty;
             }
 

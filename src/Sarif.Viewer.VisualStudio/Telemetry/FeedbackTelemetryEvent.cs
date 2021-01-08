@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 using Microsoft.Sarif.Viewer.Models;
 
+using Newtonsoft.Json;
+
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
     internal class FeedbackTelemetryEvent
@@ -34,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             properties.Add(Comments, feedback.Comment);
             if (feedback.SendSnippet)
             {
-                properties.Add(Snippet, feedback.Snippet);
+                properties.Add(Snippet, JsonConvert.SerializeObject(feedback.Snippets));
             }
 
             return properties;

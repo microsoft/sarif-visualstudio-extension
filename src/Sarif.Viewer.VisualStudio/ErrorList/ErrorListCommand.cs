@@ -159,7 +159,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 case UsefulResultCommandId:
                     var feedback = new FeedbackModel(
                         this.selectionService.SelectedItem.Rule.Id, this.selectionService.SelectedItem.Tool.Name,
-                        this.selectionService.SelectedItem.Tool.Version, this.selectionService.SelectedItem.Locations.FirstOrDefault().ExtractSnippet(),
+                        this.selectionService.SelectedItem.Tool.Version, this.selectionService.SelectedItem.GetCodeSnippets(),
                         FeedbackType.UsefulResult, null);
                     ErrorListService.SendFeedback(feedback);
                     break;
@@ -207,8 +207,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             FeedbackInfo feedbackInfo = s_commandToResultDescriptionDictionary[commandId];
             string title = string.Format(Resources.ReportResultTitle, feedbackInfo.Description);
             string summary = string.Format(feedbackInfo.Summary, sarifErrorListItem.Tool.Name, sarifErrorListItem.Rule.Id);
-            string snippet = sarifErrorListItem.Locations.FirstOrDefault().ExtractSnippet();
-            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem, feedbackInfo.FeedbackType, snippet, summary);
+            IEnumerable<string> snippets = sarifErrorListItem.GetCodeSnippets();
+            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem, feedbackInfo.FeedbackType, snippets, summary);
             feedbackDialog.ShowModal();
         }
     }
