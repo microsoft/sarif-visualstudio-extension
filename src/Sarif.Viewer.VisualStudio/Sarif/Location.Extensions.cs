@@ -86,7 +86,6 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
         public static string ExtractSnippet(this LocationModel location, FileRegionsCache fileRegionsCache)
         {
-            
             if (File.Exists(location.FilePath) &&
                 Uri.TryCreate(location.FilePath, UriKind.Absolute, out Uri uri))
             {
