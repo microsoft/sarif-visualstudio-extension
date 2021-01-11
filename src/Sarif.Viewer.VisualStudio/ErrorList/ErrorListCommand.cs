@@ -144,12 +144,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (this.selectionService.SelectedItem == null)
+            var menuCommand = (MenuCommand)sender;
+            // Clear Sarif Result command should be function no matter if any selected item
+            if (this.selectionService.SelectedItem == null
+                && menuCommand.CommandID.ID != ClearSarifResultsCommandId)
             {
                 return;
             }
 
-            var menuCommand = (MenuCommand)sender;
             switch (menuCommand.CommandID.ID)
             {
                 case ClearSarifResultsCommandId:
