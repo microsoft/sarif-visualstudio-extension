@@ -14,6 +14,8 @@
     Do not build.
 .PARAMETER NoTest
     Do not run tests.
+.PARAMETER NoFormat
+    Do not format files based on dotnet-format tool
 .PARAMETER NoPackage
     Do not create NuGet packages.
 .PARAMETER NoSigningDirectory
@@ -39,6 +41,9 @@ param(
 
     [switch]
     $NoTest,
+
+    [switch]
+    $NoFormat,
 
     [switch]
     $NoPackage,
@@ -157,6 +162,11 @@ if (-not $NoTest) {
     if (-not $?) {
         Exit-WithFailureMessage $ScriptName "RunTests failed."
     }
+}
+
+if (-not $NoFormat) {
+    dotnet tool update --global dotnet-format --version 4.1.131201
+    dotnet-format --folder --exclude .\src\sarif-pattern-matcher\
 }
 
 if (-not $NoSigningDirectory) {
