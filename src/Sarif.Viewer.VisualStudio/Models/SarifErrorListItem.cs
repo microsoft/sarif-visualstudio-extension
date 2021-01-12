@@ -431,7 +431,7 @@ namespace Microsoft.Sarif.Viewer
                 else
                 {
                     VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
-                                                    string.Format(Resources.OpenLogFileFail_DilogMessage, LogFilePath),
+                                                    string.Format(Resources.OpenLogFileFail_DialogMessage, LogFilePath),
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_CRITICAL,
                                                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
@@ -672,6 +672,18 @@ namespace Microsoft.Sarif.Viewer
             // Some of the data models will return null markers if there aren't valid properties like
             // "region" being set. So let's filter out the nulls from the callers.
             return resultTextMarkers.Where(resultTextMarker => resultTextMarker != null);
+        }
+
+        public IEnumerable<string> GetCodeSnippets()
+        {
+            IDictionary<int, RunDataCache> runIndexToRunDataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
+            if (!runIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
+            {
+                runDataCache = null;
+            }
+
+            FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
+            return this.Locations.Select(location => location.ExtractSnippet(regionsCache));
         }
     }
 }

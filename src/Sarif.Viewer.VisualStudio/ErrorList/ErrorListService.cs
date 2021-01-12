@@ -27,6 +27,7 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -468,6 +469,24 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifTableDataSource.Instance.CleanAllErrors();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
             SarifLocationTagHelpers.RefreshTags();
+        }
+
+        public static void SendFeedback(FeedbackModel feedback)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                FeedbackTelemetryEvent.SendFeedbackTelemetryEvent(feedback);
+            }
+            catch (Exception)
+            {
+                VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
+                       Resources.SendFeedbackFailed,
+                       null, // title
+                       OLEMSGICON.OLEMSGICON_CRITICAL,
+                       OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                       OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            }
         }
 
         private int WriteRunToErrorList(Run run, string logFilePath)

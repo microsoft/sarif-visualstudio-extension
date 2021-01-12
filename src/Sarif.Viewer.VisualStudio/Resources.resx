@@ -161,7 +161,7 @@
     <value>The log file '{0}' is invalid and couldn't be opened.</value>
     <comment>{0} will be the name of the invalid file that couldn't be opened</comment>
   </data>
-  <data name="OpenLogFileFail_DilogMessage" xml:space="preserve">
+  <data name="OpenLogFileFail_DialogMessage" xml:space="preserve">
     <value>The log file '{0}' was not found.</value>
     <comment>{0} will be the full file path</comment>
   </data>
@@ -310,5 +310,44 @@
   </data>
   <data name="ErrorListSuppressedResultsDataSourceDisplayName" xml:space="preserve">
     <value>SARIF Viewer: Suppressed results "stub" display source</value>
+  </data>
+  <data name="NonShippingCodeResult" xml:space="preserve">
+    <value>Non-shipping code</value>
+  </data>
+  <data name="FalsePositiveResult" xml:space="preserve">
+    <value>False positive</value>
+  </data>
+  <data name="LowValueResult" xml:space="preserve">
+    <value>Low value</value>
+  </data>
+  <data name="NonActionableResult" xml:space="preserve">
+    <value>Non-actionable</value>
+  </data>
+  <data name="OtherResult" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ReportResultTitle" xml:space="preserve">
+    <value>Report "{0}" Result</value>
+  </data>
+  <data name="FalsePositiveSummary" xml:space="preserve">
+    <value>{0} rule "{1}" wasn't useful because it didn't flag an actual problem (i.e., it is a false positive).</value>
+  </data>
+  <data name="LowValueSummary" xml:space="preserve">
+    <value>{0} rule "{1}" was accurate but not useful because the code improvement to resolve is relatively low value.</value>
+  </data>
+  <data name="NonActionableSummary" xml:space="preserve">
+    <value>{0} rule "{1}" wasn't useful because the information provided for it wasn't actionable (couldn't be understood or was incomplete).</value>
+  </data>
+  <data name="NonShippingCodeSummary" xml:space="preserve">
+    <value>{0} rule "{1}" wasn't useful because it was reported against non-shipping code.</value>
+  </data>
+  <data name="OtherSummary" xml:space="preserve">
+    <value>{0} rule "{1}" wasn't useful</value>
+  </data>
+  <data name="SendFeedbackFailed" xml:space="preserve">
+    <value>An error occurred sending your feedback</value>
+  </data>
+  <data name="SendFeedbackSucceeded" xml:space="preserve">
+    <value>Completed sending your feedback</value>
   </data>
 </root>

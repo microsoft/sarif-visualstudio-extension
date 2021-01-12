@@ -44,6 +44,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\FeedbackControl.xaml.cs">
+      <DependentUpon>FeedbackControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FeedbackDialog.cs" />
     <Compile Include="Controls\InfoBar.cs" />
     <Compile Include="ErrorList\ColumnFilterer.cs" />
     <Compile Include="ErrorList\FilteredColumnValue.cs" />
@@ -90,6 +94,8 @@
     <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
     <Compile Include="LogProcessedEventArgs.cs" />
     <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
+    <Compile Include="Models\FeedbackModel.cs" />
+    <Compile Include="Models\FeedbackType.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
@@ -140,6 +146,7 @@
     <Compile Include="Tags\TextViewCaretListener.cs" />
     <Compile Include="Tags\TextViewCaretListenerService.cs" />
     <Compile Include="Telemetry\Events.cs" />
+    <Compile Include="Telemetry\FeedbackTelemetryEvent.cs" />
     <Compile Include="Telemetry\TelemetryProvider.cs" />
     <Compile Include="Views\CallTreeView.cs" />
     <Compile Include="Uri.extensions.cs" />
@@ -252,6 +259,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\FeedbackControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\InternetHyperlink.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

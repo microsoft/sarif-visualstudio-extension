@@ -189,6 +189,24 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to False positive.
+        /// </summary>
+        public static string FalsePositiveResult {
+            get {
+                return ResourceManager.GetString("FalsePositiveResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because it didn&apos;t flag an actual problem (i.e., it is a false positive)..
+        /// </summary>
+        public static string FalsePositiveSummary {
+            get {
+                return ResourceManager.GetString("FalsePositiveSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open File.
         /// </summary>
         public static string FileOpenFail_DialogCaption {
@@ -387,11 +405,83 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Low value.
+        /// </summary>
+        public static string LowValueResult {
+            get {
+                return ResourceManager.GetString("LowValueResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; was accurate but not useful because the code improvement to resolve is relatively low value..
+        /// </summary>
+        public static string LowValueSummary {
+            get {
+                return ResourceManager.GetString("LowValueSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-actionable.
+        /// </summary>
+        public static string NonActionableResult {
+            get {
+                return ResourceManager.GetString("NonActionableResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because the information provided for it wasn&apos;t actionable (couldn&apos;t be understood or was incomplete)..
+        /// </summary>
+        public static string NonActionableSummary {
+            get {
+                return ResourceManager.GetString("NonActionableSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Non-shipping code.
+        /// </summary>
+        public static string NonShippingCodeResult {
+            get {
+                return ResourceManager.GetString("NonShippingCodeResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because it was reported against non-shipping code..
+        /// </summary>
+        public static string NonShippingCodeSummary {
+            get {
+                return ResourceManager.GetString("NonShippingCodeSummary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The log file &apos;{0}&apos; was not found..
         /// </summary>
-        public static string OpenLogFileFail_DilogMessage {
+        public static string OpenLogFileFail_DialogMessage {
             get {
-                return ResourceManager.GetString("OpenLogFileFail_DilogMessage", resourceCulture);
+                return ResourceManager.GetString("OpenLogFileFail_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        public static string OtherResult {
+            get {
+                return ResourceManager.GetString("OtherResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful.
+        /// </summary>
+        public static string OtherSummary {
+            get {
+                return ResourceManager.GetString("OtherSummary", resourceCulture);
             }
         }
         
@@ -419,6 +509,15 @@ namespace Microsoft.Sarif.Viewer {
         public static string ProcessLogFilesComplete {
             get {
                 return ResourceManager.GetString("ProcessLogFilesComplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Report &quot;{0}&quot; Result.
+        /// </summary>
+        public static string ReportResultTitle {
+            get {
+                return ResourceManager.GetString("ReportResultTitle", resourceCulture);
             }
         }
         
@@ -501,6 +600,24 @@ namespace Microsoft.Sarif.Viewer {
         public static string SaveTransformedV1Log_DialogTitle {
             get {
                 return ResourceManager.GetString("SaveTransformedV1Log_DialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred sending your feedback.
+        /// </summary>
+        public static string SendFeedbackFailed {
+            get {
+                return ResourceManager.GetString("SendFeedbackFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Completed sending your feedback.
+        /// </summary>
+        public static string SendFeedbackSucceeded {
+            get {
+                return ResourceManager.GetString("SendFeedbackSucceeded", resourceCulture);
             }
         }
         
