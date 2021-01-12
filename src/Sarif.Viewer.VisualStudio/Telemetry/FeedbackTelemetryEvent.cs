@@ -28,12 +28,15 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
         private static Dictionary<string, string> getProperties(FeedbackModel feedback)
         {
-            var properties = new Dictionary<string, string>();
-            properties.Add(Reason, feedback.FeedbackType.ToString());
-            properties.Add(ToolName, feedback.ToolName);
-            properties.Add(ToolVersion, feedback.ToolVersion);
-            properties.Add(RuleId, feedback.RuleId);
-            properties.Add(Comments, feedback.Comment);
+            var properties = new Dictionary<string, string>
+            {
+                { Reason, feedback.FeedbackType.ToString() },
+                { ToolName, feedback.ToolName },
+                { ToolVersion, feedback.ToolVersion },
+                { RuleId, feedback.RuleId },
+                { Comments, feedback.Comment }
+            };
+
             if (feedback.SendSnippet)
             {
                 properties.Add(Snippet, JsonConvert.SerializeObject(feedback.Snippets));
