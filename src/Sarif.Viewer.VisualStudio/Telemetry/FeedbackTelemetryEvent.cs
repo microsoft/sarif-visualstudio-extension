@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
         private static Dictionary<string, string> getProperties(FeedbackModel feedback)
         {
-            Dictionary<string, string> properties = new Dictionary<string, string>();
+            var properties = new Dictionary<string, string>();
             properties.Add(Reason, feedback.FeedbackType.ToString());
             properties.Add(ToolName, feedback.ToolName);
             properties.Add(ToolVersion, feedback.ToolVersion);

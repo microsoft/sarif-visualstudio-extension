@@ -6,11 +6,11 @@ namespace Microsoft.Sarif.Viewer.Models
     public enum FeedbackType
     {
         None = 0,
-        UsefulResult = 1,
-        FalsePositiveResult = 2,
-        NonActionableResult = 3,
-        LowValueResult = 4,
-        NonShippingCodeResult = 5,
-        OtherResult = 6
+        UsefulResult,
+        FalsePositiveResult,
+        NonActionableResult,
+        LowValueResult,
+        NonShippingCodeResult,
+        OtherResult
     }
 }

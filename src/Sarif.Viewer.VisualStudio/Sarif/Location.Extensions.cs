@@ -44,10 +44,10 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
         public static string ExtractSnippet(this Location location, Run run, FileRegionsCache fileRegionsCache)
         {
-            var physicalLocation = location.PhysicalLocation;
-            var artifactLocation = location.PhysicalLocation?.ArtifactLocation;
-            var region = location.PhysicalLocation?.Region;
-            var uri = location.PhysicalLocation?.ArtifactLocation?.Uri;
+            PhysicalLocation physicalLocation = location.PhysicalLocation;
+            ArtifactLocation artifactLocation = location.PhysicalLocation?.ArtifactLocation;
+            Region region = location.PhysicalLocation?.Region;
+            Uri uri = location.PhysicalLocation?.ArtifactLocation?.Uri;
 
             if (uri == null || region == null || region.IsBinaryRegion || physicalLocation == null)
             {

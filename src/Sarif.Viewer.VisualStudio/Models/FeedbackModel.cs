@@ -17,23 +17,23 @@ namespace Microsoft.Sarif.Viewer.Models
         public FeedbackModel(string ruleId, string toolName, string toolVersion, IEnumerable<string> snippets, FeedbackType feedbackType, string summary)
         {
             this.RuleId = ruleId;
-            this.FeedbackType = feedbackType;
             this.ToolName = toolName;
             this.ToolVersion = toolVersion;
-            this.Snippets = snippets;
             this.SendSnippet = true;
+            this.Snippets = snippets;
             this.Comment = string.Empty;
+            this.FeedbackType = feedbackType;
             this.Summary = summary;
         }
 
         public string RuleId { get; }
-        public FeedbackType FeedbackType { get; }
         public string ToolName { get; }
         public string ToolVersion { get; }
         public bool SendSnippet { get; set; }
-        public string Comment { get; set; }
-        public string Summary { get; set; }
         public IEnumerable<string> Snippets { get; set; }
+        public string Comment { get; set; }
+        public FeedbackType FeedbackType { get; }
+        public string Summary { get; set; }
 
         public Microsoft.VisualStudio.PlatformUI.DelegateCommand SendFeedbackCommand
         {
