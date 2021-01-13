@@ -167,7 +167,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             new SarifLogger(
                 writer,
                 LoggingOptions.None,
-                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlInformation,
+                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlDetails,
                 dataToRemove: OptionallyEmittedData.None,
                 tool: this.MakeTool(),
                 closeWriterOnDispose: false);
