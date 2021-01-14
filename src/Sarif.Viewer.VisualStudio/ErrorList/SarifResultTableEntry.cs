@@ -20,7 +20,7 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    internal sealed class SarifResultTableEntry : ITableEntry, IDisposable
+    internal sealed class SarifResultTableEntry : WpfTableEntryBase, IDisposable
     {
         internal const string SuppressionStateColumnName = "suppression";
 
@@ -143,11 +143,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public SarifErrorListItem Error { get; }
 
-        public object Identity { get; }
+        public override object Identity { get; }
 
-        public bool CanSetValue(string keyName) => false;
+        public override bool CanSetValue(string keyName) => false;
 
-        public bool TryGetValue(string keyName, out object content)
+        public override bool TryGetValue(string keyName, out object content)
         {
             if (this.columnKeyToContent.TryGetValue(keyName, out content))
             {
@@ -163,7 +163,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return false;
         }
 
-        public bool TrySetValue(string keyName, object content) => false;
+        public override bool TrySetValue(string keyName, object content) => false;
 
         private static __VSERRORCATEGORY GetSeverity(FailureLevel level)
         {
