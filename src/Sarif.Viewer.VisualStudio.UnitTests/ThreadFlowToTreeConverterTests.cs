@@ -26,9 +26,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "first parent"
-                        }
-                    }
+                            Text = "first parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {
@@ -37,9 +37,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "second parent"
-                        }
-                    }
+                            Text = "second parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {
@@ -52,9 +52,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "third parent"
-                        }
-                    }
+                            Text = "third parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {
@@ -67,9 +67,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "fourth parent"
-                        }
-                    }
+                            Text = "fourth parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {
@@ -86,14 +86,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "fifth parent"
-                        }
-                    }
+                            Text = "fifth parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {
                     NestingLevel = 1, // CallReturn,
-                }
+                },
             });
 
             List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0);
@@ -139,9 +139,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "first parent"
-                        }
-                    }
+                            Text = "first parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {
@@ -166,9 +166,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = "second parent"
-                        }
-                    }
+                            Text = "second parent",
+                        },
+                    },
                 },
                 new ThreadFlowLocation
                 {

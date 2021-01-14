@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
-    public class SarifSnapshotTests
+    public class SarifResultEntryTests
     {
         [Fact]
         public void SarifSnapshot_TryGetValue_LineNumber()
@@ -20,12 +20,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var errorItem = new SarifErrorListItem
             {
-                LineNumber = lineNumber
+                LineNumber = lineNumber,
             };
 
             var tableEntry = new SarifResultTableEntry(errorItem);
 
-            Object value;
+            object value;
             tableEntry.TryGetValue("line", out value).Should().Be(true);
             value.Should().Be(lineNumber - 1);
         }
@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var tableEntry = new SarifResultTableEntry(errorItem);
 
-            Object value;
+            object value;
             tableEntry.TryGetValue("line", out value).Should().Be(true);
             value.Should().Be(-1);
         }
@@ -49,12 +49,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var errorItem = new SarifErrorListItem
             {
-                LineNumber = lineNumber
+                LineNumber = lineNumber,
             };
 
             var tableEntry = new SarifResultTableEntry(errorItem);
 
-            Object value;
+            object value;
             tableEntry.TryGetValue("line", out value).Should().Be(true);
             value.Should().Be(lineNumber - 1);
         }

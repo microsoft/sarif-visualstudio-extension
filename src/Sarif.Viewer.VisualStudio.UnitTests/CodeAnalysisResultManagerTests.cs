@@ -233,17 +233,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     ["HAS_SLASH"] = new ArtifactLocation
                     {
-                        Uri = new Uri("file:///C:/code/myProject/src/")
+                        Uri = new Uri("file:///C:/code/myProject/src/"),
                     },
                     ["NO_SLASH"] = new ArtifactLocation
                     {
-                        Uri = new Uri("file:///C:/code/myProject/test")
+                        Uri = new Uri("file:///C:/code/myProject/test"),
                     },
                     ["NO_SLASH_RELATIVE"] = new ArtifactLocation
                     {
-                        Uri = new Uri("code/myProject/test", UriKind.Relative)
-                    }
-                }
+                        Uri = new Uri("code/myProject/test", UriKind.Relative),
+                    },
+                },
             };
 
             var resultManager = new CodeAnalysisResultManager(fileSystem: null, promptForResolvedPathDelegate: null);
