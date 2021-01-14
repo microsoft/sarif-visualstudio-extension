@@ -80,7 +80,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
 
             fileRegionsCache ??= new FileRegionsCache();
-            var expandedRegion = fileRegionsCache.PopulateTextRegionProperties(region, resolvedUri, populateSnippet: true);
+            Region expandedRegion = fileRegionsCache.PopulateTextRegionProperties(region, resolvedUri, populateSnippet: true);
             return expandedRegion.Snippet != null ? expandedRegion.Snippet.Text : string.Empty;
         }
 
@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 // Fill out the region's properties
                 fileRegionsCache ??= new FileRegionsCache();
-                var fullyPopulatedRegion = fileRegionsCache.PopulateTextRegionProperties(location.Region, uri, populateSnippet: true);
+                Region fullyPopulatedRegion = fileRegionsCache.PopulateTextRegionProperties(location.Region, uri, populateSnippet: true);
                 return fullyPopulatedRegion?.Snippet != null ? fullyPopulatedRegion.Snippet.Text : string.Empty;
             }
 

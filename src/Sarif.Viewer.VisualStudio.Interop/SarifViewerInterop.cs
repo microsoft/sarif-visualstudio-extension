@@ -15,6 +15,11 @@ namespace Microsoft.Sarif.Viewer.Interop
 {
     public class SarifViewerInterop
     {
+        /// <summary>
+        /// Gets the unique identifier of the SARIF Viewer package.
+        /// </summary>
+        public static readonly Guid ViewerExtensionGuid = new Guid("b97edb99-282e-444c-8f53-7de237f2ec5e");
+
         private const string ViewerAssemblyFileName = "Microsoft.Sarif.Viewer";
         private const string ViewerLoadServiceInterfaceName = "SLoadSarifLogService";
         private const string ViewerCloseServiceInterfaceName = "SCloseSarifLogService";
@@ -25,42 +30,18 @@ namespace Microsoft.Sarif.Viewer.Interop
         private Version _viewerExtensionVersion;
 
         /// <summary>
-        /// Gets the Visual Studio shell instance object.
+        /// Initializes a new instance of the <see cref="SarifViewerInterop"/> class.
         /// </summary>
-        public IVsShell VsShell { get; }
-
-        /// <summary>
-        /// Gets the unique identifier of the SARIF Viewer package.
-        /// </summary>
-        public static readonly Guid ViewerExtensionGuid = new Guid("b97edb99-282e-444c-8f53-7de237f2ec5e");
-
-        #region Private properties for lazy initialization
-        private Assembly ViewerExtensionAssembly
-        {
-            get
-            {
-                if (this._viewerExtensionAssembly == null)
-                {
-                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                    this._viewerExtensionAssembly = Array.Find(assemblies, a => a.GetName().Name == ViewerAssemblyFileName);
-                }
-
-                return this._viewerExtensionAssembly;
-            }
-        }
-
-        private AssemblyName ViewerExtensionAssemblyName => this._viewerExtensionAssemblyName ??= this.ViewerExtensionAssembly.GetName();
-
-        private Version ViewerExtensionVersion => this._viewerExtensionVersion ??= this.ViewerExtensionAssemblyName.Version;
-        #endregion
-
-        /// <summary>
-        /// Initializes a new instance of the SarifViewerInterop class.
-        /// </summary>
+        /// <param name="vsShell">Visual Studio shell instance object.</param>
         public SarifViewerInterop(IVsShell vsShell)
         {
             this.VsShell = vsShell ?? throw new ArgumentNullException(nameof(vsShell));
         }
+
+        /// <summary>
+        /// Gets the Visual Studio shell instance object.
+        /// </summary>
+        public IVsShell VsShell { get; }
 
         /// <summary>
         /// Gets a value indicating whether the SARIF Viewer extension is installed.
@@ -87,6 +68,24 @@ namespace Microsoft.Sarif.Viewer.Interop
                 return this._isViewerExtensionLoaded ?? (bool)(this._isViewerExtensionLoaded = this.IsExtensionLoaded());
             }
         }
+
+        private Assembly ViewerExtensionAssembly
+        {
+            get
+            {
+                if (this._viewerExtensionAssembly == null)
+                {
+                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                    this._viewerExtensionAssembly = Array.Find(assemblies, a => a.GetName().Name == ViewerAssemblyFileName);
+                }
+
+                return this._viewerExtensionAssembly;
+            }
+        }
+
+        private AssemblyName ViewerExtensionAssemblyName => this._viewerExtensionAssemblyName ??= this.ViewerExtensionAssembly.GetName();
+
+        private Version ViewerExtensionVersion => this._viewerExtensionVersion ??= this.ViewerExtensionAssemblyName.Version;
 
         /// <summary>
         /// Open the SARIF log file read from the specified stream in the SARIF Viewer extension.
@@ -137,6 +136,9 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Opens the specified SARIF log file in the SARIF Viewer extension.
         /// </summary>
         /// <param name="path">The path of the log file.</param>
+        /// <param name="cleanErrors">if all errors should be cleared from the Error List.</param>
+        /// <param name="openInEditor">if display log file in an editor window.</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the if operation succeeds.</returns>
         public Task<bool> OpenSarifLogAsync(string path, bool cleanErrors = true, bool openInEditor = false)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -155,6 +157,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Loads the specified SARIF logs in the viewer.
         /// </summary>
         /// <param name="paths">The complete path to the SARIF log files.</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the if operation succeeds.</returns>
         public Task<bool> OpenSarifLogAsync(IEnumerable<string> paths)
         {
             return this.OpenSarifLogAsync(paths, promptOnLogConversions: true);
@@ -165,6 +168,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// </summary>
         /// <param name="paths">The complete path to the SARIF log files.</param>
         /// <param name="promptOnLogConversions">Specifies whether the viewer should prompt if a SARIF log needs to be converted.</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the if operation succeeds.</returns>
         /// <remarks>
         /// Reasons for SARIF log file conversion include a conversion from a tool's log to SARIF, or a the SARIF schema version is not the latest version.
         /// </remarks>
@@ -181,6 +185,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// Closes the specified SARIF log files in the SARIF Viewer extension.
         /// </summary>
         /// <param name="paths">The paths to the log files.</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the if operation succeeds.</returns>
         public Task<bool> CloseSarifLogAsync(IEnumerable<string> paths)
         {
             return this.CallServiceApiAsync(ViewerCloseServiceInterfaceName, (service) =>
@@ -193,6 +198,7 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// <summary>
         /// Closes all SARIF logs opened in the viewer.
         /// </summary>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the if operation succeeds.</returns>
         public Task<bool> CloseAllSarifLogsAsync()
         {
             return this.CallServiceApiAsync(ViewerCloseServiceInterfaceName, (service) =>
@@ -200,6 +206,25 @@ namespace Microsoft.Sarif.Viewer.Interop
                 service.CloseAllSarifLogs();
                 return true;
             });
+        }
+
+        /// <summary>
+        /// Loads the SARIF Viewer extension.
+        /// </summary>
+        /// <returns>The extension package that has been loaded.</returns>
+        public IVsPackage LoadViewerExtension()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            Guid serviceGuid = ViewerExtensionGuid;
+            IVsPackage package = null;
+
+            if (this.IsViewerExtensionInstalled)
+            {
+                this.VsShell.LoadPackage(ref serviceGuid, out package);
+            }
+
+            return package;
         }
 
         private async Task<bool> CallServiceApiAsync(string serviceInterfaceName, Func<dynamic, bool> action)
@@ -229,25 +254,6 @@ namespace Microsoft.Sarif.Viewer.Interop
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             return action(serviceInterface);
-        }
-
-        /// <summary>
-        /// Loads the SARIF Viewer extension.
-        /// </summary>
-        /// <returns>The extension package that has been loaded.</returns>
-        public IVsPackage LoadViewerExtension()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            Guid serviceGuid = ViewerExtensionGuid;
-            IVsPackage package = null;
-
-            if (this.IsViewerExtensionInstalled)
-            {
-                this.VsShell.LoadPackage(ref serviceGuid, out package);
-            }
-
-            return package;
         }
 
         private bool IsExtensionInstalled()
