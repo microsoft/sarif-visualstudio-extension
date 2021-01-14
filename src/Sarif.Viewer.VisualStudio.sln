@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\scripts\ScriptUtilities.psm1 = ..\scripts\ScriptUtilities.psm1
 		..\scripts\Unzip.ps1 = ..\scripts\Unzip.ps1
 		version.json = version.json
+		..\src\.ruleset = ..\src\.ruleset
+		..\src\stylecop.json = ..\src\stylecop.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.Interop", "Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj", "{9D407555-D268-461E-BFAF-4251B0FBF7C9}"
