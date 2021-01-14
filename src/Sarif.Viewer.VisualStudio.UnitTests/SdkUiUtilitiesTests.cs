@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -14,8 +14,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class SdkUIUtilitiesTests : SarifViewerPackageUnitTests
     {
-        private void Hyperlink_Click(object sender, RoutedEventArgs e) { }
-
         [Fact]
         public void GetInlinesForErrorMessage_DoesNotCreateLinks()
         {
@@ -25,7 +23,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new Run("The quick "),
                 new Run("brown fox"),
-                new Run(" jumps over the lazy dog.")
+                new Run(" jumps over the lazy dog."),
             };
 
             var actual = SdkUIUtilities.GetInlinesForErrorMessage(message);
@@ -49,7 +47,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new Run("The quick "),
                 new Run("brown fox"),
-                new Run(" jumps over the lazy dog.")
+                new Run(" jumps over the lazy dog."),
             };
 
             var actual = SdkUIUtilities.GetInlinesForErrorMessage(message);
@@ -68,7 +66,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string message = @"The quick \[brown fox\] jumps over the lazy dog.";
 
             // Because there are no embedded links, we shouldn't get anything back
-            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: this.Hyperlink_Click);
 
             actual.Count.Should().Be(0);
         }
@@ -86,10 +84,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new Run("The quick "),
                 link,
-                new Run(" jumps over the lazy dog.")
+                new Run(" jumps over the lazy dog."),
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: this.Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -116,10 +114,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new Run("The quick "),
                 link1,
                 new Run(" jumps over the "),
-                link2
+                link2,
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: this.Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -142,10 +140,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new Run("The quick "),
                 link,
-                new Run(" jumps over the [lazy dog].")
+                new Run(" jumps over the [lazy dog]."),
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: this.Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -168,10 +166,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new Run("The quick "),
                 link,
-                new Run(" jumps over the lazy dog.")
+                new Run(" jumps over the lazy dog."),
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: this.Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -194,10 +192,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new Run("The file "),
                 link,
-                new Run(" has a problem.")
+                new Run(" has a problem."),
             };
 
-            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: Hyperlink_Click);
+            var actual = SdkUIUtilities.GetMessageInlines(message, clickHandler: this.Hyperlink_Click);
 
             actual.Count.Should().Be(expected.Count);
 
@@ -223,5 +221,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             (actualLink.Inlines.FirstInline as Run).Text.Should().Be((expectedLink.Inlines.FirstInline as Run).Text);
             actual.Tag.Should().Be(expected.Tag);
         }
+
+        private void Hyperlink_Click(object sender, RoutedEventArgs e) { }
     }
 }

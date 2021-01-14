@@ -32,13 +32,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 InsertedContent = new ArtifactContent
                 {
-                    Text = ReplacementString
+                    Text = ReplacementString,
                 },
                 DeletedRegion = new Region
                 {
                     CharOffset = DeletedCharOffset,
-                    CharLength = DeletedCharLength
-                }
+                    CharLength = DeletedCharLength,
+                },
             };
 
             var run = new Run();

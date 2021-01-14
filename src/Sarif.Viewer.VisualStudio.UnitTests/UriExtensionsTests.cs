@@ -61,6 +61,5 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             Uri uri = null;
             uri.ToPath().Should().Be(null);
         }
-
     }
 }

@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,27 +15,20 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class ExceptionalConditionsCalculatorTests
     {
-        private struct TestCase
-        {
-            internal string Name;
-            internal SarifLog Log;
-            internal ExceptionalConditions ExpectedResult;
-        }
-
         private static readonly ReadOnlyCollection<TestCase> s_testCases = new List<TestCase>
         {
             new TestCase
             {
                 Name = "Null log",
                 Log = null,
-                ExpectedResult = ExceptionalConditions.InvalidJson
+                ExpectedResult = ExceptionalConditions.InvalidJson,
             },
 
             new TestCase
             {
                 Name = "Null runs",
                 Log = new SarifLog(),
-                ExpectedResult = ExceptionalConditions.NoResults
+                ExpectedResult = ExceptionalConditions.NoResults,
             },
 
             new TestCase
@@ -43,9 +36,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Name = "Empty runs",
                 Log = new SarifLog
                 {
-                    Runs = new List<Run>()
+                    Runs = new List<Run>(),
                 },
-                ExpectedResult = ExceptionalConditions.NoResults
+                ExpectedResult = ExceptionalConditions.NoResults,
             },
 
             new TestCase
@@ -55,10 +48,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Runs = new List<Run>
                     {
-                        new Run()
-                    }
+                        new Run(),
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.NoResults
+                ExpectedResult = ExceptionalConditions.NoResults,
             },
 
             new TestCase
@@ -70,11 +63,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Run
                         {
-                            Results = new List<Result>()
-                        }
-                    }
+                            Results = new List<Result>(),
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.NoResults
+                ExpectedResult = ExceptionalConditions.NoResults,
             },
 
             new TestCase
@@ -88,12 +81,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
-                            }
-                        }
-                    }
+                                new Result(),
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.None
+                ExpectedResult = ExceptionalConditions.None,
             },
 
             new TestCase
@@ -105,19 +98,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Run
                         {
-                            Results = new List<Result>()
+                            Results = new List<Result>(),
                         },
 
                         new Run
                         {
                             Results = new List<Result>
                             {
-                                new Result()
-                            }
-                        }
-                    }
+                                new Result(),
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.None
+                ExpectedResult = ExceptionalConditions.None,
             },
 
             new TestCase
@@ -131,19 +124,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
                                 new Invocation
                                 {
-                                    ToolConfigurationNotifications = new List<Notification>()
-                                }
-                            }
-                        }
-                    }
+                                    ToolConfigurationNotifications = new List<Notification>(),
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.None
+                ExpectedResult = ExceptionalConditions.None,
             },
 
             new TestCase
@@ -157,7 +150,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
@@ -167,15 +160,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Warning
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Warning,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.None
+                ExpectedResult = ExceptionalConditions.None,
             },
 
             new TestCase
@@ -189,7 +182,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
@@ -199,15 +192,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Error,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.ConfigurationError
+                ExpectedResult = ExceptionalConditions.ConfigurationError,
             },
 
             new TestCase
@@ -227,15 +220,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Error,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.ConfigurationError
+                ExpectedResult = ExceptionalConditions.ConfigurationError,
             },
 
             new TestCase
@@ -249,19 +242,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
                                 new Invocation
                                 {
-                                    ToolExecutionNotifications = new List<Notification>()
-                                }
-                            }
-                        }
-                    }
+                                    ToolExecutionNotifications = new List<Notification>(),
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.None
+                ExpectedResult = ExceptionalConditions.None,
             },
 
             new TestCase
@@ -275,7 +268,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
@@ -285,15 +278,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Warning
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Warning,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.None
+                ExpectedResult = ExceptionalConditions.None,
             },
 
             new TestCase
@@ -307,7 +300,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
@@ -317,15 +310,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Error,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.ExecutionError
+                ExpectedResult = ExceptionalConditions.ExecutionError,
             },
 
             new TestCase
@@ -345,15 +338,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Error,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.ExecutionError
+                ExpectedResult = ExceptionalConditions.ExecutionError,
             },
 
             new TestCase
@@ -373,22 +366,22 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
+                                            Level = FailureLevel.Error,
+                                        },
                                     },
                                     ToolExecutionNotifications = new List<Notification>
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            Level = FailureLevel.Error,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = ExceptionalConditions.ExecutionError | ExceptionalConditions.ConfigurationError
+                ExpectedResult = ExceptionalConditions.ExecutionError | ExceptionalConditions.ConfigurationError,
             },
         }.AsReadOnly();
 
@@ -421,9 +414,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Run
                         {
-                            Results = new List<Result>()
-                        }
-                    }
+                            Results = new List<Result>(),
+                        },
+                    },
                 },
                 new SarifLog // Run with both configuration and execution errors.
                 {
@@ -433,7 +426,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             Results = new List<Result>
                             {
-                                new Result()
+                                new Result(),
                             },
                             Invocations = new List<Invocation>
                             {
@@ -443,25 +436,32 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
+                                            Level = FailureLevel.Error,
+                                        },
                                     },
                                     ToolExecutionNotifications = new List<Notification>
                                     {
                                         new Notification
                                         {
-                                            Level = FailureLevel.Error
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                            Level = FailureLevel.Error,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             ExceptionalConditionsCalculator.Calculate(logs).
                 Should().Be(ExceptionalConditions.NoResults | ExceptionalConditions.ConfigurationError | ExceptionalConditions.ExecutionError);
+        }
+
+        private struct TestCase
+        {
+            internal string Name;
+            internal SarifLog Log;
+            internal ExceptionalConditions ExpectedResult;
         }
     }
 }

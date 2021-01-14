@@ -16,6 +16,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     {
         private const string FileName = "file.c";
 
+        // Run object used in tests that don't require a populated run object.
+        private static readonly Run EmptyRun = new Run();
+
         public SarifErrorListItemTests()
         {
             TestUtilities.InitializeTestEnvironment();
@@ -29,11 +32,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 FileName = "file.ext",
                 Region = new Region
                 {
-                    StartLine = 5
-                }
+                    StartLine = 5,
+                },
             };
 
-            var lineMarker = item.LineMarker;
+            ResultTextMarker lineMarker = item.LineMarker;
 
             lineMarker.Should().NotBe(null);
         }
@@ -46,11 +49,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 FileName = "file.ext",
                 Region = new Region
                 {
-                    ByteOffset = 20
-                }
+                    ByteOffset = 20,
+                },
             };
 
-            var lineMarker = item.LineMarker;
+            ResultTextMarker lineMarker = item.LineMarker;
 
             lineMarker.Should().Be(null);
         }
@@ -60,10 +63,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var item = new SarifErrorListItem
             {
-                FileName = "file.ext"
+                FileName = "file.ext",
             };
 
-            var lineMarker = item.LineMarker;
+            ResultTextMarker lineMarker = item.LineMarker;
 
             lineMarker.Should().Be(null);
         }
@@ -85,14 +88,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message
                 {
-                    Id = "nonExistentMessageId"
+                    Id = "nonExistentMessageId",
                 },
-                RuleId = "TST0001"
+                RuleId = "TST0001",
             };
 
             var run = new Run
             {
-                Tool = new Tool()
+                Tool = new Tool(),
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -107,9 +110,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message
                 {
-                    Id = "nonExistentMessageId"
+                    Id = "nonExistentMessageId",
                 },
-                RuleId = "TST0001"
+                RuleId = "TST0001",
             };
 
             var run = new Run
@@ -119,14 +122,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     Driver = new ToolComponent
                     {
                         Rules = new List<ReportingDescriptor>
-                    {
-                        new ReportingDescriptor
                         {
-                            Id = "TST0001"
-                        }
-                    }
-                    }
-                }
+                            new ReportingDescriptor
+                            {
+                                Id = "TST0001",
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -141,9 +144,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message
                 {
-                    Id = "nonExistentFormatId"
+                    Id = "nonExistentFormatId",
                 },
-                RuleId = "TST0001"
+                RuleId = "TST0001",
             };
 
             var run = new Run
@@ -159,12 +162,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                 Id = "TST0001",
                                 MessageStrings = new Dictionary<string, MultiformatMessageString>
                                 {
-                                    { "realFormatId", new MultiformatMessageString { Text = "The message" } }
-                                }
-                            }
-                        }
-                    }
-                }
+                                    { "realFormatId", new MultiformatMessageString { Text = "The message" } },
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -182,10 +185,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Arguments = new string[]
                     {
-                        "Mary"
+                        "Mary",
                     },
-                    Id = "greeting"
-                }
+                    Id = "greeting",
+                },
             };
 
             var run = new Run
@@ -201,12 +204,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                 Id = "TST0001",
                                 MessageStrings = new Dictionary<string, MultiformatMessageString>
                                 {
-                                    { "greeting", new MultiformatMessageString { Text = "Hello, {0}!" } }
-                                }
-                            }
-                        }
-                    }
-                }
+                                    { "greeting", new MultiformatMessageString { Text = "Hello, {0}!" } },
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -229,7 +232,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 ArtifactLocation = new ArtifactLocation
                                 {
-                                    Uri = new Uri("path/to/file.html", UriKind.Relative)
+                                    Uri = new Uri("path/to/file.html", UriKind.Relative),
                                 },
                                 Replacements = new[]
                                 {
@@ -238,14 +241,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         DeletedRegion = new Region
                                         {
                                             ByteLength = 5,
-                                            ByteOffset = 10
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                            ByteOffset = 10,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -258,7 +261,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result
             {
-                RuleId = "TST0001"
+                RuleId = "TST0001",
             };
 
             var run = new Run
@@ -271,11 +274,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             new ReportingDescriptor
                             {
-                                Id = "TST0001"
-                            }
-                        }
-                    }
-                }
+                                Id = "TST0001",
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -288,7 +291,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result
             {
-                RuleId = "TST0001"
+                RuleId = "TST0001",
             };
 
             var run = new Run
@@ -300,9 +303,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         Rules = new List<ReportingDescriptor>
                         {
                             // No metadata for rule TST0001.
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -317,7 +320,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // "Viewer NRE when result lacks message/formattedRuleMessage but rule metadata is present"
             var result = new Result
             {
-                RuleId = "TST0001"
+                RuleId = "TST0001",
             };
 
             var run = new Run
@@ -330,11 +333,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                         {
                             new ReportingDescriptor
                             {
-                                Id = "TST0001"
-                            }
-                        }
-                    }
-                }
+                                Id = "TST0001",
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
@@ -351,8 +354,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message()
                 {
-                    Text = $"{s1} {s2}"
-                }
+                    Text = $"{s1} {s2}",
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -368,8 +371,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message()
                 {
-                    Text = s1
-                }
+                    Text = s1,
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -386,8 +389,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Message = new Message()
                 {
-                    Text = $"{s1} {s2}"
-                }
+                    Text = $"{s1} {s2}",
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -400,7 +403,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var result = new Result
             {
                 Kind = ResultKind.Informational,
-                Level = FailureLevel.None
+                Level = FailureLevel.None,
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -413,7 +416,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var result = new Result
             {
                 Kind = ResultKind.NotApplicable,
-                Level = FailureLevel.None
+                Level = FailureLevel.None,
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -426,7 +429,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var result = new Result
             {
                 Kind = ResultKind.Pass,
-                Level = FailureLevel.None
+                Level = FailureLevel.None,
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -439,7 +442,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var result = new Result
             {
                 Kind = ResultKind.Open,
-                Level = FailureLevel.None
+                Level = FailureLevel.None,
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -452,7 +455,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var result = new Result
             {
                 Kind = ResultKind.Review,
-                Level = FailureLevel.None
+                Level = FailureLevel.None,
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -465,7 +468,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var result = new Result
             {
                 Level = FailureLevel.Error,
-                Kind = ResultKind.Fail
+                Kind = ResultKind.Fail,
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -497,7 +500,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 ArtifactLocation = new ArtifactLocation
                                 {
-                                    Uri = new Uri(FileName, UriKind.Relative)
+                                    Uri = new Uri(FileName, UriKind.Relative),
                                 },
                                 Replacements = new List<Replacement>
                                 {
@@ -506,16 +509,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         DeletedRegion = new Region
                                         {
                                             CharOffset = 52,
-                                            CharLength = 5
-                                        }
-                                    }
-                                }
+                                            CharLength = 5,
+                                        },
+                                    },
+                                },
                             },
                             new ArtifactChange
                             {
                                 ArtifactLocation = new ArtifactLocation
                                 {
-                                    Uri = new Uri(FileName, UriKind.Relative)
+                                    Uri = new Uri(FileName, UriKind.Relative),
                                 },
                                 Replacements = new List<Replacement>
                                 {
@@ -524,14 +527,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         DeletedRegion = new Region
                                         {
                                             CharOffset = 52,
-                                            CharLength = 5
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                            CharLength = 5,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
@@ -554,7 +557,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 ArtifactLocation = new ArtifactLocation
                                 {
-                                    Uri = new Uri(FileName, UriKind.Relative)
+                                    Uri = new Uri(FileName, UriKind.Relative),
                                 },
                                 Replacements = new List<Replacement>
                                 {
@@ -563,16 +566,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         DeletedRegion = new Region
                                         {
                                             CharOffset = 52,
-                                            CharLength = 5
-                                        }
-                                    }
-                                }
+                                            CharLength = 5,
+                                        },
+                                    },
+                                },
                             },
                             new ArtifactChange
                             {
                                 ArtifactLocation = new ArtifactLocation
                                 {
-                                    Uri = new Uri("SomeOther" + FileName, UriKind.Relative)
+                                    Uri = new Uri("SomeOther" + FileName, UriKind.Relative),
                                 },
                                 Replacements = new List<Replacement>
                                 {
@@ -581,23 +584,20 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         DeletedRegion = new Region
                                         {
                                             CharOffset = 52,
-                                            CharLength = 5
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                            CharLength = 5,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
 
             item.IsFixable().Should().BeFalse();
         }
-
-        // Run object used in tests that don't require a populated run object.
-        private static readonly Run EmptyRun = new Run();
 
         private static SarifErrorListItem MakeErrorListItem(Result result)
         {
@@ -614,7 +614,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 logFilePath: "log.sarif",
                 projectNameCache: new ProjectNameCache(solution: null))
             {
-                FileName = FileName
+                FileName = FileName,
             };
         }
     }

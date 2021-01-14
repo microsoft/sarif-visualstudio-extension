@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,20 +16,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class RunExtensionsTests
     {
-        private struct HasAbsentResultsTestCase
-        {
-            internal string Name;
-            internal Run Run;
-            internal bool ExpectedResult;
-        }
-
         private static readonly ReadOnlyCollection<HasAbsentResultsTestCase> s_hasAbsentResultsTestCases = new List<HasAbsentResultsTestCase>
         {
             new HasAbsentResultsTestCase
             {
                 Name = "Null results",
                 Run = new Run(),
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasAbsentResultsTestCase
@@ -37,9 +30,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Name = "Empty results",
                 Run = new Run
                 {
-                    Results = new List<Result>()
+                    Results = new List<Result>(),
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasAbsentResultsTestCase
@@ -49,10 +42,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Results = new List<Result>
                     {
-                        new Result()
-                    }
+                        new Result(),
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasAbsentResultsTestCase
@@ -64,11 +57,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Result
                         {
-                            BaselineState = BaselineState.New
-                        }
-                    }
+                            BaselineState = BaselineState.New,
+                        },
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasAbsentResultsTestCase
@@ -80,11 +73,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Result
                         {
-                            BaselineState = BaselineState.Absent
-                        }
-                    }
+                            BaselineState = BaselineState.Absent,
+                        },
+                    },
                 },
-                ExpectedResult = true
+                ExpectedResult = true,
             },
 
             new HasAbsentResultsTestCase
@@ -96,16 +89,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Result
                         {
-                            BaselineState = BaselineState.New
+                            BaselineState = BaselineState.New,
                         },
 
                         new Result
                         {
-                            BaselineState = BaselineState.Absent
-                        }
-                    }
+                            BaselineState = BaselineState.Absent,
+                        },
+                    },
                 },
-                ExpectedResult = true
+                ExpectedResult = true,
             },
 
             new HasAbsentResultsTestCase
@@ -119,20 +112,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
                         new Result
                         {
-                            BaselineState = BaselineState.Absent
-                        }
-                    }
+                            BaselineState = BaselineState.Absent,
+                        },
+                    },
                 },
-                ExpectedResult = false
-            }
+                ExpectedResult = false,
+            },
         }.AsReadOnly();
-
-        private struct HasSuppressedResultsTestCase
-        {
-            internal string Name;
-            internal Run Run;
-            internal bool ExpectedResult;
-        }
 
         private static readonly ReadOnlyCollection<HasSuppressedResultsTestCase> s_hasSuppressedResultsTestCases = new List<HasSuppressedResultsTestCase>
         {
@@ -140,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Name = "Null results",
                 Run = new Run(),
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -148,9 +134,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Name = "Empty results",
                 Run = new Run
                 {
-                    Results = new List<Result>()
+                    Results = new List<Result>(),
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -160,10 +146,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Results = new List<Result>
                     {
-                        new Result()
-                    }
+                        new Result(),
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -175,11 +161,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     {
                         new Result
                         {
-                            Suppressions = new List<Suppression>()
-                        }
-                    }
+                            Suppressions = new List<Suppression>(),
+                        },
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -195,13 +181,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Accepted
-                                }
-                            }
-                        }
-                    }
+                                    Status = SuppressionStatus.Accepted,
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = true
+                ExpectedResult = true,
             },
 
             new HasSuppressedResultsTestCase
@@ -217,13 +203,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.UnderReview
-                                }
-                            }
-                        }
-                    }
+                                    Status = SuppressionStatus.UnderReview,
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -239,13 +225,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Rejected
-                                }
-                            }
-                        }
-                    }
+                                    Status = SuppressionStatus.Rejected,
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -261,9 +247,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Rejected
-                                }
-                            }
+                                    Status = SuppressionStatus.Rejected,
+                                },
+                            },
                         },
 
                         new Result
@@ -272,13 +258,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Accepted
-                                }
-                            }
-                        }
-                    }
+                                    Status = SuppressionStatus.Accepted,
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = true
+                ExpectedResult = true,
             },
 
             new HasSuppressedResultsTestCase
@@ -296,13 +282,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Accepted
-                                }
-                            }
-                        }
-                    }
+                                    Status = SuppressionStatus.Accepted,
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = false
+                ExpectedResult = false,
             },
 
             new HasSuppressedResultsTestCase
@@ -320,18 +306,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             {
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Accepted
+                                    Status = SuppressionStatus.Accepted,
                                 },
                                 new Suppression
                                 {
-                                    Status = SuppressionStatus.Rejected
-                                }
-                            }
-                        }
-                    }
+                                    Status = SuppressionStatus.Rejected,
+                                },
+                            },
+                        },
+                    },
                 },
-                ExpectedResult = false
-            }
+                ExpectedResult = false,
+            },
         }.AsReadOnly();
 
         [Fact]
@@ -366,6 +352,20 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             }
 
             sb.Length.Should().Be(0, "failed test cases:\n" + sb.ToString());
+        }
+
+        private struct HasAbsentResultsTestCase
+        {
+            internal string Name;
+            internal Run Run;
+            internal bool ExpectedResult;
+        }
+
+        private struct HasSuppressedResultsTestCase
+        {
+            internal string Name;
+            internal Run Run;
+            internal bool ExpectedResult;
         }
     }
 }
