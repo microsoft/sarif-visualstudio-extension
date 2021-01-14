@@ -28,17 +28,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = message
+                            Text = message,
                         },
                         PhysicalLocation = new PhysicalLocation
                         {
                             Region = new Region
                             {
-                                StartLine = 42
-                            }
-                        }
-                    }
-                }
+                                StartLine = 42,
+                            },
+                        },
+                    },
+                },
             };
 
             VerifyConversion(callTreeNode, message);
@@ -62,12 +62,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                                 StartLine = 42,
                                 Snippet = new ArtifactContent
                                 {
-                                    Text = snippet
-                                }
-                            }
-                        }
-                    }
-                }
+                                    Text = snippet,
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             VerifyConversion(callTreeNode, snippet.Trim());
@@ -86,11 +86,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                         {
                             Region = new Region
                             {
-                                StartLine = 42
-                            }
-                        }
-                    }
-                }
+                                StartLine = 42,
+                            },
+                        },
+                    },
+                },
             };
 
             VerifyConversion(callTreeNode, Microsoft.Sarif.Viewer.Resources.ContinuingCallTreeNodeMessage);
@@ -110,7 +110,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = message
+                            Text = message,
                         },
                         PhysicalLocation = new PhysicalLocation
                         {
@@ -119,12 +119,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                                 StartLine = 42,
                                 Snippet = new ArtifactContent
                                 {
-                                    Text = snippet
-                                }
-                            }
-                        }
-                    }
-                }
+                                    Text = snippet,
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             VerifyConversion(callTreeNode, message);
@@ -144,7 +144,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                     {
                         Message = new Message
                         {
-                            Text = message
+                            Text = message,
                         },
                         PhysicalLocation = new PhysicalLocation
                         {
@@ -153,12 +153,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                                 StartLine = 42,
                                 Snippet = new ArtifactContent
                                 {
-                                    Text = snippet
-                                }
-                            }
-                        }
-                    }
-                }
+                                    Text = snippet,
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
             VerifyConversion(callTreeNode, snippet.Trim());

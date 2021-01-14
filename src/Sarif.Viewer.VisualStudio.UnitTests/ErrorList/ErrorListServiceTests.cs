@@ -14,14 +14,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class ErrorListServiceTests
     {
-        private struct TestCase
-        {
-            public string Title { get; set; }
-            public string Input { get; set; }
-            public bool ExpectedMatchSuccess { get; set; }
-            public string ExpectedVersion { get; set; }
-        }
-
         private static readonly TestCase[] s_testCases = new TestCase[]
         {
             new TestCase
@@ -29,34 +21,34 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Title = "Simplest case",
                 Input = @"""version"": ""2.1.0""",
                 ExpectedMatchSuccess = true,
-                ExpectedVersion = "2.1.0"
+                ExpectedVersion = "2.1.0",
             },
             new TestCase
             {
                 Title = "White space before colon",
                 Input = @"""version"" : ""2.1.0""",
                 ExpectedMatchSuccess = true,
-                ExpectedVersion = "2.1.0"
+                ExpectedVersion = "2.1.0",
             },
             new TestCase
             {
                 Title = "Version near start of file",
                 Input = @"01234567890123456789 ""version"" : ""2.1.0""",
                 ExpectedMatchSuccess = true,
-                ExpectedVersion = "2.1.0"
+                ExpectedVersion = "2.1.0",
             },
             new TestCase
             {
                 Title = "Version not near start of file",
                 Input = @"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789 ""version"" : ""2.1.0""",
-                ExpectedMatchSuccess = false
+                ExpectedMatchSuccess = false,
             },
             new TestCase
             {
                 Title = "Invalid version",
                 Input = @"""version"": ""a.b.c""",
-                ExpectedMatchSuccess = false
-            }
+                ExpectedMatchSuccess = false,
+            },
         };
 
         [Fact]
@@ -81,6 +73,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             }
 
             failedTestCases.Should().BeEmpty();
+        }
+
+        private struct TestCase
+        {
+            public string Title { get; set; }
+
+            public string Input { get; set; }
+
+            public bool ExpectedMatchSuccess { get; set; }
+
+            public string ExpectedVersion { get; set; }
         }
     }
 }

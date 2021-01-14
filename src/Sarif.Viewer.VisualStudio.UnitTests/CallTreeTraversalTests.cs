@@ -15,32 +15,32 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SelectPreviousNextCommandsTest()
         {
-            var codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
+            CodeFlow codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
             {
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 0
+                    NestingLevel = 0,
                 },
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 1
+                    NestingLevel = 1,
                 },
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 1
+                    NestingLevel = 1,
                 },
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 1
+                    NestingLevel = 1,
                 },
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 0
+                    NestingLevel = 0,
                 },
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 0
-                }
+                    NestingLevel = 0,
+                },
             });
 
             var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
@@ -72,12 +72,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SelectPreviousNextCommandsCallNoChildrenTest()
         {
-            var codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
+            CodeFlow codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
             {
                 new ThreadFlowLocation
                 {
-                    NestingLevel = 0
-                }
+                    NestingLevel = 0,
+                },
             });
 
             var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));

@@ -39,8 +39,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             Driver = new ToolComponent
                             {
                                 Name = "Test",
-                                SemanticVersion = "1.0"
-                            }
+                                SemanticVersion = "1.0",
+                            },
                         },
                         Results = new List<Result>
                         {
@@ -56,13 +56,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         {
                                             ArtifactLocation = new ArtifactLocation
                                             {
-                                                Uri = new Uri("file:///item1.cpp")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                                                Uri = new Uri("file:///item1.cpp"),
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                     new Run
                     {
@@ -71,8 +71,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                             Driver = new ToolComponent
                             {
                                 Name = "Test",
-                                SemanticVersion = "1.0"
-                            }
+                                SemanticVersion = "1.0",
+                            },
                         },
                         Results = new List<Result>
                         {
@@ -88,11 +88,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         {
                                             ArtifactLocation = new ArtifactLocation
                                             {
-                                                Uri = new Uri("file:///item2.cpp")
-                                            }
-                                        }
-                                    }
-                                }
+                                                Uri = new Uri("file:///item2.cpp"),
+                                            },
+                                        },
+                                    },
+                                },
                             },
                             new Result
                             {
@@ -106,15 +106,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                                         {
                                             ArtifactLocation = new ArtifactLocation
                                             {
-                                                Uri = new Uri("file:///item3.cpp")
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                                Uri = new Uri("file:///item3.cpp"),
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             };
         }
 
