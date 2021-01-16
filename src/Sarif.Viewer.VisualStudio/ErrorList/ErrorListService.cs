@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -42,16 +42,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 {
     public class ErrorListService
     {
-        private readonly ColumnFilterer columnFilterer = new ColumnFilterer();
+        private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
+
+        private const int HeadSegmentLength = 200;
 
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
+        private readonly ColumnFilterer columnFilterer = new ColumnFilterer();
 
         static ErrorListService()
         {
             LogProcessed += ErrorListService_LogProcessed;
         }
+
+        internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
@@ -130,7 +134,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                         var settingsV1 = new JsonSerializerSettings()
                         {
-                            ContractResolver = SarifContractResolverVersionOne.Instance
+                            ContractResolver = SarifContractResolverVersionOne.Instance,
                         };
 
                         SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);
@@ -307,9 +311,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             CleanAllErrors();
         }
 
-        private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
-        private const int HeadSegmentLength = 200;
-
         internal static Match MatchVersionProperty(string logText)
         {
             int headSegmentLength = Math.Min(logText.Length, HeadSegmentLength);
@@ -339,7 +340,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 Title = dialogTitle,
                 Filter = Resources.SaveDialogFileFilter,
                 RestoreDirectory = true,
-                InitialDirectory = Path.GetDirectoryName(inputFilePath)
+                InitialDirectory = Path.GetDirectoryName(inputFilePath),
             };
 
             inputFilePath = Path.GetFileNameWithoutExtension(inputFilePath) + ".v2.sarif";
@@ -437,8 +438,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         Driver = new ToolComponent
                         {
-                            Name = Resources.UnknownToolName
-                        }
+                            Name = Resources.UnknownToolName,
+                        },
                     };
                 }
 
@@ -455,8 +456,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (hasResults)
             {
-                if (!SarifViewerPackage.IsUnitTesting) // We cannot show UI during unit-tests.
+                if (!SarifViewerPackage.IsUnitTesting)
                 {
+                    // We cannot show UI during unit-tests.
                     SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
                 }
             }
@@ -570,7 +572,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // Creating this table source adds "Suppression State" to the list of available columns.
-            SuppressionStateTableDataSource _ = SuppressionStateTableDataSource.Instance;
+            SuppressionStateTableDataSource dataSource = SuppressionStateTableDataSource.Instance;
 
             this.columnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
@@ -587,7 +589,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             // Creating this table source adds "Category" to the list of available columns.
             // (Actually, it appears to be there by default, so this might not be necessary:)
-            BaselineStateTableDataSource _ = BaselineStateTableDataSource.Instance;
+            BaselineStateTableDataSource dataSource = BaselineStateTableDataSource.Instance;
 
             this.columnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,

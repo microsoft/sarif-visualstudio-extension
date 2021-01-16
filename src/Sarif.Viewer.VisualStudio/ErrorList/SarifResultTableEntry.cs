@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         // that), unless some other source also added the same column.
 
         // The "basic" columns are always displayed.
-        public static readonly ReadOnlyCollection<string> BasicColumns = new ReadOnlyCollection<string>(new[] {
+        public static readonly ReadOnlyCollection<string> BasicColumns = new ReadOnlyCollection<string>(new[]
+        {
             StandardTableColumnDefinitions.DocumentName,
             StandardTableColumnDefinitions.Line,
             StandardTableColumnDefinitions.Column,
@@ -58,17 +59,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             StandardTableColumnDefinitions.ErrorSource,
             StandardTableColumnDefinitions.BuildTool,
             StandardTableColumnDefinitions.ErrorCode,
-            StandardTableColumnDefinitions.ProjectName
+            StandardTableColumnDefinitions.ProjectName,
         });
 
         public static readonly ReadOnlyCollection<string> SuppressedResultColumns = new ReadOnlyCollection<string>(new[]
         {
-            SuppressionStateColumnName
+            SuppressionStateColumnName,
         });
 
         public static readonly ReadOnlyCollection<string> AbsentResultColumns = new ReadOnlyCollection<string>(new[]
         {
-            StandardTableKeyNames.ErrorCategory
+            StandardTableKeyNames.ErrorCategory,
         });
 
         public SarifResultTableEntry(SarifErrorListItem error)
@@ -81,7 +82,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.columnKeyToContent[StandardTableKeyNames.ErrorCategory] = this.Error.Category;
 
             // The error list assumes the line number provided will be zero based and adds one before displaying the value.
-            // i.e. if we pass 5, the error list will display 6. 
+            // i.e. if we pass 5, the error list will display 6.
             // Subtract one from the line number so the error list displays the correct value.
             this.columnKeyToContent[StandardTableKeyNames.Line] = this.Error.LineNumber - 1;
 
@@ -173,16 +174,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     return __VSERRORCATEGORY.EC_ERROR;
                 }
+
                 case FailureLevel.Warning:
                 {
                     return __VSERRORCATEGORY.EC_WARNING;
                 }
+
                 case FailureLevel.None:
                 case FailureLevel.Note:
                 {
                     return __VSERRORCATEGORY.EC_MESSAGE;
                 }
             }
+
             return __VSERRORCATEGORY.EC_WARNING;
         }
 
@@ -230,6 +234,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
+
             // This is super dangerous! We are launching URIs for SARIF logs
             // that can point to anything.
             // https://github.com/microsoft/sarif-visualstudio-extension/issues/171

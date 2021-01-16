@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -54,8 +54,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        #region ITableDataSource members
-
         public override string Identifier => Guids.GuidVSPackageString;
 
         public override string DisplayName => Resources.ErrorListTableDataSourceDisplayName;
@@ -81,8 +79,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             return sinkHolder;
         }
-
-        #endregion
 
         public void AddErrors(IEnumerable<SarifErrorListItem> errors)
         {
@@ -217,6 +213,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <summary>
         /// Used for unit testing.
         /// </summary>
+        /// <param name="sourceFileName">The name of source file.</param>
         /// <returns>
         /// Returns true if there are any entries in the table for the specified source file.
         /// </returns>

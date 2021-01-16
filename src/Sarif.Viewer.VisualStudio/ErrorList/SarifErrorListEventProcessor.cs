@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         private SarifErrorListItem currentlySelectedItem;
         private SarifErrorListItem currentlyNavigatedItem;
 
-        #region ISarifErrorListEventSelectionService
         /// <inheritdoc/>
         public SarifErrorListItem SelectedItem
         {
@@ -61,7 +60,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         /// <inheritdoc/>
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> NavigatedItemChanged;
-        #endregion ISarifErrorListEventSelectionService
 
         private IWpfTableControl errorListTableControl;
 
@@ -102,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifErrorListItem selectedSarifErrorItem = null;
             if (selectedTableEntry != null)
             {
-                TryGetSarifResult(selectedTableEntry, out selectedSarifErrorItem);
+                this.TryGetSarifResult(selectedTableEntry, out selectedSarifErrorItem);
             }
 
             SarifErrorListItem previouslySelectedItem = this.currentlySelectedItem;
@@ -161,8 +159,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             sarifResult = null;
 
             if (entryHandle.TryGetEntry(out ITableEntry tableEntry) &&
-                tableEntry is SarifResultTableEntry sarifResultTableEntry) // Make sure the table entry is one of our table entry types
+                tableEntry is SarifResultTableEntry sarifResultTableEntry)
             {
+                // Make sure the table entry is one of our table entry types
                 sarifResult = sarifResultTableEntry.Error;
             }
 

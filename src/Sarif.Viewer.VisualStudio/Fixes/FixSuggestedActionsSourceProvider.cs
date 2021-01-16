@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel.Composition;
 
@@ -39,7 +39,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 return null;
             }
 
-            return new FixSuggestedActionsSource(textView, textBuffer, persistentSpanFactory, previewProvider);
+            return new FixSuggestedActionsSource(textView, textBuffer, this.persistentSpanFactory, this.previewProvider);
         }
     }
 }

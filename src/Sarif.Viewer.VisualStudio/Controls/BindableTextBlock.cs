@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -15,8 +15,8 @@ namespace Microsoft.Sarif.Viewer.Controls
 
         public ObservableCollection<Inline> InlineList
         {
-            get { return (ObservableCollection<Inline>)GetValue(InlineListProperty); }
-            set { SetValue(InlineListProperty, value); }
+            get { return (ObservableCollection<Inline>)this.GetValue(InlineListProperty); }
+            set { this.SetValue(InlineListProperty, value); }
         }
 
         private static void OnPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)

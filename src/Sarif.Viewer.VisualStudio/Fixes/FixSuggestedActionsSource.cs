@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly IDictionary<FixSuggestedAction, SarifErrorListItem> fixToErrorDictionary;
 
         /// <summary>
-        /// Creates a new instance of <see cref="FixSuggestedActionsSource"/>.
+        /// Initializes a new instance of the <see cref="FixSuggestedActionsSource"/> class.
         /// </summary>
         /// <param name="textView">
         /// The <see cref="ITextView"/> for which this source will offer fix suggestions.
@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
                 ? GetErrorsInFile(fileName)
                 : Enumerable.Empty<SarifErrorListItem>().ToList();
-            CalculatePersistentSpans(this.errorsInFile);
+            this.CalculatePersistentSpans(this.errorsInFile);
 
             // Keep track of which error is associated with each suggested action, so that when
             // the action is invoked, the associated error can be marked as fixed. When we mark
@@ -71,6 +71,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         }
 
 #pragma warning disable 0067
+
         /// <inheritdoc/>
         public event EventHandler<EventArgs> SuggestedActionsChanged;
 #pragma warning restore 0067
@@ -87,9 +88,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
             // Recompute the list of fixable errors each time VS asks, because we might have fixed
             // some of them.
-            IList<SarifErrorListItem> selectedErrors = GetSelectedErrors(this.errorsInFile);
+            IList<SarifErrorListItem> selectedErrors = this.GetSelectedErrors(this.errorsInFile);
             IList<SarifErrorListItem> selectedFixableErrors = GetFixableErrors(selectedErrors);
-            return CreateActionSetFromErrors(selectedFixableErrors);
+            return this.CreateActionSetFromErrors(selectedFixableErrors);
         }
 
         /// <inheritdoc/>
@@ -97,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            return GetSuggestedActions(requestedActionCategories, range, cancellationToken)?.Any() == true;
+            return this.GetSuggestedActions(requestedActionCategories, range, cancellationToken)?.Any() == true;
         }
 
         /// <inheritdoc/>
@@ -173,13 +174,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
             var caretSpanCollection =
                 new NormalizedSnapshotSpanCollection(new SnapshotSpan(start: caretSnapshotPoint, end: caretSnapshotPoint));
 
-            return errors.Where(error => CaretIntersectsAnyErrorLocation(error, caretSpanCollection)).ToList();
+            return errors.Where(error => this.CaretIntersectsAnyErrorLocation(error, caretSpanCollection)).ToList();
         }
 
         private bool CaretIntersectsAnyErrorLocation(SarifErrorListItem error, NormalizedSnapshotSpanCollection caretSpanCollection) =>
             error
             .Locations
-            ?.Any(locationModel => CaretIntersectsSingleErrorLocation(locationModel, caretSpanCollection)) == true;
+            ?.Any(locationModel => this.CaretIntersectsSingleErrorLocation(locationModel, caretSpanCollection)) == true;
 
         private bool CaretIntersectsSingleErrorLocation(LocationModel locationModel, NormalizedSnapshotSpanCollection caretSpanCollection) =>
             caretSpanCollection.Any(
@@ -198,7 +199,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 {
                     var suggestedAction = new FixSuggestedAction(fix, this.textBuffer, this.previewProvider);
                     this.fixToErrorDictionary.Add(suggestedAction, error);
-                    suggestedAction.FixApplied += SuggestedAction_FixApplied;
+                    suggestedAction.FixApplied += this.SuggestedAction_FixApplied;
                     suggestedActions.Add(suggestedAction);
                 }
             }
@@ -209,8 +210,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
             return suggestedActions.Any() ?
                 new List<SuggestedActionSet>
                 {
-                    new SuggestedActionSet(suggestedActions)
-                } :
+                    new SuggestedActionSet(suggestedActions),
+                }
+                :
                 null;
         }
 

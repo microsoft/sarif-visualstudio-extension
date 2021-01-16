@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Windows.Data;
@@ -35,11 +35,11 @@ namespace Microsoft.Sarif.Viewer.Converters
             ThreadFlowLocation threadFlowLocation = node.Location;
             if (threadFlowLocation != null)
             {
-                if (!String.IsNullOrWhiteSpace(threadFlowLocation.Location?.Message?.Text))
+                if (!string.IsNullOrWhiteSpace(threadFlowLocation.Location?.Message?.Text))
                 {
                     text = threadFlowLocation.Location.Message.Text;
                 }
-                else if (!String.IsNullOrWhiteSpace(threadFlowLocation.Location?.PhysicalLocation?.Region?.Snippet?.Text))
+                else if (!string.IsNullOrWhiteSpace(threadFlowLocation.Location?.PhysicalLocation?.Region?.Snippet?.Text))
                 {
                     text = threadFlowLocation.Location.PhysicalLocation.Region.Snippet.Text.Trim();
                 }

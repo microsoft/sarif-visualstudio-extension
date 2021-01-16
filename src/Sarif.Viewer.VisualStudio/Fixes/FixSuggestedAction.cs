@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly IReadOnlyCollection<ReplacementEdit> edits;
 
         /// <summary>
-        /// Creates a new instance of <see cref="FixSuggestedAction"/>.
+        /// Initializes a new instance of the <see cref="FixSuggestedAction"/> class.
         /// </summary>
         /// <param name="fix">
         /// The SARIF <see cref="Fix"/> object that describes the action.
@@ -46,14 +46,12 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.fix = fix;
             this.textBuffer = textBuffer;
             this.previewProvider = previewProvider;
-            DisplayText = fix.Description;
+            this.DisplayText = fix.Description;
 
-            this.edits = GetEditsFromFix(fix).AsReadOnly();
+            this.edits = this.GetEditsFromFix(fix).AsReadOnly();
         }
 
         public event EventHandler FixApplied;
-
-        #region ISuggestedAction
 
         /// <inheritdoc/>
         public bool HasActionSets => false;
@@ -85,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             if (this.edits.Count != 0)
             {
                 return await this.previewProvider.CreateChangePreviewAsync(
-                    this.textBuffer, ApplyTextEdits, DisplayText);
+                    this.textBuffer, this.ApplyTextEdits, this.DisplayText);
             }
 
             return null;
@@ -101,7 +99,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 try
                 {
                     ITextSnapshot currentSnapshot = this.textBuffer.CurrentSnapshot;
-                    ApplyTextEdits(this.textBuffer, currentSnapshot);
+                    this.ApplyTextEdits(this.textBuffer, currentSnapshot);
 
                     FixApplied?.Invoke(this, EventArgs.Empty);
                 }
@@ -119,10 +117,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
             return false;
         }
 
-        #endregion ISuggestedActionsSource
-
         private List<ReplacementEdit> GetEditsFromFix(FixModel fix) =>
-            fix.ArtifactChanges.SelectMany(ac => ac.Replacements).Select(ToEdit).ToList();
+            fix.ArtifactChanges.SelectMany(ac => ac.Replacements).Select(this.ToEdit).ToList();
 
         private ReplacementEdit ToEdit(ReplacementModel replacement) =>
             new ReplacementEdit(replacement, this.textBuffer.CurrentSnapshot);
@@ -140,7 +136,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 bufferEdit.Apply();
             }
 
-            SarifLocationTagHelpers.RefreshTags(textBuffer);
+            SarifLocationTagHelpers.RefreshTags(this.textBuffer);
         }
     }
 }
