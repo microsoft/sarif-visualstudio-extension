@@ -34,6 +34,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
         private AnalyzeProjectCommand analyzeProjectCommand;
+        private AnalyzeFileCommand analyzeFileCommand;
         private OutputWindowTracerListener outputWindowTraceListener;
 
         /// <summary>
@@ -72,11 +73,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 _ = new GenerateTestDataCommand(vsShell, mcs);
                 this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
+                this.analyzeFileCommand = new AnalyzeFileCommand(mcs);
             }
 
-            if (await GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
+            if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
             {
-                outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarifer");
+                this.outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarifer");
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -87,6 +89,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // Cancelling analysis from project / solution when the solution is closed.
             this.analyzeProjectCommand.Cancel();
             this.analyzeSolutionCommand.Cancel();
+            this.analyzeFileCommand.Cancel();
         }
 
         protected override void Dispose(bool disposing)
@@ -97,6 +100,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     this.analyzeSolutionCommand?.Dispose();
                     this.analyzeProjectCommand?.Dispose();
+                    this.analyzeFileCommand?.Dispose();
                     this.outputWindowTraceListener?.Dispose();
                 }
 

@@ -75,6 +75,10 @@ Copyright (c) Microsoft. All rights reserved.
       <Group guid="guidSariferCommandSet" id="SariferProjectContextMenuGroup" priority="0x600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
       </Group>
+
+      <Group guid="guidSariferCommandSet" id="SariferFileContextMenuGroup" priority="0x600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ITEMNODE"/>
+      </Group>
     </Groups>
 
     <!--
@@ -102,6 +106,13 @@ Copyright (c) Microsoft. All rights reserved.
 
       <Button guid="guidSariferCommandSet" id="cmdidAnalyzeProject" priority="0x100" type="Button">
         <Parent guid="guidSariferCommandSet" id="SariferProjectContextMenuGroup"/>
+        <Strings>
+          <ButtonText>Run Static Analyzers</ButtonText>
+        </Strings>
+      </Button>
+      
+      <Button guid="guidSariferCommandSet" id="cmdidAnalyzeFile" priority="0x100" type="Button">
+        <Parent guid="guidSariferCommandSet" id="SariferFileContextMenuGroup"/>
         <Strings>
           <ButtonText>Run Static Analyzers</ButtonText>
         </Strings>
@@ -143,6 +154,9 @@ Copyright (c) Microsoft. All rights reserved.
 
       <IDSymbol name="SariferProjectContextMenuGroup" value="0x1030"/>
       <IDSymbol name="cmdidAnalyzeProject" value="0x2030"/>
+
+      <IDSymbol name="SariferFileContextMenuGroup" value="0x1040"/>
+      <IDSymbol name="cmdidAnalyzeFile" value="0x2040"/>
     </GuidSymbol>
 
   </Symbols>

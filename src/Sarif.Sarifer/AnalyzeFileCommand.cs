@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 using EnvDTE;
 
@@ -16,7 +19,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class AnalyzeProjectCommand : IDisposable
+    internal class AnalyzeFileCommand : IDisposable
     {
         private DTE2 dte;
         private IComponentModel componentModel;
@@ -25,11 +28,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private CancellationTokenSource cancellationTokenSource;
         private bool disposed;
 
-        public AnalyzeProjectCommand(IMenuCommandService menuCommandService)
+        public AnalyzeFileCommand(IMenuCommandService menuCommandService)
         {
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
-                new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject));
+                new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeFile));
 
             menuCommandService.AddCommand(menuCommand);
             this.menuCommandService = menuCommandService;
@@ -72,17 +75,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.backgroundAnalysisService.AnalysisCompleted += this.BackgroundAnalysisService_AnalysisCompleted;
             }
 
-            IEnumerable<Project> selectedProjects = (this.dte.ActiveSolutionProjects as object[]).OfType<Project>();
-            if (selectedProjects != null)
+            var targetFiles = new List<string>();
+
+            if (this.dte.SelectedItems != null && this.dte.SelectedItems.Count > 0)
             {
-                foreach (Project project in selectedProjects)
+                foreach (SelectedItem selectedItem in this.dte.SelectedItems)
+                {
+                    targetFiles.AddRange(SariferPackageCommand.GetFiles(selectedItem));
+                }
+
+                if (targetFiles.Any())
                 {
                     // Disable the menu click when we are analysing.
                     SariferPackageCommand.DisableAnalyzeCommands(this.menuCommandService);
-
-                    List<string> targetFiles = SariferPackageCommand.GetFiles(project);
-
-                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles, this.cancellationTokenSource.Token)
+                    string logId = targetFiles.First() + (targetFiles.Count > 1 ? $"~{targetFiles.Count}" : string.Empty);
+                    this.backgroundAnalysisService.AnalyzeAsync(logId, targetFiles, this.cancellationTokenSource.Token)
                         .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
                 }
             }

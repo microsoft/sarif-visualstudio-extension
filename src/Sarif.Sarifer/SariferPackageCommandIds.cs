@@ -12,5 +12,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public const int GenerateTestData = 0x2010;
         public const int AnalyzeSolution = 0x2020;
         public const int AnalyzeProject = 0x2030;
+        public const int AnalyzeFile = 0x2040;
     }
 }
