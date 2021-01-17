@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -57,16 +57,16 @@ namespace Microsoft.Sarif.Viewer.Fixes
             string description = null,
             FrameworkElement additionalContent = null)
         {
-            var bufferClone = this.CloneBuffer(buffer);
+            ITextBuffer bufferClone = this.CloneBuffer(buffer);
 
             applyEdit(bufferClone, buffer.CurrentSnapshot);
 
-            var diffResult = this.ComputeDifferences(buffer, bufferClone);
-            var originalSpans = this.GetOriginalSpans(diffResult);
-            var changedSpans = this.GetChangedSpans(diffResult);
+            IHierarchicalDifferenceCollection diffResult = this.ComputeDifferences(buffer, bufferClone);
+            NormalizedSpanCollection originalSpans = this.GetOriginalSpans(diffResult);
+            NormalizedSpanCollection changedSpans = this.GetChangedSpans(diffResult);
 
-            var originalLineSpans = this.CreateLineSpans(buffer.CurrentSnapshot, originalSpans);
-            var changedLineSpans = this.CreateLineSpans(bufferClone.CurrentSnapshot, changedSpans);
+            List<LineSpan> originalLineSpans = this.CreateLineSpans(buffer.CurrentSnapshot, originalSpans);
+            List<LineSpan> changedLineSpans = this.CreateLineSpans(bufferClone.CurrentSnapshot, changedSpans);
 
             if (!originalLineSpans.Any())
             {
@@ -80,13 +80,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
             const string Separator = "\u2026"; // Horizontal ellipsis.
 
-            var originalProjectionBuffer = this.projectionBufferFactoryService.CreateProjectionBufferWithoutIndentation(
+            IProjectionBuffer originalProjectionBuffer = this.projectionBufferFactoryService.CreateProjectionBufferWithoutIndentation(
                 this.editorOptionsFactoryService.GlobalOptions,
                 buffer.CurrentSnapshot,
                 Separator,
                 originalLineSpans.ToArray());
 
-            var newProjectionBuffer = this.projectionBufferFactoryService.CreateProjectionBufferWithoutIndentation(
+            IProjectionBuffer newProjectionBuffer = this.projectionBufferFactoryService.CreateProjectionBufferWithoutIndentation(
                 this.editorOptionsFactoryService.GlobalOptions,
                 bufferClone.CurrentSnapshot,
                 Separator,
@@ -101,13 +101,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
             string description,
             FrameworkElement additionalContent)
         {
-            var diffBuffer = this.differenceBufferFactoryService.CreateDifferenceBuffer(
+            IDifferenceBuffer diffBuffer = this.differenceBufferFactoryService.CreateDifferenceBuffer(
                 originalBuffer,
                 newBuffer,
                 options: default,
                 disableEditing: true);
 
-            var diffViewer = this.wpfDifferenceViewerFactoryService.CreateDifferenceView(diffBuffer, this.previewRoleSet);
+            IWpfDifferenceViewer diffViewer = this.wpfDifferenceViewerFactoryService.CreateDifferenceView(diffBuffer, this.previewRoleSet);
 
             diffViewer.Closed += (s, e) =>
             {
@@ -144,10 +144,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         private IHierarchicalDifferenceCollection ComputeDifferences(ITextBuffer oldBuffer, ITextBuffer newBuffer)
         {
-            var oldText = oldBuffer.CurrentSnapshot.GetText();
-            var newText = newBuffer.CurrentSnapshot.GetText();
+            string oldText = oldBuffer.CurrentSnapshot.GetText();
+            string newText = newBuffer.CurrentSnapshot.GetText();
 
-            var diffService = this.textDifferencingSelectorService.GetTextDifferencingService(oldBuffer.ContentType)
+            ITextDifferencingService diffService = this.textDifferencingSelectorService.GetTextDifferencingService(oldBuffer.ContentType)
                 ?? this.textDifferencingSelectorService.DefaultTextDifferencingService;
 
             return diffService.DiffStrings(oldText, newText, new StringDifferenceOptions()
@@ -160,9 +160,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             var lineSpans = new List<Span>();
 
-            foreach (var difference in diffResult)
+            foreach (Difference difference in diffResult)
             {
-                var mappedSpan = diffResult.LeftDecomposition.GetSpanInOriginal(difference.Left);
+                Span mappedSpan = diffResult.LeftDecomposition.GetSpanInOriginal(difference.Left);
                 lineSpans.Add(mappedSpan);
             }
 
@@ -173,9 +173,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             var lineSpans = new List<Span>();
 
-            foreach (var difference in diffResult)
+            foreach (Difference difference in diffResult)
             {
-                var mappedSpan = diffResult.RightDecomposition.GetSpanInOriginal(difference.Right);
+                Span mappedSpan = diffResult.RightDecomposition.GetSpanInOriginal(difference.Right);
                 lineSpans.Add(mappedSpan);
             }
 
@@ -186,9 +186,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             var result = new List<LineSpan>();
 
-            foreach (var span in allSpans)
+            foreach (Span span in allSpans)
             {
-                var lineSpan = this.GetLineSpan(textSnapshot, span);
+                LineSpan lineSpan = this.GetLineSpan(textSnapshot, span);
                 this.MergeLineSpans(result, lineSpan);
             }
 
@@ -202,8 +202,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
             ITextSnapshot snapshot,
             Span span)
         {
-            var startLine = snapshot.GetLineNumberFromPosition(span.Start);
-            var endLine = snapshot.GetLineNumberFromPosition(span.End);
+            int startLine = snapshot.GetLineNumberFromPosition(span.Start);
+            int endLine = snapshot.GetLineNumberFromPosition(span.End);
 
             if (startLine > 0)
             {
@@ -224,7 +224,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             if (lineSpans.Count > 0)
             {
-                var lastLineSpan = lineSpans.Last();
+                LineSpan lastLineSpan = lineSpans.Last();
 
                 // We merge them if there's no more than one line between the two.  Otherwise
                 // we'd show "..." between two spans where we could just show the actual code.

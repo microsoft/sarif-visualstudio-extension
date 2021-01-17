@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
     /// <summary>
-    /// Command handler
+    /// Command handler.
     /// </summary>
     internal sealed class ErrorListCommand
     {
@@ -32,27 +32,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int UsefulResultCommandId = 0x0302;
 
         /// <summary>
-        /// Command id for "False positive result"
+        /// Command id for "False positive result".
         /// </summary>
         public const int FalsePositiveResultCommandId = 0x0303;
 
         /// <summary>
-        /// Command id for "Non-actionable result"
+        /// Command id for "Non-actionable result".
         /// </summary>
         public const int NonActionableResultCommandId = 0x0304;
 
         /// <summary>
-        /// Command id for "Low value result"
+        /// Command id for "Low value result".
         /// </summary>
         public const int LowValueResultCommandId = 0x0305;
 
         /// <summary>
-        /// Command id for "Non-shipping code result"
+        /// Command id for "Non-shipping code result".
         /// </summary>
         public const int NonShippingCodeResultCommandId = 0x0306;
 
         /// <summary>
-        /// Command id for "Other result"
+        /// Command id for "Other result".
         /// </summary>
         public const int OtherResultCommandId = 0x0307;
 
@@ -61,10 +61,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
 
-        /// VS Package that provides this command, not null.
+        // VS Package that provides this command, not null.
         private readonly Package package;
 
-        /// Service for accessing menu commands.
+        // Service for accessing menu commands.
         private readonly IMenuCommandService menuCommandService;
 
         // Service that provides access to the currently selected Error List item, if any.
@@ -72,7 +72,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorListCommand"/> class.
-        /// Adds our command handlers for menu (commands must exist in the command table file)
+        /// Adds our command handlers for menu (commands must exist in the command table file).
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         private ErrorListCommand(Package package)
@@ -145,6 +145,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             ThreadHelper.ThrowIfNotOnUIThread();
 
             var menuCommand = (MenuCommand)sender;
+
             // Clear Sarif Result command should be function no matter if any selected item
             if (this.selectionService.SelectedItem == null
                 && menuCommand.CommandID.ID != ClearSarifResultsCommandId)
@@ -160,9 +161,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 case UsefulResultCommandId:
                     var feedback = new FeedbackModel(
-                        this.selectionService.SelectedItem.Rule.Id, this.selectionService.SelectedItem.Tool.Name,
-                        this.selectionService.SelectedItem.Tool.Version, this.selectionService.SelectedItem.GetCodeSnippets(),
-                        FeedbackType.UsefulResult, null);
+                        this.selectionService.SelectedItem.Rule.Id,
+                        this.selectionService.SelectedItem.Tool.Name,
+                        this.selectionService.SelectedItem.Tool?.Version,
+                        this.selectionService.SelectedItem.GetCodeSnippets(),
+                        FeedbackType.UsefulResult,
+                        null);
                     ErrorListService.SendFeedback(feedback);
                     break;
 
@@ -201,7 +205,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 [NonActionableResultCommandId] = new FeedbackInfo(Resources.NonActionableResult, FeedbackType.NonActionableResult, Resources.NonActionableSummary),
                 [LowValueResultCommandId] = new FeedbackInfo(Resources.LowValueResult, FeedbackType.LowValueResult, Resources.LowValueSummary),
                 [NonShippingCodeResultCommandId] = new FeedbackInfo(Resources.NonShippingCodeResult, FeedbackType.NonShippingCodeResult, Resources.NonShippingCodeSummary),
-                [OtherResultCommandId] = new FeedbackInfo(Resources.OtherResult, FeedbackType.OtherResult, Resources.OtherSummary)
+                [OtherResultCommandId] = new FeedbackInfo(Resources.OtherResult, FeedbackType.OtherResult, Resources.OtherSummary),
             });
 
         private static void DisplayFeedbackDialog(int commandId, SarifErrorListItem sarifErrorListItem)

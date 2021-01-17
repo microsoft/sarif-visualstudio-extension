@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -31,18 +31,18 @@ namespace Microsoft.Sarif.Viewer.Fixes
                     spans.Add(editorOptions.GetNewLineCharacter());
                 }
 
-                var snapshotSpanRanges = CreateSnapshotSpanRanges(textSnapshot, exposedLineSpans);
-                var indentColumn = DetermineIndentationColumn(editorOptions, snapshotSpanRanges.SelectMany(s => s));
+                IList<IList<SnapshotSpan>> snapshotSpanRanges = CreateSnapshotSpanRanges(textSnapshot, exposedLineSpans);
+                int indentColumn = DetermineIndentationColumn(editorOptions, snapshotSpanRanges.SelectMany(s => s));
 
-                foreach (var snapshotSpanRange in snapshotSpanRanges)
+                foreach (IList<SnapshotSpan> snapshotSpanRange in snapshotSpanRanges)
                 {
-                    foreach (var snapshotSpan in snapshotSpanRange)
+                    foreach (SnapshotSpan snapshotSpan in snapshotSpanRange)
                     {
-                        var line = snapshotSpan.Snapshot.GetLineFromPosition(snapshotSpan.Start);
-                        var indentPosition = line.GetText().GetLineOffsetFromColumn(indentColumn, editorOptions.GetTabSize()) + line.Start;
+                        ITextSnapshotLine line = snapshotSpan.Snapshot.GetLineFromPosition(snapshotSpan.Start);
+                        int indentPosition = line.GetText().GetLineOffsetFromColumn(indentColumn, editorOptions.GetTabSize()) + line.Start;
                         var mappedSpan = new SnapshotSpan(snapshotSpan.Snapshot, Span.FromBounds(indentPosition, snapshotSpan.End));
 
-                        var trackingSpan = mappedSpan.Snapshot.CreateTrackingSpan(mappedSpan, SpanTrackingMode.EdgeExclusive);
+                        ITrackingSpan trackingSpan = mappedSpan.Snapshot.CreateTrackingSpan(mappedSpan, SpanTrackingMode.EdgeExclusive);
 
                         spans.Add(trackingSpan);
 
@@ -78,7 +78,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         public static int GetLineOffsetFromColumn(this string line, int column, int tabSize)
         {
-            var currentColumn = 0;
+            int currentColumn = 0;
 
             for (int i = 0; i < line.Length; i++)
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         public static int? GetFirstNonWhitespacePosition(this ITextSnapshotLine line)
         {
-            var text = line.GetText();
+            string text = line.GetText();
 
             for (int i = 0; i < text.Length; i++)
             {
@@ -118,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         public static int GetColumnOfFirstNonWhitespaceCharacterOrEndOfLine(this string line, int tabSize)
         {
-            var firstNonWhitespaceChar = line.GetFirstNonWhitespaceOffset();
+            int? firstNonWhitespaceChar = line.GetFirstNonWhitespaceOffset();
 
             if (firstNonWhitespaceChar.HasValue)
             {
@@ -172,9 +172,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private static IList<IList<SnapshotSpan>> CreateSnapshotSpanRanges(ITextSnapshot snapshot, LineSpan[] exposedLineSpans)
         {
             var result = new List<IList<SnapshotSpan>>();
-            foreach (var lineSpan in exposedLineSpans)
+            foreach (LineSpan lineSpan in exposedLineSpans)
             {
-                var snapshotSpans = CreateSnapshotSpans(snapshot, lineSpan);
+                IList<SnapshotSpan> snapshotSpans = CreateSnapshotSpans(snapshot, lineSpan);
                 if (snapshotSpans.Count > 0)
                 {
                     result.Add(snapshotSpans);
@@ -189,7 +189,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             var result = new List<SnapshotSpan>();
             for (int i = lineSpan.Start; i < lineSpan.End; i++)
             {
-                var line = snapshot.GetLineFromLineNumber(i);
+                ITextSnapshotLine line = snapshot.GetLineFromLineNumber(i);
                 result.Add(line.Extent);
             }
 
@@ -201,11 +201,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
             IEnumerable<SnapshotSpan> spans)
         {
             int? indentationColumn = null;
-            foreach (var span in spans)
+            foreach (SnapshotSpan span in spans)
             {
-                var snapshot = span.Snapshot;
-                var startLineNumber = snapshot.GetLineNumberFromPosition(span.Start);
-                var endLineNumber = snapshot.GetLineNumberFromPosition(span.End);
+                ITextSnapshot snapshot = span.Snapshot;
+                int startLineNumber = snapshot.GetLineNumberFromPosition(span.Start);
+                int endLineNumber = snapshot.GetLineNumberFromPosition(span.End);
 
                 // If the span starts after the first non-whitespace of the first line, we'll
                 // exclude that line to avoid throwing off the calculation. Otherwise, the
@@ -221,15 +221,15 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 //
                 // Without throwing out the first line in the example above, the indentation column
                 // used will be 4, rather than 8.
-                var startLineFirstNonWhitespace = snapshot.GetLineFromLineNumber(startLineNumber).GetFirstNonWhitespacePosition();
+                int? startLineFirstNonWhitespace = snapshot.GetLineFromLineNumber(startLineNumber).GetFirstNonWhitespacePosition();
                 if (startLineFirstNonWhitespace.HasValue && startLineFirstNonWhitespace.Value < span.Start)
                 {
                     startLineNumber++;
                 }
 
-                for (var lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++)
+                for (int lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++)
                 {
-                    var line = snapshot.GetLineFromLineNumber(lineNumber);
+                    ITextSnapshotLine line = snapshot.GetLineFromLineNumber(lineNumber);
                     if (string.IsNullOrWhiteSpace(line.GetText()))
                     {
                         continue;

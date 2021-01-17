@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Controls
     public class InfoBar : IVsInfoBarUIEvents
     {
         /// <summary>
-        /// List of info bars currently being shown.
+        /// Gets list of info bars currently being shown.
         /// </summary>
         /// <remarks>
         /// Exposed for test purposes.
@@ -57,11 +57,12 @@ namespace Microsoft.Sarif.Viewer.Controls
         private static readonly ConcurrentDictionary<InfoBar, ExceptionalConditions> s_infoBarToConditionDictionary = new ConcurrentDictionary<InfoBar, ExceptionalConditions>();
 
         /// <summary>
-        /// Display info bars appropriate to the specified set of "exceptional conditions."
+        /// Display info bars appropriate to the specified set of "exceptional conditions".
         /// </summary>
         /// <param name="conditions">
         /// The conditions that require an info bar to be shown.
         /// </param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         internal static async Task CreateInfoBarsForExceptionalConditionsAsync(ExceptionalConditions conditions)
         {
             // The most recently shown bar is displayed at the bottom, so show the bars in order
@@ -106,6 +107,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <param name="closeAction">
         /// An action to take when the info bar is closed.
         /// </param>
+        /// <param name="imageMoniker">The moniker of the image.</param>
         public InfoBar(string text, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default)
             : this(new IVsInfoBarTextSpan[] { new InfoBarTextSpan(text) }, clickAction, closeAction, imageMoniker)
         {
@@ -123,6 +125,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         /// <param name="closeAction">
         /// An action to take when the info bar is closed.
         /// </param>
+        /// <param name="imageMoniker">The moniker of the image.</param>
         public InfoBar(IVsInfoBarTextSpan[] content, Action<IVsInfoBarActionItem> clickAction = null, Action closeAction = null, ImageMoniker imageMoniker = default)
         {
             this.content = content;

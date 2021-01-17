@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         public override int GetHashCode()
         {
-            var hashCode = -1676728671;
+            int hashCode = -1676728671;
             hashCode = (hashCode * -1521134295) + this.Start.GetHashCode();
             hashCode = (hashCode * -1521134295) + this.End.GetHashCode();
             return hashCode;
