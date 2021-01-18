@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -20,14 +20,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _id;
+                return this._id;
             }
+
             set
             {
-                if (value != _id)
+                if (value != this._id)
                 {
-                    _id = value;
-                    NotifyPropertyChanged();
+                    this._id = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -36,14 +37,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _name;
+                return this._name;
             }
+
             set
             {
-                if (value != _name)
+                if (value != this._name)
                 {
-                    _name = value;
-                    NotifyPropertyChanged();
+                    this._name = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -52,14 +54,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _description;
+                return this._description;
             }
+
             set
             {
-                if (value != _description)
+                if (value != this._description)
                 {
-                    _description = value;
-                    NotifyPropertyChanged();
+                    this._description = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -68,14 +71,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _category;
+                return this._category;
             }
+
             set
             {
-                if (value != _category)
+                if (value != this._category)
                 {
-                    _category = value;
-                    NotifyPropertyChanged();
+                    this._category = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -84,14 +88,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _defaultFailureLevel;
+                return this._defaultFailureLevel;
             }
+
             set
             {
-                if (value != _defaultFailureLevel)
+                if (value != this._defaultFailureLevel)
                 {
-                    _defaultFailureLevel = value;
-                    NotifyPropertyChanged();
+                    this._defaultFailureLevel = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -102,9 +107,9 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 FailureLevel level = FailureLevel.Warning;
 
-                if (DefaultFailureLevel != FailureLevel.None)
+                if (this.DefaultFailureLevel != FailureLevel.None)
                 {
-                    string defaultLevel = DefaultFailureLevel.ToString();
+                    string defaultLevel = this.DefaultFailureLevel.ToString();
 
                     level = (FailureLevel)Enum.Parse(typeof(FailureLevel), defaultLevel);
                 }
@@ -117,14 +122,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _helpUri;
+                return this._helpUri;
             }
+
             set
             {
-                if (value != _helpUri)
+                if (value != this._helpUri)
                 {
-                    _helpUri = value;
-                    NotifyPropertyChanged();
+                    this._helpUri = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }

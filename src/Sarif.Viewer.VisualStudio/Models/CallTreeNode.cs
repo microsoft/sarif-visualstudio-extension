@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -32,29 +32,30 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _location;
+                return this._location;
             }
+
             set
             {
-                _location = value;
+                this._location = value;
 
                 if (value?.Location?.PhysicalLocation != null)
                 {
-                    // If the backing ThreadFlowLocation has a PhysicalLocation, set the 
+                    // If the backing ThreadFlowLocation has a PhysicalLocation, set the
                     // Region property. If it has a FileLocation, set the FilePath.
                     // The FilePath and Region properties are used to navigate to the
                     // source location and highlight the line.
-                    Region = value.Location.PhysicalLocation.Region;
+                    this.Region = value.Location.PhysicalLocation.Region;
 
                     if (value.Location.PhysicalLocation.ArtifactLocation?.Uri != null)
                     {
-                        FilePath = value.Location.PhysicalLocation.ArtifactLocation.Uri.ToPath();
+                        this.FilePath = value.Location.PhysicalLocation.ArtifactLocation.Uri.ToPath();
                     }
                 }
                 else
                 {
-                    FilePath = null;
-                    Region = null;
+                    this.FilePath = null;
+                    this.Region = null;
                 }
             }
         }
@@ -63,14 +64,15 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _isExpanded;
+                return this._isExpanded;
             }
+
             set
             {
-                if (value != _isExpanded)
+                if (value != this._isExpanded)
                 {
-                    _isExpanded = value;
-                    NotifyPropertyChanged();
+                    this._isExpanded = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -79,21 +81,22 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _visbility;
+                return this._visbility;
             }
+
             set
             {
-                if (value != _visbility)
+                if (value != this._visbility)
                 {
-                    _visbility = value;
-                    NotifyPropertyChanged();
+                    this._visbility = value;
+                    this.NotifyPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Returns the location string formatted for Visual Studio.
-        /// e.g. myfile.c (24,10)
+        /// Gets the location string formatted for Visual Studio.
+        /// e.g. myfile.c (24,10).
         /// </summary>
         [Browsable(false)]
         public string LocationDisplayString
@@ -102,12 +105,12 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 string text = string.Empty;
 
-                if (!string.IsNullOrEmpty(FilePath))
+                if (!string.IsNullOrEmpty(this.FilePath))
                 {
-                    text = Path.GetFileName(FilePath) + " ";
+                    text = Path.GetFileName(this.FilePath) + " ";
                 }
 
-                Region region = Location?.Location?.PhysicalLocation?.Region;
+                Region region = this.Location?.Location?.PhysicalLocation?.Region;
                 if (region?.StartLine > 0)
                 {
                     text += region.FormatForVisualStudio();
@@ -122,13 +125,13 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 // Not all locations have regions. Don't try to mark the locations that don't.
-                if (_lineMarker == null
-                    && Region != null)
+                if (this._lineMarker == null
+                    && this.Region != null)
                 {
-                    _lineMarker = new ResultTextMarker(
-                        runIndex: RunIndex,
-                        resultId: ResultId,
-                        uriBaseId: UriBaseId,
+                    this._lineMarker = new ResultTextMarker(
+                        runIndex: this.RunIndex,
+                        resultId: this.ResultId,
+                        uriBaseId: this.UriBaseId,
                         region: this.Region,
                         fullFilePath: this.FilePath,
                         nonHighlightedColor: this.DefaultSourceHighlightColor,
@@ -138,7 +141,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         context: this);
                 }
 
-                return _lineMarker;
+                return this._lineMarker;
             }
         }
 
@@ -175,18 +178,19 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _callTree;
+                return this._callTree;
             }
+
             set
             {
-                _callTree = value;
+                this._callTree = value;
 
                 // If there are any children, set their call tree too.
-                if (Children != null)
+                if (this.Children != null)
                 {
-                    for (int i = 0; i < Children.Count; i++)
+                    for (int i = 0; i < this.Children.Count; i++)
                     {
-                        Children[i].CallTree = _callTree;
+                        this.Children[i].CallTree = this._callTree;
                     }
                 }
             }
@@ -197,16 +201,17 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _parent;
+                return this._parent;
             }
+
             set
             {
-                _parent = value;
+                this._parent = value;
 
                 // Set our call tree to our new parent's call tree.
-                if (_parent != null)
+                if (this._parent != null)
                 {
-                    CallTree = _parent.CallTree;
+                    this.CallTree = this._parent.CallTree;
                 }
             }
         }
@@ -217,7 +222,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return FilePath;
+                return this.FilePath;
             }
         }
 
@@ -227,7 +232,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Location?.PhysicalLocation?.Region?.StartLine;
+                return this.Location?.Location?.PhysicalLocation?.Region?.StartLine;
             }
         }
 
@@ -237,7 +242,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Location?.PhysicalLocation?.Region?.EndLine;
+                return this.Location?.Location?.PhysicalLocation?.Region?.EndLine;
             }
         }
 
@@ -247,7 +252,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Location?.PhysicalLocation?.Region?.StartColumn;
+                return this.Location?.Location?.PhysicalLocation?.Region?.StartColumn;
             }
         }
 
@@ -257,7 +262,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Location?.PhysicalLocation?.Region?.EndColumn;
+                return this.Location?.Location?.PhysicalLocation?.Region?.EndColumn;
             }
         }
 
@@ -265,7 +270,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Importance;
+                return this.Location?.Importance;
             }
         }
 
@@ -273,7 +278,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Location?.Message?.Text;
+                return this.Location?.Location?.Message?.Text;
             }
         }
 
@@ -281,7 +286,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return Location?.Location?.PhysicalLocation?.Region?.Snippet?.Text;
+                return this.Location?.Location?.PhysicalLocation?.Region?.Snippet?.Text;
             }
         }
 
@@ -291,11 +296,11 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 var properties = new Dictionary<string, string>();
 
-                if (Location?.PropertyNames != null)
+                if (this.Location?.PropertyNames != null)
                 {
-                    foreach (string key in Location.PropertyNames)
+                    foreach (string key in this.Location.PropertyNames)
                     {
-                        properties.Add(key, Location.GetProperty<object>(key).ToString());
+                        properties.Add(key, this.Location.GetProperty<object>(key).ToString());
                     }
                 }
 
@@ -307,9 +312,9 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             this.IsExpanded = true;
 
-            if (Children != null)
+            if (this.Children != null)
             {
-                foreach (CallTreeNode child in Children)
+                foreach (CallTreeNode child in this.Children)
                 {
                     child.ExpandAll();
                 }
@@ -320,9 +325,9 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             this.IsExpanded = false;
 
-            if (Children != null)
+            if (this.Children != null)
             {
-                foreach (CallTreeNode child in Children)
+                foreach (CallTreeNode child in this.Children)
                 {
                     child.CollapseAll();
                 }
@@ -331,7 +336,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void IntelligentExpand()
         {
-            if (Location?.Importance == ThreadFlowLocationImportance.Essential)
+            if (this.Location?.Importance == ThreadFlowLocationImportance.Essential)
             {
                 CallTreeNode current = this;
 
@@ -343,12 +348,12 @@ namespace Microsoft.Sarif.Viewer.Models
             }
             else
             {
-                IsExpanded = false;
+                this.IsExpanded = false;
             }
 
-            if (Children != null)
+            if (this.Children != null)
             {
-                foreach (CallTreeNode child in Children)
+                foreach (CallTreeNode child in this.Children)
                 {
                     child.IntelligentExpand();
                 }
@@ -358,7 +363,7 @@ namespace Microsoft.Sarif.Viewer.Models
         internal void SetVerbosity(ThreadFlowLocationImportance importance)
         {
             Visibility visibility = Visibility.Visible;
-            ThreadFlowLocationImportance myImportance = (Location?.Importance) ?? ThreadFlowLocationImportance.Unimportant;
+            ThreadFlowLocationImportance myImportance = this.Location?.Importance ?? ThreadFlowLocationImportance.Unimportant;
 
             switch (importance)
             {
@@ -367,12 +372,14 @@ namespace Microsoft.Sarif.Viewer.Models
                     {
                         visibility = Visibility.Collapsed;
                     }
+
                     break;
                 case ThreadFlowLocationImportance.Important:
                     if (myImportance == ThreadFlowLocationImportance.Unimportant)
                     {
                         visibility = Visibility.Collapsed;
                     }
+
                     break;
                 default:
                     visibility = Visibility.Visible;
@@ -391,12 +398,12 @@ namespace Microsoft.Sarif.Viewer.Models
             }
             else
             {
-                Visibility = Visibility.Collapsed;
+                this.Visibility = Visibility.Collapsed;
             }
 
-            if (Children != null)
+            if (this.Children != null)
             {
-                foreach (CallTreeNode child in Children)
+                foreach (CallTreeNode child in this.Children)
                 {
                     child.SetVerbosity(importance);
                 }

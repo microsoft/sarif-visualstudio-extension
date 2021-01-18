@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
 
@@ -28,12 +28,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._message;
             }
+
             set
             {
                 if (value != this._message)
                 {
                     this._message = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -44,12 +45,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return base.FilePath;
             }
+
             set
             {
                 if (value != this._filePath)
                 {
                     base.FilePath = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -68,12 +70,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._module;
             }
+
             set
             {
                 if (value != this._module)
                 {
                     this._module = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -84,12 +87,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._logicalLocation;
             }
+
             set
             {
                 if (value != this._logicalLocation)
                 {
                     this._logicalLocation = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -100,12 +104,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._isEssential;
             }
+
             set
             {
                 if (value != this._isEssential)
                 {
                     this._isEssential = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -118,7 +123,7 @@ namespace Microsoft.Sarif.Viewer.Models
         /// </summary>
         /// <remarks>
         /// Future enhancement, factor this out of the data model into a view model as this is not
-        /// part of the SARIF data model
+        /// part of the SARIF data model.
         /// </remarks>
         public bool IsSelected
         {
@@ -129,13 +134,13 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (value != this._isSelected)
                 {
                     this._isSelected = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
 
         /// <summary>
-        /// A persistent span that represents the location's region.
+        /// Gets or sets a persistent span that represents the location's region.
         /// </summary>
         public IPersistentSpan PersistentSpan { get; set; }
     }

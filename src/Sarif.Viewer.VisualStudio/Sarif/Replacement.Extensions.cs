@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -21,7 +21,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 Region = uri.IsAbsoluteUri
                     ? fileRegionsCache.PopulateTextRegionProperties(replacement.DeletedRegion, uri, populateSnippet: false)
-                    : replacement.DeletedRegion
+                    : replacement.DeletedRegion,
             };
 
             if (model.Region.CharOffset >= 0)
