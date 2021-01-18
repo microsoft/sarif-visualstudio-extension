@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -15,18 +15,17 @@ namespace Microsoft.Sarif.Viewer.Sarif
             RuleModel model;
             string ruleId = defaultRuleId;
 
-            if (Guid.TryParse(ruleId, out Guid result) && !(string.IsNullOrEmpty(rule.Name)))
+            if (Guid.TryParse(ruleId, out Guid result) && !string.IsNullOrEmpty(rule.Name))
             {
                 ruleId = rule.Name;
             }
-
 
             if (rule == null)
             {
                 model = new RuleModel()
                 {
                     Id = ruleId,
-                    DefaultFailureLevel = FailureLevel.Warning
+                    DefaultFailureLevel = FailureLevel.Warning,
                 };
             }
             else
@@ -39,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                     DefaultFailureLevel = rule.DefaultConfiguration != null ?
                                     rule.DefaultConfiguration.Level :
                                     FailureLevel.Warning, // Default level
-                    HelpUri = rule.HelpUri?.IsAbsoluteUri == true ? rule.HelpUri.AbsoluteUri : null
+                    HelpUri = rule.HelpUri?.IsAbsoluteUri == true ? rule.HelpUri.AbsoluteUri : null,
                 };
             }
 

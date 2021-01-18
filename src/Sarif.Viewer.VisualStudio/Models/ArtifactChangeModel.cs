@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
 using System.IO;
@@ -12,23 +12,24 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public ArtifactChangeModel()
         {
-            Replacements = new ObservableCollection<ReplacementModel>();
+            this.Replacements = new ObservableCollection<ReplacementModel>();
         }
 
         public string FilePath
         {
             get
             {
-                return _filePath;
+                return this._filePath;
             }
+
             set
             {
                 if (value != this._filePath)
                 {
-                    _filePath = value;
+                    this._filePath = value;
 
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged(nameof(this.FileName));
+                    this.NotifyPropertyChanged();
+                    this.NotifyPropertyChanged(nameof(this.FileName));
                 }
             }
         }

@@ -27,12 +27,19 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         public string RuleId { get; }
+
         public string ToolName { get; }
+
         public string ToolVersion { get; }
+
         public bool SendSnippet { get; set; }
+
         public IEnumerable<string> Snippets { get; set; }
+
         public string Comment { get; set; }
+
         public FeedbackType FeedbackType { get; }
+
         public string Summary { get; set; }
 
         public Microsoft.VisualStudio.PlatformUI.DelegateCommand SendFeedbackCommand
