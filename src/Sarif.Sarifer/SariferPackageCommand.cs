@@ -43,7 +43,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             var targetFiles = new List<string>();
             GetFilesRecursive(targetFiles, selectedItem.ProjectItem);
-            
+
             return targetFiles;
         }
 
