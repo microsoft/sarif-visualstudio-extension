@@ -8,7 +8,7 @@ using Microsoft.Sarif.Viewer.Models;
 namespace Microsoft.Sarif.Viewer.Controls
 {
     /// <summary>
-    /// Interaction logic for FeedbackControl.xaml
+    /// Interaction logic for FeedbackControl.xaml.
     /// </summary>
     public partial class FeedbackControl : UserControl
     {

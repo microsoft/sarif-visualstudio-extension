@@ -9,6 +9,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal struct FilteredColumnValue
     {
         public string ColumnName { get; }
+
         public string FilteredValue { get; }
 
         public FilteredColumnValue(string columnName, string filteredValue)

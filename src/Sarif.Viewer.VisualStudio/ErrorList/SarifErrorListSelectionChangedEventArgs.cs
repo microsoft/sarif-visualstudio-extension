@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -11,15 +11,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal class SarifErrorListSelectionChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Creates an instance of <see cref="SarifErrorListSelectionChangedEventArgs"/>.
+        /// Initializes a new instance of the <see cref="SarifErrorListSelectionChangedEventArgs"/> class.
         /// </summary>
         /// <param name="oldItem">The previous item.</param>
         /// <param name="newItem">The new item.</param>
         /// <remarks>Both parameters may be null.</remarks>
         public SarifErrorListSelectionChangedEventArgs(SarifErrorListItem oldItem, SarifErrorListItem newItem)
         {
-            OldItem = oldItem;
-            NewItem = newItem;
+            this.OldItem = oldItem;
+            this.NewItem = newItem;
         }
 
         /// <summary>

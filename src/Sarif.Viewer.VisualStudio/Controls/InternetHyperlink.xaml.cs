@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Windows;
 using System.Windows.Controls;
@@ -8,7 +8,7 @@ using System.Windows.Navigation;
 namespace Microsoft.Sarif.Viewer.Controls
 {
     /// <summary>
-    /// Interaction logic for InternetHyperlink.xaml
+    /// Interaction logic for InternetHyperlink.xaml.
     /// </summary>
     public partial class InternetHyperlink : UserControl
     {
@@ -17,11 +17,11 @@ namespace Microsoft.Sarif.Viewer.Controls
 
         public InternetHyperlink()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         /// <summary>
-        /// The text to display for the hyperlink.
+        /// Gets or sets the text to display for the hyperlink.
         /// </summary>
         public string Text
         {
@@ -29,6 +29,7 @@ namespace Microsoft.Sarif.Viewer.Controls
             {
                 return (string)this.GetValue(TextProperty);
             }
+
             set
             {
                 this.SetValue(TextProperty, value);
@@ -36,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         }
 
         /// <summary>
-        /// The URI to navigate to when the hyperlink is clicked.
+        /// Gets or sets the URI to navigate to when the hyperlink is clicked.
         /// </summary>
         public string NavigateUri
         {
@@ -44,6 +45,7 @@ namespace Microsoft.Sarif.Viewer.Controls
             {
                 return (string)this.GetValue(NavigateUriProperty);
             }
+
             set
             {
                 this.SetValue(NavigateUriProperty, value);
