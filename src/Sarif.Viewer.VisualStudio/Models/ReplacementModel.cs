@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Text;
@@ -24,16 +24,16 @@ namespace Microsoft.Sarif.Viewer.Models
                 if (!(this.region?.ValueEquals(value) == true))
                 {
                     this.region = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
 
-        public int Offset => IsTextReplacement
+        public int Offset => this.IsTextReplacement
             ? this.region.CharOffset
             : this.region.ByteOffset;
 
-        public int DeletedLength => IsTextReplacement
+        public int DeletedLength => this.IsTextReplacement
             ? this.region.CharLength
             : this.region.ByteLength;
 
@@ -41,15 +41,16 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _insertedBytes;
+                return this._insertedBytes;
             }
+
             set
             {
                 if (value != this._insertedBytes)
                 {
-                    _insertedBytes = value;
+                    this._insertedBytes = value;
 
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -58,25 +59,26 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _insertedString;
+                return this._insertedString;
             }
+
             set
             {
                 if (value != this._insertedString)
                 {
-                    _insertedString = value;
+                    this._insertedString = value;
 
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
 
-        public bool IsTextReplacement => Region.CharOffset >= 0;
+        public bool IsTextReplacement => this.Region.CharOffset >= 0;
 
-        public bool IsBinaryReplacement => !IsTextReplacement && Region.ByteOffset >= 0;
+        public bool IsBinaryReplacement => !this.IsTextReplacement && this.Region.ByteOffset >= 0;
 
         /// <summary>
-        /// A persistent span that represents the range of bytes replaced by this object.
+        /// Gets or sets a persistent span that represents the range of bytes replaced by this object.
         /// </summary>
         public IPersistentSpan PersistentSpan { get; set; }
     }

@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -19,15 +19,16 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _message;
+                return this._message;
             }
+
             set
             {
                 if (value != this._message)
                 {
-                    _message = value;
+                    this._message = value;
 
-                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(Message)));
+                    this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(this.Message)));
                 }
             }
         }

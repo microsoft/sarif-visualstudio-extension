@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.ObjectModel;
 
@@ -22,15 +22,16 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _description;
+                return this._description;
             }
+
             set
             {
                 if (value != this._description)
                 {
-                    _description = value;
+                    this._description = value;
 
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -39,7 +40,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                return _artifactChanges;
+                return this._artifactChanges;
             }
         }
     }

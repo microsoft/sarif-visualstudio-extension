@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -23,12 +23,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._commandLine;
             }
+
             set
             {
                 if (value != this._commandLine)
                 {
                     this._commandLine = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -39,12 +40,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._startTime;
             }
+
             set
             {
                 if (value != this._startTime)
                 {
                     this._startTime = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -55,12 +57,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._endTime;
             }
+
             set
             {
                 if (value != this._endTime)
                 {
                     this._endTime = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -71,12 +74,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._machine;
             }
+
             set
             {
                 if (value != this._machine)
                 {
                     this._machine = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -87,12 +91,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._account;
             }
+
             set
             {
                 if (value != this._account)
                 {
                     this._account = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -103,12 +108,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._processId;
             }
+
             set
             {
                 if (value != this._processId)
                 {
                     this._processId = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -119,12 +125,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._fileName;
             }
+
             set
             {
                 if (value != this._fileName)
                 {
                     this._fileName = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -135,12 +142,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._workingDirectory;
             }
+
             set
             {
                 if (value != this._workingDirectory)
                 {
                     this._workingDirectory = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -151,12 +159,13 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._environmentVariables;
             }
+
             set
             {
                 if (value != this._environmentVariables)
                 {
                     this._environmentVariables = value;
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
