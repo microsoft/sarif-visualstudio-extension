@@ -36,19 +36,19 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void LoadSarifLogs(IEnumerable<string> paths, bool promptOnSchemaUpgrade = false)
         {
-            LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            this.LoadSarifLogAsync(paths).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLog(Stream stream, string logId = null)
         {
-            LoadSarifLogAsync(stream, logId).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            this.LoadSarifLogAsync(stream, logId).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         /// <inheritdoc/>
         public void LoadSarifLog(IEnumerable<Stream> streams)
         {
-            LoadSarifLogAsync(streams).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
+            this.LoadSarifLogAsync(streams).FileAndForget(Constants.FileAndForgetFaultEventNames.LoadSarifLogs);
         }
 
         private async Task LoadSarifLogAsync(IEnumerable<string> paths)
@@ -86,8 +86,8 @@ namespace Microsoft.Sarif.Viewer.Services
                     taskHandler.Progress.Report(new TaskProgressData
                     {
                         PercentComplete = validPathIndex * 100 / validPaths.Count,
-                        ProgressText = string.Format(CultureInfo.CurrentCulture, Resources.ProcessingLogFileFormat, validPaths[validPathIndex])
-                    }); ;
+                        ProgressText = string.Format(CultureInfo.CurrentCulture, Resources.ProcessingLogFileFormat, validPaths[validPathIndex]),
+                    });
 
                     // We should not clean errors here. If the user wants to clear errors, they can call ICloseSarifLogService.CloseAllSarifLogs.
                     await ErrorListService.ProcessLogFileAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);

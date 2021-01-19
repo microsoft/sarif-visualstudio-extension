@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         void RefreshTags();
 
         /// <summary>
-        /// The <see cref="ITextBuffer"/> for which this tagger provides tags.
+        /// Gets the <see cref="ITextBuffer"/> for which this tagger provides tags.
         /// </summary>
         ITextBuffer TextBuffer { get; }
 

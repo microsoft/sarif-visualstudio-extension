@@ -34,7 +34,7 @@ namespace Microsoft.Sarif.Viewer
         internal const int S_OK = 0;
         private const string AllowedDownloadHostsFileName = "AllowedDownloadHosts.json";
         private const string TemporaryFileDirectoryName = "SarifViewer";
-        private readonly string TemporaryFilePath;
+        private readonly string temporaryFilePath;
 
         // Cookie for registration and unregistration
         private uint m_solutionEventsCookie;
@@ -43,6 +43,7 @@ namespace Microsoft.Sarif.Viewer
         private readonly IFileSystem _fileSystem;
 
         internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
+
         private readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         // This ctor is internal rather than private for unit test purposes.
@@ -50,14 +51,14 @@ namespace Microsoft.Sarif.Viewer
             IFileSystem fileSystem,
             PromptForResolvedPathDelegate promptForResolvedPathDelegate = null)
         {
-            _fileSystem = fileSystem;
-            _promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? PromptForResolvedPath;
+            this._fileSystem = fileSystem;
+            this._promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? this.PromptForResolvedPath;
 
-            _allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
+            this._allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
 
             // Get temporary path for embedded files.
-            TemporaryFilePath = Path.GetTempPath();
-            TemporaryFilePath = Path.Combine(TemporaryFilePath, TemporaryFileDirectoryName);
+            this.temporaryFilePath = Path.GetTempPath();
+            this.temporaryFilePath = Path.Combine(this.temporaryFilePath, TemporaryFileDirectoryName);
         }
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
@@ -81,7 +82,7 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                RunIndexToRunDataCache.TryGetValue(CurrentRunIndex, out RunDataCache dataCache);
+                this.RunIndexToRunDataCache.TryGetValue(this.CurrentRunIndex, out RunDataCache dataCache);
                 return dataCache;
             }
         }
@@ -95,27 +96,29 @@ namespace Microsoft.Sarif.Viewer
             {
                 throw Marshal.GetExceptionForHR(E_FAIL);
             }
-            solution.AdviseSolutionEvents(this, out m_solutionEventsCookie);
+
+            solution.AdviseSolutionEvents(this, out this.m_solutionEventsCookie);
         }
 
         /// <summary>
-        /// Unregister this provider from VS
+        /// Unregister this provider from VS.
         /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults")]
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", Justification = "By design")]
         internal void Unregister()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             // Unregister this object from IVsSolutionEvents events
-            if (m_solutionEventsCookie != VSCOOKIE_NIL)
+            if (this.m_solutionEventsCookie != VSCOOKIE_NIL)
             {
                 if (ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) is IVsSolution solution)
                 {
-                    solution.UnadviseSolutionEvents(m_solutionEventsCookie);
-                    m_solutionEventsCookie = VSCOOKIE_NIL;
+                    solution.UnadviseSolutionEvents(this.m_solutionEventsCookie);
+                    this.m_solutionEventsCookie = VSCOOKIE_NIL;
                 }
             }
         }
-        #region IVsSolutionEvents
+
         public int OnAfterOpenProject(IVsHierarchy pHierarchy, int fAdded) => S_OK;
 
         public int OnQueryCloseProject(IVsHierarchy pHierarchy, int fRemoving, ref int pfCancel) => S_OK;
@@ -137,17 +140,17 @@ namespace Microsoft.Sarif.Viewer
         public int OnAfterCloseSolution(object pUnkReserved)
         {
             // When closing solution (or closing VS), remove the temporary folder.
-            RemoveTemporaryFiles();
+            this.RemoveTemporaryFiles();
 
             return S_OK;
         }
-        #endregion IVsSolutionEvents
 
         public void CacheUriBasePaths(Run run)
         {
             if (run.OriginalUriBaseIds is Dictionary<string, ArtifactLocation> source)
             {
-                var target = CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
+                var target = this.CurrentRunDataCache.OriginalUriBasePaths as Dictionary<string, Uri>;
+
                 // This line assumes an empty dictionary
                 source.ToList().ForEach(x =>
                 {
@@ -172,7 +175,7 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            if (!RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
+            if (!this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
             {
                 return false;
             }
@@ -186,7 +189,7 @@ namespace Microsoft.Sarif.Viewer
             if (dataCache.FileDetails.ContainsKey(relativePath))
             {
                 // File contents embedded in SARIF.
-                resolvedPath = CreateFileFromContents(dataCache.FileDetails, relativePath);
+                resolvedPath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
             }
             else
             {
@@ -195,7 +198,7 @@ namespace Microsoft.Sarif.Viewer
                     && Uri.TryCreate(baseUri, relativePath, out Uri uri)
                     && uri.IsHttpScheme())
                 {
-                    bool allow = _allowedDownloadHosts.Contains(uri.Host);
+                    bool allow = this._allowedDownloadHosts.Contains(uri.Host);
 
                     // File needs to be downloaded, prompt for confirmation if host is not already allowed
                     if (!allow)
@@ -212,7 +215,7 @@ namespace Microsoft.Sarif.Viewer
 
                             if (alwaysAllow)
                             {
-                                AddAllowedDownloadHost(uri.Host);
+                                this.AddAllowedDownloadHost(uri.Host);
                             }
                         }
                     }
@@ -221,7 +224,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         try
                         {
-                            resolvedPath = DownloadFile(sarifErrorListItem, uri.ToString());
+                            resolvedPath = this.DownloadFile(sarifErrorListItem, uri.ToString());
                         }
                         catch (WebException wex)
                         {
@@ -238,7 +241,7 @@ namespace Microsoft.Sarif.Viewer
                 else
                 {
                     // User needs to locate file.
-                    resolvedPath = GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
+                    resolvedPath = this.GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
                 }
 
                 if (string.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
@@ -248,14 +251,14 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // Update all the paths in this run.
-            RemapFilePaths(dataCache.SarifErrors, relativePath, resolvedPath);
+            this.RemapFilePaths(dataCache.SarifErrors, relativePath, resolvedPath);
             return true;
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
         internal string CreateFileFromContents(int runId, string fileName)
         {
-            return CreateFileFromContents(RunIndexToRunDataCache[runId].FileDetails, fileName);
+            return this.CreateFileFromContents(this.RunIndexToRunDataCache[runId].FileDetails, fileName);
         }
 
         // Contents are embedded in SARIF. Create a file from these contents.
@@ -263,7 +266,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ArtifactDetailsModel fileData = fileDetailsDictionary[fileName];
 
-            string finalPath = TemporaryFilePath;
+            string finalPath = this.temporaryFilePath;
 
             // If the file path already starts with the temporary location,
             // that means we've already built the temporary file, so we can
@@ -272,9 +275,9 @@ namespace Microsoft.Sarif.Viewer
             {
                 finalPath = fileName;
             }
-            // Else we have to create a location under the temp path.
             else
             {
+                // Else we have to create a location under the temp path.
                 // Strip off the leading drive letter and backslash (e.g., "C:\"), if present.
                 if (Path.IsPathRooted(fileName))
                 {
@@ -305,12 +308,13 @@ namespace Microsoft.Sarif.Viewer
             string directory = Path.GetDirectoryName(finalPath);
             Directory.CreateDirectory(directory);
 
-            if (!_fileSystem.FileExists(finalPath))
+            if (!this._fileSystem.FileExists(finalPath))
             {
                 string contents = fileData.GetContents();
-                _fileSystem.FileWriteAllText(finalPath, contents);
+                this._fileSystem.FileWriteAllText(finalPath, contents);
+
                 // File should be readonly, because it is embedded.
-                _fileSystem.FileSetAttributes(finalPath, FileAttributes.ReadOnly);
+                this._fileSystem.FileSetAttributes(finalPath, FileAttributes.ReadOnly);
             }
 
             if (!fileDetailsDictionary.ContainsKey(finalPath))
@@ -325,8 +329,8 @@ namespace Microsoft.Sarif.Viewer
 
         internal void AddAllowedDownloadHost(string host)
         {
-            _allowedDownloadHosts.Add(host);
-            SdkUIUtilities.StoreObject<List<string>>(_allowedDownloadHosts, AllowedDownloadHostsFileName);
+            this._allowedDownloadHosts.Add(host);
+            SdkUIUtilities.StoreObject<List<string>>(this._allowedDownloadHosts, AllowedDownloadHostsFileName);
         }
 
         internal string DownloadFile(SarifErrorListItem sarifErrorListItem, string fileUrl)
@@ -342,7 +346,7 @@ namespace Microsoft.Sarif.Viewer
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
             Directory.CreateDirectory(destinationDirectory);
 
-            if (!_fileSystem.FileExists(destinationFile))
+            if (!this._fileSystem.FileExists(destinationFile))
             {
                 using (var client = new WebClient())
                 {
@@ -378,7 +382,7 @@ namespace Microsoft.Sarif.Viewer
                     pathFromLogFile = new Uri(dataCache.OriginalUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
                 }
 
-                if (_fileSystem.FileExists(pathFromLogFile))
+                if (this._fileSystem.FileExists(pathFromLogFile))
                 {
                     return pathFromLogFile;
                 }
@@ -398,13 +402,13 @@ namespace Microsoft.Sarif.Viewer
                     remapped = Path.Combine(remapping.Item2, pathFromLogFile);
                 }
 
-                if (_fileSystem.FileExists(remapped))
+                if (this._fileSystem.FileExists(remapped))
                 {
                     return remapped;
                 }
             }
 
-            string resolvedPath = _promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
+            string resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
             if (resolvedPath == null)
             {
                 return pathFromLogFile;
@@ -475,7 +479,7 @@ namespace Microsoft.Sarif.Viewer
                 Title = $"Locate missing file: {pathFromLogFile}",
                 InitialDirectory = sarifErrorListItem != null ? Path.GetDirectoryName(sarifErrorListItem.LogFilePath) : null,
                 Filter = $"{fileName}|{fileName}",
-                RestoreDirectory = true
+                RestoreDirectory = true,
             };
 
             try
@@ -528,9 +532,9 @@ namespace Microsoft.Sarif.Viewer
             // User is closing the solution (or VS), so remove temporary directory.
             try
             {
-                if (Directory.Exists(TemporaryFilePath))
+                if (Directory.Exists(this.temporaryFilePath))
                 {
-                    var dir = new DirectoryInfo(TemporaryFilePath) { Attributes = FileAttributes.Normal };
+                    var dir = new DirectoryInfo(this.temporaryFilePath) { Attributes = FileAttributes.Normal };
 
                     foreach (FileSystemInfo info in dir.GetFileSystemInfos("*", SearchOption.AllDirectories))
                     {
@@ -542,6 +546,7 @@ namespace Microsoft.Sarif.Viewer
                     dir.Delete(true);
                 }
             }
+
             // Delete failed, no harm in leaving it this way and continuing
             catch (UnauthorizedAccessException) { }
             catch (IOException) { }
@@ -551,7 +556,7 @@ namespace Microsoft.Sarif.Viewer
         internal Tuple<string, string>[] GetRemappedPathPrefixes()
         {
             // Unit tests will only create one cache.
-            return RunIndexToRunDataCache.Values.First().RemappedPathPrefixes.ToArray();
+            return this.RunIndexToRunDataCache.Values.First().RemappedPathPrefixes.ToArray();
         }
     }
 }

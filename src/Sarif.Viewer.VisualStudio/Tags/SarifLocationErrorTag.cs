@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     internal class SarifLocationErrorTag : SarifLocationTagBase, IErrorTag
     {
         /// <summary>
-        /// Initialize a new instance of <see cref="SarifLocationErrorTag"/>.
+        /// Initializes a new instance of the <see cref="SarifLocationErrorTag"/> class.
         /// </summary>
         /// <param name="persistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         public string ErrorType { get; }
 
         /// <summary>
-        /// The content to use when displaying a tool tip for this error.
+        /// Gets the content to use when displaying a tool tip for this error.
         /// </summary>
         /// <remarks>
         /// This may be null.

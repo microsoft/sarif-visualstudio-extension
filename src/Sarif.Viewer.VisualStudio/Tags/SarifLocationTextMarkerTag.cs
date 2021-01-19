@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
 
@@ -19,13 +19,14 @@ namespace Microsoft.Sarif.Viewer.Tags
         private readonly string nonHighlightedTextMarkerTagType;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="SarifLocationTextMarkerTag"/> class.
+        /// </summary>
         /// <param name="persistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="resultId">the result ID associated with this tag.</param>
         /// <param name="nonHighlightedTextMarkerTagType">The text marker tag to display for this tag when it is not highlighted.</param>
         /// <param name="highlightedTextMarkerTagType">The text marker tag to display for this tag when it is highlighted.</param>
         /// <param name="context">Gets the data context for this tag.</param>
-        /// </summary>
         public SarifLocationTextMarkerTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string nonHighlightedTextMarkerTagType, string highlightedTextMarkerTagType, object context)
             : base(persistentSpan: persistentSpan, runIndex: runIndex, resultId: resultId, context: context)
         {
@@ -34,17 +35,12 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.nonHighlightedTextMarkerTagType = nonHighlightedTextMarkerTagType;
         }
 
-        #region IErrorTag
         /// <inheritdoc/>
         public string Type => this.currentTextMarkerTagType;
-        #endregion IErrorTag
 
-        #region INotifyPropertyChanged
         /// <inheritdoc/>
         public event PropertyChangedEventHandler PropertyChanged;
-        #endregion INotifyPropertyChanged
 
-        #region ISarifLocationTagCaretNotify
         /// <inheritdoc/>
         public void OnCaretEntered()
         {
@@ -56,7 +52,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.UpdateTextMarkerTagType(this.nonHighlightedTextMarkerTagType);
         }
-        #endregion
 
         private void UpdateTextMarkerTagType(string newTextMarkerTagType)
         {

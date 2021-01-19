@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.ComponentModel;
@@ -19,9 +19,9 @@ namespace Microsoft.Sarif.Viewer
 
         public CodeLocationObject(int resultId, int runIndex)
         {
-            ResultId = resultId;
-            RunIndex = runIndex;
-            TypeDescriptor = new CodeLocationObjectTypeDescriptor(this);
+            this.ResultId = resultId;
+            this.RunIndex = runIndex;
+            this.TypeDescriptor = new CodeLocationObjectTypeDescriptor(this);
         }
 
         /// <summary>
@@ -38,12 +38,12 @@ namespace Microsoft.Sarif.Viewer
         {
             get
             {
-                if (_lineMarker == null)
+                if (this._lineMarker == null)
                 {
                     this.RecreateLineMarker();
                 }
 
-                return _lineMarker;
+                return this._lineMarker;
             }
         }
 
@@ -53,27 +53,29 @@ namespace Microsoft.Sarif.Viewer
             {
                 return this._region;
             }
+
             set
             {
                 if (value != this._region)
                 {
-                    _region = value;
+                    this._region = value;
 
                     if (this._lineMarker != null)
                     {
                         this.RecreateLineMarker();
                     }
 
-                    NotifyPropertyChanged();
-                    NotifyPropertyChanged(nameof(this.RegionDisplayString));
+                    this.NotifyPropertyChanged();
+                    this.NotifyPropertyChanged(nameof(this.RegionDisplayString));
                 }
             }
         }
 
         public string RegionDisplayString =>
+
             // If startLine is zero, we haven't populated the region yet.
             // Since startLine is always part of this string, we avoid invalid strings like "(0)".
-            Region?.StartLine > 0 ? Region.FormatForVisualStudio() : null;
+            this.Region?.StartLine > 0 ? this.Region.FormatForVisualStudio() : null;
 
         public virtual string FilePath
         {
@@ -81,6 +83,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 return this._filePath;
             }
+
             set
             {
                 if (!string.Equals(value, this._filePath))
@@ -92,7 +95,7 @@ namespace Microsoft.Sarif.Viewer
                         this.RecreateLineMarker();
                     }
 
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -103,6 +106,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 return this._uriBaseId;
             }
+
             set
             {
                 if (!string.Equals(value, this._uriBaseId))
@@ -114,7 +118,7 @@ namespace Microsoft.Sarif.Viewer
                         this.RecreateLineMarker();
                     }
 
-                    NotifyPropertyChanged();
+                    this.NotifyPropertyChanged();
                 }
             }
         }
@@ -146,9 +150,9 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            if (LineMarker != null)
+            if (this.LineMarker != null)
             {
-                return LineMarker.NavigateTo(usePreviewPane, moveFocusToCaretLocation);
+                return this.LineMarker.NavigateTo(usePreviewPane, moveFocusToCaretLocation);
             }
             else
             {
@@ -189,20 +193,20 @@ namespace Microsoft.Sarif.Viewer
             // Not all locations have regions. Don't try to mark the locations that don't.
             // PROBLEM: This means we can't double-click to open a file containing a result
             // without a region.
-            if (Region != null)
+            if (this.Region != null)
             {
-                _lineMarker = new ResultTextMarker(
-                    runIndex: RunIndex,
-                    resultId: ResultId,
-                    uriBaseId: UriBaseId,
-                    region: Region,
-                    fullFilePath: FilePath,
-                    nonHghlightedColor: DefaultSourceHighlightColor,
-                    highlightedColor: SelectedSourceHighlightColor,
+                this._lineMarker = new ResultTextMarker(
+                    runIndex: this.RunIndex,
+                    resultId: this.ResultId,
+                    uriBaseId: this.UriBaseId,
+                    region: this.Region,
+                    fullFilePath: this.FilePath,
+                    nonHghlightedColor: this.DefaultSourceHighlightColor,
+                    highlightedColor: this.SelectedSourceHighlightColor,
                     context: this);
             }
 
-            NotifyPropertyChanged(nameof(this.LineMarker));
+            this.NotifyPropertyChanged(nameof(this.LineMarker));
         }
     }
 }

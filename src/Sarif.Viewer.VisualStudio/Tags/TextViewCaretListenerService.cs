@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -16,16 +16,16 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// This service provides consumers the ability to listen to the Visual Studio caret entering and leaving
     /// tags such as SARIF result error tags and call tree node tags.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Generic type of tag.</typeparam>
     [Export(typeof(ITextViewCaretListenerService<>))]
     internal class TextViewCaretListenerService<T> : ITextViewCaretListenerService<T>, IDisposable
         where T : ITag
     {
         /// <summary>
-        /// Protects access to the <see cref="ExistingListeners"/> list.
+        /// Protects access to the <see cref="existingListeners"/> list.
         /// </summary>
-        private readonly ReaderWriterLockSlimWrapper ExistingListenersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
-        private readonly Dictionary<ITextView, TextViewCaretListener<T>> ExistingListeners = new Dictionary<ITextView, TextViewCaretListener<T>>();
+        private readonly ReaderWriterLockSlimWrapper existingListenersLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
+        private readonly Dictionary<ITextView, TextViewCaretListener<T>> existingListeners = new Dictionary<ITextView, TextViewCaretListener<T>>();
 
         private bool isDisposed;
 
@@ -38,17 +38,17 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public void CreateListener(ITextView textView, ITagger<T> tagger)
         {
-            using (this.ExistingListenersLock.EnterUpgradeableReadLock())
+            using (this.existingListenersLock.EnterUpgradeableReadLock())
             {
-                if (this.ExistingListeners.ContainsKey(textView))
+                if (this.existingListeners.ContainsKey(textView))
                 {
                     return;
                 }
 
-                using (ExistingListenersLock.EnterWriteLock())
+                using (this.existingListenersLock.EnterWriteLock())
                 {
                     var newTagger = new TextViewCaretListener<T>(textView, tagger);
-                    this.ExistingListeners.Add(textView, newTagger);
+                    this.existingListeners.Add(textView, newTagger);
 
                     newTagger.CaretEnteredTag += this.Tagger_CaretEnteredTag;
                     newTagger.CaretLeftTag += this.Tagger_CaretLeftTag;
@@ -72,11 +72,11 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (sender is ITextView textView)
             {
                 textView.Closed -= this.TextView_Closed;
-                using (this.ExistingListenersLock.EnterWriteLock())
+                using (this.existingListenersLock.EnterWriteLock())
                 {
-                    if (this.ExistingListeners.TryGetValue(textView, out TextViewCaretListener<T> listener))
+                    if (this.existingListeners.TryGetValue(textView, out TextViewCaretListener<T> listener))
                     {
-                        this.ExistingListeners.Remove(textView);
+                        this.existingListeners.Remove(textView);
 
                         listener.CaretEnteredTag -= this.Tagger_CaretEnteredTag;
                         listener.CaretLeftTag -= this.Tagger_CaretLeftTag;
@@ -94,25 +94,25 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             this.isDisposed = true;
 
-            using (ExistingListenersLock.EnterWriteLock())
+            using (this.existingListenersLock.EnterWriteLock())
             {
-                foreach (KeyValuePair<ITextView, TextViewCaretListener<T>> textViewAndTagger in this.ExistingListeners)
+                foreach (KeyValuePair<ITextView, TextViewCaretListener<T>> textViewAndTagger in this.existingListeners)
                 {
                     textViewAndTagger.Value.CaretEnteredTag -= this.Tagger_CaretEnteredTag;
                     textViewAndTagger.Value.CaretLeftTag -= this.Tagger_CaretLeftTag;
                     textViewAndTagger.Key.Closed -= this.TextView_Closed;
                 }
 
-                this.ExistingListeners.Clear();
+                this.existingListeners.Clear();
             }
 
-            this.ExistingListenersLock.InnerLock.Dispose();
+            this.existingListenersLock.InnerLock.Dispose();
         }
 
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

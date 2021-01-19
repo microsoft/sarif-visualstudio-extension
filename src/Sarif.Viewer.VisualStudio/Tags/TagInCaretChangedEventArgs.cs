@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 
@@ -12,7 +12,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     internal class TagInCaretChangedEventArgs : EventArgs
     {
         /// <summary>
-        /// Creates an instance of <see cref="TagInCaretChangedEventArgs"/>.
+        /// Initializes a new instance of the <see cref="TagInCaretChangedEventArgs"/> class.
         /// </summary>
         /// <param name="tag">The <see cref="ISarifLocationTag"/> that the caret has either entered or left.</param>
         public TagInCaretChangedEventArgs(ISarifLocationTag tag)
