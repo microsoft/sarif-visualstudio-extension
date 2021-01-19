@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
         {
             var root = new CallTreeNode(resultId: resultId, runIndex: runIndex)
             {
-                Children = new List<CallTreeNode>()
+                Children = new List<CallTreeNode>(),
             };
 
             ThreadFlow threadFlow = codeFlow.ThreadFlows?[0];
@@ -43,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                     var newNode = new CallTreeNode(resultId: resultId, runIndex: runIndex)
                     {
                         Location = location,
-                        Children = new List<CallTreeNode>()
+                        Children = new List<CallTreeNode>(),
                     };
 
                     if (location.NestingLevel > lastNestingLevel)

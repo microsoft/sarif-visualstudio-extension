@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// Handles listening to caret and layout updates to the text view in order
     /// to send notifications about the caret entering a tag.
     /// </summary>
+    /// <typeparam name="T">Generic type of tag.</typeparam>
     internal class TextViewCaretListener<T>
         where T : ITag
     {
@@ -28,11 +29,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.tagger = tagger;
             this.textView = textView;
-            this.textView.Closed += TextView_Closed;
-            this.textView.LayoutChanged += TextView_LayoutChanged;
-            this.textView.Caret.PositionChanged += Caret_PositionChanged;
-            this.textView.GotAggregateFocus += TextView_GotAggregateFocus;
-            this.textView.LostAggregateFocus += TextView_LostAggregateFocus;
+            this.textView.Closed += this.TextView_Closed;
+            this.textView.LayoutChanged += this.TextView_LayoutChanged;
+            this.textView.Caret.PositionChanged += this.Caret_PositionChanged;
+            this.textView.GotAggregateFocus += this.TextView_GotAggregateFocus;
+            this.textView.LostAggregateFocus += this.TextView_LostAggregateFocus;
 
             // Send an update of the initial caret position for this text view.
             // This allows the SARIF explorer to properly receive the caret
@@ -71,7 +72,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // If a new snapshot wasn't generated, then skip this layout
             if (e.NewViewState.EditSnapshot != e.OldViewState.EditSnapshot)
             {
-                UpdateAtCaretPosition(textView.Caret.Position);
+                this.UpdateAtCaretPosition(this.textView.Caret.Position);
             }
         }
 
@@ -82,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 return;
             }
 
-            UpdateAtCaretPosition(e.NewPosition);
+            this.UpdateAtCaretPosition(e.NewPosition);
         }
 
         private void TextView_GotAggregateFocus(object sender, EventArgs e)

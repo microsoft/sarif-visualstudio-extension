@@ -21,12 +21,12 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
         public static void SendFeedbackTelemetryEvent(FeedbackModel feedback)
         {
-            Dictionary<string, string> properties = getProperties(feedback);
+            Dictionary<string, string> properties = GetProperties(feedback);
 
             TelemetryProvider.TrackEvent<FeedbackTelemetryEvent>(properties, nameof(FeedbackTelemetryEvent));
         }
 
-        private static Dictionary<string, string> getProperties(FeedbackModel feedback)
+        private static Dictionary<string, string> GetProperties(FeedbackModel feedback)
         {
             var properties = new Dictionary<string, string>
             {
@@ -34,7 +34,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 { ToolName, feedback.ToolName },
                 { ToolVersion, feedback.ToolVersion },
                 { RuleId, feedback.RuleId },
-                { Comments, feedback.Comment }
+                { Comments, feedback.Comment },
             };
 
             if (feedback.SendSnippet)

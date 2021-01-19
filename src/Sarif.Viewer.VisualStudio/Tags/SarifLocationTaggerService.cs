@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             IEnumerable<ISarifLocationTagger> taggers;
             using (this.sarifTaggersLock.EnterReadLock())
             {
-                taggers = sarifTaggers.ToList();
+                taggers = this.sarifTaggers.ToList();
             }
 
             if (textBuffer != null)
@@ -94,7 +94,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

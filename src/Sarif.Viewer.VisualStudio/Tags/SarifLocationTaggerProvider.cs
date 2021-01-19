@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.ComponentModel.Composition;
@@ -50,7 +50,8 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Note that Visual Studio's tagger aggregation expects and correctly handles null
         /// if a tagger provider does not want to provide tags.
         /// </remarks>
-        public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer textBuffer) where T : ITag
+        public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer textBuffer)
+            where T : ITag
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 

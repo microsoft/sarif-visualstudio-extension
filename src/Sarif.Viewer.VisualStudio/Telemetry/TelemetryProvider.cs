@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         private static readonly ReaderWriterLockSlimWrapper s_initializeLock = new ReaderWriterLockSlimWrapper(new ReaderWriterLockSlim());
 
         /// <summary>
-        /// Initializes the static instance of the TelemetryProvider.
+        /// Gets the static instance of the TelemetryProvider.
         /// </summary>
         private static TelemetryClient TelemetryClient
         {
@@ -51,18 +51,20 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// <summary>
         /// Sends event with the specified named data properties.
         /// </summary>
-        /// <param name="eventType">The name of the event.</param>
+        /// <param name="eventName">The name of the event.</param>
         /// <typeparam name="T">The type that will be used as the enclosing name space for the type.</typeparam>
-        public static void TrackEvent<T>([CallerMemberName] string eventName = null) where T : class
+        public static void TrackEvent<T>([CallerMemberName] string eventName = null)
+            where T : class
             => TrackEvent(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeof(T).FullName, eventName), properties: null);
 
         /// <summary>
         /// Sends event with the specified named data properties.
         /// </summary>
-        /// <param name="eventType">The name of the event.</param>
         /// <param name="properties">An dictionary of properties.</param>
+        /// <param name="eventName">The name of the event.</param>
         /// <typeparam name="T">The type that will be used as the enclosing name space for the type.</typeparam>
-        public static void TrackEvent<T>(Dictionary<string, string> properties, [CallerMemberName] string eventName = null) where T : class
+        public static void TrackEvent<T>(Dictionary<string, string> properties, [CallerMemberName] string eventName = null)
+            where T : class
             => TrackEvent(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeof(T).FullName, eventName), properties);
 
         private static void TrackEvent(string eventName, Dictionary<string, string> properties)
@@ -78,6 +80,11 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         [Export(typeof(TelemetryProviderService))]
         private class TelemetryProviderService : IDisposable
         {
+            /// <summary>
+            /// Gets the telemetry client.
+            /// </summary>
+            public TelemetryClient TelemetryClient;
+
             private readonly TelemetryConfiguration telemetryConfiguration;
 
             public TelemetryProviderService()
@@ -85,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 string path = Assembly.GetExecutingAssembly().Location;
                 var configMap = new ExeConfigurationFileMap()
                 {
-                    ExeConfigFilename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "App.config")
+                    ExeConfigFilename = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "App.config"),
                 };
 
                 Configuration assemblyConfiguration = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
@@ -98,10 +105,10 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
                 this.telemetryConfiguration = new TelemetryConfiguration()
                 {
-                    InstrumentationKey = telemetryKey
+                    InstrumentationKey = telemetryKey,
                 };
 
-                this.TelemetryClient = new TelemetryClient(telemetryConfiguration);
+                this.TelemetryClient = new TelemetryClient(this.telemetryConfiguration);
 
                 // When this service is constructed, this indicates that "some" piece
                 // of code in the extension has been loaded and fired an event.
@@ -115,16 +122,13 @@ namespace Microsoft.Sarif.Viewer.Telemetry
                 // end up being a recursive MEF composition call.
                 MethodInfo extensionLoadedMethodInfo = typeof(Events).GetMethod(nameof(Events.ExtensionLoaded));
                 this.TelemetryClient.TrackEvent(
-                    string.Format(CultureInfo.InvariantCulture, "{0}.{1}",
-                    extensionLoadedMethodInfo.DeclaringType.FullName, extensionLoadedMethodInfo.Name));
+                    string.Format(CultureInfo.InvariantCulture,
+                        "{0}.{1}",
+                        extensionLoadedMethodInfo.DeclaringType.FullName,
+                        extensionLoadedMethodInfo.Name));
             }
 
-            /// <summary>
-            /// Gets the telemetry client.
-            /// </summary>
-            public TelemetryClient TelemetryClient;
-
-            /// </inheritdoc>
+            /// <inheritdoc/>
             public void Dispose()
             {
                 this.TelemetryClient.Flush();

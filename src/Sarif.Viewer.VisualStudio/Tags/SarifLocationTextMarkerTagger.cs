@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -22,16 +22,14 @@ namespace Microsoft.Sarif.Viewer.Tags
     /// </remarks>
     internal class SarifLocationTextMarkerTagger : ITagger<ITextMarkerTag>, ISarifLocationTagger, IDisposable
     {
-        private bool isDisposed;
-
         /// <summary>
         /// The file path associated with the <see cref="ITextBuffer"/> given in the constructor.
         /// </summary>
         private readonly string filePath;
-
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
 
+        private bool isDisposed;
         private List<ISarifLocationTag> currentTags;
         private bool tagsDirty = true;
 
@@ -49,7 +47,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 throw new ArgumentException("Always expect to be able to get file name from text buffer.", nameof(textBuffer));
             }
 
-            TextBuffer = textBuffer;
+            this.TextBuffer = textBuffer;
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
 
@@ -63,10 +61,14 @@ namespace Microsoft.Sarif.Viewer.Tags
             textViewCaretListenerService.CreateListener(textView, this);
         }
 
-        #region ITagger
-
         /// <inheritdoc/>
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+
+        /// <inheritdoc/>
+        public event EventHandler Disposed;
+
+        /// <inheritdoc/>
+        public ITextBuffer TextBuffer { get; }
 
         /// <inheritdoc/>
         public IEnumerable<ITagSpan<ITextMarkerTag>> GetTags(NormalizedSnapshotSpanCollection spans)
@@ -87,7 +89,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     Values.
                     SelectMany(runDataCache => runDataCache.SarifErrors).
                     Where(sarifListItem => sarifListItem.ResultId == currentlySelectedItem.ResultId && string.Equals(this.filePath, sarifListItem.FileName, StringComparison.OrdinalIgnoreCase)).
-                    SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
+                    SelectMany(sarifListItem => sarifListItem.GetTags<ITextMarkerTag>(this.TextBuffer, this.persistentSpanFactory, includeChildTags: true, includeResultTag: true))).
                     ToList();
 
                 // We need to subscribe to property change events from the provided tags
@@ -115,31 +117,17 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        #endregion ITagger
-
-        #region ISarifLocationTagger
-
-        /// <inheritdoc/>
-        public event EventHandler Disposed;
-
-        /// <inheritdoc/>
-        public ITextBuffer TextBuffer { get; }
-
         public void RefreshTags()
         {
             this.tagsDirty = true;
 
-            ITextSnapshot textSnapshot = TextBuffer.CurrentSnapshot;
+            ITextSnapshot textSnapshot = this.TextBuffer.CurrentSnapshot;
             this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(textSnapshot, 0, textSnapshot.Length)));
         }
 
-        #endregion ISarifLocationTagger
-
-        #region IDisposable
-
         public void Dispose()
         {
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -159,8 +147,6 @@ namespace Microsoft.Sarif.Viewer.Tags
                 this.Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
-
-        #endregion IDisposable
 
         private void SubscribeToTagEvents()
         {
@@ -198,7 +184,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (sender is ISarifLocationTag tag && tag.PersistentSpan.IsDocumentOpen)
             {
-                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(TextBuffer.CurrentSnapshot)));
+                this.TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(tag.PersistentSpan.Span.GetSpan(this.TextBuffer.CurrentSnapshot)));
             }
         }
 

@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// The taggers known to this service will be asked to refresh their tags when <see cref="ISarifLocationTaggerService.RefreshTags"/>
         /// is called by consumers of the service.
         /// </remarks>
-        /// <param name="tagger">A new instance of <see cref="ISarifLocationTagger"/></param>.
+        /// <param name="tagger">A new instance of <see cref="ISarifLocationTagger"/>.</param>.
         void AddTagger(ISarifLocationTagger tagger);
     }
 }

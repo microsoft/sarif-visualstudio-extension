@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 
@@ -58,14 +58,14 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                     Id = "CA1823",
                     Name = "Avoid unused private fields",
                     HelpUri = "http://aka.ms/analysis/ca1823",
-                    DefaultFailureLevel = FailureLevel.None
+                    DefaultFailureLevel = FailureLevel.None,
                 },
 
                 Invocation = new InvocationModel()
                 {
                     CommandLine = @"""C:\Temp\Foo.exe"" target.file /o out.sarif",
                     FileName = @"C:\Temp\Foo.exe",
-                }
+                },
             };
 
             viewModel.Locations.Add(new LocationModel(resultId: 0, runIndex: 0)
@@ -103,7 +103,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 {
                     new CallTreeNode(resultId: 0, runIndex: 0)
                     {
-                        Location = new ThreadFlowLocation()
+                        Location = new ThreadFlowLocation(),
                     },
 
                     new CallTreeNode(resultId: 0, runIndex: 0)
@@ -113,10 +113,10 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                         {
                             new CallTreeNode(resultId: 0, runIndex: 0)
                             {
-                                Location = new ThreadFlowLocation()
-                            }
-                        }
-                    }
+                                Location = new ThreadFlowLocation(),
+                            },
+                        },
+                    },
                 }));
 
             var stack1 = new StackCollection("Stack A1")
@@ -146,7 +146,7 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                     Line = 1,
                     Column = 1,
                     FullyQualifiedLogicalName = "Your.PIA.External()",
-                }
+                },
             };
             viewModel.Stacks.Add(stack1);
 
