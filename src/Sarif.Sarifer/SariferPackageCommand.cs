@@ -37,6 +37,16 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             return targetFiles;
         }
 
+        public static List<string> GetFiles(SelectedItem selectedItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var targetFiles = new List<string>();
+            GetFilesRecursive(targetFiles, selectedItem.ProjectItem);
+
+            return targetFiles;
+        }
+
         private static void GetFilesRecursive(List<string> targetFiles, ProjectItem projectItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -50,13 +60,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
             else
             {
-                foreach (Property property in projectItem.Properties)
+                string localPath = projectItem.Properties.Item("LocalPath").Value.ToString();
+                if (!string.IsNullOrWhiteSpace(localPath))
                 {
-                    if (property.Name == "LocalPath")
-                    {
-                        targetFiles.Add(property.Value.ToString());
-                        break;
-                    }
+                    targetFiles.Add(localPath);
                 }
             }
         }
@@ -65,12 +72,16 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             var analyzeProjectCommandId = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject);
             var analyzeSolutionCommandId = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeSolution);
+            var analyzeFileCommandId = new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeFile);
 
             MenuCommand analyzeProjectCommand = menuCommandService.FindCommand(analyzeProjectCommandId);
             analyzeProjectCommand.Enabled = enabled;
 
             MenuCommand analyzeSolutionCommand = menuCommandService.FindCommand(analyzeSolutionCommandId);
             analyzeSolutionCommand.Enabled = enabled;
+
+            MenuCommand analyzeFileCommand = menuCommandService.FindCommand(analyzeFileCommandId);
+            analyzeFileCommand.Enabled = enabled;
         }
     }
 }
