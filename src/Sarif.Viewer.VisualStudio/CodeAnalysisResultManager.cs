@@ -103,7 +103,6 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Unregister this provider from VS.
         /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", Justification = "By design")]
         internal void Unregister()
         {
             ThreadHelper.ThrowIfNotOnUIThread();

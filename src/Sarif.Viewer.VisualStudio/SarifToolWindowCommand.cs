@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.ComponentModel.Design;
@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
-    /// Command handler
+    /// Command handler.
     /// </summary>
     internal sealed class SarifToolWindowCommand
     {
@@ -29,12 +29,12 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         private readonly Package package;
 
-        public const string guidSarifViewerPackageCmdSet = "e6de64e8-7731-4ffd-8633-e1cbf03609ad";
+        public const string GuidSarifViewerPackageCmdSet = "e6de64e8-7731-4ffd-8633-e1cbf03609ad";
         private SarifExplorerWindow window;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifToolWindowCommand"/> class.
-        /// Adds our command handlers for menu (commands must exist in the command table file)
+        /// Adds our command handlers for menu (commands must exist in the command table file).
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         private SarifToolWindowCommand(Package package)
@@ -85,16 +85,17 @@ namespace Microsoft.Sarif.Viewer
         private void ShowToolWindow(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
             // The last flag is set to true so that if the tool window does not exists it will be created.
-            window = this.package.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
-            if ((window == null) || (window.Frame == null))
+            this.window = this.package.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
+            if ((this.window == null) || (this.window.Frame == null))
             {
                 throw new NotSupportedException("Cannot create tool window");
             }
 
-            var windowFrame = (IVsWindowFrame)window.Frame;
+            var windowFrame = (IVsWindowFrame)this.window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
     }

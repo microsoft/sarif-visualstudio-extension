@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.ComponentModel;
@@ -19,25 +19,27 @@ namespace Microsoft.Sarif.Viewer
         internal KeyValuePairPropertyDescriptor(string key, string value)
             : base(key, null)
         {
-            _key = key;
-            _value = value;
+            this._key = key;
+            this._value = value;
         }
 
-        public override Type PropertyType => _key.GetType();
-
-        public override void SetValue(object component, object value)
-        {
-            _value = value.ToString();
-        }
-
-        public override object GetValue(object component)
-        {
-            return _value;
-        }
+        public override Type PropertyType => this._key.GetType();
 
         public override bool IsReadOnly => true;
 
         public override Type ComponentType => null;
+
+        public override string Category => "Properties";
+
+        public override void SetValue(object component, object value)
+        {
+            this._value = value.ToString();
+        }
+
+        public override object GetValue(object component)
+        {
+            return this._value;
+        }
 
         public override bool CanResetValue(object component)
         {
@@ -52,7 +54,5 @@ namespace Microsoft.Sarif.Viewer
         {
             return false;
         }
-
-        public override string Category => "Properties";
     }
 }
