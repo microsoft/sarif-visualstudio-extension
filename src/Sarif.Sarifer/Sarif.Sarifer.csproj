@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalyzeFileCommand.cs" />
+    <Compile Include="AnalyzeMenuCommandBase.cs" />
     <Compile Include="BackgroundAnalysisService.cs" />
     <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
     <Compile Include="BackgroundAnalyzerBase.cs" />
