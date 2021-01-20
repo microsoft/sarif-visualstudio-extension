@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
-    /// Command handler
+    /// Command handler.
     /// </summary>
     internal sealed class OpenLogFileCommands
     {
@@ -56,7 +56,6 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         internal const string FilterResourceNameSuffix = "Filter";
 
-
         /// <summary>
         /// The name of the setting used to store the user's last selected open log format.
         /// </summary>
@@ -64,7 +63,7 @@ namespace Microsoft.Sarif.Viewer
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OpenLogFileCommands"/> class.
-        /// Adds our command handlers for menu (commands must exist in the command table file)
+        /// Adds our command handlers for menu (commands must exist in the command table file).
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         private OpenLogFileCommands(Package package)
@@ -177,7 +176,6 @@ namespace Microsoft.Sarif.Viewer
                     fieldInfoToOpenFileDialogFilterDisplayString.Add(new KeyValuePair<FieldInfo, string>(fieldInfo, openFileDialogFilterString));
                 }
 
-
                 // Sort the filters by their display strings so the user has a nice alphabetized list with import SARIF at the top.
                 KeyValuePair<FieldInfo, string> noneFieldInfo = fieldInfoToOpenFileDialogFilterDisplayString.
                     Single(kvp => kvp.Key.Name.Equals(nameof(ToolFormat.None), StringComparison.OrdinalIgnoreCase));
@@ -194,7 +192,7 @@ namespace Microsoft.Sarif.Viewer
                     Title = Resources.ImportLogOpenFileDialogTitle,
                     Filter = string.Join("|", orderedFilters.Select(kvp => kvp.Value)),
                     RestoreDirectory = true,
-                    Multiselect = false
+                    Multiselect = false,
                 };
 
                 if (!string.IsNullOrWhiteSpace(inputFile))
@@ -222,6 +220,7 @@ namespace Microsoft.Sarif.Viewer
                             filterIndex = currentIndex;
                             break;
                         }
+
                         currentIndex++;
                     }
 

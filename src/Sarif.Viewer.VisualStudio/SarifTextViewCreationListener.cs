@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.ComponentModel.Composition;
@@ -24,29 +24,20 @@ namespace Microsoft.Sarif.Viewer
     [Export(typeof(ITextViewCreationListener))]
     public class SarifTextViewCreationListener : ITextViewCreationListener
     {
-        #region Fields
 #pragma warning disable CS0649 // Filled in by MEF
 #pragma warning disable IDE0044 // Assigned by MEF
         [Import]
         private Lazy<IVsEditorAdaptersFactoryService> vsEditorAdaptersFactoryService;
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
-        #endregion
 
-        #region Constructors
         /// <summary>
+        /// Initializes a new instance of the <see cref="SarifTextViewCreationListener"/> class.
         /// Explicitly defined default constructor.
-        /// Initialize new instance of the EditorFactory object.
         /// </summary>
         public SarifTextViewCreationListener()
         {
         }
-
-        #endregion Constructors
-
-        #region Methods
-
-        #region ITextViewCreationListener Members
 
         public void TextViewCreated(ITextView textView)
         {
@@ -59,8 +50,6 @@ namespace Microsoft.Sarif.Viewer
                 ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
             }
         }
-
-        #endregion
 
         private void TextView_Closed(object sender, EventArgs e)
         {
@@ -100,7 +89,5 @@ namespace Microsoft.Sarif.Viewer
 
             return persistFile.GetCurFile(out fileName, out _) == VSConstants.S_OK;
         }
-
-        #endregion
     }
 }

@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Diagnostics;
@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.Shell;
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
-    /// Helper class for working with EnvDTE projects
+    /// Helper class for working with EnvDTE projects.
     /// </summary>
     internal static class ProjectHelper
     {
@@ -89,6 +89,7 @@ namespace Microsoft.Sarif.Viewer
                     }
                 }
             }
+
             return result;
         }
 
@@ -120,7 +121,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             Guid langGuid = GetProjectItemLanguage(projectItem);
-            bool supportedForAsp = (langGuid == CSHARP_PROJECTITEM_GUID || langGuid == VB_PROJECTITEM_GUID || langGuid == Guid.Empty);
+            bool supportedForAsp = langGuid == CSHARP_PROJECTITEM_GUID || langGuid == VB_PROJECTITEM_GUID || langGuid == Guid.Empty;
             return supportedForAsp;
         }
 
@@ -158,7 +159,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 try
                 {
-                    // When accessing Project DTE, it might always blow up, for example when project failed to load, 
+                    // When accessing Project DTE, it might always blow up, for example when project failed to load,
                     // it is represented by an object which will throw NotImplemented on many DTE calls, etc
                     projectFullPath = project.FullName;
                 }
