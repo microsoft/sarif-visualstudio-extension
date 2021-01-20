@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -45,10 +45,11 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the requested service of type S from the service provider.
         /// </summary>
-        /// <typeparam name="S">The service interface to retrieve</typeparam>
-        /// <param name="provider">The IServiceProvider implementation</param>
-        /// <returns>A reference to the service</returns>
-        internal static S GetService<S>(IServiceProvider provider) where S : class
+        /// <typeparam name="S">The service interface to retrieve.</typeparam>
+        /// <param name="provider">The IServiceProvider implementation.</param>
+        /// <returns>A reference to the service.</returns>
+        internal static S GetService<S>(IServiceProvider provider)
+            where S : class
         {
             return GetService<S, S>(provider);
         }
@@ -56,12 +57,14 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the requested service of type S and cast to type T from the service provider.
         /// </summary>
-        /// <typeparam name="S">The service to retrieve</typeparam>
-        /// <typeparam name="T">The interface to cast to</typeparam>
-        /// <param name="provider">The IServiceProvider implementation</param>
-        /// <returns>A reference to the service</returns>
-        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        internal static T GetService<S, T>(IServiceProvider provider) where S : class where T : class
+        /// <typeparam name="S">The service to retrieve.</typeparam>
+        /// <typeparam name="T">The interface to cast to.</typeparam>
+        /// <param name="provider">The IServiceProvider implementation.</param>
+        /// <returns>A reference to the service.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "By design")]
+        internal static T GetService<S, T>(IServiceProvider provider)
+            where S : class
+            where T : class
         {
             try
             {
@@ -80,8 +83,9 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <typeparam name="T">The type of the deserialized object.</typeparam>
         /// <param name="storageFileName">The isolated storage file.</param>
-        /// <returns></returns>
-        internal static T GetStoredObject<T>(string storageFileName) where T : class
+        /// <returns>Object deserialized from isolated storage file.</returns>
+        internal static T GetStoredObject<T>(string storageFileName)
+            where T : class
         {
             var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
 
@@ -119,10 +123,10 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Open the document associated with this task item
+        /// Open the document associated with this task item.
         /// </summary>
-        /// <returns>The window frame of the opened document</returns>
-        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults")]
+        /// <returns>The window frame of the opened document.</returns>
+        [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", Justification = "By design")]
         internal static IVsWindowFrame OpenDocument(IServiceProvider provider, string file, bool usePreviewPane)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -132,7 +136,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            // We should not throw exceptions if we cannot find the file 
+            // We should not throw exceptions if we cannot find the file
             if (!File.Exists(file))
             {
                 return null;
@@ -172,7 +176,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Open the file using the current document state scope
+        /// Open the file using the current document state scope.
         /// </summary>
         private static IVsWindowFrame OpenDocumentInCurrentScope(IServiceProvider provider, string file)
         {
@@ -188,6 +192,7 @@ namespace Microsoft.Sarif.Viewer
 
             IVsWindowFrame windowFrame;
             Guid textViewGuid = VSConstants.LOGVIEWID_TextView;
+
             // Unused variables
             IVsUIHierarchy uiHierarchy;
             Microsoft.VisualStudio.OLE.Interop.IServiceProvider serviceProvider;
@@ -198,8 +203,9 @@ namespace Microsoft.Sarif.Viewer
                 throw Marshal.GetExceptionForHR(hr);
             }
 
-            if (cookieDocLock == 0) // Document was not open earlier, and should be open now.
+            if (cookieDocLock == 0)
             {
+                // Document was not open earlier, and should be open now.
                 cookieDocLock = FindDocument(runningDocTable, file);
             }
 
@@ -211,13 +217,14 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Find the document and return its cookie to the lock to the document
+        /// Find the document and return its cookie to the lock to the document.
         /// </summary>
-        /// <param name="runningDocTable">The object having a table of all running documents</param>
-        /// <returns>The cookie to the document lock</returns>
+        /// <param name="runningDocTable">The object having a table of all running documents.</param>
+        /// <returns>The cookie to the document lock.</returns>
         internal static uint FindDocument(IVsRunningDocumentTable runningDocTable, string file)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             // Unused variables
             IVsHierarchy hierarchy;
             uint itemId;
@@ -238,8 +245,9 @@ namespace Microsoft.Sarif.Viewer
                 throw Marshal.GetExceptionForHR(hr);
             }
 
-            if (cookieDocLock > 0) // Document is already open
+            if (cookieDocLock > 0)
             {
+                // Document is already open
                 uint rdtFlags;
 
                 // Unused variables
@@ -271,10 +279,10 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Helper method for getting a IWpfTextView from a IVsTextView object
+        /// Helper method for getting a IWpfTextView from a IVsTextView object.
         /// </summary>
-        /// <param name="textView"></param>
-        /// <returns></returns>
+        /// <param name="textView">a IWpfTextView object.</param>
+        /// <returns>If successfully gets IWpfTextView.</returns>
         public static bool TryGetWpfTextView(IVsTextView textView, out IWpfTextView wpfTextView)
         {
             wpfTextView = null;
@@ -416,7 +424,7 @@ namespace Microsoft.Sarif.Viewer
         private static readonly char[] s_directorySeparatorArray = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
         /// <summary>
-        /// Creates a relative path from one directory to another directory or file
+        /// Creates a relative path from one directory to another directory or file.
         /// </summary>
         /// <param name="fromDirectory">The directory that defines the start of the relative path.</param>
         /// <param name="toPath">The path that defines the endpoint of the relative path.</param>
@@ -485,12 +493,12 @@ namespace Microsoft.Sarif.Viewer
         /// Creates the shortest path with the greedy approach. That is, it makes the preference based on this order
         /// 1) If it's in the search paths, then just return the file name
         /// 2) If it shares the same common root with the relativePathBase, then it returns a relative path
-        /// 3) Returns the full path as given
+        /// 3) Returns the full path as given.
         /// </summary>
-        /// <param name="fullPath">The full path to the file</param>
-        /// <param name="searchPaths">The collection of search paths to use</param>
-        /// <param name="relativePathBase">The base path for constructing the relative paths</param>
-        /// <returns>The shortest path</returns>
+        /// <param name="fullPath">The full path to the file.</param>
+        /// <param name="searchPaths">The collection of search paths to use.</param>
+        /// <param name="relativePathBase">The base path for constructing the relative paths..</param>
+        /// <returns>The shortest path.</returns>
         internal static string MakeShortestPath(string fullPath, IEnumerable<string> searchPaths, string relativePathBase)
         {
             if (string.IsNullOrEmpty(fullPath))
@@ -521,12 +529,12 @@ namespace Microsoft.Sarif.Viewer
 
         /// <summary>
         /// This is the inverse of MakeShortestPath, it is taking a path, it may be full, relative, or just a file name, then
-        /// make a full path out of it
+        /// make a full path out of it.
         /// </summary>
-        /// <param name="fileName">The file, can be a full, relative, or just a file name</param>
-        /// <param name="searchPaths">The collection of search paths to use</param>
-        /// <param name="relativePathBase">The base path for resolving the path</param>
-        /// <returns>The full path</returns>
+        /// <param name="fileName">The file, can be a full, relative, or just a file name.</param>
+        /// <param name="searchPaths">The collection of search paths to use.</param>
+        /// <param name="relativePathBase">The base path for resolving the path.</param>
+        /// <returns>The full path.</returns>
         internal static string MakeFullPath(string fileName, IEnumerable<string> searchPaths, string relativePathBase)
         {
             // Simple case, if it's rooted, just return it
@@ -595,6 +603,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 inlines = GetMessageInlinesHelper(message, clickHandler);
             }
+
             return inlines;
         }
 
@@ -639,7 +648,7 @@ namespace Microsoft.Sarif.Viewer
                             var link = new XamlDoc.Hyperlink
                             {
                                 // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
-                                Tag = target
+                                Tag = target,
                             };
 
                             // Set the hyperlink text
@@ -674,7 +683,7 @@ namespace Microsoft.Sarif.Viewer
         /// Removes escape backslashes that were used to suppress embedded linking.
         /// </summary>
         /// <param name="s">The string to be processed.</param>
-        /// <returns></returns>
+        /// <returns>The string has been proccessed.</returns>
         internal static string UnescapeBrackets(string s)
         {
             return s.Replace(@"\[", "[").Replace(@"\]", "]");

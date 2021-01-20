@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -13,11 +13,11 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     public static class WeakEventHandlerManager
     {
-        ///<summary>
-        /// Invokes the handlers 
-        ///</summary>
-        ///<param name="sender"></param>
-        ///<param name="handlers"></param>
+        /// <summary>
+        /// Invokes the handlers.
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="handlers">Existing handler list. It will be created if null.</param>
         public static void CallWeakReferenceHandlers(object sender, List<WeakReference> handlers)
         {
             if (handlers != null)
@@ -27,7 +27,7 @@ namespace Microsoft.Sarif.Viewer
                 var callees = new EventHandler[handlers.Count];
                 int count = 0;
 
-                //Clean up handlers
+                // Clean up handlers
                 count = CleanupOldHandlers(handlers, callees, count);
 
                 // Call the handlers that we snapshotted
@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (eventHandler != null)
             {
-                ThreadHelper.JoinableTaskFactory.Run(async delegate
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     eventHandler(sender, EventArgs.Empty);
@@ -67,30 +67,31 @@ namespace Microsoft.Sarif.Viewer
                     count++;
                 }
             }
+
             return count;
         }
 
-        ///<summary>
+        /// <summary>
         /// Adds a handler to the supplied list in a weak way.
-        ///</summary>
-        ///<param name="handlers">Existing handler list.  It will be created if null.</param>
-        ///<param name="handler">Handler to add.</param>
-        ///<param name="defaultListSize">Default list size.</param>
+        /// </summary>
+        /// <param name="handlers">Existing handler list. It will be created if null.</param>
+        /// <param name="handler">Handler to add.</param>
+        /// <param name="defaultListSize">Default list size.</param>
         public static void AddWeakReferenceHandler(ref List<WeakReference> handlers, EventHandler handler, int defaultListSize)
         {
             if (handlers == null)
             {
-                handlers = (defaultListSize > 0 ? new List<WeakReference>(defaultListSize) : new List<WeakReference>());
+                handlers = defaultListSize > 0 ? new List<WeakReference>(defaultListSize) : new List<WeakReference>();
             }
 
             handlers.Add(new WeakReference(handler));
         }
 
-        ///<summary>
+        /// <summary>
         /// Removes an event handler from the reference list.
-        ///</summary>
-        ///<param name="handlers">Handler list to remove reference from.</param>
-        ///<param name="handler">Handler to remove.</param>
+        /// </summary>
+        /// <param name="handlers">Handler list to remove reference from.</param>
+        /// <param name="handler">Handler to remove.</param>
         public static void RemoveWeakReferenceHandler(List<WeakReference> handlers, EventHandler handler)
         {
             if (handlers != null)

@@ -32,18 +32,20 @@ namespace Microsoft.Sarif.Viewer
         public IList<SarifErrorListItem> SarifErrors { get; set; } = new List<SarifErrorListItem>();
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="RunDataCache"/> class.
         /// Used for testing.
         /// </summary>
-        internal RunDataCache() :
-            this(runIndex: 0, logFilePath: null)
+        internal RunDataCache()
+            : this(runIndex: 0, logFilePath: null)
         {
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="RunDataCache"/> class.
         /// Used for testing.
         /// </summary>
-        internal RunDataCache(int runIndex) :
-            this(runIndex: runIndex, logFilePath: null)
+        internal RunDataCache(int runIndex)
+            : this(runIndex: runIndex, logFilePath: null)
         {
         }
 

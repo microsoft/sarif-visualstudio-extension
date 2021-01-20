@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
 
@@ -29,8 +29,8 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            SetName(fileName);
-            return projectNames[fileName];
+            this.SetName(fileName);
+            return this.projectNames[fileName];
         }
 
         private void SetName(string fileName)
@@ -42,19 +42,19 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            if (projectNames.ContainsKey(fileName))
+            if (this.projectNames.ContainsKey(fileName))
             {
                 return;
             }
 
-            ProjectItem project = solution?.FindProjectItem(fileName);
+            ProjectItem project = this.solution?.FindProjectItem(fileName);
             if (project?.ContainingProject != null)
             {
-                projectNames[fileName] = project.ContainingProject.Name;
+                this.projectNames[fileName] = project.ContainingProject.Name;
             }
             else
             {
-                projectNames[fileName] = string.Empty;
+                this.projectNames[fileName] = string.Empty;
             }
         }
     }

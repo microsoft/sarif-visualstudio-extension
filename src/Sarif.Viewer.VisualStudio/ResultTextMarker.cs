@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace Microsoft.Sarif.Viewer
     /// An instance of this class can outlive a Visual Studio view that is viewing it.
     /// It is important to not cache Visual Studio "view" and "frame" interfaces as they will
     /// become invalid as the user opens and closes documents.
-    /// A future improvement is that this class "could" be an implementation of IErrorTag and or ITextMarkerTag
+    /// A future improvement is that this class "could" be an implementation of IErrorTag and or ITextMarkerTag.
     /// </remarks>
     internal class ResultTextMarker : IDisposable
     {
@@ -39,12 +39,12 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public const string DEFAULT_SELECTION_COLOR = "CodeAnalysisWarningSelection"; // Yellow
         public const string KEYEVENT_SELECTION_COLOR = "CodeAnalysisKeyEventSelection"; // Light yellow
-        public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; //Gray
+        public const string LINE_TRACE_SELECTION_COLOR = "CodeAnalysisLineTraceSelection"; // Gray
         public const string HOVER_SELECTION_COLOR = "CodeAnalysisCurrentStatementSelection"; // Yellow with red border
 
         /// <summary>
         /// This is the original region from the SARIF log file before
-        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegionAndFilePath" method./>
+        /// it is remapped to an open document by the <see cref="TryToFullyPopulateRegionAndFilePath" /> method.
         /// </summary>
         private readonly Region region;
 
@@ -75,7 +75,7 @@ namespace Microsoft.Sarif.Viewer
         private IPersistentSpan persistentSpan;
 
         /// <summary>
-        /// Contains the fully populated file path.
+        /// Gets the fully populated file path.
         /// </summary>
         /// <remarks>
         /// This property may be null.
@@ -100,7 +100,7 @@ namespace Microsoft.Sarif.Viewer
         public int ResultId { get; }
 
         /// <summary>
-        /// The index of the run as known to <see cref="CodeAnalysisResultManager"/>.
+        /// Gets the index of the run as known to <see cref="CodeAnalysisResultManager"/>.
         /// </summary>
         public int RunIndex { get; }
 
@@ -121,7 +121,7 @@ namespace Microsoft.Sarif.Viewer
         public object ToolTipContent { get; }
 
         /// <summary>
-        /// The data context for this result marker.
+        /// Gets the data context for this result marker.
         /// </summary>
         /// <remarks>
         /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
@@ -130,12 +130,12 @@ namespace Microsoft.Sarif.Viewer
         public object Context { get; }
 
         /// <summary>
-        /// Gets or sets the original SARIF region from a SARIF log.
+        /// Gets the original SARIF region from a SARIF log.
         /// </summary>
         public Region Region { get; }
 
         /// <summary>
-        /// Creates a new instances of a <see cref="ResultTextMarker"/>.
+        /// Initializes a new instance of the <see cref="ResultTextMarker"/> class.
         /// </summary>
         /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
@@ -151,7 +151,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Creates a new instances of a <see cref="ResultTextMarker"/>.
+        /// Initializes a new instance of the <see cref="ResultTextMarker"/> class.
         /// </summary>
         /// <param name="runIndex">The index of the run as known to <see cref="CodeAnalysisResultManager"/>.</param>
         /// <param name="resultId">The identifier of the <see cref="SarifErrorListItem"/> that this marker belongs to.</param>
@@ -168,16 +168,16 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
         {
-            ResultId = resultId;
-            RunIndex = runIndex;
-            UriBaseId = uriBaseId;
-            FullFilePath = fullFilePath;
+            this.ResultId = resultId;
+            this.RunIndex = runIndex;
+            this.UriBaseId = uriBaseId;
+            this.FullFilePath = fullFilePath;
             this.region = region ?? throw new ArgumentNullException(nameof(region));
-            NonHighlightedColor = nonHighlightedColor;
-            HighlightedColor = highlightedColor;
-            ToolTipContent = tooltipContent;
-            ErrorType = errorType;
-            Context = context;
+            this.NonHighlightedColor = nonHighlightedColor;
+            this.HighlightedColor = highlightedColor;
+            this.ToolTipContent = tooltipContent;
+            this.ErrorType = errorType;
+            this.Context = context;
         }
 
         /// <summary>
@@ -188,6 +188,7 @@ namespace Microsoft.Sarif.Viewer
         /// <typeparam name="T">Specifies which tag type the tagger is asking for.</typeparam>
         /// <param name="textBuffer">The text buffer that the tags are being requested.</param>
         /// <param name="persistentSpanFactory">The persistent span factory that can be used to create the persistent spans for the tags.</param>
+        /// <returns>List of tags returned by result marker.</returns>
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory)
             where T : ITag
         {
@@ -373,16 +374,16 @@ namespace Microsoft.Sarif.Viewer
                 return this.regionAndFilePathAreFullyPopulated.Value;
             }
 
-            if (string.IsNullOrEmpty(FullFilePath))
+            if (string.IsNullOrEmpty(this.FullFilePath))
             {
                 return false;
             }
 
-            if (File.Exists(FullFilePath))
+            if (File.Exists(this.FullFilePath))
             {
-                this.resolvedFullFilePath = FullFilePath;
+                this.resolvedFullFilePath = this.FullFilePath;
             }
-            else if (!CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: FullFilePath, resolvedPath: out this.resolvedFullFilePath))
+            else if (!CodeAnalysisResultManager.Instance.TryResolveFilePath(resultId: this.ResultId, runIndex: this.RunIndex, uriBaseId: this.UriBaseId, relativePath: this.FullFilePath, resolvedPath: out this.resolvedFullFilePath))
             {
                 this.regionAndFilePathAreFullyPopulated = false;
                 return false;
@@ -446,7 +447,7 @@ namespace Microsoft.Sarif.Viewer
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
+            this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }

@@ -1,5 +1,5 @@
-﻿// Copyright (c) Microsoft. All rights reserved. 
-// Licensed under the MIT license. See LICENSE file in the project root for full license information. 
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -66,34 +66,39 @@ namespace Microsoft.Sarif.Viewer
         {
             { typeof(SLoadSarifLogService), new ServiceInformation { Creator = type => new LoadSarifLogService(), Promote = true } },
             { typeof(SCloseSarifLogService), new ServiceInformation { Creator = type => new CloseSarifLogService(), Promote = true } },
-            { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService (), Promote = false } },
+            { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService(), Promote = false } },
             { typeof(ISarifErrorListEventSelectionService), new ServiceInformation { Creator = type => new SarifErrorListEventProcessor(), Promote = false } },
 
             // Services that are exposed as templates are a bit "different", you expose them as
             // ITextViewCaretListenerService<> and then you have to differentiate them when they are
             // asked for.
-            { typeof(ITextViewCaretListenerService<>), new ServiceInformation { Creator =  type =>
+            {
+                typeof(ITextViewCaretListenerService<>), new ServiceInformation
                 {
-                    if (type == typeof(ITextViewCaretListenerService<IErrorTag>))
+                    Creator = type =>
                     {
-                        return new TextViewCaretListenerService<IErrorTag>();
-                    }
+                        if (type == typeof(ITextViewCaretListenerService<IErrorTag>))
+                        {
+                            return new TextViewCaretListenerService<IErrorTag>();
+                        }
 
-                    if (type == typeof(ITextViewCaretListenerService<ITextMarkerTag>))
-                    {
-                        return new TextViewCaretListenerService<ITextMarkerTag>();
-                    }
+                        if (type == typeof(ITextViewCaretListenerService<ITextMarkerTag>))
+                        {
+                            return new TextViewCaretListenerService<ITextMarkerTag>();
+                        }
 
-                    return null;
-                },
-                Promote = false
-            } }
+                        return null;
+                    },
+                    Promote = false,
+                }
+            },
         };
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
