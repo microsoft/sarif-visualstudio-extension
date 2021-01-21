@@ -475,7 +475,7 @@ namespace Microsoft.Sarif.Viewer
             string fileName = Path.GetFileName(pathFromLogFile);
             var openFileDialog = new OpenFileDialog
             {
-                Title = $"Locate missing file: {pathFromLogFile}",
+                Title = string.Format(Resources.PromptForResolvedPathDialogTitle, pathFromLogFile),
                 InitialDirectory = sarifErrorListItem != null ? Path.GetDirectoryName(sarifErrorListItem.LogFilePath) : null,
                 Filter = $"{fileName}|{fileName}",
                 RestoreDirectory = true,

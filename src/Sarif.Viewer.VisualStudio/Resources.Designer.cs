@@ -513,6 +513,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Locate missing file: {0}.
+        /// </summary>
+        public static string PromptForResolvedPathDialogTitle {
+            get {
+                return ResourceManager.GetString("PromptForResolvedPathDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Report &quot;{0}&quot; Result.
         /// </summary>
         public static string ReportResultTitle {
