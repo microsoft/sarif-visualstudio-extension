@@ -6,10 +6,17 @@
              xmlns:ui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:local="clr-namespace:Microsoft.Sarif.Viewer.Controls"
              mc:Ignorable="d" >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="FeedbackStringResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <StackPanel>
         <TextBlock Margin="10" Text="{Binding Path=Summary}" Width="350" TextWrapping="WrapWithOverflow"></TextBlock>
-        <CheckBox Margin="10" IsChecked="{Binding Path=SendSnippet}">Include code snippet from file</CheckBox>        
-        <Label Margin="10,0,10,0" Padding="0">Comments:</Label>
+        <CheckBox Margin="10" IsChecked="{Binding Path=SendSnippet}" Content="{StaticResource FeedbackDialog_Text_IncludeSnippet}"></CheckBox>
+        <Label Margin="10,0,10,0" Padding="0" Content="{StaticResource FeedbackDialog_Text_Comments}"></Label>
         <Grid>
             <TextBox
                 Height="120"
@@ -21,7 +28,7 @@
                 x:Name="CommentTextBox"
                 Text="{Binding Path=Comment}"/>
             <!--watermark-->
-            <TextBlock IsHitTestVisible="False" Text="Optional" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15,5,0,0" Foreground="DarkGray" >
+            <TextBlock IsHitTestVisible="False" Text="{StaticResource FeedbackDialog_Text_Optional}" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="15,5,0,0" Foreground="DarkGray" >
                 <TextBlock.Style>
                     <Style TargetType="{x:Type TextBlock}">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -37,8 +44,8 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
             <Button Width="80" Height="21" Margin="5" Command="{Binding Path=SendFeedbackCommand}" 
-                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ui:DialogWindow}}}">Report</Button>
-            <Button Width="80" Height="21" Margin="5,10,10,10" IsCancel="True">Cancel</Button>
+                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ui:DialogWindow}}}" Content="{StaticResource FeedbackDialog_Button_Report}"></Button>
+            <Button Width="80" Height="21" Margin="5,10,10,10" IsCancel="True" Content="{StaticResource FeedbackDialog_Button_Cancel}"></Button>
         </StackPanel>
     </StackPanel>
 </UserControl>
