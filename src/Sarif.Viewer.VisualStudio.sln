@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D702C24-103A-4561-8D86-62DBB2831900}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.ruleset = .ruleset
 		build.props = build.props
 		..\BuildAndTest.cmd = ..\BuildAndTest.cmd
 		..\scripts\BuildAndTest.ps1 = ..\scripts\BuildAndTest.ps1
@@ -21,10 +22,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		ReleaseHistory.md = ReleaseHistory.md
 		..\scripts\Run-Tests.ps1 = ..\scripts\Run-Tests.ps1
 		..\scripts\ScriptUtilities.psm1 = ..\scripts\ScriptUtilities.psm1
+		stylecop.json = stylecop.json
 		..\scripts\Unzip.ps1 = ..\scripts\Unzip.ps1
 		version.json = version.json
-		..\src\.ruleset = ..\src\.ruleset
-		..\src\stylecop.json = ..\src\stylecop.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.Interop", "Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj", "{9D407555-D268-461E-BFAF-4251B0FBF7C9}"
@@ -44,6 +44,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sarif.PatternMatcher", "sarif-pattern-matcher\Src\Sarif.PatternMatcher\Sarif.PatternMatcher.csproj", "{141A7597-CC51-4EAC-A168-D2691149AB5B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Strings.Interop", "sarif-pattern-matcher\Src\Strings.Interop\Strings.Interop.csproj", "{AA731FF3-5423-49F9-84C9-D05543FBA360}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sarif-sdk", "sarif-sdk", "{6BF9285F-4015-47C7-B511-610A9C3B0A3A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sarif-pattern-matcher", "sarif-pattern-matcher", "{2802BDD7-321C-46FA-8CB1-026600CCCF2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -190,6 +194,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BF73BD60-7DBC-4DA0-A13D-13246EEF8A93} = {6BF9285F-4015-47C7-B511-610A9C3B0A3A}
+		{ACFA4370-A4EC-4252-99E7-A7FA489126DB} = {6BF9285F-4015-47C7-B511-610A9C3B0A3A}
+		{A4DF60A6-F128-4BFF-AB1E-E042A3279073} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
+		{BA882944-7D32-4543-959A-964B7795F11E} = {6BF9285F-4015-47C7-B511-610A9C3B0A3A}
+		{141A7597-CC51-4EAC-A168-D2691149AB5B} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
+		{AA731FF3-5423-49F9-84C9-D05543FBA360} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}
