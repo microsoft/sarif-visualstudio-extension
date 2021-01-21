@@ -70,6 +70,9 @@
     <Compile Include="SpamBackgroundAnalyzer.cs" />
     <Compile Include="TextBufferViewTracker.cs" />
     <Compile Include="TextBufferViewTrackingInformation.cs" />
+    <Compile Include="TextEditIdleAssistant.cs" />
+    <Compile Include="TextEditIdledEventArgs.cs" />
+    <Compile Include="ViewUpdatedEventArgs.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

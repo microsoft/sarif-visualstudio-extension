@@ -18,6 +18,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(ITextBufferViewTracker))]
     public class TextBufferViewTracker : ITextBufferViewTracker
     {
+        protected const int DefaultUpdateDelayInMS = 1500;
+
+        private readonly object dictionaryLock = new object();
+
         private readonly IDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new Dictionary<ITextBuffer, TextBufferViewTrackingInformation>();
 
         /// <inheritdoc/>
@@ -27,17 +31,23 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public event EventHandler<LastViewRemovedEventArgs> LastViewRemoved;
 
         /// <inheritdoc/>
+        public event EventHandler<ViewUpdatedEventArgs> ViewUpdated;
+
+        /// <inheritdoc/>
         public void AddTextView(ITextView textView, string path, string text)
         {
             bool first = false;
-
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
+            TextBufferViewTrackingInformation trackingInformation;
 
-            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
+            lock (this.dictionaryLock)
             {
-                first = true;
-                trackingInformation = new TextBufferViewTrackingInformation(path);
-                this.bufferToViewsDictionary.Add(textView.TextBuffer, trackingInformation);
+                if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
+                {
+                    first = true;
+                    trackingInformation = new TextBufferViewTrackingInformation(path);
+                    this.bufferToViewsDictionary.Add(textView.TextBuffer, trackingInformation);
+                }
             }
 
             trackingInformation.Add(textView);
@@ -52,20 +62,40 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
-            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
+            lock (this.dictionaryLock)
             {
-                return;
+                if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
+                {
+                    return;
+                }
+
+                trackingInformation.Remove(textView);
+                if (trackingInformation.Views.Count == 0)
+                {
+                    this.bufferToViewsDictionary.Remove(textView.TextBuffer);
+                    trackingInformation.CancellationTokenSource.Dispose();
+                    LastViewRemoved?.Invoke(
+                        this,
+                        new LastViewRemovedEventArgs(trackingInformation.Path));
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public void UpdateTextView(ITextView textView, string path, string text)
+        {
+            textView = textView ?? throw new ArgumentNullException(nameof(textView));
+            TextBufferViewTrackingInformation trackingInformation;
+
+            lock (this.dictionaryLock)
+            {
+                if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
+                {
+                    return;
+                }
             }
 
-            trackingInformation.Remove(textView);
-            if (trackingInformation.Views.Count == 0)
-            {
-                this.bufferToViewsDictionary.Remove(textView.TextBuffer);
-                trackingInformation.CancellationTokenSource.Dispose();
-                LastViewRemoved?.Invoke(
-                    this,
-                    new LastViewRemovedEventArgs(trackingInformation.Path));
-            }
+            ViewUpdated?.Invoke(this, new ViewUpdatedEventArgs(trackingInformation.Path, text, trackingInformation.CancellationTokenSource.Token));
         }
 
         /// <inheritdoc/>
