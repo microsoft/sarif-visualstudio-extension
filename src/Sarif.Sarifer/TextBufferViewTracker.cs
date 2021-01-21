@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
@@ -20,9 +21,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         protected const int DefaultUpdateDelayInMS = 1500;
 
-        private readonly object dictionaryLock = new object();
-
-        private readonly IDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new Dictionary<ITextBuffer, TextBufferViewTrackingInformation>();
+        private readonly ConcurrentDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new ConcurrentDictionary<ITextBuffer, TextBufferViewTrackingInformation>();
 
         /// <inheritdoc/>
         public event EventHandler<FirstViewAddedEventArgs> FirstViewAdded;
@@ -40,14 +39,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
             TextBufferViewTrackingInformation trackingInformation;
 
-            lock (this.dictionaryLock)
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
             {
-                if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
-                {
-                    first = true;
-                    trackingInformation = new TextBufferViewTrackingInformation(path);
-                    this.bufferToViewsDictionary.Add(textView.TextBuffer, trackingInformation);
-                }
+                first = true;
+                trackingInformation = new TextBufferViewTrackingInformation(path);
+                this.bufferToViewsDictionary.AddOrUpdate(textView.TextBuffer, trackingInformation, (textBuffer, trackingInfor) => trackingInformation);
             }
 
             trackingInformation.Add(textView);
@@ -62,22 +58,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
 
-            lock (this.dictionaryLock)
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
             {
-                if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
-                {
-                    return;
-                }
+                return;
+            }
 
-                trackingInformation.Remove(textView);
-                if (trackingInformation.Views.Count == 0)
-                {
-                    this.bufferToViewsDictionary.Remove(textView.TextBuffer);
-                    trackingInformation.CancellationTokenSource.Dispose();
-                    LastViewRemoved?.Invoke(
-                        this,
-                        new LastViewRemovedEventArgs(trackingInformation.Path));
-                }
+            trackingInformation.Remove(textView);
+            if (trackingInformation.Views.Count == 0)
+            {
+                this.bufferToViewsDictionary.TryRemove(textView.TextBuffer, out TextBufferViewTrackingInformation value);
+                trackingInformation.CancellationTokenSource.Dispose();
+                LastViewRemoved?.Invoke(
+                    this,
+                    new LastViewRemovedEventArgs(trackingInformation.Path));
             }
         }
 
@@ -87,12 +80,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
             TextBufferViewTrackingInformation trackingInformation;
 
-            lock (this.dictionaryLock)
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
             {
-                if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
-                {
-                    return;
-                }
+                return;
             }
 
             ViewUpdated?.Invoke(this, new ViewUpdatedEventArgs(trackingInformation.Path, text, trackingInformation.CancellationTokenSource.Token));

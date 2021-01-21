@@ -65,7 +65,6 @@
     <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="SariferPackageCommand.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
     <Compile Include="SpamBackgroundAnalyzer.cs" />
     <Compile Include="TextBufferViewTracker.cs" />
