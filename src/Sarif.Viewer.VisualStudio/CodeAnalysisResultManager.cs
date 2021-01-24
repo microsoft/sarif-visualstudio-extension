@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Input;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.PlatformUI;
@@ -556,6 +557,45 @@ namespace Microsoft.Sarif.Viewer
         {
             // Unit tests will only create one cache.
             return this.RunIndexToRunDataCache.Values.First().RemappedPathPrefixes.ToArray();
+        }
+
+        // Extract selected results from original SarifLog.
+        internal SarifLog GetPartitionedLog(IEnumerable<SarifErrorListItem> listItems)
+        {
+            if (listItems.Any())
+            {
+                int runIndex = listItems.First().RunIndex;
+                string guid = Guid.NewGuid().ToString();
+                foreach (SarifErrorListItem item in listItems)
+                {
+                    if (item.SarifResult != null)
+                    {
+                        item.SarifResult.Guid = guid;
+                    }
+                }
+
+                if (listItems.Any(i => i.SarifResult != null))
+                {
+                    // parition results in log
+                    PartitionFunction<string> partitionFunction = (result) => result.Guid ??= Guid.NewGuid().ToString();
+
+                    var partitioningVisitor = new PartitioningVisitor<string>(partitionFunction, deepClone: false);
+
+                    if (this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
+                    {
+                        SarifLog log = dataCache.SarifLog;
+                        if (log != null)
+                        {
+                            partitioningVisitor.VisitSarifLog(log);
+                            Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
+                            SarifLog reproLog = partitions[guid];
+                            return reproLog;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

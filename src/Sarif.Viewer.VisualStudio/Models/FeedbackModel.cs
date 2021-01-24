@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
@@ -14,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Models
     {
         private Microsoft.VisualStudio.PlatformUI.DelegateCommand sendFeedbackCommand;
 
-        public FeedbackModel(string ruleId, string toolName, string toolVersion, IEnumerable<string> snippets, FeedbackType feedbackType, string summary)
+        public FeedbackModel(string ruleId, string toolName, string toolVersion, IEnumerable<string> snippets, FeedbackType feedbackType, string summary, SarifLog log)
         {
             this.RuleId = ruleId;
             this.ToolName = toolName;
@@ -24,6 +25,7 @@ namespace Microsoft.Sarif.Viewer.Models
             this.Comment = string.Empty;
             this.FeedbackType = feedbackType;
             this.Summary = summary;
+            this.SarifLog = log;
         }
 
         public string RuleId { get; }
@@ -41,6 +43,8 @@ namespace Microsoft.Sarif.Viewer.Models
         public FeedbackType FeedbackType { get; }
 
         public string Summary { get; set; }
+
+        internal SarifLog SarifLog { get; set; }
 
         public Microsoft.VisualStudio.PlatformUI.DelegateCommand SendFeedbackCommand
         {

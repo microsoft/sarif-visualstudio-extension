@@ -18,6 +18,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         private static readonly string RuleId = "ruleId";
         private static readonly string Comments = "comments";
         private static readonly string Snippet = "snippet";
+        private static readonly string SarifLog = "sariflog";
 
         public static void SendFeedbackTelemetryEvent(FeedbackModel feedback)
         {
@@ -40,6 +41,11 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             if (feedback.SendSnippet)
             {
                 properties.Add(Snippet, JsonConvert.SerializeObject(feedback.Snippets));
+            }
+
+            if (feedback.SarifLog != null)
+            {
+                properties.Add(SarifLog, JsonConvert.SerializeObject(feedback.SarifLog));
             }
 
             return properties;
