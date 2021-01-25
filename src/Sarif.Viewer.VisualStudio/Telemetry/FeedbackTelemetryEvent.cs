@@ -45,6 +45,14 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
             if (feedback.SarifLog != null)
             {
+                // property has limit of 8192 on string length
+                int maxLength = 8192;
+                string sarifLog = JsonConvert.SerializeObject(feedback.SarifLog);
+                if (sarifLog.Length > maxLength)
+                {
+                    sarifLog = sarifLog.Substring(0, maxLength);
+                }
+
                 properties.Add(SarifLog, JsonConvert.SerializeObject(feedback.SarifLog));
             }
 
