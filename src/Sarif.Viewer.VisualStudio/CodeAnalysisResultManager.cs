@@ -562,40 +562,31 @@ namespace Microsoft.Sarif.Viewer
         // Extract selected results from original SarifLog.
         internal SarifLog GetPartitionedLog(IEnumerable<SarifErrorListItem> listItems)
         {
-            if (listItems.Any())
+            int runIndex = -1;
+            string guid = Guid.NewGuid().ToString();
+            foreach (SarifErrorListItem item in listItems)
             {
-                int runIndex = listItems.First().RunIndex;
-                string guid = Guid.NewGuid().ToString();
-                foreach (SarifErrorListItem item in listItems)
+                if (item.SarifResult != null)
                 {
-                    if (item.SarifResult != null)
+                    item.SarifResult.Guid = guid;
+                    if (runIndex == -1)
                     {
-                        item.SarifResult.Guid = guid;
-                    }
-                }
-
-                if (listItems.Any(i => i.SarifResult != null))
-                {
-                    // parition results in log
-                    PartitionFunction<string> partitionFunction = (result) => result.Guid ??= Guid.NewGuid().ToString();
-
-                    var partitioningVisitor = new PartitioningVisitor<string>(partitionFunction, deepClone: false);
-
-                    if (this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
-                    {
-                        SarifLog log = dataCache.SarifLog;
-                        if (log != null)
-                        {
-                            partitioningVisitor.VisitSarifLog(log);
-                            Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
-                            SarifLog reproLog = partitions[guid];
-                            return reproLog;
-                        }
+                        runIndex = item.RunIndex;
                     }
                 }
             }
 
-            return null;
+            if (runIndex == -1 || !this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache) || dataCache.SarifLog == null)
+            {
+                return null;
+            }
+
+            // parition results in log
+            PartitionFunction<string> partitionFunction = (result) => result.Guid ?? null;
+            var partitioningVisitor = new PartitioningVisitor<string>(partitionFunction, deepClone: false);
+            partitioningVisitor.VisitSarifLog(dataCache.SarifLog);
+            Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
+            return partitions[guid];
         }
     }
 }
