@@ -198,7 +198,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because it didn&apos;t flag an actual problem (i.e., it is a false positive)..
+        ///   Looks up a localized string similar to The result wasn&apos;t useful because it didn&apos;t flag an actual problem (i.e., it is a false positive)..
         /// </summary>
         public static string FalsePositiveSummary {
             get {
@@ -414,7 +414,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; was accurate but not useful because the code improvement to resolve is relatively low value..
+        ///   Looks up a localized string similar to The result was accurate but not useful because the code improvement to resolve is relatively low value..
         /// </summary>
         public static string LowValueSummary {
             get {
@@ -432,7 +432,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because the information provided for it wasn&apos;t actionable (couldn&apos;t be understood or was incomplete)..
+        ///   Looks up a localized string similar to The result wasn&apos;t useful because the information provided for it wasn&apos;t actionable (couldn&apos;t be understood or was incomplete)..
         /// </summary>
         public static string NonActionableSummary {
             get {
@@ -450,7 +450,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful because it was reported against non-shipping code..
+        ///   Looks up a localized string similar to The result wasn&apos;t useful because it was reported against non-shipping code..
         /// </summary>
         public static string NonShippingCodeSummary {
             get {
@@ -477,7 +477,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} rule &quot;{1}&quot; wasn&apos;t useful.
+        ///   Looks up a localized string similar to The result wasn&apos;t useful.
         /// </summary>
         public static string OtherSummary {
             get {

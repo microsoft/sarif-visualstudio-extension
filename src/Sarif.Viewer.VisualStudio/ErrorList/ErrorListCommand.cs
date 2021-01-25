@@ -164,10 +164,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 case UsefulResultCommandId:
                     SarifErrorListItem currentItem = selectedItems.FirstOrDefault();
                     var feedback = new FeedbackModel(
-                        currentItem.Rule.Id,
-                        currentItem.Tool.Name,
-                        currentItem.Tool?.Version,
-                        currentItem.GetCodeSnippets(),
+                        selectedItems.GetCombinedRuleIds(),
+                        selectedItems.GetCombinedToolNames(),
+                        selectedItems.GetCombinedToolVersions(),
+                        selectedItems.GetCombinedSnippets(),
                         FeedbackType.UsefulResult,
                         null,
                         CodeAnalysisResultManager.Instance.GetPartitionedLog(selectedItems));
@@ -216,16 +216,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             FeedbackInfo feedbackInfo = s_commandToResultDescriptionDictionary[commandId];
             string title = string.Format(Resources.ReportResultTitle, feedbackInfo.Description);
-            SarifErrorListItem item = sarifErrorListItems.FirstOrDefault();
-            string summary = string.Format(feedbackInfo.Summary, item.Tool.Name, item.Rule.Id);
 
             var feedback = new FeedbackModel(
-                item.Rule.Id,
-                item.Tool.Name,
-                item.Tool?.Version,
-                item.GetCodeSnippets(),
+                sarifErrorListItems.GetCombinedRuleIds(),
+                sarifErrorListItems.GetCombinedToolNames(),
+                sarifErrorListItems.GetCombinedToolVersions(),
+                sarifErrorListItems.GetCombinedSnippets(),
                 feedbackInfo.FeedbackType,
-                summary,
+                feedbackInfo.Summary,
                 CodeAnalysisResultManager.Instance.GetPartitionedLog(sarifErrorListItems));
 
             var feedbackDialog = new FeedbackDialog(title, feedback);
