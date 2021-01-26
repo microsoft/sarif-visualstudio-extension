@@ -33,7 +33,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         public bool IsBackgroundAnalysisEnabled
-        { 
+        {
             get
             {
                 var optionPage = (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
