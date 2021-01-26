@@ -13,6 +13,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private readonly AsyncPackage package;
 
+        private SariferExtensionOptionPage optionPage;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SariferOption"/> class.
         /// Get visual studio option values
@@ -22,6 +24,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
         }
+
+        public SariferExtensionOptionPage OptionPage
+        {
+            get
+            {
+                this.optionPage ??=
+                    this.optionPage = (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
+
+                return this.optionPage;
+            }
+        }
+
 
         /// <summary>
         /// Gets the instance of the command.
@@ -36,8 +50,31 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             get
             {
-                var optionPage = (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
-                return optionPage.BackgroundAnalysisEnabled;
+                try
+                {
+                    return this.OptionPage.BackgroundAnalysisEnabled;
+                }
+                catch
+                {
+                    // default value
+                    return true;
+                }
+            }
+        }
+
+        public bool IfAnalyzeSarifFile
+        {
+            get
+            {
+                try
+                {
+                    return this.OptionPage.AnalyzeSarifFile;
+                }
+                catch
+                {
+                    // default value
+                    return false;
+                }
             }
         }
 

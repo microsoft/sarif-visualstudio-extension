@@ -38,6 +38,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected override bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
+            if (!SariferOption.Instance.IfAnalyzeSarifFile && uri.GetFilePath().EndsWith(".sarif"))
+            {
+                return false;
+            }
+
             if (string.IsNullOrEmpty(solutionDirectory)
                 || (this.currentSolutionDirectory?.Equals(solutionDirectory, StringComparison.OrdinalIgnoreCase) != true))
             {
