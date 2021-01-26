@@ -19,7 +19,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         [Category(CategoryName)]
         [DisplayName(DisplayName)]
         [Description(Description)]
-        // default value: false
-        public bool BackgroundAnalysisEnabled { get; set; } = false;
+        // default value: true
+        public bool BackgroundAnalysisEnabled { get; set; } = true;
     }
 }
