@@ -27,9 +27,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
+    [ProvideOptionPage(typeof(SariferExtensionOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
+        public const string OptionCategoryName = "Sarif Extension";
+        public const string OptionPageName = "Sarifer Options";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
         private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
@@ -82,6 +85,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+
+            await SariferOption.InitializeAsync(this);
         }
 
         private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
