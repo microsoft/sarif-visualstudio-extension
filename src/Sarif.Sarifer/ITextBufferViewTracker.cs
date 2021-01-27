@@ -61,13 +61,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="textView">
         /// The <see cref="ITextView"/> to be updated.
         /// </param>
-        /// <param name="path">
-        /// The path to the file opened in text editor.
-        /// </param>
         /// <param name="text">
         /// The text in text editor.
         /// </param>
-        void UpdateTextView(ITextView textView, string path, string text);
+        void UpdateTextView(ITextView textView, string text);
 
         /// <summary>
         /// Clear all <see cref="ITextView"/>s tracked.

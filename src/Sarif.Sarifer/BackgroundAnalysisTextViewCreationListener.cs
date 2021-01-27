@@ -112,12 +112,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             ITextView textView = e.TextView;
             string text = textView.TextBuffer.CurrentSnapshot.GetText();
-            this.textBufferViewTracker.UpdateTextView(textView, string.Empty, text);
+            this.textBufferViewTracker.UpdateTextView(textView, text);
         }
 
         private void TextBufferViewTracker_ViewUpdated(object sender, ViewUpdatedEventArgs e)
         {
-            this.BackGroundAnalyzeAsync(e.Path, e.Text, e.CancellationToken)
+            this.BackgroundAnalyzeAsync(e.Path, e.Text, e.CancellationToken)
                 .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
@@ -128,11 +128,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         private void TextBufferViewTracker_FirstViewAdded(object sender, FirstViewAddedEventArgs e)
         {
-            this.BackGroundAnalyzeAsync(e.Path, e.Text, e.CancellationToken)
+            this.BackgroundAnalyzeAsync(e.Path, e.Text, e.CancellationToken)
                 .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
         }
 
-        private async System.Threading.Tasks.Task BackGroundAnalyzeAsync(string path, string text, CancellationToken cancellationToken)
+        private async System.Threading.Tasks.Task BackgroundAnalyzeAsync(string path, string text, CancellationToken cancellationToken)
         {
             if (!this.IsRunning())
             {

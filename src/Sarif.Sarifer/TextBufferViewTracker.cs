@@ -19,8 +19,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(ITextBufferViewTracker))]
     public class TextBufferViewTracker : ITextBufferViewTracker
     {
-        protected const int DefaultUpdateDelayInMS = 1500;
-
         private readonly ConcurrentDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new ConcurrentDictionary<ITextBuffer, TextBufferViewTrackingInformation>();
 
         /// <inheritdoc/>
@@ -75,7 +73,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <inheritdoc/>
-        public void UpdateTextView(ITextView textView, string path, string text)
+        public void UpdateTextView(ITextView textView, string text)
         {
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
             TextBufferViewTrackingInformation trackingInformation;

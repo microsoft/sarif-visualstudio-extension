@@ -9,7 +9,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     internal class TextEditIdleAssistant : IDisposable
     {
         // the same delay as the squiggle provider
-        private const int DefaultUpdateDelayInMS = 1500;
+        private const int DefaultUpdateDelayInMS = 3000;
 
         private readonly Timer waitingTimer;
 
