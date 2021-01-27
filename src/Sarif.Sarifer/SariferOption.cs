@@ -29,8 +29,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             get
             {
-                this.optionPage ??=
-                    this.optionPage = (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
+                this.optionPage ??= (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
 
                 return this.optionPage;
             }
