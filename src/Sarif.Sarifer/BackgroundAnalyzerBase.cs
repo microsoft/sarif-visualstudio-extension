@@ -166,10 +166,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(
                 writer,
-                LoggingOptions.None,
+                LogFilePersistenceOptions.None,
                 dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlDetails,
                 dataToRemove: OptionallyEmittedData.None,
                 tool: this.MakeTool(),
+                levels: new List<FailureLevel> { FailureLevel.Error, FailureLevel.Warning, FailureLevel.Note, FailureLevel.None },
+                kinds: new List<ResultKind> { ResultKind.Fail },
                 closeWriterOnDispose: false);
 
         private Tool MakeTool() =>
