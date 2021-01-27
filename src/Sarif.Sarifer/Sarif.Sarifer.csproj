@@ -63,6 +63,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
+    <Compile Include="SariferExtensionOptionPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SariferOption.cs" />
     <Compile Include="SariferPackageCommand.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />

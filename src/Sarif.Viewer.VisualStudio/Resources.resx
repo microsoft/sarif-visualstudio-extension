@@ -350,4 +350,7 @@
   <data name="SendFeedbackSucceeded" xml:space="preserve">
     <value>Completed sending your feedback</value>
   </data>
+  <data name="PromptForResolvedPathDialogTitle" xml:space="preserve">
+    <value>Locate missing file: {0}</value>
+  </data>
 </root>

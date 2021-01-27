@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel.Composition;
-using System.Threading;
 
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio;
@@ -53,6 +52,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     this.sarifViewerInterop = new SarifViewerInterop(vsShell);
                 }
+
+                if (!this.sarifViewerInterop.IsSariferExtensionLoaded)
+                {
+                    // need to load package to get extension option setting values
+                    this.sarifViewerInterop.LoadSariferExtension();
+                }
+            }
+
+            if (!SariferOption.Instance.IsBackgroundAnalysisEnabled)
+            {
+                return;
             }
 
             if (!this.subscribed)
