@@ -61,7 +61,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        public bool IfAnalyzeSarifFile
+        public bool ShouldAnalyzeSarifFile
         {
             get
             {

@@ -12,9 +12,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     public class SariferExtensionOptionPage : DialogPage
     {
         private const string CategoryName = "Sarifer Options";
+
         private const string DisplayName_BackgroundAnalysisEnabled = "Enable background analysis automatically";
-        private const string Description_BackgroundAnalysisEnabled = "If enabled, th background analysis would trigger if a file is open or edited";
-        private const string DisplayName_AnalyzeSarifFile = "Enable .sarif files by default";
+        private const string Description_BackgroundAnalysisEnabled = "If enabled, the background analysis would trigger if a file is opened or edited";
+
+        private const string DisplayName_AnalyzeSarifFile = "Enable analysis for .sarif files";
         private const string Description_AnalyzeSarifFile = "If enabled, .sarif files will be analyzed by default.";
 
         [Category(CategoryName)]

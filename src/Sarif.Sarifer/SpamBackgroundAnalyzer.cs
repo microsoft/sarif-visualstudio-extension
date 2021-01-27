@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         protected override bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken)
         {
-            if (!SariferOption.Instance.IfAnalyzeSarifFile && uri.GetFilePath().EndsWith(".sarif"))
+            if (!SariferOption.Instance.ShouldAnalyzeSarifFile && uri.GetFilePath().EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }

@@ -86,7 +86,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
 
-            await SariferOption.InitializeAsync(this);
+            await SariferOption.InitializeAsync(this).ConfigureAwait(false);
         }
 
         private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
