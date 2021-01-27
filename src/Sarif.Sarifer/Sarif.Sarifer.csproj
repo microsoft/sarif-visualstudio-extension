@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnalyzeFileCommand.cs" />
+    <Compile Include="AnalyzeMenuCommandBase.cs" />
     <Compile Include="BackgroundAnalysisService.cs" />
     <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
     <Compile Include="BackgroundAnalyzerBase.cs" />
@@ -68,11 +69,13 @@
     <Compile Include="SariferOption.cs" />
     <Compile Include="SariferPackageCommand.cs" />
     <Compile Include="SariferPackageCommandIds.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SarifViewerBackgroundAnalysisSink.cs" />
     <Compile Include="SpamBackgroundAnalyzer.cs" />
     <Compile Include="TextBufferViewTracker.cs" />
     <Compile Include="TextBufferViewTrackingInformation.cs" />
+    <Compile Include="TextEditIdleAssistant.cs" />
+    <Compile Include="TextEditIdledEventArgs.cs" />
+    <Compile Include="ViewUpdatedEventArgs.cs" />
     <Compile Include="VSPackage.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

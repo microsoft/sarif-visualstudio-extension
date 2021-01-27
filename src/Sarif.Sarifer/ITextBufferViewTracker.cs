@@ -26,11 +26,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         event EventHandler<LastViewRemovedEventArgs> LastViewRemoved;
 
         /// <summary>
+        /// Occurs when the <see cref="ITextView"/>.<see cref="ITextBuffer"/> is updated.
+        /// </summary>
+        event EventHandler<ViewUpdatedEventArgs> ViewUpdated;
+
+        /// <summary>
         /// Add a <see cref="ITextView"/> to the list of views for that view's
         /// <see cref="ITextBuffer"/>.
         /// </summary>
         /// <param name="textView">
         /// The <see cref="ITextView"/> to be added.
+        /// </param>
+        /// <param name="path">
+        /// The path to the file opened in text editor.
+        /// </param>
+        /// <param name="text">
+        /// The text in text editor.
         /// </param>
         void AddTextView(ITextView textView, string path, string text);
 
@@ -42,6 +53,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// The <see cref="ITextView"/> to be removed.
         /// </param>
         void RemoveTextView(ITextView textView);
+
+        /// <summary>
+        /// Update a <see cref="ITextView"/> to the list of views for that view's
+        /// <see cref="ITextBuffer"/>.
+        /// </summary>
+        /// <param name="textView">
+        /// The <see cref="ITextView"/> to be updated.
+        /// </param>
+        /// <param name="text">
+        /// The text in text editor.
+        /// </param>
+        void UpdateTextView(ITextView textView, string text);
 
         /// <summary>
         /// Clear all <see cref="ITextView"/>s tracked.

@@ -5,10 +5,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal static class FileAndForgetEventName
     {
-        private const string Prefix = "Microsoft/Sarifer/";
-
         internal const string BackgroundAnalysisFailure = Prefix + "BackgroundAnalysis/Failure";
         internal const string CloseSarifLogsFailure = Prefix + "CloseSarifLogs/Failure";
         internal const string SendDataToViewerFailure = Prefix + "SendDataToViewer/Failure";
+
+        private const string Prefix = "Microsoft/Sarifer/";
     }
 }
