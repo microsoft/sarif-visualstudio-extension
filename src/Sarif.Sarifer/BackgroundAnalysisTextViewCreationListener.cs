@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.Composition;
+using System.Threading;
 
 using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio;
