@@ -84,9 +84,10 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return expandedRegion.Snippet != null ? expandedRegion.Snippet.Text : string.Empty;
         }
 
-        public static string ExtractSnippet(this LocationModel location, FileRegionsCache fileRegionsCache)
+        public static string ExtractSnippet(this LocationModel location, FileRegionsCache fileRegionsCache, IFileSystem fileSystem = null)
         {
-            if (File.Exists(location.FilePath) &&
+            fileSystem ??= FileSystem.Instance;
+            if (fileSystem.FileExists(location.FilePath) &&
                 Uri.TryCreate(location.FilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties

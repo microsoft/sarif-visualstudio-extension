@@ -12,6 +12,8 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 
@@ -24,8 +26,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly IPersistentSpanFactory persistentSpanFactory;
         private readonly IPreviewProvider previewProvider;
 
-        private readonly IList<SarifErrorListItem> errorsInFile;
         private readonly IDictionary<FixSuggestedAction, SarifErrorListItem> fixToErrorDictionary;
+        private readonly IWpfTableControl errorListTableControl;
+
+        private IList<SarifErrorListItem> errorsInFile;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FixSuggestedActionsSource"/> class.
@@ -57,11 +61,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.persistentSpanFactory = persistentSpanFactory;
             this.previewProvider = previewProvider;
 
-            // If this text buffer is not associated with a file, it cannot have any SARIF errors.
-            this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
-                ? GetErrorsInFile(fileName)
-                : Enumerable.Empty<SarifErrorListItem>().ToList();
-            this.CalculatePersistentSpans(this.errorsInFile);
+            // when text changed and sarif errors item changes, need to refresh errorInFile
+            IErrorList errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
+            this.errorListTableControl = errorList?.TableControl;
+            this.errorListTableControl.EntriesChanged += this.ErrorListTableControl_EntriesChanged;
+            this.RefreshPersistentSpans();
 
             // Keep track of which error is associated with each suggested action, so that when
             // the action is invoked, the associated error can be marked as fixed. When we mark
@@ -231,6 +235,24 @@ namespace Microsoft.Sarif.Viewer.Fixes
                     SuggestedActionsChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
+        }
+
+        private void ErrorListTableControl_EntriesChanged(object sender, EntriesChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            this.RefreshPersistentSpans();
+        }
+
+        private void RefreshPersistentSpans()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // If this text buffer is not associated with a file, it cannot have any SARIF errors.
+            this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
+                ? GetErrorsInFile(fileName)
+                : Enumerable.Empty<SarifErrorListItem>().ToList();
+            this.CalculatePersistentSpans(this.errorsInFile);
         }
     }
 }
