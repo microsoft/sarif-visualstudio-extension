@@ -17,12 +17,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SariferOption"/> class.
-        /// Get visual studio option values
+        /// Get visual studio option values.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         private SariferOption(AsyncPackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
+        }
+
+        /// <summary>
+        /// Gets the instance of the command.
+        /// </summary>
+        public static SariferOption Instance
+        {
+            get;
+            private set;
         }
 
         public SariferExtensionOptionPage OptionPage
@@ -33,16 +42,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
                 return this.optionPage;
             }
-        }
-
-
-        /// <summary>
-        /// Gets the instance of the command.
-        /// </summary>
-        public static SariferOption Instance
-        {
-            get;
-            private set;
         }
 
         public bool IsBackgroundAnalysisEnabled
@@ -81,9 +80,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// Initializes the singleton instance of the <see cref="SariferOption"/> class.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public static async Task InitializeAsync(AsyncPackage package)
         {
-            // Switch to the main thread 
+            // Switch to the main thread
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
             Instance = new SariferOption(package);

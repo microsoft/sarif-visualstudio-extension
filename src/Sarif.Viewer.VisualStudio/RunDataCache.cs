@@ -44,6 +44,7 @@ namespace Microsoft.Sarif.Viewer
         /// Initializes a new instance of the <see cref="RunDataCache"/> class.
         /// Used for testing.
         /// </summary>
+        /// <param name="runIndex">Index of the run.</param>
         internal RunDataCache(int runIndex)
             : this(runIndex: runIndex, logFilePath: null)
         {

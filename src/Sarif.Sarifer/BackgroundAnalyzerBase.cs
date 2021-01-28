@@ -30,6 +30,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </remarks>
     public abstract class BackgroundAnalyzerBase : IBackgroundAnalyzer
     {
+        private const int DefaultBufferSize = 1024;
+
         /// <inheritdoc/>
         public abstract string ToolName { get; }
 
@@ -38,8 +40,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         /// <inheritdoc/>
         public abstract string ToolSemanticVersion { get; }
-
-        private const int DefaultBufferSize = 1024;
 
         /// <inheritdoc/>
         public async Task<Stream> AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
@@ -161,7 +161,27 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
         /// </param>
+        /// <returns>
+        /// A boolean showing if the result was processed or not.
+        /// </returns>
         protected abstract bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Returns the solution directory, or null if no solution is open.
+        /// </summary>
+        private static async Task<string> GetSolutionDirectoryAsync()
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            var dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+            string solutionFilePath = dte.Solution?.FullName;
+            if (string.IsNullOrEmpty(solutionFilePath))
+            {
+                return null;
+            }
+
+            return Path.GetDirectoryName(solutionFilePath);
+        }
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(
@@ -181,23 +201,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     Name = ToolName,
                     Version = ToolVersion,
-                    SemanticVersion = ToolSemanticVersion
-                }
+                    SemanticVersion = ToolSemanticVersion,
+                },
             };
-
-        // Returns the solution directory, or null if no solution is open.
-        private static async Task<string> GetSolutionDirectoryAsync()
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            string solutionFilePath = dte.Solution?.FullName;
-            if (string.IsNullOrEmpty(solutionFilePath))
-            {
-                return null;
-            }
-
-            return Path.GetDirectoryName(solutionFilePath);
-        }
     }
 }

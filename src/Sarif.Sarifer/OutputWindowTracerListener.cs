@@ -11,9 +11,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class OutputWindowTracerListener : TraceListener
     {
-        private IVsOutputWindowPane pane;
         private readonly IVsOutputWindow _outputWindowService;
         private readonly string _name;
+        private IVsOutputWindowPane pane;
 
         public OutputWindowTracerListener(IVsOutputWindow outputWindowService, string name)
         {
@@ -22,26 +22,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             Trace.Listeners.Add(this);
         }
 
-        private bool EnsurePane()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (this.pane == null)
-            {
-                var guid = Guid.NewGuid();
-                this._outputWindowService.CreatePane(ref guid, this._name, 1, 1);
-                this._outputWindowService.GetPane(ref guid, out this.pane);
-            }
-
-            return this.pane != null;
-        }
-
         public override void Write(string message)
         {
             try
             {
                 if (this.EnsurePane())
                 {
-                    ThreadHelper.JoinableTaskFactory.RunAsync(async delegate
+                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
                     {
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                         this.pane.OutputString(message);
@@ -61,6 +48,19 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 #pragma warning disable VSTHRD010
             this.Write(Environment.NewLine + message);
 #pragma warning restore VSTHRD010
+        }
+
+        private bool EnsurePane()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (this.pane == null)
+            {
+                var guid = Guid.NewGuid();
+                this._outputWindowService.CreatePane(ref guid, this._name, 1, 1);
+                this._outputWindowService.GetPane(ref guid, out this.pane);
+            }
+
+            return this.pane != null;
         }
     }
 }

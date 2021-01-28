@@ -94,6 +94,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             await Task.WhenAll(tasks).ConfigureAwait(continueOnCapturedContext: false);
         }
 
+        private static void DisposeStreams(Stream[] streams)
+        {
+            foreach (Stream stream in streams)
+            {
+                stream.Dispose();
+            }
+        }
+
         private Task WriteStreamsToSinksAsync(string logId, Stream[] streams, bool cleanAll)
         {
             var sinkTasks = new List<Task>(this.analyzers.Count());
@@ -126,14 +134,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 }
 
                 await sink.ReceiveAsync(stream, logId).ConfigureAwait(false);
-            }
-        }
-
-        private static void DisposeStreams(Stream[] streams)
-        {
-            foreach (Stream stream in streams)
-            {
-                stream.Dispose();
             }
         }
     }

@@ -122,10 +122,6 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        /// <summary>
-        /// Open the document associated with this task item.
-        /// </summary>
-        /// <returns>The window frame of the opened document.</returns>
         [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", Justification = "By design")]
         internal static IVsWindowFrame OpenDocument(IServiceProvider provider, string file, bool usePreviewPane)
         {
@@ -220,6 +216,7 @@ namespace Microsoft.Sarif.Viewer
         /// Find the document and return its cookie to the lock to the document.
         /// </summary>
         /// <param name="runningDocTable">The object having a table of all running documents.</param>
+        /// <param name="file">The file to be looked in the documents table.</param>
         /// <returns>The cookie to the document lock.</returns>
         internal static uint FindDocument(IVsRunningDocumentTable runningDocTable, string file)
         {
@@ -281,7 +278,8 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Helper method for getting a IWpfTextView from a IVsTextView object.
         /// </summary>
-        /// <param name="textView">a IWpfTextView object.</param>
+        /// <param name="textView">a IVsTextView object.</param>
+        /// <param name="wpfTextView">a IWpfTextView object.</param>
         /// <returns>If successfully gets IWpfTextView.</returns>
         public static bool TryGetWpfTextView(IVsTextView textView, out IWpfTextView wpfTextView)
         {
