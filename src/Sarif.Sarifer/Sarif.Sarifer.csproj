@@ -104,7 +104,9 @@
       <SubType>Designer</SubType>
     </None>
     <EmbeddedResource Include="TestData\ProofOfConcept.sarif" />
-    <AdditionalFiles Include="../stylecop.json" />
+    <AdditionalFiles Include="..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="SariferPackageCommands.vsct">
