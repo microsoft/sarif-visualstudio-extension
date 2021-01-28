@@ -98,6 +98,12 @@ namespace Microsoft.Sarif.Viewer
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
         /// where you can put all the initialization code that rely on services provided by VisualStudio.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> that can be used to cancel the initialization of the package.
+        /// </param>
+        /// <param name="progress">
+        /// A provider to update progress.
+        /// </param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {

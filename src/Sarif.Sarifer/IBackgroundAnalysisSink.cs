@@ -36,12 +36,18 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Closes all SARIF logs opened in the viewer.
         /// </summary>
+        /// <returns>
+        /// A <see cref="Task"/> that completes when all SARIF logs are closed.
+        /// </returns>
         Task CloseAsync();
 
         /// <summary>
         /// Closes the specified SARIF log files in the SARIF Viewer extension.
         /// </summary>
         /// <param name="paths">The paths to the log files.</param>
+        /// <returns>
+        /// A <see cref="Task"/> that completes when all SARIF logs are closed from specific paths.
+        /// </returns>
         Task CloseAsync(IEnumerable<string> paths);
     }
 }

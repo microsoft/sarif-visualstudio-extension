@@ -13,22 +13,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const string CategoryName = "Sarifer Options";
 
-        private const string DisplayName_BackgroundAnalysisEnabled = "Enable background analysis automatically";
-        private const string Description_BackgroundAnalysisEnabled = "If enabled, the background analysis would trigger if a file is opened or edited";
+        private const string BackgroundAnalysisEnabledDisplayName = "Enable background analysis automatically";
+        private const string BackgroundAnalysisEnabledDescription = "If enabled, the background analysis would trigger if a file is opened or edited";
 
-        private const string DisplayName_AnalyzeSarifFile = "Enable analysis for .sarif files";
-        private const string Description_AnalyzeSarifFile = "If enabled, .sarif files will be analyzed by default.";
+        private const string AnalyzeSarifFileDisplayName = "Enable analysis for .sarif files";
+        private const string AnalyzeSarifFileDescription = "If enabled, .sarif files will be analyzed by default.";
 
         [Category(CategoryName)]
-        [DisplayName(DisplayName_BackgroundAnalysisEnabled)]
-        [Description(Description_BackgroundAnalysisEnabled)]
-        // default value: true
+        [DisplayName(BackgroundAnalysisEnabledDisplayName)]
+        [Description(BackgroundAnalysisEnabledDescription)]
         public bool BackgroundAnalysisEnabled { get; set; } = true;
 
         [Category(CategoryName)]
-        [DisplayName(DisplayName_AnalyzeSarifFile)]
-        [Description(Description_AnalyzeSarifFile)]
-        // default value: false
-        public bool AnalyzeSarifFile { get; set; } = false;
+        [DisplayName(AnalyzeSarifFileDisplayName)]
+        [Description(AnalyzeSarifFileDescription)]
+        public bool AnalyzeSarifFile { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Invokes the handlers.
         /// </summary>
-        /// <param name="sender">The sender of the event</param>
+        /// <param name="sender">The sender of the event.</param>
         /// <param name="handlers">Existing handler list. It will be created if null.</param>
         public static void CallWeakReferenceHandlers(object sender, List<WeakReference> handlers)
         {

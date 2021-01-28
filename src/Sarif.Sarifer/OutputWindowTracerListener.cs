@@ -11,40 +11,27 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class OutputWindowTracerListener : TraceListener
     {
+        private readonly IVsOutputWindow _outputWindowService;
+        private readonly string _name;
         private IVsOutputWindowPane pane;
-        private IVsOutputWindow _outputWindowService;
-        private string _name;
 
         public OutputWindowTracerListener(IVsOutputWindow outputWindowService, string name)
         {
-            _outputWindowService = outputWindowService;
-            _name = name;
+            this._outputWindowService = outputWindowService;
+            this._name = name;
             Trace.Listeners.Add(this);
-        }
-
-        private bool EnsurePane()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (pane == null)
-            {
-                Guid guid = Guid.NewGuid();
-                _outputWindowService.CreatePane(ref guid, _name, 1, 1);
-                _outputWindowService.GetPane(ref guid, out pane);
-            }
-
-            return pane != null;
         }
 
         public override void Write(string message)
         {
             try
             {
-                if (EnsurePane())
+                if (this.EnsurePane())
                 {
-                    ThreadHelper.JoinableTaskFactory.RunAsync(async delegate
+                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
                     {
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                        pane.OutputString(message);
+                        this.pane.OutputString(message);
                     });
                 }
             }
@@ -59,8 +46,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public override void WriteLine(string message)
         {
 #pragma warning disable VSTHRD010
-            Write(Environment.NewLine + message);
+            this.Write(Environment.NewLine + message);
 #pragma warning restore VSTHRD010
+        }
+
+        private bool EnsurePane()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (this.pane == null)
+            {
+                var guid = Guid.NewGuid();
+                this._outputWindowService.CreatePane(ref guid, this._name, 1, 1);
+                this._outputWindowService.GetPane(ref guid, out this.pane);
+            }
+
+            return this.pane != null;
         }
     }
 }
