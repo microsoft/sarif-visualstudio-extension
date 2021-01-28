@@ -49,10 +49,7 @@ namespace Microsoft.Sarif.Viewer
 
         public Region Region
         {
-            get
-            {
-                return this._region;
-            }
+            get => this._region;
 
             set
             {
@@ -79,10 +76,7 @@ namespace Microsoft.Sarif.Viewer
 
         public virtual string FilePath
         {
-            get
-            {
-                return this._filePath;
-            }
+            get => this._filePath;
 
             set
             {
@@ -102,10 +96,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal virtual string UriBaseId
         {
-            get
-            {
-                return this._uriBaseId;
-            }
+            get => this._uriBaseId;
 
             set
             {

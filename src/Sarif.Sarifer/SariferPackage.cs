@@ -6,7 +6,7 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.CodeAnalysis.Sarif.Sarifer.Commands;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;

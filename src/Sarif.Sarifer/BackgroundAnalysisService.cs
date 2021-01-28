@@ -14,8 +14,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// <summary>
     /// Performs static analysis in the background.
     /// </summary>
-    // TODO: Reanalyze when buffer changes.
-    // TODO: Remove error list items when buffer closes.
     [Export(typeof(IBackgroundAnalysisService))]
     internal class BackgroundAnalysisService : IBackgroundAnalysisService
     {

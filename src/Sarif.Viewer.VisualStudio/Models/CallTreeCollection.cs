@@ -21,10 +21,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public int Verbosity
         {
-            get
-            {
-                return this._verbosity;
-            }
+            get => this._verbosity;
 
             set
             {
@@ -75,10 +72,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 return this._expandAllCommand;
             }
 
-            set
-            {
-                this._expandAllCommand = value;
-            }
+            set => this._expandAllCommand = value;
         }
 
         public DelegateCommand CollapseAllCommand
@@ -96,10 +90,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 return this._collapseAllCommand;
             }
 
-            set
-            {
-                this._collapseAllCommand = value;
-            }
+            set => this._collapseAllCommand = value;
         }
 
         public DelegateCommand IntelligentExpandCommand
@@ -124,10 +115,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 return this._intelligentExpandCommand;
             }
 
-            set
-            {
-                this._intelligentExpandCommand = value;
-            }
+            set => this._intelligentExpandCommand = value;
         }
 
         internal void ExpandAll()
