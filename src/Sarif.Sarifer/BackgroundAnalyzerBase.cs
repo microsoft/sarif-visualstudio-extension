@@ -30,6 +30,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     /// </remarks>
     public abstract class BackgroundAnalyzerBase : IBackgroundAnalyzer
     {
+        private const int DefaultBufferSize = 1024;
+
         /// <inheritdoc/>
         public abstract string ToolName { get; }
 
@@ -38,8 +40,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         /// <inheritdoc/>
         public abstract string ToolSemanticVersion { get; }
-
-        private const int DefaultBufferSize = 1024;
 
         /// <inheritdoc/>
         public async Task<Stream> AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
@@ -161,29 +161,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> that can be used to cancel the background analysis.
         /// </param>
+        /// <returns>
+        /// A boolean showing if the result was processed or not.
+        /// </returns>
         protected abstract bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
 
-        private SarifLogger MakeSarifLogger(TextWriter writer) =>
-            new SarifLogger(
-                writer,
-                LoggingOptions.None,
-                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlDetails,
-                dataToRemove: OptionallyEmittedData.None,
-                tool: this.MakeTool(),
-                closeWriterOnDispose: false);
-
-        private Tool MakeTool() =>
-            new Tool
-            {
-                Driver = new ToolComponent
-                {
-                    Name = ToolName,
-                    Version = ToolVersion,
-                    SemanticVersion = ToolSemanticVersion
-                }
-            };
-
-        // Returns the solution directory, or null if no solution is open.
+        /// <summary>
+        /// Returns the solution directory, or null if no solution is open.
+        /// </summary>
         private static async Task<string> GetSolutionDirectoryAsync()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -197,5 +182,27 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             return Path.GetDirectoryName(solutionFilePath);
         }
+
+        private SarifLogger MakeSarifLogger(TextWriter writer) =>
+            new SarifLogger(
+                writer,
+                LogFilePersistenceOptions.None,
+                dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlDetails,
+                dataToRemove: OptionallyEmittedData.None,
+                tool: this.MakeTool(),
+                levels: new List<FailureLevel> { FailureLevel.Error, FailureLevel.Warning, FailureLevel.Note, FailureLevel.None },
+                kinds: new List<ResultKind> { ResultKind.Fail },
+                closeWriterOnDispose: false);
+
+        private Tool MakeTool() =>
+            new Tool
+            {
+                Driver = new ToolComponent
+                {
+                    Name = ToolName,
+                    Version = ToolVersion,
+                    SemanticVersion = ToolSemanticVersion,
+                },
+            };
     }
 }

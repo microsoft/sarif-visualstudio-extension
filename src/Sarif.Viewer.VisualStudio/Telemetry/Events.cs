@@ -51,13 +51,5 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// For example, did developers stop running static analysis? If so, why and get them to continue using it.
         /// </remarks>
         public static void ExtensionLoaded() => throw new NotImplementedException();
-
-        ///<!--
-        /// Adding a new event would follow this pattern.
-        ///
-        ///
-        ///-->
-        /// public static void LoadSarifsLogApiInvoked() =>
-        ///    TelemetryProvider.TrackEvent<Events>();
     }
 }

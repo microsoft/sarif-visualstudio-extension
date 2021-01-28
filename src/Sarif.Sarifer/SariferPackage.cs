@@ -6,7 +6,7 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.CodeAnalysis.Sarif.Sarifer.Commands;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -27,9 +27,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
+    [ProvideOptionPage(typeof(SariferExtensionOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";
+        public const string OptionCategoryName = "Sarif Extension";
+        public const string OptionPageName = "Sarifer Options";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
         private bool disposed;
         private AnalyzeSolutionCommand analyzeSolutionCommand;
@@ -37,21 +40,25 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private AnalyzeFileCommand analyzeFileCommand;
         private OutputWindowTracerListener outputWindowTraceListener;
 
-        /// <summary>
-        /// Default constructor of the package. VS uses this constructor to create an instance of
-        /// the package. The constructor should perform only the most basic initializazion, like
-        /// setting member variables. Never try to use any VS service, because this object is not
-        /// yet part of VS environment yet. Wait for VS to call InitializeAsync, and perform that
-        /// kind of initialization there.
-        /// </summary>
-        public SariferPackage()
+        public void Dispose()
         {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Initialize the package. All the initialization code that relies on services provided by
         /// Visual Studio belongs here.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> that can be used to cancel the initialization.
+        /// </param>
+        /// <param name="progress">
+        /// A provider to update progress.
+        /// </param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.
+        /// </returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
@@ -82,14 +89,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
-        }
 
-        private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
-        {
-            // Cancelling analysis from project / solution when the solution is closed.
-            this.analyzeProjectCommand.Cancel();
-            this.analyzeSolutionCommand.Cancel();
-            this.analyzeFileCommand.Cancel();
+            await SariferOption.InitializeAsync(this).ConfigureAwait(false);
         }
 
         protected override void Dispose(bool disposing)
@@ -110,10 +111,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             base.Dispose(disposing);
         }
 
-        public void Dispose()
+        private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
         {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            // Cancelling analysis from project / solution when the solution is closed.
+            this.analyzeProjectCommand.Cancel();
+            this.analyzeSolutionCommand.Cancel();
+            this.analyzeFileCommand.Cancel();
         }
     }
 }

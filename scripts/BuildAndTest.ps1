@@ -137,11 +137,9 @@ if (-not $NoClean) {
 }
 
 if (-not $NoRestore) {
-    $NuGetConfigFile = "$SourceRoot\NuGet.Config"
-
     foreach ($project in $Projects.All) {
         Write-Information "Restoring NuGet packages for $project..."
-        & $RepoRoot\.nuget\NuGet.exe restore $SourceRoot\$project\$project.csproj -ConfigFile "$NuGetConfigFile" -OutputDirectory "$NuGetPackageRoot" -Verbosity quiet
+        & $RepoRoot\.nuget\NuGet.exe restore $SourceRoot\$project\$project.csproj -OutputDirectory "$NuGetPackageRoot" -Verbosity quiet
         if ($LASTEXITCODE -ne 0) {
             Exit-WithFailureMessage $ScriptName "NuGet restore failed for $project."
         }

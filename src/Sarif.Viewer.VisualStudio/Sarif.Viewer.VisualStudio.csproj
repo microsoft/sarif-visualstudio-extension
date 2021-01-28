@@ -4,6 +4,9 @@
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.xml</DocumentationFile>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
   <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props')" />
@@ -378,10 +381,10 @@
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
   <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets')" />
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\Sarif.Viewer.VisualStudio.Interop\.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <AdditionalFiles Include="..\Sarif.Viewer.VisualStudio.Interop\stylecop.json">
+    <AdditionalFiles Include="..\stylecop.json">
       <Link>stylecop.json</Link>
     </AdditionalFiles>
   </ItemGroup>

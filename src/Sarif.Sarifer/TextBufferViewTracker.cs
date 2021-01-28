@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 
@@ -18,7 +19,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [Export(typeof(ITextBufferViewTracker))]
     public class TextBufferViewTracker : ITextBufferViewTracker
     {
-        private readonly IDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new Dictionary<ITextBuffer, TextBufferViewTrackingInformation>();
+        private readonly ConcurrentDictionary<ITextBuffer, TextBufferViewTrackingInformation> bufferToViewsDictionary = new ConcurrentDictionary<ITextBuffer, TextBufferViewTrackingInformation>();
 
         /// <inheritdoc/>
         public event EventHandler<FirstViewAddedEventArgs> FirstViewAdded;
@@ -27,17 +28,20 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public event EventHandler<LastViewRemovedEventArgs> LastViewRemoved;
 
         /// <inheritdoc/>
+        public event EventHandler<ViewUpdatedEventArgs> ViewUpdated;
+
+        /// <inheritdoc/>
         public void AddTextView(ITextView textView, string path, string text)
         {
             bool first = false;
-
             textView = textView ?? throw new ArgumentNullException(nameof(textView));
+            TextBufferViewTrackingInformation trackingInformation;
 
-            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out TextBufferViewTrackingInformation trackingInformation))
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
             {
                 first = true;
                 trackingInformation = new TextBufferViewTrackingInformation(path);
-                this.bufferToViewsDictionary.Add(textView.TextBuffer, trackingInformation);
+                this.bufferToViewsDictionary.AddOrUpdate(textView.TextBuffer, trackingInformation, (textBuffer, trackingInfor) => trackingInformation);
             }
 
             trackingInformation.Add(textView);
@@ -60,12 +64,26 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             trackingInformation.Remove(textView);
             if (trackingInformation.Views.Count == 0)
             {
-                this.bufferToViewsDictionary.Remove(textView.TextBuffer);
+                this.bufferToViewsDictionary.TryRemove(textView.TextBuffer, out TextBufferViewTrackingInformation value);
                 trackingInformation.CancellationTokenSource.Dispose();
                 LastViewRemoved?.Invoke(
                     this,
                     new LastViewRemovedEventArgs(trackingInformation.Path));
             }
+        }
+
+        /// <inheritdoc/>
+        public void UpdateTextView(ITextView textView, string text)
+        {
+            textView = textView ?? throw new ArgumentNullException(nameof(textView));
+            TextBufferViewTrackingInformation trackingInformation;
+
+            if (!this.bufferToViewsDictionary.TryGetValue(textView.TextBuffer, out trackingInformation))
+            {
+                return;
+            }
+
+            ViewUpdated?.Invoke(this, new ViewUpdatedEventArgs(trackingInformation.Path, text, trackingInformation.CancellationTokenSource.Token));
         }
 
         /// <inheritdoc/>

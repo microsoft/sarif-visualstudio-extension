@@ -19,6 +19,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// <summary>
         /// Initializes a new instance of the <see cref="TextBufferViewTrackingInformation"/> class.
         /// </summary>
+        /// <param name="filePath">The file path of the <see cref="ITextBuffer"/>.</param>
         internal TextBufferViewTrackingInformation(string filePath)
         {
             this.Path = filePath;
@@ -28,7 +29,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         }
 
         /// <summary>
-        /// Get the path of the file.
+        /// Gets the path of the file.
         /// </summary>
         public string Path { get; }
 
@@ -38,7 +39,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         public CancellationTokenSource CancellationTokenSource { get; }
 
         /// <summary>
-        /// Get the list of views currently open on the tracked text buffer.
+        /// Gets the list of views currently open on the tracked text buffer.
         /// </summary>
         internal List<ITextView> Views { get; }
 
