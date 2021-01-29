@@ -443,7 +443,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     };
                 }
 
-                if (Instance.WriteRunToErrorList(run, logFilePath) > 0)
+                if (Instance.WriteRunToErrorList(run, logFilePath, sarifLog) > 0)
                 {
                     hasResults = true;
                 }
@@ -491,12 +491,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private int WriteRunToErrorList(Run run, string logFilePath)
+        private int WriteRunToErrorList(Run run, string logFilePath, SarifLog sarifLog)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-            var dataCache = new RunDataCache(runIndex, logFilePath);
+            var dataCache = new RunDataCache(runIndex, logFilePath, sarifLog);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
             var sarifErrors = new List<SarifErrorListItem>();

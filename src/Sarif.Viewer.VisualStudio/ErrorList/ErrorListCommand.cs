@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Linq;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -147,7 +148,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             var menuCommand = (MenuCommand)sender;
 
             // Clear Sarif Result command should be function no matter if any selected item
-            if (this.selectionService.SelectedItem == null
+            IEnumerable<SarifErrorListItem> selectedItems = this.selectionService.SelectedItems;
+            if ((selectedItems == null || !selectedItems.Any())
                 && menuCommand.CommandID.ID != ClearSarifResultsCommandId)
             {
                 return;
@@ -161,12 +163,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 case UsefulResultCommandId:
                     var feedback = new FeedbackModel(
-                        this.selectionService.SelectedItem.Rule.Id,
-                        this.selectionService.SelectedItem.Tool.Name,
-                        this.selectionService.SelectedItem.Tool?.Version,
-                        this.selectionService.SelectedItem.GetCodeSnippets(),
+                        selectedItems.GetCombinedRuleIds(),
+                        selectedItems.GetCombinedToolNames(),
+                        selectedItems.GetCombinedToolVersions(),
+                        selectedItems.GetCombinedSnippets(),
                         FeedbackType.UsefulResult,
-                        null);
+                        null,
+                        CodeAnalysisResultManager.Instance.GetPartitionedLog(selectedItems));
                     ErrorListService.SendFeedback(feedback);
                     break;
 
@@ -175,7 +178,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 case LowValueResultCommandId:
                 case NonShippingCodeResultCommandId:
                 case OtherResultCommandId:
-                    DisplayFeedbackDialog(menuCommand.CommandID.ID, this.selectionService.SelectedItem);
+                    DisplayFeedbackDialog(menuCommand.CommandID.ID, selectedItems);
                     break;
 
                 default:
@@ -208,13 +211,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 [OtherResultCommandId] = new FeedbackInfo(Resources.OtherResult, FeedbackType.OtherResult, Resources.OtherSummary),
             });
 
-        private static void DisplayFeedbackDialog(int commandId, SarifErrorListItem sarifErrorListItem)
+        private static void DisplayFeedbackDialog(int commandId, IEnumerable<SarifErrorListItem> sarifErrorListItems)
         {
             FeedbackInfo feedbackInfo = s_commandToResultDescriptionDictionary[commandId];
             string title = string.Format(Resources.ReportResultTitle, feedbackInfo.Description);
-            string summary = string.Format(feedbackInfo.Summary, sarifErrorListItem.Tool.Name, sarifErrorListItem.Rule.Id);
-            IEnumerable<string> snippets = sarifErrorListItem.GetCodeSnippets();
-            var feedbackDialog = new FeedbackDialog(title, sarifErrorListItem, feedbackInfo.FeedbackType, snippets, summary);
+
+            var feedback = new FeedbackModel(
+                sarifErrorListItems.GetCombinedRuleIds(),
+                sarifErrorListItems.GetCombinedToolNames(),
+                sarifErrorListItems.GetCombinedToolVersions(),
+                sarifErrorListItems.GetCombinedSnippets(),
+                feedbackInfo.FeedbackType,
+                feedbackInfo.Summary,
+                CodeAnalysisResultManager.Instance.GetPartitionedLog(sarifErrorListItems));
+
+            var feedbackDialog = new FeedbackDialog(title, feedback);
             feedbackDialog.ShowModal();
         }
     }

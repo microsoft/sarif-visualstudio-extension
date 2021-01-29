@@ -330,19 +330,19 @@
     <value>Report "{0}" Result</value>
   </data>
   <data name="FalsePositiveSummary" xml:space="preserve">
-    <value>{0} rule "{1}" wasn't useful because it didn't flag an actual problem (i.e., it is a false positive).</value>
+    <value>The result wasn't useful because it didn't flag an actual problem (i.e., it is a false positive).</value>
   </data>
   <data name="LowValueSummary" xml:space="preserve">
-    <value>{0} rule "{1}" was accurate but not useful because the code improvement to resolve is relatively low value.</value>
+    <value>The result was accurate but not useful because the code improvement to resolve is relatively low value.</value>
   </data>
   <data name="NonActionableSummary" xml:space="preserve">
-    <value>{0} rule "{1}" wasn't useful because the information provided for it wasn't actionable (couldn't be understood or was incomplete).</value>
+    <value>The result wasn't useful because the information provided for it wasn't actionable (couldn't be understood or was incomplete).</value>
   </data>
   <data name="NonShippingCodeSummary" xml:space="preserve">
-    <value>{0} rule "{1}" wasn't useful because it was reported against non-shipping code.</value>
+    <value>The result wasn't useful because it was reported against non-shipping code.</value>
   </data>
   <data name="OtherSummary" xml:space="preserve">
-    <value>{0} rule "{1}" wasn't useful</value>
+    <value>The result wasn't useful</value>
   </data>
   <data name="SendFeedbackFailed" xml:space="preserve">
     <value>An error occurred sending your feedback</value>

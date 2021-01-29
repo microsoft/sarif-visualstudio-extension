@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 
@@ -36,6 +37,29 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                     SelectedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslySelectedItem, this.currentlySelectedItem));
                 }
+            }
+        }
+
+        public IEnumerable<SarifErrorListItem> SelectedItems
+        {
+            get
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
+                var errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
+                Assumes.Present(errorList);
+
+                var resultList = new List<SarifErrorListItem>();
+                foreach (ITableEntryHandle item in errorList.TableControl.SelectedEntries)
+                {
+                    // only returns sarif result
+                    if (this.TryGetSarifResult(item, out SarifErrorListItem sarifResult))
+                    {
+                        resultList.Add(sarifResult);
+                    }
+                }
+
+                return resultList;
             }
         }
 

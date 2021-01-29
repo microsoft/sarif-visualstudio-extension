@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Input;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.PlatformUI;
@@ -556,6 +557,36 @@ namespace Microsoft.Sarif.Viewer
         {
             // Unit tests will only create one cache.
             return this.RunIndexToRunDataCache.Values.First().RemappedPathPrefixes.ToArray();
+        }
+
+        // Extract selected results from original SarifLog.
+        internal SarifLog GetPartitionedLog(IEnumerable<SarifErrorListItem> listItems)
+        {
+            int runIndex = -1;
+            string guid = Guid.NewGuid().ToString();
+            foreach (SarifErrorListItem item in listItems)
+            {
+                if (item.SarifResult != null)
+                {
+                    item.SarifResult.Guid = guid;
+                    if (runIndex == -1)
+                    {
+                        runIndex = item.RunIndex;
+                    }
+                }
+            }
+
+            if (runIndex == -1 || !this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache) || dataCache.SarifLog == null)
+            {
+                return null;
+            }
+
+            // parition results in log
+            PartitionFunction<string> partitionFunction = (result) => result.Guid ?? null;
+            var partitioningVisitor = new PartitioningVisitor<string>(partitionFunction, deepClone: false);
+            partitioningVisitor.VisitSarifLog(dataCache.SarifLog);
+            Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
+            return partitions[guid];
         }
     }
 }

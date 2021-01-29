@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
@@ -22,6 +23,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// May be null.
         /// </remarks>
         SarifErrorListItem SelectedItem { get; set; }
+
+        /// <summary>
+        /// Gets the list of selected <see cref="SarifErrorListItem"/> in error list.
+        /// </summary>
+        /// <remarks>
+        /// May be null.
+        /// </remarks>
+        IEnumerable<SarifErrorListItem> SelectedItems { get; }
 
         /// <summary>
         /// Fired when the selection in the Visual Studio error list has changed.

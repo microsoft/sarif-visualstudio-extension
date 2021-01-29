@@ -105,6 +105,7 @@
     <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
     <Compile Include="Models\FeedbackModel.cs" />
     <Compile Include="Models\FeedbackType.cs" />
+    <Compile Include="Sarif\SarifErrorListItem.Extensions.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
     <Compile Include="Services\ILoadSarifLogService.cs" />
