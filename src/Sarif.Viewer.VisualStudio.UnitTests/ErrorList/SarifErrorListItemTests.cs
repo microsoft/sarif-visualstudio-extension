@@ -359,7 +359,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
-            item.Message.Should().Be($"{s1} {s2}");
+            item.Message.Should().Be($"{s2}");
             item.ShortMessage.Should().Be(s1);
         }
 

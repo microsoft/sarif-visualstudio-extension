@@ -84,8 +84,7 @@ namespace Microsoft.Sarif.Viewer
             this.Tool = run.Tool.ToToolModel();
             this.Rule = rule.ToRuleModel(result.RuleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
-            this.Message = result.GetMessageText(rule, concise: false).Trim();
-            this.ShortMessage = result.GetMessageText(rule, concise: true).Trim();
+            (this.ShortMessage, this.Message) = this.SplitMessageText(result.GetMessageText(rule));
             if (!this.Message.EndsWith("."))
             {
                 this.ShortMessage = this.ShortMessage.TrimEnd('.');
@@ -215,8 +214,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            this.Message = notification.Message.Text?.Trim() ?? string.Empty;
-            this.ShortMessage = ExtensionMethods.GetFirstSentence(this.Message);
+            (this.ShortMessage, this.Message) = this.SplitMessageText(notification.Message.Text?.Trim() ?? string.Empty);
 
             // This is not locale friendly.
             if (!this.Message.EndsWith("."))
@@ -680,6 +678,31 @@ namespace Microsoft.Sarif.Viewer
 
             FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
             return this.Locations.Select(location => location.ExtractSnippet(regionsCache));
+        }
+
+        internal (string first, string second) SplitMessageText(string fullText, int maxLength = 120)
+        {
+            string shortText = ExtensionMethods.GetFirstSentence(fullText);
+
+            char[] endChars = new char[] { '\r', '\n', ' ', };
+            if (shortText.Length > maxLength)
+            {
+                // if need to split text longer than maxLength, make sure not split in middle of a word
+                int endPosition = maxLength;
+                if (!endChars.Contains(shortText[maxLength]))
+                {
+                    endPosition = shortText.LastIndexOfAny(endChars);
+                }
+
+                if (endPosition != -1)
+                {
+                    shortText = shortText.Substring(0, endPosition);
+                }
+            }
+
+            string restText = shortText.Length < fullText.Length ? fullText.Substring(shortText.Length).TrimStart(endChars) : fullText;
+            shortText = shortText.TrimEnd(endChars);
+            return (shortText, restText);
         }
     }
 }
