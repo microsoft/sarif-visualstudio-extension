@@ -25,7 +25,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <summary>
         /// Initializes a new instance of the <see cref="ReplacementEdit"/> class.
         /// </summary>
-        /// <param name="edit">The SARIF replacement from which to construct the edit.</param>
+        /// <param name="replacement">The SARIF replacement from which to construct the edit.</param>
         /// <param name="snapshot">The snapshot to which the edit will be applied.</param>
         public ReplacementEdit(ReplacementModel replacement, ITextSnapshot snapshot)
         {

@@ -18,16 +18,16 @@ namespace Microsoft.Sarif.Viewer.Services
         /// The path to the file from which the SARIF log should be loaded.
         /// </param>
         /// <param name="promptOnLogConversions">
-        /// <code>true</code> if the user should be prompted before converting a non-SARIF file,
-        /// otherwise <code>false</code>.
+        /// <c>true</c> if the user should be prompted before converting a non-SARIF file,
+        /// otherwise <c>false</c>.
         /// </param>
         /// <param name="cleanErrors">
-        /// <code>true</code> if all errors should be cleared from the Error List before the file
-        /// specified by <paramref name="path"/> loaded, otherwise <code>false</code>.
+        /// <c>true</c> if all errors should be cleared from the Error List before the file
+        /// specified by <paramref name="path"/> loaded, otherwise <c>false</c>.
         /// </param>
         /// <param name="openInEditor">
-        /// <code>true</code> if the file specified by <paramref name="path"/> should be displayed
-        /// in an editor window, otherwise <code>false</code>.
+        /// <c>true</c> if the file specified by <paramref name="path"/> should be displayed
+        /// in an editor window, otherwise <c>false</c>.
         /// </param>
         void LoadSarifLog(string path, bool promptOnLogConversions = true, bool cleanErrors = true, bool openInEditor = false);
 

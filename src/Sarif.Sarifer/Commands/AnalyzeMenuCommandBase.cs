@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Linq;
 using System.Threading;
 
 using EnvDTE;
@@ -14,22 +12,22 @@ using EnvDTE80;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.CodeAnalysis.Sarif.Sarifer
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
 {
-    internal class AnalyzeProjectCommand : IDisposable
+    internal class AnalyzeMenuCommandBase : IDisposable
     {
-        private DTE2 dte;
-        private IComponentModel componentModel;
-        private IBackgroundAnalysisService backgroundAnalysisService;
-        private readonly IMenuCommandService menuCommandService;
-        private CancellationTokenSource cancellationTokenSource;
-        private bool disposed;
+        protected DTE2 dte;
+        protected IComponentModel componentModel;
+        protected IBackgroundAnalysisService backgroundAnalysisService;
+        protected IMenuCommandService menuCommandService;
+        protected CancellationTokenSource cancellationTokenSource;
+        protected bool disposed;
 
-        public AnalyzeProjectCommand(IMenuCommandService menuCommandService)
+        public AnalyzeMenuCommandBase(IMenuCommandService menuCommandService, int commandId)
         {
             var menuCommand = new MenuCommand(
                 new EventHandler(this.MenuCommandCallback),
-                new CommandID(Guids.SariferCommandSet, SariferPackageCommandIds.AnalyzeProject));
+                new CommandID(Guids.SariferCommandSet, commandId));
 
             menuCommandService.AddCommand(menuCommand);
             this.menuCommandService = menuCommandService;
@@ -45,10 +43,23 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             this.cancellationTokenSource?.Cancel();
         }
 
+        public void Dispose()
+        {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void BackgroundAnalysisService_AnalysisCompleted(object sender, EventArgs e)
+        {
+            SariferPackageCommand.EnableAnalyzeCommands(this.menuCommandService);
+        }
+
         /// <summary>
-        /// Event handler called when the user selects the Analyze Project command.
+        /// Event handler called when the user selects the Analyze command.
         /// </summary>
-        private void MenuCommandCallback(object caller, EventArgs args)
+        /// <param name="caller">The source of the event.</param>
+        /// <param name="args">An object that contains event data.</param>
+        protected virtual void MenuCommandCallback(object caller, EventArgs args)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -72,25 +83,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.backgroundAnalysisService.AnalysisCompleted += this.BackgroundAnalysisService_AnalysisCompleted;
             }
 
-            IEnumerable<Project> selectedProjects = (this.dte.ActiveSolutionProjects as object[]).OfType<Project>();
-            if (selectedProjects != null)
-            {
-                foreach (Project project in selectedProjects)
-                {
-                    // Disable the menu click when we are analysing.
-                    SariferPackageCommand.DisableAnalyzeCommands(this.menuCommandService);
-
-                    List<string> targetFiles = SariferPackageCommand.GetFiles(project);
-
-                    this.backgroundAnalysisService.AnalyzeAsync(project.FullName, targetFiles, this.cancellationTokenSource.Token)
-                        .FileAndForget(FileAndForgetEventName.BackgroundAnalysisFailure);
-                }
-            }
+            this.AnalyzeTargets();
         }
 
-        private void BackgroundAnalysisService_AnalysisCompleted(object sender, EventArgs e)
+        protected virtual void AnalyzeTargets()
         {
-            SariferPackageCommand.EnableAnalyzeCommands(this.menuCommandService);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -101,17 +98,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 {
                     this.cancellationTokenSource?.Cancel();
                     this.cancellationTokenSource?.Dispose();
-                    this.backgroundAnalysisService.AnalysisCompleted -= this.BackgroundAnalysisService_AnalysisCompleted;
+                    if (this.backgroundAnalysisService != null)
+                    {
+                        this.backgroundAnalysisService.AnalysisCompleted -= this.BackgroundAnalysisService_AnalysisCompleted;
+                    }
                 }
 
                 this.disposed = true;
             }
-        }
-
-        public void Dispose()
-        {
-            this.Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

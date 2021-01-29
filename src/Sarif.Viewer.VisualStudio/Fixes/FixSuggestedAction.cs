@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,9 +104,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
                     FixApplied?.Invoke(this, EventArgs.Empty);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // TODO: better handling.
+                    Trace.WriteLine(ex);
                 }
             }
         }
