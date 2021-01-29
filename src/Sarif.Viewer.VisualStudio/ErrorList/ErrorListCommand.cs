@@ -162,7 +162,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     break;
 
                 case UsefulResultCommandId:
-                    SarifErrorListItem currentItem = selectedItems.FirstOrDefault();
                     var feedback = new FeedbackModel(
                         selectedItems.GetCombinedRuleIds(),
                         selectedItems.GetCombinedToolNames(),

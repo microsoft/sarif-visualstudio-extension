@@ -19,6 +19,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         private static readonly string Comments = "comments";
         private static readonly string Snippet = "snippet";
         private static readonly string SarifLog = "sariflog";
+        private static readonly int MaxLength = 8192;
 
         public static void SendFeedbackTelemetryEvent(FeedbackModel feedback)
         {
@@ -46,14 +47,13 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             if (feedback.SarifLog != null)
             {
                 // property has limit of 8192 on string length
-                int maxLength = 8192;
                 string sarifLog = JsonConvert.SerializeObject(feedback.SarifLog);
-                if (sarifLog.Length > maxLength)
+                if (sarifLog.Length > MaxLength)
                 {
-                    sarifLog = sarifLog.Substring(0, maxLength);
+                    sarifLog = sarifLog.Substring(0, MaxLength);
                 }
 
-                properties.Add(SarifLog, JsonConvert.SerializeObject(feedback.SarifLog));
+                properties.Add(SarifLog, sarifLog);
             }
 
             return properties;
