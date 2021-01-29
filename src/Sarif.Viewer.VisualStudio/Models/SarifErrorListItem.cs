@@ -79,6 +79,7 @@ namespace Microsoft.Sarif.Viewer
 
             this.RunIndex = runIndex;
             this.ResultId = Interlocked.Increment(ref currentResultId);
+            this.SarifResult = result;
             ReportingDescriptor rule = result.GetRule(run);
             this.Tool = run.Tool.ToToolModel();
             this.Rule = rule.ToRuleModel(result.RuleId);
@@ -242,7 +243,12 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         public int ResultId { get; }
 
-        private int RunIndex { get; }
+        /// <summary>
+        /// Gets reference to corresponding <see cref="SarifLog.Result" /> object.
+        /// </summary>
+        public Result SarifResult { get; }
+
+        public int RunIndex { get; }
 
         [Browsable(false)]
         public string MimeType { get; set; }
@@ -662,7 +668,7 @@ namespace Microsoft.Sarif.Viewer
             return resultTextMarkers.Where(resultTextMarker => resultTextMarker != null);
         }
 
-        public IEnumerable<string> GetCodeSnippets()
+        internal IEnumerable<string> GetCodeSnippets()
         {
             IDictionary<int, RunDataCache> runIndexToRunDataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
             if (!runIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
