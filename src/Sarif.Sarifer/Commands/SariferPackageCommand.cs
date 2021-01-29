@@ -9,7 +9,7 @@ using EnvDTE;
 
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.CodeAnalysis.Sarif.Sarifer
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
 {
     internal static class SariferPackageCommand
     {

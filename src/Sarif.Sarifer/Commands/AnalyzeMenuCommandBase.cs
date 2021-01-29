@@ -2,9 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
-using System.Linq;
 using System.Threading;
 
 using EnvDTE;
@@ -14,7 +12,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.CodeAnalysis.Sarif.Sarifer
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
 {
     internal class AnalyzeMenuCommandBase : IDisposable
     {

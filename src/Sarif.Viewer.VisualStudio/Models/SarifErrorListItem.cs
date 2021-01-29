@@ -255,10 +255,7 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string FileName
         {
-            get
-            {
-                return this._fileName;
-            }
+            get => this._fileName;
 
             set
             {
@@ -324,10 +321,7 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public ToolModel Tool
         {
-            get
-            {
-                return this._tool;
-            }
+            get => this._tool;
 
             set
             {
@@ -339,10 +333,7 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public RuleModel Rule
         {
-            get
-            {
-                return this._rule;
-            }
+            get => this._rule;
 
             set
             {
@@ -354,10 +345,7 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public InvocationModel Invocation
         {
-            get
-            {
-                return this._invocation;
-            }
+            get => this._invocation;
 
             set
             {
@@ -369,10 +357,7 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string SelectedTab
         {
-            get
-            {
-                return this._selectedTab;
-            }
+            get => this._selectedTab;
 
             set
             {
@@ -409,7 +394,7 @@ namespace Microsoft.Sarif.Viewer
         public bool HasMultipleLocations => this.LocationsCount > 1;
 
         [Browsable(false)]
-        public DelegateCommand OpenLogFileCommand => this._openLogFileCommand ?? (this._openLogFileCommand = new DelegateCommand(() =>
+        public DelegateCommand OpenLogFileCommand => this._openLogFileCommand ??= new DelegateCommand(() =>
         {
             // For now this is being done on the UI thread
             // and is only required due to the message box being shown below.
@@ -418,7 +403,7 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             this.OpenLogFile();
-        }));
+        });
 
         internal void OpenLogFile()
         {
@@ -477,10 +462,7 @@ namespace Microsoft.Sarif.Viewer
                 return this._lineMarker;
             }
 
-            set
-            {
-                this._lineMarker = value;
-            }
+            set => this._lineMarker = value;
         }
 
         internal void RemapFilePath(string originalPath, string remappedPath)

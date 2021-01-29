@@ -10,7 +10,7 @@ using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace Microsoft.CodeAnalysis.Sarif.Sarifer
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
 {
     internal class GenerateTestDataCommand
     {
