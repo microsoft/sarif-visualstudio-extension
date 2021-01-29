@@ -84,6 +84,11 @@ namespace Microsoft.Sarif.Viewer
             this.Rule = rule.ToRuleModel(result.RuleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
             (this.ShortMessage, this.Message) = this.SplitMessageText(result.GetMessageText(rule));
+            if (!this.Message.EndsWith("."))
+            {
+                this.ShortMessage = this.ShortMessage.TrimEnd('.');
+            }
+
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
             this.Category = runHasAbsentResults ? result.GetCategory() : nameof(BaselineState.None);
@@ -689,7 +694,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            string restText = shortText.Length == fullText.Length ? shortText : fullText.Substring(shortText.Length).TrimStart(endChars);
+            string restText = shortText.Length < fullText.Length ? fullText.Substring(shortText.Length).TrimStart(endChars) : fullText;
             shortText = shortText.TrimEnd(endChars);
             return (shortText, restText);
         }
