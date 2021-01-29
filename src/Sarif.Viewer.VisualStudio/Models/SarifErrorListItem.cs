@@ -83,13 +83,7 @@ namespace Microsoft.Sarif.Viewer
             this.Tool = run.Tool.ToToolModel();
             this.Rule = rule.ToRuleModel(result.RuleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
-            this.Message = result.GetMessageText(rule, concise: false).Trim();
-            this.ShortMessage = result.GetMessageText(rule, concise: true).Trim();
-            if (!this.Message.EndsWith("."))
-            {
-                this.ShortMessage = this.ShortMessage.TrimEnd('.');
-            }
-
+            (this.ShortMessage, this.Message) = this.SplitMessageText(result.GetMessageText(rule));
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
             this.Category = runHasAbsentResults ? result.GetCategory() : nameof(BaselineState.None);
@@ -214,8 +208,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            this.Message = notification.Message.Text?.Trim() ?? string.Empty;
-            this.ShortMessage = ExtensionMethods.GetFirstSentence(this.Message);
+            (this.ShortMessage, this.Message) = this.SplitMessageText(notification.Message.Text?.Trim() ?? string.Empty);
 
             // This is not locale friendly.
             if (!this.Message.EndsWith("."))
@@ -674,6 +667,31 @@ namespace Microsoft.Sarif.Viewer
 
             FileRegionsCache regionsCache = runDataCache?.FileRegionsCache;
             return this.Locations.Select(location => location.ExtractSnippet(regionsCache));
+        }
+
+        internal (string first, string second) SplitMessageText(string fullText, int maxLength = 120)
+        {
+            string shortText = ExtensionMethods.GetFirstSentence(fullText);
+
+            char[] endChars = new char[] { '\r', '\n', ' ', };
+            if (shortText.Length > maxLength)
+            {
+                // if need to split text longer than maxLength, make sure not split in middle of a word
+                int endPosition = maxLength;
+                if (!endChars.Contains(shortText[maxLength]))
+                {
+                    endPosition = shortText.LastIndexOfAny(endChars);
+                }
+
+                if (endPosition != -1)
+                {
+                    shortText = shortText.Substring(0, endPosition);
+                }
+            }
+
+            string restText = shortText.Length == fullText.Length ? shortText : fullText.Substring(shortText.Length).TrimStart(endChars);
+            shortText = shortText.TrimEnd(endChars);
+            return (shortText, restText);
         }
     }
 }
