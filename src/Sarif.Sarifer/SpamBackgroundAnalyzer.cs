@@ -94,6 +94,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
+                // clear region cache make sure latest text is cached
+                FileRegionsCache.Instance.ClearCache();
+
                 // Filtering file before analyzing.
                 IEnumerable<Skimmer<AnalyzeContext>> applicableSkimmers = AnalyzeCommand.DetermineApplicabilityForTargetHelper(context, this.rules, disabledSkimmers);
 
