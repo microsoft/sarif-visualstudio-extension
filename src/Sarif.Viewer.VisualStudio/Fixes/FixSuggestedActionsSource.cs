@@ -188,7 +188,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         private bool CaretIntersectsSingleErrorLocation(LocationModel locationModel, NormalizedSnapshotSpanCollection caretSpanCollection) =>
             caretSpanCollection.Any(
-                caretSpan => caretSpan.IntersectsWith(locationModel.PersistentSpan.Span.GetSpan(caretSpan.Snapshot)));
+                caretSpan => locationModel.PersistentSpan != null && caretSpan.IntersectsWith(locationModel.PersistentSpan.Span.GetSpan(caretSpan.Snapshot)));
 
         private IEnumerable<SuggestedActionSet> CreateActionSetFromErrors(IEnumerable<SarifErrorListItem> errors)
         {

@@ -393,8 +393,7 @@ namespace Microsoft.Sarif.Viewer
                 Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out Uri uri))
             {
                 // Fill out the region's properties
-                FileRegionsCache regionsCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.RunIndex].FileRegionsCache;
-                this.fullyPopulatedRegion = regionsCache.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
+                this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
             }
 
             this.regionAndFilePathAreFullyPopulated = this.fullyPopulatedRegion != null;
