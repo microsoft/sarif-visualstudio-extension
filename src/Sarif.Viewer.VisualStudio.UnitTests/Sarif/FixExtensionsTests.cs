@@ -49,30 +49,30 @@ namespace AnalysisTestProject2
             {
                 Description = new Message { Text = descriptionString },
                 ArtifactChanges = new List<ArtifactChange>
+                {
+                    new ArtifactChange
+                    {
+                        ArtifactLocation = new ArtifactLocation
                         {
-                            new ArtifactChange
+                            Uri = new Uri(FilePath, UriKind.Absolute),
+                        },
+                        Replacements = new List<Replacement>
+                        {
+                            new Replacement
                             {
-                                ArtifactLocation = new ArtifactLocation
+                                DeletedRegion = new Region
                                 {
-                                    Uri = new Uri(FilePath, UriKind.Absolute),
+                                    CharOffset = 196,
+                                    CharLength = 14,
                                 },
-                                Replacements = new List<Replacement>
+                                InsertedContent = new ArtifactContent
                                 {
-                                    new Replacement
-                                    {
-                                        DeletedRegion = new Region
-                                        {
-                                            CharOffset = 196,
-                                            CharLength = 14,
-                                        },
-                                        InsertedContent = new ArtifactContent
-                                        {
-                                            Text = replacementText
-                                        },
-                                    },
+                                    Text = replacementText
                                 },
                             },
                         },
+                    },
+                },
             }.ToFixModel(originalUriBaseIds: null, regionCache);
 
             fix.Description.Should().BeEquivalentTo(descriptionString);
@@ -105,30 +105,30 @@ namespace AnalysisTestProject2
             {
                 Description = new Message { Text = descriptionString },
                 ArtifactChanges = new List<ArtifactChange>
+                {
+                    new ArtifactChange
+                    {
+                        ArtifactLocation = new ArtifactLocation
                         {
-                            new ArtifactChange
+                            Uri = new Uri(AnotherFilePath, UriKind.Absolute),
+                        },
+                        Replacements = new List<Replacement>
+                        {
+                            new Replacement
                             {
-                                ArtifactLocation = new ArtifactLocation
+                                DeletedRegion = new Region
                                 {
-                                    Uri = new Uri(AnotherFilePath, UriKind.Absolute),
+                                    CharOffset = 196,
+                                    CharLength = 14,
                                 },
-                                Replacements = new List<Replacement>
+                                InsertedContent = new ArtifactContent
                                 {
-                                    new Replacement
-                                    {
-                                        DeletedRegion = new Region
-                                        {
-                                            CharOffset = 196,
-                                            CharLength = 14,
-                                        },
-                                        InsertedContent = new ArtifactContent
-                                        {
-                                            Text = replacementText
-                                        },
-                                    },
+                                    Text = replacementText
                                 },
                             },
                         },
+                    },
+                },
             }.ToFixModel(originalUriBaseIds: null, regionCache);
 
             fix.Description.Should().BeEquivalentTo(descriptionString);
