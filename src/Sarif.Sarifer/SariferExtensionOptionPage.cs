@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Shell;
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     [Guid("BB3665D5-E661-48C0-801A-19B034F3CD5F")]
+    [ComVisible(true)]
     public class SariferExtensionOptionPage : DialogPage
     {
         private const string CategoryName = "Sarifer Options";
