@@ -34,6 +34,7 @@ namespace AnalysisTestProject2
     {
     }
 }";
+
         [Fact]
         public void ToReplacementModel_NullReplacement_ReturnNull()
         {

@@ -34,6 +34,7 @@ namespace AnalysisTestProject2
     {
     }
 }";
+
         [Fact]
         public void ToFixModel_FileExists_FixIsApplyable()
         {
