@@ -413,8 +413,12 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
+            string resolvedPath = null;
             DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            this.TryResolveFilePathFromSolution(dte.Solution, this._fileSystem, originalPath, out string resolvedPath);
+            if (dte.Solution != null && dte.Solution.IsOpen)
+            {
+                this.TryResolveFilePathFromSolution(dte.Solution.FullName, originalPath, this._fileSystem, out resolvedPath);
+            }
 
             if (resolvedPath == null)
             {
@@ -601,20 +605,13 @@ namespace Microsoft.Sarif.Viewer
             return partitions[guid];
         }
 
-        internal bool TryResolveFilePathFromSolution(Solution solution, IFileSystem fileSystem, string pathFromLogFile, out string resolvedPath)
+        internal bool TryResolveFilePathFromSolution(string solutionPath, string pathFromLogFile, IFileSystem fileSystem, out string resolvedPath)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             resolvedPath = null;
             try
             {
-                if (solution == null || !solution.IsOpen)
-                {
-                    return false;
-                }
-
                 pathFromLogFile = pathFromLogFile.Replace('/', '\\');
-                string solutionDirectory = solution.FullName.Substring(0, solution.FullName.LastIndexOf('\\') + 1);
+                string solutionDirectory = solutionPath.Substring(0, solutionPath.LastIndexOf('\\') + 1);
                 string fileToSearch = pathFromLogFile.Substring(pathFromLogFile.LastIndexOf('\\') + 1);
 
                 IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionDirectory, fileToSearch, SearchOption.AllDirectories);

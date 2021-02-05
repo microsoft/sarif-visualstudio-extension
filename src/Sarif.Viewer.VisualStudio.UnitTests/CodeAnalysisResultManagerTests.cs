@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Shell;
 
 using Moq;
 
@@ -256,6 +257,99 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["HAS_SLASH"].Should().Be("file:///C:/code/myProject/src/");
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["NO_SLASH"].Should().Be("file:///C:/code/myProject/test/");
             resultManager.CurrentRunDataCache.OriginalUriBasePaths["NO_SLASH_RELATIVE"].Should().Be("code/myProject/test/");
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSolution_UniqueFileFound()
+        {
+            string solutionPath = @"c:\repo\sarif-sdk\src\Sarif.Sdk.sln";
+            string solutionDirectory = @"c:\repo\sarif-sdk\src\";
+            string fileFromLog = "src/Sarif/Baseline/ResultMatching/RemappingCalculators/SarifLogRemapping.cs";
+            string fileNameFromLog = "sariflogremapping.cs";
+            IEnumerable<string> existingFiles = new string[]
+            {
+                @"c:\repo\sarif-sdk\src\Sarif\Baseline\ResultMatching\RemappingCalculators\SarifLogRemapping.cs",
+            };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.DirectoryEnumerateFiles(solutionDirectory, It.Is<string>(s => string.Equals(s, fileNameFromLog, StringComparison.OrdinalIgnoreCase)), System.IO.SearchOption.AllDirectories))
+                .Returns(existingFiles);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            bool result = resultManager.TryResolveFilePathFromSolution(solutionPath, fileFromLog, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeTrue();
+            resolvedPath.Should().BeEquivalentTo(@"c:\repo\sarif-sdk\src\Sarif\Baseline\ResultMatching\RemappingCalculators\SarifLogRemapping.cs");
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSolution_MultipleFilesFound()
+        {
+            string solutionPath = @"c:\repo\sarif-sdk\src\Sarif.Sdk.sln";
+            string solutionDirectory = @"c:\repo\sarif-sdk\src\";
+            string fileFromLog = "Properties/AssemblyInfo.cs";
+            string fileNameFromLog = "AssemblyInfo.cs";
+            IEnumerable<string> existingFiles = new string[]
+            {
+                @"c:\repo\sarif-sdk\src\Sarif\Properties\AssemblyInfo.cs",
+                @"c:\repo\sarif-sdk\src\Sarif.Multitool\Properties\AssemblyInfo.cs",
+            };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.DirectoryEnumerateFiles(solutionDirectory, fileNameFromLog, System.IO.SearchOption.AllDirectories))
+                .Returns(existingFiles);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            bool result = resultManager.TryResolveFilePathFromSolution(solutionPath, fileFromLog, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeFalse();
+            resolvedPath.Should().BeNull();
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSolution_FileDoesNotExistInSolutionFolder()
+        {
+            string solutionPath = @"c:\repo\sarif-sdk\src\Sarif.Sdk.sln";
+            string solutionDirectory = @"c:\repo\sarif-sdk\src\";
+            string fileFromLog = "src/Sarif.Viewer.VisualStudio.Test.Apex/ErrorListColumnsTestService.cs";
+            string fileNameFromLog = "ErrorListColumnsTestService.cs";
+            IEnumerable<string> searchResults = new string[] { };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(
+                    fs => fs.DirectoryEnumerateFiles(It.Is<string>(s => s.Equals(solutionDirectory)), It.Is<string>(s => s.Equals(fileNameFromLog)), System.IO.SearchOption.AllDirectories))
+                .Returns(searchResults);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            bool result = resultManager.TryResolveFilePathFromSolution(solutionPath, fileFromLog, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeFalse();
+            resolvedPath.Should().BeNull();
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSolution_FileExistButPathNotMatch()
+        {
+            string solutionPath = @"c:\repo\sarif-sdk\src\Sarif.Sdk.sln";
+            string solutionDirectory = @"c:\repo\sarif-sdk\src\";
+            string fileFromLog = "docs/ValidationRules/RULEID.RULEFRIENDLYNAME.cs";
+            string fileNameFromLog = "RULEID.RULEFRIENDLYNAME.cs";
+            IEnumerable<string> foundResults = new string[] { @"c:\repo\sarif-sdk\src\Samples\RULEID.RULEFRIENDLYNAME.cs" };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(
+                    fs => fs.DirectoryEnumerateFiles(solutionDirectory, fileNameFromLog, System.IO.SearchOption.AllDirectories))
+                .Returns(foundResults);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            bool result = resultManager.TryResolveFilePathFromSolution(solutionPath, fileFromLog, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeFalse();
+            resolvedPath.Should().BeNull();
         }
 
         private string FakePromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string fullPathFromLogFile)
