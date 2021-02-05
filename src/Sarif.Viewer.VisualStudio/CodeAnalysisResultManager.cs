@@ -243,8 +243,15 @@ namespace Microsoft.Sarif.Viewer
                 }
                 else
                 {
+                    string solutionPath = null;
+                    DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+                    if (dte.Solution != null && dte.Solution.IsOpen)
+                    {
+                        solutionPath = dte.Solution.FullName;
+                    }
+
                     // User needs to locate file.
-                    resolvedPath = this.GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
+                    resolvedPath = this.GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache, solutionPath);
                 }
 
                 if (string.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
@@ -361,10 +368,8 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Internal rather than private for unit testability.
-        internal string GetRebaselinedFileName(SarifErrorListItem sarifErrorListItem, string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
+        internal string GetRebaselinedFileName(SarifErrorListItem sarifErrorListItem, string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string solutionFullPath = null)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             string originalPath = pathFromLogFile;
             Uri relativeUri = null;
 
@@ -414,10 +419,9 @@ namespace Microsoft.Sarif.Viewer
             }
 
             string resolvedPath = null;
-            DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            if (dte.Solution != null && dte.Solution.IsOpen)
+            if (!string.IsNullOrEmpty(solutionFullPath))
             {
-                this.TryResolveFilePathFromSolution(dte.Solution.FullName, originalPath, this._fileSystem, out resolvedPath);
+                this.TryResolveFilePathFromSolution(solutionFullPath, originalPath, this._fileSystem, out resolvedPath);
             }
 
             if (resolvedPath == null)
