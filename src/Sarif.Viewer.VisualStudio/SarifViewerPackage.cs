@@ -12,6 +12,7 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
 using Task = System.Threading.Tasks.Task;
@@ -128,6 +129,36 @@ namespace Microsoft.Sarif.Viewer
         private object CreateService(IServiceContainer container, Type serviceType)
         {
             return ServiceTypeToServiceInformation.TryGetValue(serviceType, out ServiceInformation serviceInformation) ? serviceInformation.Creator(serviceType) : null;
+        }
+
+        private static IVsShell vsShell;
+
+        private static IVsShell VsShell
+        {
+            get
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+                if (vsShell == null)
+                {
+                    vsShell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
+                }
+
+                return vsShell;
+            }
+        }
+
+        public static IVsPackage LoadViewerPackage()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            Guid serviceGuid = new Guid(PackageGuidString);
+
+            if (VsShell.IsPackageLoaded(ref serviceGuid, out IVsPackage package) == 0 && package != null)
+            {
+                return package;
+            }
+
+            VsShell.LoadPackage(ref serviceGuid, out package);
+            return package;
         }
     }
 }

@@ -34,6 +34,8 @@
     <Menus>
       <Menu guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" priority="0x0080" type="Menu">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>Provide feedback on result</ButtonText>
         </Strings>
@@ -124,12 +126,13 @@
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidClearSarifItemsErrorListCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>Clear all SARIF results</ButtonText>
         </Strings>
       </Button>
     </Buttons>
-
   </Commands>
 
   <Symbols>

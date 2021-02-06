@@ -659,9 +659,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (!SarifViewerPackage.IsUnitTesting)
             {
                 InfoBar.CreateInfoBarsForExceptionalConditionsAsync(e.ExceptionalConditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+
+                // After Sarif results loaded to Error List, make sure Viewer package is loaded
+                SarifViewerPackage.LoadViewerPackage();
             }
         }
     }
