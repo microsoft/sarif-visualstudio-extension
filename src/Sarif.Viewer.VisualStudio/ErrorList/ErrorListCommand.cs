@@ -27,6 +27,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public const int ClearSarifResultsCommandId = 0x0300;
 
+        public const int ProvideFeedbackCommandId = 0x0301;
+
         /// <summary>
         /// Command id for "Useful result".
         /// </summary>
@@ -84,6 +86,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             Assumes.Present(this.menuCommandService);
 
             this.AddMenuItem(ClearSarifResultsCommandId);
+            this.AddMenuItem(ProvideFeedbackCommandId);
             this.AddMenuItem(UsefulResultCommandId);
             this.AddMenuItem(FalsePositiveResultCommandId);
             this.AddMenuItem(NonActionableResultCommandId);
@@ -91,10 +94,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.AddMenuItem(NonShippingCodeResultCommandId);
             this.AddMenuItem(OtherResultCommandId);
 
+            // hide by default
+            this.SetCommandVisibility(ProvideFeedbackCommandId, false);
+            this.SetCommandVisibility(ClearSarifResultsCommandId, false);
+
             var componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
             Assumes.Present(componentModel);
 
             this.selectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+            this.selectionService.SelectedItemChanged += this.SelectionService_SelectedItemChanged;
             Assumes.Present(this.selectionService);
         }
 
@@ -127,11 +135,38 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             Instance = new ErrorListCommand(package);
         }
 
+        private void SelectionService_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            bool visible = e.NewItem != null || (this.selectionService.SelectedItems != null && this.selectionService.SelectedItems.Any());
+            this.SetCommandVisibility(ProvideFeedbackCommandId, visible);
+        }
+
+        private void SetCommandVisibility(int cmdID, bool visible)
+        {
+            var newCmdID = new CommandID(CommandSet, cmdID);
+            MenuCommand mc = menuCommandService.FindCommand(newCmdID);
+            if (mc != null)
+            {
+                mc.Visible = visible;
+            }
+        }
+
         private void AddMenuItem(int commandId)
         {
             var menuCommandID = new CommandID(CommandSet, commandId);
-            var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+            var menuItem = new OleMenuCommand(this.MenuItemCallback, menuCommandID);
+            menuItem.BeforeQueryStatus += this.MenuItem_BeforeQueryStatus;
             this.menuCommandService.AddCommand(menuItem);
+        }
+
+        private void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        {
+            var menuCommand = (MenuCommand)sender;
+            if (menuCommand.CommandID.ID == ClearSarifResultsCommandId)
+            {
+                this.SetCommandVisibility(ClearSarifResultsCommandId,
+                    visible: CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Count != 0);
+            }
         }
 
         /// <summary>

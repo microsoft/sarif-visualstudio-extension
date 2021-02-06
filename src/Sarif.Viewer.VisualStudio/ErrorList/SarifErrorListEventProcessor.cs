@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 
@@ -22,6 +21,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private SarifErrorListItem currentlySelectedItem;
         private SarifErrorListItem currentlyNavigatedItem;
+        private IEnumerable<SarifErrorListItem> selectedItems;
 
         /// <inheritdoc/>
         public SarifErrorListItem SelectedItem
@@ -40,28 +40,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        public IEnumerable<SarifErrorListItem> SelectedItems
-        {
-            get
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-
-                var errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
-                Assumes.Present(errorList);
-
-                var resultList = new List<SarifErrorListItem>();
-                foreach (ITableEntryHandle item in errorList.TableControl.SelectedEntries)
-                {
-                    // only returns sarif result
-                    if (this.TryGetSarifResult(item, out SarifErrorListItem sarifResult))
-                    {
-                        resultList.Add(sarifResult);
-                    }
-                }
-
-                return resultList;
-            }
-        }
+        /// <inheritdoc/>
+        public IEnumerable<SarifErrorListItem> SelectedItems => this.selectedItems;
 
         /// <inheritdoc/>
         public event EventHandler<SarifErrorListSelectionChangedEventArgs> SelectedItemChanged;
@@ -111,16 +91,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Make sure there is only one selection, that's all we support.
             IEnumerator<ITableEntryHandle> enumerator = (this.errorListTableControl.SelectedEntries ?? Enumerable.Empty<ITableEntryHandle>()).GetEnumerator();
             ITableEntryHandle selectedTableEntry = null;
-            if (enumerator.MoveNext())
-            {
-                selectedTableEntry = enumerator.Current;
+            ICollection<SarifErrorListItem> selectedErrorListItems = null;
+            int itemCount = 0;
 
-                if (enumerator.MoveNext())
+            while (enumerator.MoveNext())
+            {
+                itemCount++;
+                ITableEntryHandle current = enumerator.Current;
+                selectedTableEntry ??= current;
+                if (this.TryGetSarifResult(current, out SarifErrorListItem sarifResult))
                 {
-                    selectedTableEntry = null;
+                    selectedErrorListItems ??= new List<SarifErrorListItem>();
+                    selectedErrorListItems.Add(sarifResult);
                 }
             }
 
+            selectedTableEntry = (itemCount > 1) ? null : selectedTableEntry;
             SarifErrorListItem selectedSarifErrorItem = null;
             if (selectedTableEntry != null)
             {
@@ -129,6 +115,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             SarifErrorListItem previouslySelectedItem = this.currentlySelectedItem;
             this.currentlySelectedItem = selectedSarifErrorItem;
+            this.selectedItems = selectedErrorListItems;
 
             SelectedItemChanged?.Invoke(this, new SarifErrorListSelectionChangedEventArgs(previouslySelectedItem, this.currentlySelectedItem));
         }
