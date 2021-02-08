@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,6 +10,10 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+
+using EnvDTE;
+
+using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
@@ -240,8 +243,15 @@ namespace Microsoft.Sarif.Viewer
                 }
                 else
                 {
+                    string solutionPath = null;
+                    DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+                    if (dte.Solution != null && dte.Solution.IsOpen)
+                    {
+                        solutionPath = dte.Solution.FullName;
+                    }
+
                     // User needs to locate file.
-                    resolvedPath = this.GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache);
+                    resolvedPath = this.GetRebaselinedFileName(sarifErrorListItem, uriBaseId, relativePath, dataCache, solutionPath);
                 }
 
                 if (string.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
@@ -358,7 +368,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Internal rather than private for unit testability.
-        internal string GetRebaselinedFileName(SarifErrorListItem sarifErrorListItem, string uriBaseId, string pathFromLogFile, RunDataCache dataCache)
+        internal string GetRebaselinedFileName(SarifErrorListItem sarifErrorListItem, string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string solutionFullPath = null)
         {
             string originalPath = pathFromLogFile;
             Uri relativeUri = null;
@@ -408,7 +418,17 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            string resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
+            string resolvedPath = null;
+            if (!string.IsNullOrEmpty(solutionFullPath))
+            {
+                this.TryResolveFilePathFromSolution(solutionFullPath, originalPath, this._fileSystem, out resolvedPath);
+            }
+
+            if (resolvedPath == null)
+            {
+                resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
+            }
+
             if (resolvedPath == null)
             {
                 return pathFromLogFile;
@@ -587,6 +607,35 @@ namespace Microsoft.Sarif.Viewer
             partitioningVisitor.VisitSarifLog(dataCache.SarifLog);
             Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
             return partitions[guid];
+        }
+
+        internal bool TryResolveFilePathFromSolution(string solutionPath, string pathFromLogFile, IFileSystem fileSystem, out string resolvedPath)
+        {
+            resolvedPath = null;
+            try
+            {
+                pathFromLogFile = pathFromLogFile.Replace('/', '\\');
+                string solutionDirectory = solutionPath.Substring(0, solutionPath.LastIndexOf('\\') + 1);
+                string fileToSearch = pathFromLogFile.Substring(pathFromLogFile.LastIndexOf('\\') + 1);
+
+                IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionDirectory, fileToSearch, SearchOption.AllDirectories);
+                searchResults = searchResults.Where(path => path.EndsWith(pathFromLogFile, StringComparison.OrdinalIgnoreCase));
+
+                // if path like "\AssemblyInfo.cs" it may exists in many projects.
+                // Here try to find a unique file matching the path,
+                // if more than 1 files match the path, we cannot decide which file to select, need manual intervention
+                if (searchResults.ToList().Count == 1)
+                {
+                    resolvedPath = searchResults.FirstOrDefault();
+                    return true;
+                }
+            }
+            catch
+            {
+                // do not threw exception so that it keeps trying to resolve path the next
+            }
+
+            return false;
         }
     }
 }
