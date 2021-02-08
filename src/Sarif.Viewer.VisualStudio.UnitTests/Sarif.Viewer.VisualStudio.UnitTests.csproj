@@ -52,8 +52,8 @@
     <Compile Include="ErrorList\SarifFileWithContentsTests.cs" />
     <Compile Include="ErrorList\SarifResultEntryTests.cs" />
     <Compile Include="ExceptionalConditionsCalculatorTests.cs" />
-    <Compile Include="Models\CallTreeCollectionTests.cs" />
-    <Compile Include="Models\CallTreeTests.cs" />
+    <Compile Include="Models\AnalysisStepCollectionTests.cs" />
+    <Compile Include="Models\AnalysisStepTests.cs" />
     <Compile Include="Models\ArtifactChangeModelTests.cs" />
     <Compile Include="Models\ReplacementModelTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
@@ -66,10 +66,10 @@
     <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UriExtensionsTests.cs" />
-    <Compile Include="CallTreeTraversalTests.cs" />
-    <Compile Include="Converters\CallTreeNodeToTextConverterTests.cs" />
+    <Compile Include="AnalysisStepTraversalTests.cs" />
+    <Compile Include="Converters\AnalysisStepNodeToTextConverterTests.cs" />
     <Compile Include="ThreadFlowToTreeConverterTests.cs" />
-    <Compile Include="Models\CallTreeNodeTests.cs" />
+    <Compile Include="Models\AnalysisStepNodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

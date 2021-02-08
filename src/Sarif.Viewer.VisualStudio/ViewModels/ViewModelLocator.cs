@@ -98,20 +98,20 @@ namespace Microsoft.Sarif.Viewer.ViewModels
                 Region = new Region(23, 1, 23, 2, 0, 0, 0, 0, snippet: null, message: null, sourceLanguage: "en-US", properties: null),
             });
 
-            viewModel.CallTrees.Add(new CallTree(
-                new List<CallTreeNode>
+            viewModel.AnalysisSteps.Add(new AnalysisStep(
+                new List<AnalysisStepNode>
                 {
-                    new CallTreeNode(resultId: 0, runIndex: 0)
+                    new AnalysisStepNode(resultId: 0, runIndex: 0)
                     {
                         Location = new ThreadFlowLocation(),
                     },
 
-                    new CallTreeNode(resultId: 0, runIndex: 0)
+                    new AnalysisStepNode(resultId: 0, runIndex: 0)
                     {
                         Location = new ThreadFlowLocation(),
-                        Children = new List<CallTreeNode>
+                        Children = new List<AnalysisStepNode>
                         {
-                            new CallTreeNode(resultId: 0, runIndex: 0)
+                            new AnalysisStepNode(resultId: 0, runIndex: 0)
                             {
                                 Location = new ThreadFlowLocation(),
                             },

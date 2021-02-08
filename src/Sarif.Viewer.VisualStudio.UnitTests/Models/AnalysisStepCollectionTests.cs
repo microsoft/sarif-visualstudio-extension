@@ -13,13 +13,13 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    public class CallTreeCollectionTests : SarifViewerPackageUnitTests
+    public class AnalysisStepCollectionTests : SarifViewerPackageUnitTests
     {
         [Fact]
-        public void CallTreeCollection_ExpandAll()
+        public void AnalysisStepCollection_ExpandAll()
         {
-            var collection = new CallTreeCollection();
-            collection.Add(this.CreateCallTree());
+            var collection = new AnalysisStepCollection();
+            collection.Add(this.CreateAnalysisStep());
             collection.ExpandAll();
 
             collection[0].TopLevelNodes[0].IsExpanded.Should().BeTrue();
@@ -37,10 +37,10 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         [Fact]
-        public void CallTreeCollection_CollapseAll()
+        public void AnalysisStepCollection_CollapseAll()
         {
-            var collection = new CallTreeCollection();
-            collection.Add(this.CreateCallTree());
+            var collection = new AnalysisStepCollection();
+            collection.Add(this.CreateAnalysisStep());
             collection.CollapseAll();
 
             collection[0].TopLevelNodes[0].IsExpanded.Should().BeFalse();
@@ -58,10 +58,10 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         [Fact]
-        public void CallTreeCollection_IntelligentExpand()
+        public void AnalysisStepCollection_IntelligentExpand()
         {
-            var collection = new CallTreeCollection();
-            collection.Add(this.CreateCallTree());
+            var collection = new AnalysisStepCollection();
+            collection.Add(this.CreateAnalysisStep());
             collection.IntelligentExpand();
 
             collection[0].TopLevelNodes[0].IsExpanded.Should().BeTrue();
@@ -79,10 +79,10 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         [Fact]
-        public void CallTreeCollection_SetVerbosity_Essential()
+        public void AnalysisStepCollection_SetVerbosity_Essential()
         {
-            var collection = new CallTreeCollection();
-            collection.Add(this.CreateCallTree());
+            var collection = new AnalysisStepCollection();
+            collection.Add(this.CreateAnalysisStep());
             collection.Verbosity = 1;
 
             collection[0].TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
@@ -100,10 +100,10 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         [Fact]
-        public void CallTreeCollection_SetVerbosity_Important()
+        public void AnalysisStepCollection_SetVerbosity_Important()
         {
-            var collection = new CallTreeCollection();
-            collection.Add(this.CreateCallTree());
+            var collection = new AnalysisStepCollection();
+            collection.Add(this.CreateAnalysisStep());
             collection.Verbosity = 100;
 
             collection[0].TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
@@ -121,10 +121,10 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         [Fact]
-        public void CallTreeCollection_SetVerbosity_Unimportant()
+        public void AnalysisStepCollection_SetVerbosity_Unimportant()
         {
-            var collection = new CallTreeCollection();
-            collection.Add(this.CreateCallTree());
+            var collection = new AnalysisStepCollection();
+            collection.Add(this.CreateAnalysisStep());
             collection.Verbosity = 200;
 
             collection[0].TopLevelNodes[0].Visibility.Should().Be(Visibility.Visible);
@@ -141,7 +141,7 @@ namespace Microsoft.Sarif.Viewer.Models
             collection[0].TopLevelNodes[4].Children[1].Visibility.Should().Be(Visibility.Visible);
         }
 
-        private CallTree CreateCallTree()
+        private AnalysisStep CreateAnalysisStep()
         {
             CodeFlow codeFlow = SarifUtilities.CreateSingleThreadedCodeFlow(new[]
             {
@@ -207,9 +207,9 @@ namespace Microsoft.Sarif.Viewer.Models
                 },
             });
 
-            var callTree = new CallTree(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
+            var analysisStep = new AnalysisStep(CodeFlowToTreeConverter.Convert(codeFlow, run: null, resultId: 0, runIndex: 0));
 
-            return callTree;
+            return analysisStep;
         }
     }
 }

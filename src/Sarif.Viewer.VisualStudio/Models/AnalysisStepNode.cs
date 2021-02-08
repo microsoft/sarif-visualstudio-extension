@@ -14,15 +14,15 @@ using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    internal class CallTreeNode : CodeLocationObject
+    internal class AnalysisStepNode : CodeLocationObject
     {
         private ThreadFlowLocation _location;
-        private CallTree _callTree;
-        private CallTreeNode _parent;
+        private AnalysisStep _analysisStep;
+        private AnalysisStepNode _parent;
         private bool _isExpanded;
         private Visibility _visbility;
 
-        public CallTreeNode(int resultId, int runIndex)
+        public AnalysisStepNode(int resultId, int runIndex)
             : base(resultId, runIndex)
         {
         }
@@ -137,7 +137,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         nonHighlightedColor: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
                         errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
-                        tooltipContent: CallTreeNodeToTextConverter.MakeDisplayString(this),
+                        tooltipContent: AnalysisStepNodeToTextConverter.MakeDisplayString(this),
                         context: this);
                 }
 
@@ -171,33 +171,33 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         [Browsable(false)]
-        public List<CallTreeNode> Children { get; set; }
+        public List<AnalysisStepNode> Children { get; set; }
 
         [Browsable(false)]
-        public CallTree CallTree
+        public AnalysisStep AnalysisStep
         {
             get
             {
-                return this._callTree;
+                return this._analysisStep;
             }
 
             set
             {
-                this._callTree = value;
+                this._analysisStep = value;
 
                 // If there are any children, set their call tree too.
                 if (this.Children != null)
                 {
                     for (int i = 0; i < this.Children.Count; i++)
                     {
-                        this.Children[i].CallTree = this._callTree;
+                        this.Children[i].AnalysisStep = this._analysisStep;
                     }
                 }
             }
         }
 
         [Browsable(false)]
-        public CallTreeNode Parent
+        public AnalysisStepNode Parent
         {
             get
             {
@@ -211,7 +211,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 // Set our call tree to our new parent's call tree.
                 if (this._parent != null)
                 {
-                    this.CallTree = this._parent.CallTree;
+                    this.AnalysisStep = this._parent.AnalysisStep;
                 }
             }
         }
@@ -314,7 +314,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (this.Children != null)
             {
-                foreach (CallTreeNode child in this.Children)
+                foreach (AnalysisStepNode child in this.Children)
                 {
                     child.ExpandAll();
                 }
@@ -327,7 +327,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (this.Children != null)
             {
-                foreach (CallTreeNode child in this.Children)
+                foreach (AnalysisStepNode child in this.Children)
                 {
                     child.CollapseAll();
                 }
@@ -338,7 +338,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             if (this.Location?.Importance == ThreadFlowLocationImportance.Essential)
             {
-                CallTreeNode current = this;
+                AnalysisStepNode current = this;
 
                 while (current != null)
                 {
@@ -353,7 +353,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (this.Children != null)
             {
-                foreach (CallTreeNode child in this.Children)
+                foreach (AnalysisStepNode child in this.Children)
                 {
                     child.IntelligentExpand();
                 }
@@ -388,7 +388,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (visibility == Visibility.Visible)
             {
-                CallTreeNode current = this;
+                AnalysisStepNode current = this;
 
                 while (current != null)
                 {
@@ -403,7 +403,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (this.Children != null)
             {
-                foreach (CallTreeNode child in this.Children)
+                foreach (AnalysisStepNode child in this.Children)
                 {
                     child.SetVerbosity(importance);
                 }

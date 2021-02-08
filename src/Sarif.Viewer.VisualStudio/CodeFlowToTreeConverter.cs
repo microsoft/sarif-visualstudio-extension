@@ -11,11 +11,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
 {
     internal static class CodeFlowToTreeConverter
     {
-        internal static List<CallTreeNode> Convert(CodeFlow codeFlow, Run run, int resultId, int runIndex)
+        internal static List<AnalysisStepNode> Convert(CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {
-            var root = new CallTreeNode(resultId: resultId, runIndex: runIndex)
+            var root = new AnalysisStepNode(resultId: resultId, runIndex: runIndex)
             {
-                Children = new List<CallTreeNode>(),
+                Children = new List<AnalysisStepNode>(),
             };
 
             ThreadFlow threadFlow = codeFlow.ThreadFlows?[0];
@@ -23,8 +23,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
             if (threadFlow != null)
             {
                 int lastNestingLevel = 0;
-                CallTreeNode lastParent = root;
-                CallTreeNode lastNewNode = null;
+                AnalysisStepNode lastParent = root;
+                AnalysisStepNode lastNewNode = null;
 
                 foreach (ThreadFlowLocation location in threadFlow.Locations)
                 {
@@ -40,10 +40,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         }
                     }
 
-                    var newNode = new CallTreeNode(resultId: resultId, runIndex: runIndex)
+                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex)
                     {
                         Location = location,
-                        Children = new List<CallTreeNode>(),
+                        Children = new List<AnalysisStepNode>(),
                     };
 
                     if (location.NestingLevel > lastNestingLevel)

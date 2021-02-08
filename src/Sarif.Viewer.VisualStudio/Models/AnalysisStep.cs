@@ -10,20 +10,20 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    internal class CallTree : NotifyPropertyChangedObject
+    internal class AnalysisStep : NotifyPropertyChangedObject
     {
-        private CallTreeNode _selectedItem;
+        private AnalysisStepNode _selectedItem;
         private DelegateCommand<TreeView> _selectPreviousCommand;
         private DelegateCommand<TreeView> _selectNextCommand;
 
-        private ObservableCollection<CallTreeNode> _topLevelNodes;
+        private ObservableCollection<AnalysisStepNode> _topLevelNodes;
 
-        public CallTree(IList<CallTreeNode> topLevelNodes)
+        public AnalysisStep(IList<AnalysisStepNode> topLevelNodes)
         {
-            this.TopLevelNodes = new ObservableCollection<CallTreeNode>(topLevelNodes);
+            this.TopLevelNodes = new ObservableCollection<AnalysisStepNode>(topLevelNodes);
         }
 
-        public ObservableCollection<CallTreeNode> TopLevelNodes
+        public ObservableCollection<AnalysisStepNode> TopLevelNodes
         {
             get
             {
@@ -34,18 +34,18 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 this._topLevelNodes = value;
 
-                // Set this object as the CallTree for the child nodes.
+                // Set this object as the AnalysisStep for the child nodes.
                 if (this._topLevelNodes != null)
                 {
                     for (int i = 0; i < this._topLevelNodes.Count; i++)
                     {
-                        this._topLevelNodes[i].CallTree = this;
+                        this._topLevelNodes[i].AnalysisStep = this;
                     }
                 }
             }
         }
 
-        public CallTreeNode SelectedItem
+        public AnalysisStepNode SelectedItem
         {
             get
             {
@@ -63,7 +63,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        internal static bool TryGetIndexInCallTreeNodeList(IList<CallTreeNode> list, CallTreeNode givenNode, out int index)
+        internal static bool TryGetIndexInAnalysisStepNodeList(IList<AnalysisStepNode> list, AnalysisStepNode givenNode, out int index)
         {
             index = -1;
 
@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    CallTreeNode listNode = list[i];
+                    AnalysisStepNode listNode = list[i];
                     if (listNode == givenNode)
                     {
                         index = i;
@@ -83,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Models
             return index != -1;
         }
 
-        internal CallTreeNode FindNext(CallTreeNode currentNode, bool includeChildren)
+        internal AnalysisStepNode FindNext(AnalysisStepNode currentNode, bool includeChildren)
         {
             if (currentNode == null)
             {
@@ -91,15 +91,15 @@ namespace Microsoft.Sarif.Viewer.Models
             }
 
             // For Call nodes, find the first visible child.
-            CallTreeNode nextNode;
+            AnalysisStepNode nextNode;
             if (includeChildren && TryGetFirstItem(currentNode.Children, out nextNode))
             {
                 return nextNode;
             }
 
             // For all other nodes or Call nodes without a visible child, find the next visible sibling.
-            CallTreeNode currentParent = currentNode.Parent;
-            IList<CallTreeNode> nodeList;
+            AnalysisStepNode currentParent = currentNode.Parent;
+            IList<AnalysisStepNode> nodeList;
 
             if (currentParent == null)
             {
@@ -119,18 +119,18 @@ namespace Microsoft.Sarif.Viewer.Models
             return this.FindNext(currentParent, false);
         }
 
-        internal CallTreeNode FindPrevious(CallTreeNode currentNode, bool includeChildren)
+        internal AnalysisStepNode FindPrevious(AnalysisStepNode currentNode, bool includeChildren)
         {
             if (currentNode == null)
             {
                 return null;
             }
 
-            CallTreeNode previousNode;
+            AnalysisStepNode previousNode;
 
             // Find the next visible sibling.
-            CallTreeNode currentParent = currentNode.Parent;
-            IList<CallTreeNode> nodeList;
+            AnalysisStepNode currentParent = currentNode.Parent;
+            IList<AnalysisStepNode> nodeList;
 
             if (currentParent == null)
             {
@@ -143,7 +143,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
             if (TryGetPreviousSibling(nodeList, currentNode, out previousNode))
             {
-                CallTreeNode previousNodeChild;
+                AnalysisStepNode previousNodeChild;
                 if (includeChildren && TryGetLastItem(previousNode.Children, out previousNodeChild))
                 {
                     return previousNodeChild;
@@ -162,16 +162,16 @@ namespace Microsoft.Sarif.Viewer.Models
             return this.FindPrevious(currentParent, false);
         }
 
-        internal static bool TryGetNextSibling(IList<CallTreeNode> items, CallTreeNode currentItem, out CallTreeNode nextSibling)
+        internal static bool TryGetNextSibling(IList<AnalysisStepNode> items, AnalysisStepNode currentItem, out AnalysisStepNode nextSibling)
         {
             nextSibling = null;
 
             int currentIndex;
-            if (TryGetIndexInCallTreeNodeList(items, currentItem, out currentIndex))
+            if (TryGetIndexInAnalysisStepNodeList(items, currentItem, out currentIndex))
             {
                 for (int i = currentIndex + 1; i < items.Count; i++)
                 {
-                    CallTreeNode nextNode = items[i];
+                    AnalysisStepNode nextNode = items[i];
                     if (nextNode.Visibility == System.Windows.Visibility.Visible)
                     {
                         nextSibling = nextNode;
@@ -183,16 +183,16 @@ namespace Microsoft.Sarif.Viewer.Models
             return nextSibling != null;
         }
 
-        internal static bool TryGetPreviousSibling(IList<CallTreeNode> items, CallTreeNode currentItem, out CallTreeNode previousSibling)
+        internal static bool TryGetPreviousSibling(IList<AnalysisStepNode> items, AnalysisStepNode currentItem, out AnalysisStepNode previousSibling)
         {
             previousSibling = null;
 
             int currentIndex;
-            if (TryGetIndexInCallTreeNodeList(items, currentItem, out currentIndex))
+            if (TryGetIndexInAnalysisStepNodeList(items, currentItem, out currentIndex))
             {
                 for (int i = currentIndex - 1; i >= 0; i--)
                 {
-                    CallTreeNode previousNode = items[i];
+                    AnalysisStepNode previousNode = items[i];
                     if (previousNode.Visibility == System.Windows.Visibility.Visible)
                     {
                         previousSibling = previousNode;
@@ -204,7 +204,7 @@ namespace Microsoft.Sarif.Viewer.Models
             return previousSibling != null;
         }
 
-        internal static bool TryGetFirstItem(IList<CallTreeNode> items, out CallTreeNode firstItem)
+        internal static bool TryGetFirstItem(IList<AnalysisStepNode> items, out AnalysisStepNode firstItem)
         {
             firstItem = null;
 
@@ -212,7 +212,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 for (int i = 0; i < items.Count; i++)
                 {
-                    CallTreeNode nextNode = items[i];
+                    AnalysisStepNode nextNode = items[i];
                     if (nextNode.Visibility == System.Windows.Visibility.Visible)
                     {
                         firstItem = nextNode;
@@ -224,7 +224,7 @@ namespace Microsoft.Sarif.Viewer.Models
             return firstItem != null;
         }
 
-        internal static bool TryGetLastItem(IList<CallTreeNode> items, out CallTreeNode lastItem)
+        internal static bool TryGetLastItem(IList<AnalysisStepNode> items, out AnalysisStepNode lastItem)
         {
             lastItem = null;
 
@@ -232,7 +232,7 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 for (int i = items.Count - 1; i >= 0; i--)
                 {
-                    CallTreeNode nextNode = items[i];
+                    AnalysisStepNode nextNode = items[i];
                     if (nextNode.Visibility == System.Windows.Visibility.Visible)
                     {
                         lastItem = nextNode;
@@ -244,9 +244,9 @@ namespace Microsoft.Sarif.Viewer.Models
             return lastItem != null;
         }
 
-        internal CallTreeNode FindNext()
+        internal AnalysisStepNode FindNext()
         {
-            CallTreeNode next = this.FindNext(this.SelectedItem, true);
+            AnalysisStepNode next = this.FindNext(this.SelectedItem, true);
             if (next == null)
             {
                 // no next exists, current remains selected
@@ -259,9 +259,9 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         // go to parent, find self, find previous/next, make sure not to roll off
-        internal CallTreeNode FindPrevious()
+        internal AnalysisStepNode FindPrevious()
         {
-            CallTreeNode previous = this.FindPrevious(this.SelectedItem, true);
+            AnalysisStepNode previous = this.FindPrevious(this.SelectedItem, true);
             if (previous == null)
             {
                 // no previous exists, current remains selected
@@ -283,7 +283,7 @@ namespace Microsoft.Sarif.Viewer.Models
                     this._selectPreviousCommand = new DelegateCommand<TreeView>(treeView =>
                     {
                         var control = treeView as TreeView;
-                        var model = control.DataContext as CallTree;
+                        var model = control.DataContext as AnalysisStep;
                         model.SelectedItem = this.FindPrevious();
                     });
                 }
@@ -302,7 +302,7 @@ namespace Microsoft.Sarif.Viewer.Models
                     this._selectNextCommand = new DelegateCommand<TreeView>(treeView =>
                     {
                         var control = treeView as TreeView;
-                        var model = control.DataContext as CallTree;
+                        var model = control.DataContext as AnalysisStep;
                         model.SelectedItem = this.FindNext();
                     });
                 }
@@ -315,7 +315,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in this.TopLevelNodes)
+                foreach (AnalysisStepNode child in this.TopLevelNodes)
                 {
                     child.ExpandAll();
                 }
@@ -326,7 +326,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in this.TopLevelNodes)
+                foreach (AnalysisStepNode child in this.TopLevelNodes)
                 {
                     child.CollapseAll();
                 }
@@ -337,7 +337,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in this.TopLevelNodes)
+                foreach (AnalysisStepNode child in this.TopLevelNodes)
                 {
                     child.IntelligentExpand();
                 }
@@ -348,7 +348,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             if (this.TopLevelNodes != null)
             {
-                foreach (CallTreeNode child in this.TopLevelNodes)
+                foreach (AnalysisStepNode child in this.TopLevelNodes)
                 {
                     child.SetVerbosity(importance);
                 }
