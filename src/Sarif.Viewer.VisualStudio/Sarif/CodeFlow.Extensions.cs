@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return model;
         }
 
-        public static CallTree ToCallTree(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
+        public static AnalysisStep ToAnalysisStep(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
@@ -46,9 +46,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            List<CallTreeNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run, resultId, runIndex);
+            List<AnalysisStepNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run, resultId, runIndex);
 
-            return new CallTree(topLevelNodes);
+            return new AnalysisStep(topLevelNodes);
         }
     }
 }

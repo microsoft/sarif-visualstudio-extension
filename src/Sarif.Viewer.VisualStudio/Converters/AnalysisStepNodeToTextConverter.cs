@@ -9,11 +9,11 @@ using Microsoft.Sarif.Viewer.Models;
 
 namespace Microsoft.Sarif.Viewer.Converters
 {
-    internal class CallTreeNodeToTextConverter : IValueConverter
+    internal class AnalysisStepNodeToTextConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var node = value as CallTreeNode;
+            var node = value as AnalysisStepNode;
             return node != null ?
                 MakeDisplayString(node) :
                 string.Empty;
@@ -24,9 +24,9 @@ namespace Microsoft.Sarif.Viewer.Converters
             return null;
         }
 
-        public static string MakeDisplayString(CallTreeNode node)
+        public static string MakeDisplayString(AnalysisStepNode node)
         {
-            // Use the following preferences for the CallTreeNode text.
+            // Use the following preferences for the AnalysisStepNode text.
             // 1. ThreadFlowLocation.Location.Message.Text
             // 2. ThreadFlowLocation.Location.PhysicalLocation.Region.Snippet.Text
             // 3. "Continuing"
@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Converters
                 }
                 else
                 {
-                    text = Resources.ContinuingCallTreeNodeMessage;
+                    text = Resources.ContinuingAnalysisStepNodeMessage;
                 }
             }
 

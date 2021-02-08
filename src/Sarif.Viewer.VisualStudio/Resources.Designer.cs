@@ -101,9 +101,9 @@ namespace Microsoft.Sarif.Viewer {
         /// <summary>
         ///   Looks up a localized string similar to Continuing.
         /// </summary>
-        public static string ContinuingCallTreeNodeMessage {
+        public static string ContinuingAnalysisStepNodeMessage {
             get {
-                return ResourceManager.GetString("ContinuingCallTreeNodeMessage", resourceCulture);
+                return ResourceManager.GetString("ContinuingAnalysisStepNodeMessage", resourceCulture);
             }
         }
         

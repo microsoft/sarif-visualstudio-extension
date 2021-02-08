@@ -108,17 +108,17 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (e.Tag.Context is CallTreeNode node)
+            if (e.Tag.Context is AnalysisStepNode node)
             {
                 // If the node is visible in the explorer pane's UI (controlled by verbosity slider)
                 // and have a parent call tree node, then mark it as selected.
-                if (node.Visibility == Visibility.Visible && node.CallTree != null)
+                if (node.Visibility == Visibility.Visible && node.AnalysisStep != null)
                 {
                     // Setting the selected item here causes the SARIF explorer window to update it's selection.
                     // The implementation here is a bit weird because we are telling the "data model" about the
                     // item that is to be selected in the UI. In a better world, the concept of "selection" would
                     // be in the UI logic, not the data model.
-                    node.CallTree.SelectedItem = node;
+                    node.AnalysisStep.SelectedItem = node;
                     this.UpdateSelectionList(node.TypeDescriptor);
                 }
             }

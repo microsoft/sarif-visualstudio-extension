@@ -7,7 +7,7 @@
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/DefaultStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <converters:CallTreeNodeToTextConverter x:Key="CallTreeNodeToTextConverter" />
+    <converters:AnalysisStepNodeToTextConverter x:Key="AnalysisStepNodeToTextConverter" />
 
     <Style x:Key="ToolBarTrayStyle" TargetType="ToolBarTray">
         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
@@ -75,11 +75,11 @@
         <Setter Property="DockPanel.Dock" Value="Top" />
     </Style>
 
-    <Style x:Key="CallTreeTextStyle" BasedOn="{StaticResource BaseTextBlockStyle}" TargetType="TextBlock">
+    <Style x:Key="AnalysisStepTextStyle" BasedOn="{StaticResource BaseTextBlockStyle}" TargetType="TextBlock">
         <Setter Property="Padding" Value="0,0,10,0" />
     </Style>
     
-    <Style x:Key="CallTreeMessageTextStyle" BasedOn="{StaticResource CallTreeTextStyle}" TargetType="TextBlock">
+    <Style x:Key="AnalysisStepMessageTextStyle" BasedOn="{StaticResource AnalysisStepTextStyle}" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
         <Setter Property="FontWeight" Value="Normal" />
         <Style.Triggers>
@@ -98,7 +98,7 @@
         </Style.Triggers>
     </Style>
     
-    <Style x:Key="CallTreeLocationTextStyle" BasedOn="{StaticResource CallTreeTextStyle}" TargetType="TextBlock">
+    <Style x:Key="AnalysisStepLocationTextStyle" BasedOn="{StaticResource AnalysisStepTextStyle}" TargetType="TextBlock">
         <Setter Property="Visibility" Value="{Binding LocationDisplayString, Converter={StaticResource StringToVisibilityConverter}}" />
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
         <Style.Triggers>

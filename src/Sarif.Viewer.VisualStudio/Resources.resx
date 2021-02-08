@@ -132,7 +132,7 @@
   <data name="ConfirmDownloadDialog_Title" xml:space="preserve">
     <value>Confirm Download</value>
   </data>
-  <data name="ContinuingCallTreeNodeMessage" xml:space="preserve">
+  <data name="ContinuingAnalysisStepNodeMessage" xml:space="preserve">
     <value>Continuing</value>
   </data>
   <data name="ConvertNonSarifLog_DialogMessage" xml:space="preserve">

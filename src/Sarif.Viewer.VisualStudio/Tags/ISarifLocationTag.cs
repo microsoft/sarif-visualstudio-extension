@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Gets the data context for this tag.
         /// </summary>
         /// <remarks>
-        /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
+        /// This will be objects like <see cref="AnalysisStepNode"/> or <see cref="SarifErrorListItem"/> and is typically used
         /// for the "data context" for the SARIF explorer window.
         /// </remarks>
         object Context { get; }

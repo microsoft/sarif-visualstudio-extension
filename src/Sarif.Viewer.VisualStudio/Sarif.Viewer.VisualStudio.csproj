@@ -80,7 +80,7 @@
       <DependentUpon>InternetHyperlink.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\BooleanToCollapsedVisibilityConverter.cs" />
-    <Compile Include="Converters\CallTreeNodeToTextConverter.cs" />
+    <Compile Include="Converters\AnalysisStepNodeToTextConverter.cs" />
     <Compile Include="Converters\CollectionToBooleanConverter.cs" />
     <Compile Include="Converters\CollectionToCountConverter.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
@@ -114,9 +114,9 @@
     <Compile Include="Controls\BindableTextBlock.cs" />
     <Compile Include="Services\CloseSarifLogService.cs" />
     <Compile Include="Services\LoadSarifLogService.cs" />
-    <Compile Include="Models\CallTreeCollection.cs" />
-    <Compile Include="Models\CallTree.cs" />
-    <Compile Include="Models\CallTreeNode.cs" />
+    <Compile Include="Models\AnalysisStepCollection.cs" />
+    <Compile Include="Models\AnalysisStep.cs" />
+    <Compile Include="Models\AnalysisStepNode.cs" />
     <Compile Include="Models\LocationCollection.cs" />
     <Compile Include="Models\LocationModel.cs" />
     <Compile Include="Models\ArtifactDetailsModel.cs" />
@@ -158,7 +158,7 @@
     <Compile Include="Telemetry\Events.cs" />
     <Compile Include="Telemetry\FeedbackTelemetryEvent.cs" />
     <Compile Include="Telemetry\TelemetryProvider.cs" />
-    <Compile Include="Views\CallTreeView.cs" />
+    <Compile Include="Views\AnalysisStepView.cs" />
     <Compile Include="Uri.extensions.cs" />
     <Compile Include="Views\SarifToolWindowControl.xaml.cs">
       <DependentUpon>SarifToolWindowControl.xaml</DependentUpon>
@@ -289,7 +289,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\CallTreesStyles.xaml">
+    <Page Include="Themes\AnalysisStepsStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -313,7 +313,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\CallTreesStringResources.xaml">
+    <Page Include="Views\AnalysisStepsStringResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -329,7 +329,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\CallTrees.xaml">
+    <Page Include="Views\AnalysisSteps.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
