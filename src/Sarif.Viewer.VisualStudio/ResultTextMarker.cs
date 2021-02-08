@@ -124,7 +124,7 @@ namespace Microsoft.Sarif.Viewer
         /// Gets the data context for this result marker.
         /// </summary>
         /// <remarks>
-        /// This will be objects like <see cref="CallTreeNode"/> or <see cref="SarifErrorListItem"/> and is typically used
+        /// This will be objects like <see cref="AnalysisStepNode"/> or <see cref="SarifErrorListItem"/> and is typically used
         /// for the "data context" for the SARIF explorer window.
         /// </remarks>
         public object Context { get; }

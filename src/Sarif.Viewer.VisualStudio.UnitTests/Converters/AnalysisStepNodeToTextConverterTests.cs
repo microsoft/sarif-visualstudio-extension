@@ -13,14 +13,14 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
 {
-    public class CallTreeNodeToTextConverterTests
+    public class AnalysisStepNodeToTextConverterTests
     {
         [Fact]
-        public void CallTreeNodeToTextConverter_HandlesLocationMessage()
+        public void AnalysisStepNodeToTextConverter_HandlesLocationMessage()
         {
             const string message = "my_function";
 
-            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
+            var analysisStepNode = new AnalysisStepNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -41,15 +41,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
             };
 
-            VerifyConversion(callTreeNode, message);
+            VerifyConversion(analysisStepNode, message);
         }
 
         [Fact]
-        public void CallTreeNodeToTextConverter_HandlesRegionSnippet()
+        public void AnalysisStepNodeToTextConverter_HandlesRegionSnippet()
         {
             const string snippet = "    int x = 42;";
 
-            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
+            var analysisStepNode = new AnalysisStepNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -70,13 +70,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
             };
 
-            VerifyConversion(callTreeNode, snippet.Trim());
+            VerifyConversion(analysisStepNode, snippet.Trim());
         }
 
         [Fact]
-        public void CallTreeNodeToTextConverter_HandlesNoMessageNorSnippet()
+        public void AnalysisStepNodeToTextConverter_HandlesNoMessageNorSnippet()
         {
-            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
+            var analysisStepNode = new AnalysisStepNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -93,16 +93,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
             };
 
-            VerifyConversion(callTreeNode, Microsoft.Sarif.Viewer.Resources.ContinuingCallTreeNodeMessage);
+            VerifyConversion(analysisStepNode, Microsoft.Sarif.Viewer.Resources.ContinuingAnalysisStepNodeMessage);
         }
 
         [Fact]
-        public void CallTreeNodeToTextConverter_HandlesMessageAndSnippet()
+        public void AnalysisStepNodeToTextConverter_HandlesMessageAndSnippet()
         {
             const string snippet = "    int x = 42;";
             const string message = "my_function";
 
-            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
+            var analysisStepNode = new AnalysisStepNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -127,16 +127,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
             };
 
-            VerifyConversion(callTreeNode, message);
+            VerifyConversion(analysisStepNode, message);
         }
 
         [Fact]
-        public void CallTreeNodeToTextConverter_HandlesNullMessage()
+        public void AnalysisStepNodeToTextConverter_HandlesNullMessage()
         {
             const string snippet = "    int x = 42;";
             const string message = null;
 
-            var callTreeNode = new CallTreeNode(resultId: 0, runIndex: 0)
+            var analysisStepNode = new AnalysisStepNode(resultId: 0, runIndex: 0)
             {
                 Location = new ThreadFlowLocation
                 {
@@ -161,14 +161,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
                 },
             };
 
-            VerifyConversion(callTreeNode, snippet.Trim());
+            VerifyConversion(analysisStepNode, snippet.Trim());
         }
 
-        private static void VerifyConversion(CallTreeNode callTreeNode, string expectedText)
+        private static void VerifyConversion(AnalysisStepNode analysisStepNode, string expectedText)
         {
-            var converter = new CallTreeNodeToTextConverter();
+            var converter = new AnalysisStepNodeToTextConverter();
 
-            string text = (string)converter.Convert(callTreeNode, typeof(string), null, CultureInfo.CurrentCulture);
+            string text = (string)converter.Convert(analysisStepNode, typeof(string), null, CultureInfo.CurrentCulture);
 
             text.Should().Be(expectedText);
         }

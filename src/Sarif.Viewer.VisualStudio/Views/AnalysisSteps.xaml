@@ -3,11 +3,11 @@
                     xmlns:views="clr-namespace:Microsoft.Sarif.Viewer.Views">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/CallTreesStringResources.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/CallTreesStyles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/AnalysisStepsStringResources.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/AnalysisStepsStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <DataTemplate x:Key="CallTreeTemplate">
+    <DataTemplate x:Key="AnalysisStepTemplate">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -40,21 +40,21 @@
                     </ToolBar.Template>
                     <Button x:Name="ToolBarButtonExpand"
                             Command="{Binding ExpandAllCommand}"
-                            ToolTip="{StaticResource CallTrees_ToolBarButtonExpand_ToolTip_String}"
+                            ToolTip="{StaticResource AnalysisSteps_ToolBarButtonExpand_ToolTip_String}"
                             Style="{StaticResource ToolBarGlyphButtonStyle}">
                         <TextBlock Text="+"
                                    Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
                     </Button>
                     <Button x:Name="ToolBarButtonCollapse"
                             Command="{Binding CollapseAllCommand}"
-                            ToolTip="{StaticResource CallTrees_ToolBarButtonCollapse_ToolTip_String}"
+                            ToolTip="{StaticResource AnalysisSteps_ToolBarButtonCollapse_ToolTip_String}"
                             Style="{StaticResource ToolBarGlyphButtonStyle}">
                         <TextBlock Text="-"
                                    Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
                     </Button>
                     <Button x:Name="ToolBarButtonIntelligentExpand"
                             Command="{Binding IntelligentExpandCommand}"
-                            ToolTip="{StaticResource CallTrees_ToolBarButtonIntelligentExpand_ToolTip_String}"
+                            ToolTip="{StaticResource AnalysisSteps_ToolBarButtonIntelligentExpand_ToolTip_String}"
                             Style="{StaticResource ToolBarGlyphButtonStyle}">
                         <TextBlock Text="±"
                                    Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
@@ -76,14 +76,14 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <views:CallTreeView
+                        <views:AnalysisStepView
                                   ItemsSource="{Binding TopLevelNodes}"
                                   Grid.IsSharedSizeScope="True"
                                   KeyboardNavigation.TabNavigation="Continue"
                                   ItemContainerStyle="{StaticResource TreeViewItemContainerStyle}"
                                   Style="{StaticResource TreeViewStyle}">
                             <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate DataType="x:Type local:CallTreeNode"
+                                <HierarchicalDataTemplate DataType="x:Type local:AnalysisStepNode"
                                                           ItemsSource="{Binding Children}">
                                     <Grid>
                                         <Grid.ToolTip>
@@ -96,11 +96,11 @@
                                             <ColumnDefinition SharedSizeGroup="LocationGroup" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0"
-                                                   Text="{Binding Converter={StaticResource CallTreeNodeToTextConverter}}"
-                                                   Style="{StaticResource CallTreeMessageTextStyle}" />
+                                                   Text="{Binding Converter={StaticResource AnalysisStepNodeToTextConverter}}"
+                                                   Style="{StaticResource AnalysisStepMessageTextStyle}" />
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding LocationDisplayString, Mode=OneWay}"
-                                                   Style="{StaticResource CallTreeLocationTextStyle}" />
+                                                   Style="{StaticResource AnalysisStepLocationTextStyle}" />
                                     </Grid>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
@@ -112,7 +112,7 @@
                                             Gesture="CTRL+ALT+SHIFT+F8"
                                             CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
                             </TreeView.InputBindings>
-                        </views:CallTreeView>
+                        </views:AnalysisStepView>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

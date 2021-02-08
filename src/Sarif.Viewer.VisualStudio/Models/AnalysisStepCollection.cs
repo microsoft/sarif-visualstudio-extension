@@ -8,14 +8,14 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
-    internal class CallTreeCollection : ObservableCollection<CallTree>
+    internal class AnalysisStepCollection : ObservableCollection<AnalysisStep>
     {
         private int _verbosity;
         private DelegateCommand _expandAllCommand;
         private DelegateCommand _collapseAllCommand;
         private DelegateCommand _intelligentExpandCommand;
 
-        public CallTreeCollection()
+        public AnalysisStepCollection()
         {
         }
 
@@ -120,17 +120,17 @@ namespace Microsoft.Sarif.Viewer.Models
 
         internal void ExpandAll()
         {
-            foreach (CallTree callTree in this)
+            foreach (AnalysisStep analysisStep in this)
             {
-                callTree.ExpandAll();
+                analysisStep.ExpandAll();
             }
         }
 
         internal void CollapseAll()
         {
-            foreach (CallTree callTree in this)
+            foreach (AnalysisStep analysisStep in this)
             {
-                callTree.CollapseAll();
+                analysisStep.CollapseAll();
             }
         }
 
@@ -143,21 +143,21 @@ namespace Microsoft.Sarif.Viewer.Models
 #pragma warning restore VSTHRD108
             }
 
-            foreach (CallTree callTree in this)
+            foreach (AnalysisStep analysisStep in this)
             {
-                CallTreeNode selectedItem = callTree.SelectedItem;
+                AnalysisStepNode selectedItem = analysisStep.SelectedItem;
 
-                callTree.IntelligentExpand();
+                analysisStep.IntelligentExpand();
 
-                callTree.SelectedItem = selectedItem;
+                analysisStep.SelectedItem = selectedItem;
             }
         }
 
         internal void SetVerbosity(ThreadFlowLocationImportance importance)
         {
-            foreach (CallTree callTree in this)
+            foreach (AnalysisStep analysisStep in this)
             {
-                callTree.SetVerbosity(importance);
+                analysisStep.SetVerbosity(importance);
             }
         }
 
@@ -170,11 +170,11 @@ namespace Microsoft.Sarif.Viewer.Models
 #pragma warning restore VSTHRD108
             }
 
-            foreach (CallTree callTree in this)
+            foreach (AnalysisStep analysisStep in this)
             {
-                if (callTree.SelectedItem != null && callTree.SelectedItem.Visibility != System.Windows.Visibility.Visible)
+                if (analysisStep.SelectedItem != null && analysisStep.SelectedItem.Visibility != System.Windows.Visibility.Visible)
                 {
-                    callTree.SelectedItem = callTree.FindPrevious();
+                    analysisStep.SelectedItem = analysisStep.FindPrevious();
                 }
             }
         }

@@ -59,7 +59,7 @@ namespace Microsoft.Sarif.Viewer
         {
             this.Locations = new LocationCollection(string.Empty);
             this.RelatedLocations = new LocationCollection(string.Empty);
-            this.CallTrees = new CallTreeCollection();
+            this.AnalysisSteps = new AnalysisStepCollection();
             this.Stacks = new ObservableCollection<StackCollection>();
             this.Fixes = new ObservableCollection<FixModel>();
         }
@@ -132,15 +132,15 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in result.CodeFlows)
                 {
-                    var callTree = codeFlow.ToCallTree(run, resultId: this.ResultId, runIndex: this.RunIndex);
-                    if (callTree != null)
+                    var analysisStep = codeFlow.ToAnalysisStep(run, resultId: this.ResultId, runIndex: this.RunIndex);
+                    if (analysisStep != null)
                     {
-                        this.CallTrees.Add(callTree);
+                        this.AnalysisSteps.Add(analysisStep);
                     }
                 }
 
-                this.CallTrees.Verbosity = 100;
-                this.CallTrees.IntelligentExpand();
+                this.AnalysisSteps.Verbosity = 100;
+                this.AnalysisSteps.IntelligentExpand();
             }
 
             if (result.Stacks != null)
@@ -373,7 +373,7 @@ namespace Microsoft.Sarif.Viewer
         public LocationCollection RelatedLocations { get; }
 
         [Browsable(false)]
-        public CallTreeCollection CallTrees { get; }
+        public AnalysisStepCollection AnalysisSteps { get; }
 
         [Browsable(false)]
         public ObservableCollection<StackCollection> Stacks { get; }
@@ -382,7 +382,7 @@ namespace Microsoft.Sarif.Viewer
         public ObservableCollection<FixModel> Fixes { get; }
 
         [Browsable(false)]
-        public bool HasDetails => this.Locations.Any() || this.RelatedLocations.Any() || this.CallTrees.Any() || this.Stacks.Any() || this.Fixes.Any();
+        public bool HasDetails => this.Locations.Any() || this.RelatedLocations.Any() || this.AnalysisSteps.Any() || this.Stacks.Any() || this.Fixes.Any();
 
         [Browsable(false)]
         public int LocationsCount => this.Locations.Count + this.RelatedLocations.Count;
@@ -492,18 +492,18 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            foreach (CallTree callTree in this.CallTrees)
+            foreach (AnalysisStep analysisStep in this.AnalysisSteps)
             {
-                var nodesToProcess = new Stack<CallTreeNode>();
+                var nodesToProcess = new Stack<AnalysisStepNode>();
 
-                foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
+                foreach (AnalysisStepNode topLevelNode in analysisStep.TopLevelNodes)
                 {
                     nodesToProcess.Push(topLevelNode);
                 }
 
                 while (nodesToProcess.Count > 0)
                 {
-                    CallTreeNode current = nodesToProcess.Pop();
+                    AnalysisStepNode current = nodesToProcess.Pop();
                     try
                     {
                         if (current.FilePath?.Equals(originalPath, StringComparison.OrdinalIgnoreCase) == true)
@@ -519,7 +519,7 @@ namespace Microsoft.Sarif.Viewer
                         // Just move on with processing the child nodes.
                     }
 
-                    foreach (CallTreeNode childNode in current.Children)
+                    foreach (AnalysisStepNode childNode in current.Children)
                     {
                         nodesToProcess.Push(childNode);
                     }
@@ -625,29 +625,29 @@ namespace Microsoft.Sarif.Viewer
                 resultTextMarkers = resultTextMarkers.Concat(this.Locations.Select(location => location.LineMarker));
                 resultTextMarkers = resultTextMarkers.Concat(this.RelatedLocations.Select(relatedLocation => relatedLocation.LineMarker));
 
-                foreach (CallTree callTree in this.CallTrees)
+                foreach (AnalysisStep analysisStep in this.AnalysisSteps)
                 {
-                    var nodesToProcess = new Stack<CallTreeNode>();
-                    var allCallTreeNodes = new List<CallTreeNode>();
+                    var nodesToProcess = new Stack<AnalysisStepNode>();
+                    var allAnalysisStepNodes = new List<AnalysisStepNode>();
 
-                    foreach (CallTreeNode topLevelNode in callTree.TopLevelNodes)
+                    foreach (AnalysisStepNode topLevelNode in analysisStep.TopLevelNodes)
                     {
                         nodesToProcess.Push(topLevelNode);
                     }
 
                     while (nodesToProcess.Count > 0)
                     {
-                        CallTreeNode current = nodesToProcess.Pop();
+                        AnalysisStepNode current = nodesToProcess.Pop();
 
-                        allCallTreeNodes.Add(current);
+                        allAnalysisStepNodes.Add(current);
 
-                        foreach (CallTreeNode childNode in current.Children)
+                        foreach (AnalysisStepNode childNode in current.Children)
                         {
                             nodesToProcess.Push(childNode);
                         }
                     }
 
-                    resultTextMarkers = resultTextMarkers.Concat(allCallTreeNodes.Select(callTreeNode => callTreeNode.LineMarker));
+                    resultTextMarkers = resultTextMarkers.Concat(allAnalysisStepNodes.Select(analysisStepNode => analysisStepNode.LineMarker));
                 }
 
                 foreach (StackCollection stackCollection in this.Stacks)
