@@ -673,29 +673,28 @@ namespace Microsoft.Sarif.Viewer
             return this.Locations.Select(location => location.ExtractSnippet(regionsCache));
         }
 
-        internal (string first, string second) SplitMessageText(string fullText, int maxLength = 120)
+        internal (string first, string second) SplitMessageText(string fullText, int maxLength = 165)
         {
-            string shortText = ExtensionMethods.GetFirstSentence(fullText);
+            // remove line breakers
+            fullText = fullText.Replace(Environment.NewLine, " ").Replace("\r", " ").Replace("\n", " ");
 
+            string text = fullText;
+            int endPosition = fullText.Length - 1;
             char[] endChars = new char[] { '\r', '\n', ' ', };
-            if (shortText.Length > maxLength)
+            if (text.Length > maxLength)
             {
-                // if need to split text longer than maxLength, make sure not split in middle of a word
-                int endPosition = maxLength;
-                if (!endChars.Contains(shortText[maxLength]))
+                // if need to split text longer than maxLength, make sure not split in middle of a word.
+                if (!endChars.Contains(text[maxLength]))
                 {
-                    endPosition = shortText.LastIndexOfAny(endChars);
+                    endPosition = text.LastIndexOfAny(endChars, maxLength);
                 }
 
-                if (endPosition != -1)
-                {
-                    shortText = shortText.Substring(0, endPosition);
-                }
+                endPosition = endPosition == -1 ? maxLength : endPosition;
+                text = text.Substring(0, endPosition) + " \u2026"; // u2026 is Unicode "horizontal ellipsis";
             }
 
-            string restText = shortText.Length < fullText.Length ? fullText.Substring(shortText.Length).TrimStart(endChars) : fullText;
-            shortText = shortText.TrimEnd(endChars);
-            return (shortText, restText);
+            string restText = endPosition + 1 < fullText.Length ? fullText.Substring(endPosition).TrimStart(endChars) : fullText;
+            return (text.TrimEnd(endChars), restText.TrimEnd(endChars));
         }
     }
 }
