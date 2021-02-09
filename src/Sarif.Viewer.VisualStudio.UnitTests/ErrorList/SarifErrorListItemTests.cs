@@ -422,6 +422,25 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_TextWitLinerBreak()
+        {
+            const string s0 = "The quick brown fox. Jumps over the lazy dog.";
+            // text with varies style of line breakers 
+            string s1 = "The\rquick brown fox." + Environment.NewLine + "Jumps over the lazy\ndog.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1,
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Message.Should().Be(s0);
+            item.ShortMessage.Should().Be(s0);
+        }
+
+        [Fact]
         public void SarifErrorListItem_HasEmbeddedLinks_MultipleSentencesWithEmbeddedLinks()
         {
             const string s1 = "The quick [brown](1) fox.";
