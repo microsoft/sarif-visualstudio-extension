@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using FluentAssertions;
 
@@ -359,8 +360,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
-            item.Message.Should().Be($"{s2}");
-            item.ShortMessage.Should().Be(s1);
+
+            // with the change related to #360, message is not separated by sentence.
+            item.Message.Should().Be($"{s1} {s2}");
+            item.ShortMessage.Should().Be($"{s1} {s2}");
         }
 
         [Fact]
@@ -378,6 +381,63 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifErrorListItem item = MakeErrorListItem(result);
             item.Message.Should().Be(s1);
             item.ShortMessage.Should().Be(s1);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_LongTextWithoutBreak()
+        {
+            // very long text without break like space or NewLine, longer than default max lengh 165
+            const string s1 = "1234567890";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = string.Concat(Enumerable.Repeat(s1, 20)), // replace s1 10 times, a string which length is 200
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            int breakPoistion = 165;
+            item.ShortMessage.Length.Should().Be(breakPoistion + 2);
+            item.Message.Length.Should().Be(200 - breakPoistion);
+        }
+
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_LongTextWitBreak()
+        {
+            // very long text has a space every 10 chars 
+            const string s1 = "123456789 ";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = string.Concat(Enumerable.Repeat(s1, 20)), // replace s1 10 times, a string which length is 200
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            int breakPoistion = 159; // 0 indexed
+            item.ShortMessage.Length.Should().Be(breakPoistion + 2); // the space break the text will be removed
+            item.Message.Length.Should().Be(200 - breakPoistion - 2); // last space is trimmed
+        }
+
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_TextWitLinerBreak()
+        {
+            const string s0 = "The quick brown fox. Jumps over the lazy dog.";
+            // text with varies style of line breakers 
+            string s1 = "The\rquick brown fox." + Environment.NewLine + "Jumps over the lazy\ndog.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1,
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Message.Should().Be(s0);
+            item.ShortMessage.Should().Be(s0);
         }
 
         [Fact]
