@@ -155,7 +155,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     if (!uri.IsFile)
                     {
-                        System.Diagnostics.Process.Start(uri.OriginalString)?.Dispose();
+                        SdkUIUtilities.OpenExternalUrl(uri.OriginalString);
                         return true;
                     }
                 }
