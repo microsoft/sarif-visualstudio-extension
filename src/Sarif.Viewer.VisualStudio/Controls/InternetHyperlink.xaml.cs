@@ -56,7 +56,7 @@ namespace Microsoft.Sarif.Viewer.Controls
         {
             if (this.NavigateUri != null)
             {
-                System.Diagnostics.Process.Start(this.NavigateUri);
+                SdkUIUtilities.OpenExternalUrl(this.NavigateUri);
             }
         }
     }

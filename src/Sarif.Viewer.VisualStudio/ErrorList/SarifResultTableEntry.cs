@@ -238,13 +238,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // This is super dangerous! We are launching URIs for SARIF logs
             // that can point to anything.
             // https://github.com/microsoft/sarif-visualstudio-extension/issues/171
-            else if (hyperLink.Tag is string uriAsString)
+            else
             {
-                System.Diagnostics.Process.Start(uriAsString);
-            }
-            else if (hyperLink.Tag is Uri uri)
-            {
-                System.Diagnostics.Process.Start(uri.ToString());
+                string uriString = null;
+                if (hyperLink.Tag is string uriAsString)
+                {
+                    uriString = uriAsString;
+                }
+                else if (hyperLink.Tag is Uri uri)
+                {
+                    uriString = uri.ToString();
+                }
+
+                SdkUIUtilities.OpenExternalUrl(uriString);
             }
         }
 

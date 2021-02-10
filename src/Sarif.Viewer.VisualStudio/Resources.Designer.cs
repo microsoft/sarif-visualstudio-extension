@@ -459,6 +459,24 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Do you want to open the external website? {0}.
+        /// </summary>
+        public static string OpenExternalUri_DialogMessage {
+            get {
+                return ResourceManager.GetString("OpenExternalUri_DialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Hyperlink.
+        /// </summary>
+        public static string OpenExternalUri_DialogTitle {
+            get {
+                return ResourceManager.GetString("OpenExternalUri_DialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The log file &apos;{0}&apos; was not found..
         /// </summary>
         public static string OpenLogFileFail_DialogMessage {

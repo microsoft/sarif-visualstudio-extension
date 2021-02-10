@@ -709,5 +709,24 @@ namespace Microsoft.Sarif.Viewer
 
             return path;
         }
+
+        internal static bool OpenExternalUrl(string uriString, int maxLength = 150)
+        {
+            if (!string.IsNullOrEmpty(uriString) && Uri.TryCreate(uriString, UriKind.RelativeOrAbsolute, out Uri result))
+            {
+                uriString = uriString.Length > maxLength ? uriString.Substring(0, maxLength) + " \u2026" : uriString;
+                if (System.Windows.Forms.MessageBox.Show(
+                                            string.Format(Resources.OpenExternalUri_DialogMessage, Environment.NewLine + uriString),
+                                            Resources.OpenExternalUri_DialogTitle,
+                                            MessageBoxButtons.YesNo,
+                                            MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start(uriString)?.Dispose();
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
