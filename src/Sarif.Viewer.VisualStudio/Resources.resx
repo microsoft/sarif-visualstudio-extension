@@ -353,4 +353,10 @@
   <data name="PromptForResolvedPathDialogTitle" xml:space="preserve">
     <value>Locate missing file: {0}</value>
   </data>
+  <data name="OpenExternalUri_DialogMessage" xml:space="preserve">
+    <value>Do you want to open the external website? {0}</value>
+  </data>
+  <data name="OpenExternalUri_DialogTitle" xml:space="preserve">
+    <value>Open Hyperlink</value>
+  </data>
 </root>
