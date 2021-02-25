@@ -84,7 +84,8 @@ namespace Microsoft.Sarif.Viewer
             this.Tool = run.Tool.ToToolModel();
             this.Rule = rule.ToRuleModel(result.RuleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
-            (this.ShortMessage, this.Message) = this.SplitMessageText(result.GetMessageText(rule));
+            this.RawMessage = result.GetMessageText(rule);
+            (this.ShortMessage, this.Message) = this.SplitMessageText(RawMessage);
             if (!this.Message.EndsWith("."))
             {
                 this.ShortMessage = this.ShortMessage.TrimEnd('.');
@@ -207,7 +208,8 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            (this.ShortMessage, this.Message) = this.SplitMessageText(notification.Message.Text?.Trim() ?? string.Empty);
+            this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
+            (this.ShortMessage, this.Message) = this.SplitMessageText(this.RawMessage);
 
             // This is not locale friendly.
             if (!this.Message.EndsWith("."))
@@ -278,8 +280,11 @@ namespace Microsoft.Sarif.Viewer
         public string Message { get; set; }
 
         [Browsable(false)]
+        public string RawMessage { get; set; }
+
+        [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines
-            ?? (this._messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.Message)));
+            ?? (this._messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.RawMessage)));
 
         [Browsable(false)]
         public bool HasEmbeddedLinks => this.MessageInlines.Any();
