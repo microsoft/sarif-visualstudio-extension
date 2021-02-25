@@ -11,6 +11,8 @@ using Microsoft.CodeAnalysis.Sarif;
 
 using Xunit;
 
+using XamlDoc = System.Windows.Documents;
+
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public class SarifErrorListItemTests
@@ -441,6 +443,29 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifErrorListItem_HasLongEmbeddedLink()
+        {
+            const string s1 = "The quick brown fox. Jumps over the lazy dog. Reference to [docs](https://github.com/long/path/to/docs/1234567890/1234567890/1234567890/1234567890/1234567890/1234567890/1234567890/)";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1,
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.HasEmbeddedLinks.Should().BeTrue();
+
+            // "The quick brown fox. Jumps over the lazy dog. Reference to ", "docs"
+            item.MessageInlines.Count.Should().Be(2);
+            item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
+                .Should().BeEquivalentTo("The quick brown fox. Jumps over the lazy dog. Reference to ");
+            item.MessageInlines[1].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
+                .Should().BeEquivalentTo("docs");
+        }
+
+        [Fact]
         public void SarifErrorListItem_HasEmbeddedLinks_MultipleSentencesWithEmbeddedLinks()
         {
             const string s1 = "The quick [brown](1) fox.";
@@ -455,6 +480,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             SarifErrorListItem item = MakeErrorListItem(result);
             item.HasEmbeddedLinks.Should().BeTrue();
+
+            // "The quick ", "brown", " fox. Jumps over the ", "lazy", " dog."
+            item.MessageInlines.Count.Should().Be(5);
+            item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("The quick ");
+            item.MessageInlines[1].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("brown");
+            item.MessageInlines[2].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" fox. Jumps over the ");
+            item.MessageInlines[3].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("lazy");
+            item.MessageInlines[4].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" dog.");
+
         }
 
         [Fact]

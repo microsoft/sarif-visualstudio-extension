@@ -110,7 +110,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // it when it's asked for.
             this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
             {
-                string message = this.Error.Message;
+                string message = this.Error.RawMessage;
                 List<Inline> inlines = SdkUIUtilities.GetMessageInlines(message, this.ErrorListInlineLink_Click);
 
                 if (inlines.Count > 0)
