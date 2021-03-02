@@ -492,6 +492,64 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifErrorListItem_HelpLinkShouldBeSameAs_RuleHelpUri()
+        {
+            string link = "https://example.com/TST0001";
+            var result = new Result
+            {
+                Message = new Message
+                {
+                    Text = "The quick brown fox.",
+                },
+                RuleId = "TST0001",
+            };
+
+            var run = new Run
+            {
+                Tool = new Tool
+                {
+                    Driver = new ToolComponent
+                    {
+                        Rules = new List<ReportingDescriptor>
+                        {
+                            new ReportingDescriptor
+                            {
+                                Id = "TST0001",
+                                HelpUri = new Uri(link),
+                            },
+                        },
+                    },
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(run, result);
+
+            item.HelpLink.Should().NotBeNull();
+            item.HelpLink.Should().BeEquivalentTo(link);
+
+            // without help Uri
+            run = new Run
+            {
+                Tool = new Tool
+                {
+                    Driver = new ToolComponent
+                    {
+                        Rules = new List<ReportingDescriptor>
+                        {
+                            new ReportingDescriptor
+                            {
+                                Id = "TST0001"
+                            },
+                        },
+                    },
+                },
+            };
+
+            item = MakeErrorListItem(run, result);
+            item.HelpLink.Should().BeNull();
+        }
+
+        [Fact]
         public void SarifErrorListItem_TreatsInformationalResultAsNote()
         {
             var result = new Result
