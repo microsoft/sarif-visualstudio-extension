@@ -85,8 +85,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // i.e. if we pass 5, the error list will display 6.
             // Subtract one from the line number so the error list displays the correct value.
             this.columnKeyToContent[StandardTableKeyNames.Line] = this.Error.LineNumber - 1;
+            this.columnKeyToContent[StandardTableKeyNames.Column] = this.Error.ColumnNumber - 1;
 
-            this.columnKeyToContent[StandardTableKeyNames.Column] = this.Error.ColumnNumber;
             this.columnKeyToContent[StandardTableKeyNames.ErrorSeverity] = GetSeverity(this.Error.Level);
             this.columnKeyToContent[StandardTableKeyNames.Priority] = GetSeverity(this.Error.Level) == __VSERRORCATEGORY.EC_ERROR
                     ? vsTaskPriority.vsTaskPriorityHigh

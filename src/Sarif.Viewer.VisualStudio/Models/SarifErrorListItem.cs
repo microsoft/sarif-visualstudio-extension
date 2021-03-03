@@ -84,6 +84,9 @@ namespace Microsoft.Sarif.Viewer
             this.Tool = run.Tool.ToToolModel();
             this.Rule = rule.ToRuleModel(result.RuleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
+            this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
+            this.HelpLink = this.Rule?.HelpUri;
+
             this.RawMessage = result.GetMessageText(rule);
             (this.ShortMessage, this.Message) = this.SplitMessageText(RawMessage);
             if (!this.Message.EndsWith("."))
@@ -106,11 +109,6 @@ namespace Microsoft.Sarif.Viewer
                 this.LineNumber = this.Region.StartLine;
                 this.ColumnNumber = this.Region.StartColumn;
             }
-
-            this.Tool = run.Tool.ToToolModel();
-            this.Rule = rule.ToRuleModel(result.RuleId);
-            this.Invocation = run.Invocations?[0]?.ToInvocationModel();
-            this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
 
             if (result.Locations?.Any() == true)
             {
@@ -227,6 +225,7 @@ namespace Microsoft.Sarif.Viewer
             this.Rule = rule.ToRuleModel(ruleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
             this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
+            this.HelpLink = this.Rule?.HelpUri;
         }
 
         /// <summary>
