@@ -168,7 +168,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         // error list.
         private void TextBufferViewTracker_LastViewRemoved(object sender, LastViewRemovedEventArgs e)
         {
-            this.sarifViewerInterop.CloseSarifLogAsync(new string[] { e.Path })
+            this.backgroundAnalysisService.Value.CloseResultsAsync(e.Path)
                 .FileAndForget(FileAndForgetEventName.CloseSarifLogsFailure);
         }
 
