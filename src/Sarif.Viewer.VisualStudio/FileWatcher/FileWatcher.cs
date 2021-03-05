@@ -54,6 +54,8 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             {
                 if (fileSystemWatcher != null)
                 {
+                    fileSystemWatcher.Changed -= this.SarifLogFile_Changed;
+                    fileSystemWatcher.Renamed -= this.SarifLogFile_Renamed;
                     fileSystemWatcher.Dispose();
                     fileSystemWatcher = null;
                 }
