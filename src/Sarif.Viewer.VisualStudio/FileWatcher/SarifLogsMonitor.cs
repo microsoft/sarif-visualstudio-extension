@@ -19,7 +19,8 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
     {
         private readonly IFileSystem fileSystem;
 
-        private IDictionary<string, IFileWatcher> FileWatcherMap { get; } = new ConcurrentDictionary<string, IFileWatcher>();
+        private IDictionary<string, IFileWatcher> FileWatcherMap { get; } =
+            new ConcurrentDictionary<string, IFileWatcher>(StringComparer.OrdinalIgnoreCase);
 
         internal SarifLogsMonitor(IFileSystem fs)
         {
@@ -35,24 +36,24 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
                 return;
             }
 
-            string logPath = logFilePath.ToLower();
-            if (!FileWatcherMap.ContainsKey(logPath))
+            if (!FileWatcherMap.ContainsKey(logFilePath))
             {
                 var watcher = new FileWatcher(logFilePath);
                 watcher.SarifLogFileChanged += this.Watcher_SarifLogFileChanged;
                 watcher.SarifLogFileRenamed += this.Watcher_SarifLogFileRenamed;
-                FileWatcherMap.Add(logPath, watcher);
+                FileWatcherMap.Add(logFilePath, watcher);
                 watcher.Start();
             }
         }
 
         internal void Clear()
         {
-            if (FileWatcherMap.Any())
+            foreach (IFileWatcher watcher in FileWatcherMap.Values)
             {
-                FileWatcherMap.Values.ToList().ForEach(w => w.Stop());
-                FileWatcherMap.Clear();
+                (watcher as IDisposable)?.Dispose();
             }
+
+            FileWatcherMap.Clear();
         }
 
         private void Watcher_SarifLogFileRenamed(object sender, System.IO.RenamedEventArgs e)
@@ -63,17 +64,15 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
              * Here we need to catch the event the 1st temp file is renamed to current file name
              * and ignore event current file is renamed to 2nd temp file.
              */
-            string filePath = e.FullPath;
-            if (FileWatcherMap.ContainsKey(filePath.ToLower()))
+            if (FileWatcherMap.ContainsKey(e.FullPath))
             {
-                this.RefreshSarifErrors(filePath);
+                this.RefreshSarifErrors(e.FullPath);
             }
         }
 
         private void Watcher_SarifLogFileChanged(object sender, System.IO.FileSystemEventArgs e)
         {
-            string filePath = e.FullPath;
-            this.RefreshSarifErrors(filePath);
+            this.RefreshSarifErrors(e.FullPath);
         }
 
         private void RefreshSarifErrors(string filePath)
@@ -84,11 +83,10 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         internal void StopWatch(string logFilePath)
         {
-            string logPath = logFilePath.ToLower();
-            if (FileWatcherMap.TryGetValue(logPath, out IFileWatcher watcher))
+            if (FileWatcherMap.TryGetValue(logFilePath, out IFileWatcher watcher))
             {
                 watcher.Stop();
-                FileWatcherMap.Remove(logPath);
+                FileWatcherMap.Remove(logFilePath);
             }
         }
 
