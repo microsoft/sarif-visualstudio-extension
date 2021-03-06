@@ -65,6 +65,9 @@
     <Compile Include="ExceptionalConditions.cs" />
     <Compile Include="ExceptionalConditionsCalculator.cs" />
     <Compile Include="FileAndForgetEventName.cs" />
+    <Compile Include="FileWatcher\FileWatcher.cs" />
+    <Compile Include="FileWatcher\IFileWatcher.cs" />
+    <Compile Include="FileWatcher\SarifLogsMonitor.cs" />
     <Compile Include="Fixes\EditActionPreviewProvider.cs" />
     <Compile Include="Fixes\IPreviewProvider.cs" />
     <Compile Include="Fixes\LineSpan.cs" />
