@@ -24,6 +24,7 @@ using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.Sarif.Viewer.Controls;
+using Microsoft.Sarif.Viewer.FileWatcher;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -293,6 +294,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                     CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
                 }
+
+                SarifLogsMonitor.Instance.StopWatch(logFile);
             }
 
             foreach (int runIdToClear in runIdsToClear)
@@ -301,6 +304,48 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             SarifLocationTagHelpers.RefreshTags();
+        }
+
+        public static async Task CloseSarifLogItemsAsync(IEnumerable<string> logFiles)
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            }
+
+            SarifTableDataSource.Instance.ClearErrorsForLogFiles(logFiles);
+
+            var runIdsToClear = new List<int>();
+
+            foreach (string logFile in logFiles)
+            {
+                // The null conditional operator in the Where clause is necessary because log files
+                // that come in through the API ILoadSarifLogService.LoadSarifLog(Stream) don't have
+                // a file name. The good news is, we never close such a log file. If in future we
+                // do need to close such a log file, we'll need to synthesize a log file name so we
+                // know which runs belong to that file.
+                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
+                    Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
+                    Select(runDataCacheKvp => runDataCacheKvp.Key));
+
+                if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                    .Any(kvp => kvp.Value.SarifErrors
+                        .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true)))
+                {
+                    KeyValuePair<int, RunDataCache> cache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                        .First(kvp => kvp.Value.SarifErrors
+                            .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true));
+                    SarifErrorListItem sarifError = cache.Value.SarifErrors.First(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
+                    cache.Value.SarifErrors.Remove(sarifError);
+
+                    CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
+                }
+            }
+
+            foreach (int runIdToClear in runIdsToClear)
+            {
+                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
+            }
         }
 
         /// <summary>
@@ -462,6 +507,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     SdkUIUtilities.ShowToolWindowAsync(new Guid(ToolWindowGuids80.ErrorList), activate: false).FileAndForget(Constants.FileAndForgetFaultEventNames.ShowErrorList);
                 }
             }
+
+            SarifLogsMonitor.Instance.StartWatch(logFilePath);
 
             RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
         }
