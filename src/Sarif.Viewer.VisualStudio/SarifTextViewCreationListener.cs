@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.ComponentModel.Composition;
 
 using Microsoft.CodeAnalysis.Sarif.Converters;
@@ -10,6 +11,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
@@ -31,6 +33,8 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore IDE0044
 #pragma warning restore CS0649
 
+        private readonly ConcurrentDictionary<ITextBuffer, int> textBufferMap = new ConcurrentDictionary<ITextBuffer, int>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifTextViewCreationListener"/> class.
         /// Explicitly defined default constructor.
@@ -47,7 +51,13 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.TryGetFileNameFromTextView(textView, out string filename))
             {
-                ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+                if (!textBufferMap.ContainsKey(textView.TextBuffer))
+                {
+                    textBufferMap.TryAdd(textView.TextBuffer, 0);
+                    ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+                }
+
+                textBufferMap[textView.TextBuffer]++;
             }
         }
 
@@ -61,7 +71,16 @@ namespace Microsoft.Sarif.Viewer
 
                 if (this.TryGetFileNameFromTextView(textView, out string filename))
                 {
-                    ErrorListService.CloseSarifLogs(new[] { filename });
+                    if (textBufferMap.ContainsKey(textView.TextBuffer))
+                    {
+                        textBufferMap[textView.TextBuffer]--;
+
+                        if (textBufferMap[textView.TextBuffer] <= 0)
+                        {
+                            ErrorListService.CloseSarifLogs(new[] { filename });
+                            textBufferMap.TryRemove(textView.TextBuffer, out int value);
+                        }
+                    }
                 }
             }
         }
