@@ -76,6 +76,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
+        public bool ShouldMonitorSarifFolder
+        {
+            get
+            {
+                try
+                {
+                    return this.OptionPage.MonitorSarifFolder;
+                }
+                catch
+                {
+                    // default value
+                    return false;
+                }
+            }
+        }
+
         /// <summary>
         /// Initializes the singleton instance of the <see cref="SariferOption"/> class.
         /// </summary>

@@ -20,6 +20,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private const string AnalyzeSarifFileDisplayName = "Enable analysis for .sarif files";
         private const string AnalyzeSarifFileDescription = "If enabled, .sarif files will be analyzed by default.";
 
+        private const string MonitorSarifFolderDisplayName = "Enable loading sarif results in .sarif folder automatically";
+        private const string MonitorSarifFolderDescription = "If enabled, .sarif files under .sarif folder will be loaded to error list automatically.";
+
         [Category(CategoryName)]
         [DisplayName(BackgroundAnalysisEnabledDisplayName)]
         [Description(BackgroundAnalysisEnabledDescription)]
@@ -29,5 +32,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         [DisplayName(AnalyzeSarifFileDisplayName)]
         [Description(AnalyzeSarifFileDescription)]
         public bool AnalyzeSarifFile { get; set; }
+
+        [Category(CategoryName)]
+        [DisplayName(MonitorSarifFolderDisplayName)]
+        [Description(MonitorSarifFolderDescription)]
+        public bool MonitorSarifFolder { get; set; } = true;
     }
 }
