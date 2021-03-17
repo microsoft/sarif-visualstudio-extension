@@ -16,7 +16,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
 {
     /// <summary>
-    /// Handles loading & monitoring sarif logs under solution directory .sarif folder
+    /// Handles loading & monitoring sarif logs under solution directory .sarif folder.
     /// </summary>
     internal class SarifFolderMonitor : IDisposable
     {
