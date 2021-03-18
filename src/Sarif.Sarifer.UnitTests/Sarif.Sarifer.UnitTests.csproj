@@ -21,6 +21,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SariferUnitTestBase.cs" />
+    <Compile Include="SarifFolderWatcherTests.cs" />
     <Compile Include="SpamBackgroundAnalyzerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,6 +57,10 @@
     <ProjectReference Include="..\Sarif.Sarifer\Sarif.Sarifer.csproj">
       <Project>{f3e3199f-c005-4a14-b96b-974896986edc}</Project>
       <Name>Sarif.Sarifer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.csproj">
+      <Project>{9D407555-D268-461E-BFAF-4251B0FBF7C9}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Interop</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

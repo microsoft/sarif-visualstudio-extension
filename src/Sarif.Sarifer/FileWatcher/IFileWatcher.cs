@@ -16,6 +16,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
 
         event EventHandler<RenamedEventArgs> SarifLogFileRenamed;
 
+        string WatcherFilePath { get; set; }
+
+        string WatcherFilter { get; set; }
+
         void Start();
 
         void Stop();

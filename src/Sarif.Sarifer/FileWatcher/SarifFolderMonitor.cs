@@ -22,16 +22,17 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
     {
         private readonly IFileSystem fileSystem;
 
-        private readonly SarifViewerInterop viewerInterop;
+        private readonly ISarifViewerInterop viewerInterop;
 
         private IFileWatcher fileWatcher;
 
         private string solutionFolder = null;
 
-        internal SarifFolderMonitor(IVsShell vsShell, IFileSystem fs = null)
+        internal SarifFolderMonitor(ISarifViewerInterop interop, IFileSystem fs = null, IFileWatcher watcher = null)
         {
-            this.viewerInterop = new SarifViewerInterop(vsShell);
+            this.viewerInterop = interop;
             this.fileSystem = fs ?? new FileSystem();
+            this.fileWatcher = watcher ?? new FileWatcher();
         }
 
         public void Dispose()
@@ -61,16 +62,16 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
             // load existing sarif logs
             this.LoadExistingSarifLogs(sarifLogFolder);
 
-            if (this.fileWatcher == null)
-            {
-                this.fileWatcher = new FileWatcher(sarifLogFolder, Constants.SarifFileSearchPattern);
+            this.fileWatcher ??= new FileWatcher();
 
-                // here no need to watch for sarif file log updates
-                // because when load the sarif log file in viewer, its already monitored by viewer's file watcher
-                this.fileWatcher.SarifLogFileCreated += this.Watcher_SarifLogFileCreated;
-                this.fileWatcher.SarifLogFileDeleted += this.Watcher_SarifLogFileDeleted;
-                this.fileWatcher.Start();
-            }
+            this.fileWatcher.WatcherFilePath = sarifLogFolder;
+            this.fileWatcher.WatcherFilter = Constants.SarifFileSearchPattern;
+
+            // here no need to watch for sarif file log updates
+            // because when load the sarif log file in viewer, its already monitored by viewer's file watcher
+            this.fileWatcher.SarifLogFileCreated += this.Watcher_SarifLogFileCreated;
+            this.fileWatcher.SarifLogFileDeleted += this.Watcher_SarifLogFileDeleted;
+            this.fileWatcher.Start();
         }
 
         internal void StopWatch()
@@ -88,48 +89,75 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
                 this.fileWatcher = null;
             }
 
-            this.CloseExistingSarifLogs(Path.Combine(this.solutionFolder, Constants.SarifFolderName));
-            this.solutionFolder = null;
+            if (!string.IsNullOrEmpty(this.solutionFolder))
+            {
+                this.CloseExistingSarifLogs(Path.Combine(this.solutionFolder, Constants.SarifFolderName));
+                this.solutionFolder = null;
+            }
         }
 
         internal void LoadExistingSarifLogs(string targetFolderPath)
         {
-            if (!string.IsNullOrEmpty(targetFolderPath))
+            if (!string.IsNullOrEmpty(targetFolderPath) && this.fileSystem.DirectoryExists(targetFolderPath))
             {
                 IEnumerable<string> sarifLogFiles = this.fileSystem.DirectoryGetFiles(targetFolderPath, Constants.SarifFileSearchPattern);
-                ThreadHelper.JoinableTaskFactory.Run(() => this.viewerInterop.OpenSarifLogAsync(sarifLogFiles));
+                if (SariferPackage.IsUnitTesting)
+                {
+                    this.viewerInterop.OpenSarifLogAsync(sarifLogFiles).ConfigureAwait(false);
+                }
+                else
+                {
+                    ThreadHelper.JoinableTaskFactory.Run(() => this.viewerInterop.OpenSarifLogAsync(sarifLogFiles));
+                }
             }
         }
 
         internal void CloseExistingSarifLogs(string targetFolderPath)
         {
-            if (!string.IsNullOrEmpty(targetFolderPath))
+            if (!string.IsNullOrEmpty(targetFolderPath) && this.fileSystem.DirectoryExists(targetFolderPath))
             {
                 IEnumerable<string> sarifLogFiles = this.fileSystem.DirectoryGetFiles(targetFolderPath, Constants.SarifFileSearchPattern);
-                ThreadHelper.JoinableTaskFactory.Run(() => this.viewerInterop.CloseSarifLogAsync(sarifLogFiles));
+                if (SariferPackage.IsUnitTesting)
+                {
+                    this.viewerInterop.CloseSarifLogAsync(sarifLogFiles).ConfigureAwait(false);
+                }
+                else
+                {
+                    ThreadHelper.JoinableTaskFactory.Run(() => this.viewerInterop.CloseSarifLogAsync(sarifLogFiles));
+                }
             }
-        }
-
-        internal async System.Threading.Tasks.Task LoadSarifLogAsync(string path)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            await this.viewerInterop.OpenSarifLogAsync(path, cleanErrors: false, openInEditor: false);
-        }
-
-        internal async System.Threading.Tasks.Task CloseSarifLogAsync(string path)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            await this.viewerInterop.CloseSarifLogAsync(new string[] { path });
         }
 
         private void Watcher_SarifLogFileCreated(object sender, FileSystemEventArgs e)
         {
-            ThreadHelper.JoinableTaskFactory.Run(() => this.LoadSarifLogAsync(e.FullPath));
+            if (SariferPackage.IsUnitTesting)
+            {
+                this.viewerInterop.OpenSarifLogAsync(e.FullPath, cleanErrors: false, openInEditor: false).ConfigureAwait(false);
+            }
+            else
+            {
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    await this.viewerInterop.OpenSarifLogAsync(e.FullPath, cleanErrors: false, openInEditor: false);
+                });
+            }
         }
 
         private void Watcher_SarifLogFileDeleted(object sender, FileSystemEventArgs e)
         {
-            ThreadHelper.JoinableTaskFactory.Run(() => this.CloseSarifLogAsync(e.FullPath));
+            if (SariferPackage.IsUnitTesting)
+            {
+                this.viewerInterop.CloseSarifLogAsync(new string[] { e.FullPath }).ConfigureAwait(false);
+            }
+            else
+            {
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    await this.viewerInterop.CloseSarifLogAsync(new string[] { e.FullPath });
+                });
+            }
         }
 
         /// <summary>

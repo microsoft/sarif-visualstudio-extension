@@ -18,9 +18,14 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
         /// </summary>
         private bool m_disposed;
 
+        internal FileWatcher()
+        {
+        }
+
         internal FileWatcher(string filePath, string filter)
         {
-            fileSystemWatcher = this.CreateFileSystemWatcher(filePath, filter);
+            this.WatcherFilePath = filePath;
+            this.WatcherFilter = filter;
         }
 
         /// <summary>
@@ -43,6 +48,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
         /// </summary>
         public event EventHandler<FileSystemEventArgs> SarifLogFileDeleted;
 
+        public string WatcherFilePath { get; set; }
+
+        public string WatcherFilter { get; set; }
+
         /// <summary>
         /// Starts watching for changes to the Sarif log file.
         /// </summary>
@@ -50,6 +59,13 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher
         {
             // Make sure we have not been disposed.
             this.EnsureNotDisposed();
+
+            if (string.IsNullOrEmpty(this.WatcherFilePath) || string.IsNullOrEmpty(this.WatcherFilter))
+            {
+                return;
+            }
+
+            this.fileSystemWatcher = CreateFileSystemWatcher(this.WatcherFilePath, this.WatcherFilter);
 
             // Start listening for changes to the file.
             fileSystemWatcher.EnableRaisingEvents = true;

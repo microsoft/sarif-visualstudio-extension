@@ -8,6 +8,7 @@ using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Sarifer.Commands;
 using Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher;
+using Microsoft.Sarif.Viewer.Interop;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
@@ -44,6 +45,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private OutputWindowTracerListener outputWindowTraceListener;
         private SarifFolderMonitor sarifFolderMonitor;
 
+        public static bool IsUnitTesting { get; set; } = false;
+
         public void Dispose()
         {
             this.Dispose(disposing: true);
@@ -72,6 +75,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // Otherwise, remove the switch to the UI thread if you don't need it.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
+            // initialize SariferOption first since other componments may depends on options.
+            await SariferOption.InitializeAsync(this).ConfigureAwait(false);
+
             ((IServiceContainer)this).AddService(
                 typeof(IBackgroundAnalysisService),
                 new BackgroundAnalysisService());
@@ -85,7 +91,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
                 this.analyzeFileCommand = new AnalyzeFileCommand(mcs);
-                this.sarifFolderMonitor = new SarifFolderMonitor(vsShell);
+                this.sarifFolderMonitor = new SarifFolderMonitor(new SarifViewerInterop(vsShell));
             }
 
             if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
@@ -105,8 +111,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
 
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
-
-            await SariferOption.InitializeAsync(this).ConfigureAwait(false);
         }
 
         protected override void Dispose(bool disposing)

@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer.Interop
 {
-    public class SarifViewerInterop
+    public class SarifViewerInterop : ISarifViewerInterop
     {
         /// <summary>
         /// Gets the unique identifier of the SARIF Viewer package.
