@@ -9,9 +9,13 @@ using System.Runtime.InteropServices;
 using System.Threading;
 
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.FileWatcher;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
@@ -32,12 +36,16 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ISarifLocationTaggerService))]
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
+        public const string OptionCategoryName = "Sarif Extension";
+        public const string OptionPageName = "Sarif Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
@@ -59,6 +67,8 @@ namespace Microsoft.Sarif.Viewer
             /// </remarks>
             public bool Promote;
         }
+
+        private SarifFolderMonitor sarifFolderMonitor;
 
         /// <summary>
         /// Contains the list of services and their creator functions.
@@ -118,11 +128,26 @@ namespace Microsoft.Sarif.Viewer
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
+            // initialize Option first since other componments may depends on options.
+            await SarifViewerOption.InitializeAsync(this).ConfigureAwait(false);
+
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
+            this.sarifFolderMonitor = new SarifFolderMonitor();
 
+            if (await this.IsSolutionLoadedAsync())
+            {
+                // Async package initilized after solution is fully loaded according to
+                // [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
+                // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
+                // Need to manually start monitor in this case.
+                this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete(null, EventArgs.Empty);
+            }
+
+            SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
             return;
         }
 
@@ -159,6 +184,31 @@ namespace Microsoft.Sarif.Viewer
 
             VsShell.LoadPackage(ref serviceGuid, out package);
             return package;
+        }
+
+        private async System.Threading.Tasks.Task<bool> IsSolutionLoadedAsync()
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            var solutionService = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
+            if (solutionService == null)
+            {
+                return false;
+            }
+
+            solutionService.GetProperty((int)__VSPROPID.VSPROPID_IsSolutionOpen, out object value);
+            return value is bool isSolOpen && isSolOpen;
+        }
+
+        private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
+        {
+            // stop watcher when the solution is closed.
+            this.sarifFolderMonitor?.StopWatch();
+        }
+
+        private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
+        {
+            // start to watch when the solution is loaded.
+            this.sarifFolderMonitor?.StartWatch();
         }
     }
 }
