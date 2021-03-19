@@ -2,10 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -30,34 +26,14 @@ namespace Microsoft.Sarif.Viewer.Options
             this.optionPage = (SarifViewerOptionPage)this.package.GetDialogPage(typeof(SarifViewerOptionPage));
         }
 
-        private SarifViewerOption()
-        {
-        }
+        private SarifViewerOption() { }
 
-        public bool ShouldMonitorSarifFolder
-        {
-            get
-            {
-                try
-                {
-                    return this.optionPage != null ? this.optionPage.MonitorSarifFolder : this.shouldMonitorSarifFolderDefaultValue;
-                }
-                catch
-                {
-                    // default value
-                    return this.shouldMonitorSarifFolderDefaultValue;
-                }
-            }
-        }
+        public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
 
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static SarifViewerOption Instance
-        {
-            get;
-            private set;
-        }
+        public static SarifViewerOption Instance { get; private set; }
 
         /// <summary>
         /// Initializes the singleton instance of the <see cref="SarifViewerOption"/> class.

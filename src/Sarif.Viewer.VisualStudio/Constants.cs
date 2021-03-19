@@ -7,6 +7,8 @@ namespace Microsoft.Sarif.Viewer
     {
         public const string VSIX_NAME = "SARIF Viewer";
 
+        public const string SarifFileSearchPattern = "*.sarif";
+
         public static class FileAndForgetFaultEventNames
         {
             /// <summary>
@@ -29,7 +31,5 @@ namespace Microsoft.Sarif.Viewer
             /// </summary>
             public const string TelemetryWriteEvent = "Microsoft/SARIF/Viewer/Telemetry/WriteEvent/Failed";
         }
-
-        public const string SarifFileSearchPattern = "*.sarif";
     }
 }
