@@ -143,7 +143,7 @@ namespace Microsoft.Sarif.Viewer
                 // [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
-                this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete(null, EventArgs.Empty);
+                this.sarifFolderMonitor?.StartWatch();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;

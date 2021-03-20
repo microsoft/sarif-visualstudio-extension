@@ -26,6 +26,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         private readonly IFileSystem fileSystem;
         private IFileWatcher fileWatcher;
+        private bool filesLoaded;
         private readonly ILoadSarifLogService sarifLoadLogService;
         private readonly ICloseSarifLogService sarifCloseLogService;
 
@@ -95,10 +96,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         internal void LoadExistingSarifLogs(string targetFolderPath)
         {
-            if (!string.IsNullOrEmpty(targetFolderPath) && this.fileSystem.DirectoryExists(targetFolderPath))
+            if (!string.IsNullOrEmpty(targetFolderPath) && this.fileSystem.DirectoryExists(targetFolderPath) && !this.filesLoaded)
             {
                 IEnumerable<string> sarifLogFiles = this.fileSystem.DirectoryGetFiles(targetFolderPath, Constants.SarifFileSearchPattern);
                 this.sarifLoadLogService.LoadSarifLogs(sarifLogFiles);
+                this.filesLoaded = true;
             }
         }
 
@@ -108,6 +110,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             {
                 IEnumerable<string> sarifLogFiles = this.fileSystem.DirectoryGetFiles(targetFolderPath, Constants.SarifFileSearchPattern);
                 this.sarifCloseLogService.CloseSarifLogs(sarifLogFiles);
+                this.filesLoaded = false;
             }
         }
 
