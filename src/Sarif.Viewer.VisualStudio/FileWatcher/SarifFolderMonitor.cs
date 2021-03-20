@@ -50,11 +50,6 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         internal void StartWatch(string solutionPath = null)
         {
-            if (!SarifViewerOption.Instance.ShouldMonitorSarifFolder)
-            {
-                return;
-            }
-
             this.solutionFolder = solutionPath ?? this.GetSolutionDirectory();
             if (string.IsNullOrEmpty(this.solutionFolder) || !fileSystem.DirectoryExists(this.solutionFolder))
             {
@@ -83,11 +78,6 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         internal void StopWatch()
         {
-            if (!SarifViewerOption.Instance.ShouldMonitorSarifFolder)
-            {
-                return;
-            }
-
             if (this.fileWatcher != null)
             {
                 this.fileWatcher.Stop();
@@ -123,6 +113,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         private void Watcher_SarifLogFileCreated(object sender, FileSystemEventArgs e)
         {
+            if (!SarifViewerOption.Instance.ShouldMonitorSarifFolder)
+            {
+                return;
+            }
+
             if (SarifViewerPackage.IsUnitTesting)
             {
                 this.sarifLoadLogService.LoadSarifLog(e.FullPath, promptOnLogConversions: false, cleanErrors: false, openInEditor: false);
@@ -139,6 +134,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         private void Watcher_SarifLogFileDeleted(object sender, FileSystemEventArgs e)
         {
+            if (!SarifViewerOption.Instance.ShouldMonitorSarifFolder)
+            {
+                return;
+            }
+
             if (SarifViewerPackage.IsUnitTesting)
             {
                 this.sarifCloseLogService.CloseSarifLogs(new string[] { e.FullPath });

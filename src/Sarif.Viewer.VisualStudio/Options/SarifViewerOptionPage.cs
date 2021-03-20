@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.Options
     {
         private const string CategoryName = "Sarif Viewer Options";
 
-        private const string MonitorSarifFolderDisplayName = "Enable loading sarif results in .sarif folder automatically";
+        private const string MonitorSarifFolderDisplayName = "Enable loading sarif results from .sarif folder automatically";
         private const string MonitorSarifFolderDescription = "If enabled, .sarif files under .sarif folder will be loaded to error list automatically.";
 
         [Category(CategoryName)]
