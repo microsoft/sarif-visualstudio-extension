@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 
 using Microsoft.CodeAnalysis.Sarif.Sarifer.Commands;
+using Microsoft.CodeAnalysis.Sarif.Sarifer.FileWatcher;
+using Microsoft.Sarif.Viewer.Interop;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -27,6 +30,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideOptionPage(typeof(SariferExtensionOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SariferPackage : AsyncPackage, IDisposable
     {
@@ -39,6 +43,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private AnalyzeProjectCommand analyzeProjectCommand;
         private AnalyzeFileCommand analyzeFileCommand;
         private OutputWindowTracerListener outputWindowTraceListener;
+        private SarifFolderMonitor sarifFolderMonitor;
+
+        public static bool IsUnitTesting { get; set; } = false;
 
         public void Dispose()
         {
@@ -68,6 +75,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             // Otherwise, remove the switch to the UI thread if you don't need it.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
+            // initialize SariferOption first since other componments may depends on options.
+            await SariferOption.InitializeAsync(this).ConfigureAwait(false);
+
             ((IServiceContainer)this).AddService(
                 typeof(IBackgroundAnalysisService),
                 new BackgroundAnalysisService());
@@ -81,6 +91,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
                 this.analyzeProjectCommand = new AnalyzeProjectCommand(mcs);
                 this.analyzeFileCommand = new AnalyzeFileCommand(mcs);
+                this.sarifFolderMonitor = new SarifFolderMonitor(new SarifViewerInterop(vsShell));
             }
 
             if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
@@ -90,7 +101,16 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
 
-            await SariferOption.InitializeAsync(this).ConfigureAwait(false);
+            if (await this.IsSolutionLoadedAsync())
+            {
+                // Async package initilized after solution is fully loaded according to
+                // [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
+                // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
+                // Need to manually start monitor in this case.
+                this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete(null, EventArgs.Empty);
+            }
+
+            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
         }
 
         protected override void Dispose(bool disposing)
@@ -103,6 +123,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     this.analyzeProjectCommand?.Dispose();
                     this.analyzeFileCommand?.Dispose();
                     this.outputWindowTraceListener?.Dispose();
+                    this.sarifFolderMonitor?.Dispose();
+
+                    SolutionEvents.OnBeforeCloseSolution -= this.SolutionEvents_OnBeforeCloseSolution;
+                    SolutionEvents.OnAfterBackgroundSolutionLoadComplete -= this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
                 }
 
                 this.disposed = true;
@@ -111,12 +135,32 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             base.Dispose(disposing);
         }
 
+        private async System.Threading.Tasks.Task<bool> IsSolutionLoadedAsync()
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            var solutionService = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
+            if (solutionService == null)
+            {
+                return false;
+            }
+
+            solutionService.GetProperty((int)__VSPROPID.VSPROPID_IsSolutionOpen, out object value);
+            return value is bool isSolOpen && isSolOpen;
+        }
+
         private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
         {
             // Cancelling analysis from project / solution when the solution is closed.
             this.analyzeProjectCommand.Cancel();
             this.analyzeSolutionCommand.Cancel();
             this.analyzeFileCommand.Cancel();
+
+            this.sarifFolderMonitor?.StopWatch();
+        }
+
+        private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
+        {
+            this.sarifFolderMonitor?.StartWatch();
         }
     }
 }

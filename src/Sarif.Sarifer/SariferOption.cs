@@ -11,6 +11,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
     internal class SariferOption
     {
+        private readonly bool isBackgroundAnalysisEnabledDefaultValue = true;
+
+        private readonly bool shouldAnalyzeSarifFileDefaultValue = false;
+
+        private readonly bool shouldMonitorSarifFolderDefaultValue = true;
+
         private readonly AsyncPackage package;
 
         private SariferExtensionOptionPage optionPage;
@@ -23,6 +29,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private SariferOption(AsyncPackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
+        }
+
+        private SariferOption()
+        {
         }
 
         /// <summary>
@@ -38,8 +48,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             get
             {
-                this.optionPage ??= (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
+                if (this.package == null)
+                {
+                    return null;
+                }
 
+                this.optionPage ??= (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
                 return this.optionPage;
             }
         }
@@ -50,12 +64,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 try
                 {
-                    return this.OptionPage.BackgroundAnalysisEnabled;
+                    return this.OptionPage != null ? this.OptionPage.BackgroundAnalysisEnabled : this.isBackgroundAnalysisEnabledDefaultValue;
                 }
                 catch
                 {
                     // default value
-                    return true;
+                    return this.isBackgroundAnalysisEnabledDefaultValue;
                 }
             }
         }
@@ -66,12 +80,28 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 try
                 {
-                    return this.OptionPage.AnalyzeSarifFile;
+                    return this.OptionPage != null ? this.OptionPage.AnalyzeSarifFile : this.shouldAnalyzeSarifFileDefaultValue;
                 }
                 catch
                 {
                     // default value
-                    return false;
+                    return this.shouldAnalyzeSarifFileDefaultValue;
+                }
+            }
+        }
+
+        public bool ShouldMonitorSarifFolder
+        {
+            get
+            {
+                try
+                {
+                    return this.OptionPage != null ? this.OptionPage.MonitorSarifFolder : this.shouldMonitorSarifFolderDefaultValue;
+                }
+                catch
+                {
+                    // default value
+                    return this.shouldMonitorSarifFolderDefaultValue;
                 }
             }
         }
@@ -87,6 +117,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
             Instance = new SariferOption(package);
+        }
+
+        public static void InitializeForUnitTests()
+        {
+            Instance = new SariferOption();
         }
     }
 }

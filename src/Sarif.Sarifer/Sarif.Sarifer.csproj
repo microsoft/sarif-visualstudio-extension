@@ -59,6 +59,11 @@
     <Compile Include="BackgroundAnalysisService.cs" />
     <Compile Include="BackgroundAnalysisTextViewCreationListener.cs" />
     <Compile Include="BackgroundAnalyzerBase.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="FileWatcher\FileWatcher.cs" />
+    <Compile Include="FileWatcher\IFileWatcher.cs" />
+    <Compile Include="FileWatcher\ISarifFileMonitor.cs" />
+    <Compile Include="FileWatcher\SarifFolderMonitor.cs" />
     <Compile Include="FirstViewAddedEventArgs.cs" />
     <Compile Include="Commands\AnalyzeProjectCommand.cs" />
     <Compile Include="IBackgroundAnalysisService.cs" />

@@ -38,7 +38,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         internal static ISet<Skimmer<AnalyzeContext>> LoadSearchDefinitionsFiles(IFileSystem fileSystem, string solutionDirectory)
         {
-            string spamDirectory = Path.Combine(solutionDirectory, ".spam");
+            string spamDirectory = Path.Combine(solutionDirectory, Constants.SpamFolderName);
             if (!fileSystem.DirectoryExists(spamDirectory))
             {
                 return new HashSet<Skimmer<AnalyzeContext>>();
