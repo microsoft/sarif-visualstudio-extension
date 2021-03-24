@@ -99,6 +99,60 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Browse To Alternate Location.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_BrowseFileButton {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_BrowseFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This log has embedded file content for selected item. We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_Message {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_Message_NoEmbedded {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_Message_NoEmbedded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Local File In Sulotion.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_OpenFileButton {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_OpenFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Source File Location.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_Title {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View Embedded File Content.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_ViewEmbeddedFileButton {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_ViewEmbeddedFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Continuing.
         /// </summary>
         public static string ContinuingAnalysisStepNodeMessage {

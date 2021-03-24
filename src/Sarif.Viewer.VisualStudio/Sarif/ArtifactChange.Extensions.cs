@@ -20,16 +20,18 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             var model = new ArtifactChangeModel();
 
+            // don't resolve filepath at model creation phase.
+            // it will be resolved by TryResolveFilePath later.
+            model.FilePath = fileChange.ArtifactLocation.Uri.IsAbsoluteUri ?
+                fileChange.ArtifactLocation.Uri.LocalPath :
+                fileChange.ArtifactLocation.Uri.OriginalString;
+
             if (fileChange.Replacements != null)
             {
                 if (!fileChange.ArtifactLocation.TryReconstructAbsoluteUri(originalUriBaseIds, out Uri resolvedUri))
                 {
                     resolvedUri = fileChange.ArtifactLocation.Uri;
                 }
-
-                model.FilePath = resolvedUri.IsAbsoluteUri ?
-                    resolvedUri.LocalPath :
-                    resolvedUri.OriginalString;
 
                 foreach (Replacement replacement in fileChange.Replacements)
                 {

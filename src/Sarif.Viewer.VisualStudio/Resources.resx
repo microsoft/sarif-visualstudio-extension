@@ -359,4 +359,22 @@
   <data name="OpenExternalUri_DialogTitle" xml:space="preserve">
     <value>Open Hyperlink</value>
   </data>
+  <data name="ConfirmSourceFileDialog_BrowseFileButton" xml:space="preserve">
+    <value>Browse To Alternate Location</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_Message" xml:space="preserve">
+    <value>This log has embedded file content for selected item. We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_Message_NoEmbedded" xml:space="preserve">
+    <value>We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_OpenFileButton" xml:space="preserve">
+    <value>Open Local File In Sulotion</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_Title" xml:space="preserve">
+    <value>Confirm Source File Location</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_ViewEmbeddedFileButton" xml:space="preserve">
+    <value>View Embedded File Content</value>
+  </data>
 </root>
