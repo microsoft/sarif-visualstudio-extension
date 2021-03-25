@@ -58,8 +58,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
-
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath = this.FakePromptForResolvedPath(null, actualResolvedPath);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
             // Assert.
             actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
@@ -92,13 +93,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // First, rebase a file to prime the list of mappings.
-            target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile, dataCache: dataCache);
-
+            target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = this.FakePromptForResolvedPath(null, FirstFileNameInLogFile);
+            target.SaveResolvedPathToUriBaseMapping(null, FirstFileNameInLogFile, FirstFileNameInLogFile, actualResolvedPath, dataCache);
             // The first time, we prompt the user for the name of the file to rebaseline to.
             this.numPrompts.Should().Be(1);
 
             // Act: Rebaseline a second file with the same prefix.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
+            actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualResolvedPath.Should().Be(SecondRebaselinedFileName);
@@ -131,10 +133,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualResolvedPath.Should().Be(PathInLogFile);
+            actualResolvedPath.Should().BeNull();
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Should().BeEmpty();
@@ -158,10 +160,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualResolvedPath.Should().Be(PathInLogFile);
+            actualResolvedPath.Should().BeNull();
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Should().BeEmpty();
@@ -185,8 +187,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
-
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath.Should().BeNull();
+            actualResolvedPath = this.FakePromptForResolvedPath(null, PathInLogFile);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
             // Assert.
             actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
@@ -214,8 +218,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
-
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath = this.FakePromptForResolvedPath(null, actualResolvedPath);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
             // Assert.
             actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
