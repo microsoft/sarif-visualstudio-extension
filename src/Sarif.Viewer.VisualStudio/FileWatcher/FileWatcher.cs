@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Microsoft.Sarif.Viewer.FileWatcher
 {
@@ -145,8 +146,13 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         {
             try
             {
-                // to avoid trigger changed event multiple times in a short time period.
+                // some processes update files using complex mechanisim, may cause file changed
+                // events been fired multiple times in a short time period. At the time first event
+                // is fired the file may not exist or be occupied by another process.
+                // to avoid the situation stop listening and wait a while then to process the event.
                 this.fileSystemWatcher.EnableRaisingEvents = false;
+                DelayInMs(200);
+
                 this.SarifLogFileChanged?.Invoke(this, e);
             }
             finally
@@ -164,6 +170,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             {
                 throw new ObjectDisposedException(this.GetType().Name);
             }
+        }
+
+        private void DelayInMs(int millisecond)
+        {
+            Thread.Sleep(millisecond);
         }
     }
 }

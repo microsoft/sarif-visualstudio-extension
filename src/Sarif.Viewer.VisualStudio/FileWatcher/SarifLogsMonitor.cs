@@ -78,8 +78,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         private void RefreshSarifErrors(string filePath)
         {
-            ThreadHelper.JoinableTaskFactory.Run(() => ErrorListService.CloseSarifLogItemsAsync(new string[] { filePath }));
-            ErrorListService.ProcessLogFile(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            {
+                await ErrorListService.CloseSarifLogItemsAsync(new string[] { filePath });
+                await ErrorListService.ProcessLogFileAsync(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+            });
         }
 
         internal void StopWatch(string logFilePath)
