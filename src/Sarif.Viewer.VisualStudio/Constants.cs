@@ -7,6 +7,8 @@ namespace Microsoft.Sarif.Viewer
     {
         public const string VSIX_NAME = "SARIF Viewer";
 
+        public const string SarifFileSearchPattern = "*.sarif";
+
         public static class FileAndForgetFaultEventNames
         {
             /// <summary>

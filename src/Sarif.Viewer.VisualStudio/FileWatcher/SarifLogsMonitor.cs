@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
             if (!FileWatcherMap.ContainsKey(logFilePath))
             {
-                var watcher = new FileWatcher(logFilePath);
+                var watcher = new FileWatcher(Path.GetDirectoryName(logFilePath), Path.GetFileName(logFilePath));
                 watcher.SarifLogFileChanged += this.Watcher_SarifLogFileChanged;
                 watcher.SarifLogFileRenamed += this.Watcher_SarifLogFileRenamed;
                 FileWatcherMap.Add(logFilePath, watcher);
@@ -77,8 +78,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         private void RefreshSarifErrors(string filePath)
         {
-            ThreadHelper.JoinableTaskFactory.Run(() => ErrorListService.CloseSarifLogItemsAsync(new string[] { filePath }));
-            ErrorListService.ProcessLogFile(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: true);
+            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            {
+                await ErrorListService.CloseSarifLogItemsAsync(new string[] { filePath });
+                await ErrorListService.ProcessLogFileAsync(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+            });
         }
 
         internal void StopWatch(string logFilePath)

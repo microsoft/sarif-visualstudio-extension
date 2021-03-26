@@ -52,6 +52,7 @@
     <Compile Include="ErrorList\SarifFileWithContentsTests.cs" />
     <Compile Include="ErrorList\SarifResultEntryTests.cs" />
     <Compile Include="ExceptionalConditionsCalculatorTests.cs" />
+    <Compile Include="FileWatcher\SarifFolderWatcherTests.cs" />
     <Compile Include="Models\AnalysisStepCollectionTests.cs" />
     <Compile Include="Models\AnalysisStepTests.cs" />
     <Compile Include="Models\ArtifactChangeModelTests.cs" />

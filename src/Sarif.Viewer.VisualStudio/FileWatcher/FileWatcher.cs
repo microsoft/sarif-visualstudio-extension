@@ -3,13 +3,14 @@
 
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Microsoft.Sarif.Viewer.FileWatcher
 {
     /// <summary>
     /// FileSystemWatcher wrapper class.
     /// </summary>
-    internal class FileWatcher : IFileWatcher, IDisposable
+    internal class FileWatcher : IFileWatcher
     {
         private FileSystemWatcher fileSystemWatcher;
 
@@ -18,9 +19,14 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         /// </summary>
         private bool m_disposed;
 
-        internal FileWatcher(string filePath)
+        internal FileWatcher()
         {
-            fileSystemWatcher = CreateFileSystemWatcher(filePath);
+        }
+
+        internal FileWatcher(string filePath, string filter)
+        {
+            this.FilePath = filePath;
+            this.Filter = filter;
         }
 
         /// <summary>
@@ -34,12 +40,33 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         public event EventHandler<RenamedEventArgs> SarifLogFileRenamed;
 
         /// <summary>
+        /// Raised when Sarif log file is created.
+        /// </summary>
+        public event EventHandler<FileSystemEventArgs> SarifLogFileCreated;
+
+        /// <summary>
+        /// Raised when Sarif log file is deleted.
+        /// </summary>
+        public event EventHandler<FileSystemEventArgs> SarifLogFileDeleted;
+
+        public string FilePath { get; set; }
+
+        public string Filter { get; set; }
+
+        /// <summary>
         /// Starts watching for changes to the Sarif log file.
         /// </summary>
         public void Start()
         {
             // Make sure we have not been disposed.
             this.EnsureNotDisposed();
+
+            if (string.IsNullOrEmpty(this.FilePath) || string.IsNullOrEmpty(this.Filter))
+            {
+                return;
+            }
+
+            this.fileSystemWatcher = CreateFileSystemWatcher(this.FilePath, this.Filter);
 
             // Start listening for changes to the file.
             fileSystemWatcher.EnableRaisingEvents = true;
@@ -56,6 +83,8 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
                 {
                     fileSystemWatcher.Changed -= this.SarifLogFile_Changed;
                     fileSystemWatcher.Renamed -= this.SarifLogFile_Renamed;
+                    fileSystemWatcher.Created -= this.SarifLogFile_Created;
+                    fileSystemWatcher.Deleted -= this.SarifLogFile_Deleted;
                     fileSystemWatcher.Dispose();
                     fileSystemWatcher = null;
                 }
@@ -75,16 +104,39 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         /// <returns>a <see cref="FileSystemWatcher"/> object.</returns>
         /// <exception cref="ArgumentException"> if filePath does not exist.
         /// </exception>
-        private FileSystemWatcher CreateFileSystemWatcher(string filePath)
+        private FileSystemWatcher CreateFileSystemWatcher(string path, string filter)
         {
-            FileSystemWatcher fileSystemWatcher = new FileSystemWatcher();
-            fileSystemWatcher.Path = Path.GetDirectoryName(filePath);
-            fileSystemWatcher.Filter = Path.GetFileName(filePath);
-            fileSystemWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            var fileSystemWatcher = new FileSystemWatcher
+            {
+                Path = path,
+                Filter = filter,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+            };
+
             fileSystemWatcher.Changed += this.SarifLogFile_Changed;
             fileSystemWatcher.Renamed += this.SarifLogFile_Renamed;
+            fileSystemWatcher.Created += this.SarifLogFile_Created;
+            fileSystemWatcher.Deleted += this.SarifLogFile_Deleted;
 
             return fileSystemWatcher;
+        }
+
+        private void SarifLogFile_Deleted(object sender, FileSystemEventArgs e)
+        {
+            this.SarifLogFileDeleted?.Invoke(this, e);
+        }
+
+        private void SarifLogFile_Created(object sender, FileSystemEventArgs e)
+        {
+            try
+            {
+                this.fileSystemWatcher.EnableRaisingEvents = false;
+                this.SarifLogFileCreated?.Invoke(this, e);
+            }
+            finally
+            {
+                this.fileSystemWatcher.EnableRaisingEvents = true;
+            }
         }
 
         private void SarifLogFile_Renamed(object sender, RenamedEventArgs e)
@@ -96,8 +148,13 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         {
             try
             {
-                // to avoid trigger changed event multiple times in a short time period.
+                // some processes update files using complex mechanism, may cause file changed
+                // events been fired multiple times in a short time period. At the time first event
+                // is fired the file may not exist or be occupied by another process.
+                // to avoid the situation stop listening and wait a while then to process the event.
                 this.fileSystemWatcher.EnableRaisingEvents = false;
+                DelayInMs(200);
+
                 this.SarifLogFileChanged?.Invoke(this, e);
             }
             finally
@@ -115,6 +172,11 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             {
                 throw new ObjectDisposedException(this.GetType().Name);
             }
+        }
+
+        private void DelayInMs(int millisecond)
+        {
+            Thread.Sleep(millisecond);
         }
     }
 }
