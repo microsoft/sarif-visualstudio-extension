@@ -83,6 +83,8 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
                 {
                     fileSystemWatcher.Changed -= this.SarifLogFile_Changed;
                     fileSystemWatcher.Renamed -= this.SarifLogFile_Renamed;
+                    fileSystemWatcher.Created -= this.SarifLogFile_Created;
+                    fileSystemWatcher.Deleted -= this.SarifLogFile_Deleted;
                     fileSystemWatcher.Dispose();
                     fileSystemWatcher = null;
                 }
@@ -146,7 +148,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         {
             try
             {
-                // some processes update files using complex mechanisim, may cause file changed
+                // some processes update files using complex mechanism, may cause file changed
                 // events been fired multiple times in a short time period. At the time first event
                 // is fired the file may not exist or be occupied by another process.
                 // to avoid the situation stop listening and wait a while then to process the event.
