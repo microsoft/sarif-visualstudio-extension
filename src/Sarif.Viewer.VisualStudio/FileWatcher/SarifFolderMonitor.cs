@@ -81,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
                 this.fileWatcher.Filter = Constants.SarifFileSearchPattern;
 
                 // no need to watch for the sarif file log updates
-                // because when we load, the sarif log file in the viewer, it's already monitored by the viewer's file watcher
+                // because when we load the sarif log file in the viewer, it's already monitored by the viewer's file watcher
                 this.fileWatcher.SarifLogFileCreated += this.Watcher_SarifLogFileCreated;
                 this.fileWatcher.SarifLogFileDeleted += this.Watcher_SarifLogFileDeleted;
                 this.fileWatcher.Start();
