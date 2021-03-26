@@ -363,18 +363,21 @@
     <value>Browse To Alternate Location</value>
   </data>
   <data name="ConfirmSourceFileDialog_Message" xml:space="preserve">
-    <value>This log has embedded file content for selected item. We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?</value>
+    <value>This log has embedded file content for selected item. We found the file in your solution/enlistment that matches the relevant file path, but hash doesn't match. What do you want to do?</value>
   </data>
   <data name="ConfirmSourceFileDialog_Message_NoEmbedded" xml:space="preserve">
-    <value>We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?</value>
+    <value>We found the file in your solution/enlistment that matches the relevant file paths but hash doesn't match. What do you want to do?</value>
   </data>
   <data name="ConfirmSourceFileDialog_OpenFileButton" xml:space="preserve">
-    <value>Open Local File In Sulotion</value>
+    <value>Open Local File In Solution</value>
   </data>
   <data name="ConfirmSourceFileDialog_Title" xml:space="preserve">
     <value>Confirm Source File Location</value>
   </data>
   <data name="ConfirmSourceFileDialog_ViewEmbeddedFileButton" xml:space="preserve">
     <value>View Embedded File Content</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_RememberMyChoice" xml:space="preserve">
+    <value>Remeber my choice for other results from same sarif log.</value>
   </data>
 </root>

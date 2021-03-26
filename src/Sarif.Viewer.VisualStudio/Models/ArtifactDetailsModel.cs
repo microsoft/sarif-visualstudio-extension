@@ -28,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public string Sha256Hash { get; }
 
-        public bool HasContent => this.GetContents() != null;
+        public bool HasContent => this._artifactContent?.Text != null;
 
         public string GetContents()
         {

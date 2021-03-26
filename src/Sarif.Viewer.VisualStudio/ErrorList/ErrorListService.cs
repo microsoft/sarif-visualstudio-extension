@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     {
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
 
-        private const string Sha256HaskKey = "sha-256";
+        private const string Sha256HashKey = "sha-256";
 
         private const int HeadSegmentLength = 200;
 
@@ -651,7 +651,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 artifact.Hashes = new Dictionary<string, string>();
             }
 
-            if (!artifact.Hashes.ContainsKey(Sha256HaskKey))
+            if (!artifact.Hashes.ContainsKey(Sha256HashKey))
             {
                 byte[] data = null;
                 if (artifact.Contents?.Binary != null)
@@ -666,7 +666,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (data != null)
                 {
                     string hashString = HashHelper.GenerateHash(data);
-                    artifact.Hashes.Add(Sha256HaskKey, hashString);
+                    artifact.Hashes.Add(Sha256HashKey, hashString);
                 }
             }
         }
@@ -684,7 +684,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (uri != null)
                 {
                     // cache both artifact has file content and artifact has hash code
-                    if (file.Contents != null || (file.Hashes != null && file.Hashes.ContainsKey(Sha256HaskKey)))
+                    if (file.Contents != null || (file.Hashes != null && file.Hashes.ContainsKey(Sha256HashKey)))
                     {
                         this.EnsureHashExists(file);
                         var fileDetails = new ArtifactDetailsModel(file);

@@ -11,16 +11,20 @@ namespace Microsoft.Sarif.Viewer
     {
         internal static string GenerateHash(byte[] data)
         {
-            var hashFunction = new SHA256Managed();
-            byte[] hash = hashFunction.ComputeHash(data);
-            return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
+            using (var hashFunction = new SHA256Managed())
+            {
+                byte[] hash = hashFunction.ComputeHash(data);
+                return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
+            }
         }
 
         internal static string GenerateHash(Stream stream)
         {
-            var hashFunction = new SHA256Managed();
-            byte[] hash = hashFunction.ComputeHash(stream);
-            return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
+            using (var hashFunction = new SHA256Managed())
+            {
+                byte[] hash = hashFunction.ComputeHash(stream);
+                return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
+            }
         }
     }
 }

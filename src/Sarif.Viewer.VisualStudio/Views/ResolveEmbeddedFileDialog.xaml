@@ -27,6 +27,7 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
             <TextBlock Margin="10,10,10,10" x:Name="Message" Text="{x:Static resources:Resources.ConfirmSourceFileDialog_Message}" TextWrapping="Wrap" MaxWidth="600"/>
         </StackPanel>
+        <CheckBox Margin="10,10,10,10" Grid.Row="1" x:Name="RememberMyChoiceButton" IsChecked="false" Content="{x:Static resources:Resources.ConfirmSourceFileDialog_RememberMyChoice}"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="12">
             <ui:DialogButton x:Name="OpenEmbeddedFileButton" x:Uid="OpenEmbeddedFileButton" IsDefault="true" MinWidth="95" HorizontalAlignment="Center" Margin="5,0,0,0" Padding="8,2,8,2" Content="{x:Static resources:Resources.ConfirmSourceFileDialog_ViewEmbeddedFileButton}" Click="OpenEmbeddedFileButton_Click"/>
             <ui:DialogButton MinWidth="95" HorizontalAlignment="Center" Margin="6,0,0,0" Padding="8,2,8,2" Content="{x:Static resources:Resources.ConfirmSourceFileDialog_OpenFileButton}" Click="OpenLocalFileButton_Click"/>

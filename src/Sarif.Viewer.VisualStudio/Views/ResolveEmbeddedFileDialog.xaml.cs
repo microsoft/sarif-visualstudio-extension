@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,12 +13,12 @@ namespace Microsoft.Sarif.Viewer.Views
     /// <summary>
     /// Interaction logic for ResolveEmbeddedFileDialog.xaml.
     /// </summary>
-    public partial class ResolveEmbeddedFileDialog : DialogWindow
+    public partial class ResolveEmbeddedFileDialog : DialogWindow, IDisposable
     {
         public ResolveEmbeddedFileDialog(bool hasEmbeddedContent)
         {
             InitializeComponent();
-            Loaded += OnLoaded;
+            this.Loaded += OnLoaded;
             this.HasEmbeddedFileContent = hasEmbeddedContent;
         }
 
@@ -50,6 +51,11 @@ namespace Microsoft.Sarif.Viewer.Views
             this.Result = ResolveEmbeddedFileDialogResult.BrowseAlternateLocation;
             this.DialogResult = true;
             this.Close();
+        }
+
+        public void Dispose()
+        {
+            this.Loaded -= this.OnLoaded;
         }
     }
 

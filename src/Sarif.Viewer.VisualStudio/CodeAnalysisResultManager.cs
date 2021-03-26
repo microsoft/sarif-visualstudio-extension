@@ -190,10 +190,10 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            string solutionPath = this.GetSoltionPath();
+            string solutionPath = this.GetSolutionPath();
 
             // File contents embedded in SARIF.
-            bool hasHash = dataCache.FileDetails.ContainsKey(relativePath) && !string.IsNullOrEmpty(dataCache.FileDetails[relativePath].Sha256Hash);
+            bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
             string embeddedTempFilePath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
 
             try
@@ -257,12 +257,11 @@ namespace Microsoft.Sarif.Viewer
         // Contents are embedded in SARIF. Create a file from these contents.
         internal string CreateFileFromContents(IDictionary<string, ArtifactDetailsModel> fileDetailsDictionary, string fileName)
         {
-            if (!fileDetailsDictionary.ContainsKey(fileName))
+            if (!fileDetailsDictionary.TryGetValue(fileName, out ArtifactDetailsModel fileData))
             {
                 return null;
             }
 
-            ArtifactDetailsModel fileData = fileDetailsDictionary[fileName];
             if (!fileData.HasContent)
             {
                 return null;
@@ -786,7 +785,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private string GetSoltionPath()
+        private string GetSolutionPath()
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {

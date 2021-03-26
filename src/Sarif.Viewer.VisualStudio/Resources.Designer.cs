@@ -108,7 +108,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This log has embedded file content for selected item. We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?.
+        ///   Looks up a localized string similar to This log has embedded file content for selected item. We found the file in your solution/enlistment that matches the relevant file path, but hash doesn&apos;t match. What do you want to do?.
         /// </summary>
         public static string ConfirmSourceFileDialog_Message {
             get {
@@ -117,7 +117,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to We found file in your solution/enlistment that matches relevant file paths but which appears to be the wrong version (hash mismatch). What do you want to do?.
+        ///   Looks up a localized string similar to We found the file in your solution/enlistment that matches the relevant file paths but hash doesn&apos;t match. What do you want to do?.
         /// </summary>
         public static string ConfirmSourceFileDialog_Message_NoEmbedded {
             get {
@@ -126,11 +126,20 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open Local File In Sulotion.
+        ///   Looks up a localized string similar to Open Local File In Solution.
         /// </summary>
         public static string ConfirmSourceFileDialog_OpenFileButton {
             get {
                 return ResourceManager.GetString("ConfirmSourceFileDialog_OpenFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remeber my choice for other results from same sarif log..
+        /// </summary>
+        public static string ConfirmSourceFileDialog_RememberMyChoice {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_RememberMyChoice", resourceCulture);
             }
         }
         
