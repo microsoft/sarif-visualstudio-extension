@@ -67,6 +67,8 @@
     <Compile Include="FileAndForgetEventName.cs" />
     <Compile Include="FileWatcher\FileWatcher.cs" />
     <Compile Include="FileWatcher\IFileWatcher.cs" />
+    <Compile Include="FileWatcher\ISarifFileMonitor.cs" />
+    <Compile Include="FileWatcher\SarifFolderMonitor.cs" />
     <Compile Include="FileWatcher\SarifLogsMonitor.cs" />
     <Compile Include="Fixes\EditActionPreviewProvider.cs" />
     <Compile Include="Fixes\IPreviewProvider.cs" />
@@ -108,6 +110,10 @@
     <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
     <Compile Include="Models\FeedbackModel.cs" />
     <Compile Include="Models\FeedbackType.cs" />
+    <Compile Include="Options\SarifViewerOptionPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Options\SarifViewerOptions.cs" />
     <Compile Include="Sarif\SarifErrorListItem.Extensions.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />

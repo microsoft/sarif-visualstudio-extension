@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Microsoft.Sarif.Viewer.FileWatcher
 {
-    internal interface IFileWatcher
+    internal interface IFileWatcher : IDisposable
     {
         void Start();
 
@@ -15,5 +15,13 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         event EventHandler<FileSystemEventArgs> SarifLogFileChanged;
 
         event EventHandler<RenamedEventArgs> SarifLogFileRenamed;
+
+        event EventHandler<FileSystemEventArgs> SarifLogFileCreated;
+
+        event EventHandler<FileSystemEventArgs> SarifLogFileDeleted;
+
+        string FilePath { get; set; }
+
+        string Filter { get; set; }
     }
 }
