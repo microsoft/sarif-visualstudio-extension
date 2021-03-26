@@ -60,21 +60,35 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             string sarifLogFolder = Path.Combine(this.solutionFolder, SarifFolderName);
             if (!fileSystem.DirectoryExists(sarifLogFolder))
             {
-                return;
+                try
+                {
+                    fileSystem.DirectoryCreateDirectory(sarifLogFolder);
+                }
+                catch
+                {
+                    // failed to create .sarif folder, exit method
+                    return;
+                }
             }
 
             // load existing sarif logs
             this.LoadExistingSarifLogs(sarifLogFolder);
 
-            this.fileWatcher ??= new FileWatcher();
-            this.fileWatcher.FilePath = sarifLogFolder;
-            this.fileWatcher.Filter = Constants.SarifFileSearchPattern;
+            try
+            {
+                this.fileWatcher ??= new FileWatcher();
+                this.fileWatcher.FilePath = sarifLogFolder;
+                this.fileWatcher.Filter = Constants.SarifFileSearchPattern;
 
-            // no need to watch for the sarif file log updates
-            // because when we load, the sarif log file in the viewer, it's already monitored by the viewer's file watcher
-            this.fileWatcher.SarifLogFileCreated += this.Watcher_SarifLogFileCreated;
-            this.fileWatcher.SarifLogFileDeleted += this.Watcher_SarifLogFileDeleted;
-            this.fileWatcher.Start();
+                // no need to watch for the sarif file log updates
+                // because when we load, the sarif log file in the viewer, it's already monitored by the viewer's file watcher
+                this.fileWatcher.SarifLogFileCreated += this.Watcher_SarifLogFileCreated;
+                this.fileWatcher.SarifLogFileDeleted += this.Watcher_SarifLogFileDeleted;
+                this.fileWatcher.Start();
+            }
+            catch
+            {
+            }
         }
 
         internal void StopWatch()
