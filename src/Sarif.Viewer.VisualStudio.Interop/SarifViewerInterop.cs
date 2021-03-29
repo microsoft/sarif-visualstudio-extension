@@ -93,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
 
-                return this._isSariferExtensionLoaded ?? (bool)(this._isViewerExtensionLoaded = this.IsExtensionLoaded(SariferExtensionGuid));
+                return this._isSariferExtensionLoaded ?? (bool)(this._isSariferExtensionLoaded = this.IsExtensionLoaded(SariferExtensionGuid));
             }
         }
 
