@@ -360,24 +360,24 @@
     <value>Open Hyperlink</value>
   </data>
   <data name="ConfirmSourceFileDialog_BrowseFileButton" xml:space="preserve">
-    <value>Browse To Alternate Location</value>
+    <value>Browse to Another Location…</value>
   </data>
   <data name="ConfirmSourceFileDialog_Message" xml:space="preserve">
-    <value>This log has embedded file content for selected item. We found the file in your solution/enlistment that matches the relevant file path, but hash doesn't match. What do you want to do?</value>
+    <value>This SARIF log has embedded source code for this analysis result that we can show. We also found a file in your solution/enlistment that matches the relevant file path, but it isn’t the same version of the file that was scanned when the log file was produced. What would you like to do?</value>
   </data>
   <data name="ConfirmSourceFileDialog_Message_NoEmbedded" xml:space="preserve">
-    <value>We found the file in your solution/enlistment that matches the relevant file paths but hash doesn't match. What do you want to do?</value>
+    <value>We found a file in your solution/enlistment that matches the file path for this result, but the file isn’t the same version that was scanned when the log file was produced. What would you like to do?</value>
   </data>
   <data name="ConfirmSourceFileDialog_OpenFileButton" xml:space="preserve">
-    <value>Open Local File In Solution</value>
+    <value>Open Local File</value>
   </data>
   <data name="ConfirmSourceFileDialog_Title" xml:space="preserve">
     <value>Confirm Source File Location</value>
   </data>
   <data name="ConfirmSourceFileDialog_ViewEmbeddedFileButton" xml:space="preserve">
-    <value>View Embedded File Content</value>
+    <value>Show Embedded File Content</value>
   </data>
   <data name="ConfirmSourceFileDialog_RememberMyChoice" xml:space="preserve">
-    <value>Remeber my choice for other results from same sarif log.</value>
+    <value>Remember my choice for other results from same sarif log.</value>
   </data>
 </root>

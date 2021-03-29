@@ -99,7 +99,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Browse To Alternate Location.
+        ///   Looks up a localized string similar to Browse to Another Location….
         /// </summary>
         public static string ConfirmSourceFileDialog_BrowseFileButton {
             get {
@@ -108,7 +108,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This log has embedded file content for selected item. We found the file in your solution/enlistment that matches the relevant file path, but hash doesn&apos;t match. What do you want to do?.
+        ///   Looks up a localized string similar to This SARIF log has embedded source code for this analysis result that we can show. We also found a file in your solution/enlistment that matches the relevant file path, but it isn’t the same version of the file that was scanned when the log file was produced. What would you like to do?.
         /// </summary>
         public static string ConfirmSourceFileDialog_Message {
             get {
@@ -117,7 +117,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to We found the file in your solution/enlistment that matches the relevant file paths but hash doesn&apos;t match. What do you want to do?.
+        ///   Looks up a localized string similar to We found a file in your solution/enlistment that matches the file path for this result, but the file isn’t the same version that was scanned when the log file was produced. What would you like to do?.
         /// </summary>
         public static string ConfirmSourceFileDialog_Message_NoEmbedded {
             get {
@@ -126,7 +126,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open Local File In Solution.
+        ///   Looks up a localized string similar to Open Local File.
         /// </summary>
         public static string ConfirmSourceFileDialog_OpenFileButton {
             get {
@@ -135,7 +135,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remeber my choice for other results from same sarif log..
+        ///   Looks up a localized string similar to Remember my choice for other results from same sarif log..
         /// </summary>
         public static string ConfirmSourceFileDialog_RememberMyChoice {
             get {
@@ -153,7 +153,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to View Embedded File Content.
+        ///   Looks up a localized string similar to Show Embedded File Content.
         /// </summary>
         public static string ConfirmSourceFileDialog_ViewEmbeddedFileButton {
             get {
