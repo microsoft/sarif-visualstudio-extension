@@ -60,7 +60,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
             }
             else
             {
-                string localPath = projectItem.Properties.Item("LocalPath").Value.ToString();
+                // handle some solution items has null property. e.g. Solution Items, avoid null reference exception
+                string localPath = projectItem.Properties?.Item("LocalPath").Value.ToString();
                 if (!string.IsNullOrWhiteSpace(localPath))
                 {
                     targetFiles.Add(localPath);

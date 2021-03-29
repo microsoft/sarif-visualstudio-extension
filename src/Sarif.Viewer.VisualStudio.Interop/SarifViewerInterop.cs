@@ -25,6 +25,8 @@ namespace Microsoft.Sarif.Viewer.Interop
         private const string ViewerCloseServiceInterfaceName = "SCloseSarifLogService";
         private bool? _isViewerExtensionInstalled;
         private bool? _isViewerExtensionLoaded;
+        private bool? _isSariferExtensionInstalled;
+        private bool? _isSariferExtensionLoaded;
         private Assembly _viewerExtensionAssembly;
         private AssemblyName _viewerExtensionAssemblyName;
         private Version _viewerExtensionVersion;
@@ -52,7 +54,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
 
-                return this._isViewerExtensionInstalled ?? (bool)(this._isViewerExtensionInstalled = this.IsExtensionInstalled());
+                return this._isViewerExtensionInstalled ?? (bool)(this._isViewerExtensionInstalled = this.IsExtensionInstalled(ViewerExtensionGuid));
             }
         }
 
@@ -70,6 +72,19 @@ namespace Microsoft.Sarif.Viewer.Interop
         }
 
         /// <summary>
+        /// Gets a value indicating whether the Sarifer extension is installed.
+        /// </summary>
+        public bool IsSariferExtensionInstalled
+        {
+            get
+            {
+                ThreadHelper.ThrowIfNotOnUIThread();
+
+                return this._isSariferExtensionInstalled ?? (bool)(this._isSariferExtensionInstalled = this.IsExtensionInstalled(SariferExtensionGuid));
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether the Sarifer extension is loaded.
         /// </summary>
         public bool IsSariferExtensionLoaded
@@ -78,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
 
-                return this._isViewerExtensionLoaded ?? (bool)(this._isViewerExtensionLoaded = this.IsExtensionLoaded(SariferExtensionGuid));
+                return this._isSariferExtensionLoaded ?? (bool)(this._isViewerExtensionLoaded = this.IsExtensionLoaded(SariferExtensionGuid));
             }
         }
 
@@ -251,7 +266,7 @@ namespace Microsoft.Sarif.Viewer.Interop
             Guid serviceGuid = SariferExtensionGuid;
             IVsPackage package = null;
 
-            if (this.IsViewerExtensionInstalled)
+            if (this.IsSariferExtensionInstalled)
             {
                 this.VsShell.LoadPackage(ref serviceGuid, out package);
             }
@@ -288,11 +303,11 @@ namespace Microsoft.Sarif.Viewer.Interop
             return action(serviceInterface);
         }
 
-        private bool IsExtensionInstalled()
+        private bool IsExtensionInstalled(Guid extensionGuid)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            Guid serviceGuid = ViewerExtensionGuid;
+            Guid serviceGuid = extensionGuid;
             int result;
 
             return this.VsShell.IsPackageInstalled(ref serviceGuid, out result) == 0 && result == 1;
