@@ -65,7 +65,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
             }
             else if (projectItem.Kind == Constants.vsProjectItemKindVirtualFolder)
             {
-                // this is for case a project has a virutal folder which contains a bunch of physical files
+                // this is for case a project has a virtual folder which contains a bunch of physical files
                 foreach (ProjectItem projectFolder in projectItem.ProjectItems)
                 {
                     GetFilesRecursive(targetFiles, projectFolder);
