@@ -58,10 +58,24 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
                     GetFilesRecursive(targetFiles, projectFolder);
                 }
             }
+            else if (projectItem.Kind == Constants.vsProjectItemKindSolutionItems && projectItem.SubProject != null)
+            {
+                // this is for case solution has a folder at solution level and looking to its sub project
+                targetFiles.AddRange(GetFiles(projectItem.SubProject));
+            }
+            else if (projectItem.Kind == Constants.vsProjectItemKindVirtualFolder)
+            {
+                // this is for case a project has a virutal folder which contains a bunch of physical files
+                foreach (ProjectItem projectFolder in projectItem.ProjectItems)
+                {
+                    GetFilesRecursive(targetFiles, projectFolder);
+                }
+            }
             else
             {
+                // this is case of a physical file
                 // handle some solution items has null property. e.g. Solution Items, avoid null reference exception
-                string localPath = projectItem.Properties?.Item("LocalPath").Value.ToString();
+                string localPath = projectItem.Properties?.Item("FullPath").Value.ToString();
                 if (!string.IsNullOrWhiteSpace(localPath))
                 {
                     targetFiles.Add(localPath);
