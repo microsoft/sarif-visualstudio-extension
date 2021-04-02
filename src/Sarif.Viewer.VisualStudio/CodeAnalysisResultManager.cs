@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,6 +47,9 @@ namespace Microsoft.Sarif.Viewer
         private readonly List<string> _allowedDownloadHosts;
 
         private readonly IFileSystem _fileSystem;
+
+        private readonly ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> userDialogPreference
+            = new ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult>();
 
         internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
 
@@ -741,28 +745,47 @@ namespace Microsoft.Sarif.Viewer
                 return true;
             }
 
-            var dialog = new ResolveEmbeddedFileDialog(hasEmbeddedContent: !string.IsNullOrEmpty(embeddedTempFilePath));
-            dialog.ShowModal();
-            if (dialog.Result == ResolveEmbeddedFileDialogResult.None)
+            bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
+            ResolveEmbeddedFileDialogResult dialogResult;
+            if (userDialogPreference.TryGetValue(sarifErrorListItem.LogFilePath, out ResolveEmbeddedFileDialogResult preference) &&
+                preference != ResolveEmbeddedFileDialogResult.None &&
+
+                // if preference is OpenEmbeddedFileContent but this result has no embedded content, should ignore this preference
+                !(!hasEmbeddedContent && preference == ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent))
+            {
+                dialogResult = preference;
+            }
+            else
+            {
+                var dialog = new ResolveEmbeddedFileDialog(hasEmbeddedContent);
+                dialog.ShowModal();
+                dialogResult = dialog.Result;
+                if (dialog.ApplyUserPreference)
+                {
+                    userDialogPreference.AddOrUpdate(sarifErrorListItem.LogFilePath, dialogResult, (key, value) => dialogResult);
+                }
+            }
+
+            if (dialogResult == ResolveEmbeddedFileDialogResult.None)
             {
                 // dialog is cancelled.
                 newResolvedPath = null;
                 return false;
             }
 
-            if (dialog.Result == ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent)
+            if (dialogResult == ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent)
             {
                 newResolvedPath = embeddedTempFilePath;
                 return true;
             }
 
-            if (dialog.Result == ResolveEmbeddedFileDialogResult.OpenLocalFileFromSolution)
+            if (dialogResult == ResolveEmbeddedFileDialogResult.OpenLocalFileFromSolution)
             {
                 newResolvedPath = resolvedPath;
                 return true;
             }
 
-            if (dialog.Result == ResolveEmbeddedFileDialogResult.BrowseAlternateLocation)
+            if (dialogResult == ResolveEmbeddedFileDialogResult.BrowseAlternateLocation)
             {
                 // if returns null means user cancelled the open file dialog.
                 newResolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);

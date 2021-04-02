@@ -15,21 +15,23 @@ namespace Microsoft.Sarif.Viewer.Views
     /// </summary>
     public partial class ResolveEmbeddedFileDialog : DialogWindow, IDisposable
     {
+        private readonly bool hasEmbeddedFileContent;
+
         public ResolveEmbeddedFileDialog(bool hasEmbeddedContent)
         {
             InitializeComponent();
             this.Loaded += OnLoaded;
-            this.HasEmbeddedFileContent = hasEmbeddedContent;
+            this.hasEmbeddedFileContent = hasEmbeddedContent;
         }
 
-        public bool HasEmbeddedFileContent { get; set; }
+        public bool ApplyUserPreference => this.RememberMyChoiceButton.IsChecked.Value;
 
         public ResolveEmbeddedFileDialogResult Result;
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            this.OpenEmbeddedFileButton.Visibility = this.HasEmbeddedFileContent ? Visibility.Visible : Visibility.Hidden;
-            this.Message.Text = this.HasEmbeddedFileContent ? Viewer.Resources.ConfirmSourceFileDialog_Message : Viewer.Resources.ConfirmSourceFileDialog_Message_NoEmbedded;
+            this.OpenEmbeddedFileButton.Visibility = this.hasEmbeddedFileContent ? Visibility.Visible : Visibility.Hidden;
+            this.Message.Text = this.hasEmbeddedFileContent ? Viewer.Resources.ConfirmSourceFileDialog_Message : Viewer.Resources.ConfirmSourceFileDialog_Message_NoEmbedded;
         }
 
         private void OpenEmbeddedFileButton_Click(object sender, System.Windows.RoutedEventArgs e)
