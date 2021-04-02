@@ -135,7 +135,7 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remember my choice for other results from same sarif log..
+        ///   Looks up a localized string similar to Remember my choice for other results from same SARIF log..
         /// </summary>
         public static string ConfirmSourceFileDialog_RememberMyChoice {
             get {

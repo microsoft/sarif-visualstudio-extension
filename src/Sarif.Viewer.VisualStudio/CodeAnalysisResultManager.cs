@@ -48,8 +48,7 @@ namespace Microsoft.Sarif.Viewer
 
         private readonly IFileSystem _fileSystem;
 
-        private readonly ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> userDialogPreference
-            = new ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult>();
+        private readonly ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> userDialogPreference;
 
         internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
 
@@ -68,6 +67,8 @@ namespace Microsoft.Sarif.Viewer
             // Get temporary path for embedded files.
             this.temporaryFilePath = Path.GetTempPath();
             this.temporaryFilePath = Path.Combine(this.temporaryFilePath, TemporaryFileDirectoryName);
+
+            this.userDialogPreference = new ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult>();
         }
 
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
@@ -626,13 +627,13 @@ namespace Microsoft.Sarif.Viewer
                     pathFromLogFile = pathFromLogFile.Substring(1);
                 }
 
-                if (dataCache.RemappedUriBasePaths.ContainsKey(uriBaseId))
+                if (dataCache.RemappedUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri))
                 {
-                    pathFromLogFile = new Uri(dataCache.RemappedUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+                    pathFromLogFile = new Uri(baseUri, pathFromLogFile).LocalPath;
                 }
-                else if (dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
+                else if (dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri originalBaseUri))
                 {
-                    pathFromLogFile = new Uri(dataCache.OriginalUriBasePaths[uriBaseId], pathFromLogFile).LocalPath;
+                    pathFromLogFile = new Uri(originalBaseUri, pathFromLogFile).LocalPath;
                 }
 
                 if (this._fileSystem.FileExists(pathFromLogFile))
@@ -729,13 +730,12 @@ namespace Microsoft.Sarif.Viewer
                 return true;
             }
 
-            if (!dataCache.FileDetails.ContainsKey(pathFromLogFile))
+            if (!dataCache.FileDetails.TryGetValue(pathFromLogFile, out ArtifactDetailsModel fileData))
             {
                 newResolvedPath = resolvedPath;
                 return true;
             }
 
-            ArtifactDetailsModel fileData = dataCache.FileDetails[pathFromLogFile];
             string fileHash = this.GetFileHash(this._fileSystem, resolvedPath);
 
             if (fileHash.Equals(fileData.Sha256Hash))
@@ -766,33 +766,25 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            if (dialogResult == ResolveEmbeddedFileDialogResult.None)
+            switch (dialogResult)
             {
-                // dialog is cancelled.
-                newResolvedPath = null;
-                return false;
+                case ResolveEmbeddedFileDialogResult.None:
+                    // dialog is cancelled.
+                    newResolvedPath = null;
+                    return false;
+                case ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent:
+                    newResolvedPath = embeddedTempFilePath;
+                    return true;
+                case ResolveEmbeddedFileDialogResult.OpenLocalFileFromSolution:
+                    newResolvedPath = resolvedPath;
+                    return true;
+                case ResolveEmbeddedFileDialogResult.BrowseAlternateLocation:
+                    // if returns null means user cancelled the open file dialog.
+                    newResolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
+                    return !string.IsNullOrEmpty(newResolvedPath);
+                default:
+                    return false;
             }
-
-            if (dialogResult == ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent)
-            {
-                newResolvedPath = embeddedTempFilePath;
-                return true;
-            }
-
-            if (dialogResult == ResolveEmbeddedFileDialogResult.OpenLocalFileFromSolution)
-            {
-                newResolvedPath = resolvedPath;
-                return true;
-            }
-
-            if (dialogResult == ResolveEmbeddedFileDialogResult.BrowseAlternateLocation)
-            {
-                // if returns null means user cancelled the open file dialog.
-                newResolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
-                return !string.IsNullOrEmpty(newResolvedPath);
-            }
-
-            return false;
         }
 
         private string GetFileHash(IFileSystem fileSystem, string filePath)

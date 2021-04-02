@@ -378,6 +378,6 @@
     <value>Show Embedded File Content</value>
   </data>
   <data name="ConfirmSourceFileDialog_RememberMyChoice" xml:space="preserve">
-    <value>Remember my choice for other results from same sarif log.</value>
+    <value>Remember my choice for other results from same SARIF log.</value>
   </data>
 </root>

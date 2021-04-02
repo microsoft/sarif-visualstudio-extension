@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace Microsoft.Sarif.Viewer
 {
-    internal class HashHelper
+    internal static class HashHelper
     {
         internal static string GenerateHash(byte[] data)
         {
