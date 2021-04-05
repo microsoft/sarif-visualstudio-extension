@@ -52,15 +52,21 @@ namespace Microsoft.Sarif.Viewer
 
         internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
 
+        internal delegate ResolveEmbeddedFileDialogResult PromptForEmbeddedFileDelegate(string sarifLogFilePath, bool hasEmbeddedContent, ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> preference);
+
         private readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
+
+        private readonly PromptForEmbeddedFileDelegate _promptForEmbeddedFileDelegate;
 
         // This ctor is internal rather than private for unit test purposes.
         internal CodeAnalysisResultManager(
             IFileSystem fileSystem,
-            PromptForResolvedPathDelegate promptForResolvedPathDelegate = null)
+            PromptForResolvedPathDelegate promptForResolvedPathDelegate = null,
+            PromptForEmbeddedFileDelegate promptForEmbeddedFileDelegate = null)
         {
             this._fileSystem = fileSystem;
             this._promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? this.PromptForResolvedPath;
+            this._promptForEmbeddedFileDelegate = promptForEmbeddedFileDelegate ?? this.PromptForEmbeddedFile;
 
             this._allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
 
@@ -436,6 +442,45 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        private ResolveEmbeddedFileDialogResult PromptForEmbeddedFile(string sarifLogFilePath, bool hasEmbeddedContent, ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> userPreference)
+        {
+            // Opening the OpenFileDialog causes the TreeView to lose focus,
+            // which in turn causes the TreeViewItem selection to be unpredictable
+            // (because the selection event relies on the TreeViewItem focus.)
+            // We'll save the element which currently has focus and then restore
+            // focus after the OpenFileDialog is closed.
+            var elementWithFocus = Keyboard.FocusedElement as UIElement;
+
+            try
+            {
+                ResolveEmbeddedFileDialogResult dialogResult;
+                if (userPreference.TryGetValue(sarifLogFilePath, out ResolveEmbeddedFileDialogResult preference) &&
+                    preference != ResolveEmbeddedFileDialogResult.None &&
+
+                    // if preference is OpenEmbeddedFileContent but this result has no embedded content, should ignore this preference
+                    !(!hasEmbeddedContent && preference == ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent))
+                {
+                    dialogResult = preference;
+                }
+                else
+                {
+                    var dialog = new ResolveEmbeddedFileDialog(hasEmbeddedContent);
+                    dialog.ShowModal();
+                    dialogResult = dialog.Result;
+                    if (dialog.ApplyUserPreference)
+                    {
+                        userPreference.AddOrUpdate(sarifLogFilePath, dialogResult, (key, value) => dialogResult);
+                    }
+                }
+
+                return dialogResult;
+            }
+            finally
+            {
+                elementWithFocus?.Focus();
+            }
+        }
+
         // Find the common suffix between two paths by walking both paths backwards
         // until they differ or until we reach the beginning.
         private static string GetCommonSuffix(string firstPath, string secondPath)
@@ -732,6 +777,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (!dataCache.FileDetails.TryGetValue(pathFromLogFile, out ArtifactDetailsModel fileData))
             {
+                // has no embedded file, return the path resolved till now
                 newResolvedPath = resolvedPath;
                 return true;
             }
@@ -746,25 +792,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
-            ResolveEmbeddedFileDialogResult dialogResult;
-            if (userDialogPreference.TryGetValue(sarifErrorListItem.LogFilePath, out ResolveEmbeddedFileDialogResult preference) &&
-                preference != ResolveEmbeddedFileDialogResult.None &&
-
-                // if preference is OpenEmbeddedFileContent but this result has no embedded content, should ignore this preference
-                !(!hasEmbeddedContent && preference == ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent))
-            {
-                dialogResult = preference;
-            }
-            else
-            {
-                var dialog = new ResolveEmbeddedFileDialog(hasEmbeddedContent);
-                dialog.ShowModal();
-                dialogResult = dialog.Result;
-                if (dialog.ApplyUserPreference)
-                {
-                    userDialogPreference.AddOrUpdate(sarifErrorListItem.LogFilePath, dialogResult, (key, value) => dialogResult);
-                }
-            }
+            ResolveEmbeddedFileDialogResult dialogResult = this._promptForEmbeddedFileDelegate(sarifErrorListItem.LogFilePath, hasEmbeddedContent, this.userDialogPreference);
 
             switch (dialogResult)
             {
@@ -794,7 +822,7 @@ namespace Microsoft.Sarif.Viewer
                 return null;
             }
 
-            using (FileStream stream = File.OpenRead(filePath))
+            using (Stream stream = fileSystem.FileOpenRead(filePath))
             {
                 return HashHelper.GenerateHash(stream);
             }
