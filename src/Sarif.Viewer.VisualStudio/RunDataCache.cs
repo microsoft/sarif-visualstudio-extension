@@ -11,8 +11,6 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class RunDataCache
     {
-        private readonly IList<SarifErrorListItem> _sarifErrors = new List<SarifErrorListItem>();
-
         public IDictionary<string, ArtifactDetailsModel> FileDetails { get; } = new Dictionary<string, ArtifactDetailsModel>();
 
         public IDictionary<string, Uri> RemappedUriBasePaths { get; } = new Dictionary<string, Uri>();

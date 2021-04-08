@@ -131,6 +131,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             try
             {
                 this.fileSystemWatcher.EnableRaisingEvents = false;
+                DelayInMs(200);
                 this.SarifLogFileCreated?.Invoke(this, e);
             }
             finally

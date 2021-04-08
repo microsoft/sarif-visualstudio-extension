@@ -7,7 +7,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -44,6 +43,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     public class ErrorListService
     {
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
+
+        private const string Sha256HashKey = "sha-256";
 
         private const int HeadSegmentLength = 200;
 
@@ -650,7 +651,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 artifact.Hashes = new Dictionary<string, string>();
             }
 
-            if (!artifact.Hashes.ContainsKey("sha-256"))
+            if (!artifact.Hashes.ContainsKey(Sha256HashKey))
             {
                 byte[] data = null;
                 if (artifact.Contents?.Binary != null)
@@ -664,17 +665,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 if (data != null)
                 {
-                    string hashString = this.GenerateHash(data);
-                    artifact.Hashes.Add("sha-256", hashString);
+                    string hashString = HashHelper.GenerateHash(data);
+                    artifact.Hashes.Add(Sha256HashKey, hashString);
                 }
             }
-        }
-
-        internal string GenerateHash(byte[] data)
-        {
-            var hashFunction = new SHA256Managed();
-            byte[] hash = hashFunction.ComputeHash(data);
-            return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
 
         private void StoreFileDetails(IList<Artifact> artifacts)
@@ -689,7 +683,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 Uri uri = file.Location?.Uri;
                 if (uri != null)
                 {
-                    if (file.Contents != null)
+                    // cache both artifact has file content and artifact has hash code
+                    if (file.Contents != null || (file.Hashes != null && file.Hashes.ContainsKey(Sha256HashKey)))
                     {
                         this.EnsureHashExists(file);
                         var fileDetails = new ArtifactDetailsModel(file);

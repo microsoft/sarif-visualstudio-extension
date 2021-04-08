@@ -2,11 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.Shell;
 
 using Moq;
@@ -19,6 +23,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     {
         private readonly IFileSystem fileSystem;
 
+        private readonly Mock<IFileSystem> mockFileSystem;
+
         // The list of files for which File.Exists should return true.
         private readonly List<string> existingFiles;
 
@@ -28,11 +34,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         // The number of times we prompt the user for the resolved path.
         private int numPrompts;
 
+        // The embedded file dialog option selected by the user in response to the prompt.
+        private ResolveEmbeddedFileDialogResult embeddedFileDialogResult;
+
+        // The number of times we prompt the user for the resolved path.
+        private int numEmbeddedFilePrompts;
+
         public CodeAnalysisResultManagerTests()
         {
             this.existingFiles = new List<string>();
 
-            var mockFileSystem = new Mock<IFileSystem>();
+            this.mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem
                 .Setup(fs => fs.FileExists(It.IsAny<string>()))
                 .Returns((string path) => this.existingFiles.Contains(path));
@@ -58,8 +70,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
-
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath = this.FakePromptForResolvedPath(null, actualResolvedPath);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
             // Assert.
             actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
@@ -92,13 +105,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // First, rebase a file to prime the list of mappings.
-            target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile, dataCache: dataCache);
-
+            target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: FirstFileNameInLogFile, dataCache: dataCache);
+            string actualResolvedPath = this.FakePromptForResolvedPath(null, FirstFileNameInLogFile);
+            target.SaveResolvedPathToUriBaseMapping(null, FirstFileNameInLogFile, FirstFileNameInLogFile, actualResolvedPath, dataCache);
             // The first time, we prompt the user for the name of the file to rebaseline to.
             this.numPrompts.Should().Be(1);
 
             // Act: Rebaseline a second file with the same prefix.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
+            actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: SecondFileNameInLogFile, dataCache: dataCache);
 
             // Assert.
             actualResolvedPath.Should().Be(SecondRebaselinedFileName);
@@ -131,10 +145,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualResolvedPath.Should().Be(PathInLogFile);
+            actualResolvedPath.Should().BeNull();
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Should().BeEmpty();
@@ -158,10 +172,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
 
             // Assert.
-            actualResolvedPath.Should().Be(PathInLogFile);
+            actualResolvedPath.Should().BeNull();
 
             Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
             remappedPathPrefixes.Should().BeEmpty();
@@ -185,8 +199,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
-
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath.Should().BeNull();
+            actualResolvedPath = this.FakePromptForResolvedPath(null, PathInLogFile);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
             // Assert.
             actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
@@ -214,8 +230,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             target.RunIndexToRunDataCache.Add(RunId, dataCache);
 
             // Act.
-            string actualResolvedPath = target.GetRebaselinedFileName(sarifErrorListItem: null, uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
-
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath = this.FakePromptForResolvedPath(null, actualResolvedPath);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
             // Assert.
             actualResolvedPath.Should().Be(ExpectedResolvedPath);
 
@@ -352,10 +369,209 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             resolvedPath.Should().BeNull();
         }
 
+        [Fact]
+        public void CodeAnalysisResultManager_VerifyFileWithArtifactHash_LocalFileDoesNotExists()
+        {
+            // Arrange.
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cpp";
+            const string ResolvedPath = null;
+            const string EmbeddedFilePath = @"D:\Users\John\AppData\Local\Temp\SarifViewer\e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c\Notes.cpp";
+            const string EmbeddedFileContent = "UUID uuid;\nUuidCreate(&uuid);";
+            const int RunId = 1;
+
+            var target = new CodeAnalysisResultManager(
+                null,                               // This test never touches the file system.
+                this.FakePromptForResolvedPath,
+                this.FakePromptForEmbeddedFile);
+            var dataCache = new RunDataCache();
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
+            var artifact = new Artifact
+            {
+                Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c" },
+                Contents = new ArtifactContent { Text = EmbeddedFileContent },
+            };
+            dataCache.FileDetails.Add(PathInLogFile, new Models.ArtifactDetailsModel(artifact));
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
+
+            var sarifErrorListItem = new SarifErrorListItem { LogFilePath = @"C:\Code\sarif-sdk\src\.sarif\Result.sarif" };
+
+            // Act.
+            bool result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out string actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(EmbeddedFilePath);
+            // no dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(0);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_VerifyFileWithArtifactHash_HasNoEmbeddedFile()
+        {
+            // Arrange.
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cs";
+            const string ResolvedPath = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
+            const string EmbeddedFilePath = null;
+            const int RunId = 1;
+
+            var target = new CodeAnalysisResultManager(
+                null,                               // This test never touches the file system.
+                this.FakePromptForResolvedPath,
+                this.FakePromptForEmbeddedFile);
+            var dataCache = new RunDataCache();
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
+
+            var sarifErrorListItem = new SarifErrorListItem { LogFilePath = @"C:\Code\sarif-sdk\src\.sarif\Result.sarif" };
+
+            // Act.
+            bool result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out string actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(ResolvedPath);
+            // no dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(0);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_VerifyFileWithArtifactHash_HashMatches()
+        {
+            // Arrange.
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cpp";
+            const string ResolvedPath = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
+            const string EmbeddedFilePath = @"D:\Users\John\AppData\Local\Temp\SarifViewer\e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c\Notes.cpp";
+            const string EmbeddedFileContent = "UUID uuid;\nUuidCreate(&uuid);";
+            const int RunId = 1;
+
+            this.existingFiles.Add(ResolvedPath);
+            this.mockFileSystem
+                .Setup(fs => fs.FileOpenRead(ResolvedPath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(EmbeddedFileContent)));
+
+            var target = new CodeAnalysisResultManager(
+                this.mockFileSystem.Object,
+                this.FakePromptForResolvedPath,
+                this.FakePromptForEmbeddedFile);
+            var dataCache = new RunDataCache();
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
+            var artifact = new Artifact
+            {
+                Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c" },
+                Contents = new ArtifactContent { Text = EmbeddedFileContent },
+            };
+            dataCache.FileDetails.Add(PathInLogFile, new Models.ArtifactDetailsModel(artifact));
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
+
+            var sarifErrorListItem = new SarifErrorListItem { LogFilePath = @"C:\Code\sarif-sdk\src\.sarif\Result.sarif" };
+
+            // Act.
+            bool result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out string actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(ResolvedPath);
+            // no dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(0);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_VerifyFileWithArtifactHash_HashDoesNotMatches()
+        {
+            // Arrange.
+            const string PathInLogFile = @"C:\Code\sarif-sdk\src\Sarif\Notes.cpp";
+            const string ResolvedPath = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
+            const string EmbeddedFilePath = @"D:\Users\John\AppData\Local\Temp\SarifViewer\e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c\Notes.cpp";
+            const string EmbeddedFileContent = "UUID uuid;\nUuidCreate(&uuid);";
+            const int RunId = 1;
+
+            this.existingFiles.Add(ResolvedPath);
+            this.mockFileSystem
+                .Setup(fs => fs.FileOpenRead(ResolvedPath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(EmbeddedFileContent + "\n")));
+
+            var target = new CodeAnalysisResultManager(
+                this.mockFileSystem.Object,
+                this.FakePromptForResolvedPath,
+                this.FakePromptForEmbeddedFile);
+            var dataCache = new RunDataCache();
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
+            var artifact = new Artifact
+            {
+                Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c" },
+                Contents = new ArtifactContent { Text = EmbeddedFileContent },
+            };
+            dataCache.FileDetails.Add(PathInLogFile, new Models.ArtifactDetailsModel(artifact));
+
+            // simulate user cancelled dialog without selecting any option
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
+
+            var sarifErrorListItem = new SarifErrorListItem { LogFilePath = @"C:\Code\sarif-sdk\src\.sarif\Result.sarif" };
+
+            // Act.
+            bool result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out string actualResolvedPath);
+
+            // Assert.
+            result.Should().BeFalse();
+            actualResolvedPath.Should().BeNull();
+            // dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(1);
+
+            // simulate user selected open embedded file 
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent;
+            this.mockFileSystem
+                .Setup(fs => fs.FileOpenRead(ResolvedPath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(EmbeddedFileContent + "\n")));
+            // Act.
+            result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(EmbeddedFilePath);
+            // dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(2);
+
+            // simulate user selected open local file 
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.OpenLocalFileFromSolution;
+            this.mockFileSystem
+                .Setup(fs => fs.FileOpenRead(ResolvedPath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(EmbeddedFileContent + "\n")));
+            // Act.
+            result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(ResolvedPath);
+            // dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(3);
+
+            // simulate user selected to browser alternate file 
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.BrowseAlternateLocation;
+            this.mockFileSystem
+                .Setup(fs => fs.FileOpenRead(ResolvedPath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(EmbeddedFileContent + "\n")));
+            this.pathFromPrompt = ResolvedPath;
+            // Act.
+            result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(ResolvedPath);
+            // dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(4);
+            this.numPrompts.Should().Be(1);
+        }
+
         private string FakePromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string fullPathFromLogFile)
         {
             ++this.numPrompts;
             return this.pathFromPrompt;
+        }
+
+        private ResolveEmbeddedFileDialogResult FakePromptForEmbeddedFile(string sarifLogFilePath, bool hasEmbeddedContent, ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> preference)
+        {
+            ++this.numEmbeddedFilePrompts;
+            return this.embeddedFileDialogResult;
         }
     }
 }

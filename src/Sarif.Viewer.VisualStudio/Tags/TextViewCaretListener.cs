@@ -166,7 +166,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     return true;
                 }
 
-                if (x == null || y == null)
+                if (x == null || y == null || x.PersistentSpan == null || y.PersistentSpan == null)
                 {
                     return false;
                 }

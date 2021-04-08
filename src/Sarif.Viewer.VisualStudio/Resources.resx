@@ -359,4 +359,25 @@
   <data name="OpenExternalUri_DialogTitle" xml:space="preserve">
     <value>Open Hyperlink</value>
   </data>
+  <data name="ConfirmSourceFileDialog_BrowseFileButton" xml:space="preserve">
+    <value>Browse to Another Location…</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_Message" xml:space="preserve">
+    <value>This SARIF log has embedded source code for this analysis result that we can show. We also found a file in your solution/enlistment that matches the relevant file path, but it isn’t the same version of the file that was scanned when the log file was produced. What would you like to do?</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_Message_NoEmbedded" xml:space="preserve">
+    <value>We found a file in your solution/enlistment that matches the file path for this result, but the file isn’t the same version that was scanned when the log file was produced. What would you like to do?</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_OpenFileButton" xml:space="preserve">
+    <value>Open Local File</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_Title" xml:space="preserve">
+    <value>Confirm Source File Location</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_ViewEmbeddedFileButton" xml:space="preserve">
+    <value>Show Embedded File Content</value>
+  </data>
+  <data name="ConfirmSourceFileDialog_RememberMyChoice" xml:space="preserve">
+    <value>Remember my choice for other results from same SARIF log.</value>
+  </data>
 </root>

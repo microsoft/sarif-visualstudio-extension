@@ -99,6 +99,69 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Browse to Another Location….
+        /// </summary>
+        public static string ConfirmSourceFileDialog_BrowseFileButton {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_BrowseFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This SARIF log has embedded source code for this analysis result that we can show. We also found a file in your solution/enlistment that matches the relevant file path, but it isn’t the same version of the file that was scanned when the log file was produced. What would you like to do?.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_Message {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We found a file in your solution/enlistment that matches the file path for this result, but the file isn’t the same version that was scanned when the log file was produced. What would you like to do?.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_Message_NoEmbedded {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_Message_NoEmbedded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Local File.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_OpenFileButton {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_OpenFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remember my choice for other results from same SARIF log..
+        /// </summary>
+        public static string ConfirmSourceFileDialog_RememberMyChoice {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_RememberMyChoice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Source File Location.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_Title {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Embedded File Content.
+        /// </summary>
+        public static string ConfirmSourceFileDialog_ViewEmbeddedFileButton {
+            get {
+                return ResourceManager.GetString("ConfirmSourceFileDialog_ViewEmbeddedFileButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Continuing.
         /// </summary>
         public static string ContinuingAnalysisStepNodeMessage {
