@@ -22,6 +22,7 @@ namespace Microsoft.Sarif.Viewer
     /// Factory for creating our editors.
     /// </summary>
     [ContentType(ContentTypes.Sarif)]
+    [ContentType(ContentTypes.Text)]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     [Export(typeof(ITextViewCreationListener))]
     public class SarifTextViewCreationListener : ITextViewCreationListener
@@ -51,10 +52,21 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.TryGetFileNameFromTextView(textView, out string filename))
             {
+                if (!filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase) &&
+                    !filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                {
+                    // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
+                    // need to listner to content type "text". Only process log if file extension is .sarif or .json
+                    return;
+                }
+
                 if (!textBufferMap.ContainsKey(textView.TextBuffer))
                 {
                     textBufferMap.TryAdd(textView.TextBuffer, 0);
-                    ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+                    if (!ErrorListService.IsSarifLogOpened(filename))
+                    {
+                        ErrorListService.ProcessLogFile(filename, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+                    }
                 }
 
                 textBufferMap[textView.TextBuffer]++;
@@ -71,6 +83,14 @@ namespace Microsoft.Sarif.Viewer
 
                 if (this.TryGetFileNameFromTextView(textView, out string filename))
                 {
+                    if (!filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase) &&
+                        !filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
+                        // need to listner to content type "text". Only process log if file extension is .sarif or .json
+                        return;
+                    }
+
                     if (textBufferMap.ContainsKey(textView.TextBuffer))
                     {
                         textBufferMap[textView.TextBuffer]--;

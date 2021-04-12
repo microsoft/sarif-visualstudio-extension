@@ -20,6 +20,11 @@ namespace Microsoft.Sarif.Viewer
         public const string Any = "any";
 
         /// <summary>
+        /// The content type name for text files.
+        /// </summary>
+        public const string Text = "text";
+
+        /// <summary>
         /// Gets the base content type definition for SARIF log files..
         /// </summary>
         [Export]

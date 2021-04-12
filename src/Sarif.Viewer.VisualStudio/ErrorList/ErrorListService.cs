@@ -357,6 +357,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             CleanAllErrors();
         }
 
+        public static bool IsSarifLogOpened(string logFile)
+        {
+            return SarifTableDataSource.Instance.HasErrors(logFile) ||
+                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
+                    Any(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
+        }
+
         internal static Match MatchVersionProperty(string logText)
         {
             int headSegmentLength = Math.Min(logText.Length, HeadSegmentLength);
