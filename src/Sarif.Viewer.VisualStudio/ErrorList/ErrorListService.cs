@@ -359,7 +359,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static bool IsSarifLogOpened(string logFile)
         {
-            return SarifTableDataSource.Instance.HasErrors(logFile) ||
+            return SarifTableDataSource.Instance.HasErrorsFromLog(logFile) ||
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
                     Any(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
         }

@@ -50,16 +50,11 @@ namespace Microsoft.Sarif.Viewer
 
             textView.Closed += this.TextView_Closed;
 
-            if (this.TryGetFileNameFromTextView(textView, out string filename))
+            if (this.TryGetFileNameFromTextView(textView, out string filename) &&
+                this.IsSarifLogFile(filename))
             {
-                if (!filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase) &&
-                    !filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-                {
-                    // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
-                    // need to listner to content type "text". Only process log if file extension is .sarif or .json
-                    return;
-                }
-
+                // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
+                // need to listen to content type "text". Only process log if file extension is .sarif or .json.
                 if (!textBufferMap.ContainsKey(textView.TextBuffer))
                 {
                     textBufferMap.TryAdd(textView.TextBuffer, 0);
@@ -81,16 +76,9 @@ namespace Microsoft.Sarif.Viewer
             {
                 textView.Closed -= this.TextView_Closed;
 
-                if (this.TryGetFileNameFromTextView(textView, out string filename))
+                if (this.TryGetFileNameFromTextView(textView, out string filename) &&
+                    this.IsSarifLogFile(filename))
                 {
-                    if (!filename.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase) &&
-                        !filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
-                        // need to listner to content type "text". Only process log if file extension is .sarif or .json
-                        return;
-                    }
-
                     if (textBufferMap.ContainsKey(textView.TextBuffer))
                     {
                         textBufferMap[textView.TextBuffer]--;
@@ -127,6 +115,13 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return persistFile.GetCurFile(out fileName, out _) == VSConstants.S_OK;
+        }
+
+        private bool IsSarifLogFile(string fileName)
+        {
+            return !string.IsNullOrEmpty(fileName) &&
+                (fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase));
         }
     }
 }

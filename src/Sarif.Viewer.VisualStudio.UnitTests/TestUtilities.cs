@@ -15,11 +15,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifViewerPackage.IsUnitTesting = true;
         }
 
-        public static async Task InitializeTestEnvironmentAsync(SarifLog sarifLog)
+        public static async Task InitializeTestEnvironmentAsync(SarifLog sarifLog, string logFile = "", bool cleanErrors = true)
         {
             InitializeTestEnvironment();
 
-            await ErrorListService.ProcessSarifLogAsync(sarifLog, string.Empty, cleanErrors: true, openInEditor: false);
+            await ErrorListService.ProcessSarifLogAsync(sarifLog, logFile, cleanErrors: cleanErrors, openInEditor: false);
         }
     }
 }
