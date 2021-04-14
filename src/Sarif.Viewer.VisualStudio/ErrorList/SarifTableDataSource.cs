@@ -225,6 +225,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        /// <summary>
+        /// Check if log table has entries from particular log file.
+        /// </summary>
+        /// <param name="logFileName">Sarif log file.</param>
+        /// <returns>If true means this log file has been processed and loaded into error list.</returns>
+        internal bool HasErrorsFromLog(string logFileName)
+        {
+            using (this.tableEntriesLock.EnterReadLock())
+            {
+                return this.logFileToTableEntries.Any(entry => entry.Key.Equals(logFileName, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
         private void CallSinks(Action<ITableDataSink> action)
         {
             IReadOnlyList<SinkHolder> sinkHolders;

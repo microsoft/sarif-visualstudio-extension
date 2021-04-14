@@ -209,7 +209,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetails = this.CurrentRunDataCache.FileDetails;
+            IDictionary<string, Models.ArtifactDetailsModel> fileDetails = this.CurrentRunDataCache.FileDetails;
 
             fileDetails.Should().ContainKey(Key1);
         }
@@ -219,8 +219,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
+            string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             contents.Should().Be(ExpectedContents2);
@@ -231,9 +231,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key2);
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
-            var fileText = File.ReadAllText(rebaselinedFile);
+            string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key2);
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
+            string fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             fileText.Should().Be(ExpectedContents2);
@@ -244,9 +244,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key8);
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key8];
-            var fileText = File.ReadAllText(rebaselinedFile);
+            string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key8);
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key8];
+            string fileText = File.ReadAllText(rebaselinedFile);
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             fileText.Should().Be(ExpectedContents2);
@@ -257,8 +257,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key3];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key3];
+            string contents = fileDetail.GetContents();
 
             contents.Should().Be(ExpectedContents1);
         }
@@ -268,8 +268,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key4];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key4];
+            string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             contents.Should().Be(ExpectedContents2);
@@ -280,8 +280,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key5];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key5];
+            string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
             contents.Should().Be(string.Empty);
@@ -290,8 +290,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyTextContents()
         {
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key6];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key6];
+            string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
             contents.Should().Be(string.Empty);
@@ -302,8 +302,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key7];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key7];
+            string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
             contents.Should().Be(ExpectedContents2);
@@ -314,8 +314,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            var fileDetail = this.CurrentRunDataCache.FileDetails[Key1];
-            var contents = fileDetail.GetContents();
+            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key1];
+            string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
             contents.Should().Be(ExpectedContents1);
