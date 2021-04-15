@@ -16,10 +16,11 @@ using Microsoft.VisualStudio.Text.Projection;
 namespace Microsoft.Sarif.Viewer.Fixes
 {
     [Export(typeof(IPreviewProvider))]
-    public class EditActionPreviewProvider : IPreviewProvider
+    internal class EditActionPreviewProvider : IPreviewProvider
     {
-        private readonly ITextViewRoleSet previewRoleSet;
+        internal event EventHandler<ApplyFixEventArgs> ApplyFixesInDocument;
 
+        private readonly ITextViewRoleSet previewRoleSet;
         private readonly ITextBufferFactoryService textBufferFactoryService;
         private readonly ITextDocumentFactoryService textDocumentFactoryService;
         private readonly ITextDifferencingSelectorService textDifferencingSelectorService;
@@ -29,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         private readonly IWpfDifferenceViewerFactoryService wpfDifferenceViewerFactoryService;
 
         [ImportingConstructor]
-        public EditActionPreviewProvider(
+        internal EditActionPreviewProvider(
             ITextBufferFactoryService textBufferFactoryService,
             ITextDocumentFactoryService textDocumentFactoryService,
             ITextDifferencingSelectorService textDifferencingSelectorService,
@@ -51,6 +52,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         }
 
         public Task<object> CreateChangePreviewAsync(
+            SarifErrorListItem errorListItem,
             ITextBuffer buffer,
             Action<ITextBuffer,
             ITextSnapshot> applyEdit,
@@ -92,10 +94,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 Separator,
                 changedLineSpans.ToArray());
 
-            return this.CreateNewDifferenceViewerAsync(originalProjectionBuffer, newProjectionBuffer, description, additionalContent);
+            return this.CreateNewDifferenceViewerAsync(errorListItem, originalProjectionBuffer, newProjectionBuffer, description, additionalContent);
         }
 
         private async Task<object> CreateNewDifferenceViewerAsync(
+            SarifErrorListItem errorListItem,
             IProjectionBuffer originalBuffer,
             IProjectionBuffer newBuffer,
             string description,
@@ -134,7 +137,14 @@ namespace Microsoft.Sarif.Viewer.Fixes
             var sizeFitter = new SizeToFitHelper(diffViewer, 400.0);
             await sizeFitter.SizeToFitAsync();
 
-            return new DisposableDifferenceViewerControl(diffViewer, description, additionalContent);
+            var diffViewerControl = new DisposableDifferenceViewerControl(errorListItem, diffViewer, description, additionalContent);
+            diffViewerControl.ApplyFixesInDocument += this.Control_ApplyFixesInDocument;
+            return diffViewerControl;
+        }
+
+        private void Control_ApplyFixesInDocument(object sender, ApplyFixEventArgs e)
+        {
+            ApplyFixesInDocument?.Invoke(this, e);
         }
 
         private ITextBuffer CloneBuffer(ITextBuffer buffer)

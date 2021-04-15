@@ -22,6 +22,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     /// </summary>
     internal class FixSuggestedAction : ISuggestedAction
     {
+        private readonly SarifErrorListItem sarifErrorListItem;
         private readonly FixModel fix;
         private readonly ITextBuffer textBuffer;
         private readonly IPreviewProvider previewProvider;
@@ -30,6 +31,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <summary>
         /// Initializes a new instance of the <see cref="FixSuggestedAction"/> class.
         /// </summary>
+        /// <param name="errorListItem">
+        /// SarifErrorListItem object which corresponds to this fix action.
+        /// </param>
         /// <param name="fix">
         /// The SARIF <see cref="Fix"/> object that describes the action.
         /// </param>
@@ -40,10 +44,12 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// Creates the XAML UIControl that displays the preview.
         /// </param>
         public FixSuggestedAction(
+            SarifErrorListItem errorListItem,
             FixModel fix,
             ITextBuffer textBuffer,
             IPreviewProvider previewProvider)
         {
+            this.sarifErrorListItem = errorListItem;
             this.fix = fix;
             this.textBuffer = textBuffer;
             this.previewProvider = previewProvider;
@@ -84,7 +90,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             if (this.edits.Count != 0)
             {
                 return await this.previewProvider.CreateChangePreviewAsync(
-                    this.textBuffer, this.ApplyTextEdits, this.DisplayText);
+                    this.sarifErrorListItem, this.textBuffer, this.ApplyTextEdits, this.DisplayText);
             }
 
             return null;
