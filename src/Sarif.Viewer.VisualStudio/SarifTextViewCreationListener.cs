@@ -117,7 +117,7 @@ namespace Microsoft.Sarif.Viewer
             return persistFile.GetCurFile(out fileName, out _) == VSConstants.S_OK;
         }
 
-        private bool IsSarifLogFile(string fileName)
+        internal bool IsSarifLogFile(string fileName)
         {
             return !string.IsNullOrEmpty(fileName) &&
                 fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase);
