@@ -243,6 +243,36 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void CodeAnalysisResultManager_GetRebaselinedFileName_RelativeUri_WithoutUriBaseId()
+        {
+            // Arrange.
+            const string PathInLogFile = @"src/Sarif/Notes.cs";
+            const string ExpectedResolvedPath = @"D:\Users\John\source\sarif-sdk\src\Sarif\Notes.cs";
+
+            const int RunId = 1;
+
+            this.pathFromPrompt = ExpectedResolvedPath;
+
+            var target = new CodeAnalysisResultManager(
+                null,                               // This test never touches the file system.
+                this.FakePromptForResolvedPath);
+            var dataCache = new RunDataCache();
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
+
+            // Act.
+            string actualResolvedPath = target.GetRebaselinedFileName(uriBaseId: null, pathFromLogFile: PathInLogFile, dataCache: dataCache);
+            actualResolvedPath = this.FakePromptForResolvedPath(null, actualResolvedPath);
+            target.SaveResolvedPathToUriBaseMapping(null, PathInLogFile, PathInLogFile, actualResolvedPath, dataCache);
+            // Assert.
+            actualResolvedPath.Should().Be(ExpectedResolvedPath);
+
+            Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
+            remappedPathPrefixes.Length.Should().Be(1);
+            remappedPathPrefixes[0].Item1.Should().Be(@"");
+            remappedPathPrefixes[0].Item2.Should().Be(@"D:\Users\John\source\sarif-sdk");
+        }
+
+        [Fact]
         public void CodeAnalysisResultManager_CacheUriBasePaths_EnsuresTrailingSlash()
         {
             var run = new Run

@@ -748,7 +748,7 @@ namespace Microsoft.Sarif.Viewer
 
             int uriBaseIdEndIndex = resolvedPath.IndexOf(originalPath.Replace("/", @"\"));
 
-            if (relativeUri != null && uriBaseIdEndIndex >= 0)
+            if (!string.IsNullOrEmpty(uriBaseId) && relativeUri != null && uriBaseIdEndIndex >= 0)
             {
                 // If we could determine the uriBaseId substitution value, then add it to the map.
                 dataCache.RemappedUriBasePaths[uriBaseId] = new Uri(resolvedPath.Substring(0, uriBaseIdEndIndex), UriKind.Absolute);

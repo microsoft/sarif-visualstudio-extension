@@ -54,7 +54,7 @@ namespace Microsoft.Sarif.Viewer
                 this.IsSarifLogFile(filename))
             {
                 // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
-                // need to listen to content type "text". Only process log if file extension is .sarif or .json.
+                // need to listen to content type "text". Only process log if file extension is ".sarif".
                 if (!textBufferMap.ContainsKey(textView.TextBuffer))
                 {
                     textBufferMap.TryAdd(textView.TextBuffer, 0);
@@ -117,11 +117,10 @@ namespace Microsoft.Sarif.Viewer
             return persistFile.GetCurFile(out fileName, out _) == VSConstants.S_OK;
         }
 
-        private bool IsSarifLogFile(string fileName)
+        internal bool IsSarifLogFile(string fileName)
         {
             return !string.IsNullOrEmpty(fileName) &&
-                (fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase) ||
-                    fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase));
+                fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
