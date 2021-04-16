@@ -61,8 +61,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.persistentSpanFactory = persistentSpanFactory;
             this.previewProvider = previewProvider;
 
+            if (this.previewProvider is EditActionPreviewProvider editActionPreviewProvider)
+            {
+                editActionPreviewProvider.ApplyFixesInDocument += this.PreviewProdiver_ApplyFixesInDocument;
+            }
+
             // when text changed and sarif errors item changes, need to refresh errorInFile
-            IErrorList errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
+            var errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
             this.errorListTableControl = errorList?.TableControl;
             this.errorListTableControl.EntriesChanged += this.ErrorListTableControl_EntriesChanged;
             this.RefreshPersistentSpans();
@@ -74,6 +79,25 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.fixToErrorDictionary = new Dictionary<FixSuggestedAction, SarifErrorListItem>();
         }
 
+        private void PreviewProdiver_ApplyFixesInDocument(object sender, ApplyFixEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            // get same fixable errors in this document
+            IEnumerable<SarifErrorListItem> selectedFixableErrors = this.errorsInFile
+                .Where(error => error.Rule.Id.Equals(e.ErrorItem.Rule.Id, StringComparison.Ordinal))
+                .Where(error => error.IsFixable());
+
+            if (selectedFixableErrors == null || !selectedFixableErrors.Any())
+            {
+                return;
+            }
+
+            // execute action
+            IEnumerable<ISuggestedAction> suggestedActions = this.CreateActionSetFromErrors(selectedFixableErrors).SelectMany(set => set.Actions);
+            suggestedActions.ToList().ForEach(action => action.Invoke(CancellationToken.None));
+        }
+
 #pragma warning disable 0067
 
         /// <inheritdoc/>
@@ -83,6 +107,16 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <inheritdoc/>
         public void Dispose()
         {
+            if (this.previewProvider != null &&
+                this.previewProvider is EditActionPreviewProvider editActionPreviewProvider)
+            {
+                editActionPreviewProvider.ApplyFixesInDocument -= this.PreviewProdiver_ApplyFixesInDocument;
+            }
+
+            if (this.errorListTableControl != null)
+            {
+                this.errorListTableControl.EntriesChanged -= this.ErrorListTableControl_EntriesChanged;
+            }
         }
 
         /// <inheritdoc/>
@@ -201,7 +235,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             {
                 foreach (FixModel fix in error.Fixes.Where(fix => fix.CanBeAppliedToFile(error.FileName)))
                 {
-                    var suggestedAction = new FixSuggestedAction(fix, this.textBuffer, this.previewProvider);
+                    var suggestedAction = new FixSuggestedAction(error, fix, this.textBuffer, this.previewProvider);
                     this.fixToErrorDictionary.Add(suggestedAction, error);
                     suggestedAction.FixApplied += this.SuggestedAction_FixApplied;
                     suggestedActions.Add(suggestedAction);
