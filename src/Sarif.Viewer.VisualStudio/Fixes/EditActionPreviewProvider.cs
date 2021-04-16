@@ -138,13 +138,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
             await sizeFitter.SizeToFitAsync();
 
             var diffViewerControl = new DisposableDifferenceViewerControl(errorListItem, diffViewer, description, additionalContent);
-            diffViewerControl.ApplyFixesInDocument += this.Control_ApplyFixesInDocument;
+            diffViewerControl.ApplyFixesInDocument += (sender, e) =>
+            {
+                ApplyFixesInDocument?.Invoke(this, e);
+            };
             return diffViewerControl;
-        }
-
-        private void Control_ApplyFixesInDocument(object sender, ApplyFixEventArgs e)
-        {
-            ApplyFixesInDocument?.Invoke(this, e);
         }
 
         private ITextBuffer CloneBuffer(ITextBuffer buffer)

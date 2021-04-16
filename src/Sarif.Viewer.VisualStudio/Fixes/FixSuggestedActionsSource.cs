@@ -107,9 +107,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <inheritdoc/>
         public void Dispose()
         {
-            if (this.previewProvider != null)
+            if (this.previewProvider != null &&
+                this.previewProvider is EditActionPreviewProvider editActionPreviewProvider)
             {
-                ((EditActionPreviewProvider)this.previewProvider).ApplyFixesInDocument -= this.PreviewProdiver_ApplyFixesInDocument;
+                editActionPreviewProvider.ApplyFixesInDocument -= this.PreviewProdiver_ApplyFixesInDocument;
             }
 
             if (this.errorListTableControl != null)
