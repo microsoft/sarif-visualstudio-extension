@@ -51,6 +51,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.previewRoleSet = textEditorFactoryService.CreateTextViewRoleSet(PredefinedTextViewRoles.Analyzable);
         }
 
+        // return type Task<object> is required by ISuggestedAction.GetPreviewAsync
         public Task<object> CreateChangePreviewAsync(
             SarifErrorListItem errorListItem,
             ITextBuffer buffer,
@@ -138,6 +139,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
             await sizeFitter.SizeToFitAsync();
 
             var diffViewerControl = new DisposableDifferenceViewerControl(errorListItem, diffViewer, description, additionalContent);
+
+            // diffViewerControl (event publisher) lifecycle is shorter than preview provider (event subscriber)
+            // preview provider creates diffViewerControl every time before shows fix preview view, and diffViewerControl is disposed
+            // when the fix preview view closed. diffViewerControl should not hold the reference to diffViewerControl event we don't
+            // explicitly unsubscribe it.
             diffViewerControl.ApplyFixesInDocument += (sender, e) =>
             {
                 ApplyFixesInDocument?.Invoke(this, e);

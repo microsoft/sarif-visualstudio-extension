@@ -71,6 +71,16 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 this.differenceViewer.Close();
                 this.differenceViewer = null;
             }
+
+            if (ApplyFixesInDocument != null)
+            {
+                foreach (Delegate x in ApplyFixesInDocument?.GetInvocationList())
+                {
+                    ApplyFixesInDocument -= (EventHandler<ApplyFixEventArgs>)x;
+                }
+
+                System.Diagnostics.Debug.Assert(ApplyFixesInDocument == null, "Should not have hooked events.");
+            }
         }
 
         private void ApplyInDocument_Click(object sender, RoutedEventArgs e)
