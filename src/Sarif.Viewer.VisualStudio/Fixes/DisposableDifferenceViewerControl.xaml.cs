@@ -17,19 +17,26 @@ namespace Microsoft.Sarif.Viewer.Fixes
     {
         private IWpfDifferenceViewer differenceViewer = null;
 
+        private readonly SarifErrorListItem sarifErrorListItem = null;
+
+        internal event EventHandler<ApplyFixEventArgs> ApplyFixesInDocument;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DisposableDifferenceViewerControl"/> class.
         /// </summary>
+        /// <param name="errorListItem">Corresponding SarifErrorListItem object.</param>
         /// <param name="differenceViewer"><see cref="IWpfDifferenceViewer"/> instance.</param>
         /// <param name="description">Description of the changes. Optional.</param>
         /// <param name="additionalContent">Additional content to display at the bottom. Optional.</param>
         internal DisposableDifferenceViewerControl(
+            SarifErrorListItem errorListItem,
             IWpfDifferenceViewer differenceViewer,
             string description = null,
             FrameworkElement additionalContent = null)
         {
             this.InitializeComponent();
 
+            this.sarifErrorListItem = errorListItem;
             this.differenceViewer = Requires.NotNull(differenceViewer, nameof(differenceViewer));
 
             if (!string.IsNullOrWhiteSpace(description))
@@ -64,6 +71,22 @@ namespace Microsoft.Sarif.Viewer.Fixes
                 this.differenceViewer.Close();
                 this.differenceViewer = null;
             }
+
+            if (ApplyFixesInDocument != null)
+            {
+                foreach (Delegate x in ApplyFixesInDocument?.GetInvocationList())
+                {
+                    ApplyFixesInDocument -= (EventHandler<ApplyFixEventArgs>)x;
+                }
+
+                System.Diagnostics.Debug.Assert(ApplyFixesInDocument == null, "Should not have hooked events.");
+            }
+        }
+
+        private void ApplyInDocument_Click(object sender, RoutedEventArgs e)
+        {
+            this.StackPanelContent.Children.Clear();
+            ApplyFixesInDocument?.Invoke(this, new ApplyFixEventArgs(FixScope.Document, this.sarifErrorListItem));
         }
     }
 }

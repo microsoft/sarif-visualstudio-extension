@@ -12,6 +12,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
     internal interface IPreviewProvider
     {
         Task<object> CreateChangePreviewAsync(
+            SarifErrorListItem errorListItem,
             ITextBuffer buffer,
             Action<ITextBuffer, ITextSnapshot> applyEdit,
             string description = null,

@@ -70,6 +70,7 @@
     <Compile Include="FileWatcher\ISarifFileMonitor.cs" />
     <Compile Include="FileWatcher\SarifFolderMonitor.cs" />
     <Compile Include="FileWatcher\SarifLogsMonitor.cs" />
+    <Compile Include="Fixes\ApplyFixEventArgs.cs" />
     <Compile Include="Fixes\EditActionPreviewProvider.cs" />
     <Compile Include="Fixes\IPreviewProvider.cs" />
     <Compile Include="Fixes\LineSpan.cs" />
@@ -301,6 +302,10 @@
     <Page Include="Fixes\DisposableDifferenceViewerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Fixes\DisposableDifferenceViewerControlStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Themes\AnalysisStepsStyles.xaml">
       <SubType>Designer</SubType>
