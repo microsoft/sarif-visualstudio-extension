@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -99,6 +100,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             catch (JsonReaderException)
             {
                 RaiseLogProcessed(ExceptionalConditions.InvalidJson);
+            }
+            catch (Exception)
+            {
+                // for all other exceptions e.g. IO exception. throw it here will crash VS.
+                Trace.Write($"An error occurred while reading SARIF log file {filePath}");
             }
         }
 
