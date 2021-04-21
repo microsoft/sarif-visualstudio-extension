@@ -111,10 +111,16 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             if (toolFormat.MatchesToolFormat(ToolFormat.None))
             {
-                using (var logStreamReader = new StreamReader(filePath, Encoding.UTF8))
-                {
-                    logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
-                }
+                await RetryInvokeAsync(
+                    async () =>
+                    {
+                        using (var logStreamReader = new StreamReader(filePath, Encoding.UTF8))
+                        {
+                            logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
+                        }
+                    },
+                    retryInterval: TimeSpan.FromMilliseconds(300),
+                    maxAttemptCount: 5);
 
                 Match match = MatchVersionProperty(logText);
                 if (match.Success)
@@ -717,6 +723,30 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 // After Sarif results loaded to Error List, make sure Viewer package is loaded
                 SarifViewerPackage.LoadViewerPackage();
             }
+        }
+
+        private static async Task RetryInvokeAsync(Func<Task> func, TimeSpan retryInterval, int maxAttemptCount = 3)
+        {
+            var exceptions = new List<Exception>();
+            for (int attempted = 0; attempted < maxAttemptCount; attempted++)
+            {
+                try
+                {
+                    if (attempted > 0)
+                    {
+                        await Task.Delay(retryInterval);
+                    }
+
+                    await func();
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            }
+
+            throw new AggregateException(exceptions);
         }
     }
 }

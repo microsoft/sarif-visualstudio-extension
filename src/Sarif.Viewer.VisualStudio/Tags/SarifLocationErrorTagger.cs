@@ -88,7 +88,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 this.currentTags = relevantTags.ToList();
             }
 
-            if (!this.currentTags.Any())
+            if (this.currentTags == null || !this.currentTags.Any())
             {
                 yield break;
             }
