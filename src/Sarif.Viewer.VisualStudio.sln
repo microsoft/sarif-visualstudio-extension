@@ -47,6 +47,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sarif-sdk", "sarif-sdk", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sarif-pattern-matcher", "sarif-pattern-matcher", "{2802BDD7-321C-46FA-8CB1-026600CCCF2D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sarif.PatternMatcher.Sdk", "sarif-pattern-matcher\Src\Sarif.PatternMatcher.Sdk\Sarif.PatternMatcher.Sdk.csproj", "{1C66937F-5D66-4FBC-A2EF-E0529868952D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -189,6 +191,18 @@ Global
 		{AA731FF3-5423-49F9-84C9-D05543FBA360}.Release|x64.Build.0 = Release|Any CPU
 		{AA731FF3-5423-49F9-84C9-D05543FBA360}.Release|x86.ActiveCfg = Release|Any CPU
 		{AA731FF3-5423-49F9-84C9-D05543FBA360}.Release|x86.Build.0 = Release|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Debug|x64.Build.0 = Debug|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Debug|x86.Build.0 = Debug|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x64.ActiveCfg = Release|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x64.Build.0 = Release|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x86.ActiveCfg = Release|Any CPU
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -200,6 +214,7 @@ Global
 		{BA882944-7D32-4543-959A-964B7795F11E} = {6BF9285F-4015-47C7-B511-610A9C3B0A3A}
 		{141A7597-CC51-4EAC-A168-D2691149AB5B} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 		{AA731FF3-5423-49F9-84C9-D05543FBA360} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
+		{1C66937F-5D66-4FBC-A2EF-E0529868952D} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}
