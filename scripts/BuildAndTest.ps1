@@ -132,6 +132,11 @@ function Set-SarifFileAssociationRegistrySettings {
     }
 }
 
+if (-not (Test-Path "$RepoRoot\Src\sarif-pattern-matcher")) {
+    Write-Information "Retrieving sarif-pattern-matcher submodule..."
+    git submodule update --init --recursive
+}
+
 if (-not $NoClean) {
     Remove-DirectorySafely $BuildRoot
 }
