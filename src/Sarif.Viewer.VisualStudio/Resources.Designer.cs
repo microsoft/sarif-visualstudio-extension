@@ -378,6 +378,15 @@ namespace Microsoft.Sarif.Viewer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Heimdall Data Format log file (*.json)|*.json.
+        /// </summary>
+        public static string ImportHdfFilter {
+            get {
+                return ResourceManager.GetString("ImportHdfFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Import analysis log.
         /// </summary>
         public static string ImportLogOpenFileDialogTitle {

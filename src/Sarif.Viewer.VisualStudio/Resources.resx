@@ -380,4 +380,7 @@
   <data name="ConfirmSourceFileDialog_RememberMyChoice" xml:space="preserve">
     <value>Remember my choice for other results from same SARIF log.</value>
   </data>
+  <data name="ImportHdfFilter" xml:space="preserve">
+    <value>Heimdall Data Format log file (*.json)|*.json</value>
+  </data>
 </root>
