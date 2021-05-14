@@ -100,10 +100,12 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 // Filtering file before analyzing.
                 IEnumerable<Skimmer<AnalyzeContext>> applicableSkimmers = AnalyzeCommand.DetermineApplicabilityForTargetHelper(context, this.rules, disabledSkimmers);
 
-                Trace.WriteLine($"Rules filtered: {applicableSkimmers.Count()}");
+                Trace.WriteLine($"Applicable rules count: {applicableSkimmers.Count()}");
 
                 AnalyzeCommand.AnalyzeTargetHelper(context, applicableSkimmers, disabledSkimmers);
             }
+
+            Trace.WriteLine($"Analyzing {uri} completed.");
 
             return true;
         }
