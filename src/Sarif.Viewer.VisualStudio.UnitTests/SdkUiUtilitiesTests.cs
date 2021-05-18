@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void GetFileLocationPath_UriIsNull()
         {
             var dataCache = new RunDataCache();
-            int runId = 1;
+            int runId = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runId, dataCache);
 
             var artifact = new ArtifactLocation();
@@ -38,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void GetFileLocationPath_UriIsLocalPath()
         {
             var dataCache = new RunDataCache();
-            int runId = 1;
+            int runId = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runId, dataCache);
 
             string filePath = @"C:\repo\src\AnalysisStep.cs";
@@ -62,8 +62,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
             var dataCache = new RunDataCache();
-            int runId = 1;
-            CodeAnalysisResultManager.Instance.CurrentRunIndex = runId;
+            int runId = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runId, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
 
@@ -88,8 +87,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
             var dataCache = new RunDataCache();
-            int runId = 1;
-            CodeAnalysisResultManager.Instance.CurrentRunIndex = runId;
+            int runId = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runId, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
 
