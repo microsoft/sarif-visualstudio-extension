@@ -13,6 +13,7 @@ using System.Windows;
 using System.Windows.Forms;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -696,15 +697,25 @@ namespace Microsoft.Sarif.Viewer
                 RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runId];
 
                 Uri uri = artifactLocation.Uri;
-                string uriBaseId = artifactLocation.UriBaseId;
 
+                // try to resolve path using OriginalUriBasePaths
+                string uriBaseId = artifactLocation.UriBaseId;
                 if (!string.IsNullOrEmpty(uriBaseId) && dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
                 {
                     Uri baseUri = dataCache.OriginalUriBasePaths[uriBaseId];
                     uri = new Uri(baseUri, uri);
                 }
 
-                path = uri.LocalPath;
+                try
+                {
+                    path = uri.LocalPath;
+                }
+                catch (InvalidOperationException)
+                {
+                    // if cannot resolve local path return original uri string
+                    // it will try to resolve the path when user navigates to the error list item
+                    path = uri.ToPath();
+                }
             }
 
             return path;
