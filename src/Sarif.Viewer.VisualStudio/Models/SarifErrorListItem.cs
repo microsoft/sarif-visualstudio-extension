@@ -282,6 +282,11 @@ namespace Microsoft.Sarif.Viewer
         public string RawMessage { get; set; }
 
         [Browsable(false)]
+        public string PlainMessage => !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
+                                      SdkUIUtilities.GetPlainText(this.MessageInlines) :
+                                      this.RawMessage;
+
+        [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines
             ?? (this._messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.RawMessage)));
 
@@ -456,7 +461,7 @@ namespace Microsoft.Sarif.Viewer
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
-                        tooltipContent: this.Message,
+                        tooltipContent: this.PlainMessage,
                         context: this);
                 }
 

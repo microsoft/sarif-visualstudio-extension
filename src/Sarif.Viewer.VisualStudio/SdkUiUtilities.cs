@@ -7,7 +7,9 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
@@ -676,6 +678,27 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return inlines;
+        }
+
+        /// <summary>
+        /// Convert a collection of Inline elements into plain text.
+        /// </summary>
+        /// <param name="inlines">A collection of Inline elements that represent the message.</param>
+        /// <returns>A plaint text of the message.</returns>
+        internal static string GetPlainText(IEnumerable<XamlDoc.Inline> inlines)
+        {
+            if (inlines == null || !inlines.Any())
+            {
+                return null;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (XamlDoc.Inline inline in inlines)
+            {
+                stringBuilder.Append(new XamlDoc.TextRange(inline.ContentStart, inline.ContentEnd).Text);
+            }
+
+            return stringBuilder.ToString();
         }
 
         /// <summary>

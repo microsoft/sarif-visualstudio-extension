@@ -283,6 +283,131 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             VerifyTextRun(expected[2], actual[2]);
         }
 
+
+        [Fact]
+        public void GetPlainText_GetNullIfInputIsNullOrEmpty()
+        {
+            List<Inline> inputs = null;
+            string actual = SdkUIUtilities.GetPlainText(inputs);
+            actual.Should().BeNull();
+
+            inputs = new List<Inline>();
+            actual = SdkUIUtilities.GetPlainText(inputs);
+            actual.Should().BeNull();
+        }
+
+        [Fact]
+        public void GetPlainText_ConvertInlinesWithNoLink()
+        {
+            // raw text "The file ['..\directory\file.cpp']({url}) has a problem."
+            const string expected = @"The file '..\directory\file.cpp' has a problem.";
+
+            var hyperlink = new Hyperlink(new Run(@"'..\directory\file.cpp'"));
+            hyperlink.NavigateUri = new Uri("file://c:/repo/sarif/src/directory/file.cpp", UriKind.Absolute);
+            var inputs = new List<Inline>
+            {
+                new Run("The file "),
+                hyperlink,
+                new Run(" has a problem."),
+            };
+
+            string actual = SdkUIUtilities.GetPlainText(inputs);
+
+            actual.Should().NotBeNull();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void GetPlainText_ConvertInlinesWithPathLink()
+        {
+            // raw text "The quick brown fox jumps over the lazy dog."
+            const string expected = @"The quick brown fox jumps over the lazy dog.";
+
+            var inputs = new List<Inline>
+            {
+                new Run("The quick "),
+                new Run("brown fox"),
+                new Run(" jumps over the "),
+                new Run("lazy dog."),
+            };
+
+            string actual = SdkUIUtilities.GetPlainText(inputs);
+
+            actual.Should().NotBeNull();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void GetPlainText_ConvertInlinesWithHttpLink()
+        {
+            // raw text "The quick [brown fox](https://example.com) jumps over the lazy dog.";
+            const string url = "http://example.com";
+            const string expected = @"The quick brown fox jumps over the lazy dog.";
+
+            var hyperlink = new Hyperlink(new Run("brown fox"));
+            hyperlink.NavigateUri = new Uri(url);
+            var inputs = new List<Inline>
+            {
+                new Run("The quick "),
+                hyperlink,
+                new Run(" jumps over the lazy dog."),
+            };
+
+            string actual = SdkUIUtilities.GetPlainText(inputs);
+
+            actual.Should().NotBeNull();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void GetPlainText_ConvertInlinesWithTwoHttpLinks()
+        {
+            // raw text "The quick [brown fox](https://example.com) jumps over the [lazy dog](1).";
+            const string url = "http://example.com";
+            const string expected = @"The quick brown fox jumps over the lazy dog.";
+
+            var hyperlink1 = new Hyperlink(new Run("brown fox"));
+            hyperlink1.NavigateUri = new Uri(url);
+
+            var hyperlink2 = new Hyperlink(new Run("lazy dog"));
+            hyperlink2.Tag = 1;
+
+            var inputs = new List<Inline>
+            {
+                new Run("The quick "),
+                hyperlink1,
+                new Run(" jumps over the "),
+                hyperlink2,
+                new Run("."),
+            };
+
+            string actual = SdkUIUtilities.GetPlainText(inputs);
+
+            actual.Should().NotBeNull();
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void GetPlainText_ConvertInlinesWithLiteralBrackets()
+        {
+            // raw text "The file ['..\directory\file.cpp']({url}) has a \[problem\]."
+            const string expected = @"The file '..\directory\file.cpp' has a \[problem\].";
+
+            var hyperlink = new Hyperlink(new Run(@"'..\directory\file.cpp'"));
+            hyperlink.NavigateUri = new Uri("file://c:/repo/sarif/src/directory/file.cpp", UriKind.Absolute);
+            var inputs = new List<Inline>
+            {
+                new Run("The file "),
+                hyperlink,
+                new Run(@" has a \[problem\]."),
+            };
+
+            string actual = SdkUIUtilities.GetPlainText(inputs);
+
+            actual.Should().NotBeNull();
+            actual.Should().Be(expected);
+        }
+
         private static void VerifyTextRun(Inline expected, Inline actual)
         {
             actual.Should().BeOfType(expected.GetType());
