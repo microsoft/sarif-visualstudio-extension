@@ -710,7 +710,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     path = uri.LocalPath;
                 }
-                catch
+                catch (InvalidOperationException)
                 {
                     // if cannot resolve local path return original uri string
                     // it will try to resolve the path when user navigates to the error list item
