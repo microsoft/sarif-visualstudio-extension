@@ -3,5 +3,5 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="DifferenceViewer_Text_FixAll">Fix all occurrences in:&#160;</system:String>
-    <system:String x:Key="DifferenceViewer_Text_Document">Current Document</system:String>
+    <system:String x:Key="DifferenceViewer_Text_Document">Document</system:String>
 </ResourceDictionary>
