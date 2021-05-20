@@ -683,21 +683,27 @@ namespace Microsoft.Sarif.Viewer
             fullText = fullText.Replace(Environment.NewLine, " ").Replace("\r", " ").Replace("\n", " ");
 
             string text = fullText;
-            int endPosition = fullText.Length - 1;
+            string restText = fullText;
+
             char[] endChars = new char[] { '\r', '\n', ' ', };
             if (text.Length > maxLength)
             {
+                int endPosition = maxLength;
+
                 // if need to split text longer than maxLength, make sure not split in middle of a word.
                 if (!endChars.Contains(text[maxLength]))
                 {
+                    // find nearest whitespace before max length to separate the string
                     endPosition = text.LastIndexOfAny(endChars, maxLength);
+
+                    // if not found, set end position to max length
+                    endPosition = (endPosition == -1) ? maxLength : endPosition;
                 }
 
-                endPosition = endPosition == -1 ? maxLength : endPosition;
                 text = text.Substring(0, endPosition) + " \u2026"; // u2026 is Unicode "horizontal ellipsis";
+                restText = restText.Substring(endPosition).TrimStart(endChars);
             }
 
-            string restText = endPosition + 1 < fullText.Length ? fullText.Substring(endPosition).TrimStart(endChars) : fullText;
             return (text.TrimEnd(endChars), restText.TrimEnd(endChars));
         }
     }

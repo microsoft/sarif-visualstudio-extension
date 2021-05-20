@@ -405,6 +405,27 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_LongTextSplitAtSpace()
+        {
+            // a string that index at Max Length (165) happens to be a space
+            const string s1 = "In httplib2 before version 0.18.0, an attacker controlling unescaped part of uri for `httplib2.Http.request()` could change request headers and body, send additional hidden requests to same server. This vulnerability impacts software that uses httplib2 with uri constructed by string concatenation, as opposed to proper urllib building with escaping. This has been fixed in 0.18.0.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1,
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            int breakPoistion = 165; // 0 indexed
+            item.ShortMessage.Length.Should().Be(breakPoistion + 2); // 2 chars is added at end " \u2026"
+            item.ShortMessage.Substring(0, breakPoistion).Should().Be(s1.Substring(0, breakPoistion));
+            item.Message.Length.Should().Be(s1.Length - breakPoistion - 1);
+            item.Message.Should().Be(s1.Substring(breakPoistion + 1)); // leading space trimmed
+        }
+
+        [Fact]
         public void SarifErrorListItem_ResultMessageFormat_LongTextWitBreak()
         {
             // very long text has a space every 10 chars 
