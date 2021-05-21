@@ -97,7 +97,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 await ProcessLogFileCoreAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
             }
-            catch (JsonReaderException)
+            catch (JsonException)
             {
                 RaiseLogProcessed(ExceptionalConditions.InvalidJson);
             }
@@ -459,7 +459,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 sarifLog = SarifLog.Load(stream);
             }
-            catch (JsonReaderException)
+            catch (JsonException)
             {
                 RaiseLogProcessed(ExceptionalConditions.InvalidJson);
             }
@@ -718,7 +718,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             LogProcessed?.Invoke(Instance, new LogProcessedEventArgs(conditions));
         }
 
-        private static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
+        internal static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
