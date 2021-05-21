@@ -39,11 +39,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             }
         }
 
-        public override void ResetSettings()
-        {
-            base.ResetSettings();
-        }
-
         /// <summary>
         /// This occurs when the User selecting 'Ok' and right before the dialog page UI closes entirely.
         /// This override handles the case when the user types inside an editable combobox and

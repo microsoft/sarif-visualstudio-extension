@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="SarifViewerOptionsControl_GroupBoxHeader">Sarif Viewer Options</system:String>
+
+    <system:String x:Key="SarifViewerOptionsControl_MonitorSarifFolder">Enable loading .sarif files from .sarif folder automatically.</system:String>
+    <system:String x:Key="SarifViewerOptionsControl_MonitorSarifFolder_Desc">If enabled, .sarif files under .sarif folder will be loaded to error list automatically.</system:String>
+
+</ResourceDictionary>

@@ -3,7 +3,6 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="SariferOptionsControl_GroupBoxHeader">Sarifer Options</system:String>
-    <system:String x:Key="SariferOptionsControl_ShowGettingStarted">Show Getting Started </system:String>
 
     <system:String x:Key="SariferOptionsControl_BackgroundAnalysis">Enable background analysis automatically.</system:String>
     <system:String x:Key="SariferOptionsControl_BackgroundAnalysis_Desc">If enabled, the background analysis would trigger if a file is opened or edited.</system:String>
