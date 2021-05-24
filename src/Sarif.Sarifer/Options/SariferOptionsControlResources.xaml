@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="SariferOptionsControl_GroupBoxHeader">Sarifer Options</system:String>
+
+    <system:String x:Key="SariferOptionsControl_BackgroundAnalysis">Enable background analysis automatically.</system:String>
+    <system:String x:Key="SariferOptionsControl_BackgroundAnalysis_Desc">If enabled, the background analysis would trigger if a file is opened or edited.</system:String>
+
+    <system:String x:Key="SariferOptionsControl_AnalyzeSarifFile">Enable analysis for .sarif files.</system:String>
+    <system:String x:Key="SariferOptionsControl_AnalyzeSarifFile_Desc">If enabled, .sarif files will be analyzed by default.</system:String>
+
+    <system:String x:Key="SariferOptionsControl_IncludesPassResults">Generates pass kind analysis results.</system:String>
+    <system:String x:Key="SariferOptionsControl_IncludesPassResults_Desc">If enabled, pass results will also be captured in analysis results.</system:String>
+    
+</ResourceDictionary>

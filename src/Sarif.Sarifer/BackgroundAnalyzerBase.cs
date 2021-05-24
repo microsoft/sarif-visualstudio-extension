@@ -32,6 +32,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     {
         private const int DefaultBufferSize = 1024;
 
+        private ISariferOption option;
+
         /// <inheritdoc/>
         public abstract string ToolName { get; }
 
@@ -40,6 +42,15 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
         /// <inheritdoc/>
         public abstract string ToolSemanticVersion { get; }
+
+        internal ISariferOption ExtensionOption
+        {
+            get
+            {
+                this.option ??= SariferOption.Instance;
+                return option;
+            }
+        }
 
         /// <inheritdoc/>
         public async Task<Stream> AnalyzeAsync(string path, string text, CancellationToken cancellationToken)
@@ -191,7 +202,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 dataToRemove: OptionallyEmittedData.None,
                 tool: this.MakeTool(),
                 levels: new List<FailureLevel> { FailureLevel.Error, FailureLevel.Warning, FailureLevel.Note, FailureLevel.None },
-                kinds: new List<ResultKind> { ResultKind.Fail },
+                kinds: this.GetResultKinds(this.ExtensionOption),
                 closeWriterOnDispose: false);
 
         private Tool MakeTool() =>
@@ -204,5 +215,21 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     SemanticVersion = ToolSemanticVersion,
                 },
             };
+
+        private IEnumerable<ResultKind> GetResultKinds(ISariferOption sariferOption = null)
+        {
+            // always include fail results.
+            var result = new List<ResultKind>
+            {
+                ResultKind.Fail,
+            };
+
+            if (sariferOption != null && sariferOption.IncludesPassResults)
+            {
+                result.Add(ResultKind.Pass);
+            }
+
+            return result;
+        }
     }
 }

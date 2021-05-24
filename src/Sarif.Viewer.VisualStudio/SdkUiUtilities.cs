@@ -7,12 +7,15 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -678,6 +681,27 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
+        /// Convert a collection of Inline elements into plain text.
+        /// </summary>
+        /// <param name="inlines">A collection of Inline elements that represent the message.</param>
+        /// <returns>A plaint text of the message.</returns>
+        internal static string GetPlainText(IEnumerable<XamlDoc.Inline> inlines)
+        {
+            if (inlines == null || !inlines.Any())
+            {
+                return null;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (XamlDoc.Inline inline in inlines)
+            {
+                stringBuilder.Append(new XamlDoc.TextRange(inline.ContentStart, inline.ContentEnd).Text);
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        /// <summary>
         /// Removes escape backslashes that were used to suppress embedded linking.
         /// </summary>
         /// <param name="s">The string to be processed.</param>
@@ -696,15 +720,25 @@ namespace Microsoft.Sarif.Viewer
                 RunDataCache dataCache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runId];
 
                 Uri uri = artifactLocation.Uri;
-                string uriBaseId = artifactLocation.UriBaseId;
 
+                // try to resolve path using OriginalUriBasePaths
+                string uriBaseId = artifactLocation.UriBaseId;
                 if (!string.IsNullOrEmpty(uriBaseId) && dataCache.OriginalUriBasePaths.ContainsKey(uriBaseId))
                 {
                     Uri baseUri = dataCache.OriginalUriBasePaths[uriBaseId];
                     uri = new Uri(baseUri, uri);
                 }
 
-                path = uri.LocalPath;
+                try
+                {
+                    path = uri.LocalPath;
+                }
+                catch (InvalidOperationException)
+                {
+                    // if cannot resolve local path return original uri string
+                    // it will try to resolve the path when user navigates to the error list item
+                    path = uri.ToPath();
+                }
             }
 
             return path;

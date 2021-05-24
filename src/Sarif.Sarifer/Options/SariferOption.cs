@@ -9,11 +9,11 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
-    internal class SariferOption
+    internal class SariferOption : ISariferOption
     {
         private readonly AsyncPackage package;
 
-        private SariferExtensionOptionPage optionPage;
+        private SariferOptionsPage optionPage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SariferOption"/> class.
@@ -34,11 +34,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             private set;
         }
 
-        public SariferExtensionOptionPage OptionPage
+        public SariferOptionsPage OptionPage
         {
             get
             {
-                this.optionPage ??= (SariferExtensionOptionPage)this.package.GetDialogPage(typeof(SariferExtensionOptionPage));
+                this.optionPage ??= (SariferOptionsPage)this.package.GetDialogPage(typeof(SariferOptionsPage));
 
                 return this.optionPage;
             }
@@ -67,6 +67,22 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 try
                 {
                     return this.OptionPage.AnalyzeSarifFile;
+                }
+                catch
+                {
+                    // default value
+                    return false;
+                }
+            }
+        }
+
+        public bool IncludesPassResults
+        {
+            get
+            {
+                try
+                {
+                    return this.OptionPage.IncludesPassResults;
                 }
                 catch
                 {

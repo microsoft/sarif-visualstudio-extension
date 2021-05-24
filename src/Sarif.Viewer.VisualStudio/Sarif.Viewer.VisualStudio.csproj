@@ -117,10 +117,14 @@
     <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
     <Compile Include="Models\FeedbackModel.cs" />
     <Compile Include="Models\FeedbackType.cs" />
+    <Compile Include="Options\ISarifViewerOptions.cs" />
     <Compile Include="Options\SarifViewerOptionPage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Options\SarifViewerOptions.cs" />
+    <Compile Include="Options\SarifViewerOptionsControl.xaml.cs">
+      <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Sarif\SarifErrorListItem.Extensions.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
@@ -309,6 +313,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Fixes\DisposableDifferenceViewerControlStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Options\SarifViewerOptionsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Options\SarifViewerOptionsControlResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
