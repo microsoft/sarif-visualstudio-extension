@@ -27,7 +27,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ComVisible(true)]
     [ProvideService(typeof(IBackgroundAnalysisService))]
-    [ProvideOptionPage(typeof(SariferExtensionOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(SariferOptionsPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SariferPackage : AsyncPackage, IDisposable
     {
         public const string PackageGuidString = "F70132AB-4095-477F-AAD2-81D3D581113B";

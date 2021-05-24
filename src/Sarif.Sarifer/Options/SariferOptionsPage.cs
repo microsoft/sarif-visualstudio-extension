@@ -8,19 +8,24 @@ using System.Windows;
 
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.Sarif.Viewer.Options
+namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 {
+    [Guid("BB3665D5-E661-48C0-801A-19B034F3CD5F")]
     [ComVisible(true)]
-    public class SarifViewerOptionPage : UIElementDialogPage
+    public class SariferOptionsPage : UIElementDialogPage
     {
-        private readonly Lazy<SarifViewerOptionsControl> _sarifViewerOptionsControl;
+        private readonly Lazy<SariferOptionsControl> _sariferOptionsControl;
 
-        public SarifViewerOptionPage()
+        public SariferOptionsPage()
         {
-            _sarifViewerOptionsControl = new Lazy<SarifViewerOptionsControl>(() => new SarifViewerOptionsControl(this));
+            _sariferOptionsControl = new Lazy<SariferOptionsControl>(() => new SariferOptionsControl(this));
         }
 
-        public bool MonitorSarifFolder { get; set; } = true;
+        public bool BackgroundAnalysisEnabled { get; set; } = true;
+
+        public bool AnalyzeSarifFile { get; set; } = false;
+
+        public bool IncludesPassResults { get; set; } = false;
 
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
@@ -30,7 +35,7 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             get
             {
-                return _sarifViewerOptionsControl.Value;
+                return _sariferOptionsControl.Value;
             }
         }
 

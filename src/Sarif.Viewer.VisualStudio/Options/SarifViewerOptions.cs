@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
-    internal class SarifViewerOption
+    internal class SarifViewerOption : ISarifViewerOptions
     {
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
