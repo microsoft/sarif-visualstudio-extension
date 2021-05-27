@@ -77,6 +77,8 @@ namespace Microsoft.Sarif.Viewer
             this.userDialogPreference = new ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult>();
         }
 
+        public string TempDirectoryPath => this.temporaryFilePath;
+
         public static CodeAnalysisResultManager Instance = new CodeAnalysisResultManager(new FileSystem());
 
         public IDictionary<int, RunDataCache> RunIndexToRunDataCache { get; } = new Dictionary<int, RunDataCache>();
