@@ -23,6 +23,8 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
+using Newtonsoft.Json;
+
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
@@ -426,9 +428,34 @@ namespace Microsoft.Sarif.Viewer
                     var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
                     dte.ExecuteCommand("File.OpenFile", $@"""{this.LogFilePath}"" /e:""JSON Editor""");
                 }
+                else if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache cache))
+                {
+                    // LogFilePath doesn't exist then its a background analyzer result in memeory
+                    // load sarif log from memory cache
+                    string sarifLogFilePath = Path.Combine(CodeAnalysisResultManager.Instance.TempDirectoryPath, $"{cache.SarifLog.GetHashCode()}");
+                    if (!Directory.Exists(CodeAnalysisResultManager.Instance.TempDirectoryPath))
+                    {
+                        Directory.CreateDirectory(CodeAnalysisResultManager.Instance.TempDirectoryPath);
+                    }
+
+                    if (!File.Exists(sarifLogFilePath))
+                    {
+                        // serialize memory cached SarifLog into a temp file
+                        var serializer = new JsonSerializer
+                        {
+                            Formatting = Formatting.Indented,
+                        };
+                        using var sw = new StreamWriter(sarifLogFilePath);
+                        using JsonWriter writer = new JsonTextWriter(sw);
+                        serializer.Serialize(writer, cache.SarifLog);
+                    }
+
+                    // open temp sarif log file
+                    SdkUIUtilities.OpenDocument(ServiceProvider.GlobalProvider, sarifLogFilePath, usePreviewPane: false);
+                }
                 else
                 {
-                    VsShellUtilities.ShowMessageBox(Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider,
+                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                     string.Format(Resources.OpenLogFileFail_DialogMessage, this.LogFilePath),
                                                     null, // title
                                                     OLEMSGICON.OLEMSGICON_CRITICAL,
