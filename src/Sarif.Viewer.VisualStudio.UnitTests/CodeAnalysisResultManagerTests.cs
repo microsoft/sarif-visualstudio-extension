@@ -503,6 +503,28 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             actualResolvedPath.Should().Be(ResolvedPath);
             // no dialog pop up
             this.numEmbeddedFilePrompts.Should().Be(0);
+
+            // change hash to upper case and verify again
+            this.mockFileSystem
+                .Setup(fs => fs.FileOpenRead(ResolvedPath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(EmbeddedFileContent)));
+            artifact = new Artifact
+            {
+                Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c".ToUpper() },
+                Contents = new ArtifactContent { Text = EmbeddedFileContent },
+            };
+            dataCache.FileDetails[PathInLogFile] = new Models.ArtifactDetailsModel(artifact);
+            this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
+
+            // Act.
+            result = target.VerifyFileWithArtifactHash(sarifErrorListItem, PathInLogFile, dataCache, ResolvedPath, EmbeddedFilePath, out actualResolvedPath);
+
+            // Assert.
+            result.Should().BeTrue();
+            actualResolvedPath.Should().Be(ResolvedPath);
+            // no dialog pop up
+            this.numEmbeddedFilePrompts.Should().Be(0);
+
         }
 
         [Fact]

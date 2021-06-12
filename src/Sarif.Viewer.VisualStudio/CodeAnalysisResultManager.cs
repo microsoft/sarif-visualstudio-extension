@@ -786,7 +786,7 @@ namespace Microsoft.Sarif.Viewer
 
             string fileHash = this.GetFileHash(this._fileSystem, resolvedPath);
 
-            if (fileHash.Equals(fileData.Sha256Hash))
+            if (fileHash.Equals(fileData.Sha256Hash, StringComparison.OrdinalIgnoreCase))
             {
                 // found a file in file system which has same hashcode as embeded content.
                 newResolvedPath = resolvedPath;
