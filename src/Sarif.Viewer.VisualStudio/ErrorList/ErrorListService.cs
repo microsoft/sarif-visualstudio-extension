@@ -720,15 +720,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         internal static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (!SarifViewerPackage.IsUnitTesting)
             {
-                InfoBar.CreateInfoBarsForExceptionalConditionsAsync(e.ExceptionalConditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
-
-                // After Sarif results loaded to Error List, make sure Viewer package is loaded
-                SarifViewerPackage.LoadViewerPackage();
+                ThreadHelper.JoinableTaskFactory.Run(async () => await ShowInfoBarAsync(e.ExceptionalConditions));
             }
+        }
+
+        private static async Task ShowInfoBarAsync(ExceptionalConditions conditions)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            InfoBar.CreateInfoBarsForExceptionalConditionsAsync(conditions).FileAndForget(FileAndForgetEventName.InfoBarOpenFailure);
+
+            // After Sarif results loaded to Error List, make sure Viewer package is loaded
+            SarifViewerPackage.LoadViewerPackage();
         }
 
         private static async Task RetryInvokeAsync(Func<Task> func, TimeSpan retryInterval, int maxAttemptCount = 3)

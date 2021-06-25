@@ -80,7 +80,6 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                 await ErrorListService.CloseSarifLogItemsAsync(new string[] { filePath });
                 await ErrorListService.ProcessLogFileAsync(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
             });
