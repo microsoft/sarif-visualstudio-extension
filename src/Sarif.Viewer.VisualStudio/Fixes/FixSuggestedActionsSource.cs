@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -28,6 +29,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 
         private readonly IDictionary<FixSuggestedAction, SarifErrorListItem> fixToErrorDictionary;
         private readonly IWpfTableControl errorListTableControl;
+        private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
 
         private IList<SarifErrorListItem> errorsInFile;
 
@@ -69,7 +71,18 @@ namespace Microsoft.Sarif.Viewer.Fixes
             // when text changed and sarif errors item changes, need to refresh errorInFile
             var errorList = ServiceProvider.GlobalProvider.GetService(typeof(SVsErrorList)) as IErrorList;
             this.errorListTableControl = errorList?.TableControl;
-            this.errorListTableControl.EntriesChanged += this.ErrorListTableControl_EntriesChanged;
+            if (this.errorListTableControl != null)
+            {
+                this.errorListTableControl.EntriesChanged += this.ErrorListTableControl_EntriesChanged;
+            }
+
+            var component = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel)) as IComponentModel;
+            this.sarifErrorListEventSelectionService = component?.GetService<ISarifErrorListEventSelectionService>();
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifListErrorItemNavigated;
+            }
+
             this.RefreshPersistentSpans();
 
             // Keep track of which error is associated with each suggested action, so that when
@@ -117,6 +130,11 @@ namespace Microsoft.Sarif.Viewer.Fixes
             {
                 this.errorListTableControl.EntriesChanged -= this.ErrorListTableControl_EntriesChanged;
             }
+
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.NavigatedItemChanged -= this.SarifListErrorItemNavigated;
+            }
         }
 
         /// <inheritdoc/>
@@ -134,7 +152,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         /// <inheritdoc/>
         public async Task<bool> HasSuggestedActionsAsync(ISuggestedActionCategorySet requestedActionCategories, SnapshotSpan range, CancellationToken cancellationToken)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
             return this.GetSuggestedActions(requestedActionCategories, range, cancellationToken)?.Any() == true;
         }
@@ -272,6 +290,13 @@ namespace Microsoft.Sarif.Viewer.Fixes
         }
 
         private void ErrorListTableControl_EntriesChanged(object sender, EntriesChangedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            this.RefreshPersistentSpans();
+        }
+
+        private void SarifListErrorItemNavigated(object sender, SarifErrorListSelectionChangedEventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
