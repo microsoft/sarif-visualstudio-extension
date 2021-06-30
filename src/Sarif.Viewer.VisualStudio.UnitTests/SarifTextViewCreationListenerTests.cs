@@ -38,5 +38,30 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 target.IsSarifLogFile(testcase.input).Should().Be(testcase.expected);
             }
         }
+
+        [Fact]
+        public void SarifTextViewCreationListener_IsSarifContentType()
+        {
+            var testcases = new[]
+            {
+                new { input = (string)null, expected = false },
+                new { input = "", expected = false },
+                new { input = "    ", expected = false },
+                new { input = "JSON", expected = false },
+                new { input = "XML", expected = false },
+                new { input = "code", expected = false },
+                new { input = "XSARIF", expected = false },
+                new { input = "SARIFX", expected = false },
+                new { input = "sarif", expected = true },
+                new { input = "SARIF", expected = true },
+            };
+
+            var target = new SarifTextViewCreationListener();
+
+            foreach (var testcase in testcases)
+            {
+                target.IsSarifLogFile(testcase.input).Should().Be(testcase.expected);
+            }
+        }
     }
 }

@@ -51,7 +51,8 @@ namespace Microsoft.Sarif.Viewer
             textView.Closed += this.TextView_Closed;
 
             if (this.TryGetFileNameFromTextView(textView, out string filename) &&
-                this.IsSarifLogFile(filename))
+                this.IsSarifLogFile(filename) &&
+                this.IsSarifContentType(textView.TextBuffer.ContentType.TypeName))
             {
                 // since Json (base type of sarif log) editor throws error when file size is greater than 5 MBs
                 // need to listen to content type "text". Only process log if file extension is ".sarif".
@@ -77,7 +78,8 @@ namespace Microsoft.Sarif.Viewer
                 textView.Closed -= this.TextView_Closed;
 
                 if (this.TryGetFileNameFromTextView(textView, out string filename) &&
-                    this.IsSarifLogFile(filename))
+                    this.IsSarifLogFile(filename) &&
+                    this.IsSarifContentType(textView.TextBuffer.ContentType.TypeName))
                 {
                     if (textBufferMap.ContainsKey(textView.TextBuffer))
                     {
@@ -121,6 +123,15 @@ namespace Microsoft.Sarif.Viewer
         {
             return !string.IsNullOrEmpty(fileName) &&
                 fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal bool IsSarifContentType(string typeName)
+        {
+            // check if a Sarif file is opened as SARIF format.
+            // In VS user can open a Sarif file with other editors like JSON editor
+            // just for editing and doesn't need process Sarif log
+            // For these cases the content type will be corresponding type e.g. JSON
+            return typeName.Equals(ContentTypes.Sarif, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
