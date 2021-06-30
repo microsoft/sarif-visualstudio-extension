@@ -122,7 +122,7 @@ namespace Microsoft.Sarif.Viewer
         internal bool IsSarifLogFile(string fileName)
         {
             return !string.IsNullOrEmpty(fileName) &&
-                fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase);
+                    fileName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase);
         }
 
         internal bool IsSarifContentType(string typeName)
@@ -131,7 +131,8 @@ namespace Microsoft.Sarif.Viewer
             // In VS user can open a Sarif file with other editors like JSON editor
             // just for editing and doesn't need process Sarif log
             // For these cases the content type will be corresponding type e.g. JSON
-            return typeName.Equals(ContentTypes.Sarif, StringComparison.OrdinalIgnoreCase);
+            return !string.IsNullOrEmpty(typeName) &&
+                    typeName.Equals(ContentTypes.Sarif, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

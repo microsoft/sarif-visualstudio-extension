@@ -60,7 +60,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             foreach (var testcase in testcases)
             {
-                target.IsSarifLogFile(testcase.input).Should().Be(testcase.expected);
+                target.IsSarifContentType(testcase.input).Should().Be(testcase.expected);
             }
         }
     }
