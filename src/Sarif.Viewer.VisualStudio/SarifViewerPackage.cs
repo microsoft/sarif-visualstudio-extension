@@ -47,6 +47,7 @@ namespace Microsoft.Sarif.Viewer
         public const string OptionCategoryName = "Sarif Extension";
         public const string OptionPageName = "Sarif Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
+        private OutputWindowTracerListener outputWindowTraceListener;
 
         public static bool IsUnitTesting { get; set; } = false;
 
@@ -135,6 +136,14 @@ namespace Microsoft.Sarif.Viewer
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
+
+            #if DEBUG
+            if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
+            {
+                this.outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarif Viewer");
+            }
+            #endif
+
             this.sarifFolderMonitor = new SarifFolderMonitor();
 
             if (await this.IsSolutionLoadedAsync())

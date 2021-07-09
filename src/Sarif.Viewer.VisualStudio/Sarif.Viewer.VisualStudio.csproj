@@ -125,6 +125,7 @@
     <Compile Include="Options\SarifViewerOptionsControl.xaml.cs">
       <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OutputWindowTracerListener.cs" />
     <Compile Include="Sarif\SarifErrorListItem.Extensions.cs" />
     <Compile Include="Sarif\SarifLog.Extensions.cs" />
     <Compile Include="Services\ICloseSarifLogService.cs" />
