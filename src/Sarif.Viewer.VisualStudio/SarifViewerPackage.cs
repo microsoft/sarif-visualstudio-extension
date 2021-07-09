@@ -137,12 +137,12 @@ namespace Microsoft.Sarif.Viewer
             SarifToolWindowCommand.Initialize(this);
             ErrorList.ErrorListCommand.Initialize(this);
 
-            #if DEBUG
+#if DEBUG
             if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
             {
                 this.outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarif Viewer");
             }
-            #endif
+#endif
 
             this.sarifFolderMonitor = new SarifFolderMonitor();
 
