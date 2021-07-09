@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -67,6 +68,8 @@ namespace Microsoft.Sarif.Viewer
 
                 textBufferMap[textView.TextBuffer]++;
             }
+
+            Trace.WriteLine($"Opening file: {filename} content type: {textView.TextBuffer.ContentType.TypeName}");
         }
 
         private void TextView_Closed(object sender, EventArgs e)
@@ -132,7 +135,8 @@ namespace Microsoft.Sarif.Viewer
             // just for editing and doesn't need process Sarif log
             // For these cases the content type will be corresponding type e.g. JSON
             return !string.IsNullOrEmpty(typeName) &&
-                    typeName.Equals(ContentTypes.Sarif, StringComparison.OrdinalIgnoreCase);
+                   (typeName.Equals(ContentTypes.Sarif, StringComparison.OrdinalIgnoreCase) ||
+                    typeName.Equals(ContentTypes.Text, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
