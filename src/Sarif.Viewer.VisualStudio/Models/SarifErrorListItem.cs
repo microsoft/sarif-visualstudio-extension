@@ -90,11 +90,7 @@ namespace Microsoft.Sarif.Viewer
             this.HelpLink = this.Rule?.HelpUri;
 
             this.RawMessage = result.GetMessageText(rule);
-            (this.ShortMessage, this.Message) = this.SplitMessageText(RawMessage);
-            if (!this.Message.EndsWith("."))
-            {
-                this.ShortMessage = this.ShortMessage.TrimEnd('.');
-            }
+            this.ShortMessage = this.RawMessage;
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -209,13 +205,7 @@ namespace Microsoft.Sarif.Viewer
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
             this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
-            (this.ShortMessage, this.Message) = this.SplitMessageText(this.RawMessage);
-
-            // This is not locale friendly.
-            if (!this.Message.EndsWith("."))
-            {
-                this.ShortMessage = this.ShortMessage.TrimEnd('.');
-            }
+            this.ShortMessage = this.RawMessage;
 
             this.Level = notification.Level;
             this.LogFilePath = logFilePath;
