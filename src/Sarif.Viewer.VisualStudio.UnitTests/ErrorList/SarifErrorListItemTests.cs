@@ -364,7 +364,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifErrorListItem item = MakeErrorListItem(result);
 
             // with the change related to #360, message is not separated by sentence.
-            item.Message.Should().BeNull();
+            item.Message.Should().Be($"{s1} {s2}");
             item.ShortMessage.Should().Be($"{s1} {s2}");
         }
 
@@ -381,7 +381,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
-            item.Message.Should().BeNull();
+            item.Message.Should().Be(s1);
             item.ShortMessage.Should().Be(s1);
         }
 

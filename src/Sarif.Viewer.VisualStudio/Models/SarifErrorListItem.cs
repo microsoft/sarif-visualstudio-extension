@@ -91,6 +91,7 @@ namespace Microsoft.Sarif.Viewer
 
             this.RawMessage = result.GetMessageText(rule);
             this.ShortMessage = this.RawMessage;
+            this.Message = this.RawMessage;
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -206,6 +207,7 @@ namespace Microsoft.Sarif.Viewer
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
             this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
             this.ShortMessage = this.RawMessage;
+            this.Message = this.RawMessage;
 
             this.Level = notification.Level;
             this.LogFilePath = logFilePath;
