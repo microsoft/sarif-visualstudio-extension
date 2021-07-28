@@ -411,17 +411,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void ConvertToGithubRawPath_Tests()
         {
-            var testcases = new []
+            var testcases = new[]
             {
-                new 
+                new
                 {
-                    Input = "https://github.com/riagarwa-ms/adaptiveCard/tree/riagarwa/adaptive-card-changes/appsettings.json", 
-                    Expected = "https://raw.githubusercontent.com/riagarwa-ms/adaptiveCard/riagarwa/adaptive-card-changes/appsettings.json",
+                    Input = "https://github.com/microsoft/sarif-visualstudio-extension/blob/main/.github/workflows/dotnet-format.yml",
+                    Expected = "https://raw.githubusercontent.com/microsoft/sarif-visualstudio-extension/main/.github/workflows/dotnet-format.yml",
                 },
                 new
                 {
-                    Input = "http://github.com/riagarwa-ms/adaptiveCard/tree/riagarwa/adaptive-card-changes/appsettings.json",
-                    Expected = "http://raw.githubusercontent.com/riagarwa-ms/adaptiveCard/riagarwa/adaptive-card-changes/appsettings.json",
+                    Input = "http://github.com/microsoft/sarif-visualstudio-extension/tree/main/src/Sarif.Viewer.VisualStudio/Data/ruleLookup.json",
+                    Expected = "http://raw.githubusercontent.com/microsoft/sarif-visualstudio-extension/main/src/Sarif.Viewer.VisualStudio/Data/ruleLookup.json",
                 },
                 new
                 {
