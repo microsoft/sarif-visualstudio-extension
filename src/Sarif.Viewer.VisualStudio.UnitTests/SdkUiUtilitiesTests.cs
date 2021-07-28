@@ -408,6 +408,50 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             actual.Should().Be(expected);
         }
 
+        [Fact]
+        public void ConvertToGithubRawPath_Tests()
+        {
+            var testcases = new []
+            {
+                new 
+                {
+                    Input = "https://github.com/riagarwa-ms/adaptiveCard/tree/riagarwa/adaptive-card-changes/appsettings.json", 
+                    Expected = "https://raw.githubusercontent.com/riagarwa-ms/adaptiveCard/riagarwa/adaptive-card-changes/appsettings.json",
+                },
+                new
+                {
+                    Input = "http://github.com/riagarwa-ms/adaptiveCard/tree/riagarwa/adaptive-card-changes/appsettings.json",
+                    Expected = "http://raw.githubusercontent.com/riagarwa-ms/adaptiveCard/riagarwa/adaptive-card-changes/appsettings.json",
+                },
+                new
+                {
+                    Input = "https://test.com/path/to/file",
+                    Expected = "https://test.com/path/to/file",
+                },
+                new
+                {
+                    Input = "  ",
+                    Expected = "  ",
+                },
+                new
+                {
+                    Input = (string)null,
+                    Expected = (string)null,
+                },
+                new
+                {
+                    Input = "https://github.com/appsettings.json",
+                    Expected = "https://github.com/appsettings.json",
+                },
+            };
+
+            foreach (var testcase in testcases)
+            {
+                string actual = SdkUIUtilities.ConvertToGithubRawPath(testcase.Input);
+                actual.Should().Be(testcase.Expected);
+            }
+        }
+
         private static void VerifyTextRun(Inline expected, Inline actual)
         {
             actual.Should().BeOfType(expected.GetType());
