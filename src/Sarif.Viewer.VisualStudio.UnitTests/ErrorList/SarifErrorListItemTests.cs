@@ -385,7 +385,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.ShortMessage.Should().Be(s1);
         }
 
-        [Fact]
+        [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
         public void SarifErrorListItem_ResultMessageFormat_LongTextWithoutBreak()
         {
             // very long text without break like space or NewLine, longer than default max lengh 165
@@ -404,7 +404,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Message.Length.Should().Be(200 - breakPoistion);
         }
 
-        [Fact]
+        [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
         public void SarifErrorListItem_ResultMessageFormat_LongTextSplitAtSpace()
         {
             // a string that index at Max Length (165) happens to be a space
@@ -425,7 +425,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Message.Should().Be(s1.Substring(breakPoistion + 1)); // leading space trimmed
         }
 
-        [Fact]
+        [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
         public void SarifErrorListItem_ResultMessageFormat_LongTextWitBreak()
         {
             // very long text has a space every 10 chars 
@@ -444,7 +444,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Message.Length.Should().Be(200 - breakPoistion - 2); // last space is trimmed
         }
 
-        [Fact]
+        [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
         public void SarifErrorListItem_ResultMessageFormat_TextWitLinerBreak()
         {
             const string s0 = "The quick brown fox. Jumps over the lazy dog.";
