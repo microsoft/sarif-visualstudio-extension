@@ -364,7 +364,7 @@ namespace Microsoft.Sarif.Viewer
 
             string destinationFile = Path.Combine(sarifErrorListItem.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
-            Directory.CreateDirectory(destinationDirectory);
+            this._fileSystem.DirectoryCreateDirectory(destinationDirectory);
 
             if (!this._fileSystem.FileExists(destinationFile))
             {
@@ -583,10 +583,11 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             if (uriBaseId != null
-                    && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
-                    && Uri.TryCreate(baseUri, pathFromLogFile, out Uri uri)
-                    && uri.IsHttpScheme())
+                 && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
+                 && Uri.TryCreate(baseUri, pathFromLogFile, out Uri uri)
+                 && uri.IsHttpScheme())
             {
+                uri = new Uri(SdkUIUtilities.ConvertToGithubRawPath(uri.ToString()));
                 bool allow = this._allowedDownloadHosts.Contains(uri.Host);
 
                 // File needs to be downloaded, prompt for confirmation if host is not already allowed
