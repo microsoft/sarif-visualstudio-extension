@@ -45,6 +45,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
                 new
                 {
+                    Input = "http://github1com/microsoft/sarif-visualstudio-extension/tree/main/src/Sarif.Viewer.VisualStudio/Data/ruleLookup.json",
+                    Expected = "http://github1com/microsoft/sarif-visualstudio-extension/tree/main/src/Sarif.Viewer.VisualStudio/Data/ruleLookup.json",
+                },
+                new
+                {
                     Input = "  ",
                     Expected = "  ",
                 },
@@ -92,6 +97,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     Input = "https://test.com/path/to/file",
                     Expected = "https://test.com/path/to/file",
+                },
+                new
+                {
+                    Input = "http://dev_azure.com/org1/project2/_git/repo3?path=%2Fsrc%2Fproduct%2Ftests.cs&version=GBusers%2Fyong%2Fadd",
+                    Expected = "http://dev_azure.com/org1/project2/_git/repo3?path=%2Fsrc%2Fproduct%2Ftests.cs&version=GBusers%2Fyong%2Fadd",
                 },
                 new
                 {

@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer
                 return url;
             }
 
-            var regex = new Regex("^(?<protocol>https?://)(?<site>github.com)/(?<user>.*?)/(?<repo>.*?)(?<folder>/tree/|/blob/)(?<path>.*?)$");
+            var regex = new Regex(@"^(?<protocol>https?://)(?<site>github\.com)/(?<user>.*?)/(?<repo>.*?)(?<folder>/tree/|/blob/)(?<path>.*?)$");
 
             if (!regex.IsMatch(url))
             {

@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer
                 return url;
             }
 
-            var regex = new Regex("^(?<protocol>https?://)(?<site>dev.azure.com)/(?<org>.*?)/(?<project>.*?)/(?<api>_git)/(?<repo>.*?)\\?path=(?<filepath>.*?)(&version=GB(?<version>.*?))?$");
+            var regex = new Regex(@"^(?<protocol>https?://)(?<site>dev\.azure\.com)/(?<org>.*?)/(?<project>.*?)/(?<api>_git)/(?<repo>.*?)\?path=(?<filepath>.*?)(&version=GB(?<version>.*?))?$");
 
             if (!regex.IsMatch(url))
             {
