@@ -381,7 +381,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 .Returns(true);
 
             var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
-            resultManager.AddAllowedDownloadHost("github.com");
+            resultManager.AddAllowedDownloadHost("raw.githubusercontent.com");
             bool result = resultManager.TryResolveFilePathFromSourceControl(versionControlList, fileFromLog, workingDirectory, mockFileSystem.Object, out string resolvedPath);
 
             result.Should().BeTrue();
