@@ -443,7 +443,12 @@ namespace Microsoft.Sarif.Viewer
         // Internal rather than private for unit testability.
         internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string workingDirectory = null, string solutionFullPath = null)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             string originalPath = pathFromLogFile;
             Uri relativeUri = null;
