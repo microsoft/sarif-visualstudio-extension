@@ -410,7 +410,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal void AddAllowedDownloadHost(string host)
         {
-            if (this._allowedDownloadHosts.Contains(host))
+            if (!this._allowedDownloadHosts.Contains(host))
             {
                 this._allowedDownloadHosts.Add(host);
                 SdkUIUtilities.StoreObject<List<string>>(this._allowedDownloadHosts, AllowedDownloadHostsFileName);
