@@ -16,6 +16,9 @@ namespace Microsoft.Sarif.Viewer
     public class AdoVersionControlParser : IVersionControlParser
     {
         private readonly VersionControlDetails details;
+        private static readonly Regex regex = new Regex(
+            @"^(?<protocol>https?://)(?<site>dev\.azure\.com)/(?<org>.*?)/(?<project>.*?)/(?<api>_git)/(?<repo>.*?)\?path=(?<filepath>.*?)(&version=GB(?<version>.*?))?$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal AdoVersionControlParser(VersionControlDetails versionControl)
         {
@@ -52,8 +55,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 return url;
             }
-
-            var regex = new Regex(@"^(?<protocol>https?://)(?<site>dev\.azure\.com)/(?<org>.*?)/(?<project>.*?)/(?<api>_git)/(?<repo>.*?)\?path=(?<filepath>.*?)(&version=GB(?<version>.*?))?$");
 
             if (!regex.IsMatch(url))
             {

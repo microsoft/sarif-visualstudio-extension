@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -13,6 +14,9 @@ namespace Microsoft.Sarif.Viewer
         // known version control host
         internal static string GithubHost = "github.com";
         internal static string AdoHost = "dev.azure.com";
+
+        internal static Regex githubRegx = new Regex(@"^https?://github\.com", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        internal static Regex adoRegx = new Regex(@"^https?://dev\.azure\.com", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal static bool TryGetVersionControlParser(VersionControlDetails versionControl, out IVersionControlParser parser)
         {
@@ -41,16 +45,14 @@ namespace Microsoft.Sarif.Viewer
 
         internal static string ConvertToRawFileLink(string url)
         {
-            if (!string.IsNullOrWhiteSpace(url) &&
-                (url.StartsWith($"http://{GithubHost}") || url.StartsWith($"https://{GithubHost}")))
+            if (!string.IsNullOrWhiteSpace(url) && githubRegx.IsMatch(url))
             {
                 return new GithubVersionControlParser(null).ConvertToRawPath(url);
             }
 
             // not working due to need credential to access ado/vsts files
             /*
-            if (!string.IsNullOrWhiteSpace(url) &&
-                (url.StartsWith($"http://{AdoHost}") || url.StartsWith($"https://{AdoHost}")))
+            if (!string.IsNullOrWhiteSpace(url) && adoRegx.IsMatch(url))
             {
                 return new AdoVersionControlParser(null).ConvertToRawPath(url);
             }

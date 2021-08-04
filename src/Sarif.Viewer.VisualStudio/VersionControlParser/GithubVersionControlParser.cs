@@ -12,6 +12,9 @@ namespace Microsoft.Sarif.Viewer
     internal class GithubVersionControlParser : IVersionControlParser
     {
         private readonly VersionControlDetails details;
+        private static readonly Regex regex = new Regex(
+            @"^(?<protocol>https?://)(?<site>github\.com)/(?<user>.*?)/(?<repo>.*?)(?<folder>/tree/|/blob/)(?<path>.*?)$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal GithubVersionControlParser(VersionControlDetails versionControl)
         {
@@ -48,8 +51,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 return url;
             }
-
-            var regex = new Regex(@"^(?<protocol>https?://)(?<site>github\.com)/(?<user>.*?)/(?<repo>.*?)(?<folder>/tree/|/blob/)(?<path>.*?)$");
 
             if (!regex.IsMatch(url))
             {
