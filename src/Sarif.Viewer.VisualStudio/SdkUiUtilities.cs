@@ -762,32 +762,5 @@ namespace Microsoft.Sarif.Viewer
 
             return false;
         }
-
-        internal static string ConvertToGithubRawPath(string url)
-        {
-            // convert github file access page link to file raw content link
-            // from http://github.com/<username>/<repo>/<blob|tree>/<branch>/path/to/file
-            // to   http://raw.githubusercontent.com/<username>/<repo>/<branch>/path/to/file
-
-            if (string.IsNullOrWhiteSpace(url) ||
-                !(url.StartsWith("http://github.com") || url.StartsWith("https://github.com")))
-            {
-                return url;
-            }
-
-            Regex regex = new Regex("^(?<protocol>https?://)(?<site>github.com)/(?<user>.*?)/(?<repo>.*?)(?<folder>/tree/|/blob/)(?<path>.*?)$");
-
-            if (!regex.IsMatch(url))
-            {
-                return url;
-            }
-
-            return regex.Replace(url,
-                          m => m.Groups["protocol"].Value +
-                               "raw.githubusercontent.com" + "/" +
-                               m.Groups["user"].Value + "/" +
-                               m.Groups["repo"].Value + "/" +
-                               m.Groups["path"]);
-        }
     }
 }

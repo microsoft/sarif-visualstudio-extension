@@ -331,6 +331,64 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSourceControl_WithMappedToUri()
+        {
+            string workingDirectory = @"c:\temp\";
+            string fileFromLog = "src/Sarif/Baseline/ResultMatching/RemappingCalculators/SarifLogRemapping.cs";
+            Uri mapToPath = new Uri("file:///C:/repo/sarif-sdk/");
+            Uri targetFileUri = new Uri(mapToPath, fileFromLog);
+
+            var versionControlDetail = new VersionControlDetails
+            {
+                RepositoryUri = new Uri("https://example.com"),
+                RevisionId = "1234567879abcedf",
+                Branch = "master",
+                MappedTo = new ArtifactLocation { Uri = mapToPath },
+            };
+            var versionControlList = new List<VersionControlDetails>() { versionControlDetail };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileExists(targetFileUri.LocalPath))
+                .Returns(true);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            bool result = resultManager.TryResolveFilePathFromSourceControl(versionControlList, fileFromLog, workingDirectory, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeTrue();
+            resolvedPath.Should().BeEquivalentTo(@"c:\repo\sarif-sdk\src\Sarif\Baseline\ResultMatching\RemappingCalculators\SarifLogRemapping.cs");
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSourceControl_Github()
+        {
+            string workingDirectory = @"c:\temp\";
+            string fileFromLog = ".github/workflows/dotnet-format.yml";
+            Uri mapToPath = new Uri("file:///c:/temp/microsoft/sarif-visualstudio-extension/main/");
+            Uri targetFileUri = new Uri(mapToPath, fileFromLog);
+
+            var versionControlDetail = new VersionControlDetails
+            {
+                RepositoryUri = new Uri("https://github.com/microsoft/sarif-visualstudio-extension/"),
+                RevisionId = "378c2ee96a7dc1d8e487e2a02ce4dc73f67750e7",
+                Branch = "main",
+            };
+            var versionControlList = new List<VersionControlDetails>() { versionControlDetail };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileExists(targetFileUri.LocalPath))
+                .Returns(true);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            resultManager.AddAllowedDownloadHost("github.com");
+            bool result = resultManager.TryResolveFilePathFromSourceControl(versionControlList, fileFromLog, workingDirectory, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeTrue();
+            resolvedPath.Should().BeEquivalentTo(targetFileUri.LocalPath);
+        }
+
+        [Fact]
         public void CodeAnalysisResultManager_TryResolveFilePathFromSolution_MultipleFilesFound()
         {
             string solutionPath = @"c:\repo\sarif-sdk\src\Sarif.Sdk.sln";

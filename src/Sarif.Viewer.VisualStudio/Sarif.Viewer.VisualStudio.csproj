@@ -178,6 +178,10 @@
     <Compile Include="Telemetry\Events.cs" />
     <Compile Include="Telemetry\FeedbackTelemetryEvent.cs" />
     <Compile Include="Telemetry\TelemetryProvider.cs" />
+    <Compile Include="VersionControlParser\GithubVersionControlParser.cs" />
+    <Compile Include="VersionControlParser\IVersionControlParser.cs" />
+    <Compile Include="VersionControlParser\VersionControlParserFactory.cs" />
+    <Compile Include="VersionControlParser\AdoVersionControlParser.cs" />
     <Compile Include="Views\AnalysisStepView.cs" />
     <Compile Include="Uri.extensions.cs" />
     <Compile Include="Views\ResolveEmbeddedFileDialog.xaml.cs">
