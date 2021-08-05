@@ -15,8 +15,8 @@ namespace Microsoft.Sarif.Viewer
         internal static string GithubHost = "github.com";
         internal static string AdoHost = "dev.azure.com";
 
-        internal static Regex githubRegx = new Regex(@"^https?://github\.com", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        internal static Regex adoRegx = new Regex(@"^https?://dev\.azure\.com", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex s_githubRegex = new Regex(@"^https?://github\.com", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex s_adoRegex = new Regex(@"^https?://dev\.azure\.com", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal static bool TryGetVersionControlParser(VersionControlDetails versionControl, out IVersionControlParser parser)
         {
@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal static string ConvertToRawFileLink(string url)
         {
-            if (!string.IsNullOrWhiteSpace(url) && githubRegx.IsMatch(url))
+            if (!string.IsNullOrWhiteSpace(url) && s_githubRegex.IsMatch(url))
             {
                 return new GithubVersionControlParser(null).ConvertToRawPath(url);
             }
