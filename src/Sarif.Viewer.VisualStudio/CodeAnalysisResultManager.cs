@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -57,6 +59,8 @@ namespace Microsoft.Sarif.Viewer
         private readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         private readonly PromptForEmbeddedFileDelegate _promptForEmbeddedFileDelegate;
+
+        private static readonly HttpClient s_httpClient = new HttpClient();
 
         // This ctor is internal rather than private for unit test purposes.
         internal CodeAnalysisResultManager(
@@ -393,15 +397,15 @@ namespace Microsoft.Sarif.Viewer
                                        workingDirectory;
                     return this.DownloadFile(workingDirectory, uri.ToString(), localRelativePath);
                 }
-                catch (WebException wex)
+                catch (Exception ex)
                 {
                     VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                               Resources.DownloadFail_DialogMessage + Environment.NewLine + wex.Message,
+                               Resources.DownloadFail_DialogMessage + Environment.NewLine + ex.Message,
                                null, // title
                                OLEMSGICON.OLEMSGICON_CRITICAL,
                                OLEMSGBUTTON.OLEMSGBUTTON_OK,
                                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                    throw wex;
+                    Trace.WriteLine($"DownloadFile {uri.ToString()} threw exception: {ex.Message}");
                 }
             }
 
@@ -417,6 +421,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "need to wait http request/file download to be completed before exit the function.")]
         internal string DownloadFile(string workingDirectory, string fileUrl, string localRelativeFilePath)
         {
             if (string.IsNullOrEmpty(fileUrl))
@@ -434,9 +439,20 @@ namespace Microsoft.Sarif.Viewer
 
             if (!this._fileSystem.FileExists(destinationFile))
             {
-                using (var client = new WebClient())
+                // have to use synchronous http request/file write so that
+                // when this function exits the file is already created.
+                using HttpResponseMessage response = s_httpClient.GetAsync(sourceUri).Result;
+
+                // if the status code is other than 200 (OK), e.g. 401 (Unathorized) don't download the file
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    client.DownloadFile(sourceUri, destinationFile);
+                    Stream stream = response.Content.ReadAsStreamAsync().Result;
+                    using FileStream fs = File.Create(destinationFile);
+                    stream.CopyTo(fs);
+                }
+                else
+                {
+                    throw new Exception($"Not able to download file from Url {sourceUri}. Http status code: {response.StatusCode}");
                 }
             }
 
@@ -658,10 +674,15 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (uriBaseId != null
+            Uri uri = null;
+            if ((uriBaseId != null
                  && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
-                 && Uri.TryCreate(baseUri, pathFromLogFile, out Uri uri)
-                 && uri.IsHttpScheme())
+                 && Uri.TryCreate(baseUri, pathFromLogFile, out uri)
+                 && uri.IsHttpScheme()) ||
+
+                 // if result location uri is an absolute http url
+                 (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out uri) &&
+                  uri.IsHttpScheme()))
             {
                 return this.HandleHttpFileDownloadRequest(
                             VersionControlParserFactory.ConvertToRawFileLink(uri),
@@ -823,20 +844,24 @@ namespace Microsoft.Sarif.Viewer
         internal bool SaveResolvedPathToUriBaseMapping(string uriBaseId, string originalPath, string pathFromLogFile, string resolvedPath, RunDataCache dataCache)
         {
             Uri.TryCreate(pathFromLogFile, UriKind.Relative, out Uri relativeUri);
-            string fullPathFromLogFile = pathFromLogFile;
             if (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out Uri absoluteUri))
             {
-                fullPathFromLogFile = Path.GetFullPath(pathFromLogFile);
+                if (absoluteUri.IsHttpScheme())
+                {
+                    // since result's path is full url path, it has no common part of local files
+                    return true;
+                }
             }
             else
             {
-                if (!fullPathFromLogFile.StartsWith("/"))
+                // if path is relative path, add '/' at beginning
+                if (!pathFromLogFile.StartsWith("/"))
                 {
-                    fullPathFromLogFile = "/" + fullPathFromLogFile;
+                    pathFromLogFile = "/" + pathFromLogFile;
                 }
             }
 
-            string commonSuffix = GetCommonSuffix(fullPathFromLogFile.Replace("/", @"\"), resolvedPath);
+            string commonSuffix = GetCommonSuffix(pathFromLogFile.Replace("/", @"\"), resolvedPath);
             if (commonSuffix == null)
             {
                 return false;
@@ -844,7 +869,7 @@ namespace Microsoft.Sarif.Viewer
 
             // Trim the common suffix from both paths, and add a remapping that converts
             // one prefix to the other.
-            string originalPrefix = fullPathFromLogFile.Substring(0, fullPathFromLogFile.Length - commonSuffix.Length);
+            string originalPrefix = pathFromLogFile.Substring(0, pathFromLogFile.Length - commonSuffix.Length);
             string resolvedPrefix = resolvedPath.Substring(0, resolvedPath.Length - commonSuffix.Length);
 
             int uriBaseIdEndIndex = resolvedPath.IndexOf(originalPath.Replace("/", @"\"));
