@@ -383,4 +383,7 @@
   <data name="ImportHdfFilter" xml:space="preserve">
     <value>Heimdall Data Format log file (*.json)|*.json</value>
   </data>
+  <data name="ImportClangTidyFilter" xml:space="preserve">
+    <value>Clang log files (*.yaml)|*.yaml</value>
+  </data>
 </root>
