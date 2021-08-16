@@ -21,6 +21,8 @@ namespace Microsoft.Sarif.Viewer
 
         public IDictionary<string, NewLineIndex> FileToNewLineIndexMap { get; } = new Dictionary<string, NewLineIndex>();
 
+        public IList<VersionControlDetails> SourceControlDetails = new List<VersionControlDetails>();
+
         public FileRegionsCache FileRegionsCache { get; }
 
         public string LogFilePath { get; }
