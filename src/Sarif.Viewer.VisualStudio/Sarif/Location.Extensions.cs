@@ -32,7 +32,9 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 if (uri != null)
                 {
                     model.FilePath = uri.ToPath();
-                    model.UriBaseId = physicalLocation.ArtifactLocation.UriBaseId;
+
+                    // model.UriBaseId = physicalLocation.ArtifactLocation.UriBaseId;
+                    model.UriBaseId = artifactIndex >= 0 && run.Artifacts[artifactIndex].Location.UriBaseId != null ? run.Artifacts[artifactIndex].Location.UriBaseId : physicalLocation.ArtifactLocation.UriBaseId;
                 }
             }
 
