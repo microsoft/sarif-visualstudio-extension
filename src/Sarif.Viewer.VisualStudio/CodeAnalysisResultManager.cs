@@ -234,7 +234,12 @@ namespace Microsoft.Sarif.Viewer
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // resolve path, existing file in local disk
-                resolvedPath = this.GetRebaselinedFileName(uriBaseId, relativePath, dataCache, solutionPath, sarifErrorListItem.WorkingDirectory);
+                resolvedPath = this.GetRebaselinedFileName(
+                    uriBaseId: uriBaseId,
+                    pathFromLogFile: relativePath,
+                    dataCache: dataCache,
+                    workingDirectory: sarifErrorListItem.WorkingDirectory,
+                    solutionFullPath: solutionPath);
             }
 
             // verify resolved file with artifact's Hash
@@ -485,7 +490,11 @@ namespace Microsoft.Sarif.Viewer
                 return resolvedPath;
             }
 
-            if (this.TryResolveFilePathFromSolution(solutionFullPath, originalPath, this._fileSystem, out resolvedPath))
+            if (this.TryResolveFilePathFromSolution(
+                solutionPath: solutionFullPath,
+                pathFromLogFile: originalPath,
+                fileSystem: this._fileSystem,
+                resolvedPath: out resolvedPath))
             {
                 return resolvedPath;
             }
