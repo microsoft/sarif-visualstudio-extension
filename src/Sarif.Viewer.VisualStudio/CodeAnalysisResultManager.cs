@@ -727,9 +727,18 @@ namespace Microsoft.Sarif.Viewer
                 // if path like "\AssemblyInfo.cs" it may exists in many projects.
                 // Here try to find a unique file matching the path,
                 // if more than 1 files match the path, we cannot decide which file to select, need manual intervention
-                if (searchResults.Any())
+                IEnumerator<string> searchResultsEnumerator = searchResults.GetEnumerator();
+                if (searchResultsEnumerator.MoveNext())
                 {
-                    resolvedPath = searchResults.FirstOrDefault();
+                    string currentResolvedPath = searchResultsEnumerator.Current;
+
+                    // If there is another entry, the user must pick one.
+                    if (searchResultsEnumerator.MoveNext())
+                    {
+                        return false;
+                    }
+
+                    resolvedPath = currentResolvedPath;
                     return true;
                 }
             }
