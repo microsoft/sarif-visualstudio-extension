@@ -23,9 +23,11 @@ using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Views;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer
@@ -232,7 +234,12 @@ namespace Microsoft.Sarif.Viewer
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // resolve path, existing file in local disk
-                resolvedPath = this.GetRebaselinedFileName(uriBaseId, relativePath, dataCache, solutionPath, sarifErrorListItem.WorkingDirectory);
+                resolvedPath = this.GetRebaselinedFileName(
+                    uriBaseId: uriBaseId,
+                    pathFromLogFile: relativePath,
+                    dataCache: dataCache,
+                    workingDirectory: sarifErrorListItem.WorkingDirectory,
+                    solutionFullPath: solutionPath);
             }
 
             // verify resolved file with artifact's Hash
@@ -483,7 +490,11 @@ namespace Microsoft.Sarif.Viewer
                 return resolvedPath;
             }
 
-            if (this.TryResolveFilePathFromSolution(solutionFullPath, originalPath, this._fileSystem, out resolvedPath))
+            if (this.TryResolveFilePathFromSolution(
+                solutionPath: solutionFullPath,
+                pathFromLogFile: originalPath,
+                fileSystem: this._fileSystem,
+                resolvedPath: out resolvedPath))
             {
                 return resolvedPath;
             }
@@ -702,17 +713,21 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                pathFromLogFile = pathFromLogFile.Replace('/', '\\');
-                string solutionDirectory = solutionPath.Substring(0, solutionPath.LastIndexOf('\\') + 1);
-                string fileToSearch = pathFromLogFile.Substring(pathFromLogFile.LastIndexOf('\\') + 1);
+                solutionPath = fileSystem.FileExists(solutionPath) ? Path.GetDirectoryName(solutionPath) : solutionPath;
+                if (!fileSystem.DirectoryExists(solutionPath))
+                {
+                    return false;
+                }
 
-                IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionDirectory, fileToSearch, SearchOption.AllDirectories);
+                pathFromLogFile = pathFromLogFile.Replace('/', '\\');
+                string fileToSearch = Path.GetFileName(pathFromLogFile);
+                IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionPath, fileToSearch, SearchOption.AllDirectories);
                 searchResults = searchResults.Where(path => path.EndsWith(pathFromLogFile, StringComparison.OrdinalIgnoreCase));
 
                 // if path like "\AssemblyInfo.cs" it may exists in many projects.
                 // Here try to find a unique file matching the path,
                 // if more than 1 files match the path, we cannot decide which file to select, need manual intervention
-                if (searchResults.ToList().Count == 1)
+                if (searchResults.Any())
                 {
                     resolvedPath = searchResults.FirstOrDefault();
                     return true;
@@ -963,11 +978,21 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            string solutionPath = null;
+            // Check to see if this is an "Open Folder" scenario where there is no ".sln" file.
+            var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+            IVsFolderWorkspaceService workspaceService = componentModel.GetService<IVsFolderWorkspaceService>();
+            string solutionPath = workspaceService?.CurrentWorkspace?.Location;
+
+            if (!string.IsNullOrEmpty(solutionPath))
+            {
+                return solutionPath;
+            }
+
+            // If we don't have an open folder situation, then we assume there is a ".sln" file.
             DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
             if (dte.Solution != null && dte.Solution.IsOpen)
             {
-                solutionPath = dte.Solution.FullName;
+                solutionPath = Path.GetDirectoryName(dte.Solution.FullName);
             }
 
             return solutionPath;
