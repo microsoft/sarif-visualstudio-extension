@@ -742,9 +742,13 @@ namespace Microsoft.Sarif.Viewer
                     return true;
                 }
             }
-            catch
+            catch (Exception ex) when (ex is ArgumentException ||
+                                       ex is IOException ||
+                                       ex is PathTooLongException ||
+                                       ex is UnauthorizedAccessException)
             {
                 // do not threw exception so that it keeps trying to resolve path the next
+                Trace.WriteLine($"{nameof(TryResolveFilePathFromSolution)} threw exception: {ex.Message}");
             }
 
             return false;
