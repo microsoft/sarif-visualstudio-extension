@@ -58,7 +58,12 @@ namespace Microsoft.Sarif.Viewer.Models
 
         private void LocationModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             if (e.PropertyName == nameof(LocationModel.IsSelected) && sender is LocationModel locationModel)
             {
