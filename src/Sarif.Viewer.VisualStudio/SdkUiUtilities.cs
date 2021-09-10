@@ -193,10 +193,13 @@ namespace Microsoft.Sarif.Viewer
             Guid textViewGuid = VSConstants.LOGVIEWID_TextView;
 
             // Unused variables
-            IVsUIHierarchy uiHierarchy;
-            Microsoft.VisualStudio.OLE.Interop.IServiceProvider serviceProvider;
-            uint itemId;
-            int hr = openDoc.OpenDocumentViaProject(file, ref textViewGuid, out serviceProvider, out uiHierarchy, out itemId, out windowFrame);
+            int hr = openDoc.OpenDocumentViaProject(
+                file,
+                ref textViewGuid,
+                out Microsoft.VisualStudio.OLE.Interop.IServiceProvider serviceProvider,
+                out IVsUIHierarchy uiHierarchy,
+                out uint itemId,
+                out windowFrame);
             if (ErrorHandler.Failed(hr))
             {
                 throw Marshal.GetExceptionForHR(hr);
