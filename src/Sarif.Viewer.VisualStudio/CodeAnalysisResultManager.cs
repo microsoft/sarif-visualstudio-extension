@@ -999,7 +999,7 @@ namespace Microsoft.Sarif.Viewer
 
             // If we don't have an open folder situation, then we assume there is a ".sln" file.
             DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            if (dte.Solution != null && dte.Solution.IsOpen)
+            if (dte.Solution != null && dte.Solution.IsOpen && !string.IsNullOrWhiteSpace(dte.Solution.FullName))
             {
                 solutionPath = Path.GetDirectoryName(dte.Solution.FullName);
             }
