@@ -13,7 +13,7 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{689AF24B-33F0-44E9-AA2E-FACA775736A8}</ProjectGuid>
+    <ProjectGuid>{d6b31477-4e53-47fa-b9fe-8d751c503564}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Sarif.Viewer</RootNamespace>
     <AssemblyName>Microsoft.Sarif.Viewer</AssemblyName>
@@ -40,12 +40,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.10.31321.278" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.0-previews-3-31605-261" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools">
-      <Version>16.10.1055</Version>
+      <Version>17.0.3177-preview3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -75,7 +75,7 @@
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
       <LastGenOutput>VSPackage.resx</LastGenOutput>
-    </None>
+	</None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\index.html">
