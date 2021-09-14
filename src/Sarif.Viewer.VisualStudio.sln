@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31709.325
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.2022", "Sarif.Viewer.VisualStudio.2022\Sarif.Viewer.VisualStudio.2022.csproj", "{D6B31477-4E53-47FA-B9FE-8D751C503564}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio", "Sarif.Viewer.VisualStudio\Sarif.Viewer.VisualStudio.csproj", "{689AF24B-33F0-44E9-AA2E-FACA775736A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.UnitTests", "Sarif.Viewer.VisualStudio.UnitTests\Sarif.Viewer.VisualStudio.UnitTests.csproj", "{824ABDCC-47A9-48A9-A1E1-A78416582192}"
@@ -50,8 +52,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sarif.PatternMatcher.Sdk", "sarif-pattern-matcher\Src\Sarif.PatternMatcher.Sdk\Sarif.PatternMatcher.Sdk.csproj", "{1C66937F-5D66-4FBC-A2EF-E0529868952D}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.Core", "Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.shproj", "{795CF790-D1D5-4493-A078-8D78D098DFBA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.2022", "Sarif.Viewer.VisualStudio.2022\Sarif.Viewer.VisualStudio.2022.csproj", "{D6B31477-4E53-47FA-B9FE-8D751C503564}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
