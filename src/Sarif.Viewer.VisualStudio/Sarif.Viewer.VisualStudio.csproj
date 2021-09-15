@@ -40,12 +40,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
-    <!-- Necessary to provide TaskStatusCenter and ITextViewCreationListener: -->
-    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
-    <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.0-previews-3-31605-261" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools">
+      <Version>17.0.3177-preview3</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
@@ -54,11 +56,6 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools">
-      <Version>17.0.1600</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\FeedbackControl.xaml.cs">
