@@ -105,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 ";
             int numberOfException = numberOfExceptionLogged;
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidJson));
-            _= ErrorListService.ProcessSarifLogAsync(stream, "logId", false, false).ConfigureAwait(false);
+            _ = ErrorListService.ProcessSarifLogAsync(stream, "logId", false, false).ConfigureAwait(false);
             // 1 exception logged
             numberOfExceptionLogged.Should().Be(numberOfException + 1);
         }
