@@ -67,7 +67,7 @@ $ScriptName = $([io.Path]::GetFileNameWithoutExtension($PSCommandPath))
 Import-Module -Force $PSScriptRoot\ScriptUtilities.psm1
 Import-Module -Force $PSScriptRoot\Projects.psm1
 
-$SolutionFile = "$SourceRoot\Sarif.Viewer.VisualStudio.2022.sln"
+$SolutionFile = "$SourceRoot\Sarif.Viewer.VisualStudio.sln"
 $BuildTarget = "Rebuild"
 
 function Invoke-Build {
