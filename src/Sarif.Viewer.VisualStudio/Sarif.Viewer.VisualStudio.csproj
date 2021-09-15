@@ -55,7 +55,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
 	<PackageReference Include="Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime" Version="16.10.31320.204" />
-	<PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="16.9.30927.25" />
+	<PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="16.9.31025.104" />
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
