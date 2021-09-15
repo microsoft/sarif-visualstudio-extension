@@ -18,6 +18,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </param>
         public static void RefreshTags(ITextBuffer textBuffer = null)
         {
+            if (SarifViewerPackage.IsUnitTesting)
+            {
+                return;
+            }
+
             var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
             if (componentModel != null)
             {
