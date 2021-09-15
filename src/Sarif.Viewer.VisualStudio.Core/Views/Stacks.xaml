@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/StacksStringResources.xaml" />
@@ -34,7 +33,7 @@
                                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                               RecognizesAccessKey="True"
                                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                              TextElement.Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"
+                                                              TextElement.Foreground="{DynamicResource EnvironmentColors.CommandBarTextActiveBrushKey}"
                                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                               Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
                                         </Border>
@@ -45,10 +44,10 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="GridViewHeaderBorder"
                                                     Property="Background"
-                                                    Value="{DynamicResource {x:Static vs_shell:HeaderColors.MouseOverBrushKey}}"/>
+                                                    Value="{DynamicResource HeaderColors.MouseOverBrushKey}"/>
                                             <Setter TargetName="HeaderContent"
                                                     Property="TextElement.Foreground"
-                                                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextHoverBrushKey}}"/>
+                                                    Value="{DynamicResource EnvironmentColors.CommandBarTextHoverBrushKey}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -57,7 +56,7 @@
                     </Style>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}" />
+                        <Setter Property="Foreground" Value="{DynamicResource EnvironmentColors.CommandBarTextActiveBrushKey}" />
                         <Setter Property="Padding" Value="14" />
                         <Setter Property="Template">
                             <Setter.Value>
@@ -88,8 +87,8 @@
                                         </Trigger>
 
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:TreeViewColors.SelectedItemActiveBrushKey}}" />
-                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:TreeViewColors.SelectedItemActiveTextBrushKey}}" />
+                                            <Setter Property="Background" Value="{DynamicResource TreeViewColors.SelectedItemActiveBrushKey}" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TreeViewColors.SelectedItemActiveTextBrushKey}" />
                                         </Trigger>
 
                                         <MultiTrigger>
@@ -98,8 +97,8 @@
                                                 <Condition Property="Selector.IsSelectionActive" Value="False" />
                                             </MultiTrigger.Conditions>
 
-                                            <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:TreeViewColors.SelectedItemInactiveBrushKey}}" />
-                                            <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:TreeViewColors.SelectedItemInactiveTextBrushKey}}" />
+                                            <Setter Property="Background" Value="{DynamicResource TreeViewColors.SelectedItemInactiveBrushKey}" />
+                                            <Setter Property="Foreground" Value="{DynamicResource TreeViewColors.SelectedItemInactiveTextBrushKey}" />
                                         </MultiTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
