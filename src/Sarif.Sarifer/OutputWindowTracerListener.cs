@@ -28,10 +28,10 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 if (this.EnsurePane())
                 {
-                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                    _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
                     {
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                        this.pane.OutputString(message);
+                        this.pane.OutputStringThreadSafe(message);
                     });
                 }
             }
