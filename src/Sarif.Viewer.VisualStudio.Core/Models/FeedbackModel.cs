@@ -53,7 +53,6 @@ namespace Microsoft.Sarif.Viewer.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
                 if (this.sendFeedbackCommand == null)
                 {
-#if DEV17
                     this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(
                         execute: () =>
                         {
@@ -63,15 +62,6 @@ namespace Microsoft.Sarif.Viewer.Models
                         },
                         canExecute: () => { return true; },
                         null);
-#else
-                    this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(
-                        execute: (param) =>
-                        {
-                            ThreadHelper.ThrowIfNotOnUIThread();
-
-                            ErrorListService.SendFeedback(this);
-                        });
-#endif
                 }
 
                 return this.sendFeedbackCommand;
