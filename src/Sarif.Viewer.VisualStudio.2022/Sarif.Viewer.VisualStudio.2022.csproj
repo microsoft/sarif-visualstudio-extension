@@ -13,7 +13,7 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{d6b31477-4e53-47fa-b9fe-8d751c503564}</ProjectGuid>
+    <ProjectGuid>{D6B31477-4E53-47FA-B9FE-8D751C503564}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Sarif.Viewer</RootNamespace>
     <AssemblyName>Microsoft.Sarif.Viewer</AssemblyName>
@@ -41,6 +41,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.0-previews-3-31605-261" />
+    <PackageReference Include="Microsoft.VisualStudio.Imaging">
+      <Version>17.0.0-previews-3-31605-261</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
     </PackageReference>
@@ -75,7 +78,7 @@
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
       <LastGenOutput>VSPackage.resx</LastGenOutput>
-	</None>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\index.html">
