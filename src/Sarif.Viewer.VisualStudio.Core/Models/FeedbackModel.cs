@@ -55,16 +55,16 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
 #if DEV17
                     this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(
-                        execute: (param) =>
+                        execute: () =>
                         {
                             ThreadHelper.ThrowIfNotOnUIThread();
 
                             ErrorListService.SendFeedback(this);
 
-                            DialogWindow dialogWindow = param as DialogWindow;
-                            dialogWindow.Close();
+                            // DialogWindow dialogWindow = param as DialogWindow;
+                            // dialogWindow.Close();
                         },
-                        canExecute: delegate { return true; },
+                        canExecute: () => { return true; },
                         null);
 #else
                     this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(

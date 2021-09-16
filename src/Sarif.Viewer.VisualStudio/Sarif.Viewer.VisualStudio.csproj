@@ -63,6 +63,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\App.config">
+      <Link>App.config</Link>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\icon.png">
       <Link>icon.png</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -9,9 +9,6 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)App.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CodeAnalysisResultManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFlowToTreeConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeLocationObject.cs" />

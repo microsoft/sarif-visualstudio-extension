@@ -44,7 +44,7 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
             <Button Width="80" Height="21" Margin="5" Command="{Binding Path=SendFeedbackCommand}" 
-                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ui:DialogWindow}}}" Content="{StaticResource FeedbackDialog_Button_Report}"></Button>
+                    Content="{StaticResource FeedbackDialog_Button_Report}" Click="ReportButton_Clicked"></Button>
             <Button Width="80" Height="21" Margin="5,10,10,10" IsCancel="True" Content="{StaticResource FeedbackDialog_Button_Cancel}"></Button>
         </StackPanel>
     </StackPanel>
