@@ -1,9 +1,8 @@
 ﻿<UserControl x:Class="Microsoft.Sarif.Viewer.Options.SarifViewerOptionsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-             Foreground="{DynamicResource {x:Static vsui:EnvironmentColors.DialogTextBrushKey}}"
-             Background="{DynamicResource {x:Static vsui:EnvironmentColors.DialogBrushKey}}" >
+             Foreground="{DynamicResource EnvironmentColors.DialogTextBrushKey}"
+             Background="{DynamicResource EnvironmentColors.DialogBrushKey}" >
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -12,12 +11,12 @@
             <Style x:Key="CheckBoxStyle"
                  TargetType="CheckBox">
                 <Setter Property="Foreground"
-                    Value="{DynamicResource {x:Static vsui:EnvironmentColors.DialogTextBrushKey}}" />
+                    Value="{DynamicResource EnvironmentColors.DialogTextBrushKey}" />
                 <Style.Triggers>
                     <Trigger Property="IsEnabled"
                        Value="False">
                         <Setter Property="Foreground"
-                        Value="{DynamicResource {x:Static vsui:EnvironmentColors.CommandBarTextInactiveBrushKey}}" />
+                        Value="{DynamicResource EnvironmentColors.CommandBarTextInactiveBrushKey}" />
                     </Trigger>
                 </Style.Triggers>
             </Style>

@@ -22,6 +22,7 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.ViewModels;
 using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
@@ -571,8 +572,8 @@ namespace Microsoft.Sarif.Viewer
                 {
                     var dialog = new ResolveEmbeddedFileDialog(hasEmbeddedContent);
                     dialog.ShowModal();
-                    dialogResult = dialog.Result;
-                    if (dialog.ApplyUserPreference)
+                    dialogResult = dialog.Result.Result;
+                    if (dialog.Result.ApplyUserPreference)
                     {
                         userPreference.AddOrUpdate(sarifLogFilePath, dialogResult, (key, value) => dialogResult);
                     }
