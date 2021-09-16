@@ -10,8 +10,7 @@ using System.Text;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Views;
-using Microsoft.VisualStudio.Shell;
+using Microsoft.Sarif.Viewer.ViewModels;
 
 using Moq;
 
