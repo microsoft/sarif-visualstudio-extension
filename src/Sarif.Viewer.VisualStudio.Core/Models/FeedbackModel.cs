@@ -60,9 +60,6 @@ namespace Microsoft.Sarif.Viewer.Models
                             ThreadHelper.ThrowIfNotOnUIThread();
 
                             ErrorListService.SendFeedback(this);
-
-                            // DialogWindow dialogWindow = param as DialogWindow;
-                            // dialogWindow.Close();
                         },
                         canExecute: () => { return true; },
                         null);
@@ -73,9 +70,6 @@ namespace Microsoft.Sarif.Viewer.Models
                             ThreadHelper.ThrowIfNotOnUIThread();
 
                             ErrorListService.SendFeedback(this);
-
-                            DialogWindow dialogWindow = param as DialogWindow;
-                            dialogWindow.Close();
                         });
 #endif
                 }

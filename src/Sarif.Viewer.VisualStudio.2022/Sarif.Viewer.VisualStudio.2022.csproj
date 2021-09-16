@@ -44,6 +44,9 @@
     <PackageReference Include="Microsoft.VisualStudio.Imaging">
       <Version>17.0.0-previews-3-31605-261</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0">
+      <Version>17.0.0-previews-3-31605-261</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
     </PackageReference>
