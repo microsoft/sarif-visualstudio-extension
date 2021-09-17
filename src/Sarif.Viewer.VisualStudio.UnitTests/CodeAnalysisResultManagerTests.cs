@@ -686,7 +686,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void CodeAnalysisResultManager_GetSolutionPath_SolutionFolderOpened()
         {
-            string folder = @"C:\github\repo\myproject\";
+            const string folder = @"C:\github\repo\myproject\";
             IVsFolderWorkspaceService workspaceService = SetupWorkspaceService(folder);
             DTE2 dte = null;
 
@@ -698,8 +698,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void CodeAnalysisResultManager_GetSolutionPath_SolutionOpened()
         {
-            string solutionFile = @"C:\github\repo\myproject\src\mysolution.sln";
-            string solutionFolder = @"C:\github\repo\myproject\src";
+            const string solutionFile = @"C:\github\repo\myproject\src\mysolution.sln";
+            const string solutionFolder = @"C:\github\repo\myproject\src";
 
             IVsFolderWorkspaceService workspaceService = null;
             DTE2 dte = SetupSolutionService(solutionFile);
