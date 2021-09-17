@@ -7,11 +7,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using EnvDTE80;
+
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Workspace;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 
 using Moq;
 
@@ -677,6 +681,84 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // dialog pop up
             this.numEmbeddedFilePrompts.Should().Be(4);
             this.numPrompts.Should().Be(1);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_SolutionFolderOpened()
+        {
+            string folder = @"C:\github\repo\myproject\";
+            IVsFolderWorkspaceService workspaceService = SetupWorkspaceService(folder);
+            DTE2 dte = null;
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeEquivalentTo(folder);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_SolutionOpened()
+        {
+            string solutionFile = @"C:\github\repo\myproject\src\mysolution.sln";
+            string solutionFolder = @"C:\github\repo\myproject\src";
+
+            IVsFolderWorkspaceService workspaceService = null;
+            DTE2 dte = SetupSolutionService(solutionFile);
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeEquivalentTo(solutionFolder);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_TempSolutionOpened()
+        {
+            string folder = string.Empty;
+            IVsFolderWorkspaceService workspaceService = null;
+            DTE2 dte = SetupSolutionService(folder);
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeNull();
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_NoSolutionNoWorkspaceOpened()
+        {
+            IVsFolderWorkspaceService workspaceService = null;
+            DTE2 dte = null;
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeNull();
+        }
+
+        private DTE2 SetupSolutionService(string solutionFile)
+        {
+            var solution = new Mock<EnvDTE.Solution>();
+#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
+            solution.SetupGet(s => s.IsOpen).Returns(true);
+            solution.SetupGet(s => s.FullName).Returns(solutionFile);
+#pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
+
+            var dte = new Mock<DTE2>();
+            dte.SetupGet(d => d.Solution).Returns(solution.Object);
+
+            return dte.Object;
+        }
+
+        private IVsFolderWorkspaceService SetupWorkspaceService(string workspaceFolder)
+        {
+            var workspace = new Mock<IWorkspace>();
+            workspace
+                .SetupGet(w => w.Location)
+                .Returns(workspaceFolder);
+
+            var workspaceService = new Mock<IVsFolderWorkspaceService>();
+            workspaceService
+                .SetupGet(w => w.CurrentWorkspace)
+                .Returns(workspace.Object);
+
+            return workspaceService.Object;
         }
 
         private string FakePromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string fullPathFromLogFile)
