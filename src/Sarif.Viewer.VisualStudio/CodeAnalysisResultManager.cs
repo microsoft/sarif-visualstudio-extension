@@ -215,7 +215,9 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            string solutionPath = this.GetSolutionPath();
+            string solutionPath = GetSolutionPath(
+                (DTE2)Package.GetGlobalService(typeof(DTE)),
+                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
 
             // File contents embedded in SARIF.
             bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
@@ -978,7 +980,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private string GetSolutionPath()
+        internal static string GetSolutionPath(DTE2 dte, IVsFolderWorkspaceService workspaceService)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -988,8 +990,6 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // Check to see if this is an "Open Folder" scenario where there is no ".sln" file.
-            var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-            IVsFolderWorkspaceService workspaceService = componentModel.GetService<IVsFolderWorkspaceService>();
             string solutionPath = workspaceService?.CurrentWorkspace?.Location;
 
             if (!string.IsNullOrEmpty(solutionPath))
@@ -998,8 +998,9 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // If we don't have an open folder situation, then we assume there is a ".sln" file.
-            DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            if (dte.Solution != null && dte.Solution.IsOpen)
+            // When VS opens a file instead of a solution/folder, it creates a temporary solution "Solution1"
+            // and its opened but FullName is empty
+            if (dte?.Solution != null && dte.Solution.IsOpen && !string.IsNullOrWhiteSpace(dte.Solution.FullName))
             {
                 solutionPath = Path.GetDirectoryName(dte.Solution.FullName);
             }
