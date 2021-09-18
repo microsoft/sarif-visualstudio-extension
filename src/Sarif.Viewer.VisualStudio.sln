@@ -49,7 +49,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sarif-pattern-matcher", "sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sarif.PatternMatcher.Sdk", "sarif-pattern-matcher\Src\Sarif.PatternMatcher.Sdk\Sarif.PatternMatcher.Sdk.csproj", "{1C66937F-5D66-4FBC-A2EF-E0529868952D}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.Core", "Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.shproj", "{795CF790-D1D5-4493-A078-8D78D098DFBA}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
 		Debug|x64 = Debug|x64
