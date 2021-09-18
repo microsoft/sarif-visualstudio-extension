@@ -51,10 +51,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sarif.PatternMatcher.Sdk", 
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.Core", "Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.shproj", "{795CF790-D1D5-4493-A078-8D78D098DFBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.2022", "Sarif.Viewer.VisualStudio.2022\Sarif.Viewer.VisualStudio.2022.csproj", "{D6B31477-4E53-47FA-B9FE-8D751C503564}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{d6b31477-4e53-47fa-b9fe-8d751c503564}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -209,6 +212,18 @@ Global
 		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x64.Build.0 = Release|Any CPU
 		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x86.ActiveCfg = Release|Any CPU
 		{1C66937F-5D66-4FBC-A2EF-E0529868952D}.Release|x86.Build.0 = Release|Any CPU
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Debug|x64.ActiveCfg = Debug|x64
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Debug|x64.Build.0 = Debug|x64
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Debug|x86.ActiveCfg = Debug|x86
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Debug|x86.Build.0 = Debug|x86
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Release|x64.ActiveCfg = Release|x64
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Release|x64.Build.0 = Release|x64
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Release|x86.ActiveCfg = Release|x86
+		{D6B31477-4E53-47FA-B9FE-8D751C503564}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
