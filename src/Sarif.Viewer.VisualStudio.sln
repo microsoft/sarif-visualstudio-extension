@@ -53,6 +53,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.C
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

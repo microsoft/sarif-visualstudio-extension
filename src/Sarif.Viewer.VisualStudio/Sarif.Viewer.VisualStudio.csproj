@@ -40,12 +40,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="15.0.1" />
-    <!-- Necessary to provide TaskStatusCenter and ITextViewCreationListener: -->
-    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="15.7.27703" />
-    <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="15.8.525" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK">
+      <Version>16.0.206</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools">
+      <Version>16.10.1055</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Nerdbank.GitVersioning">
       <Version>3.3.37</Version>
@@ -56,211 +60,48 @@
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\FeedbackControl.xaml.cs">
-      <DependentUpon>FeedbackControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\FeedbackDialog.cs" />
-    <Compile Include="Controls\InfoBar.cs" />
-    <Compile Include="ErrorList\ColumnFilterer.cs" />
-    <Compile Include="ErrorList\FilteredColumnValue.cs" />
-    <Compile Include="ErrorList\BaselineStateTableDataSource.cs" />
-    <Compile Include="ErrorList\SarifTableDataSourceBase.cs" />
-    <Compile Include="ErrorList\StubDisposable.cs" />
-    <Compile Include="ExceptionalConditions.cs" />
-    <Compile Include="ExceptionalConditionsCalculator.cs" />
-    <Compile Include="FileAndForgetEventName.cs" />
-    <Compile Include="FileWatcher\FileWatcher.cs" />
-    <Compile Include="FileWatcher\IFileWatcher.cs" />
-    <Compile Include="FileWatcher\ISarifFileMonitor.cs" />
-    <Compile Include="FileWatcher\SarifFolderMonitor.cs" />
-    <Compile Include="FileWatcher\SarifLogsMonitor.cs" />
-    <Compile Include="Fixes\ApplyFixEventArgs.cs" />
-    <Compile Include="Fixes\EditActionPreviewProvider.cs" />
-    <Compile Include="Fixes\IPreviewProvider.cs" />
-    <Compile Include="Fixes\LineSpan.cs" />
-    <Compile Include="Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
-    <Compile Include="Fixes\ReplacementEdit.cs" />
-    <Compile Include="Fixes\SizeToFitHelper.cs" />
-    <Compile Include="CodeAnalysisResultManager.cs" />
-    <Compile Include="CodeFlowToTreeConverter.cs" />
-    <Compile Include="CodeLocationObjectTypeDescriptor.cs" />
-    <Compile Include="CodeLocationObject.cs" />
-    <Compile Include="ContentTypes.cs" />
-    <Compile Include="Controls\InternetHyperlink.xaml.cs">
-      <DependentUpon>InternetHyperlink.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\BooleanToCollapsedVisibilityConverter.cs" />
-    <Compile Include="Converters\AnalysisStepNodeToTextConverter.cs" />
-    <Compile Include="Converters\CollectionToBooleanConverter.cs" />
-    <Compile Include="Converters\CollectionToCountConverter.cs" />
-    <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
-    <Compile Include="Converters\CollectionToVisibilityConverter.cs" />
-    <Compile Include="Converters\Int32ToVisibilityConverter.cs" />
-    <Compile Include="Converters\MultipleStringsToVisibilityConverter.cs" />
-    <Compile Include="Converters\FileExistsToBooleanConverter.cs" />
-    <Compile Include="Converters\ObjectToVisibilityConverter.cs" />
-    <Compile Include="DelegateCommand.cs" />
-    <Compile Include="DelegateCommandBase.cs" />
-    <Compile Include="ErrorList\ErrorListCommand.cs" />
-    <Compile Include="ErrorList\ISarifErrorListEventSelectionService.cs" />
-    <Compile Include="ErrorList\SarifResultTableEntry.cs" />
-    <Compile Include="Fixes\DisposableDifferenceViewerControl.xaml.cs">
-      <DependentUpon>DisposableDifferenceViewerControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Fixes\FixSuggestedAction.cs" />
-    <Compile Include="Fixes\FixSuggestedActionsSource.cs" />
-    <Compile Include="Fixes\FixSuggestedActionsSourceProvider.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="HashHelper.cs" />
-    <Compile Include="LogProcessedEventArgs.cs" />
-    <Compile Include="ErrorList\SuppressionStateTableDataSource.cs" />
-    <Compile Include="Models\FeedbackModel.cs" />
-    <Compile Include="Models\FeedbackType.cs" />
-    <Compile Include="Options\ISarifViewerOptions.cs" />
-    <Compile Include="Options\SarifViewerOptionPage.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Options\SarifViewerOptions.cs" />
-    <Compile Include="Options\SarifViewerOptionsControl.xaml.cs">
-      <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Sarif\SarifErrorListItem.Extensions.cs" />
-    <Compile Include="Sarif\SarifLog.Extensions.cs" />
-    <Compile Include="Services\ICloseSarifLogService.cs" />
-    <Compile Include="Services\ILoadSarifLogService.cs" />
-    <Compile Include="IToolWindow.cs" />
-    <Compile Include="KeyValuePairPropertyDescriptor.cs" />
-    <Compile Include="Controls\BindableTextBlock.cs" />
-    <Compile Include="Services\CloseSarifLogService.cs" />
-    <Compile Include="Services\LoadSarifLogService.cs" />
-    <Compile Include="Models\AnalysisStepCollection.cs" />
-    <Compile Include="Models\AnalysisStep.cs" />
-    <Compile Include="Models\AnalysisStepNode.cs" />
-    <Compile Include="Models\LocationCollection.cs" />
-    <Compile Include="Models\LocationModel.cs" />
-    <Compile Include="Models\ArtifactDetailsModel.cs" />
-    <Compile Include="Models\InvocationModel.cs" />
-    <Compile Include="Models\ReplacementModel.cs" />
-    <Compile Include="Models\ArtifactChangeModel.cs" />
-    <Compile Include="Models\FixModel.cs" />
-    <Compile Include="Models\VSSuppressionState.cs" />
-    <Compile Include="ProjectNameCache.cs" />
-    <Compile Include="Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="RunDataCache.cs" />
-    <Compile Include="SarifExplorerWindow.cs" />
-    <Compile Include="SarifToolWindowCommand.cs" />
-    <Compile Include="SpanHelper.cs" />
-    <Compile Include="Tags\TagInCaretChangedEventArgs.cs" />
-    <Compile Include="Tags\ISarifLocationTagCaretNotify.cs" />
-    <Compile Include="Tags\ISarifLocationTagger.cs" />
-    <Compile Include="Services\SCloseSarifLogService.cs" />
-    <Compile Include="Services\SLoadSarifLogService.cs" />
-    <Compile Include="Tags\ISarifLocationTag.cs" />
-    <Compile Include="ErrorList\SarifErrorListEventProcessor.cs" />
-    <Compile Include="ErrorList\SarifErrorListEventProcessorProvider.cs" />
-    <Compile Include="ErrorList\SarifErrorListSelectionChangedEventArgs.cs" />
-    <Compile Include="Tags\ISarifLocationTaggerService.cs" />
-    <Compile Include="Tags\ITextViewCaretListenerService.cs" />
-    <Compile Include="Tags\SarifLocationErrorTag.cs" />
-    <Compile Include="Tags\SarifLocationTagBase.cs" />
-    <Compile Include="Tags\SarifLocationTaggerService.cs" />
-    <Compile Include="Tags\SarifLocationTagHelpers.cs" />
-    <Compile Include="Tags\SarifLocationTextMarkerTagger.cs" />
-    <Compile Include="Tags\SarifLocationTextMarkerTag.cs" />
-    <Compile Include="Tags\SarifLocationErrorTagger.cs" />
-    <Compile Include="Tags\TextViewCaretListener.cs" />
-    <Compile Include="Tags\TextViewCaretListenerService.cs" />
-    <Compile Include="Telemetry\Events.cs" />
-    <Compile Include="Telemetry\FeedbackTelemetryEvent.cs" />
-    <Compile Include="Telemetry\TelemetryProvider.cs" />
-    <Compile Include="VersionControlParser\GithubVersionControlParser.cs" />
-    <Compile Include="VersionControlParser\IVersionControlParser.cs" />
-    <Compile Include="VersionControlParser\VersionControlParserFactory.cs" />
-    <Compile Include="VersionControlParser\AdoVersionControlParser.cs" />
-    <Compile Include="Views\AnalysisStepView.cs" />
-    <Compile Include="Uri.extensions.cs" />
-    <Compile Include="Views\ResolveEmbeddedFileDialog.xaml.cs">
-      <DependentUpon>ResolveEmbeddedFileDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\SarifToolWindowControl.xaml.cs">
-      <DependentUpon>SarifToolWindowControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Sarif\Replacement.Extensions.cs" />
-    <Compile Include="Sarif\ArtifactChange.Extensions.cs" />
-    <Compile Include="Sarif\Fix.Extensions.cs" />
-    <Compile Include="Sarif\StackFrame.Extensions.cs" />
-    <Compile Include="Sarif\Stack.Extensions.cs" />
-    <Compile Include="Sarif\CodeFlow.Extensions.cs" />
-    <Compile Include="Models\RuleModel.cs" />
-    <Compile Include="Models\ToolModel.cs" />
-    <Compile Include="Sarif\ThreadFlowLocation.Extensions.cs" />
-    <Compile Include="Sarif\Region.Extensions.cs" />
-    <Compile Include="Sarif\FailureLevel.Extensions.cs" />
-    <Compile Include="Sarif\Result.Extensions.cs" />
-    <Compile Include="Sarif\Location.Extensions.cs" />
-    <Compile Include="Sarif\Rule.Extensions.cs" />
-    <Compile Include="Sarif\Invocation.Extensions.cs" />
-    <Compile Include="Sarif\Tool.Extensions.cs" />
-    <Compile Include="Sarif\Run.Extensions.cs" />
-    <Compile Include="Tags\SarifLocationTaggerProvider.cs" />
-    <Compile Include="Views\SarifViewerControl.xaml.cs">
-      <DependentUpon>SarifViewerControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Converters\BindingDebugConverter.cs" />
-    <Compile Include="Converters\StringToVisibilityConverter.cs" />
-    <Compile Include="Models\StackCollection.cs" />
-    <Compile Include="Models\StackFrameModel.cs" />
-    <Compile Include="NotifyPropertyChangedObject.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="ErrorList\ErrorListService.cs" />
-    <Compile Include="Guids.cs" />
-    <Compile Include="OpenLogFileCommands.cs" />
-    <Compile Include="ProjectHelper.cs" />
-    <Compile Include="ProjectKind.cs" />
-    <Compile Include="ResultTextMarker.cs" />
-    <Compile Include="SarifTextViewCreationListener.cs" />
-    <Compile Include="SarifFileAndContentDefinitions.cs" />
-    <Compile Include="SarifViewerPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\SarifErrorListItem.cs" />
-    <Compile Include="SdkUIUtilities.cs" />
-    <Compile Include="ErrorList\SinkHolder.cs" />
-    <Compile Include="ErrorList\SarifTableDataSource.cs" />
-    <Compile Include="ViewModels\ViewModelLocator.cs" />
-    <Compile Include="WeakEventHandlerManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App.config">
+    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\App.config">
+      <Link>App.config</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="icon.png">
+    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\icon.png">
+      <Link>icon.png</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="Data\RuleLookup.json" />
-    <Content Include="overview.md">
+    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\overview.md">
+      <Link>overview.md</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="source.extension.vsixmanifest" />
+    <None Include="source.extension.vsixmanifest">
+      <SubType>Designer</SubType>
+      <Generator>VsixManifestGenerator</Generator>
+      <LastGenOutput>VSPackage.resx</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="index.html" />
-    <None Include="readme.md" />
-    <Content Include="License.txt">
+    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\index.html">
+      <Link>index.html</Link>
+    </Content>
+    <None Include="..\Sarif.Viewer.VisualStudio.SharedFiles\readme.md">
+      <Link>readme.md</Link>
+    </None>
+    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\License.txt">
+      <Link>License.txt</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Triskele.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <VSCTCompile Include="SarifCommandPackage.vsct">
+    <Resource Include="Triskele.ico">
+      <DependentUpon>source.extension.vsixmanifest</DependentUpon>
+    </Resource>
+    <VSCTCompile Include="..\Sarif.Viewer.VisualStudio.SharedFiles\SarifCommandPackage.vsct">
+      <Link>SarifCommandPackage.vsct</Link>
       <ResourceName>Menus.ctmenu</ResourceName>
+      <LastGenOutput>..\Sarif.Viewer.VisualStudio.SharedFiles\SarifCommandPackage.cs</LastGenOutput>
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
@@ -282,132 +123,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="VSPackage.resx">
-      <MergeWithCTO>true</MergeWithCTO>
-      <ManifestResourceName>VSPackage</ManifestResourceName>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="Controls\FeedbackControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\FeedbackStringResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\InternetHyperlink.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\VsDropDown.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Fixes\DisposableDifferenceViewerControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Fixes\DisposableDifferenceViewerControlStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Options\SarifViewerOptionsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Options\SarifViewerOptionsControlResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\AnalysisStepsStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\FixesStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\InformationStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\LocationsStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\SarifViewerControlStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\StacksStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\AnalysisStepsStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\InformationStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\LocationsStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\ResolveEmbeddedFileDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SarifToolWindowControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\AnalysisSteps.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\SarifViewerControlStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\StacksStringResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\TreeView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\DefaultStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Information.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Locations.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Stacks.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SarifViewerControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Converters\Sarif.Converters.csproj">
       <Project>{ba882944-7d32-4543-959a-964b7795f11e}</Project>
       <Name>Sarif.Converters</Name>
@@ -417,6 +132,7 @@
       <Name>Sarif</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
@@ -434,5 +150,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="VSPackage.resx">
+      <DependentUpon>source.extension.vsixmanifest</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
