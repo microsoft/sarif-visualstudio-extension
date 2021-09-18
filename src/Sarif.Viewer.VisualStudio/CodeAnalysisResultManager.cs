@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -21,9 +23,11 @@ using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Views;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer
@@ -57,6 +61,8 @@ namespace Microsoft.Sarif.Viewer
         private readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         private readonly PromptForEmbeddedFileDelegate _promptForEmbeddedFileDelegate;
+
+        private static readonly HttpClient s_httpClient = new HttpClient();
 
         // This ctor is internal rather than private for unit test purposes.
         internal CodeAnalysisResultManager(
@@ -179,6 +185,12 @@ namespace Microsoft.Sarif.Viewer
                     }
                 });
             }
+
+            if (run.VersionControlProvenance != null && run.VersionControlProvenance.Any())
+            {
+                var sc = this.CurrentRunDataCache.SourceControlDetails as List<VersionControlDetails>;
+                sc.AddRange(run.VersionControlProvenance);
+            }
         }
 
         public bool TryResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath, out string resolvedPath)
@@ -203,7 +215,9 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            string solutionPath = this.GetSolutionPath();
+            string solutionPath = GetSolutionPath(
+                (DTE2)Package.GetGlobalService(typeof(DTE)),
+                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
 
             // File contents embedded in SARIF.
             bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
@@ -222,7 +236,12 @@ namespace Microsoft.Sarif.Viewer
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // resolve path, existing file in local disk
-                resolvedPath = this.GetRebaselinedFileName(uriBaseId, relativePath, dataCache, solutionPath);
+                resolvedPath = this.GetRebaselinedFileName(
+                    uriBaseId: uriBaseId,
+                    pathFromLogFile: relativePath,
+                    dataCache: dataCache,
+                    workingDirectory: sarifErrorListItem.WorkingDirectory,
+                    solutionFullPath: solutionPath);
             }
 
             // verify resolved file with artifact's Hash
@@ -347,13 +366,72 @@ namespace Microsoft.Sarif.Viewer
             return finalPath;
         }
 
-        internal void AddAllowedDownloadHost(string host)
+        internal string HandleHttpFileDownloadRequest(Uri uri, string workingDirectory, string localRelativePath = null)
         {
-            this._allowedDownloadHosts.Add(host);
-            SdkUIUtilities.StoreObject<List<string>>(this._allowedDownloadHosts, AllowedDownloadHostsFileName);
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
+            bool allow = this._allowedDownloadHosts.Contains(uri.Host);
+
+            // File needs to be downloaded, prompt for confirmation if host is not already allowed
+            if (!allow)
+            {
+                MessageDialogCommand result = MessageDialog.Show(Resources.ConfirmDownloadDialog_Title,
+                                                                 string.Format(Resources.ConfirmDownloadDialog_Message, uri),
+                                                                 MessageDialogCommandSet.YesNo,
+                                                                 string.Format(Resources.ConfirmDownloadDialog_CheckboxLabel, uri.Host),
+                                                                 out bool alwaysAllow);
+
+                if (result != MessageDialogCommand.No)
+                {
+                    allow = true;
+
+                    if (alwaysAllow)
+                    {
+                        this.AddAllowedDownloadHost(uri.Host);
+                    }
+                }
+            }
+
+            if (allow)
+            {
+                try
+                {
+                    workingDirectory = string.IsNullOrWhiteSpace(workingDirectory) ?
+                                       Path.Combine(Path.GetTempPath(), this.CurrentRunIndex.ToString()) :
+                                       workingDirectory;
+                    return this.DownloadFile(workingDirectory, uri.ToString(), localRelativePath);
+                }
+                catch (Exception ex)
+                {
+                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
+                               Resources.DownloadFail_DialogMessage + Environment.NewLine + ex.Message,
+                               null, // title
+                               OLEMSGICON.OLEMSGICON_CRITICAL,
+                               OLEMSGBUTTON.OLEMSGBUTTON_OK,
+                               OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+                    Trace.WriteLine($"DownloadFile {uri.ToString()} threw exception: {ex.Message}");
+                }
+            }
+
+            return null;
         }
 
-        internal string DownloadFile(SarifErrorListItem sarifErrorListItem, string fileUrl)
+        internal void AddAllowedDownloadHost(string host)
+        {
+            if (!this._allowedDownloadHosts.Contains(host))
+            {
+                this._allowedDownloadHosts.Add(host);
+                SdkUIUtilities.StoreObject<List<string>>(this._allowedDownloadHosts, AllowedDownloadHostsFileName);
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "need to wait http request/file download to be completed before exit the function.")]
+        internal string DownloadFile(string workingDirectory, string fileUrl, string localRelativeFilePath)
         {
             if (string.IsNullOrEmpty(fileUrl))
             {
@@ -361,16 +439,29 @@ namespace Microsoft.Sarif.Viewer
             }
 
             var sourceUri = new Uri(fileUrl);
+            string relativeLocalPath = localRelativeFilePath ?? sourceUri.LocalPath;
+            relativeLocalPath = relativeLocalPath.Replace('/', '\\').TrimStart('\\');
 
-            string destinationFile = Path.Combine(sarifErrorListItem.WorkingDirectory, sourceUri.LocalPath.Replace('/', '\\').TrimStart('\\'));
+            string destinationFile = Path.Combine(workingDirectory, relativeLocalPath);
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
-            Directory.CreateDirectory(destinationDirectory);
+            this._fileSystem.DirectoryCreateDirectory(destinationDirectory);
 
             if (!this._fileSystem.FileExists(destinationFile))
             {
-                using (var client = new WebClient())
+                // have to use synchronous http request/file write so that
+                // when this function exits the file is already created.
+                using HttpResponseMessage response = s_httpClient.GetAsync(sourceUri).Result;
+
+                // if the status code is other than 200 (OK), e.g. 401 (Unathorized) don't download the file
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    client.DownloadFile(sourceUri, destinationFile);
+                    Stream stream = response.Content.ReadAsStreamAsync().Result;
+                    using FileStream fs = File.Create(destinationFile);
+                    stream.CopyTo(fs);
+                }
+                else
+                {
+                    throw new Exception($"Not able to download file from Url {sourceUri}. Http status code: {response.StatusCode}");
                 }
             }
 
@@ -378,8 +469,15 @@ namespace Microsoft.Sarif.Viewer
         }
 
         // Internal rather than private for unit testability.
-        internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string solutionFullPath = null)
+        internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string workingDirectory = null, string solutionFullPath = null)
         {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
             string originalPath = pathFromLogFile;
             Uri relativeUri = null;
             string resolvedPath = null;
@@ -394,12 +492,19 @@ namespace Microsoft.Sarif.Viewer
                 return resolvedPath;
             }
 
-            if (!string.IsNullOrEmpty(solutionFullPath))
+            if (this.TryResolveFilePathFromSolution(
+                solutionPath: solutionFullPath,
+                pathFromLogFile: originalPath,
+                fileSystem: this._fileSystem,
+                resolvedPath: out resolvedPath))
             {
-                if (this.TryResolveFilePathFromSolution(solutionFullPath, originalPath, this._fileSystem, out resolvedPath))
-                {
-                    return resolvedPath;
-                }
+                return resolvedPath;
+            }
+
+            // try to resolve using VersionControlProvenance
+            if (this.TryResolveFilePathFromSourceControl(dataCache.SourceControlDetails, pathFromLogFile, workingDirectory, this._fileSystem, out resolvedPath))
+            {
+                return resolvedPath;
             }
 
             return null;
@@ -582,50 +687,19 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (uriBaseId != null
-                    && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
-                    && Uri.TryCreate(baseUri, pathFromLogFile, out Uri uri)
-                    && uri.IsHttpScheme())
+            Uri uri = null;
+            if ((uriBaseId != null
+                 && dataCache.OriginalUriBasePaths.TryGetValue(uriBaseId, out Uri baseUri)
+                 && Uri.TryCreate(baseUri, pathFromLogFile, out uri)
+                 && uri.IsHttpScheme()) ||
+
+                 // if result location uri is an absolute http url
+                 (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out uri) &&
+                  uri.IsHttpScheme()))
             {
-                bool allow = this._allowedDownloadHosts.Contains(uri.Host);
-
-                // File needs to be downloaded, prompt for confirmation if host is not already allowed
-                if (!allow)
-                {
-                    MessageDialogCommand result = MessageDialog.Show(Resources.ConfirmDownloadDialog_Title,
-                                                                     string.Format(Resources.ConfirmDownloadDialog_Message, uri),
-                                                                     MessageDialogCommandSet.YesNo,
-                                                                     string.Format(Resources.ConfirmDownloadDialog_CheckboxLabel, uri.Host),
-                                                                     out bool alwaysAllow);
-
-                    if (result != MessageDialogCommand.No)
-                    {
-                        allow = true;
-
-                        if (alwaysAllow)
-                        {
-                            this.AddAllowedDownloadHost(uri.Host);
-                        }
-                    }
-                }
-
-                if (allow)
-                {
-                    try
-                    {
-                        return this.DownloadFile(sarifErrorListItem, uri.ToString());
-                    }
-                    catch (WebException wex)
-                    {
-                        VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                   Resources.DownloadFail_DialogMessage + Environment.NewLine + wex.Message,
-                                   null, // title
-                                   OLEMSGICON.OLEMSGICON_CRITICAL,
-                                   OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                   OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                        throw wex;
-                    }
-                }
+                return this.HandleHttpFileDownloadRequest(
+                            VersionControlParserFactory.ConvertToRawFileLink(uri),
+                            sarifErrorListItem.WorkingDirectory);
             }
 
             return null;
@@ -634,21 +708,39 @@ namespace Microsoft.Sarif.Viewer
         internal bool TryResolveFilePathFromSolution(string solutionPath, string pathFromLogFile, IFileSystem fileSystem, out string resolvedPath)
         {
             resolvedPath = null;
+            if (string.IsNullOrWhiteSpace(solutionPath))
+            {
+                return false;
+            }
+
             try
             {
-                pathFromLogFile = pathFromLogFile.Replace('/', '\\');
-                string solutionDirectory = solutionPath.Substring(0, solutionPath.LastIndexOf('\\') + 1);
-                string fileToSearch = pathFromLogFile.Substring(pathFromLogFile.LastIndexOf('\\') + 1);
+                solutionPath = fileSystem.FileExists(solutionPath) ? Path.GetDirectoryName(solutionPath) : solutionPath;
+                if (!fileSystem.DirectoryExists(solutionPath))
+                {
+                    return false;
+                }
 
-                IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionDirectory, fileToSearch, SearchOption.AllDirectories);
+                pathFromLogFile = pathFromLogFile.Replace('/', '\\');
+                string fileToSearch = Path.GetFileName(pathFromLogFile);
+                IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionPath, fileToSearch, SearchOption.AllDirectories);
                 searchResults = searchResults.Where(path => path.EndsWith(pathFromLogFile, StringComparison.OrdinalIgnoreCase));
 
                 // if path like "\AssemblyInfo.cs" it may exists in many projects.
                 // Here try to find a unique file matching the path,
                 // if more than 1 files match the path, we cannot decide which file to select, need manual intervention
-                if (searchResults.ToList().Count == 1)
+                IEnumerator<string> searchResultsEnumerator = searchResults.GetEnumerator();
+                if (searchResultsEnumerator.MoveNext())
                 {
-                    resolvedPath = searchResults.FirstOrDefault();
+                    string currentResolvedPath = searchResultsEnumerator.Current;
+
+                    // If there is another entry, the user must pick one.
+                    if (searchResultsEnumerator.MoveNext())
+                    {
+                        return false;
+                    }
+
+                    resolvedPath = currentResolvedPath;
                     return true;
                 }
             }
@@ -721,23 +813,81 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        internal bool SaveResolvedPathToUriBaseMapping(string uriBaseId, string originalPath, string pathFromLogFile, string resolvedPath, RunDataCache dataCache)
+        internal bool TryResolveFilePathFromSourceControl(IList<VersionControlDetails> sources, string pathFromLogFile, string workingDirectory, IFileSystem fileSystem, out string resolvedPath)
         {
-            Uri.TryCreate(pathFromLogFile, UriKind.Relative, out Uri relativeUri);
-            string fullPathFromLogFile = pathFromLogFile;
-            if (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out Uri absoluteUri))
+            if (!SarifViewerPackage.IsUnitTesting)
             {
-                fullPathFromLogFile = Path.GetFullPath(pathFromLogFile);
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
             }
-            else
+
+            resolvedPath = null;
+            if (sources == null || !sources.Any())
             {
-                if (!fullPathFromLogFile.StartsWith("/"))
+                return false;
+            }
+
+            foreach (VersionControlDetails versionControl in sources)
+            {
+                string localFilePath;
+
+                // check if file exists in mapped location
+                Uri mapToPath = versionControl.MappedTo?.Uri;
+                if (mapToPath != null)
                 {
-                    fullPathFromLogFile = "/" + fullPathFromLogFile;
+                    localFilePath = new Uri(mapToPath, pathFromLogFile).LocalPath;
+                    if (fileSystem.FileExists(localFilePath))
+                    {
+                        resolvedPath = localFilePath;
+                        return true;
+                    }
+                }
+
+                // try to read from remote repo
+                Uri soureFileFromRepo = null;
+                string localRelativePath = null;
+                if (VersionControlParserFactory.TryGetVersionControlParser(versionControl, out IVersionControlParser parser))
+                {
+                    soureFileFromRepo = parser.GetSourceFileUri(pathFromLogFile);
+                    localRelativePath = parser.GetLocalRelativePath(soureFileFromRepo, pathFromLogFile);
+                }
+
+                if (soureFileFromRepo != null)
+                {
+                    localFilePath = this.HandleHttpFileDownloadRequest(soureFileFromRepo, workingDirectory, localRelativePath);
+                    if (fileSystem.FileExists(localFilePath))
+                    {
+                        resolvedPath = localFilePath;
+                        return true;
+                    }
                 }
             }
 
-            string commonSuffix = GetCommonSuffix(fullPathFromLogFile.Replace("/", @"\"), resolvedPath);
+            return false;
+        }
+
+        internal bool SaveResolvedPathToUriBaseMapping(string uriBaseId, string originalPath, string pathFromLogFile, string resolvedPath, RunDataCache dataCache)
+        {
+            Uri.TryCreate(pathFromLogFile, UriKind.Relative, out Uri relativeUri);
+            if (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out Uri absoluteUri))
+            {
+                if (absoluteUri.IsHttpScheme())
+                {
+                    // since result's path is full url path, it has no common part of local files
+                    return true;
+                }
+            }
+            else
+            {
+                // if path is relative path, add '/' at beginning
+                if (!pathFromLogFile.StartsWith("/"))
+                {
+                    pathFromLogFile = "/" + pathFromLogFile;
+                }
+            }
+
+            string commonSuffix = GetCommonSuffix(pathFromLogFile.Replace("/", @"\"), resolvedPath);
             if (commonSuffix == null)
             {
                 return false;
@@ -745,7 +895,7 @@ namespace Microsoft.Sarif.Viewer
 
             // Trim the common suffix from both paths, and add a remapping that converts
             // one prefix to the other.
-            string originalPrefix = fullPathFromLogFile.Substring(0, fullPathFromLogFile.Length - commonSuffix.Length);
+            string originalPrefix = pathFromLogFile.Substring(0, pathFromLogFile.Length - commonSuffix.Length);
             string resolvedPrefix = resolvedPath.Substring(0, resolvedPath.Length - commonSuffix.Length);
 
             int uriBaseIdEndIndex = resolvedPath.IndexOf(originalPath.Replace("/", @"\"));
@@ -830,7 +980,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private string GetSolutionPath()
+        internal static string GetSolutionPath(DTE2 dte, IVsFolderWorkspaceService workspaceService)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -839,11 +989,20 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            string solutionPath = null;
-            DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            if (dte.Solution != null && dte.Solution.IsOpen)
+            // Check to see if this is an "Open Folder" scenario where there is no ".sln" file.
+            string solutionPath = workspaceService?.CurrentWorkspace?.Location;
+
+            if (!string.IsNullOrEmpty(solutionPath))
             {
-                solutionPath = dte.Solution.FullName;
+                return solutionPath;
+            }
+
+            // If we don't have an open folder situation, then we assume there is a ".sln" file.
+            // When VS opens a file instead of a solution/folder, it creates a temporary solution "Solution1"
+            // and its opened but FullName is empty
+            if (dte?.Solution != null && dte.Solution.IsOpen && !string.IsNullOrWhiteSpace(dte.Solution.FullName))
+            {
+                solutionPath = Path.GetDirectoryName(dte.Solution.FullName);
             }
 
             return solutionPath;

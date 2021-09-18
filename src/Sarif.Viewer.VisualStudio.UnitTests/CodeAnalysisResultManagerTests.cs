@@ -7,11 +7,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using EnvDTE80;
+
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Workspace;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 
 using Moq;
 
@@ -310,7 +314,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public void CodeAnalysisResultManager_TryResolveFilePathFromSolution_UniqueFileFound()
         {
             string solutionPath = @"c:\repo\sarif-sdk\src\Sarif.Sdk.sln";
-            string solutionDirectory = @"c:\repo\sarif-sdk\src\";
             string fileFromLog = "src/Sarif/Baseline/ResultMatching/RemappingCalculators/SarifLogRemapping.cs";
             string fileNameFromLog = "sariflogremapping.cs";
             IEnumerable<string> existingFiles = new string[]
@@ -320,14 +323,80 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem
-                .Setup(fs => fs.DirectoryEnumerateFiles(solutionDirectory, It.Is<string>(s => string.Equals(s, fileNameFromLog, StringComparison.OrdinalIgnoreCase)), System.IO.SearchOption.AllDirectories))
+                .Setup(fs => fs.DirectoryEnumerateFiles(Path.GetDirectoryName(solutionPath), It.Is<string>(s => string.Equals(s, fileNameFromLog, StringComparison.OrdinalIgnoreCase)), System.IO.SearchOption.AllDirectories))
                 .Returns(existingFiles);
+
+            mockFileSystem
+                .Setup(fs => fs.FileExists(solutionPath))
+                .Returns(true);
+
+            mockFileSystem
+                .Setup(fs => fs.DirectoryExists(Path.GetDirectoryName(solutionPath)))
+                .Returns(true);
 
             var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
             bool result = resultManager.TryResolveFilePathFromSolution(solutionPath, fileFromLog, mockFileSystem.Object, out string resolvedPath);
 
             result.Should().BeTrue();
             resolvedPath.Should().BeEquivalentTo(@"c:\repo\sarif-sdk\src\Sarif\Baseline\ResultMatching\RemappingCalculators\SarifLogRemapping.cs");
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSourceControl_WithMappedToUri()
+        {
+            string workingDirectory = @"c:\temp\";
+            string fileFromLog = "src/Sarif/Baseline/ResultMatching/RemappingCalculators/SarifLogRemapping.cs";
+            Uri mapToPath = new Uri("file:///C:/repo/sarif-sdk/");
+            Uri targetFileUri = new Uri(mapToPath, fileFromLog);
+
+            var versionControlDetail = new VersionControlDetails
+            {
+                RepositoryUri = new Uri("https://example.com"),
+                RevisionId = "1234567879abcedf",
+                Branch = "master",
+                MappedTo = new ArtifactLocation { Uri = mapToPath },
+            };
+            var versionControlList = new List<VersionControlDetails>() { versionControlDetail };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileExists(targetFileUri.LocalPath))
+                .Returns(true);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            bool result = resultManager.TryResolveFilePathFromSourceControl(versionControlList, fileFromLog, workingDirectory, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeTrue();
+            resolvedPath.Should().BeEquivalentTo(@"c:\repo\sarif-sdk\src\Sarif\Baseline\ResultMatching\RemappingCalculators\SarifLogRemapping.cs");
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_TryResolveFilePathFromSourceControl_Github()
+        {
+            string workingDirectory = @"c:\temp\";
+            string fileFromLog = ".github/workflows/dotnet-format.yml";
+            Uri mapToPath = new Uri("file:///c:/temp/microsoft/sarif-visualstudio-extension/main/");
+            Uri targetFileUri = new Uri(mapToPath, fileFromLog);
+
+            var versionControlDetail = new VersionControlDetails
+            {
+                RepositoryUri = new Uri("https://github.com/microsoft/sarif-visualstudio-extension/"),
+                RevisionId = "378c2ee96a7dc1d8e487e2a02ce4dc73f67750e7",
+                Branch = "main",
+            };
+            var versionControlList = new List<VersionControlDetails>() { versionControlDetail };
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileExists(targetFileUri.LocalPath))
+                .Returns(true);
+
+            var resultManager = new CodeAnalysisResultManager(mockFileSystem.Object, promptForResolvedPathDelegate: null);
+            resultManager.AddAllowedDownloadHost("raw.githubusercontent.com");
+            bool result = resultManager.TryResolveFilePathFromSourceControl(versionControlList, fileFromLog, workingDirectory, mockFileSystem.Object, out string resolvedPath);
+
+            result.Should().BeTrue();
+            resolvedPath.Should().BeEquivalentTo(targetFileUri.LocalPath);
         }
 
         [Fact]
@@ -612,6 +681,84 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // dialog pop up
             this.numEmbeddedFilePrompts.Should().Be(4);
             this.numPrompts.Should().Be(1);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_SolutionFolderOpened()
+        {
+            const string folder = @"C:\github\repo\myproject\";
+            IVsFolderWorkspaceService workspaceService = SetupWorkspaceService(folder);
+            DTE2 dte = null;
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeEquivalentTo(folder);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_SolutionOpened()
+        {
+            const string solutionFile = @"C:\github\repo\myproject\src\mysolution.sln";
+            const string solutionFolder = @"C:\github\repo\myproject\src";
+
+            IVsFolderWorkspaceService workspaceService = null;
+            DTE2 dte = SetupSolutionService(solutionFile);
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeEquivalentTo(solutionFolder);
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_TempSolutionOpened()
+        {
+            string folder = string.Empty;
+            IVsFolderWorkspaceService workspaceService = null;
+            DTE2 dte = SetupSolutionService(folder);
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeNull();
+        }
+
+        [Fact]
+        public void CodeAnalysisResultManager_GetSolutionPath_NoSolutionNoWorkspaceOpened()
+        {
+            IVsFolderWorkspaceService workspaceService = null;
+            DTE2 dte = null;
+
+            string solutionPath = CodeAnalysisResultManager.GetSolutionPath(dte, workspaceService);
+
+            solutionPath.Should().BeNull();
+        }
+
+        private DTE2 SetupSolutionService(string solutionFile)
+        {
+            var solution = new Mock<EnvDTE.Solution>();
+#pragma warning disable VSTHRD010 // Invoke single-threaded types on Main thread
+            solution.SetupGet(s => s.IsOpen).Returns(true);
+            solution.SetupGet(s => s.FullName).Returns(solutionFile);
+#pragma warning restore VSTHRD010 // Invoke single-threaded types on Main thread
+
+            var dte = new Mock<DTE2>();
+            dte.SetupGet(d => d.Solution).Returns(solution.Object);
+
+            return dte.Object;
+        }
+
+        private IVsFolderWorkspaceService SetupWorkspaceService(string workspaceFolder)
+        {
+            var workspace = new Mock<IWorkspace>();
+            workspace
+                .SetupGet(w => w.Location)
+                .Returns(workspaceFolder);
+
+            var workspaceService = new Mock<IVsFolderWorkspaceService>();
+            workspaceService
+                .SetupGet(w => w.CurrentWorkspace)
+                .Returns(workspace.Object);
+
+            return workspaceService.Object;
         }
 
         private string FakePromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string fullPathFromLogFile)

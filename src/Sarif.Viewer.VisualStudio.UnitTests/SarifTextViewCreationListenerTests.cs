@@ -54,6 +54,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 new { input = "SARIFX", expected = false },
                 new { input = "sarif", expected = true },
                 new { input = "SARIF", expected = true },
+                new { input = "text", expected = true },
+                new { input = "TEXT", expected = true },
             };
 
             var target = new SarifTextViewCreationListener();
