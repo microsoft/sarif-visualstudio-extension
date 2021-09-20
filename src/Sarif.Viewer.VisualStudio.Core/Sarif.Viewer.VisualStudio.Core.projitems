@@ -166,12 +166,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\GithubVersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\IVersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParserFactory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ResolveEmbeddedFileModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\AnalysisStepView.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialogControl.xaml.cs">
-      <DependentUpon>ResolveEmbeddedFileDialogControl.xaml</DependentUpon>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.xaml.cs">
+      <DependentUpon>ResolveEmbeddedFileDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Views\SarifToolWindowControl.xaml.cs">
       <DependentUpon>SarifToolWindowControl.xaml</DependentUpon>
@@ -272,7 +270,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialogControl.xaml">
+    <Page Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

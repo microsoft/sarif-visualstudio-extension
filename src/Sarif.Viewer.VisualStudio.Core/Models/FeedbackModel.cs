@@ -53,15 +53,30 @@ namespace Microsoft.Sarif.Viewer.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
                 if (this.sendFeedbackCommand == null)
                 {
-                    this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand((param) =>
+#if DEV17
+                    this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(
+                    execute: (param) =>
                     {
                         ThreadHelper.ThrowIfNotOnUIThread();
 
                         ErrorListService.SendFeedback(this);
 
-                        DialogWindow dialogWindow = param as DialogWindow;
+                        var dialogWindow = param as DialogWindow;
                         dialogWindow.Close();
-                    });
+                    },
+                    canExecute: (obj) => true,
+                    jtf: null);
+#else
+                    this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(
+                        execute: (param) =>
+                        {
+                            ThreadHelper.ThrowIfNotOnUIThread();
+
+                            var dialogWindow = param as DialogWindow;
+                            dialogWindow.Close();
+                            ErrorListService.SendFeedback(this);
+                        });
+#endif
                 }
 
                 return this.sendFeedbackCommand;
