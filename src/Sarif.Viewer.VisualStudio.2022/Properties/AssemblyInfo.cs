@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("Microsoft SARIF Viewer for Visual Studio")]
+[assembly: AssemblyTitle("Microsoft SARIF Viewer for Visual Studio 2022")]
 [assembly: AssemblyDescription("Visual Studio Extension for viewing SARIF log files")]
 
 [assembly: NeutralResourcesLanguage("en")]
