@@ -299,4 +299,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)License.txt" />
+  </ItemGroup>
 </Project>

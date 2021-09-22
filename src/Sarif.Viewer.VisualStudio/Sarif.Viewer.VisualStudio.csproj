@@ -63,16 +63,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\App.config">
+    <Content Include="..\Sarif.Viewer.VisualStudio.Core\App.config">
       <Link>App.config</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\icon.png">
+    <Content Include="..\Sarif.Viewer.VisualStudio.Core\icon.png">
       <Link>icon.png</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\overview.md">
+    <Content Include="..\Sarif.Viewer.VisualStudio.Core\overview.md">
       <Link>overview.md</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -84,13 +84,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\index.html">
+    <Content Include="..\Sarif.Viewer.VisualStudio.Core\index.html">
       <Link>index.html</Link>
     </Content>
-    <None Include="..\Sarif.Viewer.VisualStudio.SharedFiles\readme.md">
+    <None Include="..\Sarif.Viewer.VisualStudio.Core\readme.md">
       <Link>readme.md</Link>
     </None>
-    <Content Include="..\Sarif.Viewer.VisualStudio.SharedFiles\License.txt">
+    <Content Include="..\Sarif.Viewer.VisualStudio.Core\License.txt">
       <Link>License.txt</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -98,10 +98,10 @@
     <Resource Include="Triskele.ico">
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
     </Resource>
-    <VSCTCompile Include="..\Sarif.Viewer.VisualStudio.SharedFiles\SarifCommandPackage.vsct">
+    <VSCTCompile Include="..\Sarif.Viewer.VisualStudio.Core\SarifCommandPackage.vsct">
       <Link>SarifCommandPackage.vsct</Link>
       <ResourceName>Menus.ctmenu</ResourceName>
-      <LastGenOutput>..\Sarif.Viewer.VisualStudio.SharedFiles\SarifCommandPackage.cs</LastGenOutput>
+      <LastGenOutput>..\Sarif.Viewer.VisualStudio.Core\SarifCommandPackage.cs</LastGenOutput>
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +156,7 @@
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
