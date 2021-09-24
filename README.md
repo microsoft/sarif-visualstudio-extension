@@ -1,5 +1,7 @@
 # Microsoft SARIF Viewer
 
+[![Build Status](https://dev.azure.com/mseng/1ES/_apis/build/status/Security%20Detections/microsoft.sarif-visualstudio-extension?branchName=main)](https://dev.azure.com/mseng/1ES/_build/latest?definitionId=10703&branchName=main)
+
 The Microsoft SARIF Viewer extension for Visual Studio provides a convenient UI for analyzing static analysis log files and taking action on the items they contain. The SARIF Viewer integrates with the Visual Studio environment, displaying a list of analysis results in the Error List and result details in a dockable tool window.
 
 ## Features
