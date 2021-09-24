@@ -22,6 +22,8 @@ namespace Microsoft.Sarif.Viewer.Fixes
 {
     internal class FixSuggestedActionsSource : ISuggestedActionsSource
     {
+        private static readonly string SuggestionCategory = "Sarif Viewer Suggestions";
+
         private readonly ITextView textView;
         private readonly ITextBuffer textBuffer;
         private readonly IPersistentSpanFactory persistentSpanFactory;
@@ -266,7 +268,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             return suggestedActions.Any() ?
                 new List<SuggestedActionSet>
                 {
-                    new SuggestedActionSet(suggestedActions),
+                    new SuggestedActionSet(SuggestionCategory, suggestedActions),
                 }
                 :
                 null;

@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>795cf790-d1d5-4493-a078-8d78d098dfba</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Sarif.Viewer.VisualStudio.Core</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CodeAnalysisResultManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFlowToTreeConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeLocationObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeLocationObjectTypeDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ContentTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml.cs">
+      <DependentUpon>FeedbackControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\FeedbackDialog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\InfoBar.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\InternetHyperlink.xaml.cs">
+      <DependentUpon>InternetHyperlink.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\AnalysisStepNodeToTextConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingDebugConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanToCollapsedVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\CollectionToBooleanConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\CollectionToCountConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\CollectionToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\FileExistsToBooleanConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\Int32ToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\MultipleStringsToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\ObjectToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\StringToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DelegateCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DelegateCommandBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\BaselineStateTableDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ColumnFilterer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilteredColumnValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ISarifErrorListEventSelectionService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessorProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListSelectionChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifResultTableEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifTableDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifTableDataSourceBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SinkHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\StubDisposable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SuppressionStateTableDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExceptionalConditions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ExceptionalConditionsCalculator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileAndForgetEventName.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\FileWatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\IFileWatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\ISarifFileMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\SarifFolderMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\SarifLogsMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\ApplyFixEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\DisposableDifferenceViewerControl.xaml.cs">
+      <DependentUpon>DisposableDifferenceViewerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\EditActionPreviewProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\FixSuggestedAction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\FixSuggestedActionsSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\FixSuggestedActionsSourceProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\IPreviewProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\LineSpan.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\ReplacementEdit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\SizeToFitHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Guids.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HashHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IToolWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeyValuePairPropertyDescriptor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LogProcessedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStep.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStepCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStepNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactChangeModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactDetailsModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\FeedbackModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\FeedbackType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\FixModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\InvocationModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LocationCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\LocationModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ReplacementModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\RuleModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\StackCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\StackFrameModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ToolModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\VSSuppressionState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NotifyPropertyChangedObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OpenLogFileCommands.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\ISarifViewerOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControl.xaml.cs">
+      <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)ProjectHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProjectKind.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ProjectNameCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ResultTextMarker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RunDataCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SarifExplorerWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SarifFileAndContentDefinitions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SarifTextViewCreationListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SarifToolWindowCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SarifViewerPackage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\ArtifactChange.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\CodeFlow.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\FailureLevel.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Fix.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Invocation.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Location.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Region.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Replacement.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Result.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Rule.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Run.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\SarifErrorListItem.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\SarifLog.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Stack.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\StackFrame.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\ThreadFlowLocation.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Tool.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SdkUiUtilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\CloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ICloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ILoadSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\LoadSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\SCloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\SLoadSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SpanHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTagCaretNotify.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTagger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTaggerService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\ITextViewCaretListenerService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationErrorTag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationErrorTagger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTagBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTaggerProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTaggerService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTagHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTextMarkerTag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTextMarkerTagger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\TagInCaretChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\TextViewCaretListener.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\TextViewCaretListenerService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\FeedbackTelemetryEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Uri.extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\AdoVersionControlParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\GithubVersionControlParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\IVersionControlParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParserFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelLocator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\AnalysisStepView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.xaml.cs">
+      <DependentUpon>ResolveEmbeddedFileDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\SarifToolWindowControl.xaml.cs">
+      <DependentUpon>SarifToolWindowControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\SarifViewerControl.xaml.cs">
+      <DependentUpon>SarifViewerControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)WeakEventHandlerManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Data\ruleLookup.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\FeedbackStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\InternetHyperlink.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\VsDropDown.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Fixes\DisposableDifferenceViewerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Fixes\DisposableDifferenceViewerControlStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControlResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\AnalysisStepsStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\DefaultStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\FixesStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\InformationStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\LocationsStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\SarifViewerControlStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\StacksStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\AnalysisSteps.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\AnalysisStepsStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\Information.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\InformationStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\Locations.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\LocationsStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\SarifToolWindowControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\SarifViewerControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\SarifViewerControlStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\Stacks.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\StacksStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\TreeView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)License.txt" />
+  </ItemGroup>
+</Project>

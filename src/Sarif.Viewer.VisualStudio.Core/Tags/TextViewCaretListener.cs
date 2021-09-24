@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // entered notifications for a newly created text view.
             // This allows the SARIF explorer to proper set selection to items
             // on initial load.
-            ThreadHelper.JoinableTaskFactory.RunAsync(() => this.UpdateInitialCaretPositionAsync());
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(() => this.UpdateInitialCaretPositionAsync());
         }
 
         /// <summary>

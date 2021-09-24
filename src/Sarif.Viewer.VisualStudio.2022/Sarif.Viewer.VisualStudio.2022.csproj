@@ -5,7 +5,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <PropertyGroup>
-    <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.xml</DocumentationFile>
+    <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.2022.xml</DocumentationFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
@@ -13,7 +13,7 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{689AF24B-33F0-44E9-AA2E-FACA775736A8}</ProjectGuid>
+    <ProjectGuid>{D6B31477-4E53-47FA-B9FE-8D751C503564}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Sarif.Viewer</RootNamespace>
     <AssemblyName>Microsoft.Sarif.Viewer</AssemblyName>
@@ -32,7 +32,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build2022.props))\build2022.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
@@ -40,14 +40,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.SDK">
-      <Version>16.0.206</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.0-previews-3-31605-261" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools">
-      <Version>16.10.1055</Version>
+      <Version>17.0.3177-preview3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -63,10 +61,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Sarif.Viewer.VisualStudio.Core\App.config">
-      <Link>App.config</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="..\Sarif.Viewer.VisualStudio.Core\icon.png">
       <Link>icon.png</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -75,6 +69,10 @@
     <Content Include="..\Sarif.Viewer.VisualStudio.Core\overview.md">
       <Link>overview.md</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="..\Sarif.Viewer.VisualStudio.Core\App.config">
+      <Link>App.config</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="source.extension.vsixmanifest">
@@ -156,7 +154,6 @@
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
