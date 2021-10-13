@@ -333,8 +333,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 {
                     sb.AppendLine($"    {testCase.Name}: expected {testCase.ExpectedResult} but got {actualResult}");
                 }
-                
-                foreach(Result result in testCase.Run.Results?? Enumerable.Empty<Result>())
+
+                foreach (Result result in testCase.Run.Results ?? Enumerable.Empty<Result>())
                 {
                     _ = result.TryIsSuppressed(out bool suppressed);
                     result.IsSuppressed().Should().Be(suppressed);
