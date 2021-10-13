@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 using FluentAssertions;
@@ -331,6 +332,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 if (actualResult != testCase.ExpectedResult)
                 {
                     sb.AppendLine($"    {testCase.Name}: expected {testCase.ExpectedResult} but got {actualResult}");
+                }
+                
+                foreach(Result result in testCase.Run.Results?? Enumerable.Empty<Result>())
+                {
+                    _ = result.TryIsSuppressed(out bool suppressed);
+                    result.IsSuppressed().Should().Be(suppressed);
                 }
             }
 

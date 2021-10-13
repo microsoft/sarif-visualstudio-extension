@@ -88,14 +88,12 @@ namespace Microsoft.Sarif.Viewer.Sarif
         {
             result = result ?? throw new ArgumentNullException(nameof(result));
 
-            IList<Suppression> suppressions = result.Suppressions;
-            if (suppressions == null || suppressions.Count == 0)
+            if (result.TryIsSuppressed(out bool isSuppressed))
             {
-                return false;
+                return isSuppressed;
             }
 
-            return suppressions.Any(s => s.Status == SuppressionStatus.Accepted)
-                && !suppressions.Any(s => s.Status == SuppressionStatus.Rejected || s.Status == SuppressionStatus.UnderReview);
+            return false;
         }
     }
 }
