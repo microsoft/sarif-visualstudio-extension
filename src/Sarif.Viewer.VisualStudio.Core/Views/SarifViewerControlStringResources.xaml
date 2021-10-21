@@ -10,5 +10,5 @@
     <system:String x:Key="SarifViewerControl_TabItemHeader_AnalysisSteps_Text_String">Analysis Steps</system:String>
     <system:String x:Key="SarifViewerControl_TabItemHeader_Info_Text_String">Info</system:String>
     <system:String x:Key="SarifViewerControl_TabItemHeader_ItemCount_Text_FormatString">({0})</system:String>
-
+    <system:String x:Key="SarifViewerControl_TabItemHeader_Suppressions_Text_String">Suppressions</system:String>
 </ResourceDictionary>

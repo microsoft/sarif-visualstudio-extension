@@ -773,5 +773,13 @@ namespace Microsoft.Sarif.Viewer {
                 return ResourceManager.GetString("VersionPropertyNotFound_DialogTitle", resourceCulture);
             }
         }
+
+        public static string SuppressionDialog_DialogTitle
+        {
+            get
+            {
+                return ResourceManager.GetString("SuppressionDialog_DialogTitle", resourceCulture);
+            }
+        }
     }
 }

@@ -30,6 +30,8 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using Microsoft.Win32;
 
+using Newtonsoft.Json;
+
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
@@ -681,6 +683,86 @@ namespace Microsoft.Sarif.Viewer
             partitioningVisitor.VisitSarifLog(dataCache.SarifLog);
             Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
             return partitions[guid];
+        }
+
+        internal void AddSuppressionToSarifLog(SuppressionModel suppressionModel)
+        {
+            if (suppressionModel == null || suppressionModel.SelectedErrorListItems?.Any() != true)
+            {
+                return;
+            }
+
+            int runIndex = -1;
+            DateTime now = DateTime.UtcNow;
+            bool suppressionAdded = false;
+
+            foreach (SarifErrorListItem item in suppressionModel.SelectedErrorListItems)
+            {
+                runIndex = runIndex == -1 ? item.RunIndex : runIndex;
+                if (item.SarifResult != null)
+                {
+                    if (item.SarifResult.Suppressions == null)
+                    {
+                        item.SarifResult.Suppressions = new List<Suppression>();
+                    }
+
+                    var suppression = new Suppression
+                    {
+                        Status = suppressionModel.Status,
+                        Justification = suppressionModel.Justification,
+                        Kind = SuppressionKind.External,
+                        Guid = Guid.NewGuid().ToString(),
+                    };
+
+                    if (!string.IsNullOrWhiteSpace(suppressionModel.UserAlias))
+                    {
+                        suppression.SetProperty("alias", suppressionModel.UserAlias);
+                    }
+
+                    suppression.SetProperty("timeUtc", suppressionModel.Timestamp ?? now);
+
+                    if (suppressionModel.ExpiryInDays > 0)
+                    {
+                        suppression.SetProperty(
+                            "expiryUtc",
+                            (suppressionModel.Timestamp ?? now).AddDays(suppressionModel.ExpiryInDays));
+                    }
+
+                    item.SarifResult.Suppressions.Add(suppression);
+                    suppressionAdded = true;
+                }
+            }
+
+            if (runIndex == -1 ||
+                !this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache) ||
+                dataCache.SarifLog == null)
+            {
+                return;
+            }
+
+            if (suppressionAdded)
+            {
+                // add empty suppression for results don't have suppression
+                // this is to satisfy sarif spec: either all results have non-null suppressions or have no suppressions
+                foreach (SarifErrorListItem errorListItem in dataCache.SarifErrors)
+                {
+                    if (errorListItem.SarifResult.Suppressions == null)
+                    {
+                        errorListItem.SarifResult.Suppressions = new Suppression[] { };
+                    }
+                }
+
+                var serializer = new JsonSerializer()
+                {
+                    Formatting = Formatting.Indented,
+                };
+
+                using (var writer = new JsonTextWriter(
+                    new StreamWriter(this._fileSystem.FileCreate(dataCache.LogFilePath))))
+                {
+                    serializer.Serialize(writer, dataCache.SarifLog);
+                }
+            }
         }
 
         internal string GetFilePathFromHttp(SarifErrorListItem sarifErrorListItem, string uriBaseId, RunDataCache dataCache, string pathFromLogFile)

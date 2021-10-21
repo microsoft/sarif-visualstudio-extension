@@ -24,6 +24,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\InternetHyperlink.xaml.cs">
       <DependentUpon>InternetHyperlink.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\SuppressionControl.xaml.cs">
+      <DependentUpon>SuppressionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\SuppressionDialog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\AnalysisStepNodeToTextConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingDebugConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanToCollapsedVisibilityConverter.cs" />
@@ -74,6 +78,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ReplacementEdit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\SizeToFitHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\SuppressSuggestionAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Guids.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HashHelper.cs" />
@@ -96,6 +101,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackFrameModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ToolModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\VSSuppressionState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NotifyPropertyChangedObject.cs" />
@@ -132,6 +139,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\SarifLog.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\Stack.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\StackFrame.Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Suppression.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\ThreadFlowLocation.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\Tool.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdkUiUtilities.cs" />
@@ -198,6 +206,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\SuppressionControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Controls\SuppressionStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="$(MSBuildThisFileDirectory)Controls\VsDropDown.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -243,6 +259,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)Themes\StacksStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Themes\SuppressionsStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -294,6 +314,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\Suppressions.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Views\SuppressionsStringResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="$(MSBuildThisFileDirectory)Views\TreeView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -301,5 +329,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)License.txt" />
+    <Resource Include="$(MSBuildThisFileDirectory)Views\SuppressionRejected.png" />
+    <Resource Include="$(MSBuildThisFileDirectory)Views\SuppressionUnderReview.png" />
+    <Resource Include="$(MSBuildThisFileDirectory)Views\SuppressionAccepted.png" />
   </ItemGroup>
 </Project>
