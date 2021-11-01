@@ -74,6 +74,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ProjectionBufferFactoryServiceExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ReplacementEdit.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\SizeToFitHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\SuppressSuggestedAction.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Guids.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HashHelper.cs" />
@@ -96,6 +97,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackFrameModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ToolModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\VSSuppressionState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NotifyPropertyChangedObject.cs" />
@@ -184,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)Data\ruleLookup.json" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sarif\Suppression.Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml">

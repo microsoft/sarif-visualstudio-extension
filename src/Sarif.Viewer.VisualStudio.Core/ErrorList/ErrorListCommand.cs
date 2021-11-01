@@ -60,6 +60,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int OtherResultCommandId = 0x0307;
 
         /// <summary>
+        /// Command id for "Suppress result in log file".
+        /// </summary>
+        public const int SuppressResultCommandId = 0x0308;
+
+        /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
@@ -93,10 +98,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.AddMenuItem(LowValueResultCommandId);
             this.AddMenuItem(NonShippingCodeResultCommandId);
             this.AddMenuItem(OtherResultCommandId);
+            this.AddMenuItem(SuppressResultCommandId);
 
             // hide by default
             this.SetCommandVisibility(ProvideFeedbackCommandId, false);
             this.SetCommandVisibility(ClearSarifResultsCommandId, false);
+            this.SetCommandVisibility(SuppressResultCommandId, false);
 
             var componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
             Assumes.Present(componentModel);
@@ -139,6 +146,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             bool visible = e.NewItem != null || (this.selectionService.SelectedItems != null && this.selectionService.SelectedItems.Any());
             this.SetCommandVisibility(ProvideFeedbackCommandId, visible);
+            this.SetCommandVisibility(SuppressResultCommandId, visible);
         }
 
         private void SetCommandVisibility(int cmdID, bool visible)
@@ -216,6 +224,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     DisplayFeedbackDialog(menuCommand.CommandID.ID, selectedItems);
                     break;
 
+                case SuppressResultCommandId:
+                    SuppressResults(selectedItems);
+                    break;
+
                 default:
                     // Unrecognized command; do nothing.
                     break;
@@ -262,6 +274,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             var feedbackDialog = new FeedbackDialog(title, feedback);
             feedbackDialog.ShowModal();
+        }
+
+        private static void SuppressResults(IEnumerable<SarifErrorListItem> sarifErrorListItems)
+        {
+            // only added Accepted suppression now
+            CodeAnalysisResultManager.Instance.AddSuppressionToSarifLog(
+                new SuppressionModel(sarifErrorListItems)
+                {
+                    Status = SuppressionStatus.Accepted,
+                    Kind = SuppressionKind.External,
+                });
         }
     }
 }
