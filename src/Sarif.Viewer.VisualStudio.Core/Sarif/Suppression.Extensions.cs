@@ -15,7 +15,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            var model = new SuppressionModel(new[] { sarifErrorListItem })
+            var model = new SuppressionModel(sarifErrorListItem)
             {
                 Kind = suppression.Kind,
                 Status = suppression.Status,

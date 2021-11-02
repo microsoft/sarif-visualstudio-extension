@@ -24,6 +24,11 @@ namespace Microsoft.Sarif.Viewer.Models
             this._sarifErrorListItems = sarifErrorListItems;
         }
 
+        public SuppressionModel(SarifErrorListItem sarifErrorListItem)
+        {
+            this._sarifErrorListItems = new[] { sarifErrorListItem };
+        }
+
         public IEnumerable<SarifErrorListItem> SelectedErrorListItems
         {
             get => this._sarifErrorListItems;

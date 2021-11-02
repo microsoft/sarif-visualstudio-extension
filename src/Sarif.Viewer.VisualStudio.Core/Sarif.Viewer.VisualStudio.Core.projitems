@@ -97,7 +97,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackFrameModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ToolModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\VSSuppressionState.cs" />

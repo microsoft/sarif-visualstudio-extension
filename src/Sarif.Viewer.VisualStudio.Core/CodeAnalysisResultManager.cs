@@ -687,7 +687,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal void AddSuppressionToSarifLog(SuppressionModel suppressionModel)
         {
-            if (suppressionModel == null || suppressionModel.SelectedErrorListItems?.Any() != true)
+            if (suppressionModel?.SelectedErrorListItems?.Any() != true)
             {
                 return;
             }
@@ -727,11 +727,14 @@ namespace Microsoft.Sarif.Viewer
             {
                 // add empty suppression for results don't have suppression
                 // this is to satisfy sarif spec: either all results have non-null suppressions or have no suppressions
+                // spec link: https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317661
+                // "The suppressions values for all result objects in theRun SHALL be either all null or all non-null.
+                // "NOTE: The rationale is that an engineering system will generally evaluate all results for suppression, or none of them.Requiring that the suppressions values be either all null or all non - null enables a consumer to determine whether suppression information is available for the run by examining a single result object."
                 foreach (SarifErrorListItem errorListItem in dataCache.SarifErrors)
                 {
                     if (errorListItem.SarifResult.Suppressions == null)
                     {
-                        errorListItem.SarifResult.Suppressions = new Suppression[] { };
+                        errorListItem.SarifResult.Suppressions = Array.Empty<Suppression>();
                     }
                 }
 

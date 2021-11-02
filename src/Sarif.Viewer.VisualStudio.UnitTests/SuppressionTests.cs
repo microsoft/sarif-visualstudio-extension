@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 new
                 {
-                    Model = new SuppressionModel(null)
+                    Model = new SuppressionModel((IEnumerable<SarifErrorListItem>)null)
                     {
                         Status = SuppressionStatus.Accepted,
                         Kind = SuppressionKind.External,
@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
                 new
                 {
-                    Model = new SuppressionModel(null)
+                    Model = new SuppressionModel((IEnumerable<SarifErrorListItem>)null)
                     {
                         Status = SuppressionStatus.UnderReview,
                         Kind = SuppressionKind.External,
@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
                 new
                 {
-                    Model = new SuppressionModel(null)
+                    Model = new SuppressionModel((IEnumerable<SarifErrorListItem>)null)
                     {
                         Status = SuppressionStatus.Rejected,
                         Kind = SuppressionKind.External,
@@ -76,7 +76,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
                 new
                 {
-                    Model = new SuppressionModel(null)
+                    Model = new SuppressionModel((IEnumerable<SarifErrorListItem>)null)
                     {
                         Status = SuppressionStatus.Accepted,
                         Kind = SuppressionKind.External,
@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
                 new
                 {
-                    Model = new SuppressionModel(null)
+                    Model = new SuppressionModel((IEnumerable<SarifErrorListItem>)null)
                     {
                         Status = SuppressionStatus.Accepted,
                         Kind = SuppressionKind.External,
@@ -106,7 +106,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
                 new
                 {
-                    Model = new SuppressionModel(null)
+                    Model = new SuppressionModel((IEnumerable<SarifErrorListItem>)null)
                     {
                         Status = SuppressionStatus.Accepted,
                     },

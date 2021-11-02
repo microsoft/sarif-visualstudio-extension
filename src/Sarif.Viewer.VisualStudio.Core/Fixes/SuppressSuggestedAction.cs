@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         public SuppressSuggestedAction(SarifErrorListItem errorListItem)
         {
             this.sarifErrorListItem = errorListItem;
-            this.DisplayText = $"Suppress issue {this.sarifErrorListItem.Rule.Id} in Sarif file";
+            this.DisplayText = $"Suppress issue {this.sarifErrorListItem.Rule.Id} in SARIF file";
         }
 
         public bool HasActionSets => false;
@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
         {
             // only added Accepted suppression now
             CodeAnalysisResultManager.Instance.AddSuppressionToSarifLog(
-                new SuppressionModel(new[] { sarifErrorListItem })
+                new SuppressionModel(sarifErrorListItem)
                 {
                     Status = SuppressionStatus.Accepted,
                     Kind = SuppressionKind.External,
