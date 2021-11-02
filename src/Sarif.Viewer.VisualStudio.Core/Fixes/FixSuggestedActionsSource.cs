@@ -287,13 +287,9 @@ namespace Microsoft.Sarif.Viewer.Fixes
             // If there are no actions, return null rather than an empty list. Otherwise VS will display
             // a light bulb with no suggestions in its dropdown. This way, VS refrains from displaying
             // the light bulb.
-            return suggestedActions.Any() ?
-                new List<SuggestedActionSet>
-                {
-                    new SuggestedActionSet(SuggestionCategory, suggestedActions),
-                }
-                :
-                null;
+            return suggestedActions.Any()
+                ? new List<SuggestedActionSet> { new SuggestedActionSet(SuggestionCategory, suggestedActions) }
+                : null;
         }
 
         private void SuggestedAction_FixApplied(object sender, EventArgs e)
