@@ -137,7 +137,7 @@
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
           <Strings>
-            <ButtonText>Suppress result in log file</ButtonText>
+            <ButtonText>Suppress result in SARIF file</ButtonText>
           </Strings>
       </Button>
     </Buttons>

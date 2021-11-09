@@ -130,7 +130,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             DateTime now = DateTime.UtcNow;
             string[] resultToBeSuppressed = testCase.ResultToBeSuppressed;
-            string sarifLogFilePath = @"E:\Users\Yong\Sarif\Logs\ResultsToSuppress.sarif";
+            string sarifLogFilePath = @"E:\Users\AnUser\Sarif\Logs\ResultsToSuppress.sarif";
             var transformedContents = new StringBuilder();
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem
