@@ -132,6 +132,14 @@
           <ButtonText>Clear all SARIF results</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidSuppressResultCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+          <Strings>
+            <ButtonText>Suppress result in SARIF file</ButtonText>
+          </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -162,6 +170,7 @@
       <IDSymbol name="cmdidLowValueResultCommand" value="0x0305"/>
       <IDSymbol name="cmdidNonShippingCodeResultCommand" value="0x0306"/>
       <IDSymbol name="cmdidOtherResultCommand" value="0x0307"/>
+      <IDSymbol name="cmdidSuppressResultCommand" value="0x0308"/>
     </GuidSymbol>
 
   </Symbols>

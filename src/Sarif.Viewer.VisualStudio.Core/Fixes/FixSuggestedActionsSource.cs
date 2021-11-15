@@ -148,7 +148,10 @@ namespace Microsoft.Sarif.Viewer.Fixes
             // some of them.
             IList<SarifErrorListItem> selectedErrors = this.GetSelectedErrors(this.errorsInFile);
             IList<SarifErrorListItem> selectedFixableErrors = GetFixableErrors(selectedErrors);
-            return this.CreateActionSetFromErrors(selectedFixableErrors);
+            var actionSet = new List<SuggestedActionSet>();
+            actionSet.AddRange(this.CreateActionSetFromErrors(selectedFixableErrors) ?? Enumerable.Empty<SuggestedActionSet>());
+            actionSet.AddRange(this.CreateSuppressionActionSetFromErrors(selectedErrors) ?? Enumerable.Empty<SuggestedActionSet>());
+            return actionSet;
         }
 
         /// <inheritdoc/>
@@ -265,13 +268,28 @@ namespace Microsoft.Sarif.Viewer.Fixes
             // If there are no actions, return null rather than an empty list. Otherwise VS will display
             // a light bulb with no suggestions in its dropdown. This way, VS refrains from displaying
             // the light bulb.
-            return suggestedActions.Any() ?
-                new List<SuggestedActionSet>
+            return suggestedActions.Any()
+                ? new List<SuggestedActionSet> { new SuggestedActionSet(SuggestionCategory, suggestedActions) }
+                : null;
+        }
+
+        private IEnumerable<SuggestedActionSet> CreateSuppressionActionSetFromErrors(IEnumerable<SarifErrorListItem> errors)
+        {
+            var suggestedActions = new List<ISuggestedAction>();
+            foreach (SarifErrorListItem error in errors)
+            {
+                if (error.VSSuppressionState != VSSuppressionState.Suppressed)
                 {
-                    new SuggestedActionSet(SuggestionCategory, suggestedActions),
+                    suggestedActions.Add(new SuppressSuggestedAction(error));
                 }
-                :
-                null;
+            }
+
+            // If there are no actions, return null rather than an empty list. Otherwise VS will display
+            // a light bulb with no suggestions in its dropdown. This way, VS refrains from displaying
+            // the light bulb.
+            return suggestedActions.Any()
+                ? new List<SuggestedActionSet> { new SuggestedActionSet(SuggestionCategory, suggestedActions) }
+                : null;
         }
 
         private void SuggestedAction_FixApplied(object sender, EventArgs e)

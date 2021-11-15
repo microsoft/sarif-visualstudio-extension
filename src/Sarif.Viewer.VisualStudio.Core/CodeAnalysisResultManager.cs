@@ -30,6 +30,8 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using Microsoft.Win32;
 
+using Newtonsoft.Json;
+
 namespace Microsoft.Sarif.Viewer
 {
     /// <summary>
@@ -681,6 +683,72 @@ namespace Microsoft.Sarif.Viewer
             partitioningVisitor.VisitSarifLog(dataCache.SarifLog);
             Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();
             return partitions[guid];
+        }
+
+        internal void AddSuppressionToSarifLog(SuppressionModel suppressionModel)
+        {
+            if (suppressionModel?.SelectedErrorListItems?.Any() != true)
+            {
+                return;
+            }
+
+            int runIndex = -1;
+            bool suppressionAdded = false;
+
+            foreach (SarifErrorListItem item in suppressionModel.SelectedErrorListItems)
+            {
+                runIndex = runIndex == -1 ? item.RunIndex : runIndex;
+                if (item.SarifResult != null)
+                {
+                    if (item.SarifResult.Suppressions == null)
+                    {
+                        item.SarifResult.Suppressions = new List<Suppression>();
+                    }
+
+                    var suppression = new Suppression
+                    {
+                        Status = suppressionModel.Status,
+                        Kind = SuppressionKind.External,
+                    };
+
+                    item.SarifResult.Suppressions.Add(suppression);
+                    suppressionAdded = true;
+                }
+            }
+
+            if (runIndex == -1 ||
+                !this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache) ||
+                dataCache.SarifLog == null)
+            {
+                return;
+            }
+
+            if (suppressionAdded)
+            {
+                // add empty suppression for results don't have suppression
+                // this is to satisfy sarif spec: either all results have non-null suppressions or have no suppressions
+                // spec link: https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317661
+                // "The suppressions values for all result objects in theRun SHALL be either all null or all non-null.
+                // "NOTE: The rationale is that an engineering system will generally evaluate all results for suppression, or none of them.Requiring that the suppressions values be either all null or all non - null enables a consumer to determine whether suppression information is available for the run by examining a single result object."
+                foreach (SarifErrorListItem errorListItem in dataCache.SarifErrors)
+                {
+                    if (errorListItem.SarifResult.Suppressions == null)
+                    {
+                        errorListItem.SarifResult.Suppressions = Array.Empty<Suppression>();
+                    }
+                }
+
+                var serializer = new JsonSerializer()
+                {
+                    Formatting = Formatting.Indented,
+                };
+
+                using (var writer = new JsonTextWriter(
+                    new StreamWriter(this._fileSystem.FileCreate(dataCache.LogFilePath))))
+                {
+                    serializer.Serialize(writer, dataCache.SarifLog);
+                }
+            }
         }
 
         internal string GetFilePathFromHttp(SarifErrorListItem sarifErrorListItem, string uriBaseId, RunDataCache dataCache, string pathFromLogFile)
