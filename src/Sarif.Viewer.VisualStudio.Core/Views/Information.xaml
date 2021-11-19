@@ -22,7 +22,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="50" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 
@@ -40,31 +40,32 @@
                 <TextBlock Grid.Row="1"
                            Grid.Column="0"
                            Text="{StaticResource Information_Property_RuleLevel_Text_String}"
-                           Style="{StaticResource PropertyKey}" />
+                           Style="{StaticResource InfoPropertyKey}" />
                 <TextBlock Grid.Row="1"
                            Grid.Column="1"
                            Text="{Binding Rule.DefaultFailureLevel}"
-                           Style="{StaticResource PropertyValue}" />
+                           Style="{StaticResource InfoPropertyValue}" />
                 <TextBlock Grid.Row="2"
                            Grid.Column="0"
                            Visibility="{Binding Rule.Category, Converter={StaticResource StringToVisibilityConverter}}"
                            Text="{StaticResource Information_Property_RuleCategory_Text_String}"
-                           Style="{StaticResource PropertyKey}" />
+                           Style="{StaticResource InfoPropertyKey}" />
                 <TextBlock Grid.Row="2"
                            Grid.Column="1"
                            Visibility="{Binding Rule.Category, Converter={StaticResource StringToVisibilityConverter}}"
                            Text="{Binding Rule.Category}"
-                           Style="{StaticResource PropertyValue}" />
+                           Style="{StaticResource InfoPropertyValue}" />
                 <TextBlock Grid.Row="3"
                            Grid.Column="0"
                            Visibility="{Binding Rule.HelpUri, Converter={StaticResource StringToVisibilityConverter}}"
                            Text="{StaticResource Information_Property_RuleHelpLink_Text_String}"
-                           Style="{StaticResource PropertyKey}" />
+                           Style="{StaticResource InfoPropertyKey}" />
                 <controls:InternetHyperlink Grid.Row="3"
                                             Grid.Column="1"
                                             Text="{Binding Rule.HelpUri}"
                                             Visibility="{Binding Rule.HelpUri, Converter={StaticResource StringToVisibilityConverter}}"
                                             NavigateUri="{Binding Rule.HelpUri}"
+                                            VerticalAlignment="Center"
                                             Style="{StaticResource HelpHyperlinkStyle}"/>
                 <TextBlock Grid.Row="4"
                            Grid.Column="0"
@@ -78,15 +79,12 @@
                            Style="{StaticResource SectionSeparatorStyle}"/>
             </Grid>
 
-            <ScrollViewer>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel Style="{StaticResource ToolAndInvocationPanelStyle}">
                     <!-- This is the Tool metadata panel. -->
                     <StackPanel Orientation="Vertical"
                                 Visibility="{Binding Tool, Converter={StaticResource ObjectToVisibilityConverter}}">
-                        <DockPanel Grid.Row="0"
-                                   Grid.Column="0"
-                                   Grid.ColumnSpan="2"
-                                   Style="{StaticResource ToolMetadataPanelStyle}">
+                        <DockPanel Style="{StaticResource ToolMetadataPanelStyle}">
                             <TextBlock Text="{Binding Tool.Name}"
                                         Style="{StaticResource ToolNameTextStyle}" />
                             <TextBlock Text="{Binding Tool.Version, Mode=OneTime}"
@@ -95,7 +93,7 @@
                         </DockPanel>
 
                         <Grid Visibility="{Binding Invocation, Converter={StaticResource ObjectToVisibilityConverter}}"
-                              Style="{StaticResource InvocationMetadataGridStyle}">
+                                Style="{StaticResource InvocationMetadataGridStyle}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -114,107 +112,133 @@
 
                             <!-- Invocation metadata -->
                             <TextBlock Grid.Row="0"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationCommandLine_Text_String}"
-                                       Visibility="{Binding Invocation.CommandLine, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationCommandLine_Text_String}"
+                                        Visibility="{Binding Invocation.CommandLine, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBox Grid.Row="0"
-                                     Grid.Column="1"
-                                     IsTabStop="False"
-                                     Text="{Binding Invocation.CommandLine, Mode=OneWay}"
-                                     Visibility="{Binding Invocation.CommandLine, Converter={StaticResource StringToVisibilityConverter}}"
-                                     Style="{StaticResource ToolCommandLineTextBoxStyle}"/>
+                                        Grid.Column="1"
+                                        IsTabStop="False"
+                                        Text="{Binding Invocation.CommandLine, Mode=OneWay}"
+                                        Visibility="{Binding Invocation.CommandLine, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource ToolCommandLineTextBoxStyle}"/>
                             <TextBlock Grid.Row="1"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationStartTime_Text_String}"
-                                       Visibility="{Binding Invocation.StartTime, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationStartTime_Text_String}"
+                                        Visibility="{Binding Invocation.StartTime, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="1"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.StartTime}"
-                                       Visibility="{Binding Invocation.StartTime, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.StartTime}"
+                                        Style="{StaticResource InfoPropertyValue}" />
                             <TextBlock Grid.Row="2"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationEndTime_Text_String}"
-                                       Visibility="{Binding Invocation.EndTime, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationEndTime_Text_String}"
+                                        Visibility="{Binding Invocation.EndTime, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="2"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.EndTime}"
-                                       Visibility="{Binding Invocation.EndTime, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.EndTime}"
+                                        Visibility="{Binding Invocation.EndTime, Converter={StaticResource ObjectToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyValue}" />
                             <TextBlock Grid.Row="3"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationMachine_Text_String}"
-                                       Visibility="{Binding Invocation.Machine, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationMachine_Text_String}"
+                                        Visibility="{Binding Invocation.Machine, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="3"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.Machine}"
-                                       Visibility="{Binding Invocation.Machine, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.Machine}"
+                                        Visibility="{Binding Invocation.Machine, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource PropertyValue}" />
                             <TextBlock Grid.Row="4"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationAccount_Text_String}"
-                                       Visibility="{Binding Invocation.Account, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationAccount_Text_String}"
+                                        Visibility="{Binding Invocation.Account, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="4"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.Account}"
-                                       Visibility="{Binding Invocation.Account, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.Account}"
+                                        Visibility="{Binding Invocation.Account, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyValue}" />
                             <TextBlock Grid.Row="5"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationProcessId_Text_String}"
-                                       Visibility="{Binding Invocation.ProcessId, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationProcessId_Text_String}"
+                                        Visibility="{Binding Invocation.ProcessId, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource PropertyKey}" />
                             <TextBlock Grid.Row="5"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.ProcessId}"
-                                       Visibility="{Binding Invocation.ProcessId, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.ProcessId}"
+                                        Visibility="{Binding Invocation.ProcessId, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyValue}" />
                             <TextBlock Grid.Row="6"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationFileName_Text_String}"
-                                       Visibility="{Binding Invocation.FileName, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationFileName_Text_String}"
+                                        Visibility="{Binding Invocation.FileName, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="6"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.FileName}"
-                                       Visibility="{Binding Invocation.FileName, Converter={StaticResource StringToVisibilityConverter}}"
-                                       TextWrapping="Wrap"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.FileName}"
+                                        Visibility="{Binding Invocation.FileName, Converter={StaticResource StringToVisibilityConverter}}"
+                                        TextWrapping="Wrap"
+                                        Style="{StaticResource InfoPropertyValue}" />
                             <TextBlock Grid.Row="7"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationWorkingDirectory_Text_String}"
-                                       Visibility="{Binding Invocation.WorkingDirectory, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationWorkingDirectory_Text_String}"
+                                        Visibility="{Binding Invocation.WorkingDirectory, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="7"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.WorkingDirectory}"
-                                       Visibility="{Binding Invocation.WorkingDirectory, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.WorkingDirectory}"
+                                        Visibility="{Binding Invocation.WorkingDirectory, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyValue}" />
                             <TextBlock Grid.Row="8"
-                                       Grid.Column="0"
-                                       Text="{StaticResource Information_Property_InvocationEnvironmentVariables_Text_String}"
-                                       Visibility="{Binding Invocation.EnvironmentVariables, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyKey}" />
+                                        Grid.Column="0"
+                                        Text="{StaticResource Information_Property_InvocationEnvironmentVariables_Text_String}"
+                                        Visibility="{Binding Invocation.EnvironmentVariables, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyKey}" />
                             <TextBlock Grid.Row="8"
-                                       Grid.Column="1"
-                                       Text="{Binding Invocation.EnvironmentVariables}"
-                                       Visibility="{Binding Invocation.EnvironmentVariables, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Style="{StaticResource PropertyValue}" />
+                                        Grid.Column="1"
+                                        Text="{Binding Invocation.EnvironmentVariables}"
+                                        Visibility="{Binding Invocation.EnvironmentVariables, Converter={StaticResource StringToVisibilityConverter}}"
+                                        Style="{StaticResource InfoPropertyValue}" />
                         </Grid>
 
                         <TextBlock Style="{StaticResource OpenLogFileHyperlinkStyle}">
                             <Hyperlink Command="{Binding OpenLogFileCommand}"
-                                       FocusVisualStyle="{StaticResource FocusOutline}"
-                                       Style="{StaticResource RuleHyperlinkStyle}">
+                                       Style="{StaticResource OpenFileHyperlinkStyle}">
                                 <ContentControl Content="{StaticResource Information_Property_InvocationOpenLogFileCommandHyperlink_Text_String}"/>
                             </Hyperlink>
                         </TextBlock>
                     </StackPanel>
+                    <Separator Style="{StaticResource SectionSeparatorStyle}" Visibility="{Binding Properties, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"/>
+                    <ListView x:Name="PropertiesListView" ItemsSource="{Binding Properties}" Style="{StaticResource PropertyListViewStyle}"
+                        HorizontalContentAlignment="Stretch" Width="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" TextTrimming="CharacterEllipsis" Text="{Binding Key}" ToolTip="{Binding Key}" Style="{StaticResource InfoPropertyKey}" />
+                                <TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Value}" Style="{StaticResource InfoPropertyValue}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
