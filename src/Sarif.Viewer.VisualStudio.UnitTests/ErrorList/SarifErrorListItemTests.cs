@@ -790,7 +790,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             result.SetProperty("text", "test strings");
             result.SetProperty<bool>("validated", true);
             result.SetProperty<double>("totalAmount", 344.235d);
-            result.SetProperty<int[]>("params", new int[] { -1, 2, 3});
+            result.SetProperty<int[]>("params", new int[] { -1, 2, 3 });
             result.SetProperty<object>("nullObj", null);
             result.SetProperty<dynamic>("object", new { foo = "bar" });
 
