@@ -11,7 +11,7 @@
 $Frameworks = @("net472")
 
 $Projects = @{}
-$Projects.Vsix = @("Sarif.Viewer.VisualStudio.2022", "Sarif.Viewer.VisualStudio", "Sarif.Sarifer")
+$Projects.Vsix = @("Sarif.Viewer.VisualStudio.2022", "Sarif.Viewer.VisualStudio", "Sarif.Sarifer.2022", "Sarif.Sarifer")
 $Projects.NuGet = @("Sarif.Viewer.VisualStudio.Interop")
 $Projects.Product = $Projects.Vsix + $Projects.NuGet
 $Projects.Test = @("Sarif.Viewer.VisualStudio.UnitTests", "Sarif.Sarifer.UnitTests")

@@ -28,11 +28,11 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
             {
                 if (this.EnsurePane())
                 {
-                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                    {
-                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                        this.pane.OutputString(message);
-                    });
+                    _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                      {
+                          await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                          this.pane.OutputString(message);
+                      });
                 }
             }
 #pragma warning disable CA1031 // Do not catch general exception types
