@@ -11,6 +11,8 @@ using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 
+using Moq;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
@@ -229,24 +231,52 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public async Task SarifFileWithContents_OpensEmbeddedBinaryFile()
         {
+            // arrange
+            string mockContent = null;
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileExists(It.IsAny<string>()))
+                .Returns((string path) => false);
+            mockFileSystem
+                .Setup(fs => fs.FileWriteAllText(It.IsAny<string>(), It.IsAny<string>()))
+                .Callback((string path, string content) => mockContent = content);
+            mockFileSystem
+                .Setup(fs => fs.FileSetAttributes(It.IsAny<string>(), FileAttributes.ReadOnly))
+                .Verifiable();
+            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object);
+
+            // act
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
             string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key2);
             Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
-            string fileText = File.ReadAllText(rebaselinedFile);
+            string fileText = mockContent;
 
-            fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
-            fileText.Should().Be(ExpectedContents2);
+            fileDetail.Sha256Hash.Should().BeEquivalentTo(ExpectedHashValue2);
+            fileText.Should().BeEquivalentTo(ExpectedContents2);
         }
 
         [Fact]
         public async Task SarifFileWithContents_OpensEmbeddedNonFileUriBinaryFile()
         {
+            string mockContent = null;
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileExists(It.IsAny<string>()))
+                .Returns((string path) => false);
+            mockFileSystem
+                .Setup(fs => fs.FileWriteAllText(It.IsAny<string>(), It.IsAny<string>()))
+                .Callback((string path, string content) => mockContent = content);
+            mockFileSystem
+                .Setup(fs => fs.FileSetAttributes(It.IsAny<string>(), FileAttributes.ReadOnly))
+                .Verifiable();
+            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object);
+
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
             string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key8);
             Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key8];
-            string fileText = File.ReadAllText(rebaselinedFile);
+            string fileText = mockContent;
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
             fileText.Should().Be(ExpectedContents2);
