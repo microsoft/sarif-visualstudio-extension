@@ -31,7 +31,7 @@
 
     <Style x:Key="RuleDescriptionTextStyle" BasedOn="{StaticResource PropertyKey}" TargetType="TextBlock">
         <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="Margin" Value="0,5,0,0"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
     </Style>
 
     <Style x:Key="HelpHyperlinkStyle" TargetType="controls:InternetHyperlink">
