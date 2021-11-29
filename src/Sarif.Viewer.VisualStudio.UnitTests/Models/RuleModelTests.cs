@@ -2,15 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 
 using Xunit;
@@ -19,6 +14,9 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     public class RuleModelTests
     {
+        private const string testRuleId = "TEST1001/Sub001";
+        private const string testRuleName = "TestRule";
+
         [Fact]
         public void RuleModel_WhenRuleIdIsGuid_IdShouldBeSameAsName()
         {
@@ -26,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Models
             ReportingDescriptor rule = new ReportingDescriptor
             {
                 Id = ruleId,
-                Name = "TestRule",
+                Name = testRuleName,
             };
 
             RuleModel ruleModel = rule.ToRuleModel(ruleId);
@@ -36,31 +34,29 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void RuleModel_WhenRuleIdIsSameAsName_DisplayNameShouldBeNull()
         {
-            string ruleName = "TEST1001/Sub001";
             ReportingDescriptor rule = new ReportingDescriptor
             {
-                Id = ruleName,
-                Name = ruleName,
+                Id = testRuleId,
+                Name = testRuleId,
             };
 
-            RuleModel ruleModel = rule.ToRuleModel(ruleName);
-            ruleModel.Id.Should().BeEquivalentTo(ruleName);
-            ruleModel.Name.Should().BeEquivalentTo(ruleName);
+            RuleModel ruleModel = rule.ToRuleModel(testRuleId);
+            ruleModel.Id.Should().BeEquivalentTo(testRuleId);
+            ruleModel.Name.Should().BeEquivalentTo(testRuleId);
             ruleModel.DisplayName.Should().BeNull();
         }
 
         [Fact]
         public void RuleModel_RuleNameIsNull()
         {
-            string ruleId = "TEST1001/Sub001";
             ReportingDescriptor rule = new ReportingDescriptor
             {
-                Id = ruleId,
+                Id = testRuleId,
                 Name = null,
             };
 
-            RuleModel ruleModel = rule.ToRuleModel(ruleId);
-            ruleModel.Id.Should().BeEquivalentTo(ruleId);
+            RuleModel ruleModel = rule.ToRuleModel(testRuleId);
+            ruleModel.Id.Should().BeEquivalentTo(testRuleId);
             ruleModel.Name.Should().BeNull();
             ruleModel.DisplayName.Should().BeNull();
         }
@@ -68,14 +64,13 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void RuleModel_WithoutDefaultLevel_LevelShouldBeWarning()
         {
-            string ruleId = "TEST1001/Sub001";
             ReportingDescriptor rule = new ReportingDescriptor
             {
-                Id = ruleId,
-                Name = null,
+                Id = testRuleId,
+                Name = testRuleName,
             };
 
-            RuleModel ruleModel = rule.ToRuleModel(ruleId);
+            RuleModel ruleModel = rule.ToRuleModel(testRuleId);
             ruleModel.DefaultFailureLevel.Should().Be(FailureLevel.Warning);
             ruleModel.FailureLevel.Should().Be(FailureLevel.Warning);
         }
@@ -83,18 +78,17 @@ namespace Microsoft.Sarif.Viewer.Models
         [Fact]
         public void RuleModel_Level_ShouldBeSameAsDefaultLevel()
         {
-            string ruleId = "TEST1001/Sub001";
             ReportingDescriptor rule = new ReportingDescriptor
             {
-                Id = ruleId,
-                Name = null,
+                Id = testRuleId,
+                Name = testRuleName,
                 DefaultConfiguration = new ReportingConfiguration
                 {
                     Level = FailureLevel.Error,
                 }
             };
 
-            RuleModel ruleModel = rule.ToRuleModel(ruleId);
+            RuleModel ruleModel = rule.ToRuleModel(testRuleId);
             ruleModel.DefaultFailureLevel.Should().Be(FailureLevel.Error);
             ruleModel.FailureLevel.Should().Be(FailureLevel.Error);
         }
