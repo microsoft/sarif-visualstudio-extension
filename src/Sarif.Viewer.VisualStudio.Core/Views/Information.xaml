@@ -33,7 +33,7 @@
                     <TextBlock Text="{Binding Rule.Id}"
                                Style="{StaticResource RuleIdTextStyle}" />
                     <TextBlock Text="{Binding Rule.Name, Mode=OneTime}"
-                               Visibility="{Binding Rule.Name, Converter={StaticResource StringToVisibilityConverter}}"
+                               Visibility="{Binding Rule.DisplayName, Converter={StaticResource StringToVisibilityConverter}}"
                                Style="{StaticResource RuleNameTextStyle}" />
                 </DockPanel>
 
