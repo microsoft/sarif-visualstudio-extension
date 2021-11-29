@@ -134,5 +134,14 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             }
         }
+
+        public string DisplayName
+        {
+            get
+            {
+                // if rule name equals rule id, only display rule id in SARIF explorer by setting name to null
+                return (this._name != null && this._name == this._id) ? null : this._name;
+            }
+        }
     }
 }

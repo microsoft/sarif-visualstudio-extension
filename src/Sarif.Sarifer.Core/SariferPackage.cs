@@ -74,8 +74,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
 
             // The OleCommandService object provided by the MPF is responsible for managing the set
             // of commands implemented by the package.
-            if (await this.GetServiceAsync(typeof(IMenuCommandService)).ConfigureAwait(continueOnCapturedContext: true) is OleMenuCommandService mcs &&
-                await this.GetServiceAsync(typeof(SVsShell)).ConfigureAwait(continueOnCapturedContext: true) is IVsShell vsShell)
+            if (await this.GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs &&
+                await this.GetServiceAsync(typeof(SVsShell)) is IVsShell vsShell)
             {
                 _ = new GenerateTestDataCommand(vsShell, mcs);
                 this.analyzeSolutionCommand = new AnalyzeSolutionCommand(mcs);
@@ -83,7 +83,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 this.analyzeFileCommand = new AnalyzeFileCommand(mcs);
             }
 
-            if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
+            if (await this.GetServiceAsync(typeof(SVsOutputWindow)) is IVsOutputWindow output)
             {
                 this.outputWindowTraceListener = new OutputWindowTracerListener(output, "Sarifer");
             }

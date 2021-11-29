@@ -82,29 +82,27 @@
         <Setter Property="FontWeight"
                 Value="DemiBold" />
     </Style>
-    
+
     <Style TargetType="Hyperlink"
-           x:Key="RuleHyperlinkStyle">
+               x:Key="RuleHyperlinkStyle">
         <!-- Style when hyperlink is enabled. -->
         <Setter Property="TextDecorations"
-                Value="None" />
-        <Setter Property="Foreground"
-                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ScrollBarArrowGlyphPressedBrushKey}}" />
+                    Value="None" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver"
-                     Value="True">
+                         Value="True">
                 <Setter Property="Foreground"
-                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ScrollBarArrowGlyphMouseOverBrushKey}}" />
+                            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.PanelHyperlinkHoverBrushKey}}" />
                 <Setter Property="TextDecorations"
-                        Value="underline" />
+                            Value="underline" />
             </Trigger>
             <Trigger Property="IsEnabled"
                      Value="False">
                 <!-- Style when hyperlink is disabled. -->
                 <Setter Property="Foreground"
-                        Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}" />
+                            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}" />
                 <Setter Property="TextBlock.TextDecorations"
-                        Value="{x:Null}" />
+                            Value="{x:Null}" />
             </Trigger>
         </Style.Triggers>
     </Style>
