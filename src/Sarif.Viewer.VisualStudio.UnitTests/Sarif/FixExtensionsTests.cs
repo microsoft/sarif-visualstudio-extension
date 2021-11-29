@@ -74,7 +74,7 @@ namespace AnalysisTestProject2
                         },
                     },
                 },
-            }.ToFixModel(originalUriBaseIds: null, regionCache);
+            }.ToFixModel(originalUriBaseIds: (IDictionary<string, ArtifactLocation>)null, regionCache);
 
             fix.Description.Should().BeEquivalentTo(descriptionString);
             fix.ArtifactChanges.Count.Should().Be(1);
@@ -130,7 +130,7 @@ namespace AnalysisTestProject2
                         },
                     },
                 },
-            }.ToFixModel(originalUriBaseIds: null, regionCache);
+            }.ToFixModel(originalUriBaseIds: (IDictionary<string, ArtifactLocation>)null, regionCache);
 
             fix.Description.Should().BeEquivalentTo(descriptionString);
             fix.ArtifactChanges.Count.Should().Be(1);
