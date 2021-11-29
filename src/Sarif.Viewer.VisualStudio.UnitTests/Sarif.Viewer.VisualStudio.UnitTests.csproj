@@ -57,6 +57,7 @@
     <Compile Include="Models\AnalysisStepTests.cs" />
     <Compile Include="Models\ArtifactChangeModelTests.cs" />
     <Compile Include="Models\ReplacementModelTests.cs" />
+    <Compile Include="Models\RuleModelTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="SarifTextViewCreationListenerTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />

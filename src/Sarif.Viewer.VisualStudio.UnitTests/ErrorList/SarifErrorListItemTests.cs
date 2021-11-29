@@ -772,6 +772,40 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.IsFixable().Should().BeFalse();
         }
 
+        [Fact]
+        public void SarifErrorListItem_WithoutPropertyBags_EmptyProperties()
+        {
+            var result = new Result();
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+
+            item.Properties.Should().NotBeNull();
+            item.Properties.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void SarifErrorListItem_WithPropertyBags_HasProperties()
+        {
+            var result = new Result();
+            result.SetProperty("text", "test strings");
+            result.SetProperty<bool>("validated", true);
+            result.SetProperty<double>("totalAmount", 344.235d);
+            result.SetProperty<int[]>("params", new int[] { -1, 2, 3 });
+            result.SetProperty<object>("nullObj", null);
+            result.SetProperty<dynamic>("object", new { foo = "bar" });
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+
+            item.Properties.Should().NotBeNull();
+            item.Properties.Count.Should().Be(6);
+            item.Properties.First(kv => kv.Key == "text").Value.Should().BeEquivalentTo("\"test strings\"");
+            item.Properties.First(kv => kv.Key == "validated").Value.Should().BeEquivalentTo("true");
+            item.Properties.First(kv => kv.Key == "totalAmount").Value.Should().BeEquivalentTo("344.235");
+            item.Properties.First(kv => kv.Key == "params").Value.Should().BeEquivalentTo("[-1,2,3]");
+            item.Properties.First(kv => kv.Key == "nullObj").Value.Should().BeNull();
+            item.Properties.First(kv => kv.Key == "object").Value.Should().BeEquivalentTo("{\"foo\":\"bar\"}");
+        }
+
         private static SarifErrorListItem MakeErrorListItem(Result result)
         {
             return MakeErrorListItem(EmptyRun, result);

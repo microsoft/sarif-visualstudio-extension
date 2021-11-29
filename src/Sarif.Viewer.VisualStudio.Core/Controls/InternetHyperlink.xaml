@@ -28,15 +28,13 @@
             <!-- Style when hyperlink is enabled. -->
             <Setter Property="TextDecorations"
                     Value="None" />
-            <Setter Property="Foreground"
-                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ScrollBarArrowGlyphPressedBrushKey}}" />
             <Setter Property="FocusVisualStyle"
                     Value="{StaticResource FocusOutline}"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver"
                          Value="True">
                     <Setter Property="Foreground"
-                            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ScrollBarArrowGlyphMouseOverBrushKey}}" />
+                            Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.PanelHyperlinkHoverBrushKey}}" />
                     <Setter Property="TextDecorations"
                             Value="underline" />
                 </Trigger>

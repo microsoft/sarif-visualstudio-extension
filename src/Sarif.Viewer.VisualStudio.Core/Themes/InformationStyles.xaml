@@ -16,7 +16,7 @@
     </Style>
 
     <Style x:Key="RuleTitlePanelStyle" TargetType="DockPanel">
-        <Setter Property="Margin" Value="0,0,0,5"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
     </Style>
 
     <Style x:Key="RuleIdTextStyle" BasedOn="{StaticResource PropertyKey}" TargetType="TextBlock">
@@ -31,6 +31,7 @@
 
     <Style x:Key="RuleDescriptionTextStyle" BasedOn="{StaticResource PropertyKey}" TargetType="TextBlock">
         <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
     </Style>
 
     <Style x:Key="HelpHyperlinkStyle" TargetType="controls:InternetHyperlink">
@@ -38,9 +39,14 @@
         <Setter Property="Margin" Value="0,0,0,5"/>
     </Style>
 
+    <Style x:Key="OpenFileHyperlinkStyle" TargetType="Hyperlink">
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="TextDecorations" Value="None" />
+    </Style>
+
     <Style x:Key="SectionSeparatorStyle" TargetType="Separator">
         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTabSeparatorBrushKey}}"/>
-        <Setter Property="Margin" Value="15"/>
+        <Setter Property="Margin" Value="0,15,0,15"/>
     </Style>
 
     <Style x:Key="ToolAndInvocationPanelStyle" TargetType="StackPanel">
@@ -71,13 +77,29 @@
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
         <Setter Property="IsReadOnly" Value="True"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="0,0,0,5"/>
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="11.5" />
     </Style>
 
     <Style x:Key="OpenLogFileHyperlinkStyle" TargetType="TextBlock">
         <Setter Property="DockPanel.Dock" Value="Top"/>
         <Setter Property="FontSize" Value="11.5"/>
-        <Setter Property="FontWeight" Value="DemiBold"/>
-        <Setter Property="Margin" Value="0,25,0,20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Margin" Value="0,10,0,5"/>
     </Style>
 
+    <Style x:Key="PropertyListViewStyle" TargetType="ListView">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
+        <Setter Property="Padding" Value="-2,1,-2,0"/>
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="InfoPropertyKey" BasedOn="{StaticResource PropertyKey}">
+        <Setter Property="Margin" Value="0,0,5,5" />
+    </Style>
+    <Style TargetType="TextBlock" x:Key="InfoPropertyValue" BasedOn="{StaticResource PropertyValue}">
+        <Setter Property="Margin" Value="0,0,5,5" />
+    </Style>
 </ResourceDictionary>

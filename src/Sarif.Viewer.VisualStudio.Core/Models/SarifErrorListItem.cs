@@ -64,6 +64,7 @@ namespace Microsoft.Sarif.Viewer
             this.AnalysisSteps = new AnalysisStepCollection();
             this.Stacks = new ObservableCollection<StackCollection>();
             this.Fixes = new ObservableCollection<FixModel>();
+            this.Properties = new ObservableCollection<KeyValuePair<string, string>>();
         }
 
         public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
@@ -155,6 +156,17 @@ namespace Microsoft.Sarif.Viewer
                 {
                     var fixModel = fix.ToFixModel(run.OriginalUriBaseIds, FileRegionsCache.Instance);
                     this.Fixes.Add(fixModel);
+                }
+            }
+
+            if (result.PropertyNames?.Any() == true)
+            {
+                foreach (string propertyName in result.PropertyNames)
+                {
+                    this.Properties.Add(
+                        new KeyValuePair<string, string>(
+                            propertyName,
+                            result.GetSerializedPropertyValue(propertyName)));
                 }
             }
         }
@@ -383,6 +395,9 @@ namespace Microsoft.Sarif.Viewer
 
         [Browsable(false)]
         public ObservableCollection<FixModel> Fixes { get; }
+
+        [Browsable(false)]
+        public ObservableCollection<KeyValuePair<string, string>> Properties { get; }
 
         [Browsable(false)]
         public bool HasDetails => this.Locations.Any() || this.RelatedLocations.Any() || this.AnalysisSteps.Any() || this.Stacks.Any() || this.Fixes.Any();
