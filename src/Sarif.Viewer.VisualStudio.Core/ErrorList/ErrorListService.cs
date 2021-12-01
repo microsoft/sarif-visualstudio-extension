@@ -560,7 +560,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private int WriteRunToErrorList(Run run, string logFilePath, SarifLog sarifLog)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             var dataCache = new RunDataCache(runIndex, logFilePath, sarifLog);

@@ -150,15 +150,6 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            if (result.Fixes != null)
-            {
-                foreach (Fix fix in result.Fixes)
-                {
-                    var fixModel = fix.ToFixModel(run.OriginalUriBaseIds, FileRegionsCache.Instance);
-                    this.Fixes.Add(fixModel);
-                }
-            }
-
             if (result.PropertyNames?.Any() == true)
             {
                 foreach (string propertyName in result.PropertyNames)
@@ -596,6 +587,34 @@ namespace Microsoft.Sarif.Viewer
             // as it may now be possible to create the persistent spans (since the file paths are now potentially valid)
             // or their file paths may have moved from one valid location to a different valid location.
             SarifLocationTagHelpers.RefreshTags();
+        }
+
+        internal void PopulateFixModelsIfNot()
+        {
+            // populate FixModels if they are not
+            if (this.SarifResult.Fixes?.Any() == true && this.Fixes?.Any() == false)
+            {
+                if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
+                {
+                    foreach (Fix fix in this.SarifResult.Fixes)
+                    {
+                        var fixModel = fix.ToFixModel(runDataCache.OriginalUriBasePaths, FileRegionsCache.Instance);
+                        foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
+                        {
+                            fileChangeModel.FilePath = this.FileName;
+                        }
+
+                        this.Fixes.Add(fixModel);
+                    }
+                }
+                else
+                {
+                    foreach (Fix fix in this.SarifResult.Fixes)
+                    {
+                        this.Fixes.Add(fix.ToFixModel(this.SarifResult.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
+                    }
+                }
+            }
         }
 
         /// <summary>

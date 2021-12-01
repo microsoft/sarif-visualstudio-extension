@@ -23,6 +23,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Sarif
     {
         private const string FilePath = @"c:\file.cs";
         private const string AnotherFilePath = @"c:\anotherfile.cs";
+        private const string descriptionString = "test description";
 
         private const string CodeSample =
 @"// Copyright (c) Microsoft. All rights reserved.
@@ -43,7 +44,6 @@ namespace AnalysisTestProject2
             mock.Setup(fs => fs.FileReadAllText(It.IsAny<string>())).Returns(CodeSample);
             var regionCache = new FileRegionsCache(fileSystem: mock.Object);
 
-            string descriptionString = "test description";
             string replacementText = "public class";
 
             var fix = new Fix
@@ -74,7 +74,7 @@ namespace AnalysisTestProject2
                         },
                     },
                 },
-            }.ToFixModel(originalUriBaseIds: null, regionCache);
+            }.ToFixModel(originalUriBaseIds: (IDictionary<string, ArtifactLocation>)null, regionCache);
 
             fix.Description.Should().BeEquivalentTo(descriptionString);
             fix.ArtifactChanges.Count.Should().Be(1);
@@ -99,7 +99,6 @@ namespace AnalysisTestProject2
             mock.Setup(fs => fs.FileReadAllText(It.IsAny<string>())).Returns(string.Empty);
             var regionCache = new FileRegionsCache(fileSystem: mock.Object);
 
-            string descriptionString = "test description";
             string replacementText = "public class";
 
             var fix = new Fix
@@ -130,7 +129,7 @@ namespace AnalysisTestProject2
                         },
                     },
                 },
-            }.ToFixModel(originalUriBaseIds: null, regionCache);
+            }.ToFixModel(originalUriBaseIds: (IDictionary<string, ArtifactLocation>)null, regionCache);
 
             fix.Description.Should().BeEquivalentTo(descriptionString);
             fix.ArtifactChanges.Count.Should().Be(1);
@@ -146,6 +145,38 @@ namespace AnalysisTestProject2
             replacement.Region.EndLine.Should().Be(0);
             replacement.Region.StartColumn.Should().Be(0);
             replacement.Region.EndColumn.Should().Be(0);
+        }
+
+        [Fact]
+        public void ToFixModel_SourceFixIsNull_ThrowException()
+        {
+            Fix sarifFix = null;
+            Assert.Throws<ArgumentNullException>(
+                () => sarifFix.ToFixModel(new Dictionary<string, ArtifactLocation>(), new FileRegionsCache()));
+            Assert.Throws<ArgumentNullException>(
+                () => sarifFix.ToFixModel(new Dictionary<string, Uri>(), new FileRegionsCache()));
+        }
+
+        [Fact]
+        public void ToFixModel_WithoutArtifactChanges()
+        {
+            var fix = new Fix
+            {
+                Description = new Message { Text = descriptionString },
+            }.ToFixModel(new Dictionary<string, ArtifactLocation>(), new FileRegionsCache());
+
+            fix.Should().NotBeNull();
+            fix.Description.Should().BeEquivalentTo(descriptionString);
+            fix.ArtifactChanges.Should().BeEmpty();
+
+            fix = new Fix
+            {
+                Description = new Message { Text = descriptionString },
+            }.ToFixModel(new Dictionary<string, Uri>(), new FileRegionsCache());
+
+            fix.Should().NotBeNull();
+            fix.Description.Should().BeEquivalentTo(descriptionString);
+            fix.ArtifactChanges.Should().BeEmpty();
         }
     }
 }

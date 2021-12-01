@@ -331,6 +331,12 @@ namespace Microsoft.Sarif.Viewer.Fixes
             this.errorsInFile = SdkUIUtilities.TryGetFileNameFromTextBuffer(this.textBuffer, out string fileName)
                 ? GetErrorsInFile(fileName)
                 : Enumerable.Empty<SarifErrorListItem>().ToList();
+
+            foreach (SarifErrorListItem error in errorsInFile)
+            {
+                error.PopulateFixModelsIfNot();
+            }
+
             this.CalculatePersistentSpans(this.errorsInFile);
         }
     }

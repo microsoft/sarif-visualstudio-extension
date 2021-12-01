@@ -30,6 +30,23 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return model;
         }
 
+        public static FixModel ToFixModel(this Fix fix, IDictionary<string, Uri> originalUriBaseIds, FileRegionsCache fileRegionsCache)
+        {
+            fix = fix ?? throw new ArgumentNullException(nameof(fix));
+
+            var model = new FixModel(fix.Description?.Text);
+
+            if (fix.ArtifactChanges != null)
+            {
+                foreach (ArtifactChange change in fix.ArtifactChanges)
+                {
+                    model.ArtifactChanges.Add(change.ToArtifactChangeModel(originalUriBaseIds, fileRegionsCache));
+                }
+            }
+
+            return model;
+        }
+
         /// <summary>
         /// Returns a value indicating whether a <see cref="FixModel"/> object describes a fix that
         /// can be applied to a single specified file.

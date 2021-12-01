@@ -41,5 +41,28 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
             return model;
         }
+
+        public static ArtifactChangeModel ToArtifactChangeModel(this ArtifactChange fileChange, IDictionary<string, Uri> originalUriBaseIds, FileRegionsCache fileRegionsCache)
+        {
+            if (fileChange == null)
+            {
+                return null;
+            }
+
+            Dictionary<string, ArtifactLocation> uriToArtifactLocationMap = null;
+
+            if (originalUriBaseIds != null)
+            {
+                // convert IDictionary<string, Uri> to IDictionary<string, ArtifactLocation> which
+                // is needed by Sarif.SDK extension method ArtifactLocation.TryReconstructAbsoluteUri()
+                uriToArtifactLocationMap = new Dictionary<string, ArtifactLocation>(originalUriBaseIds.Count);
+                foreach (KeyValuePair<string, Uri> entry in originalUriBaseIds)
+                {
+                    uriToArtifactLocationMap.Add(entry.Key, new ArtifactLocation { Uri = entry.Value });
+                }
+            }
+
+            return fileChange.ToArtifactChangeModel(uriToArtifactLocationMap, fileRegionsCache);
+        }
     }
 }
