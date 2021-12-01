@@ -150,8 +150,6 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            // fixes are not populated in constructor.
-
             if (result.PropertyNames?.Any() == true)
             {
                 foreach (string propertyName in result.PropertyNames)

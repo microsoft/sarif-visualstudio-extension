@@ -61,6 +61,7 @@
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="SarifTextViewCreationListenerTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />
+    <Compile Include="Sarif\ArtifactChangeExtensionsTests.cs" />
     <Compile Include="Sarif\FixExtensionsTests.cs" />
     <Compile Include="Sarif\LocationExtensionsTest.cs" />
     <Compile Include="Sarif\ReplacementExtensionsTests.cs" />

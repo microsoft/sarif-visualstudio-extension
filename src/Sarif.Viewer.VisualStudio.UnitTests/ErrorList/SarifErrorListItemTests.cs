@@ -255,7 +255,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
+            item.Fixes.Should().BeEmpty();
             item.PopulateFixModelsIfNot();
+            item.Fixes.Should().NotBeEmpty();
             item.Fixes[0].ArtifactChanges[0].FilePath.Should().Be("path/to/file.html");
         }
 
@@ -285,7 +287,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             SarifErrorListItem item = MakeErrorListItem(run, result);
+            item.Fixes.Should().BeEmpty();
             item.PopulateFixModelsIfNot();
+            item.Fixes.Should().BeEmpty();
             item.Rule.Id.Should().Be("TST0001");
         }
 
@@ -712,7 +716,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             SarifErrorListItem item = MakeErrorListItem(result);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(item.RunIndex, new RunDataCache());
+            item.Fixes.Should().BeEmpty();
             item.PopulateFixModelsIfNot();
+            item.Fixes.Should().NotBeEmpty();
             item.IsFixable().Should().BeTrue();
         }
 
