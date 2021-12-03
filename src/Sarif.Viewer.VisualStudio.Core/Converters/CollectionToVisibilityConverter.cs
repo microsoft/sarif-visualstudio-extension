@@ -30,4 +30,27 @@ namespace Microsoft.Sarif.Viewer.Converters
             return null;
         }
     }
+
+    public class CollectionToInvertedVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            var collection = value as ICollection;
+            int val;
+
+            if (collection != null && int.TryParse(parameter.ToString(), out val))
+            {
+                return collection.Count > val ? Visibility.Collapsed : Visibility.Visible;
+            }
+            else
+            {
+                return Visibility.Visible;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
+        }
+    }
 }

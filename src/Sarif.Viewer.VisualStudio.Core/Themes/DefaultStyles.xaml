@@ -11,6 +11,7 @@
     <converters:CollectionToBooleanConverter x:Key="CollectionToBooleanConverter" />
     <converters:CollectionToCountConverter x:Key="CollectionToCountConverter" />
     <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
+    <converters:CollectionToInvertedVisibilityConverter x:Key="CollectionToInvertedVisibilityConverter" />
     <converters:MultipleStringsToVisibilityConverter x:Key="MultipleStringsToVisibilityConverter" />
     <converters:FileExistsToBooleanConverter x:Key="FileExistsToBooleanConverter" />
 

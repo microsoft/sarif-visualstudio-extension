@@ -5,15 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Documents;
 
 using EnvDTE;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Models;
-using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
@@ -108,38 +103,27 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             // Anything that's a bit more complex, we will make a "lazy" value and evaluate
             // it when it's asked for.
+            // In WPF all the content elements including Inlines can only have one parent element.
+            // If the Inlines are binded to multiple elements, only 1 can show the Inlines.
+            // Create duplicated message inline objects for ErrorList table entry since
+            // Error.MessageInlines is already binded to an element in SARIF explorer.
             this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
-            {
-                string message = this.Error.RawMessage;
-                List<Inline> inlines = SdkUIUtilities.GetMessageInlines(message, this.ErrorListInlineLink_Click);
-
-                if (inlines.Count > 0)
-                {
-                    return inlines;
-                }
-
-                return null;
-            });
+                this.Error.MessageInlines?.Any() == true ?
+                SdkUIUtilities.GetMessageInlines(this.Error.RawMessage, this.Error.MessageInlineLink_Click) :
+                null);
 
             this.columnKeyToContent[StandardTableKeyNames.Text] = new Lazy<object>(() =>
-            {
-                return SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage);
-            });
+                SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage));
 
             this.columnKeyToContent[StandardTableKeyNames.FullText] = new Lazy<object>(() =>
-            {
-                if (this.Error.HasDetailsContent)
-                {
-                    return SdkUIUtilities.UnescapeBrackets(this.Error.Message);
-                }
-
-                return null;
-            });
+                this.Error.HasDetailsContent ?
+                SdkUIUtilities.UnescapeBrackets(this.Error.Message) :
+                null);
 
             this.columnKeyToContent[StandardTableKeyNames.HelpLink] = new Lazy<object>(() =>
-            {
-                return !string.IsNullOrEmpty(this.Error.HelpLink) ? Uri.EscapeUriString(this.Error.HelpLink) : null;
-            });
+                !string.IsNullOrEmpty(this.Error.HelpLink) ?
+                Uri.EscapeUriString(this.Error.HelpLink) :
+                null);
         }
 
         public SarifErrorListItem Error { get; }
@@ -188,70 +172,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             return __VSERRORCATEGORY.EC_WARNING;
-        }
-
-        private void ErrorListInlineLink_Click(object sender, RoutedEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            if (!(sender is Hyperlink hyperLink))
-            {
-                return;
-            }
-
-            if (hyperLink.Tag is int id)
-            {
-                // The user clicked an in-line link with an integer target. Look for a Location object
-                // whose Id property matches that integer. The spec says that might be _any_ Location
-                // object under the current result. At present, we only support Location objects that
-                // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
-                // look in Result.CodeFlows or Result.Stacks.
-                LocationModel location =
-                    this.Error.RelatedLocations.
-                    Concat(this.Error.Locations).
-                    FirstOrDefault(l => l.Id == id);
-
-                if (location == null)
-                {
-                    return;
-                }
-
-                // If a location is found, then we will show this error in the explorer window
-                // by setting the navigated item to the error related to this error entry,
-                // but... we will navigate the editor to the found location, which for example
-                // may be a related location.
-                if (this.Error.HasDetails)
-                {
-                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
-                    if (componentModel != null)
-                    {
-                        ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
-                        if (sarifSelectionService != null)
-                        {
-                            sarifSelectionService.NavigatedItem = this.Error;
-                        }
-                    }
-                }
-
-                location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
-            }
-
-            // This is super dangerous! We are launching URIs for SARIF logs
-            // that can point to anything.
-            // https://github.com/microsoft/sarif-visualstudio-extension/issues/171
-            else
-            {
-                string uriString = null;
-                if (hyperLink.Tag is string uriAsString)
-                {
-                    uriString = uriAsString;
-                }
-                else if (hyperLink.Tag is Uri uri)
-                {
-                    uriString = uri.ToString();
-                }
-
-                SdkUIUtilities.OpenExternalUrl(uriString);
-            }
         }
 
         private void Dispose(bool disposing)

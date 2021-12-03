@@ -70,9 +70,15 @@
                 <TextBlock Grid.Row="4"
                            Grid.Column="0"
                            Grid.ColumnSpan="2"
-                           Visibility="{Binding Rule.Description, Converter={StaticResource StringToVisibilityConverter}}"
+                           Visibility="{Binding Rule.ShowPlainDescription, Converter={StaticResource BooleanToVisiblityConverter}}"
                            Text="{Binding Rule.Description}"
                            Style="{StaticResource RuleDescriptionTextStyle}" />
+                <controls:BindableTextBlock Grid.Row="4"
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            Visibility="{Binding Rule.DescriptionInlines, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+                                            InlineList="{Binding Rule.DescriptionInlines}"
+                                            Style="{StaticResource RuleDescriptionTextStyle}"/>
                 <Separator Grid.Row="5"
                            Grid.Column="0"
                            Grid.ColumnSpan="2"

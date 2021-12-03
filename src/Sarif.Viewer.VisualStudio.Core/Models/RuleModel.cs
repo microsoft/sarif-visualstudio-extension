@@ -2,8 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Shell;
+
+using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
@@ -15,6 +21,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _description;
         private string _helpUri;
         private FailureLevel _defaultFailureLevel;
+        private ObservableCollection<XamlDoc.Inline> _descriptionInlines;
 
         public string Id
         {
@@ -141,6 +148,49 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 // if rule name equals rule id, only display rule id in SARIF explorer by setting name to null
                 return (this._name != null && this._name == this._id) ? null : this._name;
+            }
+        }
+
+        public bool ShowPlainDescription
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(this.Description) && !(this.DescriptionInlines?.Any() == true);
+            }
+        }
+
+        public ObservableCollection<XamlDoc.Inline> DescriptionInlines
+        {
+            get
+            {
+                return this._descriptionInlines ??=
+                    string.IsNullOrWhiteSpace(this.Description) ?
+                    null :
+                    new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.Description, this.InlineLink_Click));
+            }
+        }
+
+        internal void InlineLink_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!(sender is XamlDoc.Hyperlink hyperLink))
+            {
+                return;
+            }
+
+            string uriString = null;
+            if (hyperLink.Tag is string uriAsString)
+            {
+                uriString = uriAsString;
+            }
+            else if (hyperLink.Tag is Uri uri)
+            {
+                uriString = uri.ToString();
+            }
+
+            if (!string.IsNullOrEmpty(uriString) && Uri.TryCreate(uriString, UriKind.RelativeOrAbsolute, out Uri _))
+            {
+                SdkUIUtilities.OpenExternalUrl(uriString);
             }
         }
     }
