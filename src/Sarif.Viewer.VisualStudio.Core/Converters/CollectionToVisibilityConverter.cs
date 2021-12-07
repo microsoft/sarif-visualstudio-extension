@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
@@ -10,7 +11,7 @@ namespace Microsoft.Sarif.Viewer.Converters
 {
     public class CollectionToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var collection = value as ICollection;
             int val;
@@ -25,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return null;
         }
@@ -33,7 +34,7 @@ namespace Microsoft.Sarif.Viewer.Converters
 
     public class CollectionToInvertedVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var collection = value as ICollection;
             int val;
@@ -48,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return null;
         }
