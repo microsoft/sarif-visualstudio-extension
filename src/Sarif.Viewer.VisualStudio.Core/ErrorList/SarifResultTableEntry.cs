@@ -92,8 +92,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (this.Error.Rule != null)
             {
                 this.columnKeyToContent[StandardTableKeyNames.ErrorCode] = this.Error.Rule.Id;
-                this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = string.IsNullOrEmpty(this.Error.Rule.Name) ?
-                    this.Error.Rule.Id : this.Error.Rule.Id + "." + this.Error.Rule.Name;
+                this.columnKeyToContent[StandardTableKeyNames.ErrorCodeToolTip] = string.IsNullOrEmpty(this.Error.Rule.Name)
+                    ? this.Error.Rule.Id
+                    : this.Error.Rule.Id + "." + this.Error.Rule.Name;
             }
 
             this.columnKeyToContent[StandardTableKeyNames.ProjectName] = this.Error.ProjectName;
@@ -108,22 +109,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Create duplicated message inline objects for ErrorList table entry since
             // Error.MessageInlines is already binded to an element in SARIF explorer.
             this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
-                this.Error.MessageInlines?.Any() == true ?
-                SdkUIUtilities.GetMessageInlines(this.Error.RawMessage, this.Error.MessageInlineLink_Click) :
-                null);
+                this.Error.MessageInlines?.Any() == true
+                ? SdkUIUtilities.GetMessageInlines(this.Error.RawMessage, this.Error.MessageInlineLink_Click)
+                : null);
 
             this.columnKeyToContent[StandardTableKeyNames.Text] = new Lazy<object>(() =>
                 SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage));
 
             this.columnKeyToContent[StandardTableKeyNames.FullText] = new Lazy<object>(() =>
-                this.Error.HasDetailsContent ?
-                SdkUIUtilities.UnescapeBrackets(this.Error.Message) :
-                null);
+                this.Error.HasDetailsContent
+                ? SdkUIUtilities.UnescapeBrackets(this.Error.Message)
+                : null);
 
             this.columnKeyToContent[StandardTableKeyNames.HelpLink] = new Lazy<object>(() =>
-                !string.IsNullOrEmpty(this.Error.HelpLink) ?
-                Uri.EscapeUriString(this.Error.HelpLink) :
-                null);
+                !string.IsNullOrEmpty(this.Error.HelpLink)
+                ? Uri.EscapeUriString(this.Error.HelpLink)
+                : null);
         }
 
         public SarifErrorListItem Error { get; }

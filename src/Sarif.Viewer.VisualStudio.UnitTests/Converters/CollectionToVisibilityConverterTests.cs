@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CollectionToVisibilityConverter_CollectionHasElements()
         {
-            List<int> testList = new List<int>();
+            var testList = new List<int>();
             testList.Add(1);
             int threshold = 0;
 
@@ -34,7 +34,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CollectionToVisibilityConverter_CompareToThreshold()
         {
-            List<int> testList = new List<int>() { 1, 2, 3 };
+            var testList = new List<int>() { 1, 2, 3 };
             int threshold = 5;
 
             VerifyConversion(testList, threshold, Visibility.Collapsed);
@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         [Fact]
         public void CollectionToVisibilityConverter_InvalidThreshold()
         {
-            List<int> testList = new List<int>() { 1, 2, 3 };
+            var testList = new List<int>() { 1, 2, 3 };
             bool threshold = false;
 
             VerifyConversion(testList, threshold, Visibility.Collapsed);
@@ -70,7 +70,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
         private static void VerifyConversion(IEnumerable<int> list, object threshold, Visibility expectedResult)
         {
             var converter = new CollectionToVisibilityConverter();
-            Visibility result = (Visibility)converter.Convert(list, typeof(List<int>), threshold, CultureInfo.CurrentCulture);
+            var result = (Visibility)converter.Convert(list, typeof(List<int>), threshold, CultureInfo.CurrentCulture);
             result.Should().Be(expectedResult);
 
             Visibility revertedResult = expectedResult switch

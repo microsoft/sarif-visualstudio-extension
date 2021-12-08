@@ -783,10 +783,8 @@ namespace Microsoft.Sarif.Viewer
                 // object under the current result. At present, we only support Location objects that
                 // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
                 // look in Result.CodeFlows or Result.Stacks.
-                LocationModel location =
-                    this.RelatedLocations.
-                    Concat(this.Locations).
-                    FirstOrDefault(l => l.Id == id);
+                LocationModel location = this.RelatedLocations.Concat(this.Locations)
+                                                              .FirstOrDefault(l => l.Id == id);
 
                 if (location == null)
                 {

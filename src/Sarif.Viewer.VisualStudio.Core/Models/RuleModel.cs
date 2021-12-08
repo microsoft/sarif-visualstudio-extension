@@ -164,9 +164,9 @@ namespace Microsoft.Sarif.Viewer.Models
             get
             {
                 return this._descriptionInlines ??=
-                    string.IsNullOrWhiteSpace(this.Description) ?
-                    null :
-                    new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.Description, this.InlineLink_Click));
+                    string.IsNullOrWhiteSpace(this.Description)
+                    ? null
+                    : new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.Description, this.InlineLink_Click));
             }
         }
 
