@@ -109,57 +109,6 @@ namespace Microsoft.Sarif.Viewer
                 this.LineNumber = this.Region.StartLine;
                 this.ColumnNumber = this.Region.StartColumn;
             }
-
-            if (result.Locations?.Any() == true)
-            {
-                // Adding in reverse order will make them display in the correct order in the UI.
-                for (int i = result.Locations.Count - 1; i >= 0; --i)
-                {
-                    this.Locations.Add(result.Locations[i].ToLocationModel(run, resultId: this.ResultId, runIndex: this.RunIndex));
-                }
-            }
-
-            if (result.RelatedLocations?.Any() == true)
-            {
-                for (int i = result.RelatedLocations.Count - 1; i >= 0; --i)
-                {
-                    this.RelatedLocations.Add(result.RelatedLocations[i].ToLocationModel(run, resultId: this.ResultId, runIndex: this.RunIndex));
-                }
-            }
-
-            if (result.CodeFlows != null)
-            {
-                foreach (CodeFlow codeFlow in result.CodeFlows)
-                {
-                    var analysisStep = codeFlow.ToAnalysisStep(run, resultId: this.ResultId, runIndex: this.RunIndex);
-                    if (analysisStep != null)
-                    {
-                        this.AnalysisSteps.Add(analysisStep);
-                    }
-                }
-
-                this.AnalysisSteps.Verbosity = 100;
-                this.AnalysisSteps.IntelligentExpand();
-            }
-
-            if (result.Stacks != null)
-            {
-                foreach (Stack stack in result.Stacks)
-                {
-                    this.Stacks.Add(stack.ToStackCollection(resultId: this.ResultId, runIndex: this.RunIndex));
-                }
-            }
-
-            if (result.PropertyNames?.Any() == true)
-            {
-                foreach (string propertyName in result.PropertyNames)
-                {
-                    this.Properties.Add(
-                        new KeyValuePair<string, string>(
-                            propertyName,
-                            result.GetSerializedPropertyValue(propertyName)));
-                }
-            }
         }
 
         /// <summary>
@@ -391,7 +340,11 @@ namespace Microsoft.Sarif.Viewer
         public ObservableCollection<KeyValuePair<string, string>> Properties { get; }
 
         [Browsable(false)]
-        public bool HasDetails => this.Locations.Any() || this.RelatedLocations.Any() || this.AnalysisSteps.Any() || this.Stacks.Any() || this.Fixes.Any();
+        public bool HasDetails => this.SarifResult.Fixes?.Any() == true ||
+                                  this.SarifResult.Stacks?.Any() == true ||
+                                  this.SarifResult.CodeFlows?.Any() == true ||
+                                  this.SarifResult.Locations?.Any() == true ||
+                                  this.SarifResult.RelatedLocations?.Any() == true;
 
         [Browsable(false)]
         public int LocationsCount => this.Locations.Count + this.RelatedLocations.Count;
@@ -613,6 +566,67 @@ namespace Microsoft.Sarif.Viewer
                     {
                         this.Fixes.Add(fix.ToFixModel(this.SarifResult.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
                     }
+                }
+            }
+        }
+
+        internal void PopulateAdditionalPropertiesIfNot()
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
+            if (this.SarifResult.Locations?.Any() == true && this.Locations?.Any() == false)
+            {
+                // Adding in reverse order will make them display in the correct order in the UI.
+                for (int i = this.SarifResult.Locations.Count - 1; i >= 0; --i)
+                {
+                    this.Locations.Add(this.SarifResult.Locations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
+                }
+            }
+
+            if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
+            {
+                for (int i = this.SarifResult.RelatedLocations.Count - 1; i >= 0; --i)
+                {
+                    this.RelatedLocations.Add(this.SarifResult.RelatedLocations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
+                }
+            }
+
+            if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
+            {
+                foreach (Stack stack in this.SarifResult.Stacks)
+                {
+                    this.Stacks.Add(stack.ToStackCollection(resultId: this.ResultId, runIndex: this.RunIndex));
+                }
+            }
+
+            if (this.SarifResult.CodeFlows?.Any() == true && this.AnalysisSteps?.Any() == false)
+            {
+                foreach (CodeFlow codeFlow in this.SarifResult.CodeFlows)
+                {
+                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                    if (analysisStep != null)
+                    {
+                        this.AnalysisSteps.Add(analysisStep);
+                    }
+                }
+
+                this.AnalysisSteps.Verbosity = 100;
+                this.AnalysisSteps.IntelligentExpand();
+            }
+
+            if (this.SarifResult.PropertyNames?.Any() == true && this.Properties?.Any() == false)
+            {
+                foreach (string propertyName in this.SarifResult.PropertyNames)
+                {
+                    this.Properties.Add(
+                        new KeyValuePair<string, string>(
+                            propertyName,
+                            this.SarifResult.GetSerializedPropertyValue(propertyName)));
                 }
             }
         }

@@ -39,8 +39,6 @@ namespace Microsoft.Sarif.Viewer.Sarif
 
         public static AnalysisStep ToAnalysisStep(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (codeFlow.ThreadFlows?[0]?.Locations?.Count == 0)
             {
                 return null;

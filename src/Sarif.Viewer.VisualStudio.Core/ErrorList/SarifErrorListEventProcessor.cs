@@ -131,6 +131,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (this.TryGetSarifResult(entry, out SarifErrorListItem aboutToNavigateItem) &&
                 aboutToNavigateItem?.HasDetails == true)
             {
+                aboutToNavigateItem.PopulateAdditionalPropertiesIfNot();
                 SarifExplorerWindow.Find()?.Show();
             }
         }
