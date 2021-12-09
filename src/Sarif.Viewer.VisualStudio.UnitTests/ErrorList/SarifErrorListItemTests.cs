@@ -486,7 +486,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.MessageInlines.Count.Should().Be(2);
             item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
                 .Should().BeEquivalentTo("The quick brown fox. Jumps over the lazy dog. Reference to ");
-            item.MessageInlines[1].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
+
+            var hyperlink = item.MessageInlines[1] as XamlDoc.Hyperlink;
+            hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
                 .Should().BeEquivalentTo("docs");
         }
 
@@ -509,9 +511,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // "The quick ", "brown", " fox. Jumps over the ", "lazy", " dog."
             item.MessageInlines.Count.Should().Be(5);
             item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("The quick ");
-            item.MessageInlines[1].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("brown");
+            var hyperlink = item.MessageInlines[1] as XamlDoc.Hyperlink;
+            hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("brown");
             item.MessageInlines[2].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" fox. Jumps over the ");
-            item.MessageInlines[3].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("lazy");
+            hyperlink = item.MessageInlines[3] as XamlDoc.Hyperlink;
+            hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("lazy");
             item.MessageInlines[4].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" dog.");
 
         }

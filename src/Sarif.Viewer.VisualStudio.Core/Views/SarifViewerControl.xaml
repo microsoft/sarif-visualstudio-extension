@@ -58,6 +58,7 @@
                                                 TabIndex="1"
                                                 Style="{StaticResource RuleIdHyperlinkStyle}"/>
                     <TextBlock Text="{Binding Rule.Name, Mode=OneTime}"
+                               Visibility="{Binding Rule.DisplayName, Converter={StaticResource StringToVisibilityConverter}}"
                                AutomationProperties.Name="{Binding Rule.Name, Mode=OneTime, StringFormat=Rule name: {0}}"
                                Style="{StaticResource HeaderTextStyle}"/>
                     <TextBlock Text="|"
@@ -93,7 +94,12 @@
                     </DockPanel>
                 </DockPanel>
             </Border>
+            <TextBlock Grid.Row="2"
+                       Text="{Binding ShortMessage}"
+                       Visibility="{Binding MessageInlines, Converter={StaticResource CollectionToInvertedVisibilityConverter}, ConverterParameter=0}"
+                       Style="{StaticResource HeaderMessageTextStyle}" />
             <controls:BindableTextBlock Grid.Row="2"
+                                        Visibility="{Binding MessageInlines, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
                                         InlineList="{Binding MessageInlines}"
                                         Style="{StaticResource HeaderMessageTextStyle}"/>
         </Grid>

@@ -8,15 +8,18 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows;
 
 using EnvDTE;
 
 using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -233,8 +236,8 @@ namespace Microsoft.Sarif.Viewer
                                       this.RawMessage;
 
         [Browsable(false)]
-        public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines
-            ?? (this._messageInlines = new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetInlinesForErrorMessage(this.RawMessage)));
+        public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
+            new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.RawMessage, this.MessageInlineLink_Click));
 
         [Browsable(false)]
         public bool HasEmbeddedLinks => this.MessageInlines.Any();
@@ -777,6 +780,68 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return (text.TrimEnd(endChars), restText.TrimEnd(endChars));
+        }
+
+        internal void MessageInlineLink_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!(sender is XamlDoc.Hyperlink hyperLink))
+            {
+                return;
+            }
+
+            if (hyperLink.Tag is int id)
+            {
+                // The user clicked an in-line link with an integer target. Look for a Location object
+                // whose Id property matches that integer. The spec says that might be _any_ Location
+                // object under the current result. At present, we only support Location objects that
+                // occur in Result.Locations or Result.RelatedLocations. So, for example, we don't
+                // look in Result.CodeFlows or Result.Stacks.
+                LocationModel location = this.RelatedLocations.Concat(this.Locations)
+                                                              .FirstOrDefault(l => l.Id == id);
+
+                if (location == null)
+                {
+                    return;
+                }
+
+                // If a location is found, then we will show this error in the explorer window
+                // by setting the navigated item to the error related to this error entry,
+                // but... we will navigate the editor to the found location, which for example
+                // may be a related location.
+                if (this.HasDetails)
+                {
+                    var componentModel = (IComponentModel)Package.GetGlobalService(typeof(SComponentModel));
+                    if (componentModel != null)
+                    {
+                        ISarifErrorListEventSelectionService sarifSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                        if (sarifSelectionService != null)
+                        {
+                            sarifSelectionService.NavigatedItem = this;
+                        }
+                    }
+                }
+
+                location.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+            }
+
+            // This is super dangerous! We are launching URIs for SARIF logs
+            // that can point to anything.
+            // https://github.com/microsoft/sarif-visualstudio-extension/issues/171
+            else
+            {
+                string uriString = null;
+                if (hyperLink.Tag is string uriAsString)
+                {
+                    uriString = uriAsString;
+                }
+                else if (hyperLink.Tag is Uri uri)
+                {
+                    uriString = uri.ToString();
+                }
+
+                SdkUIUtilities.OpenExternalUrl(uriString);
+            }
         }
     }
 }
