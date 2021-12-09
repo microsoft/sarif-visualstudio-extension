@@ -795,6 +795,91 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void SarifErrorListItem_WithAdditionalProperties_ShouldDeferLoading()
+        {
+            string moduleName = "Microsoft.CodeAnalysis.Sarif.PatternMatcher.AnalyzeCommand";
+            string relatedLocationString = "location related to the issue";
+            var result = new Result
+            {
+                Locations = new List<Location>
+                {
+                    new Location
+                    {
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            ArtifactLocation = new ArtifactLocation { Uri = new Uri("path/to/file", UriKind.Relative) },
+                        },
+                    },
+                },
+                RelatedLocations = new List<Location>
+                {
+                    new Location
+                    {
+                        Message = new Message { Text = relatedLocationString },
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            ArtifactLocation = new ArtifactLocation { Description = new Message { Text = relatedLocationString } },
+                        },
+                    },
+                    new Location
+                    {
+                        Message = new Message { Text = relatedLocationString },
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            ArtifactLocation = new ArtifactLocation { Description = new Message { Text = relatedLocationString } },
+                        },
+                    },
+                    new Location
+                    {
+                        Message = new Message { Text = relatedLocationString },
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            ArtifactLocation = new ArtifactLocation { Description = new Message { Text = relatedLocationString } },
+                        },
+                    },
+                },
+                Stacks = new List<Stack>
+                {
+                    new Stack
+                    {
+                        Frames = new List<StackFrame>
+                        {
+                            new StackFrame { Module = moduleName },
+                        },
+                    },
+                },
+                CodeFlows = new List<CodeFlow>
+                {
+                    new CodeFlow
+                    {
+                        Message = new Message { Text = "'*Temp_value_#8086' is not initialized" },
+                    },
+                    new CodeFlow
+                    {
+                        Message = new Message { Text = "'*Temp_value_#8086' is used, but may not have been initialized" },
+                    },
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            item.Locations.Should().BeEmpty();
+            item.RelatedLocations.Should().BeEmpty();
+            item.Stacks.Should().BeEmpty();
+            item.AnalysisSteps.Should().BeEmpty();
+
+            item.PopulateAdditionalPropertiesIfNot();
+
+            item.Locations.Count.Should().Be(1);
+            item.Locations.First().FilePath.Should().BeEquivalentTo("path/to/file");
+            item.RelatedLocations.Count.Should().Be(3);
+            item.RelatedLocations.First().Message.Should().BeEquivalentTo(relatedLocationString);
+            item.Stacks.Count.Should().Be(1);
+            item.Stacks.First().First().Module.Should().BeEquivalentTo(moduleName);
+            item.AnalysisSteps.Count.Should().Be(2);
+            item.AnalysisSteps.Verbosity.Should().Be(100);
+        }
+
+        [Fact]
         public void SarifErrorListItem_WithPropertyBags_HasProperties()
         {
             var result = new Result();
@@ -806,6 +891,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             result.SetProperty<dynamic>("object", new { foo = "bar" });
 
             SarifErrorListItem item = MakeErrorListItem(result);
+            item.Properties.Should().BeEmpty();
+
+            item.PopulateAdditionalPropertiesIfNot();
 
             item.Properties.Should().NotBeNull();
             item.Properties.Count.Should().Be(6);

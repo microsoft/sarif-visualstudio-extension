@@ -67,6 +67,7 @@
     <Compile Include="Sarif\LocationExtensionsTest.cs" />
     <Compile Include="Sarif\ReplacementExtensionsTests.cs" />
     <Compile Include="Sarif\RunExtensionsTests.cs" />
+    <Compile Include="Sarif\StackFrameExtensionsTests.cs" />
     <Compile Include="SdkUIUtilitiesTests.cs" />
     <Compile Include="StringBuilderFileStreamMock.cs" />
     <Compile Include="SuppressionTests.cs" />
