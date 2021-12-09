@@ -69,7 +69,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifResultEntry_TryGetValue_TextWithMarkdownHyperlinks()
         {
-            string messageText = "Sample [text](0) with hyperlink to [github](https://github.com).";
+            string messageText = "Sample [text](0) with hyperlink to [example web site](https://example.com).";
             var errorItem = new SarifErrorListItem
             {
                 RawMessage = messageText,
