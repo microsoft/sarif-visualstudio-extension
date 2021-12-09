@@ -54,7 +54,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Location = new Location
                 {
                     Message = new Message { Text = "stack frame location 1" },
-                    LogicalLocation = new LogicalLocation 
+                    LogicalLocation = new LogicalLocation
                     {
                         FullyQualifiedName = @"\root\FQDN\path-to\file.ext",
                     },
