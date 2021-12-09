@@ -340,11 +340,11 @@ namespace Microsoft.Sarif.Viewer
         public ObservableCollection<KeyValuePair<string, string>> Properties { get; }
 
         [Browsable(false)]
-        public bool HasDetails => this.SarifResult.Locations?.Any() == true ||
-                                  this.SarifResult.RelatedLocations?.Any() == true ||
-                                  this.SarifResult.CodeFlows?.Any() == true ||
+        public bool HasDetails => this.SarifResult.Fixes?.Any() == true ||
                                   this.SarifResult.Stacks?.Any() == true ||
-                                  this.SarifResult.Fixes?.Any() == true;
+                                  this.SarifResult.CodeFlows?.Any() == true ||
+                                  this.SarifResult.Locations?.Any() == true ||
+                                  this.SarifResult.RelatedLocations?.Any() == true;
 
         [Browsable(false)]
         public int LocationsCount => this.Locations.Count + this.RelatedLocations.Count;
