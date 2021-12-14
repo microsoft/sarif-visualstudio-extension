@@ -22,7 +22,10 @@ The Microsoft SARIF Viewer extension for Visual Studio provides a convenient UI 
 
 ## Installation
 
-The Microsoft SARIF Viewer extension can be downloaded and installed from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer).
+The Microsoft SARIF Viewer extension can be downloaded and installed from the Visual Studio Marketplace.
+
+- [Microsoft SARIF Viewer for Visual Studio 2022](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer2022)
+- [Microsoft SARIF Viewer for Visual Studio 2017/2019](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 
 Alternatively, in Visual Studio, open the Extension Manager (Menu: Extensions -> Manage Extensions), search for "Microsoft SARIF Viewer", select the entry, and click on the Download button.
 
