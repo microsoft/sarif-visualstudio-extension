@@ -386,4 +386,14 @@
   <data name="ImportClangTidyFilter" xml:space="preserve">
     <value>Clang log files (*.yaml)|*.yaml</value>
   </data>
+  <data name="ConfirmOpenBinaryFileDialog_AlwaysAllowLabel" xml:space="preserve">
+    <value>Always allow open file with extension '{0}'</value>
+  </data>
+  <data name="ConfirmOpenBinaryFileDialog_Message" xml:space="preserve">
+    <value>The target file with extension '{0}' is a binary file.
+Do you want to open this file in the Visual Studio?</value>
+  </data>
+  <data name="ConfirmOpenBinaryFileDialog_Title" xml:space="preserve">
+    <value>Confirm Open Binary File</value>
+  </data>
 </root>

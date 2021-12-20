@@ -45,12 +45,14 @@ namespace Microsoft.Sarif.Viewer
         internal const uint VSCOOKIE_NIL = 0;
         internal const int S_OK = 0;
         private const string AllowedDownloadHostsFileName = "AllowedDownloadHosts.json";
+        private const string AllowedFileExtensionsFileName = "AllowedFileExtensions.json";
         private const string TemporaryFileDirectoryName = "SarifViewer";
         private readonly string temporaryFilePath;
 
         // Cookie for registration and unregistration
         private uint m_solutionEventsCookie;
         private readonly List<string> _allowedDownloadHosts;
+        private readonly List<string> _allowedFileExtensions;
 
         private readonly IFileSystem _fileSystem;
 
@@ -77,6 +79,7 @@ namespace Microsoft.Sarif.Viewer
             this._promptForEmbeddedFileDelegate = promptForEmbeddedFileDelegate ?? this.PromptForEmbeddedFile;
 
             this._allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
+            this._allowedFileExtensions = SdkUIUtilities.GetStoredObject<List<string>>(AllowedFileExtensionsFileName) ?? new List<string>();
 
             // Get temporary path for embedded files.
             this.temporaryFilePath = Path.GetTempPath();
@@ -1077,6 +1080,20 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return solutionPath;
+        }
+
+        internal void AddAllowedFileExtension(string fileExtension)
+        {
+            if (!this._allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+            {
+                this._allowedFileExtensions.Add(fileExtension);
+                SdkUIUtilities.StoreObject<List<string>>(this._allowedFileExtensions, AllowedFileExtensionsFileName);
+            }
+        }
+
+        internal List<string> GetAllowedFileExtensions()
+        {
+            return this._allowedFileExtensions;
         }
     }
 }

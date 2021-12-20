@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Documents;
 
@@ -406,6 +409,115 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             actual.Should().NotBeNull();
             actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void IsBinaryFilesTests()
+        {
+            IEnumerable<Stream> binaryFiles = ResourceExtractor.GetResrouceStreamsByPath("TestData.BinaryTestFiles.Binaries");
+            foreach (Stream bin in binaryFiles)
+            {
+                bool result = SdkUIUtilities.IsBinaryFile(bin);
+                result.Should().BeTrue();
+            }
+
+            IEnumerable<Stream> nonBinaryFiles = ResourceExtractor.GetResrouceStreamsByPath("TestData.BinaryTestFiles.NonBinaries");
+            foreach (Stream bin in nonBinaryFiles)
+            {
+                bool result = SdkUIUtilities.IsBinaryFile(bin);
+                result.Should().BeFalse();
+            }
+
+            Stream nullStream = null;
+            Assert.Throws<ArgumentNullException>(() => SdkUIUtilities.IsBinaryFile(nullStream));
+        }
+
+        [Fact]
+        public void AllowOpenBinaryFile_SelectedYesFromPrompt()
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "test", "app.pdb");
+            int numOfPromptCalled = 0;
+            bool prompt(string fileExt, out bool alwaysAllow)
+            {
+                numOfPromptCalled++;
+                alwaysAllow = false;
+                return true;
+            }
+            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            allowedList.Clear();
+
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+
+            result.Should().BeTrue();
+            numOfPromptCalled.Should().Be(1);
+            allowedList.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void AllowOpenBinaryFile_SelectedNoFromPrompt()
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "test.folder", "app.dll");
+            int numOfPromptCalled = 0;
+            bool prompt(string fileExt, out bool alwaysAllow)
+            {
+                numOfPromptCalled++;
+                alwaysAllow = false;
+                return false;
+            }
+            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            allowedList.Clear();
+
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+
+            result.Should().BeFalse();
+            numOfPromptCalled.Should().Be(1);
+            allowedList.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void AllowOpenBinaryFile_ExtensionAlreadyAllowed()
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "test folder", "app.exe");
+            int numOfPromptCalled = 0;
+            bool prompt(string fileExt, out bool alwaysAllow)
+            {
+                numOfPromptCalled++;
+                alwaysAllow = false;
+                return false;
+            }
+            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            allowedList.Clear();
+            allowedList.Add(".EXE");
+
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+
+            result.Should().BeTrue();
+            numOfPromptCalled.Should().Be(0); // no prompt should be called
+            allowedList.Should().NotBeEmpty();
+            allowedList.Count.Should().Be(1);
+        }
+
+        [Fact]
+        public void AllowOpenBinaryFile_AlwaysAllowFileExtension()
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "test folder", "app.bmp");
+            int numOfPromptCalled = 0;
+            bool prompt(string fileExt, out bool alwaysAllow)
+            {
+                numOfPromptCalled++;
+                alwaysAllow = true;
+                return true;
+            }
+            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            allowedList.Clear();
+
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+
+            result.Should().BeTrue();
+            numOfPromptCalled.Should().Be(1);
+            allowedList.Should().NotBeEmpty();
+            allowedList.Count.Should().Be(1);
+            allowedList.First().Should().BeEquivalentTo(".bmp");
         }
 
         private static void VerifyTextRun(Inline expected, Inline actual)

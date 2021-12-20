@@ -60,6 +60,7 @@
     <Compile Include="Models\ReplacementModelTests.cs" />
     <Compile Include="Models\RuleModelTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
+    <Compile Include="ResourceExtractor.cs" />
     <Compile Include="SarifTextViewCreationListenerTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />
     <Compile Include="Sarif\ArtifactChangeExtensionsTests.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="SdkUIUtilitiesTests.cs" />
     <Compile Include="StringBuilderFileStreamMock.cs" />
     <Compile Include="SuppressionTests.cs" />
+    <EmbeddedResource Include="TestData\BinaryTestFiles\NonBinaries\csharpfile.cs" />
     <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UriExtensionsTests.cs" />
@@ -99,6 +101,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="TestData\BinaryTestFiles\Binaries\macho-binary" />
     <None Include="TestData\FixModel\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -113,5 +116,9 @@
     <AdditionalFiles Include="..\stylecop.json">
       <Link>stylecop.json</Link>
     </AdditionalFiles>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestData\BinaryTestFiles\Binaries\testapp.pdb" />
+    <EmbeddedResource Include="TestData\BinaryTestFiles\NonBinaries\test.html" />
   </ItemGroup>
 </Project>
