@@ -18,7 +18,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         public static IEnumerable<Stream> GetResrouceStreamsByPath(string path)
         {
-            foreach( string resourceName in s_resourceNames.Where(r => r.StartsWith($"{s_resourceNamespace}.{path}")))
+            foreach (string resourceName in s_resourceNames.Where(r => r.StartsWith($"{s_resourceNamespace}.{path}")))
             {
                 yield return Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
             }
