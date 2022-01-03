@@ -52,7 +52,7 @@ namespace Microsoft.Sarif.Viewer
         // Cookie for registration and unregistration
         private uint m_solutionEventsCookie;
         private readonly List<string> _allowedDownloadHosts;
-        private readonly List<string> _allowedFileExtensions;
+        private readonly HashSet<string> _allowedFileExtensions;
 
         private readonly IFileSystem _fileSystem;
 
@@ -79,7 +79,7 @@ namespace Microsoft.Sarif.Viewer
             this._promptForEmbeddedFileDelegate = promptForEmbeddedFileDelegate ?? this.PromptForEmbeddedFile;
 
             this._allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
-            this._allowedFileExtensions = SdkUIUtilities.GetStoredObject<List<string>>(AllowedFileExtensionsFileName) ?? new List<string>();
+            this._allowedFileExtensions = SdkUIUtilities.GetStoredObject<HashSet<string>>(AllowedFileExtensionsFileName) ?? new HashSet<string>();
 
             // Get temporary path for embedded files.
             this.temporaryFilePath = Path.GetTempPath();
@@ -1087,11 +1087,11 @@ namespace Microsoft.Sarif.Viewer
             if (!this._allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
             {
                 this._allowedFileExtensions.Add(fileExtension);
-                SdkUIUtilities.StoreObject<List<string>>(this._allowedFileExtensions, AllowedFileExtensionsFileName);
+                SdkUIUtilities.StoreObject<HashSet<string>>(this._allowedFileExtensions, AllowedFileExtensionsFileName);
             }
         }
 
-        internal List<string> GetAllowedFileExtensions()
+        internal HashSet<string> GetAllowedFileExtensions()
         {
             return this._allowedFileExtensions;
         }

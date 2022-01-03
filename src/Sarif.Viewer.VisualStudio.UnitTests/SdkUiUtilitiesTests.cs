@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using System.Windows.Documents;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+
+using Moq;
 
 using Xunit;
 
@@ -443,11 +446,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return true;
             }
-            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
             allowedList.Clear();
 
-            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileOpenRead(filePath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes("abc\0efg")));
 
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, mockFileSystem.Object, prompt);
+
+            mockFileSystem.Verify(fs => fs.FileOpenRead(filePath), Times.Once);
             result.Should().BeTrue();
             numOfPromptCalled.Should().Be(1);
             allowedList.Should().BeEmpty();
@@ -464,11 +473,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return false;
             }
-            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
             allowedList.Clear();
 
-            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileOpenRead(filePath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes("abc\0efg")));
 
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, mockFileSystem.Object, prompt);
+
+            mockFileSystem.Verify(fs => fs.FileOpenRead(filePath), Times.Once);
             result.Should().BeFalse();
             numOfPromptCalled.Should().Be(1);
             allowedList.Should().BeEmpty();
@@ -485,12 +500,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return false;
             }
-            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
             allowedList.Clear();
             allowedList.Add(".EXE");
 
-            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileOpenRead(filePath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes("abc\0efg")));
 
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, mockFileSystem.Object, prompt);
+
+            // IsBinary() / FileOpenRead() should not be called
+            mockFileSystem.Verify(fs => fs.FileOpenRead(filePath), Times.Never);
             result.Should().BeTrue();
             numOfPromptCalled.Should().Be(0); // no prompt should be called
             allowedList.Should().NotBeEmpty();
@@ -508,16 +530,50 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = true;
                 return true;
             }
-            List<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
             allowedList.Clear();
 
-            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, prompt);
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileOpenRead(filePath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes("abcefg\0")));
 
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, mockFileSystem.Object, prompt);
+
+            mockFileSystem.Verify(fs => fs.FileOpenRead(filePath), Times.Once);
             result.Should().BeTrue();
             numOfPromptCalled.Should().Be(1);
             allowedList.Should().NotBeEmpty();
             allowedList.Count.Should().Be(1);
             allowedList.First().Should().BeEquivalentTo(".bmp");
+        }
+
+        [Fact]
+        public void AllowOpenBinaryFile_NotABinaryFile()
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "test folder", "code.txt");
+            int numOfPromptCalled = 0;
+            bool prompt(string fileExt, out bool alwaysAllow)
+            {
+                numOfPromptCalled++;
+                alwaysAllow = false;
+                return true;
+            }
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            allowedList.Clear();
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem
+                .Setup(fs => fs.FileOpenRead(filePath))
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes("abcefg")));
+
+            bool result = SdkUIUtilities.AllowOpenBinaryFile(filePath, mockFileSystem.Object, prompt);
+
+            mockFileSystem.Verify(fs => fs.FileOpenRead(filePath), Times.Once);
+            result.Should().BeTrue();
+            numOfPromptCalled.Should().Be(0);
+            allowedList.Should().BeEmpty();
+            allowedList.Count.Should().Be(0);
         }
 
         private static void VerifyTextRun(Inline expected, Inline actual)

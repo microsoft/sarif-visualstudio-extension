@@ -143,15 +143,9 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // prompt user if open binary file in editor
-            if (promptForBinFile)
+            if (!promptForBinFile || !AllowOpenBinaryFile(file))
             {
-                using (FileStream stream = File.OpenRead(file))
-                {
-                    if (IsBinaryFile(stream) && !AllowOpenBinaryFile(file))
-                    {
-                        return null;
-                    }
-                }
+                return null;
             }
 
             try
@@ -818,14 +812,24 @@ namespace Microsoft.Sarif.Viewer
             return result == MessageDialogCommand.Yes;
         }
 
-        internal static bool AllowOpenBinaryFile(string filePath, PromptOpenBinaryFileDelegate promptDelegate = null)
+        internal static bool AllowOpenBinaryFile(string filePath, IFileSystem filesystem = null, PromptOpenBinaryFileDelegate promptDelegate = null)
         {
             string fileExtension = Path.GetExtension(filePath);
-            List<string> allowedFileExtensions = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedFileExtensions = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
             bool allowed = allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
 
             if (!allowed)
             {
+                filesystem ??= FileSystem.Instance;
+                using (Stream stream = filesystem.FileOpenRead(filePath))
+                {
+                    if (!IsBinaryFile(stream))
+                    {
+                        // if file is not binary file, allow VS to open it.
+                        return true;
+                    }
+                }
+
                 promptDelegate ??= PromptIfOpenBinaryFile;
                 bool result = promptDelegate(fileExtension, out bool alwaysAllow);
 
