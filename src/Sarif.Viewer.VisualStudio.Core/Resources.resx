@@ -391,7 +391,7 @@
   </data>
   <data name="ConfirmOpenBinaryFileDialog_Message" xml:space="preserve">
     <value>The target file with extension '{0}' is a binary file.
-Do you want to open this file in the Visual Studio?</value>
+Do you want to open this file in Visual Studio?</value>
   </data>
   <data name="ConfirmOpenBinaryFileDialog_Title" xml:space="preserve">
     <value>Confirm Open Binary File</value>
