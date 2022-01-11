@@ -11,6 +11,8 @@ namespace Microsoft.Sarif.Viewer.Converters
 {
     internal class AnalysisStepNodeToTextConverter : IValueConverter
     {
+        internal static readonly char IndentChar = ' ';
+
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             var node = value as AnalysisStepNode;
@@ -46,6 +48,12 @@ namespace Microsoft.Sarif.Viewer.Converters
                 else
                 {
                     text = Resources.ContinuingAnalysisStepNodeMessage;
+                }
+
+                if (node.NestingLevel >= 0)
+                {
+                    // add indents to beginning of text based on nestingLevel property
+                    text = new string(IndentChar, node.NestingLevel) + text;
                 }
             }
 

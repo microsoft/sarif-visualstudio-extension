@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
@@ -67,6 +68,45 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
             }
 
             return root.Children;
+        }
+
+        internal static List<AnalysisStepNode> ToFlatList(CodeFlow codeFlow, Run run, int resultId, int runIndex)
+        {
+            var results = new List<AnalysisStepNode>();
+
+            ThreadFlow threadFlow = codeFlow.ThreadFlows?[0];
+
+            if (threadFlow != null)
+            {
+                // nestingLevel is an integer value which is greater than or equals to 0
+                // according to schema http://json.schemastore.org/sarif-2.1.0-rtm.5.
+                // min nesting level can be used to offset nesting level starts from value greater than 0.e
+                int minNestingLevel = threadFlow.Locations.Min(l => l.NestingLevel);
+
+                foreach (ThreadFlowLocation location in threadFlow.Locations)
+                {
+                    ArtifactLocation artifactLocation = location.Location?.PhysicalLocation?.ArtifactLocation;
+
+                    if (artifactLocation != null)
+                    {
+                        if (artifactLocation.Uri == null && artifactLocation.Index > -1)
+                        {
+                            artifactLocation.Uri = run.Artifacts[artifactLocation.Index].Location.Uri;
+                        }
+                    }
+
+                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex)
+                    {
+                        Location = location,
+                        Children = new List<AnalysisStepNode>(),
+                        NestingLevel = location.NestingLevel - minNestingLevel,
+                    };
+
+                    results.Add(newNode);
+                }
+            }
+
+            return results;
         }
     }
 }

@@ -174,6 +174,9 @@ namespace Microsoft.Sarif.Viewer.Models
         public List<AnalysisStepNode> Children { get; set; }
 
         [Browsable(false)]
+        public int NestingLevel { get; set; }
+
+        [Browsable(false)]
         public AnalysisStep AnalysisStep
         {
             get
