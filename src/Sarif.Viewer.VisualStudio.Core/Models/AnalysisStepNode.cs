@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -16,11 +15,15 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     internal class AnalysisStepNode : CodeLocationObject
     {
+        internal const int IndentWidth = 10; // indent width 10 pixel
+
         private ThreadFlowLocation _location;
         private AnalysisStep _analysisStep;
         private AnalysisStepNode _parent;
         private bool _isExpanded;
         private Visibility _visbility;
+        private int _nestingLevel;
+        private Thickness _textMargin;
 
         public AnalysisStepNode(int resultId, int runIndex)
             : base(resultId, runIndex)
@@ -174,7 +177,18 @@ namespace Microsoft.Sarif.Viewer.Models
         public List<AnalysisStepNode> Children { get; set; }
 
         [Browsable(false)]
-        public int NestingLevel { get; set; }
+        public int NestingLevel
+        {
+            get => this._nestingLevel;
+            set
+            {
+                this._textMargin.Left = IndentWidth * value;
+                this._nestingLevel = value;
+            }
+        }
+
+        [Browsable(false)]
+        public Thickness TextMargin => _textMargin;
 
         [Browsable(false)]
         public AnalysisStep AnalysisStep

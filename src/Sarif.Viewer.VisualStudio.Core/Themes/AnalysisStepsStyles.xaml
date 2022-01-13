@@ -82,6 +82,7 @@
     <Style x:Key="AnalysisStepMessageTextStyle" BasedOn="{StaticResource AnalysisStepTextStyle}" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
         <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Margin" Value="{Binding TextMargin}" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding Location.Importance}" Value="Essential">
                 <Setter Property="FontWeight" Value="Bold" />
