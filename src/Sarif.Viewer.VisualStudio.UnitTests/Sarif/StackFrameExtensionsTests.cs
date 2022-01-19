@@ -2,14 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 
 using Xunit;
@@ -30,18 +27,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             var stackFrameModel = stackFrame.ToStackFrameModel(resultId, runIndex);
-            stackFrameModel.Should().NotBeNull();
-            stackFrameModel.ResultId.Should().Be(resultId);
-            stackFrameModel.RunIndex.Should().Be(runIndex);
-            stackFrameModel.Module.Should().BeEquivalentTo(moduleName);
-            stackFrameModel.Message.Should().BeNull();
-            stackFrameModel.FullyQualifiedLogicalName.Should().BeNull();
-            stackFrameModel.FilePath.Should().BeNull();
-            stackFrameModel.Region.Should().BeNull();
-            stackFrameModel.Address.Should().Be(0);
-            stackFrameModel.Line.Should().Be(0);
-            stackFrameModel.Column.Should().Be(0);
-            stackFrameModel.Offset.Should().Be(0);
+
+            VerifyStackFrame(stackFrameModel, stackFrame, resultId, runIndex);
         }
 
         [Fact]
@@ -49,51 +36,114 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             int resultId = 1;
             int runIndex = 0;
+            string stackFrameText = "stack frame location 1";
+            string fullyQualifiedName = @"namespaceA::namespaceB::classC";
+            string artifactUri = "path/to/stackframe/file.cpp";
+            int stackFrameAddress = 0xFF;
+            int stackFrameOffset = 128;
+            int stackFrameStartLine = 10;
+            int stackFrameStartColumn = 5;
+
             var stackFrame = new StackFrame
             {
                 Location = new Location
                 {
-                    Message = new Message { Text = "stack frame location 1" },
+                    Message = new Message { Text = stackFrameText },
                     LogicalLocation = new LogicalLocation
                     {
-                        FullyQualifiedName = @"\root\FQDN\path-to\file.ext",
+                        FullyQualifiedName = fullyQualifiedName,
                     },
                     PhysicalLocation = new PhysicalLocation
                     {
                         Address = new Address
                         {
-                            AbsoluteAddress = 0xFF,
-                            OffsetFromParent = 128,
+                            AbsoluteAddress = stackFrameAddress,
+                            OffsetFromParent = stackFrameOffset,
                         },
                         ArtifactLocation = new ArtifactLocation
                         {
-                            Uri = new Uri("path/to/file.cpp", UriKind.Relative),
+                            Uri = new Uri(artifactUri, UriKind.Relative),
                         },
                         Region = new Region
                         {
-                            StartLine = 10,
-                            StartColumn = 5,
+                            StartLine = stackFrameStartLine,
+                            StartColumn = stackFrameStartColumn,
                         },
                     }
                 }
             };
 
             var stackFrameModel = stackFrame.ToStackFrameModel(resultId, runIndex);
-            stackFrameModel.Should().NotBeNull();
-            stackFrameModel.ResultId.Should().Be(resultId);
-            stackFrameModel.RunIndex.Should().Be(runIndex);
-            stackFrameModel.Module.Should().BeNull();
-            stackFrameModel.Message.Should().BeEquivalentTo("stack frame location 1");
-            stackFrameModel.FullyQualifiedLogicalName.Should().BeEquivalentTo(@"\root\FQDN\path-to\file.ext");
-            stackFrameModel.FilePath.Should().BeEquivalentTo("path/to/file.cpp");
-            stackFrameModel.Region.Should().NotBeNull();
-            stackFrameModel.Region.StartLine.Should().Be(10);
-            stackFrameModel.Region.StartColumn.Should().Be(5);
-            stackFrameModel.Address.Should().Be(0xFF);
-            stackFrameModel.Line.Should().Be(10);
-            stackFrameModel.Column.Should().Be(5);
-            stackFrameModel.Offset.Should().Be(128);
+
+            VerifyStackFrame(stackFrameModel, stackFrame, resultId, runIndex);
         }
 
+        private void VerifyStackFrame(StackFrameModel model, StackFrame stackFrame, int resultId, int runIndex)
+        {
+            model.Should().NotBeNull();
+
+            model.ResultId.Should().Be(resultId);
+            model.RunIndex.Should().Be(runIndex);
+
+            if (stackFrame.Module == null)
+            {
+                stackFrame.Module.Should().BeNull();
+            }
+            else
+            {
+                stackFrame.Module.Should().BeEquivalentTo(stackFrame.Module);
+            }
+
+            if (stackFrame.Location?.Message?.Text == null)
+            {
+                model.Message.Should().BeNull();
+            }
+            else
+            {
+                model.Message.Should().BeEquivalentTo(stackFrame.Location.Message.Text);
+            }
+
+            if (stackFrame.Location?.LogicalLocation?.FullyQualifiedName == null)
+            {
+                model.FullyQualifiedLogicalName.Should().BeNull();
+            }
+            else
+            {
+                model.FullyQualifiedLogicalName.Should().BeEquivalentTo(stackFrame.Location.LogicalLocation.FullyQualifiedName);
+            }
+
+            if (stackFrame.Location?.PhysicalLocation?.ArtifactLocation?.Uri == null)
+            {
+                model.FilePath.Should().BeNull();
+            }
+            else
+            {
+                model.FilePath.Should().BeEquivalentTo(stackFrame.Location.PhysicalLocation.ArtifactLocation.Uri.ToPath());
+            }
+
+            if (stackFrame.Location?.PhysicalLocation?.Region == null)
+            {
+                model.Region.Should().BeNull();
+            }
+            else
+            {
+                model.Region.Should().NotBeNull();
+                model.Region.StartLine.Should().Be(stackFrame.Location.PhysicalLocation.Region.StartLine);
+                model.Region.StartColumn.Should().Be(stackFrame.Location.PhysicalLocation.Region.StartColumn);
+                model.Line.Should().Be(stackFrame.Location.PhysicalLocation.Region.StartLine);
+                model.Column.Should().Be(stackFrame.Location.PhysicalLocation.Region.StartColumn);
+            }
+
+            if (stackFrame.Location?.PhysicalLocation?.Address == null)
+            {
+                model.Address.Should().Be(default);
+                model.Offset.Should().Be(default);
+            }
+            else
+            {
+                model.Address.Should().Be(stackFrame.Location.PhysicalLocation.Address.AbsoluteAddress);
+                model.Offset.Should().Be(stackFrame.Location.PhysicalLocation.Address.OffsetFromParent ?? 0);
+            }
+        }
     }
 }
