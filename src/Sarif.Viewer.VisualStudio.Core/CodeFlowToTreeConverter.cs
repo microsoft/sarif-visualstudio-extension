@@ -87,12 +87,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                 {
                     ArtifactLocation artifactLocation = location.Location?.PhysicalLocation?.ArtifactLocation;
 
-                    if (artifactLocation != null)
+                    if (artifactLocation != null
+                        && artifactLocation.Uri == null
+                        && artifactLocation.Index > -1)
                     {
-                        if (artifactLocation.Uri == null && artifactLocation.Index > -1)
-                        {
-                            artifactLocation.Uri = run.Artifacts[artifactLocation.Index].Location.Uri;
-                        }
+                        artifactLocation.Uri = run.Artifacts[artifactLocation.Index].Location.Uri;
                     }
 
                     var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex)

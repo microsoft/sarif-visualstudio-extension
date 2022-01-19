@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     public class AnalysisStepNodeTests
     {
-        private static readonly Random random = new Random();
+        private static readonly Random s_random = new Random();
 
         [Fact]
         public void AnalysisStepNode_DefaultHighlightColor()
@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer.Models
             analysisStepNode.TextMargin.Top.Should().Be(0);
             analysisStepNode.TextMargin.Bottom.Should().Be(0);
 
-            analysisStepNode.NestingLevel = random.Next(0, 30);
+            analysisStepNode.NestingLevel = s_random.Next(0, 30);
 
             analysisStepNode.TextMargin.Left.Should().Be(AnalysisStepNode.IndentWidth * analysisStepNode.NestingLevel);
             analysisStepNode.TextMargin.Right.Should().Be(0);
