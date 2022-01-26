@@ -132,7 +132,7 @@ function Set-SarifFileAssociationRegistrySettings {
     }
 }
 
-if (-not (Test-Path "$RepoRoot\Src\sarif-pattern-matcher")) {
+if (-not (Test-Path "$RepoRoot\Src\sarif-pattern-matcher") -or (Get-ChildItem "$RepoRoot\Src\sarif-pattern-matcher" | Measure-Object).Count -eq 0) {
     Write-Information "Retrieving sarif-pattern-matcher submodule..."
     git submodule update --init --recursive
 }
