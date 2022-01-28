@@ -42,7 +42,6 @@
                           Style="{StaticResource CheckBoxStyle}"
                           IsChecked="{Binding MonitorSarifFolder, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder}"
-                          ToolTip="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder_Desc}"
                           AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
 
             </StackPanel>
