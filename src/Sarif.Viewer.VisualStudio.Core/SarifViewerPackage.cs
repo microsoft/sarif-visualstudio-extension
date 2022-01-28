@@ -44,8 +44,8 @@ namespace Microsoft.Sarif.Viewer
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
-        public const string OptionCategoryName = "Sarif Extension";
-        public const string OptionPageName = "Sarif Viewer";
+        public const string OptionCategoryName = "SARIF Viewer";
+        public const string OptionPageName = "General";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
