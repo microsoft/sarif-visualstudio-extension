@@ -44,7 +44,6 @@
                           Content="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder}"
                           ToolTip="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder_Desc}"
                           AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
-                <TextBlock Margin="25, 5, 5, 5" TextWrapping="Wrap" Text="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder_Desc}" />
 
             </StackPanel>
         </GroupBox>
