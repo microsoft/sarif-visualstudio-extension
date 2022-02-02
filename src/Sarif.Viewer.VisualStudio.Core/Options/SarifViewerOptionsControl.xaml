@@ -43,7 +43,26 @@
                           IsChecked="{Binding MonitorSarifFolder, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder}"
                           AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
+                <CheckBox x:Name="DownloadScanResultsCheckBox"
+                          Margin="5"
+                          FontWeight="Bold"
+                          Style="{StaticResource CheckBoxStyle}"
+                          IsChecked="{Binding DownloadScanResults, Mode=TwoWay}"
+                          Content="{StaticResource SarifViewerOptionsControl_DownloadScanResults}"
+                          AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
 
+                <ListBox ItemsSource="{Binding ScanResultSources}" SelectionMode="Multiple" IsEnabled="{Binding DownloadScanResults}" Height="200" Width="150">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="IsSelected" Value="{Binding IsChecked, Mode=TwoWay}" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" Content="{Binding Name}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </StackPanel>
         </GroupBox>
     </Grid>
