@@ -9,6 +9,7 @@ using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Converters;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -24,6 +25,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private Visibility _visbility;
         private int _nestingLevel;
         private Thickness _textMargin;
+        private DelegateCommand _navigateCommand;
 
         public AnalysisStepNode(int resultId, int runIndex)
             : base(resultId, runIndex)
@@ -425,6 +427,26 @@ namespace Microsoft.Sarif.Viewer.Models
                     child.SetVerbosity(importance);
                 }
             }
+        }
+
+        public DelegateCommand NavigateCommand
+        {
+            get
+            {
+                this._navigateCommand ??= new DelegateCommand(this.Navigate);
+                return this._navigateCommand;
+            }
+
+            set
+            {
+                this._navigateCommand = value;
+            }
+        }
+
+        private void Navigate()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            this.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
         }
     }
 }

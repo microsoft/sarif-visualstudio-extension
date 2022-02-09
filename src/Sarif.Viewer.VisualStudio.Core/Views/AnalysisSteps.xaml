@@ -95,6 +95,10 @@
                                             <ColumnDefinition SharedSizeGroup="MessageGroup" />
                                             <ColumnDefinition SharedSizeGroup="LocationGroup" />
                                         </Grid.ColumnDefinitions>
+                                        <Grid.InputBindings>
+                                            <MouseBinding Gesture="LeftDoubleClick"
+                                                                  Command="{Binding NavigateCommand}"/>
+                                        </Grid.InputBindings>
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding Converter={StaticResource AnalysisStepNodeToTextConverter}}"
                                                    Style="{StaticResource AnalysisStepMessageTextStyle}" />
