@@ -97,7 +97,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Grid.InputBindings>
                                             <MouseBinding Gesture="LeftDoubleClick"
-                                                                  Command="{Binding NavigateCommand}"/>
+                                                          Command="{Binding NavigateCommand}"/>
                                         </Grid.InputBindings>
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding Converter={StaticResource AnalysisStepNodeToTextConverter}}"
