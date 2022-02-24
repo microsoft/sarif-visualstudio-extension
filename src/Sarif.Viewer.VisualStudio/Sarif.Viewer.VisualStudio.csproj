@@ -56,7 +56,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +130,10 @@
     <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
       <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
       <Name>Sarif</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources\Sarif.Viewer.VisualStudio.ResultSources.csproj">
+      <Project>{d7f2d4df-0929-41c1-b284-b11be50ed08e}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems" Label="Shared" />

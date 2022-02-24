@@ -5,12 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
+using EnvDTE80;
+
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.FileWatcher;
 using Microsoft.Sarif.Viewer.Options;
+using Microsoft.Sarif.Viewer.ResultSources.Services;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
@@ -144,6 +150,9 @@ namespace Microsoft.Sarif.Viewer
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
+
+                SarifLog sarifLog = await FetchGitHubAnalysisResultsAsync();
+                sarifLog.Save(Path.Combine(GetDotSarifDirectoryPath(), "ghas-demo.sarif"));
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -175,7 +184,7 @@ namespace Microsoft.Sarif.Viewer
         public static IVsPackage LoadViewerPackage()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Guid serviceGuid = new Guid(PackageGuidString);
+            var serviceGuid = new Guid(PackageGuidString);
 
             if (VsShell.IsPackageLoaded(ref serviceGuid, out IVsPackage package) == 0 && package != null)
             {
@@ -186,11 +195,10 @@ namespace Microsoft.Sarif.Viewer
             return package;
         }
 
-        private async System.Threading.Tasks.Task<bool> IsSolutionLoadedAsync()
+        private async Task<bool> IsSolutionLoadedAsync()
         {
-            await JoinableTaskFactory.SwitchToMainThreadAsync();
-            var solutionService = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
-            if (solutionService == null)
+            await this.JoinableTaskFactory.SwitchToMainThreadAsync();
+            if (!(await GetServiceAsync(typeof(SVsSolution)) is IVsSolution solutionService))
             {
                 return false;
             }
@@ -209,6 +217,25 @@ namespace Microsoft.Sarif.Viewer
         {
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatch();
+
+            ThreadHelper.JoinableTaskFactory.Run(async () =>
+            {
+                SarifLog sarifLog = await FetchGitHubAnalysisResultsAsync();
+                sarifLog.Save(Path.Combine(GetDotSarifDirectoryPath(), "ghas-demo.sarif"));
+            });
+        }
+
+        private async Task<SarifLog> FetchGitHubAnalysisResultsAsync()
+        {
+            GitHubService gitHubService = new GitHubService();
+            return await gitHubService.GetCodeAnalysisScanResultsAsync("microsoft", "sarif-visualstudio-extension", "main");
+        }
+
+        private string GetDotSarifDirectoryPath()
+        {
+            var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+            string solutionFilePath = dte.Solution?.FullName;
+            return Path.GetDirectoryName(solutionFilePath);
         }
     }
 }
