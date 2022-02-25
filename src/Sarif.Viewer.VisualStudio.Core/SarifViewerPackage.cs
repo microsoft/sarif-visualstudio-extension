@@ -152,7 +152,11 @@ namespace Microsoft.Sarif.Viewer
                 this.sarifFolderMonitor?.StartWatch();
 
                 SarifLog sarifLog = await FetchGitHubAnalysisResultsAsync();
-                sarifLog.Save(Path.Combine(GetDotSarifDirectoryPath(), "ghas-demo.sarif"));
+
+                if (sarifLog != null)
+                {
+                    sarifLog.Save(Path.Combine(SarifViewerPackage.GetDotSarifDirectoryPath(), "ghas-demo.sarif"));
+                }
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -221,21 +225,33 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 SarifLog sarifLog = await FetchGitHubAnalysisResultsAsync();
-                sarifLog.Save(Path.Combine(GetDotSarifDirectoryPath(), "ghas-demo.sarif"));
+
+                if (sarifLog != null)
+                {
+                    sarifLog.Save(Path.Combine(SarifViewerPackage.GetDotSarifDirectoryPath(), "ghas-demo.sarif"));
+                }
             });
         }
 
         private async Task<SarifLog> FetchGitHubAnalysisResultsAsync()
         {
-            GitHubService gitHubService = new GitHubService();
-            return await gitHubService.GetCodeAnalysisScanResultsAsync("microsoft", "sarif-visualstudio-extension", "main");
+            await this.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            // var gitService = ServiceProvider.GlobalProvider.GetService<IGitExt, IGitExt2>() as IGitExt2;
+            var gitHubService = new GitHubService(ServiceProvider.GlobalProvider);
+            return await gitHubService.GetCodeAnalysisScanResultsAsync(GetSolutionDirectoryPath());
         }
 
-        private string GetDotSarifDirectoryPath()
+        private static string GetSolutionDirectoryPath()
         {
             var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
             string solutionFilePath = dte.Solution?.FullName;
             return Path.GetDirectoryName(solutionFilePath);
+        }
+
+        private static string GetDotSarifDirectoryPath()
+        {
+            return Path.Combine(SarifViewerPackage.GetSolutionDirectoryPath(), ".sarif");
         }
     }
 }

@@ -9,6 +9,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Services
 {
     public interface IGitHubService
     {
-        Task<SarifLog> GetCodeAnalysisScanResultsAsync(string userName, string repoName, string branchName);
+        Task<SarifLog> GetCodeAnalysisScanResultsAsync(string path);
     }
 }

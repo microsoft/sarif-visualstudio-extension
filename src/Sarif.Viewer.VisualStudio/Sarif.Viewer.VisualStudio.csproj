@@ -134,6 +134,8 @@
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources\Sarif.Viewer.VisualStudio.ResultSources.csproj">
       <Project>{d7f2d4df-0929-41c1-b284-b11be50ed08e}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems" Label="Shared" />

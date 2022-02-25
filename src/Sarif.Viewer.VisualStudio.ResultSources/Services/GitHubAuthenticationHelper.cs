@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading;
@@ -34,10 +35,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Services
         /// </summary>
         /// <param name="cancellationToken">Cancellation token to monitor.</param>
         /// <returns>Task representing initialization state.</returns>
-        public async Task InitializeAsync(CancellationToken cancellationToken)
+        public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
             // Get provider for VSO token request
             this.store = await AccountManager.Instance.GetStoreAsync(cancellationToken);
+
+            if (this.store is IFilteringStorageServiceClient filteringClient)
+            {
+                filteringClient.EnabledProviders = new Collection<Guid>()
+                {
+                    Guid.Empty,
+                };
+            }
+
             Account[] accounts = await this.store.GetAllAccountsAsync();
             this.gitHubAccount = accounts.FirstOrDefault((a) => a.ProviderId == GithubAccountProviderAccountProperties.AccountProviderIdentifier);
         }
