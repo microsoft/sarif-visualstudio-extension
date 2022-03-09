@@ -5,12 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows;
 
+using CSharpFunctionalExtensions;
+
+using EnvDTE80;
+
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.FileWatcher;
 using Microsoft.Sarif.Viewer.Options;
+using Microsoft.Sarif.Viewer.ResultSources.ACL;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
@@ -19,6 +31,7 @@ using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
+using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer
@@ -40,6 +53,8 @@ namespace Microsoft.Sarif.Viewer
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
+        private IResultSourceService resultSourceService;
+
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
@@ -107,7 +122,7 @@ namespace Microsoft.Sarif.Viewer
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
+        /// where you can put all the initialization code that rely on services provided by Visual Studio.
         /// </summary>
         /// <param name="cancellationToken">
         /// A <see cref="CancellationToken"/> that can be used to cancel the initialization of the package.
@@ -144,6 +159,8 @@ namespace Microsoft.Sarif.Viewer
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
+
+                _ = await SaveAnalysisLogFileAsync();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -203,12 +220,73 @@ namespace Microsoft.Sarif.Viewer
         {
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
+
+            var fileSystem = new FileSystem();
+
+            try
+            {
+                fileSystem.FileDelete(Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif"));
+            }
+            catch (Exception) { }
         }
 
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatch();
+
+            this.JoinableTaskFactory.Run(async () => _ = await SaveAnalysisLogFileAsync());
+        }
+
+        private async System.Threading.Tasks.Task<Result<bool, ErrorType>> SaveAnalysisLogFileAsync()
+        {
+            Result<SarifLog, ErrorType> result = await FetchAnalysisResultsAsync();
+
+            if (result.IsSuccess)
+            {
+                result.Value.Save(Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif"));
+                return Result.Success<bool, ErrorType>(true);
+            }
+
+            return Result.Failure<bool, ErrorType>(result.Error);
+        }
+
+        private async System.Threading.Tasks.Task<Result<SarifLog, ErrorType>> FetchAnalysisResultsAsync()
+        {
+            if (this.resultSourceService == null)
+            {
+                var resultSourceService = new ResultSourceService(this, new SecretStoreRepository());
+                Result<IResultSourceService, ErrorType> result = resultSourceService.GetResultSourceService(GetSolutionDirectoryPath());
+
+                if (result.IsSuccess)
+                {
+                    this.resultSourceService = result.Value;
+                    this.resultSourceService.ResultsUpdatedEvent += this.ResultsUpdatedEvent;
+                }
+                else
+                {
+                    return Result.Failure<SarifLog, ErrorType>(result.Error);
+                }
+            }
+
+            return await this.resultSourceService.GetCodeAnalysisScanResultsAsync();
+        }
+
+        private void ResultsUpdatedEvent(object sender, EventArgs e)
+        {
+            this.JoinableTaskFactory.Run(async () => _ = await SaveAnalysisLogFileAsync());
+        }
+
+        private static string GetSolutionDirectoryPath()
+        {
+            var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+            string solutionFilePath = dte.Solution?.FullName;
+            return Path.GetDirectoryName(solutionFilePath);
+        }
+
+        private static string GetDotSarifDirectoryPath()
+        {
+            return Path.Combine(GetSolutionDirectoryPath(), ".sarif");
         }
     }
 }

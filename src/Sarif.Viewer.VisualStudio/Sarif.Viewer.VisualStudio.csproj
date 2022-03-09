@@ -7,6 +7,9 @@
   <PropertyGroup>
     <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <NoWarn>CS8002</NoWarn>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
   <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props')" />
@@ -57,6 +60,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="StrongNamer">
+      <Version>0.2.5</Version>
+    </PackageReference>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +129,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CSharpFunctionalExtensions\CSharpFunctionalExtensions.csproj">
+      <Project>{7cfe221d-5a14-4c9f-b58c-1c2d76d57341}</Project>
+      <Name>CSharpFunctionalExtensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Converters\Sarif.Converters.csproj">
       <Project>{ba882944-7d32-4543-959a-964b7795f11e}</Project>
       <Name>Sarif.Converters</Name>
@@ -130,6 +140,18 @@
     <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
       <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
       <Name>Sarif</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.ACL\Sarif.Viewer.VisualStudio.ResultSources.ACL.csproj">
+      <Project>{47C77D8F-518C-4329-993A-A86A2564155B}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj">
+      <Project>{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems" Label="Shared" />
