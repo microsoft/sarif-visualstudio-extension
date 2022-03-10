@@ -82,16 +82,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         {
             this.secretStoreRepository = secretStoreRepository;
 
-            try
-            {
-                this.fileWatcher = new FileSystemWatcher(Path.Combine(repoPath, ".git"), "HEAD");
-                this.fileWatcher.Created += this.FileWatcher_Created;
-                this.fileWatcher.EnableRaisingEvents = true;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            this.fileWatcher = new FileSystemWatcher(Path.Combine(repoPath, ".git"), "HEAD");
+            this.fileWatcher.Created += this.FileWatcher_Created;
+            this.fileWatcher.EnableRaisingEvents = true;
         }
 
         /// <inheritdoc cref="IGitHubSourceService.IsGitHubProject()"/>
