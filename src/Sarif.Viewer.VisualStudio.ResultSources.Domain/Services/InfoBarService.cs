@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -29,25 +28,34 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
             Instance = new InfoBarService(serviceProvider);
         }
 
-        public Result ShowInfoBar(InfoBarModel infoBarModel)
+        public Result<IVsInfoBarUIElement> ShowInfoBar(InfoBarModel infoBarModel)
         {
-            if (serviceProvider.GetService(typeof(SVsShell)) is IVsShell shell)
-            {
-                // Get the main window handle to host our InfoBar
-                shell.GetProperty((int)__VSSPROPID7.VSSPROPID_MainWindowInfoBarHost, out object obj);
-                var host = (IVsInfoBarHost)obj;
+            Result<IVsInfoBarHost> getHostResult = GetInfoBarHost();
 
-                if (host != null)
-                {
-                    var factory = serviceProvider.GetService(typeof(SVsInfoBarUIFactory)) as IVsInfoBarUIFactory;
-                    Assumes.Present(factory);
-                    IVsInfoBarUIElement element = factory.CreateInfoBar(infoBarModel);
-                    element.Advise(this, out cookie);
-                    host.AddInfoBar(element);
-                }
+            if (getHostResult.IsSuccess)
+            {
+                var factory = serviceProvider.GetService(typeof(SVsInfoBarUIFactory)) as IVsInfoBarUIFactory;
+                Assumes.Present(factory);
+                IVsInfoBarUIElement element = factory.CreateInfoBar(infoBarModel);
+                element.Advise(this, out cookie);
+                getHostResult.Value.AddInfoBar(element);
+                return Result.Success(element);
             }
 
-            return Result.Failure("Unable to show infobar");
+            return Result.Failure<IVsInfoBarUIElement>("Unable to show infobar");
+        }
+
+        public Result CloseInfoBar(IVsInfoBarUIElement element)
+        {
+            Result<IVsInfoBarHost> getHostResult = GetInfoBarHost();
+
+            if (getHostResult.IsSuccess)
+            {
+                getHostResult.Value.RemoveInfoBar(element);
+                return Result.Success();
+            }
+
+            return Result.Failure("Unable to close infobar");
         }
 
         public void OnClosed(IVsInfoBarUIElement infoBarUIElement)
@@ -64,6 +72,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
                 // callback().GetAwaiter().GetResult();
                 ThreadHelper.JoinableTaskFactory.Run(async () => await callback());
             }
+        }
+
+        private Result<IVsInfoBarHost> GetInfoBarHost()
+        {
+            if (serviceProvider.GetService(typeof(SVsShell)) is IVsShell shell)
+            {
+                // Get the main window handle to host our InfoBar
+                shell.GetProperty((int)__VSSPROPID7.VSSPROPID_MainWindowInfoBarHost, out object obj);
+                var host = (IVsInfoBarHost)obj;
+
+                if (host != null)
+                {
+                    return Result.Success(host);
+                }
+            }
+
+            return Result.Failure<IVsInfoBarHost>("Unable to create infobar host");
         }
     }
 }

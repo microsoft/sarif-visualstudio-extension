@@ -249,7 +249,6 @@
     <Compile Include="Services\GitHub\IGitHubSourceService.cs" />
     <Compile Include="Services\IResultSourceService.cs" />
     <Compile Include="Services\InfoBarService.cs" />
-    <Compile Include="Services\ProjectPlatform.cs" />
     <Compile Include="Services\ResultSourceService.cs" />
   </ItemGroup>
   <ItemGroup>

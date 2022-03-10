@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.ACL
 {
     public class SecretStoreRepository : ISecretStoreRepository
     {
-        private const string SecretsNamespace = "microsoft/sarif-visualstudio-extension";
+        private const string SecretsNamespace = "microsoft-sarif-visualstudio-extension";
         private readonly SecretStore secretStore;
 
         public SecretStoreRepository()
@@ -26,8 +26,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.ACL
         {
             Token accessToken = this.secretStore.ReadToken(targetUri);
             return accessToken?.Adapt<AccessToken>();
-
-            // return this.secretStore.ReadToken(targetUri)?.Adapt<AccessToken>();
         }
 
         public Result<bool, Error> WriteAccessToken(TargetUri targetUri, AccessToken accessToken)

@@ -12,8 +12,15 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
     public interface IResultSourceService
     {
+        /// <summary>
+        /// The event raised when new scan results are available.
+        /// </summary>
         event EventHandler ResultsUpdatedEvent;
 
+        /// <summary>
+        /// Gets the latest code scan results for the current branch.
+        /// </summary>
+        /// <returns>The SARIF log received if successful; otherwise, an error.</returns>
         Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync();
     }
 }

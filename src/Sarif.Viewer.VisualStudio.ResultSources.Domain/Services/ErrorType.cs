@@ -44,5 +44,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// The specified repo URL was not compatible with the result service.
         /// </summary>
         IncompatibleRepoUrl = 7,
+
+        /// <summary>
+        /// An access token has been requested and we are awaiting user response.
+        /// </summary>
+        WaitingForUserVerification = 8,
     }
 }
