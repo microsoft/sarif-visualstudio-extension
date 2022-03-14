@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows;
 
 using CSharpFunctionalExtensions;
 
@@ -20,8 +18,6 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.FileWatcher;
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.ResultSources.ACL;
-using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
-using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
@@ -255,7 +251,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this.resultSourceService == null)
             {
-                var resultSourceService = new ResultSourceService(this, new SecretStoreRepository());
+                var resultSourceService = new ResultSourceFactory(this, new SecretStoreRepository());
                 Result<IResultSourceService, ErrorType> result = resultSourceService.GetResultSourceService(GetSolutionDirectoryPath());
 
                 if (result.IsSuccess)

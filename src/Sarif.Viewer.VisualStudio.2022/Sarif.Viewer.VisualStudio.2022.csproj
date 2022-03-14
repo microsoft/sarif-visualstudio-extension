@@ -37,6 +37,15 @@
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build2022.props))\build2022.props" />
   <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions">
+      <Version>2.28.3</Version>
+    </PackageReference>
+    <PackageReference Include="Mapster">
+      <Version>7.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Alm.Authentication">
+      <Version>4.3.0</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
       <Version>5.0.3</Version>
@@ -58,8 +67,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="StrongNamer">
-      <Version>0.2.5</Version>
+    <PackageReference Include="Octokit">
+      <Version>0.50.0</Version>
     </PackageReference>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
@@ -127,10 +136,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharpFunctionalExtensions\CSharpFunctionalExtensions.csproj">
-      <Project>{7cfe221d-5a14-4c9f-b58c-1c2d76d57341}</Project>
-      <Name>CSharpFunctionalExtensions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Converters\Sarif.Converters.csproj">
       <Project>{ba882944-7d32-4543-959a-964b7795f11e}</Project>
       <Name>Sarif.Converters</Name>
@@ -140,14 +145,14 @@
       <Name>Sarif</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.ACL\Sarif.Viewer.VisualStudio.ResultSources.ACL.csproj">
-      <Project>{47C77D8F-518C-4329-993A-A86A2564155B}</Project>
+      <Project>{47c77d8f-518c-4329-993a-a86a2564155b}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
-    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj">
-      <Project>{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}</Project>
-      <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain</Name>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022.csproj">
+      <Project>{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain.2022</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>

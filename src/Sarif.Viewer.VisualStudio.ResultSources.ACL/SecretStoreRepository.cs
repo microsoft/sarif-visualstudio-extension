@@ -17,17 +17,22 @@ namespace Microsoft.Sarif.Viewer.ResultSources.ACL
         private const string SecretsNamespace = "microsoft-sarif-visualstudio-extension";
         private readonly SecretStore secretStore;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SecretStoreRepository"/> class.
+        /// </summary>
         public SecretStoreRepository()
         {
             this.secretStore = new SecretStore(SecretsNamespace);
         }
 
+        /// <inheritdoc cref="ISecretStoreRepository.ReadAccessToken(TargetUri)"/>
         public Maybe<AccessToken> ReadAccessToken(TargetUri targetUri)
         {
             Token accessToken = this.secretStore.ReadToken(targetUri);
             return accessToken?.Adapt<AccessToken>();
         }
 
+        /// <inheritdoc cref="ISecretStoreRepository.WriteAccessToken(TargetUri, AccessToken)"/>
         public Result<bool, Error> WriteAccessToken(TargetUri targetUri, AccessToken accessToken)
         {
             bool result = this.secretStore.WriteToken(targetUri, new Token(accessToken.Value, TokenType.Personal));
@@ -36,6 +41,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.ACL
                 Result.Failure<bool, Error>(new SecretStoreError("Failed to write access token to secret store"));
         }
 
+        /// <inheritdoc cref="ISecretStoreRepository.DeleteAccessToken(TargetUri)"/>
         public Result<bool, Error> DeleteAccessToken(TargetUri targetUri)
         {
             bool result = this.secretStore.DeleteToken(targetUri);

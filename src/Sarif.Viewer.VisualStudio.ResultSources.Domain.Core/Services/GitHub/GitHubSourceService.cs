@@ -17,8 +17,8 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
+using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
@@ -29,6 +29,7 @@ using Newtonsoft.Json.Linq;
 using Octokit;
 
 using Result = CSharpFunctionalExtensions.Result;
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 {
@@ -266,7 +267,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
                     Func<Task> callbackMethod = VerifyButtonCallback;
 
-                    var infoBar = new InfoBarModel(
+                    var infoBarModel = new InfoBarModel(
                         textSpans: new[]
                         {
                             new InfoBarTextSpan("The Microsoft SARIF Viewer needs you to login to your GitHub account. Click the button and enter verification code "),
@@ -276,11 +277,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                         {
                             new InfoBarButton("Verify on GitHub", callbackMethod),
                         },
-                        image: KnownMonikers.GitHub,
+                        image: GitHubInfoBarHelper.GetInfoBarImageMoniker(),
                         isCloseButtonVisible: true);
 
                     InfoBarService.Initialize(this.serviceProvider);
-                    Result<IVsInfoBarUIElement> showInfoBarResult = InfoBarService.Instance.ShowInfoBar(infoBar);
+                    Result<IVsInfoBarUIElement> showInfoBarResult = InfoBarService.Instance.ShowInfoBar(infoBarModel);
 
                     if (showInfoBarResult.IsSuccess)
                     {

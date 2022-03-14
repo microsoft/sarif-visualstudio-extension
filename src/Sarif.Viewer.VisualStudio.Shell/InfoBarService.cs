@@ -2,14 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
 
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
+using Task = System.Threading.Tasks.Task;
+
+namespace Microsoft.Sarif.Viewer.Shell
 {
     internal class InfoBarService : IVsInfoBarUIEvents
     {
@@ -30,7 +32,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 
         public Result<IVsInfoBarUIElement> ShowInfoBar(InfoBarModel infoBarModel)
         {
-            Result<IVsInfoBarHost> getHostResult = GetInfoBarHost();
+            ThreadHelper.ThrowIfNotOnUIThread();
+            Result<InfoBarHostControl> getHostResult = GetInfoBarHost();
 
             if (getHostResult.IsSuccess)
             {
@@ -47,7 +50,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 
         public Result CloseInfoBar(IVsInfoBarUIElement element)
         {
-            Result<IVsInfoBarHost> getHostResult = GetInfoBarHost();
+            ThreadHelper.ThrowIfNotOnUIThread();
+            Result<InfoBarHostControl> getHostResult = GetInfoBarHost();
 
             if (getHostResult.IsSuccess)
             {
@@ -60,35 +64,35 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 
         public void OnClosed(IVsInfoBarUIElement infoBarUIElement)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             infoBarUIElement.Unadvise(cookie);
         }
 
         public void OnActionItemClicked(IVsInfoBarUIElement infoBarUIElement, IVsInfoBarActionItem actionItem)
         {
-            // Action callback = actionItem.ActionContext as Action;
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             if (actionItem.ActionContext is Func<Task> callback)
             {
-                // callback().GetAwaiter().GetResult();
                 ThreadHelper.JoinableTaskFactory.Run(async () => await callback());
             }
         }
 
-        private Result<IVsInfoBarHost> GetInfoBarHost()
+        private Result<InfoBarHostControl> GetInfoBarHost()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             if (serviceProvider.GetService(typeof(SVsShell)) is IVsShell shell)
             {
                 // Get the main window handle to host our InfoBar
                 shell.GetProperty((int)__VSSPROPID7.VSSPROPID_MainWindowInfoBarHost, out object obj);
-                var host = (IVsInfoBarHost)obj;
 
-                if (host != null)
+                if (obj is InfoBarHostControl host)
                 {
                     return Result.Success(host);
                 }
             }
 
-            return Result.Failure<IVsInfoBarHost>("Unable to create infobar host");
+            return Result.Failure<InfoBarHostControl>("Unable to create infobar host");
         }
     }
 }

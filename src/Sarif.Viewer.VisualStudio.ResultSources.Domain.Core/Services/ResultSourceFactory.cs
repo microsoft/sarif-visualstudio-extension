@@ -13,18 +13,18 @@ using Result = CSharpFunctionalExtensions.Result;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
-    public class ResultSourceService
+    public class ResultSourceFactory
     {
         private readonly IServiceProvider serviceProvider;
         private readonly IFileSystem fileSystem;
         private readonly ISecretStoreRepository secretStoreRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ResultSourceService"/> class.
+        /// Initializes a new instance of the <see cref="ResultSourceFactory"/> class.
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
-        public ResultSourceService(
+        public ResultSourceFactory(
             IServiceProvider serviceProvider,
             ISecretStoreRepository secretStoreRepository)
         {

@@ -19,8 +19,8 @@
     <Assets>
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
         <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
-        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.ResultSources.ACL" Path="|Sarif.Viewer.VisualStudio.ResultSources.ACL|" AssemblyName="|Sarif.Viewer.VisualStudio.ResultSources.ACL;AssemblyName|" />
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.ResultSources.Domain" Path="|Sarif.Viewer.VisualStudio.ResultSources.Domain|" AssemblyName="|Sarif.Viewer.VisualStudio.ResultSources.Domain;AssemblyName|" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.ResultSources.ACL" Path="|Sarif.Viewer.VisualStudio.ResultSources.ACL|" AssemblyName="|Sarif.Viewer.VisualStudio.ResultSources.ACL;AssemblyName|" />
     </Assets>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,17.0)" DisplayName="Visual Studio core editor" />

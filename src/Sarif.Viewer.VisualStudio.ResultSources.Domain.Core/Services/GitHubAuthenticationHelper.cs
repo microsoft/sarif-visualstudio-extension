@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Octokit;
+
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
     internal class GitHubAuthenticationHelper : IDisposable
