@@ -208,7 +208,7 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
             // start to watch when the solution is loaded.
-            this.sarifFolderMonitor?.StartWatch(); 
+            this.sarifFolderMonitor?.StartWatch();
         }
     }
 }
