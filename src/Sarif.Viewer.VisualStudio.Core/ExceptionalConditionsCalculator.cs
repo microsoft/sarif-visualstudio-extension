@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer
             foreach (SarifLog log in logs)
             {
                 conditions |= Calculate(log);
-            }
+             }
 
             return conditions;
         }
