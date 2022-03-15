@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
 
@@ -38,14 +39,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// </summary>
         /// <param name="projectRootPath">The local root path for the current project.</param>
         /// <returns>A result source service instance if the project platform is supported; otherwise, null.</returns>
-        public Result<IResultSourceService, ErrorType> GetResultSourceService(string projectRootPath)
+        public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync(string projectRootPath)
         {
             // Check for GitHub project
             var gitHubSourceService = new GitHubSourceService(this.serviceProvider, projectRootPath);
 
             if (gitHubSourceService.IsGitHubProject())
             {
-                gitHubSourceService.Initialize(this.secretStoreRepository);
+                await gitHubSourceService.InitializeAsync(this.secretStoreRepository);
                 return gitHubSourceService;
             }
 

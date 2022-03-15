@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 {
-    internal class GitRepoEventArgs : EventArgs
+    internal class GitRepoEventArgs : ResultsUpdatedEventArgs
     {
         public string BranchName { get; set; }
     }

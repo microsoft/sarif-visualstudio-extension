@@ -252,7 +252,7 @@ namespace Microsoft.Sarif.Viewer
             if (this.resultSourceService == null)
             {
                 var resultSourceService = new ResultSourceFactory(this, new SecretStoreRepository());
-                Result<IResultSourceService, ErrorType> result = resultSourceService.GetResultSourceService(GetSolutionDirectoryPath());
+                Result<IResultSourceService, ErrorType> result = await resultSourceService.GetResultSourceServiceAsync(GetSolutionDirectoryPath());
 
                 if (result.IsSuccess)
                 {

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
@@ -15,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <summary>
         /// The event raised when new scan results are available.
         /// </summary>
-        event EventHandler ResultsUpdatedEvent;
+        event EventHandler<ResultsUpdatedEventArgs> ResultsUpdatedEvent;
 
         /// <summary>
         /// Gets the latest code scan results for the current branch.

@@ -49,5 +49,15 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// An access token has been requested and we are awaiting user response.
         /// </summary>
         WaitingForUserVerification = 8,
+
+        /// <summary>
+        /// No analyses were returned, or an error occurred.
+        /// </summary>
+        AnalysesUnavailable = 9,
+
+        /// <summary>
+        /// The specified analysis could not be retrieved, or an error occurred.
+        /// </summary>
+        AnalysisUnavailable = 10,
     }
 }

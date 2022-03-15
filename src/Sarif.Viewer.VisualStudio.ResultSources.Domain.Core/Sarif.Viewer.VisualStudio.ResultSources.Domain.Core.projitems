@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)HttpUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AccessToken.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NoContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ResultsUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\UserVerificationResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\VerificationCode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ErrorType.cs" />

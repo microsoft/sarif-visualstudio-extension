@@ -61,8 +61,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ResultSources", "ResultSour
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain.Core", "Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.shproj", "{034C4D27-8D71-4F1D-9476-43CFD0841D1E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain.UnitTests", "Sarif.Viewer.VisualStudio.ResultSources.Domain.UnitTests\Sarif.Viewer.VisualStudio.ResultSources.Domain.UnitTests.csproj", "{00E789EC-6AD5-446F-9618-A8B46336E916}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain.2022", "Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022.csproj", "{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain", "Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj", "{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}"
@@ -76,7 +74,6 @@ Global
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.projitems*{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{034c4d27-8d71-4f1d-9476-43cfd0841d1e}*SharedItemsImports = 13
-		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
 		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{710b6e5c-8322-4260-b131-41c18d23358f}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}*SharedItemsImports = 4
@@ -263,18 +260,6 @@ Global
 		{DD071EEA-8956-48E7-871C-FC612B7E3627}.Release|x64.Build.0 = Release|x64
 		{DD071EEA-8956-48E7-871C-FC612B7E3627}.Release|x86.ActiveCfg = Release|x86
 		{DD071EEA-8956-48E7-871C-FC612B7E3627}.Release|x86.Build.0 = Release|x86
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Debug|AnyCPU.Build.0 = Debug|Any CPU
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Debug|x64.ActiveCfg = Debug|x64
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Debug|x64.Build.0 = Debug|x64
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Debug|x86.ActiveCfg = Debug|x86
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Debug|x86.Build.0 = Debug|x86
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Release|AnyCPU.ActiveCfg = Release|Any CPU
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Release|AnyCPU.Build.0 = Release|Any CPU
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Release|x64.ActiveCfg = Release|x64
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Release|x64.Build.0 = Release|x64
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Release|x86.ActiveCfg = Release|x86
-		{00E789EC-6AD5-446F-9618-A8B46336E916}.Release|x86.Build.0 = Release|x86
 		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
 		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|AnyCPU.Build.0 = Debug|Any CPU
 		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|x64.ActiveCfg = Debug|x64
@@ -324,7 +309,6 @@ Global
 		{AA731FF3-5423-49F9-84C9-D05543FBA360} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 		{1C66937F-5D66-4FBC-A2EF-E0529868952D} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 		{034C4D27-8D71-4F1D-9476-43CFD0841D1E} = {487B8177-1D9A-4695-AE0B-6A463E35043A}
-		{00E789EC-6AD5-446F-9618-A8B46336E916} = {487B8177-1D9A-4695-AE0B-6A463E35043A}
 		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E} = {487B8177-1D9A-4695-AE0B-6A463E35043A}
 		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E} = {487B8177-1D9A-4695-AE0B-6A463E35043A}
 		{47C77D8F-518C-4329-993A-A86A2564155B} = {487B8177-1D9A-4695-AE0B-6A463E35043A}
