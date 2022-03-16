@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
     public class GitHubSourceService : IGitHubSourceService
     {
         private const string SecretsNamespace = "microsoft-sarif-visualstudio-extension";
-        private const string ClientId = "c0c99f438d4b6279879e";
+        private const string ClientId = "23c8243801d898f93624";
         private const string Scope = "security_events";
         private const string GitHubRepoUriPattern = @"^https://(www.)?github.com/(?<user>[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38})/(?<repo>[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}).git$";
         private const string BaseUrl = "https://github.com";
@@ -78,8 +78,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             this.repoPath = this.gitHelper.GetRepositoryRoot(solutionPath);
         }
 
-        /// <inheritdoc cref="IResultSourceService.ResultsUpdatedEvent"/>
-        public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdatedEvent;
+        /// <inheritdoc cref="IResultSourceService.ResultsUpdated"/>
+        public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
 
         /// <summary>
         /// Initializes the service instance.
@@ -88,23 +88,24 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task InitializeAsync(ISecretStoreRepository secretStoreRepository)
         {
+            string branch = await this.GetCurrentBranchAsync();
             string repoUrl = await GetRepoUriAsync();
             Match match = Regex.Match(repoUrl, GitHubRepoUriPattern);
 
             if (match.Success)
             {
-                string branch = await this.GetCurrentBranchAsync();
                 codeScanningBaseApiUrl = string.Format(CodeScanningBaseApiUrlFormat, match.Groups["user"], match.Groups["repo"]);
             }
 
             this.secretStoreRepository = secretStoreRepository;
 
             this.fileWatcherBranchChange = new FileSystemWatcher(Path.Combine(repoPath, ".git"), "HEAD");
-            this.fileWatcherBranchChange.Created += this.FileWatcher_HeadFile_Created;
+            this.fileWatcherBranchChange.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            this.fileWatcherBranchChange.Renamed += this.FileWatcher_BranchChange_Renamed;
             this.fileWatcherBranchChange.EnableRaisingEvents = true;
 
             this.fileWatcherGitPush = new FileSystemWatcher();
-            this.SetBranchRefFileWatcherPath();
+            this.SetBranchRefFileWatcherPath(branch);
             this.fileWatcherGitPush.NotifyFilter = NotifyFilters.LastWrite;
             this.fileWatcherGitPush.Changed += this.FileWatcher_BranchFile_Changed;
             this.fileWatcherGitPush.EnableRaisingEvents = true;
@@ -225,7 +226,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 return Result.Failure<SarifLog, ErrorType>(startAuthResult.Error);
             }
 
-            return sarifLog;
+            return sarifLog ?? Result.Failure<SarifLog, ErrorType>(ErrorType.AnalysesUnavailable);
         }
 
         private static SarifLog CreateEmptySarifLog()
@@ -280,12 +281,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 var infoBarModel = new InfoBarModel(
                     textSpans: new[]
                     {
-                            new InfoBarTextSpan("The Microsoft SARIF Viewer needs you to login to your GitHub account. Click the button and enter verification code "),
-                            new InfoBarTextSpan($"{userCode}", bold: true),
+                        new InfoBarTextSpan("The Microsoft SARIF Viewer needs you to login to your GitHub account. Click the button and enter verification code "),
+                        new InfoBarTextSpan($"{userCode}", bold: true),
                     },
                     actionItems: new[]
                     {
-                            new InfoBarButton("Verify on GitHub", callbackMethod),
+                        new InfoBarButton("Verify on GitHub", callbackMethod),
                     },
                     image: GitHubInfoBarHelper.GetInfoBarImageMoniker(),
                     isCloseButtonVisible: true);
@@ -350,14 +351,22 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     {
                         if (string.IsNullOrWhiteSpace(commitHash))
                         {
-                            // Get the latest analysis
-                            string lastId = jArray.Last["id"].Value<string>();
                             if (jArray.Count == 0)
                             {
-                                // No analyses were returned, OR there were exactly {perPage} analyses in the previous response.
-                                analysisId = lastAnalysisId;
+                                if (lastAnalysisId != "0")
+                                {
+                                    // There were exactly {perPage} analyses in the previous response.
+                                    analysisId = lastAnalysisId;
+                                }
+
+                                // Else, no results were returned.
+
+                                break;
                             }
-                            else if (jArray.Count < perPage)
+
+                            // Get the latest analysis
+                            string lastId = jArray.Last["id"].Value<string>();
+                            if (jArray.Count < perPage)
                             {
                                 analysisId = lastId;
                             }
@@ -376,6 +385,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                             {
                                 analysisId = scanResult.Value<string>();
                             }
+
+                            break;
                         }
                     }
                     else
@@ -383,15 +394,18 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                         break;
                     }
                 }
+                else
+                {
+                    break;
+                }
             }
 
             return analysisId ?? Result.Failure<string, ErrorType>(ErrorType.AnalysesUnavailable);
         }
 
-        private void SetBranchRefFileWatcherPath()
+        private void SetBranchRefFileWatcherPath(string branchName)
         {
-            string currentBranch = gitHelper.GetCurrentBranch(repoPath);
-            (string Path, string Name) parsedBranch = ParseBranchString(currentBranch);
+            (string Path, string Name) parsedBranch = ParseBranchString(branchName);
 
             this.fileWatcherGitPush.EnableRaisingEvents = false;
             this.fileWatcherGitPush.Path = Path.Combine(repoPath, GitLocalRefFileBaseRelativePath, parsedBranch.Path);
@@ -416,12 +430,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
         }
 
-        private void FileWatcher_HeadFile_Created(object sender, FileSystemEventArgs e)
+        private void FileWatcher_BranchChange_Renamed(object sender, FileSystemEventArgs e)
         {
-            if (e.Name == "HEAD" && e.ChangeType == WatcherChangeTypes.Created)
-            {
-                OnCurrentBranchChanged();
-            }
+            OnCurrentBranchChanged();
         }
 
         private void FileWatcher_BranchFile_Changed(object sender, FileSystemEventArgs e)
@@ -431,8 +442,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
         private void OnCurrentBranchChanged()
         {
-            this.SetBranchRefFileWatcherPath();
-            this.RaiseResultsUpdatedEvent(new GitRepoEventArgs() { BranchName = gitHelper.GetCurrentBranch(repoPath) });
+            string branchName = gitHelper.GetCurrentBranch(repoPath);
+            this.SetBranchRefFileWatcherPath(branchName);
+            this.RaiseResultsUpdatedEvent(new GitRepoEventArgs() { BranchName = branchName });
         }
 
         private void OnBranchPushEvent(string branchFilePath)
@@ -480,7 +492,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
         private void RaiseResultsUpdatedEvent(GitRepoEventArgs eventArgs = null)
         {
-            ResultsUpdatedEvent?.Invoke(this, (ResultsUpdatedEventArgs)(eventArgs ?? EventArgs.Empty));
+            ResultsUpdated?.Invoke(this, eventArgs);
         }
 
         private async ValueTask<string> GetRepoUriAsync() // TODO: <string?>

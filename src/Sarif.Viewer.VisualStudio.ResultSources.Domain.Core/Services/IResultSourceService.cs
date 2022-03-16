@@ -16,7 +16,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <summary>
         /// The event raised when new scan results are available.
         /// </summary>
-        event EventHandler<ResultsUpdatedEventArgs> ResultsUpdatedEvent;
+        event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
 
         /// <summary>
         /// Gets the latest code scan results for the current branch.

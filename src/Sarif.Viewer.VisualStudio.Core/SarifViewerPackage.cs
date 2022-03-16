@@ -18,6 +18,7 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.FileWatcher;
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.ResultSources.ACL;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
@@ -257,7 +258,7 @@ namespace Microsoft.Sarif.Viewer
                 if (result.IsSuccess)
                 {
                     this.resultSourceService = result.Value;
-                    this.resultSourceService.ResultsUpdatedEvent += this.ResultsUpdatedEvent;
+                    this.resultSourceService.ResultsUpdated += this.ResultSourceService_ResultsUpdated;
                 }
                 else
                 {
@@ -268,7 +269,7 @@ namespace Microsoft.Sarif.Viewer
             return await this.resultSourceService.GetCodeAnalysisScanResultsAsync();
         }
 
-        private void ResultsUpdatedEvent(object sender, EventArgs e)
+        private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
         {
             this.JoinableTaskFactory.Run(async () => _ = await SaveAnalysisLogFileAsync());
         }

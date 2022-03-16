@@ -74,6 +74,7 @@ Global
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.projitems*{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{034c4d27-8d71-4f1d-9476-43cfd0841d1e}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
 		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{710b6e5c-8322-4260-b131-41c18d23358f}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}*SharedItemsImports = 4
