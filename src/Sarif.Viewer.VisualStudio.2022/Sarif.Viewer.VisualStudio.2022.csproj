@@ -181,6 +181,7 @@
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
