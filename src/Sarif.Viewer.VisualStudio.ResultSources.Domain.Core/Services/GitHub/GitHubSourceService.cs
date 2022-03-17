@@ -106,8 +106,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
             this.fileWatcherGitPush = new FileSystemWatcher();
             this.SetBranchRefFileWatcherPath(branch);
-            this.fileWatcherGitPush.NotifyFilter = NotifyFilters.LastWrite;
-            this.fileWatcherGitPush.Changed += this.FileWatcher_BranchFile_Changed;
+            this.fileWatcherGitPush.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            this.fileWatcherGitPush.Renamed += this.FileWatcher_BranchFile_Changed;
             this.fileWatcherGitPush.EnableRaisingEvents = true;
         }
 
@@ -329,7 +329,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
         }
 
-        private async Task<Result<string, ErrorType>> GetAnalysisIdAsync(string baseUrl, string branch, string accessToken, string commitHash = null)
+        private async Task<Result<string, ErrorType>> GetAnalysisIdAsync(
+            string baseUrl,
+            string branch,
+            string accessToken,
+            string commitHash = null)
         {
             string lastAnalysisId = "0";
             string analysisId = null;
@@ -339,7 +343,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             while (analysisId == null)
             {
                 // What does this endpoint do if we request past the end of the list?
-                HttpResponseMessage responseMessage = await HttpUtility.GetHttpResponseAsync(HttpMethod.Get, baseUrl + $"?ref=refs/heads/{branch}&page={page++}&per_page={perPage}", token: accessToken);
+                string url = baseUrl + $"?ref=refs/heads/{branch}&page={page++}&per_page={perPage}";
+                HttpResponseMessage responseMessage = await HttpUtility.GetHttpResponseAsync(HttpMethod.Get, url, token: accessToken);
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
@@ -366,7 +371,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
                             // Get the latest analysis
                             string lastId = jArray.Last["id"].Value<string>();
-                            if (jArray.Count < perPage)
+                            if (jArray.Count <= perPage)
                             {
                                 analysisId = lastId;
                             }
@@ -379,11 +384,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                         else
                         {
                             // Look for the analysis for a specific commit
-                            JToken scanResult = jArray.Where(a => a["commit_sha"].Value<string>() == commitHash).FirstOrDefault();
+                            JToken scanResult = jArray
+                                                    .Where(a => a["commit_sha"].Value<string>() == commitHash)
+                                                    .FirstOrDefault();
 
+                            // We found it, grab the analysis id.
                             if (scanResult != null)
                             {
-                                analysisId = scanResult.Value<string>();
+                                analysisId = scanResult["id"].Value<string>();
                             }
 
                             break;
@@ -442,7 +450,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
         private void OnCurrentBranchChanged()
         {
-            string branchName = gitHelper.GetCurrentBranch(repoPath);
+            string branchName = gitHelper.GetCurrentBranch(this.repoPath);
             this.SetBranchRefFileWatcherPath(branchName);
             this.RaiseResultsUpdatedEvent(new GitRepoEventArgs() { BranchName = branchName });
         }
@@ -451,10 +459,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         {
             this.fileWatcherGitPush.EnableRaisingEvents = false;
 
-            string commitHash = File.ReadAllText(branchFilePath);
+            string commitHash = File.ReadAllText(branchFilePath)?.TrimEnd('\n');
+            string currentBranch = gitHelper.GetCurrentBranch(this.repoPath);
 
             // Start polling for updated scan results.
-            _ = Task.Run(() => PollForUpdatedResultsAsync(Path.GetFileName(branchFilePath), commitHash));
+            _ = Task.Run(() => PollForUpdatedResultsAsync(currentBranch, commitHash));
         }
 
         private async Task PollForUpdatedResultsAsync(string branchName, string commitHash)
