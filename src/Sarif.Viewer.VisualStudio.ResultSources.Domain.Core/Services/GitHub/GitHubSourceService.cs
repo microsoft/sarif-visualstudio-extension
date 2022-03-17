@@ -399,11 +399,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     }
                     else
                     {
+                        // Null JArray
                         break;
                     }
                 }
                 else
                 {
+                    // Unsuccessful request
                     break;
                 }
             }
