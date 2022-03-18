@@ -13,7 +13,6 @@
   <PropertyGroup>
     <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio.ResultSources.Domain\Microsoft.Sarif.Viewer.ResultSources.Domain.xml</DocumentationFile>
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build2022.props))\build2022.props" />
   <ItemGroup>
     <Reference Include="System" />
