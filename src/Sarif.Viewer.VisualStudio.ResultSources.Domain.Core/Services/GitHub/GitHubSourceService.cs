@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,6 +21,7 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
@@ -98,6 +100,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
 
             this.secretStoreRepository = secretStoreRepository;
+            InfoBarService.Initialize(this.serviceProvider);
+            StatusBarService.Initialize(this.serviceProvider);
 
             this.fileWatcherBranchChange = new FileSystemWatcher(Path.Combine(repoPath, ".git"), "HEAD");
             this.fileWatcherBranchChange.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
@@ -200,6 +204,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         public async Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync()
         {
             SarifLog sarifLog = null;
+            CancellationTokenSource source = new CancellationTokenSource();
+            CancellationToken cancellationToken = source.Token;
 
             Maybe<Models.AccessToken> getAccessTokenResult = await GetCachedAccessTokenAsync();
 
@@ -208,15 +214,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 string accessToken = getAccessTokenResult.Value.Value;
                 string branch = await this.GetCurrentBranchAsync();
 
+                _ = Task.Run(async () => await StatusBarService.Instance.AnimateStatusTextAsync("Getting static analysis results{0}", new[] { string.Empty, ".", "..", "..." }, 400, cancellationToken), cancellationToken);
+
                 Result<string, ErrorType> latestIdResult = await GetAnalysisIdAsync(codeScanningBaseApiUrl, branch, accessToken);
 
                 if (latestIdResult.IsSuccess)
                 {
                     Result<SarifLog, string> getLogResult = await GetAnalysisResultsAsync(codeScanningBaseApiUrl, latestIdResult.Value, accessToken);
+                    StatusBarService.Instance.ClearStatusText();
 
-                    return getLogResult.IsSuccess ?
-                        getLogResult.Value :
-                        Result.Failure<SarifLog, ErrorType>(ErrorType.AnalysisUnavailable);
+                    if (getLogResult.IsSuccess)
+                    {
+                        sarifLog = getLogResult.Value;
+                    }
                 }
             }
             else
@@ -226,6 +236,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 return Result.Failure<SarifLog, ErrorType>(startAuthResult.Error);
             }
 
+            source.Cancel();
             return sarifLog ?? Result.Failure<SarifLog, ErrorType>(ErrorType.AnalysesUnavailable);
         }
 
@@ -291,13 +302,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     image: GitHubInfoBarHelper.GetInfoBarImageMoniker(),
                     isCloseButtonVisible: true);
 
-                InfoBarService.Initialize(this.serviceProvider);
-                Result<IVsInfoBarUIElement> showInfoBarResult = InfoBarService.Instance.ShowInfoBar(infoBarModel);
-
-                if (showInfoBarResult.IsSuccess)
-                {
-                    this.infoBar = showInfoBarResult.Value;
-                }
+                await ShowInfoBarAsync(infoBarModel);
 
                 return Result.Failure<bool, ErrorType>(ErrorType.WaitingForUserVerification);
             }
@@ -477,6 +482,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 string accessToken = getAccessTokenResult.Value.Value;
                 DateTime timeoutTime = DateTime.UtcNow.AddSeconds(ScanResultsPollTimeoutSeconds);
 
+                var infoBarModel = new InfoBarModel(
+                    textSpans: new[]
+                    {
+                        new InfoBarTextSpan("The Microsoft SARIF Viewer is waiting for new static analysis results from GitHub"),
+                    },
+                    image: KnownMonikers.Activity,
+                    isCloseButtonVisible: true);
+
+                await ShowInfoBarAsync(infoBarModel);
+
                 while (timeoutTime > DateTime.UtcNow)
                 {
                     await Task.Delay(ScanResultsPollIntervalSeconds * 1000);
@@ -488,6 +503,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
                         if (getResultsResult.IsSuccess)
                         {
+                            await CloseInfoBarAsync(this.infoBar);
+
                             var eventArgs = new GitRepoEventArgs
                             {
                                 BranchName = branchName,
@@ -504,6 +521,25 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private void RaiseResultsUpdatedEvent(GitRepoEventArgs eventArgs = null)
         {
             ResultsUpdated?.Invoke(this, eventArgs);
+        }
+
+        private async Task ShowInfoBarAsync(InfoBarModel infoBarModel)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            Result<IVsInfoBarUIElement> showInfoBarResult = InfoBarService.Instance.ShowInfoBar(infoBarModel);
+
+            if (showInfoBarResult.IsSuccess)
+            {
+                this.infoBar = showInfoBarResult.Value;
+            }
+        }
+
+        private async Task CloseInfoBarAsync(IVsInfoBarUIElement element)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            _ = InfoBarService.Instance.CloseInfoBar(element);
         }
 
         private async ValueTask<string> GetRepoUriAsync() // TODO: <string?>

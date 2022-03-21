@@ -242,7 +242,6 @@ namespace Microsoft.Sarif.Viewer
             if (result.IsSuccess)
             {
                 string path = Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif");
-                File.Delete(path);
                 result.Value.Save(path);
                 return Result.Success<bool, ErrorType>(true);
             }
