@@ -203,8 +203,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// <inheritdoc cref="IResultSourceService.GetCodeAnalysisScanResultsAsync()"/>
         public async Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync()
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             SarifLog sarifLog = null;
-            CancellationTokenSource source = new CancellationTokenSource();
+            var source = new CancellationTokenSource();
             CancellationToken cancellationToken = source.Token;
 
             Maybe<Models.AccessToken> getAccessTokenResult = await GetCachedAccessTokenAsync();
@@ -221,7 +223,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 if (latestIdResult.IsSuccess)
                 {
                     Result<SarifLog, string> getLogResult = await GetAnalysisResultsAsync(codeScanningBaseApiUrl, latestIdResult.Value, accessToken);
-                    StatusBarService.Instance.ClearStatusText();
+                    await StatusBarService.Instance.ClearStatusTextAsync();
 
                     if (getLogResult.IsSuccess)
                     {

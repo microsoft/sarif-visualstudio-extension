@@ -85,6 +85,8 @@ namespace Microsoft.Sarif.Viewer.Shell
             int millisecondsInterval,
             CancellationToken cancellationToken)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
             for (int i = 0; !cancellationToken.IsCancellationRequested; i++)
             {
                 string text = string.Format(textFormat, frames[i]);
@@ -93,15 +95,16 @@ namespace Microsoft.Sarif.Viewer.Shell
                 await Task.Delay(millisecondsInterval);
             }
 
-            this.ClearStatusText();
+            await this.ClearStatusTextAsync();
         }
 
         /// <summary>
         /// Clears the status bar text area.
         /// </summary>
-        public void ClearStatusText()
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task ClearStatusTextAsync()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             this.StatusBar.IsFrozen(out int frozen);
 
