@@ -15,6 +15,8 @@
     The feed's unique identifier.
 .PARAMETER OutputPath
     The path to the created atom.xml file.
+.PARAMETER VsVersion
+    The VS version target.
 #>
 
 [CmdletBinding()]
@@ -34,7 +36,12 @@ param(
 
     [string]
     [Parameter(Mandatory=$true)]
-    $OutputPath
+    $OutputPath,
+
+    [string]
+    [Parameter(Mandatory=$true)]
+	[ValidateSetAttribute("2019","2022")]
+    $VsVersion
 )
 
 Set-StrictMode -Version Latest
@@ -51,19 +58,19 @@ $version = Get-Version;
 
 @"
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <title type="text">$FeedTitle</title>
+    <title type="text">$FeedTitle $VsVersion</title>
     <id>$FeedId</id>
     <updated>$now</updated>
     <entry>
         <id>$vsixId</id>
-        <title type="text">SARIF Viewer VSIX for Visual Studio 2019</title>
+        <title type="text">SARIF Viewer VSIX for Visual Studio $VsVersion</title>
         <summary type="text">Extension for viewing SARIF log files.</summary>
         <published>$now</published>
         <updated>$now</updated>
         <author>
             <name>1ES Security Tools Team</name>
         </author>
-        <content type="application/octet-stream" src="$FeedUri/Microsoft.Sarif.Viewer.vsix"/>
+        <content type="application/octet-stream" src="$FeedUri-$VsVersion/Microsoft.Sarif.Viewer.vsix"/>
         <Vsix xmlns="http://schemas.microsoft.com/developer/vsx-syndication-schema/2010" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
             <Id>$vsixId</Id>
             <Version>$version</Version>
@@ -73,7 +80,7 @@ $version = Get-Version;
             <DownloadCount xsi:nil="true"/>
         </Vsix>
         <link rel="releasenotes" type="text/markdown" href="https://github.com/microsoft/sarif-visualstudio-extension/blob/master/src/ReleaseHistory.md"/>
-        <link rel="icon" href="$FeedUri/Triskele.ico"/>
+        <link rel="icon" href="$FeedUri-$VsVersion/Triskele.ico"/>
     </entry>
 </feed>
 "@ | Out-File $OutputPath

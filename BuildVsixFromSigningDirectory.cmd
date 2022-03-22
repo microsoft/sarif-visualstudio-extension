@@ -27,13 +27,20 @@ set BinaryOutputDirectory=%BinaryOutputDirectory%\%Platform%_%Configuration%
 if exist %ArchiveDirectory% (rd /s /q %ArchiveDirectory%)
 md %ArchiveDirectory%
 
-powershell -File .\scripts\Unzip.ps1 %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.vsix %ArchiveDirectory%
-xcopy /Y %SigningDirectory%\net472\Microsoft.Sarif.Viewer.dll %ArchiveDirectory%
+powershell -File .\scripts\Unzip.ps1 %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.vsix %ArchiveDirectory%\2019
+powershell -File .\scripts\Unzip.ps1 %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.vsix %ArchiveDirectory%\2022
+xcopy /Y %SigningDirectory%\net472\2019\Microsoft.Sarif.Viewer.dll %ArchiveDirectory%\2019
+xcopy /Y %SigningDirectory%\net472\2022\Microsoft.Sarif.Viewer.dll %ArchiveDirectory%\2022
 del /Q %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.vsix
+del /Q %BinaryOutputDirectory%\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.vsix
 
 :: This command will only output to a file with a .zip extension
-powershell Compress-Archive -Path %ArchiveDirectory%\* -CompressionLevel Fastest -DestinationPath %SigningDirectory%\Microsoft.Sarif.Viewer.zip
-pushd %SigningDirectory%
+powershell Compress-Archive -Path %ArchiveDirectory%\2019\* -CompressionLevel Fastest -DestinationPath %SigningDirectory%\2019\Microsoft.Sarif.Viewer.zip
+powershell Compress-Archive -Path %ArchiveDirectory%\2022\* -CompressionLevel Fastest -DestinationPath %SigningDirectory%\2022\Microsoft.Sarif.Viewer.zip
+pushd %SigningDirectory%\2019
+rename Microsoft.Sarif.Viewer.zip Microsoft.Sarif.Viewer.vsix
+popd
+pushd %SigningDirectory%\2022
 rename Microsoft.Sarif.Viewer.zip Microsoft.Sarif.Viewer.vsix
 popd
 
