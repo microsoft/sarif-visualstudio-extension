@@ -40,7 +40,7 @@ param(
 
     [string]
     [Parameter(Mandatory=$true)]
-	[ValidateSetAttribute("2019","2022")]
+	[ValidateSet("2019","2022")]
     $VsVersion
 )
 
