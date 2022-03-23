@@ -85,6 +85,8 @@ function New-SigningDirectory {
 
     foreach ($framework in $Frameworks) {
         New-DirectorySafely $SigningDirectory\$framework
+        New-DirectorySafely $SigningDirectory\$framework\2019
+        New-DirectorySafely $SigningDirectory\$framework\2022
     }
 
     foreach ($project in $Projects.Product) {
@@ -103,11 +105,12 @@ function New-SigningDirectory {
     # Copy the viewer. Its name doesn't fit the pattern binary name == project name,
     # so we copy it by hand.
     foreach ($framework in $Frameworks) {
-        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework
+        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework\2019
+        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework\2022
     }
 }
 
-function  Install-SarifExtension {
+function Install-SarifExtension {
     $vsixInstallerPaths = Get-ChildItem $BinRoot "*.vsix" -Recurse
     if (-not $vsixInstallerPaths) {
         Exit-WithFailureMessage $ScriptName "Cannot install VSIX: .vsix file was not found."
