@@ -215,10 +215,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             {
                 string accessToken = getAccessTokenResult.Value.Value;
                 string branch = await this.GetCurrentBranchAsync();
+                string commitHash = await this.GetCurrentCommitHashAsync();
 
                 _ = Task.Run(async () => await StatusBarService.Instance.AnimateStatusTextAsync("Getting static analysis results{0}", new[] { string.Empty, ".", "..", "..." }, 400, cancellationToken), cancellationToken);
 
-                Result<string, ErrorType> latestIdResult = await GetAnalysisIdAsync(codeScanningBaseApiUrl, branch, accessToken);
+                Result<string, ErrorType> latestIdResult = await GetAnalysisIdAsync(codeScanningBaseApiUrl, branch, accessToken, commitHash);
 
                 if (latestIdResult.IsSuccess)
                 {
@@ -377,7 +378,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                             }
 
                             // Get the latest analysis
-                            string lastId = jArray.Last["id"].Value<string>();
+                            string lastId = jArray.First["id"].Value<string>();
                             if (jArray.Count <= perPage)
                             {
                                 analysisId = lastId;
@@ -552,6 +553,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private async ValueTask<string> GetCurrentBranchAsync() // TODO: <string?>
         {
             return await ExecuteGitCommandAsync("symbolic-ref --short HEAD");
+        }
+
+        private async ValueTask<string> GetCurrentCommitHashAsync() // TODO: <string?>
+        {
+            return await ExecuteGitCommandAsync("rev-parse HEAD");
         }
 
         private async ValueTask<string> ExecuteGitCommandAsync(string arguments)

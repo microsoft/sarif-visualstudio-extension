@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
 
-using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub;
 
@@ -17,7 +16,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
     public class ResultSourceFactory
     {
         private readonly IServiceProvider serviceProvider;
-        private readonly IFileSystem fileSystem;
         private readonly ISecretStoreRepository secretStoreRepository;
 
         /// <summary>
@@ -30,7 +28,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
             ISecretStoreRepository secretStoreRepository)
         {
             this.serviceProvider = serviceProvider;
-            this.fileSystem = FileSystem.Instance;
             this.secretStoreRepository = secretStoreRepository;
         }
 
