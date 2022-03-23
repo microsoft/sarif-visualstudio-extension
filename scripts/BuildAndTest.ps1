@@ -85,6 +85,8 @@ function New-SigningDirectory {
 
     foreach ($framework in $Frameworks) {
         New-DirectorySafely $SigningDirectory\$framework
+        New-DirectorySafely $SigningDirectory\$framework\2019
+        New-DirectorySafely $SigningDirectory\$framework\2022
     }
 
     foreach ($project in $Projects.Product) {
