@@ -156,6 +156,10 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell.2022\Sarif.Viewer.VisualStudio.Shell.2022.csproj">
+      <Project>{3585559d-e715-41de-ae14-f2e18eb516ca}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Shell.2022</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

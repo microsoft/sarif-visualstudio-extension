@@ -20,7 +20,6 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.Shell;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -31,12 +30,17 @@ using Newtonsoft.Json.Linq;
 
 using Octokit;
 
+using Sarif.Viewer.VisualStudio.Shell.Core;
+
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 {
-    public class GitHubSourceService : IGitHubSourceService
+    /// <summary>
+    /// GitHubSourceService class.
+    /// </summary>
+    public partial class GitHubSourceService : IGitHubSourceService
     {
         private const string SecretsNamespace = "microsoft-sarif-visualstudio-extension";
         private const string ClientId = "23c8243801d898f93624";
@@ -50,48 +54,59 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private const int ScanResultsPollIntervalSeconds = 10;
         private const int ScanResultsPollTimeoutSeconds = 1200;
 
-        private static readonly TargetUri baseTargetUri = new TargetUri(BaseUrl);
+        private static readonly TargetUri s_baseTargetUri = new TargetUri(BaseUrl);
 
-        private readonly string repoPath;
-        private readonly IServiceProvider serviceProvider;
-        private readonly AsyncLazy<string> vsInstallDir;
         private readonly IFileSystem fileSystem;
-        private readonly GitHelper gitHelper;
+        private readonly IGitExe gitExe;
 
-        private string codeScanningBaseApiUrl;
+        private IServiceProvider serviceProvider;
         private ISecretStoreRepository secretStoreRepository;
-        private FileSystemWatcher fileWatcherBranchChange;
-        private FileSystemWatcher fileWatcherGitPush;
+        private IFileWatcher fileWatcherBranchChange;
+        private IFileWatcher fileWatcherGitPush;
+        private string repoPath;
+        private string codeScanningBaseApiUrl;
+        private InfoBarService infoBarService;
+        private StatusBarService statusBarService;
         private IVsInfoBarUIElement infoBar;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GitHubSourceService"/> class.
         /// </summary>
-        /// <param name="serviceProvider">The service provider.</param>
-        /// <param name="solutionPath">The path of the current solution.</param>
+        /// <param name="solutionRootPath">The full path of the solution directory.</param>
+        /// <param name="fileSystem">The file system.</param>
+        /// <param name="gitExe">The git.exe helper.</param>
         public GitHubSourceService(
-            IServiceProvider serviceProvider,
-            string solutionPath)
+            string solutionRootPath,
+            IFileSystem fileSystem,
+            IGitExe gitExe)
         {
-            this.serviceProvider = serviceProvider;
-            this.vsInstallDir = new AsyncLazy<string>(this.GetVsInstallDirectoryAsync, ThreadHelper.JoinableTaskFactory);
-            this.fileSystem = FileSystem.Instance;
-            this.gitHelper = new GitHelper(fileSystem);
-            this.repoPath = this.gitHelper.GetRepositoryRoot(solutionPath);
+            this.fileSystem = fileSystem;
+            this.gitExe = gitExe;
+            this.gitExe.RepoPath = solutionRootPath;
         }
 
         /// <inheritdoc cref="IResultSourceService.ResultsUpdated"/>
         public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
 
-        /// <summary>
-        /// Initializes the service instance.
-        /// </summary>
-        /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task InitializeAsync(ISecretStoreRepository secretStoreRepository)
+        /// <inheritdoc cref="IGitHubSourceService.InitializeAsync(IServiceProvider, ISecretStoreRepository, IFileWatcher, IFileWatcher)"/>
+        public async Task InitializeAsync(
+            IServiceProvider serviceProvider,
+            ISecretStoreRepository secretStoreRepository,
+            IFileWatcher fileWatcherBranchChange,
+            IFileWatcher fileWatcherGitPush)
         {
-            string branch = await this.GetCurrentBranchAsync();
-            string repoUrl = await GetRepoUriAsync();
+            this.serviceProvider = serviceProvider;
+            this.secretStoreRepository = secretStoreRepository;
+            this.fileWatcherBranchChange = fileWatcherBranchChange;
+            this.fileWatcherGitPush = fileWatcherGitPush;
+
+            if (string.IsNullOrWhiteSpace(repoPath))
+            {
+                this.repoPath = await gitExe.GetRepoRootAsync();
+            }
+
+            string branch = await gitExe.GetCurrentBranchAsync();
+            string repoUrl = await gitExe.GetRepoUriAsync();
             Match match = Regex.Match(repoUrl, GitHubRepoUriPattern);
 
             if (match.Success)
@@ -99,32 +114,32 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 codeScanningBaseApiUrl = string.Format(CodeScanningBaseApiUrlFormat, match.Groups["user"], match.Groups["repo"]);
             }
 
-            this.secretStoreRepository = secretStoreRepository;
-            InfoBarService.Initialize(this.serviceProvider);
-            StatusBarService.Initialize(this.serviceProvider);
+            this.infoBarService = new InfoBarService(this.serviceProvider);
+            this.statusBarService = new StatusBarService(this.serviceProvider);
 
-            this.fileWatcherBranchChange = new FileSystemWatcher(Path.Combine(repoPath, ".git"), "HEAD");
-            this.fileWatcherBranchChange.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-            this.fileWatcherBranchChange.Renamed += this.FileWatcher_BranchChange_Renamed;
-            this.fileWatcherBranchChange.EnableRaisingEvents = true;
+            this.fileWatcherBranchChange.FilePath = Path.Combine(repoPath, ".git");
+            this.fileWatcherBranchChange.Filter = "HEAD";
 
-            this.fileWatcherGitPush = new FileSystemWatcher();
             this.SetBranchRefFileWatcherPath(branch);
-            this.fileWatcherGitPush.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-            this.fileWatcherGitPush.Renamed += this.FileWatcher_BranchFile_Changed;
-            this.fileWatcherGitPush.EnableRaisingEvents = true;
         }
 
         /// <inheritdoc cref="IGitHubSourceService.IsGitHubProject()"/>
-        public bool IsGitHubProject()
+        public async Task<bool> IsGitHubProjectAsync()
         {
-            return fileSystem.DirectoryExists(Path.Combine(repoPath, ".github"));
+            if (string.IsNullOrWhiteSpace(this.repoPath))
+            {
+                this.repoPath = await gitExe.GetRepoRootAsync();
+            }
+
+            return fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github"));
         }
 
         /// <inheritdoc cref="IGitHubSourceService.GetUserVerificationCodeAsync()"/>
-        public async Task<Result<UserVerificationResponse, Error>> GetUserVerificationCodeAsync()
+        public async Task<Result<UserVerificationResponse, Error>> GetUserVerificationCodeAsync(HttpClient httpClient)
         {
-            HttpResponseMessage responseMessage = await HttpUtility.GetHttpResponseAsync(
+            var httpUtility = new HttpUtility();
+            HttpResponseMessage responseMessage = await httpUtility.GetHttpResponseAsync(
+                httpClient,
                 HttpMethod.Post,
                 string.Format(DeviceCodeUrlFormat, ClientId, Scope));
 
@@ -140,18 +155,22 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         }
 
         /// <inheritdoc cref="IGitHubSourceService.GetCachedAccessTokenAsync()"/>
-        public async Task<Maybe<Models.AccessToken>> GetCachedAccessTokenAsync()
+        public async Task<Maybe<Models.AccessToken>> GetCachedAccessTokenAsync(IGitHubClient gitHubClient = null)
         {
-            Maybe<Entities.AccessToken> accessToken = secretStoreRepository.ReadAccessToken(baseTargetUri);
+            Maybe<Entities.AccessToken> accessToken = secretStoreRepository.ReadAccessToken(s_baseTargetUri);
 
             if (accessToken.HasValue)
             {
                 string token = accessToken.Value.Value;
-                var connection = new Connection(new ProductHeaderValue(SecretsNamespace))
+
+                if (gitHubClient == null)
                 {
-                    Credentials = new Credentials(token, AuthenticationType.Bearer),
-                };
-                var gitHubClient = new GitHubClient(connection);
+                    var connection = new Connection(new ProductHeaderValue(SecretsNamespace));
+                    gitHubClient = new GitHubClient(connection)
+                    {
+                        Credentials = new Credentials(token, AuthenticationType.Bearer),
+                    };
+                }
 
                 try
                 {
@@ -162,15 +181,15 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 catch (AuthorizationException)
                 {
                     // Cached token is invalid, delete it.
-                    _ = secretStoreRepository.DeleteAccessToken(baseTargetUri);
+                    _ = secretStoreRepository.DeleteAccessToken(s_baseTargetUri);
                 }
             }
 
             return null;
         }
 
-        /// <inheritdoc cref="IGitHubSourceService.GetRequestedAccessTokenAsync(UserVerificationResponse)"/>
-        public async Task<Result<Models.AccessToken, Error>> GetRequestedAccessTokenAsync(UserVerificationResponse verificationResponse)
+        /// <inheritdoc cref="IGitHubSourceService.GetRequestedAccessTokenAsync(HttpClient, UserVerificationResponse)"/>
+        public async Task<Result<Models.AccessToken, Error>> GetRequestedAccessTokenAsync(HttpClient httpClient, UserVerificationResponse verificationResponse)
         {
             string accessToken = string.Empty;
             string url = string.Format(AccessTokenUrlFormat, ClientId, verificationResponse.DeviceCode);
@@ -182,7 +201,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 // Delay per the interval provided in the response.
                 await Task.Delay(verificationResponse.PollingIntervalSeconds * 1000);
 
-                HttpResponseMessage responseMessage = await HttpUtility.GetHttpResponseAsync(HttpMethod.Post, url);
+                var httpUtility = new HttpUtility();
+                HttpResponseMessage responseMessage = await httpUtility.GetHttpResponseAsync(
+                    httpClient,
+                    HttpMethod.Post,
+                    url);
                 string responseContent = await responseMessage.Content.ReadAsStringAsync();
 
                 jObject = JObject.Parse(responseContent);
@@ -191,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
             if (!string.IsNullOrEmpty(accessToken))
             {
-                this.secretStoreRepository.WriteAccessToken(baseTargetUri, new Entities.AccessToken() { Value = accessToken });
+                this.secretStoreRepository.WriteAccessToken(s_baseTargetUri, new Entities.AccessToken() { Value = accessToken });
                 return Result.Success<Models.AccessToken, Error>(new Models.AccessToken { Value = accessToken });
             }
             else
@@ -200,8 +223,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
         }
 
-        /// <inheritdoc cref="IResultSourceService.GetCodeAnalysisScanResultsAsync()"/>
-        public async Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync()
+        /// <inheritdoc cref="IResultSourceService.GetCodeAnalysisScanResultsAsync(HttpClient)"/>
+        public async Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync(HttpClient httpClient)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -214,17 +237,17 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             if (getAccessTokenResult.HasValue)
             {
                 string accessToken = getAccessTokenResult.Value.Value;
-                string branch = await this.GetCurrentBranchAsync();
-                string commitHash = await this.GetCurrentCommitHashAsync();
+                string branch = await gitExe.GetCurrentBranchAsync();
+                string commitHash = await gitExe.GetCurrentCommitHashAsync();
 
-                _ = Task.Run(async () => await StatusBarService.Instance.AnimateStatusTextAsync("Getting static analysis results{0}", new[] { string.Empty, ".", "..", "..." }, 400, cancellationToken), cancellationToken);
+                _ = Task.Run(async () => await this.statusBarService.AnimateStatusTextAsync("Getting static analysis results{0}", new[] { string.Empty, ".", "..", "..." }, 400, cancellationToken), cancellationToken);
 
-                Result<string, ErrorType> latestIdResult = await GetAnalysisIdAsync(codeScanningBaseApiUrl, branch, accessToken, commitHash);
+                Result<string, ErrorType> latestIdResult = await GetAnalysisIdAsync(httpClient, codeScanningBaseApiUrl, branch, accessToken, commitHash);
 
                 if (latestIdResult.IsSuccess)
                 {
-                    Result<SarifLog, string> getLogResult = await GetAnalysisResultsAsync(codeScanningBaseApiUrl, latestIdResult.Value, accessToken);
-                    await StatusBarService.Instance.ClearStatusTextAsync();
+                    Result<SarifLog, string> getLogResult = await GetAnalysisResultsAsync(httpClient, codeScanningBaseApiUrl, latestIdResult.Value, accessToken);
+                    await this.statusBarService.ClearStatusTextAsync();
 
                     if (getLogResult.IsSuccess)
                     {
@@ -235,7 +258,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             else
             {
                 // Start the auth process.
-                Result<bool, ErrorType> startAuthResult = await StartAuthSequenceAsync();
+                Result<bool, ErrorType> startAuthResult = await StartAuthSequenceAsync(httpClient);
                 return Result.Failure<SarifLog, ErrorType>(startAuthResult.Error);
             }
 
@@ -258,11 +281,26 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             };
         }
 
-        private async Task<Result<bool, ErrorType>> StartAuthSequenceAsync()
+        private void FileWatcherGitPush_Deleted(object sender, FileSystemEventArgs e)
+        {
+            OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
+        }
+
+        private void FileWatcherGitPush_Created(object sender, FileSystemEventArgs e)
+        {
+            OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
+        }
+
+        private void FileWatcherGitPush_Changed(object sender, FileSystemEventArgs e)
+        {
+            OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
+        }
+
+        private async Task<Result<bool, ErrorType>> StartAuthSequenceAsync(HttpClient httpClient)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            Result<UserVerificationResponse, Error> userCodeResult = await this.GetUserVerificationCodeAsync();
+            Result<UserVerificationResponse, Error> userCodeResult = await this.GetUserVerificationCodeAsync(httpClient);
 
             if (userCodeResult.IsSuccess)
             {
@@ -279,11 +317,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     };
                     Process.Start(processStartInfo);
 
-                    Result<Models.AccessToken, Error> requestedTokenResult = await GetRequestedAccessTokenAsync(userCodeResult.Value);
+                    Result<Models.AccessToken, Error> requestedTokenResult = await GetRequestedAccessTokenAsync(httpClient, userCodeResult.Value);
 
                     if (requestedTokenResult.IsSuccess)
                     {
-                        InfoBarService.Instance.CloseInfoBar(this.infoBar);
+                        this.infoBarService.CloseInfoBar(this.infoBar);
 
                         // Inform listeners that updated results are available.
                         this.RaiseResultsUpdatedEvent();
@@ -313,7 +351,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             return Result.Failure<bool, ErrorType>(ErrorType.MissingAccessToken);
         }
 
-        private async Task<Result<SarifLog, string>> GetAnalysisResultsAsync(string baseUrl, string analysisId, string accessToken)
+        private async Task<Result<SarifLog, string>> GetAnalysisResultsAsync(
+            HttpClient httpClient,
+            string baseUrl,
+            string analysisId,
+            string accessToken)
         {
             if (analysisId == string.Empty)
             {
@@ -321,7 +363,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
             else
             {
-                HttpResponseMessage responseMessage = await HttpUtility.GetHttpResponseAsync(HttpMethod.Get, baseUrl + $"/{analysisId}", "application/sarif+json", accessToken);
+                var httpUtility = new HttpUtility();
+                HttpResponseMessage responseMessage = await httpUtility.GetHttpResponseAsync(
+                    httpClient,
+                    HttpMethod.Get,
+                    baseUrl + $"/{analysisId}",
+                    "application/sarif+json",
+                    accessToken);
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
@@ -338,6 +386,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         }
 
         private async Task<Result<string, ErrorType>> GetAnalysisIdAsync(
+            HttpClient httpClient,
             string baseUrl,
             string branch,
             string accessToken,
@@ -352,7 +401,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             {
                 // What does this endpoint do if we request past the end of the list?
                 string url = baseUrl + $"?ref=refs/heads/{branch}&page={page++}&per_page={perPage}";
-                HttpResponseMessage responseMessage = await HttpUtility.GetHttpResponseAsync(HttpMethod.Get, url, token: accessToken);
+                var httpUtility = new HttpUtility();
+                HttpResponseMessage responseMessage = await httpUtility.GetHttpResponseAsync(
+                    httpClient,
+                    HttpMethod.Get,
+                    url,
+                    token: accessToken);
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
@@ -425,10 +479,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         {
             (string Path, string Name) parsedBranch = ParseBranchString(branchName);
 
-            this.fileWatcherGitPush.EnableRaisingEvents = false;
-            this.fileWatcherGitPush.Path = Path.Combine(repoPath, GitLocalRefFileBaseRelativePath, parsedBranch.Path);
+            this.fileWatcherGitPush.DisableRaisingEvents();
+            this.fileWatcherGitPush.FilePath = Path.Combine(repoPath, GitLocalRefFileBaseRelativePath, parsedBranch.Path);
             this.fileWatcherGitPush.Filter = parsedBranch.Name;
-            this.fileWatcherGitPush.EnableRaisingEvents = true;
+            this.fileWatcherGitPush.EnableRaisingEvents();
         }
 
         private (string Path, string Name) ParseBranchString(string branch)
@@ -450,33 +504,36 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
         private void FileWatcher_BranchChange_Renamed(object sender, FileSystemEventArgs e)
         {
-            OnCurrentBranchChanged();
+            OnCurrentBranchChangedAsync().ConfigureAwait(false).GetAwaiter();
         }
 
         private void FileWatcher_BranchFile_Changed(object sender, FileSystemEventArgs e)
         {
-            OnBranchPushEvent(e.FullPath);
+            OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
         }
 
-        private void OnCurrentBranchChanged()
+        private async Task OnCurrentBranchChangedAsync()
         {
-            string branchName = gitHelper.GetCurrentBranch(this.repoPath);
+            string branchName = await gitExe.GetCurrentBranchAsync();
             this.SetBranchRefFileWatcherPath(branchName);
             this.RaiseResultsUpdatedEvent(new GitRepoEventArgs() { BranchName = branchName });
         }
 
-        private void OnBranchPushEvent(string branchFilePath)
+        private async Task OnBranchPushEventAsync(string branchFilePath)
         {
-            this.fileWatcherGitPush.EnableRaisingEvents = false;
+            this.fileWatcherGitPush.Stop();
 
             string commitHash = File.ReadAllText(branchFilePath)?.TrimEnd('\n');
-            string currentBranch = gitHelper.GetCurrentBranch(this.repoPath);
+            string currentBranch = await gitExe.GetCurrentBranchAsync();
 
             // Start polling for updated scan results.
-            _ = Task.Run(() => PollForUpdatedResultsAsync(currentBranch, commitHash));
+            await PollForUpdatedResultsAsync(new HttpClient(), currentBranch, commitHash);
         }
 
-        private async Task PollForUpdatedResultsAsync(string branchName, string commitHash)
+        private async Task PollForUpdatedResultsAsync(
+            HttpClient httpClient,
+            string branchName,
+            string commitHash)
         {
             Maybe<Models.AccessToken> getAccessTokenResult = await GetCachedAccessTokenAsync();
 
@@ -498,11 +555,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 while (timeoutTime > DateTime.UtcNow)
                 {
                     await Task.Delay(ScanResultsPollIntervalSeconds * 1000);
-                    Result<string, ErrorType> getAnalysisIdResult = await GetAnalysisIdAsync(codeScanningBaseApiUrl, branchName, accessToken, commitHash);
+                    Result<string, ErrorType> getAnalysisIdResult = await GetAnalysisIdAsync(httpClient, codeScanningBaseApiUrl, branchName, accessToken, commitHash);
 
                     if (getAnalysisIdResult.IsSuccess)
                     {
-                        Result<SarifLog, string> getResultsResult = await GetAnalysisResultsAsync(codeScanningBaseApiUrl, getAnalysisIdResult.Value, accessToken);
+                        Result<SarifLog, string> getResultsResult = await GetAnalysisResultsAsync(httpClient, codeScanningBaseApiUrl, getAnalysisIdResult.Value, accessToken);
 
                         if (getResultsResult.IsSuccess)
                         {
@@ -530,77 +587,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            Result<IVsInfoBarUIElement> showInfoBarResult = InfoBarService.Instance.ShowInfoBar(infoBarModel);
-
-            if (showInfoBarResult.IsSuccess)
-            {
-                this.infoBar = showInfoBarResult.Value;
-            }
+            this.infoBar = this.infoBarService.ShowInfoBar(infoBarModel);
         }
 
         private async Task CloseInfoBarAsync(IVsInfoBarUIElement element)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            _ = InfoBarService.Instance.CloseInfoBar(element);
-        }
-
-        private async ValueTask<string> GetRepoUriAsync() // TODO: <string?>
-        {
-            return await ExecuteGitCommandAsync("config --get remote.origin.url");
-        }
-
-        private async ValueTask<string> GetCurrentBranchAsync() // TODO: <string?>
-        {
-            return await ExecuteGitCommandAsync("symbolic-ref --short HEAD");
-        }
-
-        private async ValueTask<string> GetCurrentCommitHashAsync() // TODO: <string?>
-        {
-            return await ExecuteGitCommandAsync("rev-parse HEAD");
-        }
-
-        private async ValueTask<string> ExecuteGitCommandAsync(string arguments)
-        {
-            // Get the trusted min Git executable path.
-            string minGitPath = Path.Combine(await this.vsInstallDir.GetValueAsync(), @"CommonExtensions\Microsoft\TeamFoundation\Team Explorer\Git\mingw32\bin\git.exe");
-
-            await TaskScheduler.Default;
-            try
-            {
-                var processInfo = new ProcessStartInfo()
-                {
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    Arguments = arguments,
-                    WorkingDirectory = repoPath,
-                    FileName = minGitPath,
-                };
-
-                var process = Process.Start(processInfo);
-                process.WaitForExit();
-                string repoUri = await process.StandardOutput.ReadLineAsync();
-                return repoUri;
-            }
-            catch
-            {
-                // Ignore all exceptions and return default value.
-            }
-
-            return null;
-        }
-
-        private async Task<string> GetVsInstallDirectoryAsync()
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            IVsShell vsShell = this.serviceProvider.GetService<SVsShell, IVsShell>();
-            Assumes.NotNull(vsShell);
-
-            ErrorHandler.ThrowOnFailure(vsShell.GetProperty((int)__VSSPROPID.VSSPROPID_InstallDirectory, out object installDirObject));
-            Assumes.True(installDirObject is string);
-            return (string)installDirObject;
+            _ = this.infoBarService.CloseInfoBar(element);
         }
     }
 }

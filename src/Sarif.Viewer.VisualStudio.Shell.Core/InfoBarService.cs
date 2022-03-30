@@ -13,24 +13,17 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.Shell
 {
-    internal class InfoBarService : IVsInfoBarUIEvents
+    public class InfoBarService : IVsInfoBarUIEvents
     {
         private readonly IServiceProvider serviceProvider;
         private uint cookie;
 
-        private InfoBarService(IServiceProvider serviceProvider)
+        public InfoBarService(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
         }
 
-        public static InfoBarService Instance { get; private set; }
-
-        public static void Initialize(IServiceProvider serviceProvider)
-        {
-            Instance = new InfoBarService(serviceProvider);
-        }
-
-        public Result<IVsInfoBarUIElement> ShowInfoBar(InfoBarModel infoBarModel)
+        public IVsInfoBarUIElement ShowInfoBar(InfoBarModel infoBarModel)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             Result<InfoBarHostControl> getHostResult = GetInfoBarHost();
@@ -42,10 +35,10 @@ namespace Microsoft.Sarif.Viewer.Shell
                 IVsInfoBarUIElement element = factory.CreateInfoBar(infoBarModel);
                 element.Advise(this, out cookie);
                 getHostResult.Value.AddInfoBar(element);
-                return Result.Success(element);
+                return element;
             }
 
-            return Result.Failure<IVsInfoBarUIElement>("Unable to show infobar");
+            return null;
         }
 
         public Result CloseInfoBar(IVsInfoBarUIElement element)

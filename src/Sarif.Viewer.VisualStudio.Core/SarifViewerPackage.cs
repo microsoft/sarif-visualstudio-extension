@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -15,18 +16,22 @@ using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
-using Microsoft.Sarif.Viewer.FileWatcher;
+using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.ResultSources.ACL;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub;
 using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
+
+using Sarif.Viewer.VisualStudio.Shell.Core;
 
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
@@ -189,7 +194,7 @@ namespace Microsoft.Sarif.Viewer
         public static IVsPackage LoadViewerPackage()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Guid serviceGuid = new Guid(PackageGuidString);
+            var serviceGuid = new Guid(PackageGuidString);
 
             if (VsShell.IsPackageLoaded(ref serviceGuid, out IVsPackage package) == 0 && package != null)
             {
@@ -203,8 +208,7 @@ namespace Microsoft.Sarif.Viewer
         private async System.Threading.Tasks.Task<bool> IsSolutionLoadedAsync()
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
-            var solutionService = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
-            if (solutionService == null)
+            if (!(await GetServiceAsync(typeof(SVsSolution)) is IVsSolution solutionService))
             {
                 return false;
             }
@@ -253,12 +257,22 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this.resultSourceService == null)
             {
-                var resultSourceService = new ResultSourceFactory(this, new SecretStoreRepository());
-                Result<IResultSourceService, ErrorType> result = await resultSourceService.GetResultSourceServiceAsync(GetSolutionDirectoryPath());
+                var resultSourceFactory = new ResultSourceFactory(FileSystem.Instance, new GitExe(this));
+                Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync(GetSolutionDirectoryPath());
 
                 if (result.IsSuccess)
                 {
                     this.resultSourceService = result.Value;
+
+                    if (this.resultSourceService is IGitHubSourceService gitHubSourceService)
+                    {
+                        await gitHubSourceService.InitializeAsync(
+                            this,
+                            new SecretStoreRepository(),
+                            new FileWatcher(),
+                            new FileWatcher());
+                    }
+
                     this.resultSourceService.ResultsUpdated += this.ResultSourceService_ResultsUpdated;
                 }
                 else
@@ -267,7 +281,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            return await this.resultSourceService.GetCodeAnalysisScanResultsAsync();
+            return await this.resultSourceService.GetCodeAnalysisScanResultsAsync(new HttpClient());
         }
 
         private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)

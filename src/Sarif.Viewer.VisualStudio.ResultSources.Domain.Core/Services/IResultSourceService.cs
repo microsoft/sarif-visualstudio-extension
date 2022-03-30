@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -21,7 +22,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <summary>
         /// Gets the latest code scan results for the current branch.
         /// </summary>
+        /// <param name="httpClient">The <see cref="HttpClient"/>.</param>
         /// <returns>The SARIF log received if successful; otherwise, an error.</returns>
-        Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync();
+        Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync(HttpClient httpClient);
     }
 }

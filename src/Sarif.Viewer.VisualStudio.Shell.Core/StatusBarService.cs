@@ -11,7 +11,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.Shell
 {
-    internal class StatusBarService
+    public class StatusBarService
     {
         private readonly IServiceProvider serviceProvider;
         private IVsStatusbar statusBar;
@@ -20,12 +20,10 @@ namespace Microsoft.Sarif.Viewer.Shell
         /// Initializes a new instance of the <see cref="StatusBarService"/> class.
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
-        private StatusBarService(IServiceProvider serviceProvider)
+        public StatusBarService(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
         }
-
-        public static StatusBarService Instance { get; private set; }
 
         /// <summary>
         /// Gets the status bar.
@@ -45,11 +43,6 @@ namespace Microsoft.Sarif.Viewer.Shell
 
                 return statusBar;
             }
-        }
-
-        public static void Initialize(IServiceProvider serviceProvider)
-        {
-            Instance = new StatusBarService(serviceProvider);
         }
 
         /// <summary>

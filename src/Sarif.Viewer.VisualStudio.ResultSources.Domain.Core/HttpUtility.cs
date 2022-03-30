@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain
 {
-    internal static class HttpUtility
+    internal class HttpUtility
     {
-        internal static async Task<HttpResponseMessage> GetHttpResponseAsync(
-            HttpMethod method,
+        internal async Task<HttpResponseMessage> GetHttpResponseAsync(
+            HttpClient httpClient,
+            HttpMethod httpMethod,
             string url,
             string accept = "application/json",
             string token = null)
         {
-            var httpClient = new HttpClient();
-            HttpRequestMessage requestMessage = new HttpRequestMessage(method, url);
+            var requestMessage = new HttpRequestMessage(httpMethod, url);
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
             requestMessage.Headers.Add("User-Agent", "microsoft/sarif-visualstudio-extension");
 
