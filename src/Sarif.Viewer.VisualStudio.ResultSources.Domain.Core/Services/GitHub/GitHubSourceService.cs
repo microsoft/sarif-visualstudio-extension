@@ -68,6 +68,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private InfoBarService infoBarService;
         private StatusBarService statusBarService;
         private IVsInfoBarUIElement infoBar;
+        private CancellationTokenSource pollingCancellationTokenSource;
+        private bool isPolling;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GitHubSourceService"/> class.
@@ -114,12 +116,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 codeScanningBaseApiUrl = string.Format(CodeScanningBaseApiUrlFormat, match.Groups["user"], match.Groups["repo"]);
             }
 
+            this.pollingCancellationTokenSource = new CancellationTokenSource();
+
             this.infoBarService = new InfoBarService(this.serviceProvider);
             this.statusBarService = new StatusBarService(this.serviceProvider);
 
             this.fileWatcherBranchChange.FilePath = Path.Combine(repoPath, ".git");
             this.fileWatcherBranchChange.Filter = "HEAD";
+            this.fileWatcherBranchChange.FileRenamed += this.FileWatcherBranchChange_Renamed;
 
+            this.fileWatcherGitPush.FileCreated += this.FileWatcherGitPush_Created;
+            this.fileWatcherGitPush.FileRenamed += this.FileWatcherGitPush_Renamed;
+            this.fileWatcherGitPush.FileDeleted += this.FileWatcherGitPush_Deleted;
+            this.fileWatcherGitPush.FileChanged += this.FileWatcherGitPush_Changed;
             this.SetBranchRefFileWatcherPath(branch);
         }
 
@@ -292,6 +301,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         }
 
         private void FileWatcherGitPush_Changed(object sender, FileSystemEventArgs e)
+        {
+            OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
+        }
+
+        private void FileWatcherGitPush_Renamed(object sender, FileSystemEventArgs e)
         {
             OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
         }
@@ -502,18 +516,18 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
         }
 
-        private void FileWatcher_BranchChange_Renamed(object sender, FileSystemEventArgs e)
+        private void FileWatcherBranchChange_Renamed(object sender, FileSystemEventArgs e)
         {
             OnCurrentBranchChangedAsync().ConfigureAwait(false).GetAwaiter();
         }
 
-        private void FileWatcher_BranchFile_Changed(object sender, FileSystemEventArgs e)
-        {
-            OnBranchPushEventAsync(e.FullPath).ConfigureAwait(false).GetAwaiter();
-        }
-
         private async Task OnCurrentBranchChangedAsync()
         {
+            if (this.isPolling)
+            {
+                pollingCancellationTokenSource.Cancel();
+            }
+
             string branchName = await gitExe.GetCurrentBranchAsync();
             this.SetBranchRefFileWatcherPath(branchName);
             this.RaiseResultsUpdatedEvent(new GitRepoEventArgs() { BranchName = branchName });
@@ -521,19 +535,26 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
         private async Task OnBranchPushEventAsync(string branchFilePath)
         {
-            this.fileWatcherGitPush.Stop();
+            // this.fileWatcherGitPush.DisableRaisingEvents();
 
             string commitHash = File.ReadAllText(branchFilePath)?.TrimEnd('\n');
             string currentBranch = await gitExe.GetCurrentBranchAsync();
 
+            // Cancel current polling
+            if (this.isPolling)
+            {
+                this.pollingCancellationTokenSource.Cancel();
+            }
+
             // Start polling for updated scan results.
-            await PollForUpdatedResultsAsync(new HttpClient(), currentBranch, commitHash);
+            await PollForUpdatedResultsAsync(new HttpClient(), currentBranch, commitHash, this.pollingCancellationTokenSource.Token);
         }
 
         private async Task PollForUpdatedResultsAsync(
             HttpClient httpClient,
             string branchName,
-            string commitHash)
+            string commitHash,
+            CancellationToken cancellationToken)
         {
             Maybe<Models.AccessToken> getAccessTokenResult = await GetCachedAccessTokenAsync();
 
@@ -551,8 +572,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     isCloseButtonVisible: true);
 
                 await ShowInfoBarAsync(infoBarModel);
+                this.isPolling = true;
 
-                while (timeoutTime > DateTime.UtcNow)
+                while (!cancellationToken.IsCancellationRequested && timeoutTime > DateTime.UtcNow)
                 {
                     await Task.Delay(ScanResultsPollIntervalSeconds * 1000);
                     Result<string, ErrorType> getAnalysisIdResult = await GetAnalysisIdAsync(httpClient, codeScanningBaseApiUrl, branchName, accessToken, commitHash);
@@ -563,8 +585,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
                         if (getResultsResult.IsSuccess)
                         {
-                            await CloseInfoBarAsync(this.infoBar);
-
                             var eventArgs = new GitRepoEventArgs
                             {
                                 BranchName = branchName,
@@ -575,7 +595,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                         }
                     }
                 }
+
+                this.isPolling = false;
+                await CloseInfoBarAsync(this.infoBar);
             }
+
+            this.pollingCancellationTokenSource = new CancellationTokenSource();
         }
 
         private void RaiseResultsUpdatedEvent(GitRepoEventArgs eventArgs = null)
