@@ -151,6 +151,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/repo.git";
             string branch = "my-branch";
+            var cachedAccessToken = new Entities.AccessToken { Value = "GITHUB-EXPIRED-ACCESS-TOKEN" };
 
             var mockFileSystem = new Mock<IFileSystem>();
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
@@ -165,6 +166,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             var mockServiceProvider = new Mock<IServiceProvider>();
 
             var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            mockSecretStoreRepository.Setup(r => r.ReadAccessToken(It.IsAny<TargetUri>())).Returns(cachedAccessToken);
             mockSecretStoreRepository.Setup(r => r.DeleteAccessToken(It.IsAny<TargetUri>()));
 
             var mockFileWatcher = new Mock<IFileWatcher>();
@@ -173,13 +175,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockServiceProvider.Object,
                 mockSecretStoreRepository.Object,
                 mockFileWatcher.Object,
-                mockFileWatcher.Object); // .ConfigureAwait(false).GetAwaiter();
+                mockFileWatcher.Object);
 
             var mockGitHubClient = new Mock<IGitHubClient>();
             mockGitHubClient.Setup(g => g.User.Current()).Throws<AuthorizationException>();
 
-            Maybe<Models.AccessToken> result = await gitHubSourceService.GetCachedAccessTokenAsync(mockGitHubClient.Object); // .ConfigureAwait(false).GetAwaiter().GetResult();
+            Maybe<Models.AccessToken> result = await gitHubSourceService.GetCachedAccessTokenAsync(mockGitHubClient.Object);
             result.HasValue.Should().BeFalse();
+            mockSecretStoreRepository.Verify(r => r.DeleteAccessToken(It.IsAny<TargetUri>()), Times.Once);
         }
     }
 }
