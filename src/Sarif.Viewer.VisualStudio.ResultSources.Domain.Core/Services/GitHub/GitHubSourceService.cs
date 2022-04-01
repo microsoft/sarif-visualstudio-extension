@@ -102,10 +102,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             this.fileWatcherBranchChange = fileWatcherBranchChange;
             this.fileWatcherGitPush = fileWatcherGitPush;
 
-            if (string.IsNullOrWhiteSpace(repoPath))
-            {
-                this.repoPath = await gitExe.GetRepoRootAsync();
-            }
+            this.repoPath ??= await gitExe.GetRepoRootAsync();
 
             string branch = await gitExe.GetCurrentBranchAsync();
             string repoUrl = await gitExe.GetRepoUriAsync();
@@ -273,6 +270,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
             source.Cancel();
             return sarifLog ?? Result.Failure<SarifLog, ErrorType>(ErrorType.AnalysesUnavailable);
+        }
+
+        internal (string Path, string Name) ParseBranchString(string branch)
+        {
+            // This needs to handle goofy branch names like "//asdf///-".
+            int index = branch.LastIndexOf('/');
+
+            if (index == -1)
+            {
+                return (string.Empty, branch);
+            }
+            else
+            {
+                string path = branch.Substring(0, index).Replace('/', '\\');
+                string name = branch.Substring(index + 1);
+                return (path, name);
+            }
         }
 
         private static SarifLog CreateEmptySarifLog()
@@ -497,23 +511,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             this.fileWatcherGitPush.FilePath = Path.Combine(repoPath, GitLocalRefFileBaseRelativePath, parsedBranch.Path);
             this.fileWatcherGitPush.Filter = parsedBranch.Name;
             this.fileWatcherGitPush.EnableRaisingEvents();
-        }
-
-        private (string Path, string Name) ParseBranchString(string branch)
-        {
-            // This needs to handle goofy branch names like "//asdf///-".
-            int index = branch.LastIndexOf('/');
-
-            if (index == -1)
-            {
-                return (string.Empty, branch);
-            }
-            else
-            {
-                string path = branch.Substring(0, index).Replace('/', '\\');
-                string name = branch.Substring(index + 1);
-                return (path, name);
-            }
         }
 
         private void FileWatcherBranchChange_Renamed(object sender, FileSystemEventArgs e)

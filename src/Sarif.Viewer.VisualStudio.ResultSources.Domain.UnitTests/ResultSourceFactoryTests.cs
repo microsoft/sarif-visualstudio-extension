@@ -38,5 +38,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().BeOfType(typeof(GitHubSourceService));
         }
+
+        [Fact]
+        public void GetResultSourceService_ReturnsPlatformNotSupported_WhenPathDoesNotContainsDotGitDirectory()
+        {
+            string path = @"C:\Git\MyProject";
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
+
+            var mockGitExe = new Mock<IGitExe>();
+            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
+
+            var resultSourceFactory = new ResultSourceFactory(mockFileSystem.Object, mockGitExe.Object);
+            Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync(path).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            result.IsSuccess.Should().BeFalse();
+            result.Error.Should().Be(ErrorType.PlatformNotSupported);
+        }
     }
 }
