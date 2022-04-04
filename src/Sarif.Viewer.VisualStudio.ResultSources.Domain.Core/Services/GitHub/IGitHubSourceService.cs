@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -13,6 +12,8 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.Shell;
 
 using Octokit;
+
+using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 {
@@ -41,9 +42,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// <summary>
         /// Requests a user verification code.
         /// </summary>
-        /// <param name="httpClient">The <see cref="HttpClient"/>.</param>
+        /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <returns>The response data.</returns>
-        Task<Result<UserVerificationResponse, Error>> GetUserVerificationCodeAsync(HttpClient httpClient);
+        Task<Result<UserVerificationResponse, Error>> GetUserVerificationCodeAsync(IHttpClientAdapter httpClientAdapter);
 
         /// <summary>
         /// Requests the access token from the secure store.
@@ -55,9 +56,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// <summary>
         /// Polls the GitHub API for the user-authorized access token.
         /// </summary>
-        /// <param name="httpClient">The <see cref="HttpClient"/>.</param>
+        /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="verificationResponse">The response data received from the user verification code request.</param>
         /// <returns>The access token if successful; otherwise, an error.</returns>
-        Task<Result<Models.AccessToken, Error>> GetRequestedAccessTokenAsync(HttpClient httpClient, UserVerificationResponse verificationResponse);
+        Task<Result<Models.AccessToken, Error>> GetRequestedAccessTokenAsync(IHttpClientAdapter httpClientAdapter, UserVerificationResponse verificationResponse);
     }
 }

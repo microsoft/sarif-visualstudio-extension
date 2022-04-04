@@ -33,6 +33,7 @@ using Microsoft.VisualStudio.Text.Tagging;
 
 using Sarif.Viewer.VisualStudio.Shell.Core;
 
+using HttpClientAdapter = Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.HttpClientAdapter;
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
 
@@ -281,7 +282,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            return await this.resultSourceService.GetCodeAnalysisScanResultsAsync(new HttpClient());
+            return await this.resultSourceService.GetCodeAnalysisScanResultsAsync(new HttpClientAdapter(new HttpClient()));
         }
 
         private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)

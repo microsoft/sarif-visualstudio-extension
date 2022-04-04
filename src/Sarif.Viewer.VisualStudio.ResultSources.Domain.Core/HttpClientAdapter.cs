@@ -3,14 +3,21 @@
 
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.Domain
+namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
 {
-    internal class HttpUtility
+    public class HttpClientAdapter : IHttpClientAdapter
     {
-        internal async Task<HttpResponseMessage> GetHttpResponseAsync(
-            HttpClient httpClient,
+        private readonly HttpClient httpClient;
+
+        public HttpClientAdapter(HttpClient httpClient)
+        {
+            this.httpClient = httpClient;
+        }
+
+        public HttpRequestMessage BuildRequest(
             HttpMethod httpMethod,
             string url,
             string accept = "application/json",
@@ -25,7 +32,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain
                 requestMessage.Headers.Add("Authorization", $"Bearer {token}");
             }
 
-            return await httpClient.SendAsync(requestMessage);
+            return requestMessage;
         }
+
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) =>
+            this.httpClient.SendAsync(request, cancellationToken);
     }
 }

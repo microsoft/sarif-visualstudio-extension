@@ -14,7 +14,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Errors\Error.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Errors\GitHubServiceError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Errors\SecretStoreError.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)HttpUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpClientAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IHttpClientAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AccessToken.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NoContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ResultsUpdatedEventArgs.cs" />
