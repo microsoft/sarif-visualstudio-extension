@@ -277,6 +277,39 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
+        public void CodeAnalysisResultManager_GetRebaselinedFileName_ConstructPathFromSolutionPathRemapping()
+        {
+            const int RunId = 1;
+            const string ResultArtifactPath1 = @"Sarif/Notes.cs";
+            const string ResultArtifactPath2 = @"Sarif/OffsetInfo.cs";
+            const string SolutionPath = @"D:\Users\John\source\sarif-sdk\src";
+            const string ExpectedResolvedPath1 = SolutionPath + @"\Sarif\Notes.cs";
+            const string ExpectedResolvedPath2 = SolutionPath + @"\Sarif\OffsetInfo.cs";
+            this.existingFiles.Add(ExpectedResolvedPath1);
+            this.existingFiles.Add(ExpectedResolvedPath2);
+
+            var target = new CodeAnalysisResultManager(
+                fileSystem: this.mockFileSystem.Object,
+                this.FakePromptForResolvedPath);
+            var dataCache = new RunDataCache();
+            target.RunIndexToRunDataCache.Add(RunId, dataCache);
+
+            // Mimic first time user navigate to a result, resolve file path using solution path.
+            // The resolved path should be cached for next resolving
+            target.SaveResolvedPathToUriBaseMapping(null, ResultArtifactPath1, ResultArtifactPath1, ExpectedResolvedPath1, dataCache);
+            Tuple<string, string>[] remappedPathPrefixes = target.GetRemappedPathPrefixes();
+            remappedPathPrefixes.Length.Should().Be(1);
+            remappedPathPrefixes[0].Item1.Should().Be("");
+            remappedPathPrefixes[0].Item2.Should().Be(SolutionPath);
+
+            string actualResolvedPath = target.GetRebaselinedFileName(
+                uriBaseId: null,
+                pathFromLogFile: ResultArtifactPath2,
+                dataCache: dataCache);
+            actualResolvedPath.Should().Be(ExpectedResolvedPath2);
+        }
+
+        [Fact]
         public void CodeAnalysisResultManager_CacheUriBasePaths_EnsuresTrailingSlash()
         {
             var run = new Run
