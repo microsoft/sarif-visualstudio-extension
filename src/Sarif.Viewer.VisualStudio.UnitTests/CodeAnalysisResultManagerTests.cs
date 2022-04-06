@@ -283,7 +283,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             const string ResultArtifactPath1 = @"Sarif/Notes.cs";
             const string ResultArtifactPath2 = @"Sarif/OffsetInfo.cs";
             const string SolutionPath = @"D:\Users\John\source\sarif-sdk\src";
-            string ExpectedResolvedPath1 = Path.Combine(SolutionPath, "Sarif","Notes.cs");
+            string ExpectedResolvedPath1 = Path.Combine(SolutionPath, "Sarif", "Notes.cs");
             string ExpectedResolvedPath2 = Path.Combine(SolutionPath, "Sarif", "OffsetInfo.cs");
             this.existingFiles.Add(ExpectedResolvedPath1);
             this.existingFiles.Add(ExpectedResolvedPath2);
