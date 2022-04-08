@@ -163,7 +163,7 @@ namespace Microsoft.Sarif.Viewer
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
 
-                _ = await SaveAnalysisLogFileAsync();
+                _ = await RequestAnalysisResultsAsync();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -237,24 +237,10 @@ namespace Microsoft.Sarif.Viewer
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatch();
 
-            this.JoinableTaskFactory.Run(async () => _ = await SaveAnalysisLogFileAsync());
+            this.JoinableTaskFactory.Run(async () => _ = await RequestAnalysisResultsAsync());
         }
 
-        private async System.Threading.Tasks.Task<Result<bool, ErrorType>> SaveAnalysisLogFileAsync()
-        {
-            Result<SarifLog, ErrorType> result = await FetchAnalysisResultsAsync();
-
-            if (result.IsSuccess)
-            {
-                string path = Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif");
-                result.Value.Save(path);
-                return Result.Success<bool, ErrorType>(true);
-            }
-
-            return Result.Failure<bool, ErrorType>(result.Error);
-        }
-
-        private async System.Threading.Tasks.Task<Result<SarifLog, ErrorType>> FetchAnalysisResultsAsync()
+        private async System.Threading.Tasks.Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync()
         {
             if (this.resultSourceService == null)
             {
@@ -269,6 +255,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         await gitHubSourceService.InitializeAsync(
                             this,
+                            new HttpClientAdapter(),
                             new SecretStoreRepository(),
                             new FileWatcher(),
                             new FileWatcher());
@@ -278,16 +265,17 @@ namespace Microsoft.Sarif.Viewer
                 }
                 else
                 {
-                    return Result.Failure<SarifLog, ErrorType>(result.Error);
+                    return Result.Failure<bool, ErrorType>(result.Error);
                 }
             }
 
-            return await this.resultSourceService.GetCodeAnalysisScanResultsAsync(new HttpClientAdapter(new HttpClient()));
+            return await this.resultSourceService.RequestAnalysisScanResultsAsync();
         }
 
         private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
         {
-            this.JoinableTaskFactory.Run(async () => _ = await SaveAnalysisLogFileAsync());
+            string path = Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif");
+            e.SarifLog.Save(path);
         }
 
         private static string GetSolutionDirectoryPath()

@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Shell
         public IVsInfoBarUIElement ShowInfoBar(InfoBarModel infoBarModel)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Result<InfoBarHostControl> getHostResult = GetInfoBarHost();
+            Result<InfoBarHostControl> getHostResult = this.GetInfoBarHost();
 
             if (getHostResult.IsSuccess)
             {
@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.Shell
         public Result CloseInfoBar(IVsInfoBarUIElement element)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Result<InfoBarHostControl> getHostResult = GetInfoBarHost();
+            Result<InfoBarHostControl> getHostResult = this.GetInfoBarHost();
 
             if (getHostResult.IsSuccess)
             {

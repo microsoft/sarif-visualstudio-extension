@@ -12,9 +12,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
     {
         private readonly HttpClient httpClient;
 
-        public HttpClientAdapter(HttpClient httpClient)
+        public HttpClientAdapter()
         {
-            this.httpClient = httpClient;
+            this.httpClient = new HttpClient();
         }
 
         public HttpRequestMessage BuildRequest(
@@ -35,7 +35,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
             return requestMessage;
         }
 
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) =>
-            this.httpClient.SendAsync(request, cancellationToken);
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) =>
+            await this.httpClient.SendAsync(request, cancellationToken);
     }
 }

@@ -82,7 +82,7 @@ namespace Microsoft.Sarif.Viewer.Shell
 
             for (int i = 0; !cancellationToken.IsCancellationRequested; i++)
             {
-                string text = string.Format(textFormat, frames[i]);
+                string text = string.Format(textFormat, frames[i % frames.Length]);
                 await this.SetStatusTextAsync(text);
 
                 await Task.Delay(millisecondsInterval);

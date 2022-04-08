@@ -23,12 +23,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// Initializes the service instance.
         /// </summary>
         /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
         /// <param name="fileWatcherBranchChange">The file watcher for Git branch changes.</param>
         /// <param name="fileWatcherGitPush">The file watcher for Git pushes.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task InitializeAsync(
                IServiceProvider serviceProvider,
+               IHttpClientAdapter httpClientAdapter,
                ISecretStoreRepository secretStoreRepository,
                IFileWatcher fileWatcherBranchChange,
                IFileWatcher fileWatcherGitPush);
@@ -42,9 +44,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// <summary>
         /// Requests a user verification code.
         /// </summary>
-        /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <returns>The response data.</returns>
-        Task<Result<UserVerificationResponse, Error>> GetUserVerificationCodeAsync(IHttpClientAdapter httpClientAdapter);
+        Task<Result<UserVerificationResponse, Error>> GetUserVerificationCodeAsync();
 
         /// <summary>
         /// Requests the access token from the secure store.
@@ -56,9 +57,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         /// <summary>
         /// Polls the GitHub API for the user-authorized access token.
         /// </summary>
-        /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="verificationResponse">The response data received from the user verification code request.</param>
         /// <returns>The access token if successful; otherwise, an error.</returns>
-        Task<Result<Models.AccessToken, Error>> GetRequestedAccessTokenAsync(IHttpClientAdapter httpClientAdapter, UserVerificationResponse verificationResponse);
+        Task<Result<Models.AccessToken, Error>> GetRequestedAccessTokenAsync(UserVerificationResponse verificationResponse);
     }
 }

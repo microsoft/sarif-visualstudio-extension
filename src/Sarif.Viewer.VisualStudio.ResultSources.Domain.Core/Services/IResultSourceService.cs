@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
 
-using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
-
-using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
@@ -23,8 +20,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <summary>
         /// Gets the latest code scan results for the current branch.
         /// </summary>
-        /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
-        /// <returns>The SARIF log received if successful; otherwise, an error.</returns>
-        Task<Result<SarifLog, ErrorType>> GetCodeAnalysisScanResultsAsync(IHttpClientAdapter httpClientAdapter);
+        /// <param name="data">A data object.</param>
+        /// <returns>True if the request succeeded; otherwise, an error.</returns>
+        Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null);
     }
 }

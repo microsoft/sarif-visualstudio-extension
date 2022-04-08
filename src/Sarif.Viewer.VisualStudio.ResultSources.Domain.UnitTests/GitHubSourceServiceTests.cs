@@ -132,6 +132,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockServiceProvider = new Mock<IServiceProvider>();
 
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+
             var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
             mockSecretStoreRepository.Setup(r => r.ReadAccessToken(It.IsAny<TargetUri>())).Returns(cachedAccessToken);
             
@@ -139,6 +141,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             await gitHubSourceService.InitializeAsync(
                 mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
                 mockFileWatcher.Object,
                 mockFileWatcher.Object);
@@ -171,6 +174,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockServiceProvider = new Mock<IServiceProvider>();
 
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+
             var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
             mockSecretStoreRepository.Setup(r => r.ReadAccessToken(It.IsAny<TargetUri>())).Returns(cachedAccessToken);
             mockSecretStoreRepository.Setup(r => r.DeleteAccessToken(It.IsAny<TargetUri>()));
@@ -179,6 +184,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             await gitHubSourceService.InitializeAsync(
                 mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
                 mockFileWatcher.Object,
                 mockFileWatcher.Object);
@@ -224,6 +230,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockServiceProvider = new Mock<IServiceProvider>();
 
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
             var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
             mockSecretStoreRepository.Setup(r => r.WriteAccessToken(It.IsAny<TargetUri>(), It.IsAny<Entities.AccessToken>()));
 
@@ -231,14 +240,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             await gitHubSourceService.InitializeAsync(
                 mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
                 mockFileWatcher.Object,
                 mockFileWatcher.Object);
 
-            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
-            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
-
-            Result<Models.AccessToken, Error> result = await gitHubSourceService.GetRequestedAccessTokenAsync(mockHttpClientAdapter.Object, userVerificationResponse);
+            Result<Models.AccessToken, Error> result = await gitHubSourceService.GetRequestedAccessTokenAsync(userVerificationResponse);
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Value.Should().Be(accessToken);
@@ -276,6 +283,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockServiceProvider = new Mock<IServiceProvider>();
 
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
             var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
             mockSecretStoreRepository.Setup(r => r.WriteAccessToken(It.IsAny<TargetUri>(), It.IsAny<Entities.AccessToken>()));
 
@@ -283,14 +293,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             await gitHubSourceService.InitializeAsync(
                 mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
                 mockFileWatcher.Object,
                 mockFileWatcher.Object);
 
-            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
-            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
-
-            Result<Models.AccessToken, Error> result = await gitHubSourceService.GetRequestedAccessTokenAsync(mockHttpClientAdapter.Object, userVerificationResponse);
+            Result<Models.AccessToken, Error> result = await gitHubSourceService.GetRequestedAccessTokenAsync(userVerificationResponse);
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Message.Should().Be("expired_token");
