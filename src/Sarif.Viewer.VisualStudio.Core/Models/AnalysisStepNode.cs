@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -10,17 +9,23 @@ using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Converters;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
     internal class AnalysisStepNode : CodeLocationObject
     {
+        internal const int IndentWidth = 10; // indent width 10 pixel
+
         private ThreadFlowLocation _location;
         private AnalysisStep _analysisStep;
         private AnalysisStepNode _parent;
         private bool _isExpanded;
         private Visibility _visbility;
+        private int _nestingLevel;
+        private Thickness _textMargin;
+        private DelegateCommand _navigateCommand;
 
         public AnalysisStepNode(int resultId, int runIndex)
             : base(resultId, runIndex)
@@ -172,6 +177,20 @@ namespace Microsoft.Sarif.Viewer.Models
 
         [Browsable(false)]
         public List<AnalysisStepNode> Children { get; set; }
+
+        [Browsable(false)]
+        public int NestingLevel
+        {
+            get => this._nestingLevel;
+            set
+            {
+                this._textMargin.Left = IndentWidth * value;
+                this._nestingLevel = value;
+            }
+        }
+
+        [Browsable(false)]
+        public Thickness TextMargin => _textMargin;
 
         [Browsable(false)]
         public AnalysisStep AnalysisStep
@@ -408,6 +427,26 @@ namespace Microsoft.Sarif.Viewer.Models
                     child.SetVerbosity(importance);
                 }
             }
+        }
+
+        public DelegateCommand NavigateCommand
+        {
+            get
+            {
+                this._navigateCommand ??= new DelegateCommand(this.Navigate);
+                return this._navigateCommand;
+            }
+
+            set
+            {
+                this._navigateCommand = value;
+            }
+        }
+
+        private void Navigate()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            this.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
         }
     }
 }

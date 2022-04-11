@@ -19,6 +19,7 @@
     <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio.Interop\Sarif.Viewer.VisualStudio.Interop.xml</DocumentationFile>
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., strongname.props))\strongname.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
       <Version>5.0.3</Version>
@@ -33,7 +34,7 @@
     </PackageReference>
     <!-- Necessary to resolve version conflict on Newtonsoft.Json: -->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-	<PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

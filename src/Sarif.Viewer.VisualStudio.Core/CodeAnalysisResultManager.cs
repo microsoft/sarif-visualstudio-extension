@@ -445,7 +445,7 @@ namespace Microsoft.Sarif.Viewer
 
             var sourceUri = new Uri(fileUrl);
             string relativeLocalPath = localRelativeFilePath ?? sourceUri.LocalPath;
-            relativeLocalPath = relativeLocalPath.Replace('/', '\\').TrimStart('\\');
+            relativeLocalPath = NormalizeFilePath(relativeLocalPath).TrimStart('\\');
 
             string destinationFile = Path.Combine(workingDirectory, relativeLocalPath);
             string destinationDirectory = Path.GetDirectoryName(destinationFile);
@@ -792,7 +792,7 @@ namespace Microsoft.Sarif.Viewer
                     return false;
                 }
 
-                pathFromLogFile = pathFromLogFile.Replace('/', '\\');
+                pathFromLogFile = NormalizeFilePath(pathFromLogFile);
                 string fileToSearch = Path.GetFileName(pathFromLogFile);
                 IEnumerable<string> searchResults = fileSystem.DirectoryEnumerateFiles(solutionPath, fileToSearch, SearchOption.AllDirectories);
                 searchResults = searchResults.Where(path => path.EndsWith(pathFromLogFile, StringComparison.OrdinalIgnoreCase));
@@ -865,6 +865,7 @@ namespace Microsoft.Sarif.Viewer
 
             // Traverse our remappings and see if we can
             // make rebaseline from existing data
+            pathFromLogFile = NormalizeFilePath(pathFromLogFile);
             foreach (Tuple<string, string> remapping in dataCache.RemappedPathPrefixes)
             {
                 string remapped;
@@ -961,7 +962,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            string commonSuffix = GetCommonSuffix(pathFromLogFile.Replace("/", @"\"), resolvedPath);
+            string commonSuffix = GetCommonSuffix(NormalizeFilePath(pathFromLogFile), resolvedPath);
             if (commonSuffix == null)
             {
                 return false;
@@ -972,7 +973,7 @@ namespace Microsoft.Sarif.Viewer
             string originalPrefix = pathFromLogFile.Substring(0, pathFromLogFile.Length - commonSuffix.Length);
             string resolvedPrefix = resolvedPath.Substring(0, resolvedPath.Length - commonSuffix.Length);
 
-            int uriBaseIdEndIndex = resolvedPath.IndexOf(originalPath.Replace("/", @"\"));
+            int uriBaseIdEndIndex = resolvedPath.IndexOf(NormalizeFilePath(originalPath));
 
             if (!string.IsNullOrEmpty(uriBaseId) && relativeUri != null && uriBaseIdEndIndex >= 0)
             {
@@ -1052,6 +1053,11 @@ namespace Microsoft.Sarif.Viewer
             {
                 return HashHelper.GenerateHash(stream);
             }
+        }
+
+        private static string NormalizeFilePath(string path)
+        {
+            return path?.Replace('/', Path.DirectorySeparatorChar);
         }
 
         internal static string GetSolutionPath(DTE2 dte, IVsFolderWorkspaceService workspaceService)

@@ -76,7 +76,7 @@
         <Parent guid="guidOpenSarifFileCommandPackageCmdSet" id="OpenFileMenuGroup" />
         <CommandFlag>AllowParams</CommandFlag>
         <Strings>
-          <ButtonText>Open Static Analysis Results As SARIF</ButtonText>
+          <ButtonText>Open Static Analysis Results as SARIF</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidSarifViewerPackageCmdSet" id="cmdidSarifToolWindowCommand" priority="0x0100" type="Button">

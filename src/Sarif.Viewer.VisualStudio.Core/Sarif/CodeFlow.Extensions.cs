@@ -44,7 +44,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 return null;
             }
 
-            List<AnalysisStepNode> topLevelNodes = CodeFlowToTreeConverter.Convert(codeFlow, run, resultId, runIndex);
+            List<AnalysisStepNode> topLevelNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run, resultId, runIndex);
 
             return new AnalysisStep(topLevelNodes);
         }

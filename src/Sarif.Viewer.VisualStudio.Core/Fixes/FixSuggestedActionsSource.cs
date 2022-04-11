@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
 {
     internal class FixSuggestedActionsSource : ISuggestedActionsSource
     {
-        private static readonly string SuggestionCategory = "Sarif Viewer Suggestions";
+        private static readonly string SuggestionCategory = "SARIF Viewer Suggestions";
 
         private readonly ITextView textView;
         private readonly ITextBuffer textBuffer;
