@@ -576,6 +576,26 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             allowedList.Count.Should().Be(0);
         }
 
+        [Fact]
+        public void GetStoredObject_PopuplateHashSet_WithCustomComparer()
+        {
+            string pdbFileExt = ".pdb";
+            string pdbFileExtUpperCase = ".PDB";
+
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            CodeAnalysisResultManager.Instance.AddAllowedFileExtension(pdbFileExt);
+
+            allowedList.Contains(pdbFileExt).Should().BeTrue();
+            allowedList.Contains(pdbFileExtUpperCase).Should().BeTrue();
+
+            // Deserialize from IsolatedStorageFile again
+            allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+
+            allowedList.Contains(pdbFileExt).Should().BeTrue();
+            allowedList.Contains(pdbFileExtUpperCase).Should().BeTrue();
+
+        }
+
         private static void VerifyTextRun(Inline expected, Inline actual)
         {
             actual.Should().BeOfType(expected.GetType());

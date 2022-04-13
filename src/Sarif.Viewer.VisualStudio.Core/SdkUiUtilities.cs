@@ -108,6 +108,33 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
+        /// Reads the contents of an isolated storage file and populate to an specified object instance.
+        /// </summary>
+        /// <typeparam name="T">The type of the deserialized object.</typeparam>
+        /// <param name="storageFileName">The isolated storage file.</param>
+        /// <param name="instance">Instance to be populated.</param>
+        /// <returns>Object deserialized from isolated storage file if exists, otherwize the same instance.</returns>
+        internal static T GetStoredObject<T>(string storageFileName, T instance)
+            where T : class
+        {
+            var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
+
+            if (store.FileExists(storageFileName))
+            {
+                using (var stream = new IsolatedStorageFileStream(storageFileName, FileMode.Open, store))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        JsonConvert.PopulateObject(reader.ReadToEnd(), instance);
+                        return instance;
+                    }
+                }
+            }
+
+            return instance;
+        }
+
+        /// <summary>
         /// Serializes an object and writes it to an isolated storage file.
         /// </summary>
         /// <typeparam name="T">The type of the object.</typeparam>
@@ -816,7 +843,7 @@ namespace Microsoft.Sarif.Viewer
         {
             string fileExtension = Path.GetExtension(filePath);
             HashSet<string> allowedFileExtensions = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
-            bool allowed = allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase);
+            bool allowed = allowedFileExtensions.Contains(fileExtension);
 
             if (!allowed)
             {
@@ -825,7 +852,6 @@ namespace Microsoft.Sarif.Viewer
                 {
                     if (!IsBinaryFile(stream))
                     {
-                        // if file is not binary file, allow VS to open it.
                         return true;
                     }
                 }

@@ -79,7 +79,9 @@ namespace Microsoft.Sarif.Viewer
             this._promptForEmbeddedFileDelegate = promptForEmbeddedFileDelegate ?? this.PromptForEmbeddedFile;
 
             this._allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
-            this._allowedFileExtensions = SdkUIUtilities.GetStoredObject<HashSet<string>>(AllowedFileExtensionsFileName) ?? new HashSet<string>();
+
+            // The extension only works in Windows which file name is case-insensitive.
+            this._allowedFileExtensions = SdkUIUtilities.GetStoredObject(AllowedFileExtensionsFileName, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
             // Get temporary path for embedded files.
             this.temporaryFilePath = Path.GetTempPath();
@@ -1090,7 +1092,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal void AddAllowedFileExtension(string fileExtension)
         {
-            if (!this._allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+            if (!this._allowedFileExtensions.Contains(fileExtension))
             {
                 this._allowedFileExtensions.Add(fileExtension);
                 SdkUIUtilities.StoreObject<HashSet<string>>(this._allowedFileExtensions, AllowedFileExtensionsFileName);
