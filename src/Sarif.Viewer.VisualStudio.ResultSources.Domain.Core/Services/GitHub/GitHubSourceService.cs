@@ -301,9 +301,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 string userCode = userCodeResult.Value.UserCode;
 
                 // Callback for the Copy Code button
-                void CopyCodeButtonCallback()
+                Task CopyCodeButtonCallback()
                 {
                     Clipboard.SetText(userCode);
+                    return Task.CompletedTask;
                 }
 
                 // The callback for the infobar button.
@@ -325,7 +326,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     }
                 }
 
-                Action copyCodeCallbackMethod = CopyCodeButtonCallback;
+                Func<Task> copyCodeCallbackMethod = CopyCodeButtonCallback;
                 Func<Task> verifyCallbackMethod = VerifyButtonCallback;
 
                 var infoBarModel = new InfoBarModel(
