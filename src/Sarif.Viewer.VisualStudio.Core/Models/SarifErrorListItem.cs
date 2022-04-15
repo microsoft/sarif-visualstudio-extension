@@ -249,10 +249,19 @@ namespace Microsoft.Sarif.Viewer
             && this.Message != this.ShortMessage;
 
         [Browsable(false)]
-        public string XamlMessage =>
-            this.SarifResult?.TryGetProperty(XamlPropertyName, out string value) == true
-            ? Regex.Unescape(value)
-            : null;
+        public string XamlMessage
+        {
+            get
+            {
+                string value = null;
+                if (this.SarifResult?.TryGetProperty(XamlPropertyName, out value) == true)
+                {
+                    value = Regex.Unescape(value);
+                }
+
+                return value;
+            }
+        }
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
