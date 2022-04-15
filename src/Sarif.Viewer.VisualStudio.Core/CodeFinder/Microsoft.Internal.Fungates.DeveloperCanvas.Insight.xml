@@ -1,0 +1,1669 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Internal.Fungates.DeveloperCanvas.Insight</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData">
+            <summary>
+            Class storing information required to create a redirecting link to be displayed on canvases which do not 
+            offer a callback for click events, like VS Code and Code reviews. The link will log a click event and redirect
+            to actual site requested by user, like VSO or Watson website.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData.HostVersion">
+            <summary>
+            The host Application for dev canvas client, like VS or VS Code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData.ClientType">
+            <summary>
+            The dev canvas client type, like VS Extension or VS Code extension or CRBot.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData.ClientVersion">
+            <summary>
+            The dev canvas client version.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.IInsightAction">
+            <summary>
+            Interface for the actions displayed under the light bulb when user click on or moves the cursor to
+            the highlighted line for a particular insight in VS.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.IInsightAction.Label">
+            <summary>
+            Label for the button to be displayed in VS for this action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.IInsightAction.Description">
+            <summary>
+            Text to be dispalyed in VS when user hovers over the button for this action.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.IInsightAction.InvokeAction">
+            <summary>
+            Method containing actions to be performed when user clicks on the button for this action.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.InsightActionV1">
+            <summary>
+            Class representing a action (e.g. opening a web page) shown as an option under the light bulb when user moves
+            the cursor to the lightlighted line in Visual studio.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.InsightActionV1.InsightActionId">
+            <summary>
+            Identifier for the action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.InsightActionV1.Label">
+            <summary>
+            Label for the button to be displayed in VS for this action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.InsightActionV1.Description">
+            <summary>
+            Text to be displayed in VS when user hovers over the button for this action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.InsightActionV1.Url">
+            <summary>
+            URL to be used to start a process, e.g. the ones starting with http:// or mailto://
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.LaunchWebsiteInsightAction">
+            <summary>
+            Action for launching a process (e.g. a web page in a browser or an email client) through
+            a URL.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.LaunchWebsiteInsightAction.Label">
+            <summary>
+            Label for the button to be displayed in VS for this action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.LaunchWebsiteInsightAction.Description">
+            <summary>
+            Text to be dispalyed in VS when user hovers over the button for this action.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.LaunchWebsiteInsightAction.Url">
+            <summary>
+            URL to be used to start a process, e.g. the ones starting with http:// or mailto://
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.LaunchWebsiteInsightAction.InvokeAction">
+            <summary>
+            Launches a new process wing the <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightActions.LaunchWebsiteInsightAction.Url"/>  property.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightWebEnvironment">
+            <summary>
+            This class enables insight related code to experiment and test new functionality.
+            The environment will be determined from a number of parameters (typically deployment environment).
+            The consumer can use this for experimenting with new functionality in a controlled fashion.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightWebEnvironment.NotProdEnvironment">
+            <summary>
+            Returns true if running in a known, not-PROD environment.
+            I.e. will return false if the environment is PROD or unknown.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightWebEnvironment.ProdEnvironment">
+            <summary>
+            Returns true if running in the prod environment, false otherwise.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.IInsightGeneratorInfo">
+            <summary>
+            Class to store metadata about insight generator and about type of insights it provides.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.IInsightGeneratorInfo.Name">
+            <summary>
+            The name for this insight gnenerator, intended to be used for request and receiving insights
+            between DevCanvas clients and the server (not to be displayed to the users).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.IInsightGeneratorInfo.Id">
+            <summary>
+            The unique Id for this insight generator
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.IInsightGeneratorInfo.InsightDisplayName">
+            <summary>
+            The name string to be displayed to users for the type of insights generated by this insight generator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.IInsightGeneratorInfo.FeedbackEmail">
+            <summary>
+            Feedback contact, in case it is to be displayed to the users.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.IInsightGeneratorInfo.Description">
+            <summary>
+            Description, mostly about the type of insights generated by this insight generator and intended to be
+            displayed to the user.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.InsightGeneratorInfoV7">
+            <summary>
+            Insight generator information. Includes new abbreviated 'ShortName' property.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.InsightGeneratorInfoV7.ShortName">
+            <summary>
+            Abbreviated 6-character version of 'Name' for use in certain space-limited client-side scenarios.
+            Should be all-caps and simply represent 'Name' in condensed form.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.InsightGeneratorInfoV6">
+            <summary>
+            Insight generator information. There are no changes between V5 and V6.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.InsightGeneratorInfoV8">
+            <summary>
+            Insight generator information. Includes new AboutLink property.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.InsightGeneratorInfoV8.AboutLink">
+            <summary>
+            This is the about link where the end-user can get more information about the insight from insight generator.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGeneratorInfos.InsightGeneratorInfoV5">
+            <summary>
+            Insight generator information. Version v1 thorugh v4 do not exists since we are starting with
+            v5 to maintain consistency with the Request and Insight version number.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.IInsightGenerator">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV1">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights. This class is deprecated 
+            and should not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV2">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights. This class is deprecated 
+            and should not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV3">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights. This class is deprecated 
+            and should not be used.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV3.GeneratorId">
+            <summary>
+            Unique Id for the geneator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV3.GeneratorName">
+            <summary>
+            string identifying the generator and which will be used by canvas clients for requesting a particular type of
+            insights.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV3.Generate(System.String,System.String)">
+            <summary>
+            Get insights for given file.
+            </summary>
+            <param name="filePath">Path of the file relative to the repo root for which insight are being requested.</param>
+            <param name="gitHead">Contents of .git\HEAD file.</param>
+            <returns>Object of a class that implements IInsight interface.</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.GeneratorId">
+            <summary>
+            Unique Id for the generator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.GeneratorName">
+            <summary>
+            string identifying the generator and which will be used by canvas clients for requesting a particular type of
+            insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.InsightDisplayName">
+            <summary>
+            The name string to be displayed to users for the type of insights generated by this insight generator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.FeedbackEmail">
+            <summary>
+            Feedback contact, in case it is to be displayed to the users.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.Description">
+            <summary>
+            Description, mostly about the type of insights generated by this insight generator and intended to be
+            displayed to the user.
+            </summary>
+            
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.ShortName">
+            <summary>
+            Abbreviated 6-character version of 'GeneratorName', for use in specific space-limited client-side scenarios.
+            Should be all-caps and simply represent 'GeneratorName' in condensed form.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV7.Generate(System.String,System.Security.Principal.WindowsPrincipal,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData)">
+            <summary>
+            Get insights for given file.
+            </summary>
+            <param name="filePath">Path of the file relative to the repo root for which insights are being requested.
+                                   Directories will be delimited by back-slashes ('\').
+                                   Generators should do a case-insensitive match against this string.</param>
+            <param name="UserPrincipal">The principal object of the user requesting insights. Can be used to check the user's auth.</param>
+            <param name="sourceInformation">Source control information associated with the file.</param>
+            <param name="clickEventData">
+            Object storing data which is logged when user clicks on links in the insights. Links in the markdown presentation
+            of insight point to a redirector which logs the click event before redirecting to the actual website (e.g. VSO or Watson website).
+            </param>
+            <returns>Object of a class that implements IInsight interface.</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6.GeneratorId">
+            <summary>
+            Unique Id for the generator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6.GeneratorName">
+            <summary>
+            string identifying the generator and which will be used by canvas clients for requesting a particular type of
+            insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6.InsightDisplayName">
+            <summary>
+            The name string to be displayed to users for the type of insights generated by this insight generator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6.FeedbackEmail">
+            <summary>
+            Feedback contact, in case it is to be displayed to the users.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6.Description">
+            <summary>
+            Description, mostly about the type of insights generated by this insight generator and intended to be
+            displayed to the user.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV6.Generate(System.String,System.Security.Principal.WindowsPrincipal,System.String,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfig,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData)">
+            <summary>
+            Get insights for given file.
+            </summary>
+            <param name="filePath">Path of the file relative to the repo root for which insight are being requested.</param>
+            <param name="UserPrincipal">The Windows principal object of the user requesting insights. Can be used to check the user's auth.</param>
+            <param name="gitHead">Contents of .git\HEAD file.</param>
+            <param name="gitConfig">Object representation of the .git\config file.</param>
+            <param name="clickEventData">
+            Object storing data which is logged when user clicks on links in the insights. Links in the markdown presentation
+            of insight point to a redirector which logs the click event before redirecting to the actual website (e.g. VSO or Watson website).
+            </param>
+            <returns>Object of a class that implements IInsight interface.</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5.GeneratorId">
+            <summary>
+            Unique Id for the geneator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5.GeneratorName">
+            <summary>
+            string identifying the generator and which will be used by canvas clients for requesting a particular type of
+            insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5.InsightDisplayName">
+            <summary>
+            The name string to be displayed to users for the type of insights generated by this insight generator.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5.FeedbackEmail">
+            <summary>
+            Feedback contact, in case it is to be displayed to the users.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5.Description">
+            <summary>
+            Description, mostly about the type of insights generated by this insight generator and intended to be
+            displayed to the user.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV5.Generate(System.String,System.String,System.Int32,System.Int32,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData)">
+            <summary>
+            Get insights for given file.
+            </summary>
+            <param name="filePath">Path of the file relative to the repo root for which insight are being requested.</param>
+            <param name="gitHead">Contents of .git\HEAD file.</param>
+            <param name="buildRangeFrom">
+            Number marking start of build range within which insights are to be returned. A value of 0 signifies that user has not speicified
+            any build range.
+            </param>
+            <param name="buildRangeTo">
+            Number marking end of build range within which insights are to be returned. A value of 0 signifies that user has not speicified
+            any build range.
+            </param>
+            <param name="clickEventData">
+            Object storing data which is logged when user clicks on links in the insights. Links in the markdown presentation
+            of insight point to a redirector which logs the click event before redirecting to the actual website (e.g. VSO or Watson website).
+            </param>
+            <returns>Object of a class that implements IInsight interface.</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV4">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV8">
+            <summary>
+            Abstract class to be used as a contract for a class generating insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV8.AboutLink">
+            <summary>
+            This is the about link where the end-user can get more information about the insight from insight generator.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightGenerators.InsightGeneratorV8.Generate(System.String,System.Security.Principal.IPrincipal,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ClickEventData,Microsoft.DevCanvas.Caching.ICacheManager{Microsoft.Identity.Client.IConfidentialClientApplication})">
+            <summary>
+            Get insights for given file.
+            </summary>
+            <param name="filePath">Path of the file relative to the repo root for which insights are being requested.
+                                   Directories will be delimited by back-slashes ('\').
+                                   Generators should do a case-insensitive match against this string.</param>
+            <param name="userPrincipal">The principal object of the user requesting insights. Can be used to check the user's auth.</param>
+            <param name="sourceInformation">Source control information associated with the file.</param>
+            <param name="clickEventData">
+            Object storing data which is logged when user clicks on links in the insights. Links in the markdown presentation
+            of insight point to a redirector which logs the click event before redirecting to the actual website (e.g. VSO or Watson website).
+            </param>
+            <param name="clientApp">Cached AAD application context that makes a call to underlying insight generator.</param>
+            <returns>Object of a class that implements IInsight interface.</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation">
+            <summary>
+            Class to store different visualizations of an insight to be shown on different canvases.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Constructor with the four presentation types.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation.Text">
+            <summary>
+            Text is the default presentation option. If no other presentation is specified
+            the Text will get wrapped in default Xaml/Markdown/HTML for presentation.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation.Xaml">
+            <summary>
+            Xaml specifies how insight data should be rendered in Visual Studio.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation.Markdown">
+            <summary>
+            Markdown specifies how insight data should be rendered on VSTS.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightPresentation.Html">
+            <summary>
+            Html specifies how insight data should be rendered in the browser.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator">
+            <summary>
+            Interface defining the statistics to be collected from insight generators. The generators which want
+            their stats to be logged through the event logger tool should implement this interface.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.InsightTypeName">
+            <summary>
+            Name of the Insight type to be logged against the metric values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetTotalViewableInsightPresentations">
+            <summary>
+            Method to get total number of viewable insight presentations, i.e. those for which insights have
+            been mapped to a file and line of code in a repository.
+            Said another way, this is the total <see cref="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.IInsight"/> structures this generator may return.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetTotalViewableInsightInfos">
+            <summary>
+            Method to get a count of total unique <see cref="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1"/> contained in viewable
+            <see cref="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.IInsight"/> returned by the generator (i.e. failures/error/information pieces).
+            A viewable InsightInfo is contained in an Insight that has associated line of code, so that it can be presented.
+            This may or may not be same as value returned by GetTotalViewableInsightPresentations, based on whether we are showing 
+            a single or multiple InsightInfos in a single insight presentation/pop-up
+            and whether an InsightInfo can be present in multiple insights.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetTotalNonViewableInsightInfos">
+            <summary>
+            Method to get a total number of unique non viewable insightinfos (i.e. they have not been mapped to a line in a repo).
+            A non-viewable InsightInfo would perhaps be contained in an Insight that doesn't have an associated line of code, so it can't presented.
+            Any insight generator which is unable to report this metric here should throw a not implemented exception.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetTotalViewableInsightInfosWithBugs">
+            <summary>
+            Method to get total number of unique insightinfos which have one or more bugs associated with them. This should not
+            consider other work item types like IcM and Issues.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetTotalViewableBugs">
+            <summary>
+            Method to get total number of unique bugs associated with at least one viewable insight presentation for given type of insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetTotalInsightPresentationsByRank">
+            <summary>
+            Method to get total number of insight presentation for ranks 1 through 3.
+            </summary>
+            <returns><see cref="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.RankwiseInsightPresentationCount"/> object</returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightStatistics.IInsightStatisticsGenerator.GetCustomMetrics">
+            <summary>
+            Method to get any special metrics that an Insight generator wants to log.
+            </summary>
+            <returns>Dictionary mapping metric name (string) to metric value (integer).</returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.IInsightTelemetry.GetTelemetryObject">
+            <summary>
+            Returns an anonymous object that contains all the fields that should be logged for telemetry purposes.
+            Note that some telemetry methods may not be able to serialize this object and in that case the string
+            returned from GetTelemetryString should be used instead.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.IInsightTelemetry.GetTelemetryString(System.Boolean)">
+            <summary>
+            Returns a string representing this object to be logged for telemetry purposes.
+            Typically this is a JSON string of the serialized object returned by GetTelemetryObject.
+            Use this method if your telemetry method (e.g. EventSource) has trouble serializing the object returned by GetTelemtryObject.
+            Implementers should consider caching this string for performance reasons. The refresh parameter can be used
+            by callers to ensure the string returned is up to date.
+            </summary>
+            <param name="refresh">Set this to true to ensure the string returned reflects the current state.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1">
+            <summary>
+            Class containing an individual issue, error or piece of information that helps qualify the insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1.Id">
+            <summary>
+            Unique identifier for InsightInfoList. For example: a failure hash, error code, expression, event name, etc.
+             </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1.Name">
+            <summary>
+            Human readable version for the Id.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1.WorkItemList">
+            <summary>
+            This represents a list of associated engineering work items (e.g. bugs).
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1.Source">
+            <summary>
+            Semi-colon delimited string denoting the source(s) of telemetry that generated this piece of information.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1.#ctor(System.String,System.String)">
+            <summary>
+            Constructor to set id and name for the InsightInfo class
+            </summary>
+            <param name="id">Unique identifier. For example: a failure hash, error code, expression, event name, etc.</param>
+            <param name="name">Human readable version of the id</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1.#ctor(System.String,System.String,Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.WorkItemV1,System.String)" -->
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV1">
+            <summary>
+            Class representing an insight bound to a particular line of code. This class is deprecated and should
+            not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV2">
+            <summary>
+            Class representing an insight bound to a particular line of code. This class is deprecated and should
+            not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV3">
+            <summary>
+            Class representing an insight bound to a particular line of code. This class is deprecated and should
+            not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5">
+            <summary>
+            Class representing an insight bound to a particular line of code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightId">
+            <summary>
+            Unique identifier for an insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightName">
+            <summary>
+            Type of insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightFilePath">
+            <summary>
+            Path relative to root of the repo for the file which has the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightLifeSpan">
+            <summary>
+            Time span for which this insight will be cached on the code editor extensions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.EstimatedLineNumber">
+            <summary>
+            Line number of the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.StartLineNumberRange">
+            <summary>
+            Line number from which the code editor extensions should start searching for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.EndLineNumberRange">
+            <summary>
+            Line number upto which the code editor extensions should search for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightText">
+            <summary>
+            The code text / line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightActions">
+            <summary>
+            The actions to be displayed under the blub in the Visual Studio, when a user clicks on 
+            the highlighted line of code corresponding to this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightData">
+            <summary>
+            Optional additional data (e.g. Insight type specific data) to be sent for this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightPresentation">
+            <summary>
+            An InsightPresentation object which stores different visual representations of this insights to be
+            displayed in different types on code editors / canvases.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.BugId">
+            <summary>
+            VSO Bug number associated with this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.Source">
+            <summary>
+            String denoting the source of telemetry that generated this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator of this insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV3)">
+            <summary>
+            Constructors for creating a V5 Insight out of an V3 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV2)">
+            <summary>
+            Constructors for creating a V5 Insight out of an V2 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4)">
+            <summary>
+            Constructors for creating a V5 Insight out of an V4 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV1)">
+            <summary>
+            Constructors for creating a V5 Insight out of an V1 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6)">
+            <summary>
+            Constructors for creating a V5 Insight out of an V6 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7)">
+            <summary>
+            Constructor for creating a V5 Insight out of a V7 Insight.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4">
+            <summary>
+            Class representing an insight bound to a particular line of code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightId">
+            <summary>
+            Unique identifier for an insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightName">
+            <summary>
+            Type of insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightFilePath">
+            <summary>
+            Path relative to root of the ropo for the file which has the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightLifeSpan">
+            <summary>
+            Time span for which this insight will be cached on the code editor extensions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.EstimatedLineNumber">
+            <summary>
+            Line number of the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.StartLineNumberRange">
+            <summary>
+            Line number from which the code editor extensions should start searching for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.EndLineNumberRange">
+            <summary>
+            Line number upto which the code editor extensions should search for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightText">
+            <summary>
+            The code text / line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightActions">
+            <summary>
+            The actions to be displayed under the blub in the Visual Studio, when a user clicks on 
+            the highlighted line of code corresponding to this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightData">
+            <summary>
+            Optional additional data (e.g. Insight type specific data) to be sent for this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.InsightPresentation">
+            <summary>
+            An InsightPresentation object which stores different visual representations of this insights to be
+            displayed in differnt types on code editors / canvases.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.BugId">
+            <summary>
+            VSO Bug number associated with this insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV3)">
+            <summary>
+            Constructors for creating a V4 Insight out of an V3 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV2)">
+            <summary>
+            Constructors for creating a V4 Insight out of an V2 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV1)">
+            <summary>
+            Constructors for creating a V4 Insight out of an V1 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5)">
+            <summary>
+            Constructors for creating a V4 Insight out of an V5 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6)">
+            <summary>
+            Constructors for creating a V4 Insight out of an V6 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7)">
+            <summary>
+            Constructor for creating a V4 Insight out of a V7 Insight.
+            </summary>
+            <param name="insightV7"></param>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightId">
+            <summary>
+            Unique identifier for an insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightName">
+            <summary>
+            Type of insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightFilePath">
+            <summary>
+            Path relative to root of the repo for the file which has the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightLifeSpan">
+            <summary>
+            Time span for which this insight will be cached on the code editor extensions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.EstimatedLineNumber">
+            <summary>
+            Line number of the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.StartLineNumberRange">
+            <summary>
+            Line number from which the code editor extensions should start searching for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.EndLineNumberRange">
+            <summary>
+            Line number upto which the code editor extensions should search for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightText">
+            <summary>
+            The code text / line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightActions">
+            <summary>
+            The actions to be displayed under the blub in the Visual Studio, when a user clicks on 
+            the highlighted line of code corresponding to this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightData">
+            <summary>
+            Optional additional data (e.g. Insight type specific data) to be sent for this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightPresentation">
+            <summary>
+            An InsightPresentation object which stores different visual representations of this insights to be
+            displayed in different types on code editors / canvases.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.BugId">
+            <summary>
+            VSO Bug number associated with this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.Source">
+            <summary>
+            Semi-colon delimited string denoting the source(s) of telemetry that generated this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator of this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.Rank">
+            <summary>
+            A value of 1-3 indicating how "important" this insight is, 1 being the most "important" and 3 being the least.
+            The definition of "important" is up to the insight generator.
+            On the client side, users have a setting that filters out insights based on each insight's Rank value.
+            Only insights whose Rank is less than or equal to the Rank filter value are shown to the user.
+            E.g.: If the user has set their Rank filter to 2 then only insights whose Rank is 1 or 2 will be shown.
+                Insights with a Rank of 3 will not be shown.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.InsightDescription">
+            <summary>
+            This should be a short string that helps characterize the insight for the end-user.
+            This can be a failure signature, expression, or other short summary.
+            Use InsightText for the actual source code line.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.PrimaryLink">
+            <summary>
+            This is the primary link where the end-user can get more information about this insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5)">
+            <summary>
+            Constructor for creating a V7 Insight out of an V5 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6)">
+            <summary>
+            Constructor for creating a V7 Insight out of an V6 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8)">
+            <summary>
+            Constructor for creating a V7 Insight out of an V8 Insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightId">
+            <summary>
+            Unique identifier for an insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightName">
+            <summary>
+            Type of insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightFilePath">
+            <summary>
+            Path relative to root of the repo for the file which has the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightLifeSpan">
+            <summary>
+            Time span for which this insight will be cached on the code editor extensions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.EstimatedLineNumber">
+            <summary>
+            Line number of the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.StartLineNumberRange">
+            <summary>
+            Line number from which the code editor extensions should start searching for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.EndLineNumberRange">
+            <summary>
+            Line number upto which the code editor extensions should search for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightText">
+            <summary>
+            The code text / line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightActions">
+            <summary>
+            The actions to be displayed under the blub in the Visual Studio, when a user clicks on 
+            the highlighted line of code corresponding to this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightData">
+            <summary>
+            Optional additional data (e.g. Insight type specific data) to be sent for this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightPresentation">
+            <summary>
+            An InsightPresentation object which stores different visual representations of this insights to be
+            displayed in different types on code editors / canvases.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.BugId">
+            <summary>
+            VSO Bug number associated with this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.Source">
+            <summary>
+            Semi-colon delimited string denoting the source(s) of telemetry that generated this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator of this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.Rank">
+            <summary>
+            A value of 1-3 indicating how "important" this insight is, 1 being the most "important" and 3 being the least.
+            The definition of "important" is up to the insight generator.
+            On the client side, users have a setting that filters out insights based on each insight's Rank value.
+            Only insights whose Rank is less than or equal to the Rank filter value are shown to the user.
+            E.g.: If the user has set their Rank filter to 2 then only insights whose Rank is 1 or 2 will be shown.
+                Insights with a Rank of 3 will not be shown.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.InsightDescription">
+            <summary>
+            This should be a short string that helps characterize the insight for the end-user.
+            This can be a failure signature, expression, or other short summary.
+            Use InsightText for the actual source code line.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.PrimaryLink">
+            <summary>
+            This is the primary link where the end-user can get more information about this insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV1)">
+            <summary>
+            Constructor for creating a V6 Insight out of an V1 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV2)">
+            <summary>
+            Constructor for creating a V6 Insight out of an V2 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV3)">
+            <summary>
+            Constructor for creating a V6 Insight out of an V3 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV4)">
+            <summary>
+            Constructor for creating a V6 Insight out of an V4 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV5)">
+            <summary>
+            Constructor for creating a V6 Insight out of an V5 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7)">
+            <summary>
+            Constructor for creating a V6 Insight out of a V7 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8)">
+            <summary>
+            Constructor for creating a V6 Insight out of a V8 Insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightId">
+            <summary>
+            Uniquely identifies the insight in terms of presentation.
+            This value is based upon the <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightName"/>, <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightFilePath"/>, <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.EstimatedLineNumber"/>, <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightText"/>, and the Ids of the <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightInfoList"/>.
+            It is automatically generated and cannot be directly set.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightInfosId">
+            <summary>
+            Uniquely identifies individual failures, issues, errors etc.
+            This value is based upon the <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightName"/>, <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightFilePath"/>, <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightText"/> and the Ids of the <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightInfoList"/>.
+            It is automatically generated and cannot be directly set.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightName">
+            <summary>
+            The type of insight.
+            E.g. "WatsonFailure", "WILError", etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightFilePath">
+            <summary>
+            Path relative to root of the repo for the file which has the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightLifeSpan">
+            <summary>
+            Time span for which this insight will be cached on the code editor extensions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.EstimatedLineNumber">
+            <summary>
+            Line number of the line of code for which this insight is generated.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.StartLineNumberRange">
+            <summary>
+            Line number from which the code editor extensions should start searching for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.EndLineNumberRange">
+            <summary>
+            Line number upto which the code editor extensions should search for given code text.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightText">
+            <summary>
+            The code text / line of code for which this insight is generated.
+            Clients will perform an exact, case-sensitive match on this string.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.CallingFunction">
+            <summary>
+            The name of the function that is calling (i.e. contains) the line of code represented by InsightText.
+            This is optional, but if provided it can greatly increase the client's line-matching accuracy.
+            Preferred formats:
+                "Function" (C code)
+                "Class::Method" (C++ code)
+                "Namespace::Class::Method" (C# and C++ code)
+            Note that adhering to the preferred formats isn't strictly required, but the closer to the preferred
+            format you get, the more likely it is that the client will be able to make use of it.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightActions">
+            <summary>
+            The actions to be displayed under the blub in the Visual Studio, when a user clicks on 
+            the highlighted line of code corresponding to this insight. These are typically external
+            links and are mainly provided for accessibility reasons.
+            In general:
+              * There should be at least one action per item in the InsightInfoList.
+              * If an InsightInfoList item has one or more WorkItems, there should be at least one action for the first WorkItem.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightData">
+            <summary>
+            Optional additional data (e.g. Insight type specific data) to be sent for this insight.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightPresentation">
+            <summary>
+            An InsightPresentation object which stores different visual representations of this insights to be
+            displayed in different types on code editors / canvases.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator of this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.Rank">
+            <summary>
+            A value of 1-3 indicating how "important" this insight is, 1 being the most "important" and 3 being the least.
+            The definition of "important" is up to the insight generator.
+            On the client side, users have a setting that filters out insights based on each insight's Rank value.
+            Only insights whose Rank is less than or equal to the Rank filter value are shown to the user.
+            E.g.: If the user has set their Rank filter to 2 then only insights whose Rank is 1 or 2 will be shown.
+                Insights with a Rank of 3 will not be shown.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.SubRank">
+            <summary>
+            A value indicating the importance of this insight relative to other insights with the same Rank value.
+            This allows the client to further order insights with the same Rank value if necessary.
+            A lower value is more "important" than a higher value.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightDescription">
+            <summary>
+            This should be a short string that helps characterize the insight for the end-user.
+            This can be a failure signature, expression, or other short summary.
+            Use InsightText for the actual source code line.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.PrimaryLink">
+            <summary>
+            This is the primary link where the end-user can get more information about this insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.InsightInfoList">
+            <summary>
+            List of individual issues, errors or information that help qualify the insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.#ctor(System.Collections.Generic.List{Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightInfoV1},System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Constructs an InsightV8 object.
+            </summary>
+            <param name="insightInfoList">A list of InsightInfoV1 objects. It must contain at least one entry.</param>
+            <param name="insightName">A name describing the type of insight, e.g. "WatsonFailure", "WILError", etc.</param>
+            <param name="insightFilePath">The repo-rooted path to the file to which this insight applies.</param>
+            <param name="estimatedLineNumber">The estimated line number to which this insight applies.</param>
+            <param name="insightText">The actual text of the line of code to which this insight applies.</param>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.GetTelemetryObject">
+            <summary>
+            Returns an anonymous object that contains all the fields of this structure that should be logged for telemetry.
+            Some telemetry methods may not be able to serialize this. In that case, use GetTelemetryString.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.GetTelemetryString(System.Boolean)">
+            <summary>
+            Returns the serialized JSON string representation of the object returned by GetTelemetryObject.
+            Use this string if the telemetry method being used is unable to serialize the object returned by GetTelemetryObject.
+            </summary>
+            <param name="refresh">Set this to true to ensure the string returned represents the current state of the Insight.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV7)">
+            <summary>
+            Constructor for creating a V8 Insight out of an V7 Insight.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV8.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.InsightV6)">
+            <summary>
+            Constructor for creating a V8 Insight out of an V6 Insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.WorkItemV1.Type">
+            <summary>
+            Type of the work item. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.WorkItemV1.Id">
+            <summary>
+            Id associated with the work item.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights.WorkItemV1.Link">
+            <summary>
+            Link where the end-user can get more information about the work item.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightUtilities">
+            <summary>
+            Class for utility methods.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.InsightUtilities.GenerateGuidForString(System.String)">
+            <summary>
+            Method to get a GUID to indentify a string. The guid is deterministic, i.e. for a particular string, same GUID
+            will be returned for multiple invocations of this method. The method first creates a SHA1 hash from the string
+            and the populates guid bytes from that hash.
+            </summary>
+            <param name="stringToBeHashed"></param>
+            <returns>Guid</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.CanvasClientType">
+            <summary>
+            Enum for the clients created for different developer canvases
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ListExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:System.Collections.Generic.List`1"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.ListExtensions.Compare``1(System.Collections.Generic.List{``0},System.Collections.Generic.List{``0})">
+            <summary>
+            Compares two lists (using the given type's Equals() method) and returns a value indicating how they match.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="list1"></param>
+            <param name="list2"></param>
+            <returns>
+            0 indicates an exact match (both lists are the same length and all elements match).
+            A positive value indicates all elements in the second list match the first but the first has more elements than the second.
+            A negative value indicates all elements in the first list match the second but the first has fewer elements than the second.
+            A null value indicates at least one element (at the same valid index in both lists) does not match.
+            </returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.StringExtensions">
+            <summary>
+            This static class contains extension methods for the "string" class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.StringExtensions.Truncate(System.String,System.Int32)">
+            <summary>
+            Truncates the given string <paramref name="str"/>. If <paramref name="maxLength"/> is greater than <paramref name="str"/>'s length then it is returned as-is.
+            </summary>
+            <param name="str">The string to truncate.</param>
+            <param name="maxLength">The maximum number of characters to return.</param>
+            <returns>The string, truncated up to <paramref name="maxLength"/> characters.</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.StringExtensions.RemoveBetween(System.String,System.Char,System.Char,System.Boolean)" -->
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.StringExtensions.Contains(System.String,System.String,System.StringComparison)">
+            <summary>
+            Version of Contains that allows for ignoring case.
+            </summary>
+            <param name="source">The source string.</param>
+            <param name="value">The value to look for in the source string.</param>
+            <param name="comparisonType">One of the <see cref="T:System.StringComparison"/> values that specifies the rules for the search.</param>
+            <returns>True if <paramref name="value"/> is found within <paramref name="source"/>.</returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV1">
+            <summary>
+            Class storing client canvas attributes like file path, git head, etc. based on which insights will
+            be returned to the client. This class is deprecated and should not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2">
+            <summary>
+            Class storing client canvas attributes like file path, git head, etc. based on which insights will
+            be returned to the client. This class is deprecated and should not be used.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2.GeneratorName">
+            <summary>
+            Name of the insight generator from which inights are being requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2.LocalFilePath">
+            <summary>
+            Local path of the file for which insights are being requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2.LocalGitRoot">
+            <summary>
+            Path to the local git repo's root in which the file resides for which insights are being requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2.GitConfig">
+            <summary>
+            Contents of .git\config file.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2.GitHead">
+            <summary>
+            Contents of .git\HEAD file.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV2.GetTelemetry(System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Method to return telmetry values to be logged on the server.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV3">
+            <summary>
+            Class storing client canvas attributes like file path, git head, etc. based on which insights will
+            be returned to the client. This class is deprecated and should not be used.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5">
+            <summary>
+            Class storing client canvas attributes like file path, git head, build range, etc. based on which insights 
+            will be returned to the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5.BuildRangeFrom">
+            <summary>
+            Number marking start of the build range withing which insights are to be returned.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5.BuildRangeTo">
+            <summary>
+            Number marking end of build range within which insights are to be returned.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5.ClientVersion">
+            <summary>
+            Version of the client which is requesting insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator from which insights are requested.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5.GetTelemetry(System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Method to return telmetry values to be logged on the server.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV4">
+            <summary>
+            Class storing client canvas attributes like file path, git head, etc. based on which insights will
+            be returned to the client. This class is deprecated and should not be used.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV4.ClientType">
+            <summary>
+            String indicating which type of client (e.g Visual Studio vs Visual Studio Code vs Console app)
+            is requesting the insights.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV4.GetTelemetry(System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Method to return telmetry values to be logged on the server.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV6">
+            <summary>
+            Class storing client canvas attributes like file path, git head, git config, etc. which will determine which
+            insights will be returned to the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV6.ClientVersion">
+            <summary>
+            Version of the client which is requesting insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV6.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator from which insights are requested.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV6.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV5)">
+            <summary>
+            Since RequestV6 does not inherit from RequestV5 we need a conversion constructor.
+            </summary>
+            <param name="requestV5"></param>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV6.GetTelemetry(System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Method to return telmetry values to be logged on the server.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7">
+            <summary>
+            Class storing client canvas attributes like file path, git head, git config, etc. which will determine which
+            insights will be returned to the client.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.GeneratorName">
+            <summary>
+            Name of the insight generator from which inights are being requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.FilePath">
+            <summary>
+            Local path of the file for which insights are being requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.ClientType">
+            <summary>
+            String indicating which type of client (e.g Visual Studio vs Visual Studio Code vs Console app)
+            is requesting the insights.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.ClientVersion">
+            <summary>
+            Version of the client which is requesting insight.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.InsightGeneratorId">
+            <summary>
+            Unique identifier for the generator from which insights are requested.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.SourceInformation">
+            <summary>
+            Source control related information associated with the <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.FilePath"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV7.GetTelemetry">
+            <summary>
+            Method to return telemetry values to be logged on the server.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Requests.RequestV8">
+            <summary>
+            Class storing client canvas attributes like file path, git head, git config, etc. which will determine which
+            insights will be returned to the client.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfig">
+            <summary>
+            Parses the contents of a git config file and makes the sections, subsections, and variables accessible via Dictionaries.
+            Parsing follows the syntax specified at https://git-scm.com/docs/git-config
+            If a syntax violation is detected then an corresponding error will be populated in the ParsingErrors property.
+            
+            Example instantiation:
+                cfgFileContents = File.ReadAllText(".git\\config"));
+                GitConfig gitCfg = new GitConfig(cfgFileContents);
+             
+            Example section/variable access:
+                // Print all settings under the [core] section.
+                var coreSection = gitCfg.Sections["core"];
+                foreach (var variable in coreSection.Variables)
+                {
+                    Console.WriteLine($"{variable.Key} = {variable.Value}");
+                }
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfig.Sections">
+            <summary>
+            The set of sections in the git config, keyed by name.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfig.#ctor(System.String)">
+            <summary>
+            Pass the contents of the .git\config file to the constructor and the resulting object will represent the contents
+            </summary>
+            <param name="gitConfig">The contents of the .git\config file.</param>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfigSection">
+            <summary>
+            Represents a section (or subsection) in a git config.
+            Don't instantiate this yourself, use the GitConfig class to build the git config representation.
+            If this is a section, then it may have zero or more subsections and zero or more Values.
+            If this is a subsection, then it will just have one or more Values.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfigSection.SubSections">
+            <summary>
+            The set of sub-sections in this section (if any).
+            If the owning object is already a sub-section then this will be empty.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.GitConfigSection.Variables">
+            <summary>
+            The set of variables (name/value pairs) in this section (or sub-section).
+            </summary>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities">
+            <summary>
+            Utility class for extracting source control information. Note that the word 'repository' used in comments
+            and in variable names has been used in generic sense, i.e. it refers can refer to a Git repository as well
+            as a Source Depot.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.GetSourceInformation(System.String,System.String@,System.String@,System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Gets the source control information for file's repository.
+            </summary>
+            <param name="filePath">
+            Path to the file whose repository's information is needed. Typically, this would be the file for which 
+            insights are to be displayed.
+            </param>
+            <param name="rootedFilePath">Path of the file relative to the root of the repository.</param>
+            <param name="repositoryRoot">Path to the root of the repository.</param>
+            <param name="sourceInfoParsingErrors">Errors encountered while parsing source information.</param>
+            <returns><see cref="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation"/> object</returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.GetSourceInformation(System.String,System.String@,System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Gets the source control information for file's repository.
+            </summary>
+            <param name="filePath">
+            Path to the file whose repository's information is needed. Typically, this would be the file for which 
+            insights are to be displayed.
+            </param>
+            <param name="rootedFilePath">Path of the file relative to the root of the repository.</param>
+            <param name="sourceInfoParsingErrors">Errors encountered while parsing source information.</param>
+            <returns><see cref="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation"/> object</returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.GetBranchNameFromGitHead(System.String)">
+            <summary>
+            Gets name of the current branch the user is on.
+            </summary>
+            <param name="gitHeadContents">Contents on .git\HEAD file</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.GetBranchNameFromGitUrl(System.String)">
+            <summary>
+            Gets name of the current branch from the git URL.
+            </summary>
+            <param name="gitUrl">git URL for a given file on a particular branch</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.ExtractGitProperties(System.String,System.String@,System.String@,System.String@,System.Collections.Generic.List{System.String}@)">
+            <summary>
+            Parses Git config file to return source control information like git server, project and repository name. This method throws an
+            exception if the git config is not in expected format and the caller is expected to handle those exceptions appropriately.
+            </summary>
+            <param name="gitConfigContents">Git config file path.</param>
+            <param name="gitServer">Git server for the repository.</param>
+            <param name="projectName">Project under which the repo has been created.</param>
+            <param name="gitRepositoryName">Repository name.</param>
+            <param name="gitParsingErrors">List of errors encountered while parsing Git config.</param>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.CleanLocalFilePath(System.String,System.String)">
+            <summary>
+            Cleans up a local file path and returns its path relative to the repository's root. E.g. if the local file path
+            is D:/code/os/src/minio/ndis/sys/aoac.c and repository's root directory is D:/code/os/src/, this function will 
+            return /minio/ndis/sys/aoac.c Additionally it also handles special paths generated when code files are opened
+            though WinIDE extension.
+            </summary>
+            <param name="localFilePath">Path of a file as seen by dev</param>
+            <param name="localRepositoryRoot"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlUtilities.ParseGitUrl(System.String,System.String@,System.String@,System.String@)">
+            <summary>
+            Parses the server, project, and repository out of a full git-based repository URL.
+            E.g. if <paramref name="gitUrl"/> = "https://dev.azure.com/microsoft/os/_git/os" then
+            <paramref name="gitServer"/> = "https://dev.azure.com/microsoft",
+            <paramref name="projectName"/> = "os", and
+            <paramref name="gitRepositoryName"/> = "os".
+            Note that some URLs, like GitHub, may not have a <paramref name="projectName"/>.
+            It is the caller's responsibility to check the validity of each extracted part.
+            </summary>
+            <param name="gitUrl"></param>
+            <param name="gitServer"></param>
+            <param name="projectName"></param>
+            <param name="gitRepositoryName"></param>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation">
+            <summary>
+            Class storing source control information related to a file.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.SourceControlType">
+            <summary>
+            Source control type - e.g. Git or SD.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.SourceServer">
+            <summary>
+            Remote host server for code.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.RepositoryName">
+            <summary>
+            Name of the repository
+            Used interchangably with RepositoryId
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.ProjectName">
+            <summary>
+            Name of the project container for the repository
+            Used interchangably with ProjectId
+            </summary>
+        </member>
+        <member name="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.Branch">
+            <summary>
+            Current branch which the user is working from.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlType,System.String,System.String,System.String,System.String)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.#ctor(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlType)">
+            <summary>
+            Constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.GetOsRepoSourceInformation(System.String)">
+            <summary>
+            Returns a SourceInformation object that represents the most recent Windows OS repository remote
+            </summary>
+            <param name="branch"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.RepoIdentity">
+            <summary>
+            Values in this enum represent some classification of known repositories.
+            This can include groupings for a particular repo or a set of repos.
+            Add values and logic to GetRepo() as needed. Similarly, this may be more appropraite as 'flags' rather than 'enum' as functionality is expanded.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.RepoIdentity.Unknown">
+            <summary>
+            The repo is not known.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.RepoIdentity.OS">
+            <summary>
+            This is the main Windows OS repo.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.RepoIdentity.DevDiv">
+            <summary>
+            This is a repo under DevDiv. Essentially, but not limited to, Visual Studio.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.RepoIdentity.Office">
+            <summary>
+            This is the Office repository.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.GetRepoIdentity">
+            <summary>
+            Returns the repo represented by this object, if known.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.GetRepoIdentity(Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlType,System.String,System.String,System.String)">
+            <summary>
+            For the given source information, returns the known repo it represents.
+            </summary>
+            <param name="sourceControlType">The source control type, e.g. git.</param>
+            <param name="server">The server where the repo resides.</param>
+            <param name="project">The project that owns the repo. This can be a GUID or a string.</param>
+            <param name="repo">The repo itself. This can be a GUID or a string.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.IsOSServicingBranch">
+            <summary>
+            Returns true if the current <see cref="P:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceInformation.Branch"/> is an OS servicing branch.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.Internal.Fungates.DeveloperCanvas.Insight.SourceControlType">
+            <summary>
+            Enum for different source controller types.
+            </summary>
+        </member>
+    </members>
+</doc>

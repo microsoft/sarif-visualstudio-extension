@@ -1,0 +1,450 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.DevCanvas.Common</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.DevCanvas.Common.Argument">
+            <summary>
+            Helper functions for checking method arguments.
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullOrEmpty(System.String,System.String)">
+            <summary>
+            Throws appropriate exception depending upon the value of <paramref name="arg"/>.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is empty.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullOrWhiteSpace(System.String,System.String)">
+            <summary>
+            Throws appropriate exception depending upon the value of <paramref name="arg"/>.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is empty or whitespace.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullOrEmpty(System.Collections.IEnumerable,System.String)">
+            <summary>
+            Throws appropriate exception depending upon the value of <paramref name="arg"/>.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is empty.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullEmptyOrContainsNullOrEmpty``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{``0}},System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> or <see cref="T:System.ArgumentException"/> if the given argument is
+            <see langword="null"/> or is empty or contains <see langword="null"/> or an empty collection.
+            </summary>
+            <typeparam name="T">Type of item in the collection.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arg"/> is empty or contains an empty or <see langword="null"/> collection.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullEmptyOrContainsNull``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> or <see cref="T:System.ArgumentException"/> if the given argument is
+            <see langword="null"/> or either is empty or contains <see langword="null"/>, respectively.
+            </summary>
+            <typeparam name="T">Type of item in the collection.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arg"/> is empty or contains <see langword="null"/>.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullOrContainsNullOrEmpty``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{``0}},System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> or <see cref="T:System.ArgumentException"/> if the given argument is
+            <see langword="null"/> or contains <see langword="null"/> or an empty collection.
+            </summary>
+            <typeparam name="T">Type of item in the collection.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arg"/> contains an empty or <see langword="null"/> collection.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNullOrContainsNull``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> or <see cref="T:System.ArgumentException"/> if the given argument is
+            <see langword="null"/> or contains <see langword="null"/>, respectively.
+            </summary>
+            <typeparam name="T">Type of item in the collection.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> contains <see langword="null"/>.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfEmpty(System.String,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentException"/> if <paramref name="arg"/> is empty.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is empty.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfEmpty(System.Guid,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentException"/> if <paramref name="arg"/> is empty.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is empty.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfEmpty(System.Collections.IEnumerable,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentException"/> if <paramref name="arg"/> is empty.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is empty.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNull(System.Object,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> if <paramref name="arg"/> is <see langword="null"/>.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="arg"/> is <see langword="null"/>.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNotNull(System.Object,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentNullException"/> if <paramref name="arg"/> is not <see langword="null"/>.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException"><paramref name="arg"/> is not <see langword="null"/>.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfContainsNullOrEmpty``1(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{``0}},System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentException"/> if the given argument contains an empty or <see langword="null"/>
+            collection.
+            </summary>
+            <typeparam name="T">Type of item in the collection.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arg"/> contains an empty or <see langword="null"/> collection.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfContainsNull``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentException"/> if the given argument contains <see langword="null"/>.
+            </summary>
+            <typeparam name="T">Type of item in the collection.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arg"/> contains <see langword="null"/>.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNegative(System.Int32,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentOutOfRangeException"/> if <paramref name="arg"/> is negative.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="arg"/> is negative.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfZeroOrNegative(System.Int32,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentOutOfRangeException"/> if <paramref name="arg"/> is zero or negative.
+            </summary>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="arg"/> is zero or negative.</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfGreaterThan``1(``0,``0,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentOutOfRangeException"/> if <paramref name="arg"/> is greater than specified value.
+            </summary>
+            <typeparam name="T">Type of argument to inspect.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="max">Maximum value to check against.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arg"/> is greater than <paramref name="max"/>.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfLessThan``1(``0,``0,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentOutOfRangeException"/> if <paramref name="arg"/> is less than specified value.
+            </summary>
+            <typeparam name="T">Type of argument to inspect.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="min">Minimum value to check against.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arg"/> is less than <paramref name="min"/>.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfLessThanOrEqualTo``1(``0,``0,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentOutOfRangeException"/> if <paramref name="arg"/> is less than or equal to the
+            specified value.
+            </summary>
+            <typeparam name="T">Type of argument to inspect.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="min">Minimum value to check against.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arg"/> is less than or equal to <paramref name="min"/>.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfOutOfRange``1(``0,``0,``0,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentOutOfRangeException"/> if <paramref name="arg"/> is less than
+            <paramref name="min"/> or greater than <paramref name="max"/>.
+            </summary>
+            <typeparam name="T">Type of argument to inspect.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="min">Minimum value to check against.</param>
+            <param name="max">Maximum value to check against.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arg"/> is less than <paramref name="min"/> or greater than <paramref name="max"/>.
+            </exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.Argument.ThrowIfNotAssignableTo``1(System.Object,System.String)">
+            <summary>
+            Throws <see cref="T:System.ArgumentException"/> if the given argument is not of type
+            <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">Type of argument to inspect.</typeparam>
+            <param name="arg">Argument to check.</param>
+            <param name="argName">Name of the argument.</param>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arg"/> is not of type <typeparamref name="T"/>.
+            </exception>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Common.AssemblyUtil">
+            <summary>
+            Utility methods for dealing with assemblies.
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.AssemblyUtil.GetAssemblyVersion(System.Reflection.Assembly)">
+            <summary>
+            Returns the version of the given assembly.
+            </summary>
+            <param name="assembly">The assembly for which the version is desired.</param>
+            <returns>The version or an empty string if there was an error.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.AssemblyUtil.GetCurrentAssemblyVersion">
+            <summary>
+            Returns the version of the assembly that is calling this method.
+            </summary>
+            <returns>The version or an empty string if there was an error.</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Common.EnumerableExtensions">
+            <summary>
+            Class for extensions to enumerable types
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.PickRandom``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Picks a single random item from an enumerable
+            </summary>
+            <typeparam name="T">Type of object in Enumerable</typeparam>
+            <param name="source">This collection that implements IEnumerable</param>
+            <returns>Single randomly selected item</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.PickRandom``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Selects a count of random items from an enumerable
+            </summary>
+            <typeparam name="T">Type of object in Enumerable</typeparam>
+            <param name="source">This collection that implements IEnumerable</param>
+            <param name="count">Number of random items to returnn</param>
+            <returns>Randomly selected collection of items</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.Shuffle``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Randomly reorders an enumerable
+            </summary>
+            <typeparam name="T">Type of object in Enumerable</typeparam>
+            <param name="source">This collection that implements IEnumerable</param>
+            <returns>Itself, but reordered</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.MinBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Returns the min element in <paramref name="source"/> according to the given <paramref name="selector"/>.
+            Uses the default comparer.
+            </summary>
+            <typeparam name="TSource">The type of elements in the source enumerable.</typeparam>
+            <typeparam name="TKey">The type of the element being selected and compared.</typeparam>
+            <param name="source">The source enumerable.</param>
+            <param name="selector">The selector that picks the elements to compare.</param>
+            <returns>The min element, according to the given selector.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.MinBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Collections.Generic.IComparer{``1})">
+            <summary>
+            Returns the min element in <paramref name="source"/> according to the given <paramref name="selector"/>, using the given <paramref name="comparer"/>.
+            </summary>
+            <typeparam name="TSource">The type of elements in the source enumerable.</typeparam>
+            <typeparam name="TKey">The type of the element being selected and compared.</typeparam>
+            <param name="source">The source enumerable.</param>
+            <param name="selector">The selector that picks the elements to compare.</param>
+            <param name="comparer">The comparer to use on the selected elements.</param>
+            <returns>The min element, according to the given selector and comparer.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.MaxBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Returns the max element in <paramref name="source"/> according to the given <paramref name="selector"/>.
+            Uses the default comparer.
+            </summary>
+            <typeparam name="TSource">The type of elements in the source enumerable.</typeparam>
+            <typeparam name="TKey">The type of the element being selected and compared.</typeparam>
+            <param name="source">The source enumerable.</param>
+            <param name="selector">The selector that picks the elements to compare.</param>
+            <returns>The max element, according to the given selector.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.EnumerableExtensions.MaxBy``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Collections.Generic.IComparer{``1})">
+            <summary>
+            Returns the max element in <paramref name="source"/> according to the given <paramref name="selector"/>, using the given <paramref name="comparer"/>.
+            </summary>
+            <typeparam name="TSource">The type of elements in the source enumerable.</typeparam>
+            <typeparam name="TKey">The type of the element being selected and compared.</typeparam>
+            <param name="source">The source enumerable.</param>
+            <param name="selector">The selector that picks the elements to compare.</param>
+            <param name="comparer">The comparer to use on the selected elements.</param>
+            <returns>The max element, according to the given selector and comparer.</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Common.NetworkUtility">
+            <summary>
+            Helper functions for getting various networking information from Azure host.
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.NetworkUtility.GetLocalHostIpAddress">
+            <summary>
+            Gets local host IP address.
+            </summary>
+            <returns>IP address in IPv4 format.</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Common.TypeExtensions">
+            <summary>
+            Extensions for <see cref="T:System.Type"/> class.
+            </summary>
+        </member>
+        <member name="F:Microsoft.DevCanvas.Common.TypeExtensions.SimpleNonPrimitiveTypes">
+            <summary>
+            The list of non-primitive types that are simple
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.TypeExtensions.IsSimple(System.Type)">
+            <summary>
+            Checks whether the given type is simple,
+            i.e. holds a value of primitive type and does not contain nested properties
+            </summary>
+            <param name="type">Type</param>
+            <returns>True if the type is simple, false otherwise</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.TypeExtensions.IsEnumerableOfSimpleType(System.Type)">
+            <summary>
+            Checks whether the given type implements IEnumerable of a simple type
+            </summary>
+            <param name="type">Type</param>
+            <returns>True if the type is an IEnumerable of a simple type, false otherwise</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.TypeExtensions.IsDictionaryOfSimpleTypes(System.Type)">
+            <summary>
+            Checks whether the given type implements IDictionary of simple types
+            </summary>
+            <param name="type">Type</param>
+            <returns>True if the type is an IDictionary of a simple type, false otherwise</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Common.VersionUtil">
+            <summary>
+            Class that provides utility functions for comparing version strings.
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.VersionUtil.GetMaxVersion(System.String,System.String)">
+            <summary>
+            Returns whichever version is greater.
+            Or, if one version is an empty string, the other version is returned.
+            Version strings are delimited by periods (.) or dashes (-).
+            </summary>
+            <param name="version1">The first version string to compare.</param>
+            <param name="version2">The second version string to compare.</param>
+            <returns>The version string that is greatest.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.VersionUtil.GetMaxVersion(System.Collections.Generic.List{System.String})">
+            <summary>
+            Returns the greatest version out of a list of versions.
+            Version strings are delimited by periods (.) or dashes (-).
+            </summary>
+            <param name="versions">A list of one or more version strings.</param>
+            <returns>The version string that is greatest.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.VersionUtil.GetMinVersion(System.String,System.String)">
+            <summary>
+            Returns whichever version is smaller.
+            Or, if one version is an empty string, the other version is returned.
+            Version strings are delimited by periods (.) or dashes (-).
+            </summary>
+            <param name="version1">The first version string to compare.</param>
+            <param name="version2">The second version string to compare.</param>
+            <returns>The version string that is smallest.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.VersionUtil.GetMinVersion(System.Collections.Generic.List{System.String})">
+            <summary>
+            Returns the smallest version out of a list of versions.
+            Version strings are delimited by periods (.) or dashes (-).
+            </summary>
+            <param name="versions">A list of one or more version strings.</param>
+            <returns>The version string that is smallest.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.VersionUtil.CompareVersions(System.String,System.String)">
+            <summary>
+            Compares two version strings and returns a value indicating how they compare.
+            Version strings are delimited by periods (.) or dashes (-).
+            Non-numerical parts are unexpected, but handled as gracefully as possible. They are
+            considered less than a numerical part. If two non-numerical parts are compared with
+            each other then -1 is returned.
+            </summary>
+            <param name="version1">The first version string to compare.</param>
+            <param name="version2">The second version string to compare.</param>
+            <returns>
+            1 if version1 > version2,
+            -1 if version1 &lt; version2,
+            0 if version1 == version2,
+            </returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Common.XmlUtility">
+            <summary>
+            Helper class for XML format.
+            </summary>
+        </member>
+        <member name="F:Microsoft.DevCanvas.Common.XmlUtility.SecureXmlReaderSettings">
+            <summary>
+            Secure XML reader settigns
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.XmlUtility.DeserializeObject``1(System.String)">
+            <summary>
+            Deserializes the given xml string to object
+            </summary>
+            <typeparam name="T">Type of object to deserialize this xml string to</typeparam>
+            <param name="serializedString">Serialized xml string</param>
+            <returns>Deserialized object</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Common.XmlUtility.SerializeObject``1(``0)">
+            <summary>
+            Serialize the given object to XML
+            </summary>
+            <typeparam name="T">Type of object to serialize</typeparam>
+            <param name="objectToSerialize">Object to be serialized</param>
+            <returns>Serialized string</returns>
+        </member>
+    </members>
+</doc>

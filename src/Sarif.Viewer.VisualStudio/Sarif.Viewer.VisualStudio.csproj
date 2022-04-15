@@ -105,6 +105,9 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="CodeFinder">
+      <HintPath>..\Sarif.Viewer.VisualStudio.Core\CodeFinder\CodeFinder.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

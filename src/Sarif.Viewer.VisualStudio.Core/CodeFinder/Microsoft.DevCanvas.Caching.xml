@@ -1,0 +1,254 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.DevCanvas.Caching</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.DevCanvas.Caching.CacheManager`1">
+            <summary>
+            A wrapper for Data Object item retriever that adds an in-memory cache
+            The cache is loaded and refreshed on-demand
+            This implementation is thread-safe, all callers are blocked while it is being refreshed
+            </summary>
+            <typeparam name="T">Type of documents to cache</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManager`1.#ctor(System.Func{`0},System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.DevCanvas.Caching.CacheManager`1"/> class.
+            </summary>
+            <param name="getDataObject">The data object retriever</param>
+            <param name="timeToLive">Specifies how long the cached value can be used before requiring refresh</param>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManager`1.GetItem(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManager`1.Dispose(System.Boolean)">
+            <summary>
+            Called when disposed.
+            </summary>
+            <param name="disposing">True if not called from a finalizer.</param>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.AsyncCacheManager`1">
+            <summary>
+            A wrapper for Async Data Object item retriever that adds an in-memory cache
+            The cache is loaded and refreshed on-demand
+            This implementation is thread-safe, all callers are blocked while it is being refreshed
+            </summary>
+            <typeparam name="T">Type of documents to cache</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.AsyncCacheManager`1.#ctor(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{`0}},System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.DevCanvas.Caching.AsyncCacheManager`1"/> class.
+            </summary>
+            <param name="getDataObjectAsync">The async data object retriever</param>
+            <param name="timeToLive">Specifies how long the cached value can be used before requiring refresh</param>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.AsyncCacheManager`1.GetItemAsync(System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.AsyncCacheManager`1.Dispose(System.Boolean)">
+            <summary>
+            Called when disposed.
+            </summary>
+            <param name="disposing">True if not called from a finalizer.</param>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.CacheManagerBase`1">
+            <summary>
+            A wrapper for common Data Object item retriever that adds an in-memory cache
+            The cache is loaded and refreshed on-demand
+            This implementation is thread-safe, all callers are blocked while it is being refreshed
+            </summary>
+            <typeparam name="T">Type of documents to cache</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManagerBase`1.#ctor(System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.DevCanvas.Caching.CacheManagerBase`1"/> class.
+            </summary>
+            <param name="timeToLive">Specifies how long the cached value can be used before requiring refresh</param>
+        </member>
+        <member name="P:Microsoft.DevCanvas.Caching.CacheManagerBase`1.Disposed">
+            <summary>
+            Gets a value indicating whether <see cref="M:System.IDisposable.Dispose"/> method was called.
+            Returns <see langword="True" /> if disposed, otherwise <see langword="False"/>.
+            </summary>
+        </member>
+        <member name="P:Microsoft.DevCanvas.Caching.CacheManagerBase`1.TimeToLive">
+            <summary>
+            Gets cache time to live.
+            </summary>
+        </member>
+        <member name="P:Microsoft.DevCanvas.Caching.CacheManagerBase`1.CachePolicy">
+            <summary>
+            Gets cache policy.
+            </summary>
+        </member>
+        <member name="P:Microsoft.DevCanvas.Caching.CacheManagerBase`1.MemoryCache">
+            <summary>
+            Gets memory cache object.
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManagerBase`1.Dispose">
+            <summary>
+            Frees resources.
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManagerBase`1.GetDefaultCachePolicy(System.TimeSpan)">
+            <summary>
+            Gets default cache policy.
+            </summary>
+            <param name="timeToLive">Cache time to live.</param>
+            <returns><see cref="T:System.Runtime.Caching.CacheItemPolicy"/> for specified time to live.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManagerBase`1.Get(System.String)">
+            <summary>
+            Returns an entry from the cache.
+            </summary>
+            <param name="key">A unique identifier for the cache entry to get.</param>
+            <returns> A reference to the cache entry that is identified by key, if the entry exists, otherwise, null.</returns>
+            <exception cref="T:System.ArgumentNullException">key is null</exception>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CacheManagerBase`1.Dispose(System.Boolean)">
+            <summary>
+            Called when disposed.
+            </summary>
+            <param name="disposing">True if not called from a finalizer.</param>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.AsyncCollectionCacheManager`2">
+            <summary>
+            Generic asynchronous cache collection.
+            </summary>
+            <typeparam name="TKey">Type of cache key</typeparam>
+            <typeparam name="TValue">Type of item cached</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.AsyncCollectionCacheManager`2.#ctor(System.Func{`0,System.Threading.CancellationToken,System.Threading.Tasks.Task{`1}},System.TimeSpan,System.Func{`0,System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.DevCanvas.Caching.AsyncCollectionCacheManager`2"/> class.
+            </summary>
+            <param name="getItemAsync">Function to retrieve cached item asynchronously</param>
+            <param name="timeToLive">Specifies how long the cached value can be used before requiring refresh</param>
+            <param name="cacheKeySelector">Cache Key selector function</param>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.AsyncCollectionCacheManager`2.GetItemAsync(`0,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.CollectionCacheManager`2">
+            <summary>
+            Generic cache collection.
+            </summary>
+            <typeparam name="TKey">Type of cache key</typeparam>
+            <typeparam name="TValue">Type of item cahced</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CollectionCacheManager`2.#ctor(System.Func{`0,`1},System.TimeSpan,System.Func{`0,System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.DevCanvas.Caching.CollectionCacheManager`2"/> class.
+            </summary>
+            <param name="getItem">Function to retrieve cached object</param>
+            <param name="timeToLive">Specifies how long the cached value can be used before requiring refresh</param>
+            <param name="cacheKeySelector">Cache Key selector function</param>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CollectionCacheManager`2.GetItem(`0,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.CollectionCacheManager`2.RemoveItem(`0)">
+            <inheritdoc />
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.ICacheManager`1">
+            <summary>
+            Data object retriever
+            </summary>
+            <typeparam name="T">Type of object to cache</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.ICacheManager`1.GetItem(System.Boolean)">
+            <summary>
+            Gets the data object
+            </summary>
+            <param name="forceRefresh">Forces a refresh of the cached object when retrieving</param>
+            <returns>The data object</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.IAsyncCacheManager`1">
+            <summary>
+            Async Cache
+            </summary>
+            <typeparam name="T">Type of object to cache</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.IAsyncCacheManager`1.GetItemAsync(System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Gets the data object asynchronously.
+            </summary>
+            <param name="forceRefresh">Forces a refresh of the cached object when retrieving</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>The data object</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.IAsyncCollectionCacheManager`2">
+            <summary>
+            Asynchronous interface for collection of generic cache.
+            </summary>
+            <typeparam name="TKey">Type of cache key</typeparam>
+            <typeparam name="TValue">Type of item cached</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.IAsyncCollectionCacheManager`2.GetItemAsync(`0,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Gets cached item asynchronously.
+            </summary>
+            <param name="key">Key for retrieving data object.</param>
+            <param name="forceRefresh">Forces a refresh of the cached object when retrieving.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A <see cref="T:System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.ICollectionCacheManager`2">
+            <summary>
+            Interface for collection of generic cache.
+            </summary>
+            <typeparam name="TKey">Type of cache key</typeparam>
+            <typeparam name="TValue">Type of item cached</typeparam>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.ICollectionCacheManager`2.GetItem(`0,System.Boolean)">
+            <summary>
+            Gets cached item.
+            </summary>
+            <param name="key">Key for retrieving data object.</param>
+            <param name="forceRefresh">Forces a refresh of the cached object when retrieving.</param>
+            <returns>Cached object.</returns>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.ICollectionCacheManager`2.RemoveItem(`0)">
+            <summary>
+            Removes cached item from cache and returns it to the client.
+            </summary>
+            <param name="key">Key for retrieving data object.</param>
+            <returns>Cached object or <see langword="null"/> if <paramref name="key"/> does not exists.</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.ILazyInstance`1">
+            <summary>
+            Lazy instance holder
+            </summary>
+            <typeparam name="T">Instance type</typeparam>
+        </member>
+        <member name="P:Microsoft.DevCanvas.Caching.ILazyInstance`1.Initialized">
+            <summary>
+            Gets a value indicating whether the instance has been created
+            </summary>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.ILazyInstance`1.GetInstance(System.Func{`0})">
+            <summary>
+            Gets the instance
+            </summary>
+            <param name="factory">Instance factory</param>
+            <returns>The instance</returns>
+        </member>
+        <member name="T:Microsoft.DevCanvas.Caching.LazyInstance`1">
+            <summary>
+            Lazy instance holder.
+            Similar to System.Lazy with LazyThreadSafetyMode.ExecutionAndPublication, but accepts instance factory in GetInstance method instead of the constructor.
+            Ensures that only one instance is ever created (i.e. only one factory is executed).
+            Can be used as a wrapper for <see cref="T:Microsoft.DevCanvas.Caching.CacheManager`1"/> when factory is not available at initialization time.
+            </summary>
+            <typeparam name="T">Instance type</typeparam>
+        </member>
+        <member name="P:Microsoft.DevCanvas.Caching.LazyInstance`1.Initialized">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.DevCanvas.Caching.LazyInstance`1.GetInstance(System.Func{`0})">
+            <inheritdoc/>
+        </member>
+    </members>
+</doc>
