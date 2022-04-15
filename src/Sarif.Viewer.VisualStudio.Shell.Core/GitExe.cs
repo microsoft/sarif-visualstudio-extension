@@ -80,9 +80,11 @@ namespace Sarif.Viewer.VisualStudio.Shell.Core
                     FileName = minGitPath,
                 };
 
-                var process = Process.Start(processInfo);
-                process.WaitForExit();
-                return await process.StandardOutput.ReadLineAsync();
+                using (var process = Process.Start(processInfo))
+                {
+                    process.WaitForExit();
+                    return await process.StandardOutput.ReadLineAsync();
+                }
             }
             catch
             {

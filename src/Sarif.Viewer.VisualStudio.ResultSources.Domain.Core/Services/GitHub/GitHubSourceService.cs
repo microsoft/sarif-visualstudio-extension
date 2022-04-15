@@ -67,6 +67,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private IFileWatcher fileWatcherGitPush;
         private string repoPath;
         private string codeScanningBaseApiUrl;
+        private BrowserService browserService;
         private InfoBarService infoBarService;
         private StatusBarService statusBarService;
         private IVsInfoBarUIElement infoBar;
@@ -121,6 +122,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             this.pollingCancellationTokenSource = new CancellationTokenSource();
             this.statusBarCancellationTokenSource = new CancellationTokenSource();
 
+            this.browserService = new BrowserService();
             this.infoBarService = new InfoBarService(this.serviceProvider);
             this.statusBarService = new StatusBarService(this.serviceProvider);
         }
@@ -310,12 +312,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 // The callback for the infobar button.
                 async Task VerifyButtonCallback()
                 {
-                    var processStartInfo = new ProcessStartInfo()
-                    {
-                        FileName = userCodeResult.Value.VerificationUri,
-                        UseShellExecute = true,
-                    };
-                    Process.Start(processStartInfo);
+                    using Process process = this.browserService.NavigateUrl(userCodeResult.Value.VerificationUri);
 
                     Result<Models.AccessToken, Error> requestedTokenResult = await GetRequestedAccessTokenAsync(userCodeResult.Value);
                     if (requestedTokenResult.IsSuccess)

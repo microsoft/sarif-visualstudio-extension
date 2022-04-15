@@ -9,6 +9,7 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.Shell.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BrowserService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileWatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GitExe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFileWatcher.cs" />
