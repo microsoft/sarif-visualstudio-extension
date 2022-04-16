@@ -24,7 +24,6 @@ using Moq;
 using Octokit;
 
 using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core;
-using Sarif.Viewer.VisualStudio.Shell.Core;
 
 using Xunit;
 

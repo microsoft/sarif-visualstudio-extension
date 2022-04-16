@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace Sarif.Viewer.VisualStudio.Shell.Core
+namespace Microsoft.Sarif.Viewer.Shell
 {
     public interface IGitExe
     {

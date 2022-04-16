@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 using Microsoft.Win32;
 
-namespace Sarif.Viewer.VisualStudio.Shell.Core
+namespace Microsoft.Sarif.Viewer.Shell
 {
     public class BrowserService
     {

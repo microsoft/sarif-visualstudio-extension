@@ -10,10 +10,9 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub;
+using Microsoft.Sarif.Viewer.Shell;
 
 using Moq;
-
-using Sarif.Viewer.VisualStudio.Shell.Core;
 
 using Xunit;
 

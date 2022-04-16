@@ -7,8 +7,7 @@ using CSharpFunctionalExtensions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub;
-
-using Sarif.Viewer.VisualStudio.Shell.Core;
+using Microsoft.Sarif.Viewer.Shell;
 
 using Result = CSharpFunctionalExtensions.Result;
 

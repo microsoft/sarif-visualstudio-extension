@@ -6,13 +6,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-using Microsoft;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 
-namespace Sarif.Viewer.VisualStudio.Shell.Core
+namespace Microsoft.Sarif.Viewer.Shell
 {
     public class GitExe : IGitExe
     {

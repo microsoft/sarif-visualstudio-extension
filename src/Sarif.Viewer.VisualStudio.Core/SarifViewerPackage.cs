@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
-using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -30,8 +29,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
-
-using Sarif.Viewer.VisualStudio.Shell.Core;
 
 using HttpClientAdapter = Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.HttpClientAdapter;
 using Result = CSharpFunctionalExtensions.Result;

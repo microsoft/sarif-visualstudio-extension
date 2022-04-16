@@ -31,7 +31,6 @@ using Newtonsoft.Json.Linq;
 using Octokit;
 
 using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core;
-using Sarif.Viewer.VisualStudio.Shell.Core;
 
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
@@ -310,7 +309,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 }
 
                 // The callback for the infobar button.
-                async Task VerifyButtonCallback()
+                Task VerifyButtonCallback()
+                {
+                    _ = WaitForUserVerificationAsync();
+                    return Task.CompletedTask;
+                }
+
+                // Fire-and-forget method so the VS shell isn't waiting for completion.
+                async Task WaitForUserVerificationAsync()
                 {
                     using Process process = this.browserService.NavigateUrl(userCodeResult.Value.VerificationUri);
 
