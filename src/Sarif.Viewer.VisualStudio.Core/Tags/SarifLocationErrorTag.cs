@@ -9,8 +9,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 
-using Sarif.Viewer.VisualStudio.Core;
-
 namespace Microsoft.Sarif.Viewer.Tags
 {
     /// <summary>

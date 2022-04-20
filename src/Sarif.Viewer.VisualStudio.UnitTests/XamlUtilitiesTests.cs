@@ -9,8 +9,6 @@ using System.Windows.Navigation;
 
 using FluentAssertions;
 
-using Sarif.Viewer.VisualStudio.Core;
-
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests

@@ -35,7 +35,7 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
-        internal static string XamlPropertyName = "xaml";
+        internal static string XamlPropertyName = "Xaml";
 
         // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
         private static int currentResultId;
@@ -254,7 +254,7 @@ namespace Microsoft.Sarif.Viewer
             get
             {
                 string value = null;
-                if (this.SarifResult?.TryGetProperty(XamlPropertyName, out value) == true)
+                if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out value) == true)
                 {
                     value = Regex.Unescape(value);
                 }

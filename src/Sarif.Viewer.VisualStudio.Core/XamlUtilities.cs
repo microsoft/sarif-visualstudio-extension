@@ -15,10 +15,9 @@ using EnvDTE;
 
 using EnvDTE80;
 
-using Microsoft.Sarif.Viewer;
 using Microsoft.VisualStudio.Shell;
 
-namespace Sarif.Viewer.VisualStudio.Core
+namespace Microsoft.Sarif.Viewer
 {
     public static class XamlUtilities
     {
