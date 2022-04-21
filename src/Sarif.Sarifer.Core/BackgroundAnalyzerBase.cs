@@ -201,7 +201,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 dataToInsert: OptionallyEmittedData.ComprehensiveRegionProperties | OptionallyEmittedData.TextFiles | OptionallyEmittedData.VersionControlDetails,
                 dataToRemove: OptionallyEmittedData.None,
                 tool: this.MakeTool(),
-                levels: new List<FailureLevel> { FailureLevel.Error, FailureLevel.Warning, FailureLevel.Note, FailureLevel.None },
+                levels: new List<FailureLevel> { FailureLevel.Error }, // Options: FailureLevel.Warning, FailureLevel.Note, FailureLevel.None.
                 kinds: this.GetResultKinds(this.ExtensionOption),
                 closeWriterOnDispose: false);
 
