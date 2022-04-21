@@ -97,6 +97,10 @@ namespace Microsoft.Sarif.Viewer
             this.RawMessage = result.GetMessageText(rule);
             this.ShortMessage = this.RawMessage;
             this.Message = this.RawMessage;
+            this.XamlMessage =
+                (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out string value) == true)
+                ? Regex.Unescape(value)
+                : null;
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -249,19 +253,7 @@ namespace Microsoft.Sarif.Viewer
             && this.Message != this.ShortMessage;
 
         [Browsable(false)]
-        public string XamlMessage
-        {
-            get
-            {
-                string value = null;
-                if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out value) == true)
-                {
-                    value = Regex.Unescape(value);
-                }
-
-                return value;
-            }
-        }
+        public string XamlMessage { get; }
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }

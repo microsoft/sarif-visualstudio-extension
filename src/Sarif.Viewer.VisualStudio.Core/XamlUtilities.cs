@@ -76,7 +76,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Create a WPF scroll viewer with approciate height, add another element as child element.
+        /// Create a WPF scroll viewer with appropriate height, add another element as child element.
         /// </summary>
         /// <param name="childElement">The WPF element to be added into scroll viewer.</param>
         /// <returns>A scroll viewer.</returns>
