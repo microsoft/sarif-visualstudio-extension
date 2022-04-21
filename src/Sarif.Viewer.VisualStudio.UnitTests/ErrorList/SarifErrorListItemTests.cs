@@ -933,7 +933,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            result.SetProperty(SarifErrorListItem.XamlPropertyName, ValidXamlWithHyperlink);
+            result.Message.SetProperty(SarifErrorListItem.XamlPropertyName, ValidXamlWithHyperlink);
 
             var run = new Run
             {
