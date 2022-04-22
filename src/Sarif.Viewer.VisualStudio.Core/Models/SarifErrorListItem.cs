@@ -97,10 +97,14 @@ namespace Microsoft.Sarif.Viewer
             this.RawMessage = result.GetMessageText(rule);
             this.ShortMessage = this.RawMessage;
             this.Message = this.RawMessage;
-            this.XamlMessage =
-                (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out string value) == true)
-                ? Regex.Unescape(value)
-                : null;
+
+            string xamlContent = null;
+            if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out xamlContent) == true)
+            {
+                xamlContent = Regex.Unescape(xamlContent);
+            }
+
+            this.XamlMessage = xamlContent;
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
