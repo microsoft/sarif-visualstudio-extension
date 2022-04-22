@@ -180,6 +180,7 @@
       <DependentUpon>SarifViewerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)WeakEventHandlerManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)XamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />

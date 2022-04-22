@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 
@@ -34,9 +35,9 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
-        /// <summary>
-        /// Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
-        /// </summary>
+        internal static string XamlPropertyName = "Xaml";
+
+        // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
         private static int currentResultId;
 
         private string _fileName;
@@ -96,6 +97,12 @@ namespace Microsoft.Sarif.Viewer
             this.RawMessage = result.GetMessageText(rule);
             this.ShortMessage = this.RawMessage;
             this.Message = this.RawMessage;
+
+            string xamlContent = null;
+            if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out xamlContent) == true)
+            {
+                this.XamlMessage = Regex.Unescape(xamlContent);
+            }
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -246,6 +253,9 @@ namespace Microsoft.Sarif.Viewer
         public bool HasDetailsContent => !this.HasEmbeddedLinks
             && !string.IsNullOrWhiteSpace(this.Message)
             && this.Message != this.ShortMessage;
+
+        [Browsable(false)]
+        public string XamlMessage { get; }
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
@@ -443,6 +453,7 @@ namespace Microsoft.Sarif.Viewer
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.PlainMessage,
+                        tooltipXamlString: this.XamlMessage,
                         context: this);
                 }
 

@@ -121,6 +121,14 @@ namespace Microsoft.Sarif.Viewer
         public object ToolTipContent { get; }
 
         /// <summary>
+        /// Gets the tool-tip content in Xaml format.
+        /// </summary>
+        /// <remarks>
+        /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
+        /// </remarks>
+        public string ToolTipXamlString { get; }
+
+        /// <summary>
         /// Gets the data context for this result marker.
         /// </summary>
         /// <remarks>
@@ -162,11 +170,12 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
+        /// <param name="tooltipXamlString">The tool tip content in Xaml format to display in Visual studio.</param>
         /// <param name="context">The data context for this result marker.</param>
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context, string tooltipXamlString = null)
         {
             this.ResultId = resultId;
             this.RunIndex = runIndex;
@@ -176,6 +185,7 @@ namespace Microsoft.Sarif.Viewer
             this.NonHighlightedColor = nonHighlightedColor;
             this.HighlightedColor = highlightedColor;
             this.ToolTipContent = tooltipContent;
+            this.ToolTipXamlString = tooltipXamlString;
             this.ErrorType = errorType;
             this.Context = context;
         }
@@ -209,6 +219,7 @@ namespace Microsoft.Sarif.Viewer
                                     resultId: this.ResultId,
                                     errorType: this.ErrorType,
                                     toolTipContent: this.ToolTipContent,
+                                    toolTipXamlString: this.ToolTipXamlString,
                                     context: this.Context));
             }
 
