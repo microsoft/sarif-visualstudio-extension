@@ -559,7 +559,7 @@ namespace Microsoft.Sarif.Viewer
         internal void PopulateFixModelsIfNot()
         {
             // populate FixModels if they are not
-            if (this.SarifResult.Fixes?.Any() == true && this.Fixes?.Any() == false)
+            if (this.SarifResult?.Fixes?.Any() == true && this.Fixes?.Any() == false)
             {
                 if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
                 {
