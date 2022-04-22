@@ -102,11 +102,13 @@ function New-SigningDirectory {
         }
     }
 
-    # Copy the viewer. Its name doesn't fit the pattern binary name == project name,
-    # so we copy it by hand.
+    # Copy the Viewer and SARIFER assemblies. The names don't fit the pattern binary name == project name,
+    # so we copy them by hand.
     foreach ($framework in $Frameworks) {
         Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework\2019
         Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework\2022
+        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Sarifer\Microsoft.Sarif.Sarifer.dll -Destination $SigningDirectory\$framework\2019
+        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Sarifer.2022\Microsoft.Sarif.Sarifer.dll -Destination $SigningDirectory\$framework\2022
     }
 }
 
