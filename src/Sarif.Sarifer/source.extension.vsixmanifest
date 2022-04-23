@@ -5,9 +5,10 @@ Licensed under the MIT license. See LICENSE file in the project root for full li
 -->
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="2ec87711-16c7-4a58-8e1d-453f805ce112" Version="|%CurrentProject%;GetBuildVersion|" Language="en-US" Publisher="Microsoft DevLabs" />
-    <DisplayName>Sarifer</DisplayName>
+    <Identity Id="Microsoft.Sarifer.Michael C. Fanning.f17e897a-fd38-4e1f-99db-19fa34a4e184" Version="|%CurrentProject%;GetBuildVersion|" Language="en-US" Publisher="Microsoft DevLabs" />
+    <DisplayName>Microsoft SARIFER</DisplayName>
     <Description xml:space="preserve">Sends test SARIF data to the SARIF Viewer extension.</Description>
+    <License>License.txt</License>
     <Icon>Resources\Package.ico</Icon>
     <Preview>true</Preview>
   </Metadata>
