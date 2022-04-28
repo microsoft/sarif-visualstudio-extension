@@ -94,8 +94,8 @@ namespace Microsoft.Sarif.Viewer
             this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
             this.HelpLink = this.Rule?.HelpUri;
 
-            this.RawMessage = result.GetMessageText(rule);
-            this.ShortMessage = this.RawMessage;
+            this.RawMessage = result.GetMessageText(rule, concise: false).Trim();
+            this.ShortMessage = result.GetMessageText(rule, concise: true, maxLength: 165).Trim();
             this.Message = this.RawMessage;
 
             string xamlContent = null;
@@ -168,7 +168,7 @@ namespace Microsoft.Sarif.Viewer
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
             this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
-            this.ShortMessage = this.RawMessage;
+            this.ShortMessage = ExtensionMethods.GetFirstSentence(this.RawMessage);
             this.Message = this.RawMessage;
 
             this.Level = notification.Level;

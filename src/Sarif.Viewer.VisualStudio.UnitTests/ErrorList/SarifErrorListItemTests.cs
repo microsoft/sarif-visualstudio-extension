@@ -369,9 +369,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             SarifErrorListItem item = MakeErrorListItem(result);
 
-            // with the change related to #360, message is not separated by sentence.
             item.Message.Should().Be($"{s1} {s2}");
-            item.ShortMessage.Should().Be($"{s1} {s2}");
+            item.ShortMessage.Should().Be($"{s1}");
         }
 
         [Fact]
@@ -388,7 +387,27 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             SarifErrorListItem item = MakeErrorListItem(result);
             item.Message.Should().Be(s1);
-            item.ShortMessage.Should().Be(s1);
+            item.ShortMessage.Should().Be($"{s1}.");
+        }
+
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_LongTextShouldBreak()
+        {
+            const string s1 = "In httplib2 before version 0.18.0, an attacker controlling unescaped part of uri for `httplib2.Http.request()` could change request headers and body, send additional hidden requests to same server. This vulnerability impacts software that uses httplib2 with uri constructed by string concatenation, as opposed to proper urllib building with escaping. This has been fixed in 0.18.0.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1,
+                },
+            };
+
+            SarifErrorListItem item = MakeErrorListItem(result);
+            int breakPoistion = 165; // max length of concise text is 165, 0 indexed
+            item.ShortMessage.Length.Should().Be(breakPoistion + 1); // horizontal ellipsis chars is added at end "\u2026"
+            item.ShortMessage.Last().ToString().Should().Be("\u2026");
+            item.ShortMessage.Substring(0, breakPoistion).Should().Be(s1.Substring(0, breakPoistion));
+            item.Message.Should().Be(s1);
         }
 
         [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
