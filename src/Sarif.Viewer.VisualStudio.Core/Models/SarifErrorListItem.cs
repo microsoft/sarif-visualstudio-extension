@@ -35,6 +35,8 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
+        // max length of concise text, 0 indexed
+        internal static int MaxConcisedTextLength = 165;
         internal static string XamlPropertyName = "Xaml";
 
         // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
@@ -95,8 +97,7 @@ namespace Microsoft.Sarif.Viewer
             this.HelpLink = this.Rule?.HelpUri;
 
             this.RawMessage = result.GetMessageText(rule, concise: false).Trim();
-            this.ShortMessage = result.GetMessageText(rule, concise: true, maxLength: 165).Trim();
-            this.Message = this.RawMessage;
+            (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
 
             string xamlContent = null;
             if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out xamlContent) == true)
@@ -168,8 +169,7 @@ namespace Microsoft.Sarif.Viewer
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
             this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
-            this.ShortMessage = ExtensionMethods.GetFirstSentence(this.RawMessage);
-            this.Message = this.RawMessage;
+            (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
 
             this.Level = notification.Level;
             this.LogFilePath = logFilePath;
@@ -244,14 +244,14 @@ namespace Microsoft.Sarif.Viewer
 
         [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
-            new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.RawMessage, this.MessageInlineLink_Click));
+            new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.ShortMessage, this.MessageInlineLink_Click));
 
         [Browsable(false)]
         public bool HasEmbeddedLinks => this.MessageInlines.Any();
 
         [Browsable(false)]
-        public bool HasDetailsContent => !this.HasEmbeddedLinks
-            && !string.IsNullOrWhiteSpace(this.Message)
+        public bool HasDetailsContent =>
+            !string.IsNullOrWhiteSpace(this.Message)
             && this.Message != this.ShortMessage;
 
         [Browsable(false)]

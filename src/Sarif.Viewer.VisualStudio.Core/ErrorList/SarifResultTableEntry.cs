@@ -110,7 +110,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Error.MessageInlines is already binded to an element in SARIF explorer.
             this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
                 this.Error.MessageInlines?.Any() == true
-                ? SdkUIUtilities.GetMessageInlines(this.Error.RawMessage, this.Error.MessageInlineLink_Click)
+                ? SdkUIUtilities.GetMessageInlines(this.Error.ShortMessage, this.Error.MessageInlineLink_Click)
                 : null);
 
             this.columnKeyToContent[StandardTableKeyNames.Text] = new Lazy<object>(() =>
