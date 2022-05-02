@@ -410,10 +410,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Message.Should().Be(s1);
         }
 
-        [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
+        [Fact]
         public void SarifErrorListItem_ResultMessageFormat_LongTextWithoutBreak()
         {
-            // very long text without break like space or NewLine, longer than default max lengh 165
+            // very long text without break like space or NewLine, longer than SarifErrorListItem.MaxConcisedTextLength
             const string s1 = "1234567890";
             var result = new Result
             {
@@ -424,9 +424,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             };
 
             SarifErrorListItem item = MakeErrorListItem(result);
-            int breakPoistion = 165;
-            item.ShortMessage.Length.Should().Be(breakPoistion + 2);
-            item.Message.Length.Should().Be(200 - breakPoistion);
+            int breakPoistion = SarifErrorListItem.MaxConcisedTextLength;
+            item.ShortMessage.Length.Should().Be(breakPoistion + 1); // add ellipsis
+            item.Message.Length.Should().Be(200 + 1); // add end punctuation
         }
 
         [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
@@ -503,12 +503,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifErrorListItem item = MakeErrorListItem(result);
 
             // short message should be the first sentence "The quick brown fox."
-            // it contains no hyperlink.
-            item.HasEmbeddedLinks.Should().BeFalse();
-            item.MessageInlines.Count.Should().Be(0);
+            item.HasEmbeddedLinks.Should().BeTrue();
+            item.MessageInlines.Count.Should().Be(2);
 
             item.ShortMessage.Should().Be("The quick brown fox.");
-            item.Message.Should().Be("The quick brown fox. Jumps over the lazy dog. Reference to docs.");
+            item.Message.Should().Be(s1 + ".");
         }
 
         [Fact]
@@ -527,15 +526,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             SarifErrorListItem item = MakeErrorListItem(result);
             item.HasEmbeddedLinks.Should().BeTrue();
 
-            // "The quick ", "brown", " fox."
-            item.MessageInlines.Count.Should().Be(3);
+            // "The quick ", "brown", " fox.", "Jumps over the ", "lazy", " dog."
+            item.MessageInlines.Count.Should().Be(5);
             item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("The quick ");
             var hyperlink = item.MessageInlines[1] as XamlDoc.Hyperlink;
             hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("brown");
-            item.MessageInlines[2].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" fox.");
+            item.MessageInlines[2].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" fox. Jumps over the ");
+            hyperlink = item.MessageInlines[3] as XamlDoc.Hyperlink;
+            hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("lazy");
+            item.MessageInlines[4].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" dog.");
 
             item.ShortMessage.Should().Be("The quick [brown](1) fox.");
-            item.Message.Should().Be("The quick brown fox. Jumps over the lazy dog.");
+            item.Message.Should().Be("The quick [brown](1) fox. Jumps over the [lazy](2) dog.");
         }
 
         [Fact]

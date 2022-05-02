@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
         // max length of concise text, 0 indexed
-        internal static int MaxConcisedTextLength = 165;
+        internal static int MaxConcisedTextLength = 150;
         internal static string XamlPropertyName = "Xaml";
 
         // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
@@ -244,7 +244,7 @@ namespace Microsoft.Sarif.Viewer
 
         [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
-            new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.ShortMessage, this.MessageInlineLink_Click));
+            new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.RawMessage, this.MessageInlineLink_Click));
 
         [Browsable(false)]
         public bool HasEmbeddedLinks => this.MessageInlines.Any();

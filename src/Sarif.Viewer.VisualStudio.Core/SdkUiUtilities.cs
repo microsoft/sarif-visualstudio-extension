@@ -710,7 +710,7 @@ namespace Microsoft.Sarif.Viewer
 
             const string ellipsis = "\u2026";
             const string hyperlinkGroup = "link_text";
-            string pattern = string.Format(@"\[(?<{0}>[\w \.]+)\]\(([\w\.:\/ ]*)\)", hyperlinkGroup);
+            string pattern = $"\\[(?<{hyperlinkGroup}>[\\w \\.]+)\\]\\(([\\w\\.:\\/ ]*)\\)";
 
             MatchCollection matches = Regex.Matches(input, pattern, RegexOptions.Multiline);
             var sb = new StringBuilder(input);
@@ -730,8 +730,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            // whole string the hyperlinks are replaced with plain texts
-            string plainText = AppendEndPunctuation(sb.ToString());
+            string fullText = AppendEndPunctuation(input);
 
             string firstSentence = ExtensionMethods.GetFirstSentence(sb.ToString());
 
@@ -772,7 +771,7 @@ namespace Microsoft.Sarif.Viewer
                 sb.Append(ellipsis);
             }
 
-            return (sb.ToString(), plainText);
+            return (sb.ToString(), fullText);
         }
 
         internal static string AppendEndPunctuation(string input)
