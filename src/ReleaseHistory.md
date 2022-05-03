@@ -5,11 +5,11 @@
 * BUGFIX: Error list expando for long message does not work.
 * FEATURE: Generate Popup from Xaml.
 
-## [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifer)
+## **3.0.73** [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifer)
 * Publish official release to marketplace.
 * Enable Spam Analyzer Dynamic Mode.
 
-## **3.0.66.61165** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+## **3.0.66** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Not able to navigate to source file under solution.
 
 ## **3.0.59** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
