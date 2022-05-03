@@ -1,5 +1,33 @@
 # SARIF Viewer Visual Studio extension Release History
 
+## To Be Released
+## [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Error list expando for long message does not work.
+* FEATURE: Generate Popup from Xaml.
+
+## [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifer)
+* Publish official release to marketplace.
+* Enable Spam Analyzer Dynamic Mode.
+
+## **3.0.66.61165** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Not able to navigate to source file under solution.
+
+## **3.0.59** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Enable navigation for code flow / thread flow locations.
+
+## **v3.0.42** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Align suppression logic with SARIF-SDK.
+
+## **v3.0.38** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Handle empty temporary solution path.
+
+## **v3.0.25** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Checking if file hash matches.
+
+## **v3.0.16** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* Update submodule version.
+* Fix test failure.
+
 ## **v2.1.20** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * Implement light bulb fixes for SARIF errors.
 * Build for .NET Framework 4.7.2 rather than 4.6.1. This is in preparation for adding some features which require NuGet packages which support only 4.7.2.

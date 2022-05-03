@@ -746,7 +746,7 @@ namespace Microsoft.Sarif.Viewer
                 sb.Length = maxLength;
             }
 
-            // Replace the remaining intact links
+            // Restore the remaining intact links
             foreach (Match match in matches)
             {
                 Group group = match.Groups[hyperlinkGroup];
@@ -754,7 +754,6 @@ namespace Microsoft.Sarif.Viewer
                 {
                     if (maxLength > 0 && match.Index + group.Length <= sb.Length)
                     {
-                        string text = group.Value;
                         sb = sb.Remove(match.Index, group.Length);
                         sb = sb.Insert(match.Index, match.Value);
                         maxLength += match.Value.Length - group.Length;
