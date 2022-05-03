@@ -10,6 +10,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
     public static class TestUtilities
     {
+        private static readonly Run EmptyRun = new Run();
+
         public static void InitializeTestEnvironment()
         {
             SarifViewerPackage.IsUnitTesting = true;
@@ -20,6 +22,25 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             InitializeTestEnvironment();
 
             await ErrorListService.ProcessSarifLogAsync(sarifLog, logFile, cleanErrors: cleanErrors, openInEditor: false);
+        }
+
+        internal static SarifErrorListItem MakeErrorListItem(Result result)
+        {
+            return MakeErrorListItem(EmptyRun, result);
+        }
+
+        internal static SarifErrorListItem MakeErrorListItem(Run run, Result result)
+        {
+            result.Run = run;
+            return new SarifErrorListItem(
+                run,
+                runIndex: 0,
+                result: result,
+                logFilePath: "log.sarif",
+                projectNameCache: new ProjectNameCache(solution: null))
+            {
+                FileName = "file.c",
+            };
         }
     }
 }
