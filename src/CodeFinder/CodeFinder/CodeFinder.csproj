@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{75D5C1E8-5206-4B2E-BFB2-972C1A48CA7D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.CodeFinder</RootNamespace>
+    <AssemblyName>Microsoft.CodeFinder</AssemblyName>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Microsoft.CodeFinder\Microsoft.CodeFinder.xml</DocumentationFile>
+  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Finders\CStyle\CppFinder.cs" />
+    <Compile Include="Finders\CStyle\CSharpFinder.cs" />
+    <Compile Include="Finders\CStyle\CStyleFinder.cs" />
+    <Compile Include="Finders\CStyle\ScopeIdentifier.cs" />
+    <Compile Include="Finders\DefaultMatcher.cs" />
+    <Compile Include="FileSpan.cs" />
+    <Compile Include="Finders\FileSpanCollection.cs" />
+    <Compile Include="MatchQuery.cs" />
+    <Compile Include="MatchResult.cs" />
+    <Compile Include="CodeFinder.cs" />
+    <Compile Include="Finders\CodeFinderBase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
