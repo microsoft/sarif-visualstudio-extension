@@ -22,6 +22,8 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool MonitorSarifFolder { get; set; } = true;
 
+        public bool GhasIntegrationEnabled { get; set; } = false;
+
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
         /// </summary>

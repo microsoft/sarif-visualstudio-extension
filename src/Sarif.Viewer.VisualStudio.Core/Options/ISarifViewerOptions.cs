@@ -12,5 +12,7 @@ namespace Microsoft.Sarif.Viewer.Options
     internal interface ISarifViewerOptions
     {
         bool ShouldMonitorSarifFolder { get; }
+
+        bool GhasIntegrationEnabled { get; }
     }
 }

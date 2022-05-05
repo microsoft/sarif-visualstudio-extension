@@ -6,4 +6,6 @@
 
     <system:String x:Key="SarifViewerOptionsControl_MonitorSarifFolder">Load .sarif files from the .sarif folder automatically</system:String>
 
+    <system:String x:Key="SarifViewerOptionsControl_EnableGhas">Enable GitHub Advanced Security integration</system:String>
+
 </ResourceDictionary>

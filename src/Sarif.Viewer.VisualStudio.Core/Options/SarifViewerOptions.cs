@@ -11,6 +11,8 @@ namespace Microsoft.Sarif.Viewer.Options
     {
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
+        private readonly bool ghasIntegrationEnabledDefaultValue = false;
+
         private readonly AsyncPackage package;
 
         private readonly SarifViewerOptionPage optionPage;
@@ -29,6 +31,8 @@ namespace Microsoft.Sarif.Viewer.Options
         private SarifViewerOption() { }
 
         public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
+
+        public bool GhasIntegrationEnabled => this.optionPage?.GhasIntegrationEnabled ?? this.ghasIntegrationEnabledDefaultValue;
 
         /// <summary>
         /// Gets the instance of the command.
