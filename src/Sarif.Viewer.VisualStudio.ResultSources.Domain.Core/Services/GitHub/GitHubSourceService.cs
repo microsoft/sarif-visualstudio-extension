@@ -71,7 +71,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private StatusBarService statusBarService;
         private IVsInfoBarUIElement infoBar;
         private CancellationTokenSource pollingCancellationTokenSource;
-        private CancellationTokenSource statusBarCancellationTokenSource;
         private bool isPolling;
 
         private (string BranchName, string CommitHash) scanDataRequestParameters;
@@ -119,7 +118,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             }
 
             this.pollingCancellationTokenSource = new CancellationTokenSource();
-            this.statusBarCancellationTokenSource = new CancellationTokenSource();
 
             this.browserService = new BrowserService();
             this.infoBarService = new InfoBarService(this.serviceProvider);
@@ -239,13 +237,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 this.scanDataRequestParameters.BranchName = branch;
                 this.scanDataRequestParameters.CommitHash = commitHash;
 
-                CancellationToken token = this.statusBarCancellationTokenSource.Token;
-
-                _ = this.statusBarService.AnimateStatusTextAsync(
-                    "Retrieving static analysis results{0}",
-                    new[] { string.Empty, ".", "..", "..." },
-                    400,
-                    token);
+                _ = this.statusBarService.SetStatusTextAsync("Retrieving static analysis results...");
 
                 bool showInfoBar = data is IConvertible d && d.ToBoolean(null);
 
@@ -547,9 +539,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             this.pollingCancellationTokenSource.Dispose();
             this.pollingCancellationTokenSource = new CancellationTokenSource();
 
-            this.statusBarCancellationTokenSource.Cancel();
-            this.statusBarCancellationTokenSource.Dispose();
-            this.statusBarCancellationTokenSource = new CancellationTokenSource();
+            _ = this.statusBarService.ClearStatusTextAsync();
         }
 
         private void RaiseResultsUpdatedEvent(GitRepoEventArgs eventArgs = null)
