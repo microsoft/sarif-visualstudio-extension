@@ -134,6 +134,8 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public Region Region { get; }
 
+        public IPersistentSpan PersistentSpan => this.persistentSpan;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ResultTextMarker"/> class.
         /// </summary>
@@ -400,7 +402,7 @@ namespace Microsoft.Sarif.Viewer
             return this.regionAndFilePathAreFullyPopulated.Value;
         }
 
-        private bool PersistentSpanValid()
+        public bool PersistentSpanValid()
         {
             // Some notes here. "this.tag" can be null if the document hasn't been tagged yet.
             // Furthermore, the persistent span can be null even if you have the tag if the document
