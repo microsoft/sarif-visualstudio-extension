@@ -86,6 +86,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             IFileSystem fileSystem,
             IGitExe gitExe)
         {
+            // Test commit for build error
             this.fileSystem = fileSystem;
             this.gitExe = gitExe;
             this.gitExe.RepoPath = solutionRootPath;
