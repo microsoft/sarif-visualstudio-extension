@@ -261,6 +261,9 @@ namespace Microsoft.Sarif.Viewer
         public SnapshotSpan Span { get; set; }
 
         [Browsable(false)]
+        public ITextSnapshot CurrentSnapshot { get; set; }
+
+        [Browsable(false)]
         public int LineNumber { get; set; }
 
         [Browsable(false)]
@@ -432,6 +435,16 @@ namespace Microsoft.Sarif.Viewer
         public override string ToString()
         {
             return this.Message;
+        }
+
+        [Browsable(false)]
+        public IPersistentSpan PersistentSpan
+        {
+            get
+            {
+                // PersistentSpan will be populated after navigate to source file
+                return this._lineMarker?.PersistentSpanValid() == true ? this._lineMarker?.PersistentSpan : null;
+            }
         }
 
         [Browsable(false)]
