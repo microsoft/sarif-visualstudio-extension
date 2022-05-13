@@ -150,11 +150,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (keyName == StandardTableKeyNames.Line)
                 {
                     ITrackingSpan trackingSpan = this.Error?.PersistentSpan?.Span;
-
-                    // && this.Error.CurrentSnapshot != null)
                     if (trackingSpan != null)
                     {
-                        content = trackingSpan.GetStartPoint(trackingSpan.TextBuffer.CurrentSnapshot).GetContainingLineNumber();
+                        content = trackingSpan.GetStartPoint(trackingSpan.TextBuffer.CurrentSnapshot).GetContainingLine().LineNumber;
                         return true;
                     }
                 }
@@ -162,8 +160,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 if (keyName == StandardTableKeyNames.Column)
                 {
                     ITrackingSpan trackingSpan = this.Error?.PersistentSpan?.Span;
-
-                    // && this.Error.CurrentSnapshot != null)
                     if (trackingSpan != null)
                     {
                         SnapshotPoint position = trackingSpan.GetStartPoint(trackingSpan.TextBuffer.CurrentSnapshot);
@@ -181,7 +177,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 return true;
             }
 
+#if DEV17
             if (keyName == StandardTableKeyNames.PersistentSpan)
+#else
+            if (keyName == "persistentspan")
+#endif
             {
                 IPersistentSpan persistentSpan = this.Error?.PersistentSpan;
 
