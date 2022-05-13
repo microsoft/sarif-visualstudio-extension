@@ -256,7 +256,7 @@ namespace Microsoft.Sarif.Viewer
             get
             {
                 // PersistentSpan will be populated after navigate to source file
-                return this._lineMarker?.PersistentSpanValid() == true ? this._lineMarker?.PersistentSpan : null;
+                return this._lineMarker?.IsPersistentSpanValid() == true ? this._lineMarker?.PersistentSpan : null;
             }
         }
 
