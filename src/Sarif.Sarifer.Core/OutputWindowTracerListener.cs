@@ -31,7 +31,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                     _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
                       {
                           await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                          this.pane.OutputString(message);
+                          this.pane.OutputStringThreadSafe(message);
                       });
                 }
             }
