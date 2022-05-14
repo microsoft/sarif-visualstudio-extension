@@ -21,6 +21,8 @@ param(
 [System.Console]::WriteLine($Archive)
 [System.Console]::WriteLine($ExtractTo)
 
+Remove-Item -LiteralPath $ExtractTo -Force -Recurse
+
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 [System.IO.Compression.ZipFile]::ExtractToDirectory($archive, $extractTo)
