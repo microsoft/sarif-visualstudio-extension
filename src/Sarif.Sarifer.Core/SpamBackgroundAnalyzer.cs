@@ -88,6 +88,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 TargetUri = uri,
                 FileContents = text,
                 Logger = sarifLogger,
+                DynamicValidation = true, // Enable dynamic validations.
             };
 
             using (context)

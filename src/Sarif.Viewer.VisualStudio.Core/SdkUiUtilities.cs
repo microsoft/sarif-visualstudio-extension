@@ -735,6 +735,87 @@ namespace Microsoft.Sarif.Viewer
             return stringBuilder.ToString();
         }
 
+        internal static (string, string) SplitResultMessage(string input, int maxLength)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return (input, input);
+            }
+
+            const string ellipsis = "\u2026";
+            const string hyperlinkGroup = "link_text";
+            string pattern = $"\\[(?<{hyperlinkGroup}>[\\w \\.]+)\\]\\(([\\w\\.:\\/ ]*)\\)";
+
+            MatchCollection matches = Regex.Matches(input, pattern, RegexOptions.Multiline);
+            var sb = new StringBuilder(input);
+
+            // Replace the hyperlinks with only their text
+            for (int i = matches.Count - 1; i >= 0; i--)
+            {
+                Match match = matches[i];
+
+                // match.Groups.TryGetValue only available in .net 5/.net core 3.0 or above
+                Group group = match.Groups[hyperlinkGroup];
+                if (group != null && group.Success)
+                {
+                    string text = group.Value;
+                    sb = sb.Remove(match.Index, match.Length);
+                    sb = sb.Insert(match.Index, text);
+                }
+            }
+
+            string fullText = AppendEndPunctuation(input);
+
+            string firstSentence = ExtensionMethods.GetFirstSentence(sb.ToString());
+
+            // ExtensionMethods.GetFirstSentence has an issue it appends '.' even the string ends with other punctuations '!' or '?'
+            firstSentence = AppendEndPunctuation(firstSentence.TrimEnd('.'));
+            sb = new StringBuilder(firstSentence);
+
+            bool addEllipsis = maxLength > 0 && sb.Length > maxLength;
+
+            if (addEllipsis)
+            {
+                // Truncate the string
+                sb.Length = maxLength;
+            }
+
+            // Restore the remaining intact links
+            foreach (Match match in matches)
+            {
+                Group group = match.Groups[hyperlinkGroup];
+                if (group != null && group.Success)
+                {
+                    if (maxLength > 0 && match.Index + group.Length <= sb.Length)
+                    {
+                        sb = sb.Remove(match.Index, group.Length);
+                        sb = sb.Insert(match.Index, match.Value);
+                        maxLength += match.Value.Length - group.Length;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (addEllipsis)
+            {
+                sb.Append(ellipsis);
+            }
+
+            return (sb.ToString(), fullText);
+        }
+
+        internal static string AppendEndPunctuation(string input)
+        {
+            char[] endChars = { '\r', '\n', ' ', };
+            char[] endPunctuations = { '.', '?', '!' };
+
+            input.TrimEnd(endChars);
+            return endPunctuations.Contains(input.Last()) ? input : input + ".";
+        }
+
         /// <summary>
         /// Removes escape backslashes that were used to suppress embedded linking.
         /// </summary>

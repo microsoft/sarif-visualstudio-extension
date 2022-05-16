@@ -12,3 +12,4 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 [assembly: InternalsVisibleTo("Sarif.Viewer.VisualStudio.UnitTests")]
+[assembly: InternalsVisibleTo("Sarif.Viewer.VisualStudio.Tests.Apex")]
