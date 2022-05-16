@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             object value;
             tableEntry.TryGetValue("line", out value).Should().Be(true);
-            value.Should().Be(-1);
+            value.Should().Be(0);
         }
 
         [Fact]
