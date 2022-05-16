@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 
 using EnvDTE;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
@@ -19,6 +23,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     internal sealed class SarifResultTableEntry : WpfTableEntryBase, IDisposable
     {
         internal const string SuppressionStateColumnName = "suppression";
+        internal const string FullTextInlinesColumnName = "FullTextInlines";
 
         private bool isDisposed;
 
@@ -111,6 +116,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Error.MessageInlines is already binded to an element in SARIF explorer.
             this.columnKeyToContent[StandardTableKeyNames2.TextInlines] = new Lazy<object>(() =>
                 this.Error.MessageInlines?.Any() == true
+                ? SdkUIUtilities.GetMessageInlines(this.Error.ShortMessage, this.Error.MessageInlineLink_Click)
+                : null);
+
+            this.columnKeyToContent[FullTextInlinesColumnName] = new Lazy<object>(() =>
+                this.Error.MessageInlines?.Any() == true
                 ? SdkUIUtilities.GetMessageInlines(this.Error.RawMessage, this.Error.MessageInlineLink_Click)
                 : null);
 
@@ -185,6 +195,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             content = null;
             return false;
+        }
+
+        public override bool TryCreateDetailsContent(out FrameworkElement expandedContent)
+        {
+            if (this.TryGetValue(FullTextInlinesColumnName, out object content)
+                && content is List<Inline> inlines
+                && inlines?.Any() == true)
+            {
+                expandedContent = new BindableTextBlock()
+                {
+                    TextWrapping = TextWrapping.Wrap,
+                    InlineList = new ObservableCollection<Inline>(inlines),
+                };
+                return true;
+            }
+
+            return base.TryCreateDetailsContent(out expandedContent);
         }
 
         public override bool TrySetValue(string keyName, object content) => false;

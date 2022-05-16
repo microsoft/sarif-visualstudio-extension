@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 
@@ -34,9 +35,11 @@ namespace Microsoft.Sarif.Viewer
 {
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
-        /// <summary>
-        /// Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
-        /// </summary>
+        // max length of concise text, 0 indexed
+        internal static int MaxConcisedTextLength = 150;
+        internal static string XamlPropertyName = "Xaml";
+
+        // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
         private static int currentResultId;
 
         private string _fileName;
@@ -93,9 +96,14 @@ namespace Microsoft.Sarif.Viewer
             this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
             this.HelpLink = this.Rule?.HelpUri;
 
-            this.RawMessage = result.GetMessageText(rule);
-            this.ShortMessage = this.RawMessage;
-            this.Message = this.RawMessage;
+            this.RawMessage = result.GetMessageText(rule, concise: false).Trim();
+            (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
+
+            string xamlContent = null;
+            if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out xamlContent) == true)
+            {
+                this.XamlMessage = Regex.Unescape(xamlContent);
+            }
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -161,8 +169,7 @@ namespace Microsoft.Sarif.Viewer
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
             this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
-            this.ShortMessage = this.RawMessage;
-            this.Message = this.RawMessage;
+            (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
 
             this.Level = notification.Level;
             this.LogFilePath = logFilePath;
@@ -243,9 +250,12 @@ namespace Microsoft.Sarif.Viewer
         public bool HasEmbeddedLinks => this.MessageInlines.Any();
 
         [Browsable(false)]
-        public bool HasDetailsContent => !this.HasEmbeddedLinks
-            && !string.IsNullOrWhiteSpace(this.Message)
+        public bool HasDetailsContent =>
+            !string.IsNullOrWhiteSpace(this.Message)
             && this.Message != this.ShortMessage;
+
+        [Browsable(false)]
+        public string XamlMessage { get; }
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
@@ -453,6 +463,7 @@ namespace Microsoft.Sarif.Viewer
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.PlainMessage,
+                        tooltipXamlString: this.XamlMessage,
                         context: this);
                 }
 
@@ -558,7 +569,7 @@ namespace Microsoft.Sarif.Viewer
         internal void PopulateFixModelsIfNot()
         {
             // populate FixModels if they are not
-            if (this.SarifResult.Fixes?.Any() == true && this.Fixes?.Any() == false)
+            if (this.SarifResult?.Fixes?.Any() == true && this.Fixes?.Any() == false)
             {
                 if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
                 {

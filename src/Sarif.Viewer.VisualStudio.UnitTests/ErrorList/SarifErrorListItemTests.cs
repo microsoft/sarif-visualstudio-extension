@@ -18,6 +18,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     public class SarifErrorListItemTests
     {
         private const string FileName = "file.c";
+        private const string InvalidXaml = "<html><head><title>Title</title></head></html>";
+        private const string ValidXamlWithHyperlink = "<UserControl\r\n    xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"\r\n    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\r\n    xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\r\n    xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\">\r\n    <StackPanel>\r\n        <TextBlock>\r\n            <Hyperlink NavigateUri=\"https://test.com\">Test Link</Hyperlink>\r\n        </TextBlock>\r\n    </StackPanel>\r\n</UserControl>";
 
         // Run object used in tests that don't require a populated run object.
         private static readonly Run EmptyRun = new Run();
@@ -79,7 +81,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result();
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -101,7 +103,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Tool = new Tool(),
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -135,7 +137,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -173,7 +175,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -215,7 +217,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.Message.Should().Be("Hello, Mary!");
         }
@@ -254,7 +256,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Fixes.Should().BeEmpty();
             item.PopulateFixModelsIfNot();
             item.Fixes.Should().NotBeEmpty();
@@ -286,7 +288,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
             item.Fixes.Should().BeEmpty();
             item.PopulateFixModelsIfNot();
             item.Fixes.Should().BeEmpty();
@@ -315,7 +317,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.Rule.Id.Should().Be("TST0001");
         }
@@ -347,7 +349,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.Message.Should().Be(string.Empty);
         }
@@ -365,11 +367,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
 
-            // with the change related to #360, message is not separated by sentence.
             item.Message.Should().Be($"{s1} {s2}");
-            item.ShortMessage.Should().Be($"{s1} {s2}");
+            item.ShortMessage.Should().Be($"{s1}");
         }
 
         [Fact]
@@ -384,15 +385,35 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
-            item.Message.Should().Be(s1);
-            item.ShortMessage.Should().Be(s1);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
+            item.Message.Should().Be($"{s1}.");
+            item.ShortMessage.Should().Be($"{s1}.");
         }
 
-        [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
+        [Fact]
+        public void SarifErrorListItem_ResultMessageFormat_LongTextShouldBreak()
+        {
+            const string s1 = "In httplib2 before version 0.18.0, an attacker controlling unescaped part of uri for `httplib2.Http.request()` could change request headers and body, send additional hidden requests to same server. This vulnerability impacts software that uses httplib2 with uri constructed by string concatenation, as opposed to proper urllib building with escaping. This has been fixed in 0.18.0.";
+            var result = new Result
+            {
+                Message = new Message()
+                {
+                    Text = s1,
+                },
+            };
+
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
+            int breakPoistion = SarifErrorListItem.MaxConcisedTextLength;
+            item.ShortMessage.Length.Should().Be(breakPoistion + 1); // horizontal ellipsis chars is added at end "\u2026"
+            item.ShortMessage.Last().ToString().Should().Be("\u2026");
+            item.ShortMessage.Substring(0, breakPoistion).Should().Be(s1.Substring(0, breakPoistion));
+            item.Message.Should().Be(s1);
+        }
+
+        [Fact]
         public void SarifErrorListItem_ResultMessageFormat_LongTextWithoutBreak()
         {
-            // very long text without break like space or NewLine, longer than default max lengh 165
+            // very long text without break like space or NewLine, longer than SarifErrorListItem.MaxConcisedTextLength
             const string s1 = "1234567890";
             var result = new Result
             {
@@ -402,10 +423,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
-            int breakPoistion = 165;
-            item.ShortMessage.Length.Should().Be(breakPoistion + 2);
-            item.Message.Length.Should().Be(200 - breakPoistion);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
+            int breakPoistion = SarifErrorListItem.MaxConcisedTextLength;
+            item.ShortMessage.Length.Should().Be(breakPoistion + 1); // add ellipsis
+            item.Message.Length.Should().Be(200 + 1); // add end punctuation
         }
 
         [Fact(Skip = "Obsoleted since in latest update extension does not truncate message anymore")]
@@ -421,7 +442,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             int breakPoistion = 165; // 0 indexed
             item.ShortMessage.Length.Should().Be(breakPoistion + 2); // 2 chars is added at end " \u2026"
             item.ShortMessage.Substring(0, breakPoistion).Should().Be(s1.Substring(0, breakPoistion));
@@ -442,7 +463,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             int breakPoistion = 159; // 0 indexed
             item.ShortMessage.Length.Should().Be(breakPoistion + 2); // the space break the text will be removed
             item.Message.Length.Should().Be(200 - breakPoistion - 2); // last space is trimmed
@@ -462,7 +483,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Message.Should().Be(s0);
             item.ShortMessage.Should().Be(s0);
         }
@@ -479,17 +500,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
+
+            // short message should be the first sentence "The quick brown fox."
             item.HasEmbeddedLinks.Should().BeTrue();
-
-            // "The quick brown fox. Jumps over the lazy dog. Reference to ", "docs"
             item.MessageInlines.Count.Should().Be(2);
-            item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
-                .Should().BeEquivalentTo("The quick brown fox. Jumps over the lazy dog. Reference to ");
 
-            var hyperlink = item.MessageInlines[1] as XamlDoc.Hyperlink;
-            hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward)
-                .Should().BeEquivalentTo("docs");
+            item.ShortMessage.Should().Be("The quick brown fox.");
+            item.Message.Should().Be(s1 + ".");
         }
 
         [Fact]
@@ -505,10 +523,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.HasEmbeddedLinks.Should().BeTrue();
 
-            // "The quick ", "brown", " fox. Jumps over the ", "lazy", " dog."
+            // "The quick ", "brown", " fox.", "Jumps over the ", "lazy", " dog."
             item.MessageInlines.Count.Should().Be(5);
             item.MessageInlines[0].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("The quick ");
             var hyperlink = item.MessageInlines[1] as XamlDoc.Hyperlink;
@@ -518,6 +536,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             hyperlink.Inlines.First().ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo("lazy");
             item.MessageInlines[4].ContentStart.GetTextInRun(XamlDoc.LogicalDirection.Forward).Should().BeEquivalentTo(" dog.");
 
+            item.ShortMessage.Should().Be("The quick [brown](1) fox.");
+            item.Message.Should().Be("The quick [brown](1) fox. Jumps over the [lazy](2) dog.");
         }
 
         [Fact]
@@ -551,7 +571,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(run, result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
 
             item.HelpLink.Should().NotBeNull();
             item.HelpLink.Should().BeEquivalentTo(link);
@@ -574,7 +594,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            item = MakeErrorListItem(run, result);
+            item = TestUtilities.MakeErrorListItem(run, result);
             item.HelpLink.Should().BeNull();
         }
 
@@ -587,7 +607,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Level = FailureLevel.None,
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Level.Should().Be(FailureLevel.Note);
         }
 
@@ -600,7 +620,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Level = FailureLevel.None,
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Level.Should().Be(FailureLevel.Note);
         }
 
@@ -613,7 +633,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Level = FailureLevel.None,
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Level.Should().Be(FailureLevel.Note);
         }
 
@@ -626,7 +646,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Level = FailureLevel.None,
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Level.Should().Be(FailureLevel.Warning);
         }
 
@@ -639,7 +659,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Level = FailureLevel.None,
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Level.Should().Be(FailureLevel.Warning);
         }
 
@@ -652,7 +672,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Kind = ResultKind.Fail,
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Level.Should().Be(FailureLevel.Error);
         }
 
@@ -661,7 +681,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result();
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
 
             item.IsFixable().Should().BeFalse();
         }
@@ -718,7 +738,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(item.RunIndex, new RunDataCache());
             item.Fixes.Should().BeEmpty();
             item.PopulateFixModelsIfNot();
@@ -778,7 +798,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
 
             item.IsFixable().Should().BeFalse();
         }
@@ -788,7 +808,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             var result = new Result();
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
 
             item.Properties.Should().NotBeNull();
             item.Properties.Should().BeEmpty();
@@ -861,7 +881,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Locations.Should().BeEmpty();
             item.RelatedLocations.Should().BeEmpty();
             item.Stacks.Should().BeEmpty();
@@ -890,7 +910,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             result.SetProperty<object>("nullObj", null);
             result.SetProperty<dynamic>("object", new { foo = "bar" });
 
-            SarifErrorListItem item = MakeErrorListItem(result);
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(result);
             item.Properties.Should().BeEmpty();
 
             item.PopulateAdditionalPropertiesIfNot();
@@ -905,23 +925,46 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Properties.First(kv => kv.Key == "object").Value.Should().BeEquivalentTo("{\"foo\":\"bar\"}");
         }
 
-        private static SarifErrorListItem MakeErrorListItem(Result result)
+        [Fact]
+        public void SarifErrorListItem_WithXamlProperty_ContainsXamlMessage()
         {
-            return MakeErrorListItem(EmptyRun, result);
-        }
-
-        private static SarifErrorListItem MakeErrorListItem(Run run, Result result)
-        {
-            result.Run = run;
-            return new SarifErrorListItem(
-                run,
-                runIndex: 0,
-                result: result,
-                logFilePath: "log.sarif",
-                projectNameCache: new ProjectNameCache(solution: null))
+            var result = new Result
             {
-                FileName = FileName,
+                Message = new Message
+                {
+                    Text = "Message to be a tooltip.",
+                },
+                RuleId = "TST0001",
+                Locations = new[]
+                {
+                    new Location
+                    {
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            Region = new Region
+                            {
+                                StartLine = 10,
+                                StartColumn = 6,
+                            },
+                        },
+                    },
+                },
             };
+
+            result.Message.SetProperty(SarifErrorListItem.XamlPropertyName, ValidXamlWithHyperlink);
+
+            var run = new Run
+            {
+                Tool = new Tool(),
+            };
+
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
+            item.Message.Should().Be(result.Message.Text);
+            item.XamlMessage.Should().Be(ValidXamlWithHyperlink);
+
+            ResultTextMarker lineMarker = item.LineMarker;
+            lineMarker.ToolTipContent.Should().Be(result.Message.Text);
+            lineMarker.ToolTipXamlString.Should().Be(ValidXamlWithHyperlink);
         }
     }
 }
