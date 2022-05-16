@@ -142,6 +142,8 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public Region Region { get; }
 
+        public IPersistentSpan PersistentSpan => this.persistentSpan;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ResultTextMarker"/> class.
         /// </summary>
@@ -262,7 +264,7 @@ namespace Microsoft.Sarif.Viewer
             // If the tag doesn't have a persistent span, or its associated document isn't open,
             // then this indicates that we need to attempt to open the document and cause it to
             // be tagged.
-            if (!this.PersistentSpanValid())
+            if (!this.IsPersistentSpanValid())
             {
                 // Now, we need to make sure the document gets tagged before the next section of code
                 // in this method attempts to navigate to it.
@@ -294,7 +296,7 @@ namespace Microsoft.Sarif.Viewer
 
                 // At this point, the persistent span may have "become valid" due to the document open.
                 // If not, then ask ourselves for the tags which will create the persistent span.
-                if (!this.PersistentSpanValid())
+                if (!this.IsPersistentSpanValid())
                 {
                     if (!SdkUIUtilities.TryGetTextViewFromFrame(vsWindowFrame, out ITextView textView))
                     {
@@ -320,7 +322,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            if (!this.PersistentSpanValid())
+            if (!this.IsPersistentSpanValid())
             {
                 return false;
             }
@@ -411,7 +413,7 @@ namespace Microsoft.Sarif.Viewer
             return this.regionAndFilePathAreFullyPopulated.Value;
         }
 
-        private bool PersistentSpanValid()
+        public bool IsPersistentSpanValid()
         {
             // Some notes here. "this.tag" can be null if the document hasn't been tagged yet.
             // Furthermore, the persistent span can be null even if you have the tag if the document

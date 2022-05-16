@@ -16,6 +16,7 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
+using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
@@ -85,7 +86,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // i.e. if we pass 5, the error list will display 6.
             // Subtract one from the line number so the error list displays the correct value.
             this.columnKeyToContent[StandardTableKeyNames.Line] = this.Error.LineNumber - 1;
-            this.columnKeyToContent[StandardTableKeyNames.Column] = this.Error.ColumnNumber - 1;
+            this.columnKeyToContent[StandardTableKeyNames.Column] = this.Error.ColumnNumber == 0 ? 0 : this.Error.ColumnNumber - 1;
 
             this.columnKeyToContent[StandardTableKeyNames.ErrorSeverity] = GetSeverity(this.Error.Level);
             this.columnKeyToContent[StandardTableKeyNames.Priority] = GetSeverity(this.Error.Level) == __VSERRORCATEGORY.EC_ERROR
@@ -147,12 +148,49 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             if (this.columnKeyToContent.TryGetValue(keyName, out content))
             {
+                if (keyName == StandardTableKeyNames.Line)
+                {
+                    ITrackingSpan trackingSpan = this.Error?.PersistentSpan?.Span;
+                    if (trackingSpan != null)
+                    {
+                        content = trackingSpan.GetStartPoint(trackingSpan.TextBuffer.CurrentSnapshot).GetContainingLine().LineNumber;
+                        return true;
+                    }
+                }
+
+                if (keyName == StandardTableKeyNames.Column)
+                {
+                    ITrackingSpan trackingSpan = this.Error?.PersistentSpan?.Span;
+                    if (trackingSpan != null)
+                    {
+                        SnapshotPoint position = trackingSpan.GetStartPoint(trackingSpan.TextBuffer.CurrentSnapshot);
+                        ITextSnapshotLine line = position.GetContainingLine();
+                        content = position.Position - line.Start.Position;
+                        return true;
+                    }
+                }
+
                 if (content is Lazy<object> lazyContent)
                 {
                     content = lazyContent.Value;
                 }
 
                 return true;
+            }
+
+#if DEV17
+            if (keyName == StandardTableKeyNames.PersistentSpan)
+#else
+            if (keyName == "persistentspan")
+#endif
+            {
+                IPersistentSpan persistentSpan = this.Error?.PersistentSpan;
+
+                if (persistentSpan != null)
+                {
+                    content = persistentSpan;
+                    return true;
+                }
             }
 
             content = null;
