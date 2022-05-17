@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
         private StatusBarService statusBarService;
         private IVsInfoBarUIElement infoBar;
         private CancellationTokenSource pollingCancellationTokenSource;
-        private bool isPolling;
+        private Task pollingTask = Task.CompletedTask;
 
         private (string BranchName, string CommitHash) scanDataRequestParameters;
 
@@ -230,19 +230,22 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             Maybe<Models.AccessToken> getAccessTokenResult = await GetCachedAccessTokenAsync();
             if (getAccessTokenResult.HasValue)
             {
-                await this.InitializeFileWatchersAsync();
+                await this.UpdateBranchAndCommitHashAsync();
+                this.InitializeFileWatchers();
 
-                string branch = await gitExe.GetCurrentBranchAsync();
-                string commitHash = await gitExe.GetCurrentCommitHashAsync();
-                this.scanDataRequestParameters.BranchName = branch;
-                this.scanDataRequestParameters.CommitHash = commitHash;
+                lock (this.pollingTask)
+                {
+                    _ = this.statusBarService.SetStatusTextAsync("Retrieving static analysis results...");
 
-                _ = this.statusBarService.SetStatusTextAsync("Retrieving static analysis results...");
+                    bool showInfoBar = data is IConvertible d && d.ToBoolean(null);
 
-                bool showInfoBar = data is IConvertible d && d.ToBoolean(null);
+                    if (this.pollingTask.IsCompleted)
+                    {
+                        // Start polling but don't wait for task completion.
+                        this.pollingTask = this.PollForUpdatedResultsAsync(showInfoBar);
+                    }
+                }
 
-                // Start polling but don't wait for task completion.
-                _ = this.PollForUpdatedResultsAsync(showInfoBar);
                 return Result.Success<bool, ErrorType>(true);
             }
             else
@@ -473,7 +476,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             {
                 string accessToken = getAccessTokenResult.Value.Value;
                 DateTime timeoutTime = DateTime.UtcNow.AddSeconds(ScanResultsPollTimeoutSeconds);
-                this.isPolling = true;
 
                 if (showInfoBar)
                 {
@@ -531,7 +533,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     await Task.Delay(ScanResultsPollIntervalSeconds * 1000);
                 }
 
-                this.isPolling = false;
                 await CloseInfoBarAsync();
             }
 
@@ -547,23 +548,25 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             ResultsUpdated?.Invoke(this, eventArgs);
         }
 
-        private async Task InitializeFileWatchersAsync()
+        private void InitializeFileWatchers()
         {
-            string branch = await gitExe.GetCurrentBranchAsync();
-
             this.fileWatcherBranchChange.FilePath = Path.Combine(repoPath, ".git");
             this.fileWatcherBranchChange.Filter = "HEAD";
             this.fileWatcherBranchChange.FileRenamed += this.FileWatcherBranchChange_FileRenamed;
             this.fileWatcherBranchChange.Start();
 
             this.fileWatcherGitPush.FileRenamed += this.FileWatcherGitPush_Renamed;
-            this.SetBranchRefFileWatcherPath(branch);
             this.fileWatcherGitPush.Start();
         }
 
-        private void SetBranchRefFileWatcherPath(string branchName)
+        private async Task UpdateBranchAndCommitHashAsync()
         {
+            string branchName = await gitExe.GetCurrentBranchAsync();
             (string Path, string Name) parsedBranch = ParseBranchString(branchName);
+            string commitHash = await gitExe.GetCurrentCommitHashAsync();
+
+            this.scanDataRequestParameters.BranchName = branchName;
+            this.scanDataRequestParameters.CommitHash = commitHash;
 
             this.fileWatcherGitPush.DisableRaisingEvents();
             this.fileWatcherGitPush.FilePath = Path.Combine(repoPath, GitLocalRefFileBaseRelativePath, parsedBranch.Path);
@@ -573,37 +576,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
 
         private void FileWatcherBranchChange_FileRenamed(object sender, FileSystemEventArgs e)
         {
-            OnCurrentBranchChangedAsync().ConfigureAwait(false).GetAwaiter();
+            _ = RequestAnalysisScanResultsAsync();
         }
 
         private void FileWatcherGitPush_Renamed(object sender, FileSystemEventArgs e)
         {
-            OnBranchPushEventAsync().ConfigureAwait(false).GetAwaiter();
-        }
-
-        private async Task OnCurrentBranchChangedAsync()
-        {
-            string branchName = await gitExe.GetCurrentBranchAsync();
-            this.SetBranchRefFileWatcherPath(branchName);
-
-            this.scanDataRequestParameters.BranchName = branchName;
-            this.scanDataRequestParameters.CommitHash = await this.gitExe.GetCurrentCommitHashAsync();
-
-            if (!this.isPolling)
-            {
-                _ = RequestAnalysisScanResultsAsync();
-            }
-        }
-
-        private async Task OnBranchPushEventAsync()
-        {
-            this.scanDataRequestParameters.BranchName = await this.gitExe.GetCurrentBranchAsync();
-            this.scanDataRequestParameters.CommitHash = await this.gitExe.GetCurrentCommitHashAsync();
-
-            if (!this.isPolling)
-            {
-                _ = RequestAnalysisScanResultsAsync(data: true);
-            }
+            _ = RequestAnalysisScanResultsAsync(data: true);
         }
 
         private async Task ShowInfoBarAsync(InfoBarModel infoBarModel)

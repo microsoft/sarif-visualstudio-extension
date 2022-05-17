@@ -145,7 +145,7 @@
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
           <Strings>
-            <ButtonText>I Fixed This!</ButtonText>
+            <ButtonText>I fixed this!</ButtonText>
           </Strings>
       </Button>
 
