@@ -21,3 +21,5 @@ steps:
     filePath: ./scripts/BuildAndTest.ps1
 
 - task: ComponentGovernanceComponentDetection@0
+  inputs:
+    ignoreDirectories: 'src\sarif-pattern-matcher'
