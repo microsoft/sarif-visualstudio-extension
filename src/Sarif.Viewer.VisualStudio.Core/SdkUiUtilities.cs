@@ -766,7 +766,7 @@ namespace Microsoft.Sarif.Viewer
 
             string fullText = AppendEndPunctuation(input);
 
-            string firstSentence = ExtensionMethods.GetFirstSentence(sb.ToString());
+            string firstSentence = CodeAnalysis.Sarif.ExtensionMethods.GetFirstSentence(sb.ToString());
 
             // ExtensionMethods.GetFirstSentence has an issue it appends '.' even the string ends with other punctuations '!' or '?'
             firstSentence = AppendEndPunctuation(firstSentence.TrimEnd('.'));
