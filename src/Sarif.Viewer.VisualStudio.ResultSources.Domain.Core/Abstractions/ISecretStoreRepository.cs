@@ -5,7 +5,6 @@ using CSharpFunctionalExtensions;
 
 using Microsoft.Alm.Authentication;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Entities;
-using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions
 {
@@ -24,13 +23,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions
         /// <param name="targetUri">The <see cref="TargetUri"/> with which to tag the <see cref="AccessToken"/>.</param>
         /// <param name="accessToken">The <see cref="AccessToken"/> to write to the store.</param>
         /// <returns><see cref="Result"/>.</returns>
-        Result<bool, Error> WriteAccessToken(TargetUri targetUri, AccessToken accessToken);
+        Result WriteAccessToken(TargetUri targetUri, AccessToken accessToken);
 
         /// <summary>
         /// Deletes the <see cref="AccessToken"/> tagged with the specified <see cref="TargetUri"/>.
         /// </summary>
         /// <param name="targetUri">The <see cref="TargetUri"/> with which to tag the <see cref="AccessToken"/>.</param>
         /// <returns><see cref="Result"/>.</returns>
-        Result<bool, Error> DeleteAccessToken(TargetUri targetUri);
+        Result DeleteAccessToken(TargetUri targetUri);
     }
 }

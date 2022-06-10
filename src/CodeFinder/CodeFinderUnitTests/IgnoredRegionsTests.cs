@@ -1,4 +1,5 @@
 ﻿using CodeFinder.Internal.CStyle;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodeFinderUnitTests
@@ -68,7 +69,7 @@ namespace CodeFinderUnitTests
 
         [TestMethod]
         public void TestSubstring1()
-        {            
+        {
             var str = @"foo(var1, var2, /* var 3 */);";
             var finder = new CppFinder(str);
 

@@ -38,7 +38,7 @@ namespace Microsoft.CodeFinder.Finders
         /// Creates a line matcher based on the given file contents.
         /// </summary>
         /// <param name="fileContents"></param>
-        public CodeFinderBase (string fileContents)
+        public CodeFinderBase(string fileContents)
         {
             FileContents = fileContents;
             EndOfFile = FileContents.Length - 1;
@@ -147,7 +147,7 @@ namespace Microsoft.CodeFinder.Finders
             }
 
             return line;
-        }      
+        }
 
         /// <summary>
         /// Returns a FileSpan representing the given (1-indexed) line, including the ending newline character.
@@ -177,7 +177,7 @@ namespace Microsoft.CodeFinder.Finders
 
             return null;
         }
-        
+
         /// <summary>
         /// Returns the file position (0-indexed) at the start of the given (1-indexed) line number.
         /// </summary>
@@ -279,7 +279,7 @@ namespace Microsoft.CodeFinder.Finders
                     {
                         excludeTags = new List<FileSpan.FileSpanTag> { FileSpan.FileSpanTag.StringLiteral };
                     }
-                    
+
                     // Make sure it's not in an ignored span and return it. Otherwise, keep searching for another instance.
                     if (IgnoredSpans.Contains(pos, valueLength, excludeTags) == false)
                     {
@@ -466,7 +466,7 @@ namespace Microsoft.CodeFinder.Finders
             // if the ignored span is after the end index we can simply
             // return the substring as requested.
             if (ignoredSpan == null || ignoredSpan.Start > endIndex)
-            {                
+            {
                 return FileContents.Substring(startIndex, length);
             }
 

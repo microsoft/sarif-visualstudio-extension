@@ -143,14 +143,15 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 string.Format(DeviceCodeUrlFormat, ClientId, Scope));
 
             HttpResponseMessage responseMessage = await this.httpClientAdapter.SendAsync(requestMessage);
+            string responseContent = await responseMessage.Content.ReadAsStringAsync();
             if (responseMessage.IsSuccessStatusCode)
             {
-                UserVerificationResponse response = JsonConvert.DeserializeObject<UserVerificationResponse>(await responseMessage.Content.ReadAsStringAsync());
+                UserVerificationResponse response = JsonConvert.DeserializeObject<UserVerificationResponse>(responseContent);
                 return Result.Success<UserVerificationResponse, Error>(response);
             }
             else
             {
-                return Result.Failure<UserVerificationResponse, Error>(new GitHubServiceError(await responseMessage.Content.ReadAsStringAsync()));
+                return Result.Failure<UserVerificationResponse, Error>(new GitHubServiceError(responseContent));
             }
         }
 
@@ -184,7 +185,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                 }
             }
 
-            return null;
+            return Maybe.None;
         }
 
         /// <inheritdoc cref="IGitHubSourceService.GetRequestedAccessTokenAsync(UserVerificationResponse)"/>
@@ -251,8 +252,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             else
             {
                 // Start the auth process.
-                Result<bool, ErrorType> startAuthResult = await StartAuthSequenceAsync();
-                return Result.Failure<bool, ErrorType>(startAuthResult.Error);
+                await StartAuthSequenceAsync();
+                return Result.Failure<bool, ErrorType>(ErrorType.AccessDenied);
             }
         }
 
@@ -287,7 +288,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
             };
         }
 
-        private async Task<Result<bool, ErrorType>> StartAuthSequenceAsync()
+        private async Task StartAuthSequenceAsync()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -310,7 +311,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     return Task.CompletedTask;
                 }
 
-                // Fire-and-forget method so the VS shell isn't waiting for completion.
+                // Fire-and-forget method so the VS shell isn't waiting for Task completion.
                 async Task WaitForUserVerificationAsync()
                 {
                     using Process process = this.browserService.NavigateUrl(userCodeResult.Value.VerificationUri);
@@ -342,11 +343,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services.GitHub
                     isCloseButtonVisible: true);
 
                 await this.ShowInfoBarAsync(infoBarModel);
-
-                return Result.Failure<bool, ErrorType>(ErrorType.WaitingForUserVerification);
             }
-
-            return Result.Failure<bool, ErrorType>(ErrorType.MissingAccessToken);
         }
 
         private async Task<Result<SarifLog, string>> GetAnalysisResultsAsync(

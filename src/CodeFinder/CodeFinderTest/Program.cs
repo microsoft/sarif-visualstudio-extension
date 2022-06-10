@@ -16,7 +16,7 @@ namespace CodeFinderTest
             var printHelp = true;
 
             ParseArgs(args);
-        
+
             // Run tests using the insights from the given file (or files if given a directory).
             if (string.IsNullOrEmpty(path) == false)
             {

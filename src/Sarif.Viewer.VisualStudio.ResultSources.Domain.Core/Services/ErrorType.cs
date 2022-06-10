@@ -3,6 +3,9 @@
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
+    /// <summary>
+    /// Defines the result source service error codes.
+    /// </summary>
     public enum ErrorType
     {
         /// <summary>

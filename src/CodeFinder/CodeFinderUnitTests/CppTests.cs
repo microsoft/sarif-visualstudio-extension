@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using CodeFinder;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodeFinderUnitTests
@@ -206,7 +208,7 @@ namespace CodeFinderUnitTests
             var matches = GetMatches("product = -1", 107, "CppTest::Multiply$catch$0");
             ValidateMatch(matches, 107);
         }
-  
+
         [TestMethod]
         public void TestFunctionSignatureWithCatch3()
         {

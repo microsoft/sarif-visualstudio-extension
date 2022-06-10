@@ -101,7 +101,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                     bool addPart = true;
                     ScopeType typeHint = ScopeType.Unknown;
                     string part = parts[i];
-                    
+
                     if (i == (parts.Length - 1))
                     {
                         // The final part must be a method.

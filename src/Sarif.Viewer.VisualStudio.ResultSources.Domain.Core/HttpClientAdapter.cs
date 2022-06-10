@@ -8,15 +8,20 @@ using System.Threading.Tasks;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
 {
+    /// <inheritdoc cref="IHttpClientAdapter"/>
     public class HttpClientAdapter : IHttpClientAdapter
     {
         private readonly HttpClient httpClient;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpClientAdapter"/> class.
+        /// </summary>
         public HttpClientAdapter()
         {
             this.httpClient = new HttpClient();
         }
 
+        /// <inheritdoc cref="IHttpClientAdapter.BuildRequest(HttpMethod, string, string, string)"/>
         public HttpRequestMessage BuildRequest(
             HttpMethod httpMethod,
             string url,
@@ -35,6 +40,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
             return requestMessage;
         }
 
+        /// <inheritdoc cref="IHttpClientAdapter.SendAsync(HttpRequestMessage, CancellationToken)"/>
         public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) =>
             await this.httpClient.SendAsync(request, cancellationToken);
     }

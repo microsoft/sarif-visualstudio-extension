@@ -6,5 +6,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
     internal class VerificationCode
     {
         public string Value { get; set; }
+
+        public static implicit operator string(VerificationCode verificationCode)
+        {
+            return verificationCode.Value;
+        }
     }
 }

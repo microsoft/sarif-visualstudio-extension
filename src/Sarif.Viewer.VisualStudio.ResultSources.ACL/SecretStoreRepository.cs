@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 using CSharpFunctionalExtensions;
 
 using Mapster;
@@ -8,7 +10,6 @@ using Mapster;
 using Microsoft.Alm.Authentication;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Entities;
-using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.ACL
 {
@@ -33,21 +34,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.ACL
         }
 
         /// <inheritdoc cref="ISecretStoreRepository.WriteAccessToken(TargetUri, AccessToken)"/>
-        public Result<bool, Error> WriteAccessToken(TargetUri targetUri, AccessToken accessToken)
+        public Result WriteAccessToken(TargetUri targetUri, AccessToken accessToken)
         {
+            if (accessToken?.Value == null)
+            {
+                // Throw here because we expect our callers to have checked for this.
+                throw new ArgumentException($"{nameof(accessToken.Value)} cannot be null");
+            }
+
             bool result = this.secretStore.WriteToken(targetUri, new Token(accessToken.Value, TokenType.Personal));
-            return result ?
-                Result.Success<bool, Error>(true) :
-                Result.Failure<bool, Error>(new SecretStoreError("Failed to write access token to secret store"));
+            return Result.SuccessIf(result, "Failed to write access token to secret store");
         }
 
         /// <inheritdoc cref="ISecretStoreRepository.DeleteAccessToken(TargetUri)"/>
-        public Result<bool, Error> DeleteAccessToken(TargetUri targetUri)
+        public Result DeleteAccessToken(TargetUri targetUri)
         {
             bool result = this.secretStore.DeleteToken(targetUri);
-            return result ?
-                Result.Success<bool, Error>(true) :
-                Result.Failure<bool, Error>(new SecretStoreError("Failed to delete access token from secret store"));
+            return Result.SuccessIf(result, "Failed to delete access token from secret store");
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using CodeFinder;
 using CodeFinder.Internal.CStyle;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodeFinderUnitTests

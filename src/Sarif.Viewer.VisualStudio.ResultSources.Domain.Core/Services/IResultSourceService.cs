@@ -10,6 +10,9 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
+    /// <summary>
+    /// Represents a service that provides analysis results from an external source.
+    /// </summary>
     public interface IResultSourceService
     {
         /// <summary>

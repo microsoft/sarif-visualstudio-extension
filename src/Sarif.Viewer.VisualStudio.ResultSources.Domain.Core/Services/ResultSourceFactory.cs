@@ -13,6 +13,9 @@ using Result = CSharpFunctionalExtensions.Result;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
 {
+    /// <summary>
+    /// Provides a factory to construct result source service instances.
+    /// </summary>
     public class ResultSourceFactory
     {
         private readonly IFileSystem fileSystem;
@@ -34,9 +37,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// </summary>
         /// <param name="solutionRootPath">The local root path for the current project.</param>
         /// <returns>A result source service instance if the project platform is supported; otherwise, null.</returns>
-#pragma warning disable IDE0060 // Remove unused parameter
         public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync(string solutionRootPath)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
             // Check for GitHub project
             var gitHubSourceService = new GitHubSourceService(solutionRootPath, fileSystem, gitExe);

@@ -135,7 +135,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
             mockSecretStoreRepository.Setup(r => r.ReadAccessToken(It.IsAny<TargetUri>())).Returns(cachedAccessToken);
-            
+
             var mockFileWatcher = new Mock<IFileWatcher>();
 
             await gitHubSourceService.InitializeAsync(

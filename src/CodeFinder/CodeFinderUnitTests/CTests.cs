@@ -1,6 +1,8 @@
-﻿using CodeFinder;
+﻿using System.Collections.Generic;
+
+using CodeFinder;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 
 namespace CodeFinderUnitTests
 {

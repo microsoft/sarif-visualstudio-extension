@@ -12,7 +12,7 @@ namespace Microsoft.CodeFinder
     /// This class is immutable.
     /// </summary>
     public class FileSpan
-    { 
+    {
         /// <summary>
         /// The starting position of the span.
         /// </summary>

@@ -143,8 +143,8 @@ namespace Microsoft.CodeFinder
                 IEnumerable<MatchResult> matchesInScopes = matches.Where(m => m.ScopeChecked); // Get matches where scopes were checked.
                 if (matchesInScopes.Any())
                 {
-                     matchesInScopes = matchesInScopes.Where(m => m.ScopeMatchDiff != null) // Get matches where the scopes actually matched.
-                                                      .OrderBy(m => Math.Abs(m.ScopeMatchDiff.Value)); // Order them so that the one with the best ScopeMatchDiff value (closest to 0) is first.
+                    matchesInScopes = matchesInScopes.Where(m => m.ScopeMatchDiff != null) // Get matches where the scopes actually matched.
+                                                     .OrderBy(m => Math.Abs(m.ScopeMatchDiff.Value)); // Order them so that the one with the best ScopeMatchDiff value (closest to 0) is first.
 
                     // There is at least one match in a verified scope. Since they are ordered, the first one has the best ScopeMatchDiff value.
                     int minScopeMatcDiff = matchesInScopes.First().ScopeMatchDiff.Value;

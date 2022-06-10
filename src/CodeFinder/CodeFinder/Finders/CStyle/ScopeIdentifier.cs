@@ -50,7 +50,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
         /// <summary>
         /// The name of the identifier itself.
         /// </summary>
-        public string Name { get; set;  }
+        public string Name { get; set; }
 
         /// <summary>
         /// The scope's type, if known.
@@ -62,7 +62,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
         /// For example, in C++ "using namespace Foo;" implicitly declares that Foo's scope is the entire file. In this case, Explicit should be false.
         /// However, in C++ we would expect class and method definitions to have an explicit scope.
         /// </summary>
-        public bool Explicit { get; set;  }
+        public bool Explicit { get; set; }
 
         public ScopeIdentifier(string name, ScopeType type = ScopeType.Unknown, bool explicitScope = true)
         {

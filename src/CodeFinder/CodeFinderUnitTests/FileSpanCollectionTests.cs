@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+
 using CodeFinder;
 using CodeFinder.Internal;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodeFinderUnitTests

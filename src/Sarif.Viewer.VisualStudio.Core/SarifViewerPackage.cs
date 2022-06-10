@@ -160,7 +160,7 @@ namespace Microsoft.Sarif.Viewer
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
 
-                _ = await RequestAnalysisResultsAsync();
+                await RequestAnalysisResultsAsync();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -234,10 +234,10 @@ namespace Microsoft.Sarif.Viewer
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatch();
 
-            this.JoinableTaskFactory.Run(async () => _ = await RequestAnalysisResultsAsync());
+            this.JoinableTaskFactory.Run(async () => await RequestAnalysisResultsAsync());
         }
 
-        private async System.Threading.Tasks.Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync()
+        private async Task RequestAnalysisResultsAsync()
         {
             if (this.resultSourceService == null)
             {
@@ -260,13 +260,7 @@ namespace Microsoft.Sarif.Viewer
 
                     this.resultSourceService.ResultsUpdated += this.ResultSourceService_ResultsUpdated;
                 }
-                else
-                {
-                    return Result.Failure<bool, ErrorType>(result.Error);
-                }
             }
-
-            return await this.resultSourceService.RequestAnalysisScanResultsAsync();
         }
 
         private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)

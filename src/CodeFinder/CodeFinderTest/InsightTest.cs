@@ -1,12 +1,14 @@
-﻿using CodeFinder;
-using Microsoft.Internal.Fungates.DeveloperCanvas.Insight;
-using Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+
+using CodeFinder;
+
+using Microsoft.Internal.Fungates.DeveloperCanvas.Insight;
+using Microsoft.Internal.Fungates.DeveloperCanvas.Insight.Insights;
 
 namespace CodeFinderTest
 {
@@ -197,7 +199,7 @@ namespace CodeFinderTest
                     }
 
                     if (line.Contains(textToFind))
-                    {                  
+                    {
                         var distanceFromLineHint = Math.Abs(insight.EstimatedLineNumber - lineNumber);
                         matches.Add(new MatchResult(id, null, lineNumber, distanceFromLineHint));
                     }

@@ -87,7 +87,7 @@ namespace Microsoft.CodeFinder.Finders
                 return;
             }
 
-            Count = spans.Count;            
+            Count = spans.Count;
 
             if (bucketSize != null)
             {
@@ -167,7 +167,7 @@ namespace Microsoft.CodeFinder.Finders
         /// <param name="length">The length of the span to check. Optional, defaults to 1.</param>
         /// <param name="excludeTags">Optional. Won't check against spans with at least one of these tags.</param>
         /// <returns></returns>
-        public bool Contains(int start, int length=1, List<FileSpan.FileSpanTag> excludeTags=null)
+        public bool Contains(int start, int length = 1, List<FileSpan.FileSpanTag> excludeTags = null)
         {
             return Contains(new FileSpan(start, start + length - 1), excludeTags);
         }
@@ -178,7 +178,7 @@ namespace Microsoft.CodeFinder.Finders
         /// <param name="fileSpan"></param>
         /// <param name="excludeTags">Optional. Won't check against spans with at least one of these tags.</param>
         /// <returns></returns>
-        public bool Contains(FileSpan fileSpan, List<FileSpan.FileSpanTag> excludeTags=null)
+        public bool Contains(FileSpan fileSpan, List<FileSpan.FileSpanTag> excludeTags = null)
         {
             int index = GetIndex(fileSpan.Start);
 

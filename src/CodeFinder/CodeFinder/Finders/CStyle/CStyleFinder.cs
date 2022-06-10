@@ -231,7 +231,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                         // we would expand the found instance of "DoSomething" to "EnableDoSomethingEx" (which is not a whole token match).
 
                         int start = textPos;
-                        while(start > 0 && IsWordCharacter(FileContents[start - 1]))
+                        while (start > 0 && IsWordCharacter(FileContents[start - 1]))
                         {
                             start--;
                         }
@@ -365,7 +365,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                         // If an open curly brace occurs before the next semi-colon then this identifier precedes a scope.
                         // Whether or not the identifier has any part in the ownership of the scope is determined below.
                         int openCurly = IndexOf('{', pos);
-                        int semiColon = IndexOf(';', pos);                       
+                        int semiColon = IndexOf(';', pos);
                         if (openCurly != -1 && openCurly < semiColon)
                         {
                             // When we continue searching for this identifier, do it at the end of this scope.
@@ -516,7 +516,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                 {
                     // We've encoutered an ignored span, jump to the end of it and get the next one.
                     i = ignoredSpan.End;
-                    ignoredSpan = IgnoredSpans.GetNextSpan(i);                    
+                    ignoredSpan = IgnoredSpans.GetNextSpan(i);
                 }
                 else
                 {
@@ -531,7 +531,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                         level--;
                         //Console.WriteLine($"Level {level}: }} on line {GetLineNumber(i)}"); // Useful for debugging when this method returns null.
                         if (level == 0)
-                        {                            
+                        {
                             return new FileSpan(start, i);
                         }
 
@@ -539,7 +539,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                 }
             }
 
-           return null;
+            return null;
         }
 
         /// <summary>
@@ -721,7 +721,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
             // To make the string easier to tokenize, first sanitize it by:
             // Removing anything between parentheses, but keeping the parentheses as these are useful landmarks.
             // Removing anything related to templates or arrays, including the template/array characters.
-            str = str.RemoveBetween('(', ')', false);            
+            str = str.RemoveBetween('(', ')', false);
             str = StringExtensions.RemoveBetween(str, '<', '>');
             str = StringExtensions.RemoveBetween(str, '[', ']');
 
@@ -736,7 +736,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
             // Try to classify this scope and figure out where the identifiers are in the token list.
             // Note that if the open parens is first (openParensPos == 0) then this is probably a lambda and there are no identifiers.
             int lastIdentifierPos = -1;
-            int openParensPos = tokens.LastIndexOf("(");            
+            int openParensPos = tokens.LastIndexOf("(");
             if (openParensPos > 0)
             {
                 // The identifiers will be immediately to the left of the parentheses. E.g. "void Foo()" -> "Foo" or "MyClass::Foo()" -> "MyClass::Foo".
@@ -880,7 +880,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                         tokens.Add(token.ToString());
                         token.Clear();
                     }
-                    
+
                     // If this isn't a whitespace character then it should be added to the list of tokens.
                     if (char.IsWhiteSpace(c) == false)
                     {
@@ -906,7 +906,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
 
             return tokens;
         }
-        
+
         /// <summary>
         /// Returns true if the given character is a valid "word" character.
         /// A "word" can be an identifier (e.g. function or variable name) or a language-reserved keyword

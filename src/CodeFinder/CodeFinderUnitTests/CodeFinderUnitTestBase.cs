@@ -1,8 +1,10 @@
-﻿using CodeFinder;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
+using CodeFinder;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CodeFinderUnitTests
 {
@@ -35,7 +37,7 @@ namespace CodeFinderUnitTests
         public List<MatchResult> GetMatches(string textToFind, int lineNumberHint = 0, string functionSignature = "", MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code)
         {
             Console.WriteLine($"Finding matches for \"{textToFind}\" with function signature \"{functionSignature}\" near line {lineNumberHint}...");
-            
+
             var query = new MatchQuery(textToFind, lineNumberHint, functionSignature, "0", typeHint);
             var results = Finder.FindMatches2(query);
 
@@ -86,7 +88,7 @@ namespace CodeFinderUnitTests
             foreach (var expectedResult in expectedResults)
             {
                 var actualResultsForThisLine = actualResults.Where(m => m.LineNumber == expectedResult.LineNumber).ToList();
-                
+
                 foreach (var actualResult in actualResultsForThisLine)
                 {
                     actualResults.Remove(actualResult);

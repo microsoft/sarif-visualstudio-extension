@@ -3,6 +3,9 @@
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Errors
 {
+    /// <summary>
+    /// Represents a service error.
+    /// </summary>
     public abstract class Error
     {
         /// <summary>
@@ -19,5 +22,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Errors
         /// </summary>
         /// <value>The error message.</value>
         public string Message { get; }
+
+        /// <summary>
+        /// Gets the error message.
+        /// </summary>
+        /// <param name="error">The <see cref="Error"/>.</param>
+        public static implicit operator string(Error error)
+        {
+            return error.Message;
+        }
     }
 }

@@ -159,7 +159,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
             string[] parts = functionSignature.Split(new string[] { "::", "." }, StringSplitOptions.RemoveEmptyEntries);
             var newParts = new List<string>();
             bool stopProcessing = false;
-            string prevPart = string.Empty;            
+            string prevPart = string.Empty;
             foreach (string part in parts)
             {
                 // If we decided to stop processing more parts in the previous iteration, break out now.
@@ -245,7 +245,7 @@ namespace Microsoft.CodeFinder.Finders.CStyle
                 {
                     // Some lambda parts may be the mathod name with "__lambda_<guid>" appended. Remove the lambda part to preserve the method name.
                     newPart = newPart.Split(new string[] { "__lambda_" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
-                    
+
                     // Subsequent parts should be ignored since CodeFinder doesn't identify lambda scopes.
                     stopProcessing = true;
                 }
