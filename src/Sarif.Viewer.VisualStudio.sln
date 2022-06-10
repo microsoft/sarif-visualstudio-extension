@@ -57,15 +57,17 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Sarifer.Core", "Sarif
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Sarifer.2022", "Sarif.Sarifer.2022\Sarif.Sarifer.2022.csproj", "{DD071EEA-8956-48E7-871C-FC612B7E3627}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ResultSources", "ResultSources", "{AA378098-CA39-48A2-899A-3DEBD2A3227E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.ACL", "Sarif.Viewer.VisualStudio.ResultSources.ACL\Sarif.Viewer.VisualStudio.ResultSources.ACL.csproj", "{47C77D8F-518C-4329-993A-A86A2564155B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain", "Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj", "{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain.2022", "Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022.csproj", "{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.ResultSources.Domain.Core", "Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.shproj", "{034C4D27-8D71-4F1D-9476-43CFD0841D1E}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
-		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{710b6e5c-8322-4260-b131-41c18d23358f}*SharedItemsImports = 13
-		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
-		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{d6b31477-4e53-47fa-b9fe-8d751c503564}*SharedItemsImports = 4
-		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{dd071eea-8956-48e7-871c-fc612b7e3627}*SharedItemsImports = 4
-		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{f3e3199f-c005-4a14-b96b-974896986edc}*SharedItemsImports = 4
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
 		Debug|x64 = Debug|x64
@@ -243,6 +245,42 @@ Global
 		{DD071EEA-8956-48E7-871C-FC612B7E3627}.Release|x64.Build.0 = Release|x64
 		{DD071EEA-8956-48E7-871C-FC612B7E3627}.Release|x86.ActiveCfg = Release|x86
 		{DD071EEA-8956-48E7-871C-FC612B7E3627}.Release|x86.Build.0 = Release|x86
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Debug|x64.ActiveCfg = Debug|x64
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Debug|x64.Build.0 = Debug|x64
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Debug|x86.ActiveCfg = Debug|x86
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Debug|x86.Build.0 = Debug|x86
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Release|x64.ActiveCfg = Release|x64
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Release|x64.Build.0 = Release|x64
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Release|x86.ActiveCfg = Release|x86
+		{47C77D8F-518C-4329-993A-A86A2564155B}.Release|x86.Build.0 = Release|x86
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Debug|x64.ActiveCfg = Debug|x64
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Debug|x64.Build.0 = Debug|x64
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Debug|x86.ActiveCfg = Debug|x86
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Debug|x86.Build.0 = Debug|x86
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Release|x64.ActiveCfg = Release|x64
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Release|x64.Build.0 = Release|x64
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Release|x86.ActiveCfg = Release|x86
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E}.Release|x86.Build.0 = Release|x86
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|x64.ActiveCfg = Debug|x64
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|x64.Build.0 = Debug|x64
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|x86.ActiveCfg = Debug|x86
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Debug|x86.Build.0 = Debug|x86
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Release|x64.ActiveCfg = Release|x64
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Release|x64.Build.0 = Release|x64
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Release|x86.ActiveCfg = Release|x86
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -255,8 +293,23 @@ Global
 		{141A7597-CC51-4EAC-A168-D2691149AB5B} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 		{AA731FF3-5423-49F9-84C9-D05543FBA360} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
 		{1C66937F-5D66-4FBC-A2EF-E0529868952D} = {2802BDD7-321C-46FA-8CB1-026600CCCF2D}
+		{47C77D8F-518C-4329-993A-A86A2564155B} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{032BC0CB-C3CC-4E2D-B42E-EFD3E07DFE0E} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{034C4D27-8D71-4F1D-9476-43CFD0841D1E} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}*SharedItemsImports = 4
+		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{034c4d27-8d71-4f1d-9476-43cfd0841d1e}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
+		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{710b6e5c-8322-4260-b131-41c18d23358f}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}*SharedItemsImports = 4
+		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{d6b31477-4e53-47fa-b9fe-8d751c503564}*SharedItemsImports = 4
+		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{dd071eea-8956-48e7-871c-fc612b7e3627}*SharedItemsImports = 4
+		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{f3e3199f-c005-4a14-b96b-974896986edc}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal
