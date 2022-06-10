@@ -32,10 +32,6 @@
       <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
       <Name>Sarif</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell.2022\Sarif.Viewer.VisualStudio.Shell.2022.csproj">
-      <Project>{3585559d-e715-41de-ae14-f2e18eb516ca}</Project>
-      <Name>Sarif.Viewer.VisualStudio.Shell.2022</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
