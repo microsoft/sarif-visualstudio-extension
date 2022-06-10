@@ -11,6 +11,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
     /// <inheritdoc cref="IHttpClientAdapter"/>
     public class HttpClientAdapter : IHttpClientAdapter
     {
+        private const string UserAgent = "microsoft/sarif-visualstudio-extension";
         private readonly HttpClient httpClient;
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
         {
             var requestMessage = new HttpRequestMessage(httpMethod, url);
             requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(accept));
-            requestMessage.Headers.Add("User-Agent", "microsoft/sarif-visualstudio-extension");
+            requestMessage.Headers.Add("User-Agent", UserAgent);
 
             if (!string.IsNullOrWhiteSpace(token))
             {
