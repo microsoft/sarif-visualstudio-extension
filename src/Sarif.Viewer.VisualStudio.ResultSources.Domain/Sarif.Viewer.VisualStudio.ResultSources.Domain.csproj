@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup Label="Common Packages">
     <PackageReference Include="CSharpFunctionalExtensions">
-      <Version>2.29.0</Version>
+      <Version>2.29.2</Version>
     </PackageReference>
     <PackageReference Include="FluentAssertions">
       <Version>5.10.3</Version>
