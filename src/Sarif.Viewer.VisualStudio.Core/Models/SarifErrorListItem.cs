@@ -408,6 +408,7 @@ namespace Microsoft.Sarif.Viewer
                         var serializer = new JsonSerializer
                         {
                             Formatting = Formatting.Indented,
+                            MaxDepth = 64,
                         };
                         using var sw = new StreamWriter(sarifLogFilePath);
                         using JsonWriter writer = new JsonTextWriter(sw);
