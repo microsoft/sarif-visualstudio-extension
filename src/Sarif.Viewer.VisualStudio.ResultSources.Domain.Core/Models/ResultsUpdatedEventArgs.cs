@@ -13,8 +13,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
     public class ResultsUpdatedEventArgs : EventArgs
     {
         /// <summary>
-        /// Gets the <see cref="SarifLog"/> instance which contains the analysis results.
+        /// Gets or sets the <see cref="SarifLog"/> instance which contains the analysis results.
         /// </summary>
-        public SarifLog SarifLog { get; }
+        public SarifLog SarifLog { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the log file.
+        /// </summary>
+        public string LogFileName { get; set; }
     }
 }

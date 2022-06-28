@@ -6,7 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
+namespace Microsoft.Sarif.Viewer.ResultSources.Domain
 {
     /// <inheritdoc cref="IHttpClientAdapter"/>
     public class HttpClientAdapter : IHttpClientAdapter

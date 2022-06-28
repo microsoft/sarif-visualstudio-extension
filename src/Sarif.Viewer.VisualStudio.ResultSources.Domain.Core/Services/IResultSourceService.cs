@@ -21,6 +21,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
 
         /// <summary>
+        /// Gets a value indicating whether this service is active in the project.
+        /// </summary>
+        /// <returns>True if the service is active; otherwise, false.</returns>
+        Task<bool> IsActiveAsync();
+
+        /// <summary>
         /// Gets the latest code scan results for the current branch.
         /// </summary>
         /// <param name="data">A data object.</param>
