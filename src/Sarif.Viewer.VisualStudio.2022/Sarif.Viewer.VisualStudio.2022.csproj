@@ -133,6 +133,10 @@
       <Project>{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain.2022</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Factory.2022\Sarif.Viewer.VisualStudio.ResultSources.Factory.2022.csproj">
+      <Project>{e558eadd-6b2a-4a20-80a8-ef49c681250e}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.Factory.2022</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -11,11 +11,25 @@
 $Frameworks = @("net472")
 
 $Projects = @{}
-$Projects.Vsix = @("Sarif.Viewer.VisualStudio.2022", "Sarif.Viewer.VisualStudio", "Sarif.Sarifer.2022", "Sarif.Sarifer")
+$Projects.Vsix = @(
+	"Sarif.Viewer.VisualStudio.2022",
+	"Sarif.Viewer.VisualStudio",
+	"Sarif.Sarifer.2022",
+	"Sarif.Sarifer")
 $Projects.NuGet = @("Sarif.Viewer.VisualStudio.Interop")
-$Projects.Library = @("Sarif.Viewer.VisualStudio.ResultSources.ACL", "Sarif.Viewer.VisualStudio.ResultSources.Domain.2022", "Sarif.Viewer.VisualStudio.ResultSources.Domain")
+$Projects.Library = @(
+	"Sarif.Viewer.VisualStudio.ResultSources.ACL",
+	"Sarif.Viewer.VisualStudio.ResultSources.Domain.2022",
+	"Sarif.Viewer.VisualStudio.ResultSources.Domain",
+	"Sarif.Viewer.VisualStudio.Shell.2022",
+	"Sarif.Viewer.VisualStudio.Shell",
+	"Sarif.Viewer.VisualStudio.ResultSources.Factory",
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022",
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity")
 $Projects.Product = $Projects.Vsix + $Projects.NuGet + $Projects.Library
-$Projects.Test = @("Sarif.Viewer.VisualStudio.UnitTests", "Sarif.Sarifer.UnitTests")
+$Projects.Test = @(
+	"Sarif.Viewer.VisualStudio.UnitTests",
+	"Sarif.Sarifer.UnitTests")
 $Projects.All = $Projects.Product + $Projects.Test
 
 Export-ModuleMember -Variable Frameworks, Projects
