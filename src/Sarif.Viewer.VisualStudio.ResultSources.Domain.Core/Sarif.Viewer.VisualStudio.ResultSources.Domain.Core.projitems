@@ -19,6 +19,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Secret.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ErrorType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IResultSourceService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\ResultSourceFactory.cs" />
   </ItemGroup>
 </Project>

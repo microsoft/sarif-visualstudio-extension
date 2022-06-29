@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup Label="Common Packages">
     <PackageReference Include="CSharpFunctionalExtensions">
-      <Version>2.29.2</Version>
+      <Version>2.29.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Alm.Authentication">
       <Version>4.3.0</Version>
