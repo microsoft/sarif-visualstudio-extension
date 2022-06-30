@@ -14,7 +14,6 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services;
 using Microsoft.Sarif.Viewer.Shell;
-using Microsoft.VisualStudio.Shell;
 
 using Ninject;
 using Ninject.Parameters;
@@ -39,20 +38,30 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// Initializes a new instance of the <see cref="ResultSourceFactory"/> class.
         /// </summary>
         /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
-        public ResultSourceFactory(string solutionRootPath)
+        /// <param name="serviceProvider">The service provider.</param>
+        public ResultSourceFactory(string solutionRootPath, IServiceProvider serviceProvider)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             this.solutionRootPath = solutionRootPath;
 
             // Set up dependency injection
             this.standardKernel = new StandardKernel();
-            this.standardKernel.Bind<IServiceProvider>().ToConstant(ServiceProvider.GlobalProvider);
+            this.standardKernel.Bind<IServiceProvider>().ToConstant(serviceProvider);
             this.standardKernel.Bind<IHttpClientAdapter>().To<HttpClientAdapter>();
             this.standardKernel.Bind<ISecretStoreRepository>().To<SecretStoreRepository>();
             this.standardKernel.Bind<IFileWatcher>().To<FileWatcher>();
             this.standardKernel.Bind<IFileSystem>().To<FileSystem>();
             this.standardKernel.Bind<IGitExe>().To<GitExe>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultSourceFactory"/> class.
+        /// </summary>
+        /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
+        /// <param name="standardKernel">The <see cref="StandardKernel"/>.</param>
+        public ResultSourceFactory(string solutionRootPath, StandardKernel standardKernel)
+        {
+            this.solutionRootPath = solutionRootPath;
+            this.standardKernel = standardKernel;
         }
 
         /// <summary>

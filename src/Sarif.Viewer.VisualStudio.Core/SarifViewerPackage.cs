@@ -240,7 +240,7 @@ namespace Microsoft.Sarif.Viewer
             // Currently this service only supports one result source.
             if (this.resultSourceService == null)
             {
-                var resultSourceFactory = new ResultSourceFactory(GetSolutionDirectoryPath());
+                var resultSourceFactory = new ResultSourceFactory(GetSolutionDirectoryPath(), this);
                 Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync();
 
                 if (result.IsSuccess)
