@@ -89,6 +89,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests", "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests.csproj", "{4253F871-0A37-4119-851C-24E930887030}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.ResultSources.ACL.Core", "Sarif.Viewer.VisualStudio.ResultSources.ACL.Core\Sarif.Viewer.VisualStudio.ResultSources.ACL.Core.shproj", "{CDE5AC01-C3AD-4925-9CE0-D3B7560A13D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.ACL.2022", "Sarif.Viewer.VisualStudio.ResultSources.ACL.2022\Sarif.Viewer.VisualStudio.ResultSources.ACL.2022.csproj", "{14424761-9691-45E7-9BC9-3920C1618CAC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -399,6 +403,18 @@ Global
 		{4253F871-0A37-4119-851C-24E930887030}.Release|x64.Build.0 = Release|Any CPU
 		{4253F871-0A37-4119-851C-24E930887030}.Release|x86.ActiveCfg = Release|Any CPU
 		{4253F871-0A37-4119-851C-24E930887030}.Release|x86.Build.0 = Release|Any CPU
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Debug|x64.ActiveCfg = Debug|x64
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Debug|x64.Build.0 = Debug|x64
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Debug|x86.ActiveCfg = Debug|x86
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Debug|x86.Build.0 = Debug|x86
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Release|x64.ActiveCfg = Release|x64
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Release|x64.Build.0 = Release|x64
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Release|x86.ActiveCfg = Release|x86
+		{14424761-9691-45E7-9BC9-3920C1618CAC}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -423,6 +439,8 @@ Global
 		{E558EADD-6B2A-4A20-80A8-EF49C681250E} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{00E789EC-6AD5-446F-9618-A8B46336E916} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{4253F871-0A37-4119-851C-24E930887030} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{CDE5AC01-C3AD-4925-9CE0-D3B7560A13D0} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{14424761-9691-45E7-9BC9-3920C1618CAC} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}
@@ -430,8 +448,10 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{034c4d27-8d71-4f1d-9476-43cfd0841d1e}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.ResultSources.ACL.Core\Sarif.Viewer.VisualStudio.ResultSources.ACL.Core.projitems*{14424761-9691-45e7-9bc9-3920c1618cac}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Shell.Core\Sarif.Viewer.VisualStudio.Shell.Core.projitems*{3585559d-e715-41de-ae14-f2e18eb516ca}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core.projitems*{3ebe54f0-c0c3-49bc-8696-c1de814d27cf}*SharedItemsImports = 13
+		Sarif.Viewer.VisualStudio.ResultSources.ACL.Core\Sarif.Viewer.VisualStudio.ResultSources.ACL.Core.projitems*{47c77d8f-518c-4329-993a-a86a2564155b}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core.projitems*{52dce73d-148d-47e1-a595-9eada6b3b7c5}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
 		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{710b6e5c-8322-4260-b131-41c18d23358f}*SharedItemsImports = 13
@@ -441,6 +461,7 @@ Global
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core.projitems*{ac806514-8ccf-4471-ae70-bafc83eccbc0}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Shell.Core\Sarif.Viewer.VisualStudio.Shell.Core.projitems*{c4714e68-1701-45d5-9510-e298bb227cf2}*SharedItemsImports = 4
+		Sarif.Viewer.VisualStudio.ResultSources.ACL.Core\Sarif.Viewer.VisualStudio.ResultSources.ACL.Core.projitems*{cde5ac01-c3ad-4925-9ce0-d3b7560a13d0}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{d6b31477-4e53-47fa-b9fe-8d751c503564}*SharedItemsImports = 4
 		Sarif.Sarifer.Core\Sarif.Sarifer.Core.projitems*{dd071eea-8956-48e7-871c-fc612b7e3627}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Shell.Core\Sarif.Viewer.VisualStudio.Shell.Core.projitems*{e4649ecf-3dad-418a-b83b-c35b71d50c70}*SharedItemsImports = 13

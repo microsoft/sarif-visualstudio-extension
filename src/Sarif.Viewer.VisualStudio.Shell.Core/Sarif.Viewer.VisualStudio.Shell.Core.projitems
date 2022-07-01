@@ -14,7 +14,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)GitExe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFileWatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IGitExe.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IInfoBarService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)InfoBarService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IStatusBarService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StatusBarService.cs" />
   </ItemGroup>
 </Project>

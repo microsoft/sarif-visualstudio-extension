@@ -13,7 +13,8 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.Shell
 {
-    public class InfoBarService : IVsInfoBarUIEvents
+    /// <inheritdoc cref="IInfoBarService"/>
+    public class InfoBarService : IInfoBarService, IVsInfoBarUIEvents
     {
         private readonly IServiceProvider serviceProvider;
         private uint cookie;
@@ -23,6 +24,7 @@ namespace Microsoft.Sarif.Viewer.Shell
             this.serviceProvider = serviceProvider;
         }
 
+        /// <inheritdoc cref="IInfoBarService.ShowInfoBar(InfoBarModel)"/>
         public IVsInfoBarUIElement ShowInfoBar(InfoBarModel infoBarModel)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -41,6 +43,7 @@ namespace Microsoft.Sarif.Viewer.Shell
             return null;
         }
 
+        /// <inheritdoc cref="IInfoBarService.CloseInfoBar(IVsInfoBarUIElement)"/>
         public Result CloseInfoBar(IVsInfoBarUIElement element)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -74,6 +77,7 @@ namespace Microsoft.Sarif.Viewer.Shell
         private Result<InfoBarHostControl> GetInfoBarHost()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
             if (serviceProvider.GetService(typeof(SVsShell)) is IVsShell shell)
             {
                 // Get the main window handle to host our InfoBar

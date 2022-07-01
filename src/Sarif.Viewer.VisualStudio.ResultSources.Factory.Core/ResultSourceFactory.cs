@@ -51,6 +51,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             this.standardKernel.Bind<IFileWatcher>().To<FileWatcher>();
             this.standardKernel.Bind<IFileSystem>().To<FileSystem>();
             this.standardKernel.Bind<IGitExe>().To<GitExe>();
+            this.standardKernel.Bind<IInfoBarService>().To<InfoBarService>();
+            this.standardKernel.Bind<IStatusBarService>().To<StatusBarService>();
         }
 
         /// <summary>

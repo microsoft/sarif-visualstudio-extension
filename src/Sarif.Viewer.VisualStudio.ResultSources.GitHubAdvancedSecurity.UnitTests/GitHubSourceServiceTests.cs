@@ -30,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
     public class GitHubSourceServiceTests
     {
         [Fact]
-        public async Task IsGitHubProject_ReturnsTrue_WhenPathContainsDotGitDirectory_Async()
+        public async Task IsActive_ReturnsTrue_WhenPathContainsDotGitDirectory_Async()
         {
             string path = @"C:\Git\MyProject";
 
@@ -40,13 +40,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             var mockGitExe = new Mock<IGitExe>();
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             bool result = await gitHubSourceService.IsActiveAsync();
             result.Should().BeTrue();
         }
 
         [Fact]
-        public async Task IsGitHubProject_ReturnsFalse_WhenPathDoesNotContainsDotGitDirectory_Async()
+        public async Task IsActive_ReturnsFalse_WhenPathDoesNotContainsDotGitDirectory_Async()
         {
             string path = @"C:\Git\MyProject";
 
@@ -56,7 +56,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             var mockGitExe = new Mock<IGitExe>();
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             bool result = await gitHubSourceService.IsActiveAsync();
             result.Should().BeFalse();
         }
@@ -70,7 +70,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockGitExe = new Mock<IGitExe>();
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object, null, null);
 
             (string Path, string Name) result = gitHubSourceService.ParseBranchString(input);
             result.Path.Should().Be(expectedPath);
@@ -86,7 +86,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockGitExe = new Mock<IGitExe>();
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object, null, null);
 
             (string Path, string Name) result = gitHubSourceService.ParseBranchString(input);
             result.Path.Should().Be(expectedPath);
@@ -102,7 +102,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockGitExe = new Mock<IGitExe>();
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object, null, null);
 
             (string Path, string Name) result = gitHubSourceService.ParseBranchString(input);
             result.Path.Should().Be(expectedPath);
@@ -134,6 +134,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
             mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
 
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
             var gitHubSourceService = new GitHubSourceService(
                 path,
                 mockServiceProvider.Object,
@@ -142,7 +145,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockFileWatcher.Object,
                 mockFileWatcher.Object,
                 mockFileSystem.Object,
-                mockGitExe.Object);
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
 
             await gitHubSourceService.InitializeAsync();
 
@@ -180,6 +185,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
             mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
 
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
             var gitHubSourceService = new GitHubSourceService(
                 path,
                 mockServiceProvider.Object,
@@ -188,7 +196,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockFileWatcher.Object,
                 mockFileWatcher.Object,
                 mockFileSystem.Object,
-                mockGitExe.Object);
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
 
             await gitHubSourceService.InitializeAsync();
 
@@ -201,7 +211,104 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
         }
 
         [Fact]
-        public async Task GetRequestedSecret_ReturnsSecret_WhenReceivedFromGitHub_Async()
+        public async Task GetUserVerificationCode_Fails_WhenRequestFails_Async()
+        {
+            string path = @"C:\Git\MyProject";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.BadRequest,
+                Content = new StringContent(string.Empty)
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+            var mockFileSystem = new Mock<IFileSystem>();
+            var mockGitExe = new Mock<IGitExe>();
+
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<UserVerificationResponse, Error> result = await gitHubSourceService.GetUserVerificationCodeAsync();
+
+            result.IsSuccess.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task GetUserVerificationCode_Succeeds_WhenRequestRetursCode_Async()
+        {
+            string path = @"C:\Git\MyProject";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"{""device_code"": ""3584d83530557fdd1f46af8289938c8ef79f9dc5"",""expires_in"":900,""interval"":5,""user_code"":""WDJB-MJHT"",""verification_uri"":""https://github.com/login/device""}")
+            };
+
+            var expectedUserVerificationResponse = new UserVerificationResponse()
+            {
+                DeviceCode = "3584d83530557fdd1f46af8289938c8ef79f9dc5",
+                ExpiresInSeconds = 900,
+                PollingIntervalSeconds = 5,
+                UserCode = "WDJB-MJHT",
+                VerificationUri = "https://github.com/login/device"
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            mockSecretStoreRepository.Setup(r => r.WriteSecret(It.IsAny<TargetUri>(), It.IsAny<Entities.Secret>()));
+
+            var mockFileWatcher = new Mock<IFileWatcher>();
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
+
+            var mockGitExe = new Mock<IGitExe>();
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<UserVerificationResponse, Error> result = await gitHubSourceService.GetUserVerificationCodeAsync();
+
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().NotBeNull();
+            result.Value.Should().BeEquivalentTo(expectedUserVerificationResponse);
+        }
+
+        [Fact]
+        public async Task GetRequestedAccessToken_ReturnsAccessToken_WhenReceivedFromGitHub_Async()
         {
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
@@ -239,6 +346,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
             mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
 
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
             var gitHubSourceService = new GitHubSourceService(
                 path,
                 mockServiceProvider.Object,
@@ -247,7 +357,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockFileWatcher.Object,
                 mockFileWatcher.Object,
                 mockFileSystem.Object,
-                mockGitExe.Object);
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
 
             await gitHubSourceService.InitializeAsync();
 
@@ -258,7 +370,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
         }
 
         [Fact]
-        public async Task GetRequestedSecret_Failes_WhenRequestTimesOut_Async()
+        public async Task GetRequestedAccessToken_Fails_WhenRequestTimesOut_Async()
         {
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
@@ -295,6 +407,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
             mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
 
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
             var gitHubSourceService = new GitHubSourceService(
                 path,
                 mockServiceProvider.Object,
@@ -303,7 +418,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockFileWatcher.Object,
                 mockFileWatcher.Object,
                 mockFileSystem.Object,
-                mockGitExe.Object);
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
 
             await gitHubSourceService.InitializeAsync();
 

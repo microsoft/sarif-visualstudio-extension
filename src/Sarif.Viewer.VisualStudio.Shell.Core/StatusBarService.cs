@@ -11,7 +11,8 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.Shell
 {
-    public class StatusBarService
+    /// <inheritdoc cref="IStatusBarService"/>
+    public class StatusBarService : IStatusBarService
     {
         private readonly IServiceProvider serviceProvider;
         private IVsStatusbar statusBar;
@@ -45,11 +46,7 @@ namespace Microsoft.Sarif.Viewer.Shell
             }
         }
 
-        /// <summary>
-        /// Displays the specified text in the status bar texdt area.
-        /// </summary>
-        /// <param name="text">The text to display.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <inheritdoc cref="IStatusBarService.SetStatusTextAsync(string)"/>
         public async Task SetStatusTextAsync(string text)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -64,14 +61,7 @@ namespace Microsoft.Sarif.Viewer.Shell
             this.StatusBar.SetText(text);
         }
 
-        /// <summary>
-        /// Animates the specified text using the specified frames.
-        /// </summary>
-        /// <param name="textFormat">The text format string. Only one token ({0}) is supported.</param>
-        /// <param name="frames">The array of animation frames.</param>
-        /// <param name="millisecondsInterval">The interval between frames, in milliseconds.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/>.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <inheritdoc cref="IStatusBarService.AnimateStatusTextAsync(string, string[], int, CancellationToken)"/>
         public async Task AnimateStatusTextAsync(
             string textFormat,
             string[] frames,
@@ -91,10 +81,7 @@ namespace Microsoft.Sarif.Viewer.Shell
             await this.ClearStatusTextAsync();
         }
 
-        /// <summary>
-        /// Clears the status bar text area.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <inheritdoc cref="IStatusBarService.ClearStatusTextAsync"/>
         public async Task ClearStatusTextAsync()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

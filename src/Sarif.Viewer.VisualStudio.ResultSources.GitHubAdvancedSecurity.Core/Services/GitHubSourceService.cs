@@ -67,8 +67,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         private readonly IFileSystem fileSystem;
         private readonly IGitExe gitExe;
         private readonly BrowserService browserService;
-        private readonly InfoBarService infoBarService;
-        private readonly StatusBarService statusBarService;
+        private readonly IInfoBarService infoBarService;
+        private readonly IStatusBarService statusBarService;
 
         private string repoPath;
         private string codeScanningBaseApiUrl;
@@ -89,6 +89,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// <param name="fileWatcherGitPush">The file watcher for Git pushes.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="gitExe">The git.exe helper.</param>
+        /// <param name="infoBarService">The <see cref="IInfoBarService"/>.</param>
+        /// <param name="statusBarService">The <see cref="IStatusBarService"/>.</param>
         public GitHubSourceService(
             string solutionRootPath,
             IServiceProvider serviceProvider,
@@ -97,7 +99,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             IFileWatcher fileWatcherBranchChange,
             IFileWatcher fileWatcherGitPush,
             IFileSystem fileSystem,
-            IGitExe gitExe)
+            IGitExe gitExe,
+            IInfoBarService infoBarService,
+            IStatusBarService statusBarService)
         {
             this.serviceProvider = serviceProvider;
             this.httpClientAdapter = httpClientAdapter;
@@ -107,12 +111,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             this.fileSystem = fileSystem;
             this.gitExe = gitExe;
             this.gitExe.RepoPath = solutionRootPath;
+            this.infoBarService = infoBarService;
+            this.statusBarService = statusBarService;
 
             this.pollingCancellationTokenSource = new CancellationTokenSource();
 
             this.browserService = new BrowserService();
-            this.infoBarService = new InfoBarService(this.serviceProvider);
-            this.statusBarService = new StatusBarService(this.serviceProvider);
         }
 
         /// <summary>
@@ -232,11 +236,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
-        /// <inheritdoc cref="IResultSourceService.RequestCodeAnalysisScanResultsAsync()"/>
+        /// <inheritdoc cref="IResultSourceService.RequestAnalysisScanResultsAsync(object)"/>
         public async Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             Maybe<Secret> getAccessTokenResult = await GetCachedAccessTokenAsync();
             if (getAccessTokenResult.HasValue)
             {
