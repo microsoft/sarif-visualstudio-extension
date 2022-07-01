@@ -15,7 +15,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
   <ItemGroup>
     <PackageReference Include="CSharpFunctionalExtensions">
-      <Version>2.29.3</Version>
+      <Version>2.29.4</Version>
     </PackageReference>
     <PackageReference Include="FluentAssertions">
       <Version>5.10.3</Version>

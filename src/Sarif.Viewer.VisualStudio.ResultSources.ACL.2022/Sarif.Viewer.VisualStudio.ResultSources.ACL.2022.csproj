@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup Label="Common Packages">
     <PackageReference Include="CSharpFunctionalExtensions">
-      <Version>2.29.3</Version>
+      <Version>2.29.4</Version>
     </PackageReference>
     <PackageReference Include="Mapster">
       <Version>7.3.0</Version>
