@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{00E789EC-6AD5-446F-9618-A8B46336E916}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests</RootNamespace>
-    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.Domain.UnitTests</AssemblyName>
+    <RootNamespace>Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests</RootNamespace>
+    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.Factory.UnitTests</AssemblyName>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -14,6 +14,9 @@
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
   <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions">
+      <Version>2.29.3</Version>
+    </PackageReference>
     <PackageReference Include="FluentAssertions">
       <Version>5.10.3</Version>
     </PackageReference>

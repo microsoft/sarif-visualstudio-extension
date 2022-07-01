@@ -9,9 +9,9 @@ using CSharpFunctionalExtensions;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
-using Microsoft.Sarif.Viewer.ResultSources.Factory;
 using Microsoft.Sarif.Viewer.Shell;
 
 using Moq;
@@ -20,7 +20,7 @@ using Ninject;
 
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
+namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
 {
     public class ResultSourceFactoryTests
     {
