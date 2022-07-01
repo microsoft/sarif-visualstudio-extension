@@ -42,6 +42,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
             mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
 
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
             var standardKernel = new StandardKernel();
             standardKernel.Bind<IServiceProvider>().ToConstant(mockServiceProvider.Object);
             standardKernel.Bind<IHttpClientAdapter>().ToConstant(mockHttpClientAdapter.Object);
@@ -49,6 +52,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             standardKernel.Bind<IFileWatcher>().ToConstant(mockFileWatcher.Object);
             standardKernel.Bind<IFileSystem>().ToConstant(mockFileSystem.Object);
             standardKernel.Bind<IGitExe>().ToConstant(mockGitExe.Object);
+            standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
+            standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -76,6 +81,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
             mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
 
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
             var standardKernel = new StandardKernel();
             standardKernel.Bind<IServiceProvider>().ToConstant(mockServiceProvider.Object);
             standardKernel.Bind<IHttpClientAdapter>().ToConstant(mockHttpClientAdapter.Object);
@@ -83,6 +91,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             standardKernel.Bind<IFileWatcher>().ToConstant(mockFileWatcher.Object);
             standardKernel.Bind<IFileSystem>().ToConstant(mockFileSystem.Object);
             standardKernel.Bind<IGitExe>().ToConstant(mockGitExe.Object);
+            standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
+            standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
