@@ -4,8 +4,8 @@
   <PropertyGroup>
     <ProjectGuid>{E558EADD-6B2A-4A20-80A8-EF49C681250E}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Microsoft.Sarif.Viewer.ResultSources.Factory.2022</RootNamespace>
-    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.Factory.2022</AssemblyName>
+    <RootNamespace>Microsoft.Sarif.Viewer.ResultSources.Factory</RootNamespace>
+    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.Factory</AssemblyName>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>

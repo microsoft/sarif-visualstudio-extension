@@ -5,7 +5,7 @@
     <ProjectGuid>{3585559D-E715-41DE-AE14-F2E18EB516CA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Sarif.Viewer.Shell</RootNamespace>
-    <AssemblyName>Sarif.Viewer.VisualStudio.Shell.2022</AssemblyName>
+    <AssemblyName>Sarif.Viewer.VisualStudio.Shell</AssemblyName>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>

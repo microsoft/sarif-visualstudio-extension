@@ -5,7 +5,7 @@
     <ProjectGuid>{AC806514-8CCF-4471-AE70-BAFC83ECCBC0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity</RootNamespace>
-    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022</AssemblyName>
+    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity</AssemblyName>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
