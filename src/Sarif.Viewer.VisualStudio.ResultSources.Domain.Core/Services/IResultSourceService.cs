@@ -29,8 +29,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <summary>
         /// Gets a value indicating whether this service is active in the project.
         /// </summary>
-        /// <returns>True if the service is active; otherwise, false.</returns>
-        Task<bool> IsActiveAsync();
+        /// <returns><see cref="Result"/>.</returns>
+        Task<Result> IsActiveAsync();
 
         /// <summary>
         /// Gets the latest code scan results for the current branch.

@@ -73,13 +73,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <returns>A result source service instance if the project platform is supported; otherwise, an error.</returns>
         public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync()
         {
+            var ctorArg = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
+
             foreach (Type type in resultSourceTypes)
             {
-                var sourceService = this.standardKernel.Get(type, new ConstructorArgument("solutionRootPath", this.solutionRootPath, true)) as IResultSourceService;
-                if (await sourceService?.IsActiveAsync())
+                if (this.standardKernel.Get(type, ctorArg) is IResultSourceService sourceService)
                 {
-                    await sourceService.InitializeAsync();
-                    return Result.Success<IResultSourceService, ErrorType>(sourceService);
+                    Result result = await sourceService.IsActiveAsync();
+
+                    if (result.IsSuccess)
+                    {
+                        await sourceService.InitializeAsync();
+                        return Result.Success<IResultSourceService, ErrorType>(sourceService);
+                    }
                 }
             }
 

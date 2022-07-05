@@ -15,6 +15,7 @@ using Microsoft.Alm.Authentication;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Errors;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Models;
 using Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services;
 using Microsoft.Sarif.Viewer.Shell;
@@ -41,8 +42,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
 
             var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
-            bool result = await gitHubSourceService.IsActiveAsync();
-            result.Should().BeTrue();
+            CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
+            result.IsSuccess.Should().BeTrue();
         }
 
         [Fact]
@@ -57,8 +58,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
 
             var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
-            bool result = await gitHubSourceService.IsActiveAsync();
-            result.Should().BeFalse();
+            CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
+            result.IsSuccess.Should().BeFalse();
         }
 
         [Fact]
@@ -313,12 +314,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
             string branch = "my-branch";
-            string Secret = "gho_aCc3Ss70keN";
+            string accessToken = "gho_aCc3Ss70keN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(@"{""access_token"": """ + Secret + @"""}")
+                Content = new StringContent(@"{""access_token"": """ + accessToken + @"""}")
             };
 
             var userVerificationResponse = new UserVerificationResponse()
@@ -366,7 +367,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             Result<Models.Secret, Error> result = await gitHubSourceService.GetRequestedAccessTokenAsync(userVerificationResponse);
 
             result.IsSuccess.Should().BeTrue();
-            result.Value.Value.Should().Be(Secret);
+            result.Value.Value.Should().Be(accessToken);
         }
 
         [Fact]
@@ -428,6 +429,254 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Message.Should().Be("expired_token");
+        }
+
+        [Fact]
+        public async Task GetAnalysisIdAsync_Fails_WhenRequestFails_Async()
+        {
+            string path = @"C:\Git\MyProject";
+            string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
+            string branch = "my-branch";
+            string accessToken = "gho_aCc3Ss70keN";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.NotFound
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+            var mockFileSystem = new Mock<IFileSystem>();
+            var mockGitExe = new Mock<IGitExe>();
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<string, ErrorType> result = await gitHubSourceService.GetAnalysisIdAsync(
+                mockHttpClientAdapter.Object,
+                uri,
+                branch,
+                accessToken,
+                null // commitHash
+            );
+
+            result.Error.Should().Be(ErrorType.AnalysesUnavailable);
+        }
+
+        [Fact]
+        public async Task GetAnalysisIdAsync_WithNoCommitHash_Fails_WhenNoResultsReturned_Async()
+        {
+            string path = @"C:\Git\MyProject";
+            string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
+            string branch = "my-branch";
+            string accessToken = "gho_aCc3Ss70keN";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent("[]")
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+            var mockFileSystem = new Mock<IFileSystem>();
+            var mockGitExe = new Mock<IGitExe>();
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<string, ErrorType> result = await gitHubSourceService.GetAnalysisIdAsync(
+                mockHttpClientAdapter.Object,
+                uri,
+                branch,
+                accessToken,
+                null // commitHash
+            );
+
+            result.Error.Should().Be(ErrorType.AnalysesUnavailable);
+        }
+
+        [Fact]
+        public async Task GetAnalysisIdAsync_WithCommitHash_Fails_WhenNoResultsReturned_Async()
+        {
+            string path = @"C:\Git\MyProject";
+            string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
+            string branch = "my-branch";
+            string commitHash = "64ab23c";
+            string accessToken = "gho_aCc3Ss70keN";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"[{""commit_sha"":""eeee123""}]")
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+            var mockFileSystem = new Mock<IFileSystem>();
+            var mockGitExe = new Mock<IGitExe>();
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<string, ErrorType> result = await gitHubSourceService.GetAnalysisIdAsync(
+                mockHttpClientAdapter.Object,
+                uri,
+                branch,
+                accessToken,
+                commitHash);
+
+            result.Error.Should().Be(ErrorType.AnalysesUnavailable);
+        }
+
+        [Fact]
+        public async Task GetAnalysisIdAsync_WithNoCommitHash_Succeeds_WhenResultsReturned_Async()
+        {
+            string path = @"C:\Git\MyProject";
+            string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
+            string branch = "my-branch";
+            string accessToken = "gho_aCc3Ss70keN";
+            string expectedAnalysisId = "321";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"[{""commit_sha"":""64ab23c"",""id"":""321""},{""commit_sha"":""2345abc"",""id"":""320""}]")
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+            var mockFileSystem = new Mock<IFileSystem>();
+            var mockGitExe = new Mock<IGitExe>();
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<string, ErrorType> result = await gitHubSourceService.GetAnalysisIdAsync(
+                mockHttpClientAdapter.Object,
+                uri,
+                branch,
+                accessToken,
+                null //commitHash
+            );
+
+            result.IsSuccess.Should().Be(true);
+            result.Value.Should().Be(expectedAnalysisId);
+        }
+
+        [Fact]
+        public async Task GetAnalysisIdAsync_WithCommitHash_Succeeds_WhenResultsReturned_Async()
+        {
+            string path = @"C:\Git\MyProject";
+            string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
+            string branch = "my-branch";
+            string commitHash = "64ab23c";
+            string accessToken = "gho_aCc3Ss70keN";
+            string expectedAnalysisId = "321";
+
+            var httpResponseMessage = new HttpResponseMessage()
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(@"[{""commit_sha"":""64ab23c"",""id"":""321""}]")
+            };
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            mockHttpClientAdapter.Setup(h => h.SendAsync(It.IsAny<HttpRequestMessage>(), CancellationToken.None)).ReturnsAsync(httpResponseMessage);
+
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+            var mockFileSystem = new Mock<IFileSystem>();
+            var mockGitExe = new Mock<IGitExe>();
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var gitHubSourceService = new GitHubSourceService(
+                path,
+                mockServiceProvider.Object,
+                mockHttpClientAdapter.Object,
+                mockSecretStoreRepository.Object,
+                mockFileWatcher.Object,
+                mockFileWatcher.Object,
+                mockFileSystem.Object,
+                mockGitExe.Object,
+                mockInfoBarService.Object,
+                mockStatusBarService.Object);
+
+            Result<string, ErrorType> result = await gitHubSourceService.GetAnalysisIdAsync(
+                mockHttpClientAdapter.Object,
+                uri,
+                branch,
+                accessToken,
+                commitHash);
+
+            result.IsSuccess.Should().Be(true);
+            result.Value.Should().Be(expectedAnalysisId);
         }
     }
 }

@@ -138,14 +138,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         }
 
         /// <inheritdoc cref="IGitHubSourceService.IsGitHubProject()"/>
-        public async Task<bool> IsActiveAsync()
+        public async Task<Result> IsActiveAsync()
         {
             if (string.IsNullOrWhiteSpace(this.repoPath))
             {
                 this.repoPath = await gitExe.GetRepoRootAsync();
             }
 
-            return fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github"));
+            return fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")) ?
+                Result.Success() :
+                Result.Failure(nameof(GitHubSourceService));
         }
 
         /// <inheritdoc cref="IGitHubSourceService.GetUserVerificationCodeAsync()"/>
@@ -284,22 +286,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
-        private static SarifLog CreateEmptySarifLog()
-        {
-            return new SarifLog
-            {
-                Runs = new List<Run>
-                {
-                    new Run
-                    {
-                        Tool = new Tool(),
-                        Results = new List<Microsoft.CodeAnalysis.Sarif.Result>(),
-                    },
-                },
-            };
-        }
-
-        private async Task StartAuthSequenceAsync()
+        internal async Task StartAuthSequenceAsync()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -357,7 +344,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
-        private async Task<Result<SarifLog, string>> GetAnalysisResultsAsync(
+        internal async Task<Result<SarifLog, string>> GetAnalysisResultsAsync(
             IHttpClientAdapter httpClientAdapter,
             string baseUrl,
             string analysisId,
@@ -390,7 +377,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
-        private async Task<Result<string, ErrorType>> GetAnalysisIdAsync(
+        internal async Task<Result<string, ErrorType>> GetAnalysisIdAsync(
             IHttpClientAdapter httpClientAdapter,
             string baseUrl,
             string branch,
@@ -477,7 +464,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             return analysisId ?? Result.Failure<string, ErrorType>(ErrorType.AnalysesUnavailable);
         }
 
-        private async Task PollForUpdatedResultsAsync(bool showInfoBar = false)
+        internal async Task PollForUpdatedResultsAsync(bool showInfoBar = false)
         {
             Maybe<Secret> getAccessTokenResult = await GetCachedAccessTokenAsync();
             if (getAccessTokenResult.HasValue)
@@ -550,6 +537,21 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             this.pollingCancellationTokenSource = new CancellationTokenSource();
 
             _ = this.statusBarService.ClearStatusTextAsync();
+        }
+
+        private static SarifLog CreateEmptySarifLog()
+        {
+            return new SarifLog
+            {
+                Runs = new List<Run>
+                {
+                    new Run
+                    {
+                        Tool = new Tool(),
+                        Results = new List<Microsoft.CodeAnalysis.Sarif.Result>(),
+                    },
+                },
+            };
         }
 
         private void RaiseResultsUpdatedEvent(GitRepoEventArgs eventArgs = null)
