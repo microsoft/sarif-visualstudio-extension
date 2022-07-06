@@ -220,6 +220,7 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
+                // Best effort delete, no harm if this fails.
                 fileSystem.FileDelete(Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif"));
             }
             catch (Exception) { }

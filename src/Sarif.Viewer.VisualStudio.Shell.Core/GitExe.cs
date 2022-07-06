@@ -3,12 +3,9 @@
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 
 namespace Microsoft.Sarif.Viewer.Shell
@@ -16,9 +13,6 @@ namespace Microsoft.Sarif.Viewer.Shell
     public class GitExe : IGitExe
     {
         private readonly IServiceProvider serviceProvider;
-
-        // private string repoPath;
-        private string vsInstallDir;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GitExe"/> class.
@@ -58,14 +52,6 @@ namespace Microsoft.Sarif.Viewer.Shell
 
         private async ValueTask<string> ExecuteGitCommandAsync(string arguments)
         {
-            if (string.IsNullOrWhiteSpace(this.vsInstallDir))
-            {
-                this.vsInstallDir = await GetVsInstallDirectoryAsync();
-            }
-
-            // Get the trusted min Git executable path.
-            string minGitPath = Path.Combine(this.vsInstallDir, @"CommonExtensions\Microsoft\TeamFoundation\Team Explorer\Git\cmd\git.exe");
-
             await TaskScheduler.Default;
             try
             {
@@ -76,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.Shell
                     UseShellExecute = false,
                     Arguments = arguments,
                     WorkingDirectory = this.RepoPath,
-                    FileName = minGitPath,
+                    FileName = "git.exe", // minGitPath,
                 };
 
                 using (var process = Process.Start(processInfo))
@@ -91,18 +77,6 @@ namespace Microsoft.Sarif.Viewer.Shell
             }
 
             return null;
-        }
-
-        private async Task<string> GetVsInstallDirectoryAsync()
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            IVsShell vsShell = this.serviceProvider.GetService<SVsShell, IVsShell>();
-            Assumes.NotNull(vsShell);
-
-            ErrorHandler.ThrowOnFailure(vsShell.GetProperty((int)__VSSPROPID.VSSPROPID_InstallDirectory, out object installDirObject));
-            Assumes.True(installDirObject is string);
-            return (string)installDirObject;
         }
     }
 }
