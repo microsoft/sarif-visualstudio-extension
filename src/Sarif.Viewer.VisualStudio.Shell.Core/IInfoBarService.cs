@@ -17,7 +17,7 @@ namespace Microsoft.Sarif.Viewer.Shell
         /// Displays an info bar.
         /// </summary>
         /// <param name="infoBarModel">The <see cref="InfoBarModel"/> that specifies the settings.</param>
-        /// <returns>The <see cref="IVsInfoBarUIElement"/>.</returns>
+        /// <returns>The <see cref="IVsInfoBarUIElement"/> if successful; otherwise, null.</returns>
         IVsInfoBarUIElement ShowInfoBar(InfoBarModel infoBarModel);
 
         /// <summary>

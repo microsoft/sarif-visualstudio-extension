@@ -59,6 +59,7 @@ namespace Microsoft.Sarif.Viewer.Shell
             }
 
             this.StatusBar.SetText(text);
+            this.statusBar.FreezeOutput(1);
         }
 
         /// <inheritdoc cref="IStatusBarService.AnimateStatusTextAsync(string, string[], int, CancellationToken)"/>

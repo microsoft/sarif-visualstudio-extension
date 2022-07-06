@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
-        private IResultSourceService resultSourceService;
+        private ResultSourceHost resultSourceHost;
 
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
@@ -156,12 +156,19 @@ namespace Microsoft.Sarif.Viewer
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
 
-                await RequestAnalysisResultsAsync();
+                await InitializeResultSourceHostAsync();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
             return;
+        }
+
+        private async Task InitializeResultSourceHostAsync()
+        {
+            this.resultSourceHost = new ResultSourceHost(GetSolutionDirectoryPath(), this);
+            this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
+            await this.resultSourceHost.RequestAnalysisResultsAsync();
         }
 
         private object CreateService(IServiceContainer container, Type serviceType)
@@ -231,30 +238,10 @@ namespace Microsoft.Sarif.Viewer
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatch();
 
-            this.JoinableTaskFactory.Run(async () => await RequestAnalysisResultsAsync());
+            this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
-        private async Task RequestAnalysisResultsAsync()
-        {
-            await JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            // Currently this service only supports one result source.
-            if (this.resultSourceService == null)
-            {
-                var resultSourceFactory = new ResultSourceFactory(GetSolutionDirectoryPath(), this);
-                Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync();
-
-                if (result.IsSuccess)
-                {
-                    this.resultSourceService = result.Value;
-                    this.resultSourceService.ResultsUpdated += this.ResultSourceService_ResultsUpdated;
-                }
-            }
-
-            await this.resultSourceService.RequestAnalysisScanResultsAsync();
-        }
-
-        private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
+        private void ResultSourceHost_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
         {
             string path = Path.Combine(GetDotSarifDirectoryPath(), e.LogFileName);
             e.SarifLog.Save(path);
