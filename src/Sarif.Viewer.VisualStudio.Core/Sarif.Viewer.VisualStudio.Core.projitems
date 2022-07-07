@@ -56,11 +56,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionalConditions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ExceptionalConditionsCalculator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileAndForgetEventName.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\FileWatcher.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\IFileWatcher.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\ISarifFileMonitor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\SarifFolderMonitor.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FileWatcher\SarifLogsMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileMonitor\ISarifFileMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileMonitor\SarifFolderMonitor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FileMonitor\SarifLogsMonitor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ApplyFixEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\DisposableDifferenceViewerControl.xaml.cs">
       <DependentUpon>DisposableDifferenceViewerControl.xaml</DependentUpon>

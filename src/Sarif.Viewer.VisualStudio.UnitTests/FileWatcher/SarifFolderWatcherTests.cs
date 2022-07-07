@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.FileWatcher;
+using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Shell;
 
 using Moq;
 
@@ -153,17 +154,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var eventArg = new FileSystemEventArgs(WatcherChangeTypes.Created, newFile, string.Empty);
 
             // trigger file created event 1st time
-            mockFileWatcher.Raise(fw => fw.SarifLogFileCreated += null, eventArg);
+            mockFileWatcher.Raise(fw => fw.FileCreated += null, eventArg);
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
 
             // trigger file created event 2nd time
             newFile = Path.Combine(combinedPath, "NewAdded2.sarif");
             eventArg = new FileSystemEventArgs(WatcherChangeTypes.Created, newFile, string.Empty);
-            mockFileWatcher.Raise(fw => fw.SarifLogFileCreated += null, eventArg);
+            mockFileWatcher.Raise(fw => fw.FileCreated += null, eventArg);
 
             newFile = Path.Combine(combinedPath, "NewAdded3.sarif");
             eventArg = new FileSystemEventArgs(WatcherChangeTypes.Created, newFile, string.Empty);
-            mockFileWatcher.Raise(fw => fw.SarifLogFileCreated += null, eventArg);
+            mockFileWatcher.Raise(fw => fw.FileCreated += null, eventArg);
 
             // 2 files created, expect method to be called 1 + 2 times
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Exactly(3));
@@ -211,18 +212,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var eventArg = new FileSystemEventArgs(WatcherChangeTypes.Deleted, newFile, string.Empty);
 
             // trigger file deleted event 1st time
-            mockFileWatcher.Raise(fw => fw.SarifLogFileDeleted += null, eventArg);
+            mockFileWatcher.Raise(fw => fw.FileDeleted += null, eventArg);
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Once);
 
 
             // trigger file created event 2nd time
             newFile = Path.Combine(combinedPath, "Test2.sarif");
             eventArg = new FileSystemEventArgs(WatcherChangeTypes.Deleted, newFile, string.Empty);
-            mockFileWatcher.Raise(fw => fw.SarifLogFileDeleted += null, eventArg);
+            mockFileWatcher.Raise(fw => fw.FileDeleted += null, eventArg);
 
             newFile = Path.Combine(combinedPath, "Test3.sarif");
             eventArg = new FileSystemEventArgs(WatcherChangeTypes.Deleted, newFile, string.Empty);
-            mockFileWatcher.Raise(fw => fw.SarifLogFileDeleted += null, eventArg);
+            mockFileWatcher.Raise(fw => fw.FileDeleted += null, eventArg);
 
             // 2 files deleted, method expected to be called 1 + 2 times
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Exactly(3));
