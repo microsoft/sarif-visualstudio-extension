@@ -142,7 +142,7 @@ namespace Microsoft.Sarif.Viewer
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
-            ErrorList.ErrorListCommand.Initialize(this);
+            ErrorListCommand.Initialize(this);
             this.sarifFolderMonitor = new SarifFolderMonitor();
 
             if (await this.IsSolutionLoadedAsync())
@@ -163,9 +163,12 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
-            this.resultSourceHost = new ResultSourceHost(GetSolutionDirectoryPath(), this);
-            this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
-            await this.resultSourceHost.RequestAnalysisResultsAsync();
+            if (SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+            {
+                this.resultSourceHost = new ResultSourceHost(GetSolutionDirectoryPath(), this);
+                this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
+                await this.resultSourceHost.RequestAnalysisResultsAsync();
+            }
         }
 
         private object CreateService(IServiceContainer container, Type serviceType)
