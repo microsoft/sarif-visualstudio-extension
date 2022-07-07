@@ -13,7 +13,6 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
@@ -65,6 +64,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int SuppressResultCommandId = 0x0308;
 
         /// <summary>
+        /// Command id for "I Fixed This!".
+        /// </summary>
+        public const int IFixedThisCommandId = 0x0309;
+
+        /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
@@ -99,11 +103,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.AddMenuItem(NonShippingCodeResultCommandId);
             this.AddMenuItem(OtherResultCommandId);
             this.AddMenuItem(SuppressResultCommandId);
+            this.AddMenuItem(IFixedThisCommandId);
 
             // hide by default
             this.SetCommandVisibility(ProvideFeedbackCommandId, false);
             this.SetCommandVisibility(ClearSarifResultsCommandId, false);
             this.SetCommandVisibility(SuppressResultCommandId, false);
+            this.SetCommandVisibility(IFixedThisCommandId, false);
 
             var componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
             Assumes.Present(componentModel);
@@ -147,6 +153,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             bool visible = e.NewItem != null || (this.selectionService.SelectedItems != null && this.selectionService.SelectedItems.Any());
             this.SetCommandVisibility(ProvideFeedbackCommandId, visible);
             this.SetCommandVisibility(SuppressResultCommandId, visible);
+            this.SetCommandVisibility(IFixedThisCommandId, visible);
         }
 
         private void SetCommandVisibility(int cmdID, bool visible)
@@ -226,6 +233,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 case SuppressResultCommandId:
                     SuppressResults(selectedItems);
+                    break;
+
+                case IFixedThisCommandId:
+                    foreach (SarifErrorListItem item in selectedItems)
+                    {
+                        SarifTableDataSource.Instance.RemoveError(item);
+                    }
+
                     break;
 
                 default:
