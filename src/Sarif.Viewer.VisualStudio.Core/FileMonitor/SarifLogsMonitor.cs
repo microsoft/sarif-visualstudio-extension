@@ -5,23 +5,20 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.Sarif.Viewer.FileWatcher
+namespace Microsoft.Sarif.Viewer.FileMonitor
 {
     internal class SarifLogsMonitor : IDisposable
     {
         private readonly IFileSystem fileSystem;
 
-        private IDictionary<string, IFileWatcher> FileWatcherMap { get; } =
-            new ConcurrentDictionary<string, IFileWatcher>(StringComparer.OrdinalIgnoreCase);
+        private IDictionary<string, Shell.IFileWatcher> FileWatcherMap { get; } =
+            new ConcurrentDictionary<string, Shell.IFileWatcher>(StringComparer.OrdinalIgnoreCase);
 
         internal SarifLogsMonitor(IFileSystem fs)
         {
@@ -39,9 +36,9 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
             if (!FileWatcherMap.ContainsKey(logFilePath))
             {
-                var watcher = new FileWatcher(Path.GetDirectoryName(logFilePath), Path.GetFileName(logFilePath));
-                watcher.SarifLogFileChanged += this.Watcher_SarifLogFileChanged;
-                watcher.SarifLogFileRenamed += this.Watcher_SarifLogFileRenamed;
+                var watcher = new Shell.FileWatcher(Path.GetDirectoryName(logFilePath), Path.GetFileName(logFilePath));
+                watcher.FileChanged += this.Watcher_SarifLogFileChanged;
+                watcher.FileRenamed += this.Watcher_SarifLogFileRenamed;
                 FileWatcherMap.Add(logFilePath, watcher);
                 watcher.Start();
             }
@@ -49,7 +46,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         internal void Clear()
         {
-            foreach (IFileWatcher watcher in FileWatcherMap.Values)
+            foreach (Shell.IFileWatcher watcher in FileWatcherMap.Values)
             {
                 (watcher as IDisposable)?.Dispose();
             }
@@ -87,7 +84,7 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
         internal void StopWatch(string logFilePath)
         {
-            if (FileWatcherMap.TryGetValue(logFilePath, out IFileWatcher watcher))
+            if (FileWatcherMap.TryGetValue(logFilePath, out Shell.IFileWatcher watcher))
             {
                 watcher.Stop();
                 FileWatcherMap.Remove(logFilePath);
