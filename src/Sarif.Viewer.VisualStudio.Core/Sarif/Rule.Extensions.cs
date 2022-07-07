@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
             {
                 model = new RuleModel()
                 {
-                    Id = ruleId,
+                    Id = ruleId ?? rule.Id,
                     Name = rule.Name,
                     Description = rule.FullDescription?.Text,
                     DefaultFailureLevel = rule.DefaultConfiguration != null ?
