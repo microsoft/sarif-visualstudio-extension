@@ -4,6 +4,7 @@
 ## [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Error list expando for long message does not work.
 * FEATURE: Generate Popup from Xaml.
+* FEATURE: Result sources platform + GitHub Advanced Security source service
 
 ## [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Enable "Run Static Analyzer" gesture for solution explorer folder view.
