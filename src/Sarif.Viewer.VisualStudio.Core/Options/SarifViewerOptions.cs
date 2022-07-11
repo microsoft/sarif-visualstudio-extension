@@ -30,6 +30,8 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
 
+        public bool IsGitHubAdvancedSecurityEnabled => this.optionPage?.EnableGitHubAdvancedSecurity ?? this.IsGitHubAdvancedSecurityEnabled;
+
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
