@@ -9,12 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using EnvDTE;
-
-using EnvDTE80;
-
 using Microsoft.CodeAnalysis.Sarif.Writers;
-using Microsoft.VisualStudio.Shell;
 
 // TODO: Include tool name in logId. Replace non-alphanum chars with underscore for guaranteed file system compat.
 
@@ -57,7 +52,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         {
             text = text ?? throw new ArgumentNullException(nameof(text));
 
-            string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
+            string solutionDirectory = await VsUtilities.GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             // If we don't have a solutionDirectory, then, we don't need to analyze.
             if (string.IsNullOrEmpty(solutionDirectory))
@@ -106,7 +101,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
                 return Stream.Null;
             }
 
-            string solutionDirectory = await GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
+            string solutionDirectory = await VsUtilities.GetSolutionDirectoryAsync().ConfigureAwait(continueOnCapturedContext: false);
 
             var stream = new MemoryStream();
             bool wasAnalyzed = false;
@@ -176,23 +171,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         /// A boolean showing if the result was processed or not.
         /// </returns>
         protected abstract bool AnalyzeCore(Uri uri, string text, string solutionDirectory, SarifLogger sarifLogger, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Returns the solution directory, or null if no solution is open.
-        /// </summary>
-        private static async Task<string> GetSolutionDirectoryAsync()
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var dte = (DTE2)Package.GetGlobalService(typeof(DTE));
-            string solutionFilePath = dte.Solution?.FullName;
-            if (string.IsNullOrEmpty(solutionFilePath))
-            {
-                return null;
-            }
-
-            return Path.GetDirectoryName(solutionFilePath);
-        }
 
         private SarifLogger MakeSarifLogger(TextWriter writer) =>
             new SarifLogger(

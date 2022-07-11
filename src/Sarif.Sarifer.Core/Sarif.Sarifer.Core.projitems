@@ -16,6 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AnalyzeMenuCommandBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AnalyzeProjectCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\AnalyzeSolutionCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\AnalyzeSolutionFolderNodeExtender.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\GenerateTestDataCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\SariferPackageCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileAndForgetEventName.cs" />
@@ -42,6 +43,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TextEditIdleAssistant.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TextEditIdledEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VsUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="$(MSBuildThisFileDirectory)Options\SariferOptionsControl.xaml">
