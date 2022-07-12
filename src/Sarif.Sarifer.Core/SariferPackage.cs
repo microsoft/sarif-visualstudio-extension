@@ -11,6 +11,8 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 
+using Newtonsoft.Json;
+
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.CodeAnalysis.Sarif.Sarifer
@@ -62,6 +64,9 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
+
+            // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 64 };
 
             // When initialized asynchronously, we *may* be on a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
