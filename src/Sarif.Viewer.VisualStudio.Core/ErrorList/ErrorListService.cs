@@ -149,7 +149,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         var settingsV1 = new JsonSerializerSettings()
                         {
                             ContractResolver = SarifContractResolverVersionOne.Instance,
-                            MaxDepth = 64,
                         };
 
                         SarifLogVersionOne v1Log = JsonConvert.DeserializeObject<SarifLogVersionOne>(logText, settingsV1);

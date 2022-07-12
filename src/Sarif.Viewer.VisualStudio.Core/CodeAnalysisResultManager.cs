@@ -741,7 +741,6 @@ namespace Microsoft.Sarif.Viewer
                 var serializer = new JsonSerializer()
                 {
                     Formatting = Formatting.Indented,
-                    MaxDepth = 64,
                 };
 
                 using (var writer = new JsonTextWriter(
