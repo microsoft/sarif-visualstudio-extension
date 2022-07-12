@@ -25,6 +25,8 @@ using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
+using Newtonsoft.Json;
+
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer
@@ -127,6 +129,9 @@ namespace Microsoft.Sarif.Viewer
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
+
+            // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 64 };
 
             var callback = new ServiceCreatorCallback(this.CreateService);
             foreach (KeyValuePair<Type, ServiceInformation> serviceInformationKVP in ServiceTypeToServiceInformation)
