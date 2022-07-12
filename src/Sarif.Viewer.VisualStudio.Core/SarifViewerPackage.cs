@@ -130,6 +130,7 @@ namespace Microsoft.Sarif.Viewer
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
 
+            // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 64 };
 
             var callback = new ServiceCreatorCallback(this.CreateService);
