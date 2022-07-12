@@ -163,9 +163,10 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
-            if (SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+            string solutionPath = GetSolutionDirectoryPath();
+            if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
             {
-                this.resultSourceHost = new ResultSourceHost(GetSolutionDirectoryPath(), this);
+                this.resultSourceHost = new ResultSourceHost(solutionPath, this);
                 this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
                 await this.resultSourceHost.RequestAnalysisResultsAsync();
             }
@@ -223,6 +224,8 @@ namespace Microsoft.Sarif.Viewer
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
 
+            this.resultSourceHost = null;
+
             var fileSystem = new FileSystem();
 
             try
@@ -251,7 +254,9 @@ namespace Microsoft.Sarif.Viewer
         {
             var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
             string solutionFilePath = dte.Solution?.FullName;
-            return Path.GetDirectoryName(solutionFilePath);
+            return !string.IsNullOrWhiteSpace(solutionFilePath)
+                ? Path.GetDirectoryName(solutionFilePath)
+                : null;
         }
 
         private static string GetDotSarifDirectoryPath()
