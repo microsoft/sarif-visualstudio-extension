@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sarif.Viewer.VisualStudio.ResultSources.Domain.Core
+namespace Microsoft.Sarif.Viewer.ResultSources.Domain
 {
     /// <summary>
     /// Represents an HTTP client adapter.

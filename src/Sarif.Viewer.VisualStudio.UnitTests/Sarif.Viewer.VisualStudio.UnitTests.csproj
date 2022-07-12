@@ -98,6 +98,10 @@
       <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
       <Name>Sarif</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.csproj">
+      <Project>{c4714e68-1701-45d5-9510-e298bb227cf2}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Shell</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio\Sarif.Viewer.VisualStudio.csproj">
       <Project>{689AF24B-33F0-44E9-AA2E-FACA775736A8}</Project>
       <Name>Sarif.Viewer.VisualStudio</Name>

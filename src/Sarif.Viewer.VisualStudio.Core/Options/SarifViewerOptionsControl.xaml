@@ -3,9 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:theming="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Imaging"
-             theming:ImageThemingUtilities.ImageBackgroundColor="{Binding Path=Background, RelativeSource={RelativeSource Self}, Converter={StaticResource BrushToColorConverter}}"
              Foreground="{DynamicResource {x:Static vsui:EnvironmentColors.DialogTextBrushKey}}"
-             Background="{DynamicResource {x:Static vsui:EnvironmentColors.DialogBrushKey}}" >
+             Background="Transparent" >
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -43,6 +42,12 @@
                           IsChecked="{Binding MonitorSarifFolder, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder}"
                           AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
+                <CheckBox x:Name="EnableGitHubAdvancedSecurityCheckBox"
+                          Margin="5"
+                          Style="{StaticResource CheckBoxStyle}"
+                          IsChecked="{Binding EnableGitHubAdvancedSecurity, Mode=TwoWay}"
+                          Content="{StaticResource SarifViewerOptionsControl_EnableGitHubAdvancedSecurity}"
+                          AutomationProperties.AutomationId="EnableGitHubAdvancedSecurityCheckBox" />
 
             </StackPanel>
         </GroupBox>

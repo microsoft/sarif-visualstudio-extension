@@ -21,6 +21,18 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
 
         /// <summary>
+        /// Initializes the service instance.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task InitializeAsync();
+
+        /// <summary>
+        /// Gets a value indicating whether this service is active in the project.
+        /// </summary>
+        /// <returns><see cref="Result"/>.</returns>
+        Task<Result> IsActiveAsync();
+
+        /// <summary>
         /// Gets the latest code scan results for the current branch.
         /// </summary>
         /// <param name="data">A data object.</param>

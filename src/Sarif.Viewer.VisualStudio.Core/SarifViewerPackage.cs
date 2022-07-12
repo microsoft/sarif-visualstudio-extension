@@ -5,12 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 
+using EnvDTE80;
+
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
-using Microsoft.Sarif.Viewer.FileWatcher;
+using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Options;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
+using Microsoft.Sarif.Viewer.ResultSources.Factory;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
@@ -40,6 +46,8 @@ namespace Microsoft.Sarif.Viewer
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
+        private ResultSourceHost resultSourceHost;
+
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
         /// </summary>
@@ -134,7 +142,7 @@ namespace Microsoft.Sarif.Viewer
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
-            ErrorList.ErrorListCommand.Initialize(this);
+            ErrorListCommand.Initialize(this);
             this.sarifFolderMonitor = new SarifFolderMonitor();
 
             if (await this.IsSolutionLoadedAsync())
@@ -144,11 +152,23 @@ namespace Microsoft.Sarif.Viewer
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
+
+                await InitializeResultSourceHostAsync();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
             return;
+        }
+
+        private async Task InitializeResultSourceHostAsync()
+        {
+            if (SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+            {
+                this.resultSourceHost = new ResultSourceHost(GetSolutionDirectoryPath(), this);
+                this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
+                await this.resultSourceHost.RequestAnalysisResultsAsync();
+            }
         }
 
         private object CreateService(IServiceContainer container, Type serviceType)
@@ -175,7 +195,7 @@ namespace Microsoft.Sarif.Viewer
         public static IVsPackage LoadViewerPackage()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            Guid serviceGuid = new Guid(PackageGuidString);
+            var serviceGuid = new Guid(PackageGuidString);
 
             if (VsShell.IsPackageLoaded(ref serviceGuid, out IVsPackage package) == 0 && package != null)
             {
@@ -189,8 +209,7 @@ namespace Microsoft.Sarif.Viewer
         private async System.Threading.Tasks.Task<bool> IsSolutionLoadedAsync()
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
-            var solutionService = await GetServiceAsync(typeof(SVsSolution)) as IVsSolution;
-            if (solutionService == null)
+            if (!(await GetServiceAsync(typeof(SVsSolution)) is IVsSolution solutionService))
             {
                 return false;
             }
@@ -203,12 +222,41 @@ namespace Microsoft.Sarif.Viewer
         {
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
+
+            var fileSystem = new FileSystem();
+
+            try
+            {
+                // Best effort delete, no harm if this fails.
+                fileSystem.FileDelete(Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif"));
+            }
+            catch (Exception) { }
         }
 
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatch();
+
+            this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
+        }
+
+        private void ResultSourceHost_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
+        {
+            string path = Path.Combine(GetDotSarifDirectoryPath(), e.LogFileName);
+            e.SarifLog.Save(path);
+        }
+
+        private static string GetSolutionDirectoryPath()
+        {
+            var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+            string solutionFilePath = dte.Solution?.FullName;
+            return Path.GetDirectoryName(solutionFilePath);
+        }
+
+        private static string GetDotSarifDirectoryPath()
+        {
+            return Path.Combine(GetSolutionDirectoryPath(), ".sarif");
         }
     }
 }
