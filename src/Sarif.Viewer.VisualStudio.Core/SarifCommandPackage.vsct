@@ -136,9 +136,9 @@
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
-          <Strings>
-            <ButtonText>Suppress result in SARIF file</ButtonText>
-          </Strings>
+        <Strings>
+          <ButtonText>Suppress result in SARIF file</ButtonText>
+        </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidIFixedThisCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
@@ -147,6 +147,14 @@
           <Strings>
             <ButtonText>I fixed this!</ButtonText>
           </Strings>
+      </Button>
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidRerunAnalysisCommand" priority="0x0100" type="Button">
+        <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>Re-run analysis</ButtonText>
+        </Strings>
       </Button>
 
     </Buttons>
@@ -181,6 +189,7 @@
       <IDSymbol name="cmdidOtherResultCommand" value="0x0307"/>
       <IDSymbol name="cmdidSuppressResultCommand" value="0x0308"/>
       <IDSymbol name="cmdidIFixedThisCommand" value="0x0309"/>
+      <IDSymbol name="cmdidRerunAnalysisCommand" value="0x0310"/>
     </GuidSymbol>
 
   </Symbols>

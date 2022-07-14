@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 using System.Linq;
+
+using EnvDTE;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Controls;
@@ -64,9 +67,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int SuppressResultCommandId = 0x0308;
 
         /// <summary>
-        /// Command id for "I Fixed This!".
+        /// Command id for "I fixed this!".
         /// </summary>
         public const int IFixedThisCommandId = 0x0309;
+
+        /// <summary>
+        /// Command id for "Re-run analysis".
+        /// </summary>
+        public const int RerunAnalysisCommandId = 0x0310;
 
         /// <summary>
         /// Command menu group (command set GUID).
@@ -103,6 +111,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.AddMenuItem(NonShippingCodeResultCommandId);
             this.AddMenuItem(OtherResultCommandId);
             this.AddMenuItem(SuppressResultCommandId);
+            this.AddMenuItem(RerunAnalysisCommandId);
             this.AddMenuItem(IFixedThisCommandId);
 
             // hide by default
@@ -239,6 +248,24 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     foreach (SarifErrorListItem item in selectedItems)
                     {
                         SarifTableDataSource.Instance.RemoveError(item);
+                    }
+
+                    break;
+                case RerunAnalysisCommandId:
+                    string commandLine = selectedItems.FirstOrDefault()?.Invocation.CommandLine;
+
+                    if (!string.IsNullOrWhiteSpace(commandLine))
+                    {
+                        commandLine = commandLine.Replace("[REDACTED]", "cmeyer");
+
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = @"C:\Program Files\BinSkim\BinSkim.exe",
+                            Arguments = commandLine.Substring(commandLine.IndexOf("analyze")),
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                        };
+                        System.Diagnostics.Process.Start(psi);
                     }
 
                     break;
