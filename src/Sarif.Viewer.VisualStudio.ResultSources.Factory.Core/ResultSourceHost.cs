@@ -60,7 +60,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                 }
             }
 
-            await this.resultSourceService?.RequestAnalysisScanResultsAsync();
+            if (this.resultSourceService != null)
+            {
+                await this.resultSourceService?.RequestAnalysisScanResultsAsync();
+            }
         }
 
         private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
