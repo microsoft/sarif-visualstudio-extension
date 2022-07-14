@@ -25,7 +25,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
     /// <summary>
     /// Provides a factory to construct result source service instances.
     /// </summary>
-    public class ResultSourceFactory
+    public class ResultSourceFactory : IResultSourceFactory
     {
         private readonly StandardKernel standardKernel;
         private readonly string solutionRootPath;
@@ -66,11 +66,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             this.standardKernel = standardKernel;
         }
 
-        /// <summary>
-        /// Gets a result source service.
-        /// </summary>
-        /// <param name="solutionRootPath">The local root path for the current project.</param>
-        /// <returns>A result source service instance if the project platform is supported; otherwise, an error.</returns>
+        public static bool IsUnitTesting { get; set; } = false;
+
+        /// <inheritdoc/>
         public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync()
         {
             var ctorArg = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);

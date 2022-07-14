@@ -18,21 +18,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
     /// </summary>
     public class ResultSourceHost
     {
-        private readonly string solutionPath;
-        private readonly IServiceProvider serviceProvider;
-
         private IResultSourceService resultSourceService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResultSourceHost"/> class.
-        /// </summary>
-        /// <param name="solutionPath">The absolute path of the folder that contains the solution file.</param>
-        /// <param name="serviceProvider">The <see cref="IServiceProvider"/>.</param>
-        public ResultSourceHost(string solutionPath, IServiceProvider serviceProvider)
-        {
-            this.solutionPath = solutionPath;
-            this.serviceProvider = serviceProvider;
-        }
 
         /// <summary>
         /// The event raised when new scan results are available.
@@ -42,15 +28,18 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <summary>
         /// Requests analysis results from the active source service, if any.
         /// </summary>
+        /// <param name="resultSourceFactory">The <see cref="IResultSourceFactory"/>.</param>
         /// <returns>An asynchronous <see cref="Task"/>.</returns>
-        public async Task RequestAnalysisResultsAsync()
+        public async Task RequestAnalysisResultsAsync(IResultSourceFactory resultSourceFactory)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            if (!ResultSourceFactory.IsUnitTesting)
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            }
 
             // Currently this service only supports one result source.
             if (this.resultSourceService == null)
             {
-                var resultSourceFactory = new ResultSourceFactory(solutionPath, serviceProvider);
                 Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync();
 
                 if (result.IsSuccess)
