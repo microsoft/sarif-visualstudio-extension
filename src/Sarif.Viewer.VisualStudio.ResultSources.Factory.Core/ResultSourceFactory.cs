@@ -73,7 +73,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         {
             var ctorArg = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
 
-            foreach (Type type in resultSourceTypes)
+            foreach (Type type in this.resultSourceTypes)
             {
                 if (this.standardKernel.Get(type, ctorArg) is IResultSourceService sourceService)
                 {
