@@ -21,20 +21,13 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <inheritdoc/>
     public class DataService : SDataService, IDataService
     {
-        private readonly HashSet<Result> keyEventsResultCache;
-
-        public DataService()
-        {
-            this.keyEventsResultCache = new HashSet<Result>();
-        }
-
         /// <inheritdoc/>
         public void SendEnhancedResultData(SarifLog sarifLog)
         {
-            this.SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
+            SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
         }
 
-        private async Task SendEnhancedResultDataAsync(SarifLog sarifLog)
+        private static async Task SendEnhancedResultDataAsync(SarifLog sarifLog)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
