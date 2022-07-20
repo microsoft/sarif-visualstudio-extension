@@ -1,7 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using EnvDTE;
+
+using EnvDTE80;
+
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 
 using Task = System.Threading.Tasks.Task;
@@ -11,27 +21,41 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <inheritdoc/>
     public class DataService : SDataService, IDataService
     {
+        private readonly HashSet<Result> keyEventsResultCache;
+
+        public DataService()
+        {
+            this.keyEventsResultCache = new HashSet<Result>();
+        }
+
         /// <inheritdoc/>
         public void SendEnhancedResultData(SarifLog sarifLog)
         {
-            this.SendEnhancedResultDataAsync(sarifLog).FileAndForget(nameof(DataService));
+            this.SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
         }
 
-#pragma warning disable IDE0060 // Remove unused parameter
         private async Task SendEnhancedResultDataAsync(SarifLog sarifLog)
-#pragma warning restore IDE0060 // Remove unused parameter
         {
-            /*
-             * SarifExplorerWindow.ResetSelection
-             * SarifExplorerWindow.Show
-             * SarifErrorListEventProcessor.PreprocessNavigate
-             * How to switch to code flows tab
-                Parse the SARIF fragment provided
-                Bring the Sarif Viewer window to the view and present the warning details, including the Key Events (aka code flow)
-                Bring the corresponding source code to the view in source code editor window, navigate to the corresponding source line, and add adornment for Key Events
-             */
-
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            Assumes.NotNull(sarifLog);
+            Assumes.True(sarifLog.Runs?.Count == 1);
+
+            var componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+            if (componentModel != null)
+            {
+                var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
+                var projectNameCache = new ProjectNameCache(dte?.Solution);
+
+                Result result = sarifLog.Runs.First().Results.First();
+                SarifErrorListItem sarifErrorListItem = new SarifErrorListItem(sarifLog.Runs.First(), 0, result, string.Empty, projectNameCache);
+                sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
+                ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                sarifErrorListEventSelectionService.NavigatedItem = sarifErrorListItem;
+
+                sarifErrorListItem.Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+            }
+
             SarifExplorerWindow.Find()?.Show();
         }
     }
