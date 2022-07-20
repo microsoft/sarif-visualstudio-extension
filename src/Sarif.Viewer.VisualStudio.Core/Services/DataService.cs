@@ -48,8 +48,9 @@ namespace Microsoft.Sarif.Viewer.Services
                 var projectNameCache = new ProjectNameCache(dte?.Solution);
 
                 Result result = sarifLog.Runs.First().Results.First();
-                SarifErrorListItem sarifErrorListItem = new SarifErrorListItem(sarifLog.Runs.First(), 0, result, string.Empty, projectNameCache);
+                var sarifErrorListItem = new SarifErrorListItem(sarifLog.Runs.First(), 0, result, string.Empty, projectNameCache);
                 sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
+
                 ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
                 sarifErrorListEventSelectionService.NavigatedItem = sarifErrorListItem;
 
