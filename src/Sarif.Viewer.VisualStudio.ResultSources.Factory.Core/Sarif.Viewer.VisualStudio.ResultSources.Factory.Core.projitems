@@ -9,6 +9,7 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.Factory.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)IResultSourceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultSourceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultSourceHost.cs" />
   </ItemGroup>
