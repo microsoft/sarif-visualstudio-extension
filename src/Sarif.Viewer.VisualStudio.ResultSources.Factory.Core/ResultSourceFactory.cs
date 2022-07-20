@@ -81,8 +81,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 
                     if (result.IsSuccess)
                     {
-                        await sourceService.InitializeAsync();
-                        return Result.Success<IResultSourceService, ErrorType>(sourceService);
+                        try
+                        {
+                            await sourceService.InitializeAsync();
+                            return Result.Success<IResultSourceService, ErrorType>(sourceService);
+                        }
+                        catch (Exception) { }
                     }
                 }
             }

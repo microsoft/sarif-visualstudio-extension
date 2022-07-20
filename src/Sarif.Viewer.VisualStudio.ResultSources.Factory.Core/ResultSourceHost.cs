@@ -51,7 +51,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 
             if (this.resultSourceService != null)
             {
-                await this.resultSourceService?.RequestAnalysisScanResultsAsync();
+                try
+                {
+                    await this.resultSourceService?.RequestAnalysisScanResultsAsync();
+                }
+                catch (Exception) { }
             }
         }
 
