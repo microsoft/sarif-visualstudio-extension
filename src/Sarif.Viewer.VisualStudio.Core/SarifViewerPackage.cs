@@ -173,9 +173,10 @@ namespace Microsoft.Sarif.Viewer
             string solutionPath = GetSolutionDirectoryPath();
             if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
             {
-                this.resultSourceHost = new ResultSourceHost(solutionPath, this);
+                var resultSourceFactory = new ResultSourceFactory(solutionPath, this);
+                this.resultSourceHost = new ResultSourceHost();
                 this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
-                await this.resultSourceHost.RequestAnalysisResultsAsync();
+                await this.resultSourceHost.RequestAnalysisResultsAsync(resultSourceFactory);
             }
         }
 
