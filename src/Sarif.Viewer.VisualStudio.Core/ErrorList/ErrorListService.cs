@@ -120,16 +120,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 await RetryInvokeAsync(
                     async () =>
                     {
-                        using (var logStreamReader = new StreamReader(filePath, Encoding.UTF8))
+                        try
                         {
-                            logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
+                            using (var logStreamReader = new StreamReader(filePath, Encoding.UTF8))
+                            {
+                                logText = await logStreamReader.ReadToEndAsync().ConfigureAwait(continueOnCapturedContext: false);
+                            }
                         }
+                        catch (Exception) { }
                     },
                     retryInterval: TimeSpan.FromMilliseconds(300),
                     maxAttemptCount: 5);
 
                 Match match = MatchVersionProperty(logText);
-                if (match.Success)
+                if (match?.Success == true)
                 {
                     string inputVersion = match.Groups["version"].Value;
 
@@ -204,16 +208,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
                 else
                 {
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                    // The version property wasn't found within the first 100 characters.
-                    // Per the spec, it should appear first in the sarifLog object.
-                    VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
-                                                    Resources.VersionPropertyNotFound_DialogTitle,
-                                                    null, // title
-                                                    OLEMSGICON.OLEMSGICON_QUERY,
-                                                    OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                                                    OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                     return;
                 }
             }
@@ -378,9 +372,28 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         internal static Match MatchVersionProperty(string logText)
         {
-            int headSegmentLength = Math.Min(logText.Length, HeadSegmentLength);
-            string headSegment = logText.Substring(0, headSegmentLength);
-            return Regex.Match(headSegment, VersionRegexPattern, RegexOptions.Compiled);
+            Match result = null;
+            static Match MatchVersionProperty(string str)
+            {
+                return Regex.Match(str, VersionRegexPattern, RegexOptions.Compiled);
+            }
+
+            if (!string.IsNullOrWhiteSpace(logText))
+            {
+                int segmentLength = Math.Min(logText.Length, HeadSegmentLength);
+                string headSegment = logText.Substring(0, segmentLength);
+
+                result = MatchVersionProperty(headSegment);
+
+                if (!result.Success && segmentLength >= HeadSegmentLength)
+                {
+                    // Check at the end
+                    string endSegment = logText.Substring(logText.Length - segmentLength);
+                    result = MatchVersionProperty(endSegment);
+                }
+            }
+
+            return result;
         }
 
         private static async Task<MessageDialogCommand> PromptToSaveProcessedLogAsync(string dialogMessage)

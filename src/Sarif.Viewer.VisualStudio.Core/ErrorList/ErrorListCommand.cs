@@ -15,6 +15,7 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
@@ -24,6 +25,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     /// </summary>
     internal sealed class ErrorListCommand
     {
+        private const string AllowedAnalysisToolsFileName = "AllowedAnalysisTools.json";
+
         /// <summary>
         /// Command id for "Clear all SARIF results".
         /// </summary>
@@ -90,6 +93,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         // Service that provides access to the currently selected Error List item, if any.
         private readonly ISarifErrorListEventSelectionService selectionService;
 
+        private readonly List<string> allowedAnalysisTools;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorListCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file).
@@ -126,6 +131,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.selectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
             this.selectionService.SelectedItemChanged += this.SelectionService_SelectedItemChanged;
             Assumes.Present(this.selectionService);
+
+            this.allowedAnalysisTools = SdkUIUtilities.GetStoredObject<List<string>>(AllowedAnalysisToolsFileName) ?? new List<string>();
         }
 
         /// <summary>
@@ -252,16 +259,54 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                     break;
                 case RerunAnalysisCommandId:
+                    /*
                     string commandLine = selectedItems.FirstOrDefault()?.Invocation.CommandLine;
 
                     if (!string.IsNullOrWhiteSpace(commandLine))
                     {
                         commandLine = commandLine.Replace("[REDACTED]", "cmeyer");
 
-                        ProcessStartInfo psi = new ProcessStartInfo
+                        var psi = new ProcessStartInfo
                         {
                             FileName = @"C:\Program Files\BinSkim\BinSkim.exe",
                             Arguments = commandLine.Substring(commandLine.IndexOf("analyze")),
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                        };
+                        System.Diagnostics.Process.Start(psi);
+                    }
+                    */
+                    string toolPath = @"C:\Program Files\Mayhem\mapi.exe";
+                    bool allow = this.allowedAnalysisTools.Contains(toolPath);
+
+                    // File needs to be downloaded, prompt for confirmation if host is not already allowed
+                    if (!allow)
+                    {
+                        MessageDialogCommand result = MessageDialog.Show(Resources.ConfirmRunAnalysisToolDialog_Title,
+                                                                         string.Format(Resources.ConfirmRunAnalysisToolDialog_Message, toolPath),
+                                                                         MessageDialogCommandSet.YesNo,
+                                                                         string.Format(Resources.ConfirmRunAnalysisToolDialog_CheckboxLabel, toolPath),
+                                                                         out bool alwaysAllow);
+
+                        if (result != MessageDialogCommand.No)
+                        {
+                            allow = true;
+
+                            if (alwaysAllow)
+                            {
+                                this.AddAllowedAnalysisTool(toolPath);
+                            }
+                        }
+                    }
+
+                    if (allow)
+                    {
+                        string commandLineArgs = $@"run mayhemrescan auto ""https://localhost:7134/swagger/v1/swagger.json"" --url ""https://localhost:7134/"" --sarif C:\GitHub\microsoft\sarif-visualstudio-extension-2\src\.sarif\ForAllSecure.sarif";
+
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = toolPath,
+                            Arguments = commandLineArgs,
                             CreateNoWindow = true,
                             WindowStyle = ProcessWindowStyle.Hidden,
                         };
@@ -273,6 +318,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 default:
                     // Unrecognized command; do nothing.
                     break;
+            }
+        }
+
+        internal void AddAllowedAnalysisTool(string path)
+        {
+            if (!this.allowedAnalysisTools.Contains(path))
+            {
+                this.allowedAnalysisTools.Add(path);
+                SdkUIUtilities.StoreObject<List<string>>(this.allowedAnalysisTools, AllowedAnalysisToolsFileName);
             }
         }
 

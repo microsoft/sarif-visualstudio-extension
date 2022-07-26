@@ -97,7 +97,42 @@ namespace Microsoft.Sarif.Viewer {
                 return ResourceManager.GetString("ConfirmDownloadDialog_Title", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Always allow &apos;{0}&apos;.
+        /// </summary>
+        public static string ConfirmRunAnalysisToolDialog_CheckboxLabel
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmRunAnalysisToolDialog_CheckboxLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to download the source file from this location?
+        ///
+        ///{0}
+        /// </summary>
+        public static string ConfirmRunAnalysisToolDialog_Message
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmRunAnalysisToolDialog_Message", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Run Analysis Tool.
+        /// </summary>
+        public static string ConfirmRunAnalysisToolDialog_Title
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmRunAnalysisToolDialog_Title", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Browse to Another Location….
         /// </summary>

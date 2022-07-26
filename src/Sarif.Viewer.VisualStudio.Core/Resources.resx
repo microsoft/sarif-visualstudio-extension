@@ -386,4 +386,17 @@
   <data name="ImportClangTidyFilter" xml:space="preserve">
     <value>Clang log files (*.yaml)|*.yaml</value>
   </data>
+  <data name="ConfirmRunAnalysisToolDialog_CheckboxLabel" xml:space="preserve">
+    <value>Always allow '{0}'</value>
+    <comment>{0} will be the full path of the tool executable, e.g. 'C:\Program Files\SomeTool\sometool.exe'</comment>
+  </data>
+  <data name="ConfirmRunAnalysisToolDialog_Message" xml:space="preserve">
+    <value>Do you want to run this analysis tool?
+
+{0}</value>
+    <comment>{0} will be the full path of the tool executable, e.g. 'C:\Program Files\SomeTool\sometool.exe'</comment>
+  </data>
+  <data name="ConfirmRunAnalysisToolDialog_Title" xml:space="preserve">
+    <value>Confirm Run Analysis Tool</value>
+  </data>
 </root>
