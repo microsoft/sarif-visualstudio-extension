@@ -103,8 +103,7 @@ namespace Microsoft.Sarif.Viewer {
         /// </summary>
         public static string ConfirmRunAnalysisToolDialog_CheckboxLabel
         {
-            get
-            {
+            get {
                 return ResourceManager.GetString("ConfirmRunAnalysisToolDialog_CheckboxLabel", resourceCulture);
             }
         }
@@ -112,12 +111,11 @@ namespace Microsoft.Sarif.Viewer {
         /// <summary>
         ///   Looks up a localized string similar to Do you want to download the source file from this location?
         ///
-        ///{0}
+        ///{0}.
         /// </summary>
         public static string ConfirmRunAnalysisToolDialog_Message
         {
-            get
-            {
+            get {
                 return ResourceManager.GetString("ConfirmRunAnalysisToolDialog_Message", resourceCulture);
             }
         }
@@ -127,8 +125,7 @@ namespace Microsoft.Sarif.Viewer {
         /// </summary>
         public static string ConfirmRunAnalysisToolDialog_Title
         {
-            get
-            {
+            get {
                 return ResourceManager.GetString("ConfirmRunAnalysisToolDialog_Title", resourceCulture);
             }
         }
