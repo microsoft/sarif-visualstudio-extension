@@ -43,7 +43,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             {
                 Title = "Version not near start of file",
                 Input = @"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789 ""version"" : ""2.1.0""",
-                ExpectedMatchSuccess = false,
+                ExpectedMatchSuccess = true,
+                ExpectedVersion = "2.1.0",
             },
             new TestCase
             {
