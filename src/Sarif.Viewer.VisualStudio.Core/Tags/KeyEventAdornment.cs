@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         private const char PrefixChar = '-';
         private const string Ellipsis = "\u2026";
         private const int MaxLength = 100;
-        private static readonly Color FontColor = Color.FromArgb(0x70, 210, 153, 48);
+        private static readonly Color FontColor = Color.FromArgb(112, 210, 153, 48);
         private static readonly Brush FontBrush = new SolidColorBrush(FontColor);
 
         public KeyEventAdornment(IList<ITextMarkerTag> tags, int prefixLength, double fontSize, FontFamily fontFamily)
@@ -38,7 +38,10 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             nodes.Sort((a, b) => a.Index.CompareTo(b.Index));
 
-            this.FormatText(nodes, out string fullText, out string shortText, out string tooltipText);
+            FormatText(nodes, out string fullText, out string shortText, out string tooltipText);
+
+            // prefixLength is calculated by (longest length of lines have tag) - (current line lenght)
+            // the prefix let the all key event text start locations align at same column
             string prefix = new string(PrefixChar, prefixLength);
 
             this.Text = $" {prefix}{shortText}";
@@ -55,7 +58,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        private void FormatText(IList<AnalysisStepNode> nodes, out string fullText, out string concisedText, out string tooltipText)
+        private static void FormatText(IList<AnalysisStepNode> nodes, out string fullText, out string conciseText, out string tooltipText)
         {
             var displayText = new StringBuilder();
             var hintText = new StringBuilder();
@@ -66,22 +69,56 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (AnalysisStepNode node in nodes)
             {
-                displayText.Append($"{separator} Key Event {node.Index}")
-                    .Append(node.Message != null ? $": {node.Message}" : string.Empty)
-                    .Append(Environment.NewLine);
-
-                hintText.Append($"Key Event {node.Index}")
-                    .Append(node.Message != null ? $": {node.Message}" : string.Empty)
-                    .Append(Environment.NewLine);
+                displayText.Append(CreateKeyEventText(node.Index, node.Message, separator));
+                hintText.Append(CreateKeyEventText(node.Index, node.Message));
             }
 
             tooltipText = hintText.ToString();
-            fullText = displayText.ToString().Replace("\r\n", " ").Replace("\n", " ");
-            concisedText = fullText;
-            if (concisedText.Length > MaxLength)
+            fullText = ReplaceLineBreaker(displayText.ToString(), " ");
+            conciseText = GetConciseText(fullText, MaxLength);
+        }
+
+        private static string GetConciseText(string input, int maxStringLength)
+        {
+            if (string.IsNullOrEmpty(input))
             {
-                concisedText = concisedText.Substring(0, MaxLength) + " " + Ellipsis;
+                return input;
             }
+
+            if (input.Length > maxStringLength)
+            {
+                input = $"{input.Substring(0, maxStringLength)} {Ellipsis}";
+            }
+
+            return input;
+        }
+
+        private static string ReplaceLineBreaker(string input, string newValue)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
+            return input.Replace("\r\n", newValue).Replace("\n", newValue);
+        }
+
+        private static string CreateKeyEventText(int index, string message, string prefix = null)
+        {
+            prefix ??= string.Empty;
+            if (!string.IsNullOrEmpty(prefix))
+            {
+                // Add a space between prefix and first char of the sentence.
+                prefix += " ";
+            }
+
+            message ??= string.Empty;
+            if (!string.IsNullOrEmpty(message))
+            {
+                message = $" : {message}";
+            }
+
+            return $"{prefix}Key Event {index}{message}{Environment.NewLine}";
         }
     }
 }

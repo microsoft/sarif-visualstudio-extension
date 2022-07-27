@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         private IList<IMappingTagSpan<ITextMarkerTag>> currentSarifTags;
 
-        private SarifErrorListItem currentSarifItem;
+        private SarifErrorListItem currentErrorListItem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyEventAdornmentManager"/> class.
@@ -110,7 +110,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             // Not able to get all SarifLocationTextMarkerTags after this event fired
             // may because the editor UI updated async
-            this.currentSarifItem = e.NewItem;
+            this.currentErrorListItem = e.NewItem;
         }
 
         private void InvalidateAdornments()
