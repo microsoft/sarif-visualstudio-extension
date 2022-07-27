@@ -145,7 +145,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                 this.repoPath = await gitExe.GetRepoRootAsync();
             }
 
-            return fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")) ?
+            return !string.IsNullOrWhiteSpace(this.repoPath) && fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")) ?
                 Result.Success() :
                 Result.Failure(nameof(GitHubSourceService));
         }

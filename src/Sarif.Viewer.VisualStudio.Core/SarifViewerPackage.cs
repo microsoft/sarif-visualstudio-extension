@@ -25,6 +25,8 @@ using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
+using Newtonsoft.Json;
+
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer
@@ -128,6 +130,9 @@ namespace Microsoft.Sarif.Viewer
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
 
+            // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 64 };
+
             var callback = new ServiceCreatorCallback(this.CreateService);
             foreach (KeyValuePair<Type, ServiceInformation> serviceInformationKVP in ServiceTypeToServiceInformation)
             {
@@ -163,11 +168,13 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
-            if (SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+            string solutionPath = GetSolutionDirectoryPath();
+            if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
             {
-                this.resultSourceHost = new ResultSourceHost(GetSolutionDirectoryPath(), this);
+                var resultSourceFactory = new ResultSourceFactory(solutionPath, this);
+                this.resultSourceHost = new ResultSourceHost();
                 this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
-                await this.resultSourceHost.RequestAnalysisResultsAsync();
+                await this.resultSourceHost.RequestAnalysisResultsAsync(resultSourceFactory);
             }
         }
 
@@ -223,6 +230,8 @@ namespace Microsoft.Sarif.Viewer
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
 
+            this.resultSourceHost = null;
+
             var fileSystem = new FileSystem();
 
             try
@@ -251,7 +260,9 @@ namespace Microsoft.Sarif.Viewer
         {
             var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
             string solutionFilePath = dte.Solution?.FullName;
-            return Path.GetDirectoryName(solutionFilePath);
+            return !string.IsNullOrWhiteSpace(solutionFilePath)
+                ? Path.GetDirectoryName(solutionFilePath)
+                : null;
         }
 
         private static string GetDotSarifDirectoryPath()
