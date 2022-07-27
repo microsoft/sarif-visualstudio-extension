@@ -56,17 +56,24 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             throw new NotImplementedException();
         }
 
-        private async Task<string> GetLatestBuildId()
+        private async Task<string> GetLatestBuildIdAsync()
         {
             HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
                 HttpMethod.Get,
                 ListBuildsApiUrlFormat,
-                token: accessToken);
+                token: "token-here");
+
+            return await Task.FromResult(string.Empty);
         }
 
-        private async Task<string> GetArtifactDownloadUrl()
+        private async Task<string> GetArtifactDownloadUrlAsync()
         {
+            return await Task.FromResult(string.Empty);
+        }
 
+        private void RaiseResultsUpdatedEvent(ResultsUpdatedEventArgs eventArgs = null)
+        {
+            ResultsUpdated?.Invoke(this, eventArgs);
         }
     }
 }
