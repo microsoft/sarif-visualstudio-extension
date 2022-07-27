@@ -44,7 +44,7 @@ File > Clone repository > URL tab
    from the context menu
  - For VS 2022: In Solution Explorer, right click the Sarif.Viewer.VisualStudio.2022 project and select **Set as Startup Project** from the context menu.
 
-![Set as Startup Project](assets/Contributing-SetAsStartupProject.png)
+![Set as Startup Project](assets/Contributing-SetAsStartupProject.png){width=336}
 
 ## Architecture notes
 
@@ -91,7 +91,7 @@ This behavior is triggered by the devenv.exe `/rootsuffix Exp` command line swit
 
 - If a problem (usually an exception) occurs while the extension is starting up, VS will pop this dialog:
 
-![Extension package load error](assets/Contributing-PackageError.png)
+![Extension package load error](assets/Contributing-PackageError.png){width=312}
 
 The XML log file noted here contains useful information that can help you resolve the issue.
 **_HOT TIP!_** _You can copy the contents of any Windows message box by pressing Ctrl+C, then pasting into Notepad for easy access to text such as the file path shown above._
