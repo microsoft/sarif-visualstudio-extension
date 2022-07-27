@@ -301,7 +301,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                     if (allow)
                     {
-                        string commandLineArgs = $@"run mayhemrescan auto ""https://localhost:7134/swagger/v1/swagger.json"" --url ""https://localhost:7134/"" --sarif C:\GitHub\microsoft\sarif-visualstudio-extension-2\src\.sarif\ForAllSecure.sarif";
+                        string commandLineArgs = $@"run mayhemrescan auto ""https://localhost:7134/swagger/v1/swagger.json"" --url ""https://localhost:7134/"" --sarif ""C:\Users\cmeyer\OneDrive - Microsoft\Documents\Visual Studio 2022\Projects\MayhemTestAPI\.sarif\ForAllSecure.sarif""";
 
                         var psi = new ProcessStartInfo
                         {
