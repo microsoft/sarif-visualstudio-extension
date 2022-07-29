@@ -23,9 +23,9 @@ namespace Microsoft.Sarif.Viewer.Tags
     [TextViewRole(PredefinedTextViewRoles.Document)]
     internal sealed class KeyEventTextViewCreationListener : IWpfTextViewCreationListener
     {
-#pragma warning disable IDE0044 // Assigned by MEF
 #pragma warning disable CS0169 // Variable is never used
 #pragma warning disable CS0649 // Filled in by MEF
+#pragma warning disable IDE0044 // Assigned by MEF
         /// <summary>
         /// Defines the adornment layer for the adornment. This layer is ordered
         /// after the selection layer in the Z-order.
@@ -40,8 +40,8 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         [Import]
         private ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
-#pragma warning restore CS0649 // Filled in by MEF
 #pragma warning restore CS0169 // Variable is never used
+#pragma warning restore CS0649 // Filled in by MEF
 #pragma warning restore IDE0044 // Assigned by MEF
 
         /// <summary>
