@@ -24,6 +24,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
             if (threadFlow != null)
             {
                 int lastNestingLevel = 0;
+                int index = 0;
                 AnalysisStepNode lastParent = root;
                 AnalysisStepNode lastNewNode = null;
 
@@ -41,7 +42,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         }
                     }
 
-                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex)
+                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex, index: ++index)
                     {
                         Location = location,
                         Children = new List<AnalysisStepNode>(),
@@ -82,6 +83,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                 // according to schema http://json.schemastore.org/sarif-2.1.0-rtm.5.
                 // min nesting level can be used to offset nesting level starts from value greater than 0.e
                 int minNestingLevel = threadFlow.Locations.Min(l => l.NestingLevel);
+                int index = 0;
 
                 foreach (ThreadFlowLocation location in threadFlow.Locations)
                 {
@@ -94,7 +96,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         artifactLocation.Uri = run.Artifacts[artifactLocation.Index].Location.Uri;
                     }
 
-                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex)
+                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex, index: ++index)
                     {
                         Location = location,
                         Children = new List<AnalysisStepNode>(),
