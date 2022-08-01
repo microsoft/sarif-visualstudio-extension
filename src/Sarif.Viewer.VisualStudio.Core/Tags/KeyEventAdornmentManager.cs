@@ -14,6 +14,7 @@ using System.Windows.Media;
 using Microsoft.Alm.Git;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
@@ -86,6 +87,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
         {
             this.InvalidateAdornments();
+
+            if (!SarifViewerOption.Instance.IsKeyEventAdornmentEnabled)
+            {
+                return;
+            }
+
             this.currentSarifTags = this.GetCurrentSarifTextMarkerTags();
 
             if (this.currentSarifTags.Any())
