@@ -69,4 +69,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
+      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
+      <Name>Sarif</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
