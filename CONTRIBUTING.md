@@ -19,9 +19,15 @@ Within the Visual Studio Installer:
 - On the **Workloads** tab, select the **Visual Studio extension development** workload in the Other Toolsets group:
 
 ![Visual Studio extension development workload](assets/Contributing-ExtensionsWorkload.png)
-- On the **Individual Components** tab, select the **.NET Framework 4.7.2 targeting pack** component:
+- On the **Individual Components** tab, select these components:
+    -  .NET Framework 4.7.2 targeting pack
+    - MSVC v142 VS 2019 C++ x64/x86 build tools (v14.29-16.11)
+    - MSVC v142 VS 2019 C++ x64/x86 Spectre-mitigated libs (v14.29-16.11)
+    - MSVC v143 VS 2022 C++ x64/x86 build tools (Latest)
 
-![.NET Framework 4.7.2 targeting pack component](assets/Contributing-Framework472Component.png)
+- We recommend that you also install these now-deprecated .NET Framework packages:
+    - [.NET Framework SDK v4.5.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net452)
+    - [.NET Framework SDK v4.6.1](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net461)
 
 ### 2. Clone the repository
 - **Using git.exe**
@@ -29,6 +35,8 @@ Within the Visual Studio Installer:
 
 - **Using [GitHub Desktop](https://desktop.github.com/)**
 File > Clone repository > URL tab
+
+This repository submodules [SARIF SDK](https://github.com/microsoft/sarif-sdk) and [SARIF Pattern Matcher (SPAM)](https://github.com/microsoft/sarif-pattern-matcher/). We recommend that you review their CONTRIBUTING documents for additional information.
 
 ### 3. Run BuildAndTest.cmd
 *This step is required before you can build or debug in Visual Studio*
