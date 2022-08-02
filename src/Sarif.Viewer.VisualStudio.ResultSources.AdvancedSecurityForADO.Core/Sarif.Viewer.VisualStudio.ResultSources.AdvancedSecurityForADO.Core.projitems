@@ -9,6 +9,8 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AdvSecForAdoResultSourceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IAdvSecForAdoResultSourceService.cs" />
   </ItemGroup>
 </Project>

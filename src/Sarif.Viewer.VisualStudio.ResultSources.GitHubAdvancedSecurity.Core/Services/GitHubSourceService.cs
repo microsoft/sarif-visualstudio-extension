@@ -119,9 +119,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             this.browserService = new BrowserService();
         }
 
-        /// <summary>
-        /// The event raised when new scan results are available.
-        /// </summary>
+        /// <inheritdoc cref="IResultSourceService.ResultsUpdated"/>
         public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
 
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
@@ -137,7 +135,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
-        /// <inheritdoc cref="IGitHubSourceService.IsGitHubProject()"/>
+        /// <inheritdoc cref="IResultSourceService.IsActiveAsync()"/>
         public async Task<Result> IsActiveAsync()
         {
             if (string.IsNullOrWhiteSpace(this.repoPath))
