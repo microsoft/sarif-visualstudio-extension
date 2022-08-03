@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using EnvDTE;
@@ -14,6 +15,8 @@ using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 
+using Newtonsoft.Json;
+
 using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.Services
@@ -21,6 +24,24 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <inheritdoc/>
     public class DataService : SDataService, IDataService
     {
+        /// <inheritdoc/>
+        public void SendEnhancedResultData(Stream stream)
+        {
+            Assumes.NotNull(stream);
+
+            SarifLog sarifLog = null;
+            try
+            {
+                sarifLog = SarifLog.Load(stream);
+            }
+            catch (JsonException) { }
+
+            if (sarifLog != null)
+            {
+                SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
+            }
+        }
+
         /// <inheritdoc/>
         public void SendEnhancedResultData(SarifLog sarifLog)
         {
