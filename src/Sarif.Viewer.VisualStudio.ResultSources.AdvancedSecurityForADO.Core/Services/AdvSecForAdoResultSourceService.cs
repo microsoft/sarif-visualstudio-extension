@@ -81,8 +81,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             return Task.FromResult(result);
         }
 
-        /// <inheritdoc cref="IResultSourceService.RequestAnalysisScanResultsAsync(object)"/>
-        public Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null)
+        /// <inheritdoc cref="IResultSourceService.RequestAnalysisResultsAsync(object)"/>
+        public Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null)
         {
             throw new NotImplementedException();
         }

@@ -236,8 +236,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
-        /// <inheritdoc cref="IResultSourceService.RequestAnalysisScanResultsAsync(object)"/>
-        public async Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null)
+        /// <inheritdoc cref="IResultSourceService.RequestAnalysisResultsAsync(object)"/>
+        public async Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null)
         {
             Maybe<Secret> getAccessTokenResult = await GetCachedAccessTokenAsync();
             if (getAccessTokenResult.HasValue)
@@ -317,7 +317,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                     {
                         await this.CloseInfoBarAsync();
 
-                        _ = RequestAnalysisScanResultsAsync();
+                        _ = RequestAnalysisResultsAsync();
                     }
                 }
 
@@ -585,12 +585,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
 
         private void FileWatcherBranchChange_FileRenamed(object sender, FileSystemEventArgs e)
         {
-            _ = RequestAnalysisScanResultsAsync();
+            _ = RequestAnalysisResultsAsync();
         }
 
         private void FileWatcherGitPush_Renamed(object sender, FileSystemEventArgs e)
         {
-            _ = RequestAnalysisScanResultsAsync(data: true);
+            _ = RequestAnalysisResultsAsync(data: true);
         }
 
         private async Task ShowInfoBarAsync(InfoBarModel infoBarModel)

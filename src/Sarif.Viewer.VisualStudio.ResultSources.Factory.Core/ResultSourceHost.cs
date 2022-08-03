@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             {
                 try
                 {
-                    await this.resultSourceService?.RequestAnalysisScanResultsAsync();
+                    await this.resultSourceService?.RequestAnalysisResultsAsync();
                 }
                 catch (Exception) { }
             }

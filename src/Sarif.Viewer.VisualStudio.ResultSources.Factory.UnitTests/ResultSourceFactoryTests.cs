@@ -112,7 +112,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
         public async Task RequestAnalysisResults_RequestsResultsOnce_WhenSourceActive_Async()
         {
             var mockResultSource = new Mock<IResultSourceService>();
-            mockResultSource.Setup(s => s.RequestAnalysisScanResultsAsync(null));
+            mockResultSource.Setup(s => s.RequestAnalysisResultsAsync(null));
 
             var mockResultSourceFactory = new Mock<IResultSourceFactory>();
             mockResultSourceFactory.Setup(f => f.GetResultSourceServiceAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
@@ -120,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             var resultSourceHost = new ResultSourceHost();
             await resultSourceHost.RequestAnalysisResultsAsync(mockResultSourceFactory.Object);
 
-            mockResultSource.Verify(s => s.RequestAnalysisScanResultsAsync(null), Times.Once);
+            mockResultSource.Verify(s => s.RequestAnalysisResultsAsync(null), Times.Once);
         }
     }
 }

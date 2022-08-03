@@ -33,10 +33,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         Task<Result> IsActiveAsync();
 
         /// <summary>
-        /// Gets the latest code scan results for the current branch.
+        /// Gets the latest analysis results for the current branch.
         /// </summary>
         /// <param name="data">A data object.</param>
         /// <returns>True if the request succeeded; otherwise, an error.</returns>
-        Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null);
+        Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null);
     }
 }
