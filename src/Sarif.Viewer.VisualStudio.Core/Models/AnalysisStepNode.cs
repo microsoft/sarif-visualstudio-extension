@@ -26,10 +26,12 @@ namespace Microsoft.Sarif.Viewer.Models
         private int _nestingLevel;
         private Thickness _textMargin;
         private DelegateCommand _navigateCommand;
+        private int _index;
 
-        public AnalysisStepNode(int resultId, int runIndex)
+        public AnalysisStepNode(int resultId, int runIndex, int index = 0)
             : base(resultId, runIndex)
         {
+            this._index = index;
         }
 
         [Browsable(false)]
@@ -309,6 +311,19 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
+        public int Index
+        {
+            get
+            {
+                return this._index;
+            }
+
+            set
+            {
+                this._index = value;
+            }
+        }
+
         public Dictionary<string, string> Properties
         {
             get
@@ -446,7 +461,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private void Navigate()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
+            this.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
         }
     }
 }

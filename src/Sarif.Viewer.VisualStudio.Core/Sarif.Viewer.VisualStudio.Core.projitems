@@ -136,10 +136,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\Tool.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdkUiUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\CloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ICloseSarifLogService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ILoadSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\LoadSarifLogService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SCloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\SDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SLoadSarifLogService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SpanHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTag.cs" />
@@ -147,6 +150,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTagger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTaggerService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ITextViewCaretListenerService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\KeyEventAdornment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\KeyEventAdornmentManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\KeyEventTextViewCreationListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationErrorTag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationErrorTagger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTagBase.cs" />
