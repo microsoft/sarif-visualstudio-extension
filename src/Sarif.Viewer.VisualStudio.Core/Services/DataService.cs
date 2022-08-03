@@ -38,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
             if (sarifLog != null)
             {
-                SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
+                this.SendEnhancedResultData(sarifLog);
             }
         }
 
