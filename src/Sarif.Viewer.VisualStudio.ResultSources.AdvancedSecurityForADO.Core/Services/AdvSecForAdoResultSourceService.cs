@@ -83,7 +83,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
                         AuthenticationResult authResult = await AuthenticateAsync();
                         this.authHeader = authResult.CreateAuthorizationHeader();
-
                     }
                     catch (JsonSerializationException) { }
                 }
