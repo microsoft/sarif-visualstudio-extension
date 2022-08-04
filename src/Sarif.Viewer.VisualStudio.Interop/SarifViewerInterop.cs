@@ -290,6 +290,20 @@ namespace Microsoft.Sarif.Viewer.Interop
             });
         }
 
+        /// <summary>
+        /// Sends enhanced result data to the SARIF extension.
+        /// </summary>
+        /// <param name="stream">The stream containing the enhanced result data.</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> containing true if the operation succeeded; otherwise, false.</returns>
+        public Task<bool> SendEnhancedResultDataAsync(Stream stream)
+        {
+            return this.CallServiceApiAsync(ViewerDataServiceInterfaceName, (service) =>
+            {
+                service.SendEnhancedResultData(stream);
+                return true;
+            });
+        }
+
         private async Task<bool> CallServiceApiAsync(string serviceInterfaceName, Func<dynamic, bool> action)
         {
             if (!this.IsViewerExtensionInstalled || (this.IsViewerExtensionLoaded && this.LoadViewerExtension() == null))
