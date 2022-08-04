@@ -15,6 +15,7 @@ using Microsoft.Alm.Git;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Options;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
@@ -56,6 +57,8 @@ namespace Microsoft.Sarif.Viewer.Tags
             ISarifErrorListEventSelectionService sarifErrorListEventService,
             IViewTagAggregatorFactoryService tagAggregatorFactoryService)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             if (view == null)
             {
                 throw new ArgumentNullException(nameof(view));
@@ -73,6 +76,8 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             // Not able to get tag aggregator using type SarifLocationTextMarkerTag
             this.tagAggregator = tagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(this.view);
+
+            SarifViewerPackage.LoadViewerPackage();
         }
 
         /// <summary>
@@ -88,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.InvalidateAdornments();
 
-            if (!SarifViewerOption.Instance.IsKeyEventAdornmentEnabled)
+            if (SarifViewerOption.Instance?.IsKeyEventAdornmentEnabled != true)
             {
                 return;
             }
