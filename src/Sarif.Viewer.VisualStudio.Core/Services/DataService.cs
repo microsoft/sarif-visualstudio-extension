@@ -60,15 +60,22 @@ namespace Microsoft.Sarif.Viewer.Services
             {
                 var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
                 var projectNameCache = new ProjectNameCache(dte?.Solution);
+                var items = new List<SarifErrorListItem>();
+                Run run = sarifLog.Runs.First();
 
-                Result result = sarifLog.Runs.First().Results.First();
-                var sarifErrorListItem = new SarifErrorListItem(sarifLog.Runs.First(), 0, result, string.Empty, projectNameCache);
-                sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
+                foreach (Result r in run.Results)
+                {
+                    var sarifErrorListItem = new SarifErrorListItem(run, 0, r, string.Empty, projectNameCache);
+                    sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
+                    items.Add(sarifErrorListItem);
+                }
+
+                SarifTableDataSource.Instance.AddErrors(items);
 
                 ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
-                sarifErrorListEventSelectionService.NavigatedItem = sarifErrorListItem;
+                sarifErrorListEventSelectionService.NavigatedItem = items[0];
 
-                sarifErrorListItem.Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+                items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
 
             SarifExplorerWindow.Find()?.Show();
