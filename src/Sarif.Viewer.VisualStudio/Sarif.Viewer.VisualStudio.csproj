@@ -57,6 +57,12 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Sarif.Converters">
+      <Version>3.0.0-beta1</Version>
+    </PackageReference>
+    <PackageReference Include="Sarif.Sdk">
+      <Version>3.0.0-beta1</Version>
+    </PackageReference>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
@@ -123,14 +129,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Converters\Sarif.Converters.csproj">
-      <Project>{ba882944-7d32-4543-959a-964b7795f11e}</Project>
-      <Name>Sarif.Converters</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
-      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
-      <Name>Sarif</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.ACL\Sarif.Viewer.VisualStudio.ResultSources.ACL.csproj">
       <Project>{47C77D8F-518C-4329-993A-A86A2564155B}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL</Name>

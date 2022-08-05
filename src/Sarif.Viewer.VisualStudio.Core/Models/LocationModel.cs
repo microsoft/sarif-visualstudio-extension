@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.IO;
+using System.Numerics;
 
 using Microsoft.VisualStudio.Text;
 
@@ -20,7 +21,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
         }
 
-        public int Id { get; set; }
+        public BigInteger Id { get; set; }
 
         public string Message
         {
