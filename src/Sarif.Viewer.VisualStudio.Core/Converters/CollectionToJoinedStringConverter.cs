@@ -13,7 +13,7 @@ namespace Microsoft.Sarif.Viewer.Converters
         {
             return value is List<string> list ?
                 string.Join(parameter.ToString(), list) :
-                string.Empty;
+                null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
