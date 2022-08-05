@@ -69,6 +69,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public const int IFixedThisCommandId = 0x0309;
 
         /// <summary>
+        /// Command id for dynamic command 1.
+        /// </summary>
+        public const int DynamicCommand1 = 0x0301;
+
+        /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
@@ -104,12 +109,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.AddMenuItem(OtherResultCommandId);
             this.AddMenuItem(SuppressResultCommandId);
             this.AddMenuItem(IFixedThisCommandId);
+            this.AddMenuItem(DynamicCommand1);
 
             // hide by default
             this.SetCommandVisibility(ProvideFeedbackCommandId, false);
             this.SetCommandVisibility(ClearSarifResultsCommandId, false);
             this.SetCommandVisibility(SuppressResultCommandId, false);
             this.SetCommandVisibility(IFixedThisCommandId, false);
+            this.SetCommandVisibility(DynamicCommand1, false);
 
             var componentModel = this.ServiceProvider.GetService(typeof(SComponentModel)) as IComponentModel;
             Assumes.Present(componentModel);
@@ -154,6 +161,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.SetCommandVisibility(ProvideFeedbackCommandId, visible);
             this.SetCommandVisibility(SuppressResultCommandId, visible);
             this.SetCommandVisibility(IFixedThisCommandId, visible);
+
+            // Need to provide an event for result sources to enable/disable their menu items
         }
 
         private void SetCommandVisibility(int cmdID, bool visible)

@@ -53,6 +53,9 @@
       <Group guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ERRORLIST" />
       </Group>
+      <Group guid="guidSarifErrorListCmdSet" id="DynamicCommandMenuGroup" priority="0x601">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ERRORLIST" />
+      </Group>
       <Group guid="guidSarifErrorListCmdSet" id="UsefulResultMenuGroup" priority="0x100">
         <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
       </Group>
@@ -136,17 +139,25 @@
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
-          <Strings>
-            <ButtonText>Suppress result in SARIF file</ButtonText>
-          </Strings>
+        <Strings>
+          <ButtonText>Suppress result in SARIF file</ButtonText>
+        </Strings>
       </Button>
       <Button guid="guidSarifErrorListCmdSet" id="cmdidIFixedThisCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
-          <Strings>
-            <ButtonText>I fixed this!</ButtonText>
-          </Strings>
+        <Strings>
+          <ButtonText>I fixed this!</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidSarifErrorListCmdSet" id="cmdidDynamicCommand1" priority="0x0100" type="Button">
+        <Parent guid="guidSarifErrorListCmdSet" id="DynamicCommandMenuGroup" />
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText></ButtonText>
+        </Strings>
       </Button>
 
     </Buttons>
@@ -169,6 +180,7 @@
     
     <GuidSymbol name="guidSarifErrorListCmdSet" value="{76648814-13bf-4ecf-ad5c-2a7e2953e62f}">
       <IDSymbol name="ErrorListContextMenuGroup" value="0x1021" />
+      <IDSymbol name="DynamicCommandMenuGroup" value="0x1400" />
       <IDSymbol name="UsefulResultMenuGroup" value="0x1022" />
       <IDSymbol name="NonUsefulResultMenuGroup" value="0x1023" />
       <IDSymbol name="cmdidClearSarifItemsErrorListCommand" value="0x0300" />
@@ -181,6 +193,7 @@
       <IDSymbol name="cmdidOtherResultCommand" value="0x0307"/>
       <IDSymbol name="cmdidSuppressResultCommand" value="0x0308"/>
       <IDSymbol name="cmdidIFixedThisCommand" value="0x0309"/>
+      <IDSymbol name="cmdidDynamicCommand1" value="0x0401"/>
     </GuidSymbol>
 
   </Symbols>
