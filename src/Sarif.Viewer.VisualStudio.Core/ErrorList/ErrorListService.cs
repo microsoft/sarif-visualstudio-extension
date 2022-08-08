@@ -470,7 +470,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor, bool monitorSarifFile = true)
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.
@@ -528,7 +528,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            SarifLogsMonitor.Instance.StartWatch(logFilePath);
+            if (monitorSarifFile)
+            {
+                SarifLogsMonitor.Instance.StartWatch(logFilePath);
+            }
 
             RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
         }
