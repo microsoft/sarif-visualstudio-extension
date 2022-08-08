@@ -61,7 +61,14 @@ namespace Microsoft.Sarif.Viewer.Services
 
             await ErrorListService.ProcessSarifLogAsync(sarifLog, logPath, cleanErrors: false, openInEditor: false, monitorSarifFile: false);
 
-            SarifErrorListItem sarifItem = CodeAnalysisResultManager.Instance.CurrentRunDataCache.SarifErrors?[0];
+            SarifErrorListItem sarifItem = null;
+            IList<SarifErrorListItem> sarifErrorListItems = CodeAnalysisResultManager.Instance.CurrentRunDataCache.SarifErrors;
+
+            if (sarifErrorListItems?.Any() == true)
+            {
+                sarifErrorListItems.ToList().ForEach(item => item?.PopulateAdditionalPropertiesIfNot());
+                sarifItem = sarifErrorListItems.First();
+            }
 
             if (sarifItem != null)
             {
