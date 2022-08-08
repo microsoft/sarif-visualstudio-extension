@@ -12,15 +12,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <AppConfig>App.config</AppConfig>
+    <AutoUnifyAssemblyReferences>false</AutoUnifyAssemblyReferences>
+  </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="Sarif.Converters">
-      <Version>3.0.0-beta1</Version>
+      <Version>3.0.0-beta2</Version>
     </PackageReference>
     <PackageReference Include="Sarif.Sdk">
-      <Version>3.0.0-beta1</Version>
+      <Version>3.0.0-beta2</Version>
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.console" Version="2.4.1" />
@@ -29,7 +33,9 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Moq" Version="4.14.7" />
     <!-- Necessary to resolve version conflict on Newtonsoft.Json: -->
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3">
+      <Private>True</Private>
+    </PackageReference>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="Xunit.StaFact">
       <Version>1.1.11</Version>
@@ -106,6 +112,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="TestData\FixModel\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

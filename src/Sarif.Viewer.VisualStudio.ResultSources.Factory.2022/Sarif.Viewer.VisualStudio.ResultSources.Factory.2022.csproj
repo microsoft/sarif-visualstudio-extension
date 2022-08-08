@@ -45,7 +45,7 @@
       <Version>3.3.6</Version>
     </PackageReference>
     <PackageReference Include="Sarif.Sdk">
-      <Version>3.0.0-beta1</Version>
+      <Version>3.0.0-beta2</Version>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>

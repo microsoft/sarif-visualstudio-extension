@@ -58,10 +58,10 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Sarif.Converters">
-      <Version>3.0.0-beta1</Version>
+      <Version>3.0.0-beta2</Version>
     </PackageReference>
     <PackageReference Include="Sarif.Sdk">
-      <Version>3.0.0-beta1</Version>
+      <Version>3.0.0-beta2</Version>
     </PackageReference>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
