@@ -197,7 +197,7 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer.Commands
                                 .Select(d => d.FullName)));
                     }
 
-                    // ignore the directory if error occured
+                    // ignore the directory if error occurred
                     catch (SecurityException) { } // cannot access
                     catch (ArgumentException) { } // invalid chars in path
                     catch (PathTooLongException) { }
