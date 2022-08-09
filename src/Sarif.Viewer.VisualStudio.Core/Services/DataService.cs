@@ -57,29 +57,30 @@ namespace Microsoft.Sarif.Viewer.Services
             Assumes.NotNull(sarifLog);
             Assumes.True(sarifLog.Runs?.Count == 1);
 
-            string logPath = $"{Guid.NewGuid()}.sarif";
-
-            await ErrorListService.ProcessSarifLogAsync(sarifLog, logPath, cleanErrors: false, openInEditor: false, monitorSarifFile: false);
-
-            SarifErrorListItem sarifItem = null;
-            IList<SarifErrorListItem> sarifErrorListItems = CodeAnalysisResultManager.Instance.CurrentRunDataCache.SarifErrors;
-
-            if (sarifErrorListItems?.Any() == true)
+            if (this.componentModel != null)
             {
-                sarifErrorListItems.ToList().ForEach(item => item?.PopulateAdditionalPropertiesIfNot());
-                sarifItem = sarifErrorListItems.First();
-            }
+                int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
+                var dataCache = new RunDataCache(runIndex, "EnhancedResultData", sarifLog);
+                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
 
-            if (sarifItem != null)
-            {
-                sarifItem.PopulateAdditionalPropertiesIfNot();
+                var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
+                var projectNameCache = new ProjectNameCache(dte?.Solution);
+                var items = new List<SarifErrorListItem>();
+                Run run = sarifLog.Runs.First();
 
-                ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = this.componentModel.GetService<ISarifErrorListEventSelectionService>();
+                foreach (Result r in run.Results)
+                {
+                    var sarifErrorListItem = new SarifErrorListItem(run, 0, r, string.Empty, projectNameCache);
+                    sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
+                    items.Add(sarifErrorListItem);
+                    dataCache.SarifErrors.Add(sarifErrorListItem);
+                }
 
-                sarifErrorListEventSelectionService.NavigatedItem = sarifItem;
-                sarifErrorListEventSelectionService.SelectedItem = sarifItem;
+                ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+                sarifErrorListEventSelectionService.NavigatedItem = items[0];
+                sarifErrorListEventSelectionService.SelectedItem = items[0];
 
-                sarifItem.Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+                items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
 
             SarifExplorerWindow.Find()?.Show();
