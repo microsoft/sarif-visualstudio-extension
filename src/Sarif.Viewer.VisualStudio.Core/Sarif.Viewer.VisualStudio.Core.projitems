@@ -24,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\InternetHyperlink.xaml.cs">
       <DependentUpon>InternetHyperlink.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Converters\CollectionToJoinedStringConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\AnalysisStepNodeToTextConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BindingDebugConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\BooleanToCollapsedVisibilityConverter.cs" />

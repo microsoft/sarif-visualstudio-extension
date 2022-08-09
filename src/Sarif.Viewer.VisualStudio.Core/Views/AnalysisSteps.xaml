@@ -85,12 +85,7 @@
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate DataType="x:Type local:AnalysisStepNode"
                                                           ItemsSource="{Binding Children}">
-                                    <Grid>
-                                        <Grid.ToolTip>
-                                            <TextBlock>
-                                                <Run Text="{Binding Location.Kind}" />
-                                            </TextBlock>
-                                        </Grid.ToolTip>
+                                    <Grid ToolTip="{Binding Location.Kinds, Converter={StaticResource CollectionToJoinedStringConverter}, ConverterParameter=', '}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition SharedSizeGroup="MessageGroup" />
                                             <ColumnDefinition SharedSizeGroup="LocationGroup" />

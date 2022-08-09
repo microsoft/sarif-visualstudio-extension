@@ -20,10 +20,17 @@ using Ninject;
 
 using Xunit;
 
+using Result = CSharpFunctionalExtensions.Result;
+
 namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
 {
     public class ResultSourceFactoryTests
     {
+        public ResultSourceFactoryTests()
+        {
+            ResultSourceFactory.IsUnitTesting = true;
+        }
+
         [Fact]
         public void GetResultSourceService_ReturnsGitHubSourceService_WhenPathContainsDotGitDirectory()
         {
@@ -99,6 +106,21 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Should().Be(ErrorType.PlatformNotSupported);
+        }
+
+        [Fact]
+        public async Task RequestAnalysisResults_RequestsResultsOnce_WhenSourceActive_Async()
+        {
+            var mockResultSource = new Mock<IResultSourceService>();
+            mockResultSource.Setup(s => s.RequestAnalysisScanResultsAsync(null));
+
+            var mockResultSourceFactory = new Mock<IResultSourceFactory>();
+            mockResultSourceFactory.Setup(f => f.GetResultSourceServiceAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
+
+            var resultSourceHost = new ResultSourceHost();
+            await resultSourceHost.RequestAnalysisResultsAsync(mockResultSourceFactory.Object);
+
+            mockResultSource.Verify(s => s.RequestAnalysisScanResultsAsync(null), Times.Once);
         }
     }
 }

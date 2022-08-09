@@ -13,6 +13,9 @@ using Octokit;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
 {
+    /// <summary>
+    /// Provides a result source service for GitHub Advanced Security.
+    /// </summary>
     public interface IGitHubSourceService
     {
         /// <summary>
