@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{00E789EC-6AD5-446F-9618-A8B46336E916}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests</RootNamespace>
+    <AssemblyName>Sarif.Viewer.VisualStudio.ResultSources.Factory.UnitTests</AssemblyName>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
+  <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions">
+      <Version>2.29.4</Version>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions">
+      <Version>5.10.3</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+    <PackageReference Include="Ninject">
+      <Version>3.3.6</Version>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.console" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+    <PackageReference Include="Moq" Version="4.14.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResultSourceFactoryTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
+      <Project>{BF73BD60-7DBC-4DA0-A13D-13246EEF8A93}</Project>
+      <Name>Sarif</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj">
+      <Project>{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Factory\Sarif.Viewer.VisualStudio.ResultSources.Factory.csproj">
+      <Project>{97FD92D6-B72D-4DC8-A2D9-341356505ED2}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.Factory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.csproj">
+      <Project>{c4714e68-1701-45d5-9510-e298bb227cf2}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Shell</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <AdditionalFiles Include="..\stylecop.json">
+      <Link>stylecop.json</Link>
+    </AdditionalFiles>
+  </ItemGroup>
+</Project>

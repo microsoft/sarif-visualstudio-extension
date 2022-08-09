@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>034c4d27-8d71-4f1d-9476-43cfd0841d1e</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.Domain.Core</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\ISecretStoreRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Secret.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Errors\Error.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HttpClientAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IHttpClientAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\NoContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ResultsUpdatedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Secret.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ErrorType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IResultSourceService.cs" />
+  </ItemGroup>
+</Project>

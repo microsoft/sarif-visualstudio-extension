@@ -12,9 +12,10 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.VisualStudio.Shell;
 
-namespace Microsoft.Sarif.Viewer.FileWatcher
+namespace Microsoft.Sarif.Viewer.FileMonitor
 {
     /// <summary>
     /// Handles loading & monitoring sarif logs under solution directory .sarif folder.
@@ -76,14 +77,14 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
 
             try
             {
-                this.fileWatcher ??= new FileWatcher();
+                this.fileWatcher ??= new Shell.FileWatcher();
                 this.fileWatcher.FilePath = sarifLogFolder;
                 this.fileWatcher.Filter = Constants.SarifFileSearchPattern;
 
                 // no need to watch for the sarif file log updates
                 // because when we load the sarif log file in the viewer, it's already monitored by the viewer's file watcher
-                this.fileWatcher.SarifLogFileCreated += this.Watcher_SarifLogFileCreated;
-                this.fileWatcher.SarifLogFileDeleted += this.Watcher_SarifLogFileDeleted;
+                this.fileWatcher.FileCreated += this.Watcher_SarifLogFileCreated;
+                this.fileWatcher.FileDeleted += this.Watcher_SarifLogFileDeleted;
                 this.fileWatcher.Start();
             }
             catch
@@ -96,8 +97,8 @@ namespace Microsoft.Sarif.Viewer.FileWatcher
             if (this.fileWatcher != null)
             {
                 this.fileWatcher.Stop();
-                this.fileWatcher.SarifLogFileCreated -= this.Watcher_SarifLogFileCreated;
-                this.fileWatcher.SarifLogFileDeleted -= this.Watcher_SarifLogFileDeleted;
+                this.fileWatcher.FileCreated -= this.Watcher_SarifLogFileCreated;
+                this.fileWatcher.FileDeleted -= this.Watcher_SarifLogFileDeleted;
                 this.fileWatcher = null;
             }
 

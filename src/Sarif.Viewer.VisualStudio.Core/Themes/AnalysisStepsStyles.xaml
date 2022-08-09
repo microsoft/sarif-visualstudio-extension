@@ -8,6 +8,7 @@
     </ResourceDictionary.MergedDictionaries>
 
     <converters:AnalysisStepNodeToTextConverter x:Key="AnalysisStepNodeToTextConverter" />
+    <converters:CollectionToJoinedStringConverter x:Key="CollectionToJoinedStringConverter" />
 
     <Style x:Key="ToolBarTrayStyle" TargetType="ToolBarTray">
         <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBorderBrushKey}}"/>
