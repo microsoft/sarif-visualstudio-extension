@@ -24,6 +24,8 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <inheritdoc/>
     public class DataService : SDataService, IDataService
     {
+        private readonly IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+
         /// <inheritdoc/>
         public void SendEnhancedResultData(Stream stream)
         {
@@ -48,16 +50,23 @@ namespace Microsoft.Sarif.Viewer.Services
             SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
         }
 
-        private static async Task SendEnhancedResultDataAsync(SarifLog sarifLog)
+        private async Task SendEnhancedResultDataAsync(SarifLog sarifLog)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             Assumes.NotNull(sarifLog);
             Assumes.True(sarifLog.Runs?.Count == 1);
 
-            var componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
-            if (componentModel != null)
+            string enhancedResultDataLogName = "EnhancedResultData";
+
+            if (this.componentModel != null)
             {
+                await ErrorListService.CloseSarifLogItemsAsync(new string[] { enhancedResultDataLogName });
+
+                int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
+                var dataCache = new RunDataCache(runIndex, enhancedResultDataLogName, sarifLog);
+                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
+
                 var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
                 var projectNameCache = new ProjectNameCache(dte?.Solution);
                 var items = new List<SarifErrorListItem>();
@@ -68,12 +77,12 @@ namespace Microsoft.Sarif.Viewer.Services
                     var sarifErrorListItem = new SarifErrorListItem(run, 0, r, string.Empty, projectNameCache);
                     sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
                     items.Add(sarifErrorListItem);
+                    dataCache.SarifErrors.Add(sarifErrorListItem);
                 }
-
-                SarifTableDataSource.Instance.AddErrors(items);
 
                 ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
                 sarifErrorListEventSelectionService.NavigatedItem = items[0];
+                sarifErrorListEventSelectionService.SelectedItem = items[0];
 
                 items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
