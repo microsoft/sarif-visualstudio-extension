@@ -57,10 +57,13 @@ namespace Microsoft.Sarif.Viewer.Services
             Assumes.NotNull(sarifLog);
             Assumes.True(sarifLog.Runs?.Count == 1);
 
+            string enhancedResultDataLogName = "EnhancedResultData";
+
             if (this.componentModel != null)
             {
+                await ErrorListService.CloseSarifLogItemsAsync(new string[] { enhancedResultDataLogName });
                 int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-                var dataCache = new RunDataCache(runIndex, "EnhancedResultData", sarifLog);
+                var dataCache = new RunDataCache(runIndex, enhancedResultDataLogName, sarifLog);
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
 
                 var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
