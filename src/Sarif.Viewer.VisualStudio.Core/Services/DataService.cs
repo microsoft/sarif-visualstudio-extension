@@ -24,6 +24,8 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <inheritdoc/>
     public class DataService : SDataService, IDataService
     {
+        private const string EnhancedResultDataLogName = "EnhancedResultData";
+
         private readonly IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
 
         /// <inheritdoc/>
@@ -57,14 +59,12 @@ namespace Microsoft.Sarif.Viewer.Services
             Assumes.NotNull(sarifLog);
             Assumes.True(sarifLog.Runs?.Count == 1);
 
-            string enhancedResultDataLogName = "EnhancedResultData";
-
             if (this.componentModel != null)
             {
-                await ErrorListService.CloseSarifLogItemsAsync(new string[] { enhancedResultDataLogName });
+                await ErrorListService.CloseSarifLogItemsAsync(new string[] { EnhancedResultDataLogName });
 
                 int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-                var dataCache = new RunDataCache(runIndex, enhancedResultDataLogName, sarifLog);
+                var dataCache = new RunDataCache(runIndex, EnhancedResultDataLogName, sarifLog);
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
 
                 var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
