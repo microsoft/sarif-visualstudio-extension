@@ -11,8 +11,11 @@ namespace Microsoft.Sarif.Viewer.Converters
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            bool.TryParse(parameter?.ToString(), out bool invert);
+
             if (value is bool boolValue)
             {
+                boolValue = boolValue ^ invert;
                 return boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
             else

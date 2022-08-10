@@ -74,7 +74,7 @@
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
                                                 <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
-                                                           Style="{StaticResource LocationTextStyle}">
+                                                            Style="{StaticResource LocationTextStyle}">
                                                     <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
                                                 </TextBlock>
                                             </WrapPanel>
@@ -144,17 +144,28 @@
                                                         </TextBlock>
                                                     </WrapPanel>
                                                 </WrapPanel.ToolTip>
-                                                <TextBlock Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding FileName, Mode=OneWay}" />
-                                                </TextBlock>
-                                                <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
-                                                           Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
-                                                </TextBlock>
-                                                <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}"
-                                                           Style="{StaticResource LocationTextStyleNoMargin}">
-                                                    <Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
-                                                </TextBlock>
+                                                <StackPanel Orientation="Horizontal" Visibility="{Binding HasMessageMarkdown, Converter={StaticResource BooleanToVisiblityConverter}, ConverterParameter=true}">
+                                                    <TextBlock Style="{StaticResource LocationTextStyle}">
+                                                        <Run Text="{Binding FileName, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
+                                                               Style="{StaticResource LocationTextStyle}">
+                                                        <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}"
+                                                               Style="{StaticResource LocationTextStyleNoMargin}">
+                                                        <Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Visibility="{Binding HasMessageMarkdown, Converter={StaticResource BooleanToVisiblityConverter}}">
+                                                    <FlowDocumentScrollViewer
+                                                          xml:space="preserve"
+                                                          VerticalAlignment="Stretch"
+                                                          HorizontalAlignment="Stretch"
+                                                          Padding="0"
+                                                          Margin="0"
+                                                          Document="{Binding Message, Converter={StaticResource TextToFlowDocumentConverter}}" />
+                                                </StackPanel>
                                             </WrapPanel>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>

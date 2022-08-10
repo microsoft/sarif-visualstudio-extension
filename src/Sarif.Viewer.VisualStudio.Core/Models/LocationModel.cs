@@ -28,12 +28,39 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 return this._message;
             }
+        }
+
+        public string TextMessage
+        {
+            get
+            {
+                return this._message;
+            }
 
             set
             {
                 if (value != this._message)
                 {
                     this._message = value;
+                    this.HasMessageMarkdown = false;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public string MarkdownMessage
+        {
+            get
+            {
+                return this._message;
+            }
+
+            set
+            {
+                if (value != this._message)
+                {
+                    this._message = value;
+                    this.HasMessageMarkdown = true;
                     this.NotifyPropertyChanged();
                 }
             }
@@ -114,6 +141,8 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
             }
         }
+
+        public bool HasMessageMarkdown { get; private set; }
 
         public int Index { get; set; }
 

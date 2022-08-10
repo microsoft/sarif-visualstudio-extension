@@ -66,7 +66,7 @@
                     <DockPanel DataContext="{Binding Locations[0]}"
                                Style="{StaticResource HeaderLocationPanelStyle}">
                         <DockPanel.ToolTip>
-                            <ToolTip DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                            <ToolTip>
                                 <WrapPanel Style="{StaticResource HeaderLocationToolTipPanelStyle}">
                                     <TextBlock>
                                         <Run Text="{Binding FilePath, Mode=OneWay}" />
@@ -86,10 +86,10 @@
                                    Style="{StaticResource HeaderLocationFilenameTextStyle}">
                             <Run Text="{Binding FileName, Mode=OneWay}" />
                         </TextBlock>
-                        <TextBlock AutomationProperties.Name="{Binding Location, StringFormat=Location: {0}}"
-                                   Visibility="{Binding Location, Converter={StaticResource StringToVisibilityConverter}}"
+                        <TextBlock AutomationProperties.Name="{Binding LogicalLocation, StringFormat=Location: {0}}"
+                                   Visibility="{Binding LogicalLocation, Converter={StaticResource StringToVisibilityConverter}}"
                                    Style="{StaticResource HeaderLocationLocationTextStyle}">
-                            <Run Text="{Binding Location, Mode=OneWay}" />
+                            <Run Text="{Binding LogicalLocation, Mode=OneWay}" />
                         </TextBlock>
                     </DockPanel>
                 </DockPanel>

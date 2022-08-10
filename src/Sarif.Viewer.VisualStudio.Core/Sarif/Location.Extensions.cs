@@ -43,7 +43,15 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 }
             }
 
-            model.Message = location.Message?.Text;
+            if (!string.IsNullOrEmpty(location.Message?.Markdown))
+            {
+                model.MarkdownMessage = location.Message.Markdown;
+            }
+            else
+            {
+                model.TextMessage = location.Message?.Text;
+            }
+
             model.LogicalLocation = location.LogicalLocation?.FullyQualifiedName;
 
             return model;

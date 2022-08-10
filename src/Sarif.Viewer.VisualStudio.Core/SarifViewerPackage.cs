@@ -11,6 +11,8 @@ using System.Threading;
 
 using EnvDTE80;
 
+using Markdown.Xaml;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.FileMonitor;
@@ -131,6 +133,8 @@ namespace Microsoft.Sarif.Viewer
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
+
+            var textToFlowDocumentConverter = new TextToFlowDocumentConverter();
 
             // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings { MaxDepth = 64 };
