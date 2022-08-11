@@ -2,16 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 
-using Microsoft.Alm.Git;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Options;
@@ -107,16 +103,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.RefreshAdornments();
         }
 
-        private void SarifEventService_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
-        {
-            // Not able to get all SarifLocationTextMarkerTags after this event fired
-            // may because the editor UI updated async
-            if (this.currentErrorListItem != e.NewItem)
-            {
-                this.currentErrorListItem = e.NewItem;
-            }
-        }
-
         private void RefreshAdornments()
         {
             this.InvalidateAdornments();
@@ -143,6 +129,16 @@ namespace Microsoft.Sarif.Viewer.Tags
                 {
                     this.CreateVisuals(line.Key, line.Value, maxSpaceChar);
                 }
+            }
+        }
+
+        private void SarifEventService_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            // Not able to get all SarifLocationTextMarkerTags after this event fired
+            // may because the editor UI updated async
+            if (this.currentErrorListItem != e.NewItem)
+            {
+                this.currentErrorListItem = e.NewItem;
             }
         }
 
