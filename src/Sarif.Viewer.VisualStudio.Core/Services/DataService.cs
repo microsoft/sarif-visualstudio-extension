@@ -24,7 +24,7 @@ namespace Microsoft.Sarif.Viewer.Services
     /// <inheritdoc/>
     public class DataService : SDataService, IDataService
     {
-        private const string EnhancedResultDataLogName = "EnhancedResultData";
+        public const string EnhancedResultDataLogName = "EnhancedResultData";
 
         private readonly IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
 
