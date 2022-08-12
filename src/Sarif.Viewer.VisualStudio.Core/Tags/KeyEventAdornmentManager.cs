@@ -2,19 +2,16 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 
-using Microsoft.Alm.Git;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Options;
+using Microsoft.Sarif.Viewer.Services;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
@@ -69,7 +66,9 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.layer = view.GetAdornmentLayer(nameof(KeyEventAdornmentManager));
 
             this.view = view;
-            this.view.LayoutChanged += this.OnLayoutChanged;
+            this.view.LayoutChanged += this.View_LayoutChanged;
+            this.view.GotAggregateFocus += this.View_GotAggregateFocus;
+            this.view.Closed += this.View_Closed;
 
             this.sarifEventService = sarifErrorListEventService;
             this.sarifEventService.NavigatedItemChanged += this.SarifEventService_NavigatedItemChanged;
@@ -89,7 +88,32 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </remarks>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
+        internal void View_LayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
+        {
+            this.RefreshAdornments();
+        }
+
+        internal void View_GotAggregateFocus(object sender, EventArgs e)
+        {
+            this.RefreshAdornments();
+        }
+
+        internal void View_Closed(object sender, EventArgs e)
+        {
+            ErrorListService.CloseSarifLogs(new[] { DataService.EnhancedResultDataLogName });
+        }
+
+        private void SarifEventService_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
+        {
+            // Not able to get all SarifLocationTextMarkerTags after this event fired
+            // may because the editor UI updated async
+            if (this.currentErrorListItem != e.NewItem)
+            {
+                this.currentErrorListItem = e.NewItem;
+            }
+        }
+
+        private void RefreshAdornments()
         {
             this.InvalidateAdornments();
 
@@ -116,13 +140,6 @@ namespace Microsoft.Sarif.Viewer.Tags
                     this.CreateVisuals(line.Key, line.Value, maxSpaceChar);
                 }
             }
-        }
-
-        private void SarifEventService_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
-        {
-            // Not able to get all SarifLocationTextMarkerTags after this event fired
-            // may because the editor UI updated async
-            this.currentErrorListItem = e.NewItem;
         }
 
         private void InvalidateAdornments()
