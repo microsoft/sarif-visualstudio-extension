@@ -67,7 +67,6 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             this.view = view;
             this.view.LayoutChanged += this.View_LayoutChanged;
-            this.view.GotAggregateFocus += this.View_GotAggregateFocus;
             this.view.Closed += this.View_Closed;
 
             this.sarifEventService = sarifErrorListEventService;
@@ -75,6 +74,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             // Not able to get tag aggregator using type SarifLocationTextMarkerTag
             this.tagAggregator = tagAggregatorFactoryService.CreateTagAggregator<ITextMarkerTag>(this.view);
+            this.tagAggregator.BatchedTagsChanged += this.TagAggregator_BatchedTagsChanged;
 
             SarifViewerPackage.LoadViewerPackage();
         }
@@ -93,7 +93,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.RefreshAdornments();
         }
 
-        internal void View_GotAggregateFocus(object sender, EventArgs e)
+        private void TagAggregator_BatchedTagsChanged(object sender, BatchedTagsChangedEventArgs e)
         {
             this.RefreshAdornments();
         }
