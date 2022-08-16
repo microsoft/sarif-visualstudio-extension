@@ -8,4 +8,6 @@
 
     <system:String x:Key="SarifViewerOptionsControl_EnableGitHubAdvancedSecurity">Enable GitHub Advanced Security scan results</system:String>
 
+    <system:String x:Key="SarifViewerOptionsControl_EnableKeyEventAdornment">Enable Key Event text adornments in the editor</system:String>
+
 </ResourceDictionary>
