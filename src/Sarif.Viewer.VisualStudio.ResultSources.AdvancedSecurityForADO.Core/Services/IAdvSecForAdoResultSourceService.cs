@@ -3,6 +3,10 @@
 
 using System.Threading.Tasks;
 
+using CSharpFunctionalExtensions;
+
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
+
 namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 {
     public interface IAdvSecForAdoResultSourceService
@@ -11,13 +15,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// Gets the latest build ID from the static analysis pipeline.
         /// </summary>
         /// <returns>The latest build ID.</returns>
-        Task<string> GetLatestBuildIdAsync();
+        Task<Result<string, ErrorType>> GetLatestBuildIdAsync();
 
         /// <summary>
         /// Gets the download URL for the static analysis results artifact for the specified build.
         /// </summary>
         /// <param name="buildId">The build ID.</param>
         /// <returns>The download URL for the static analysis results artifact.</returns>
-        Task<string> GetArtifactDownloadUrlAsync(string buildId);
+        Task<Result<string, ErrorType>> GetArtifactDownloadUrlAsync(string buildId);
     }
 }

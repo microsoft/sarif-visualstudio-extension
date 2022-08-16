@@ -62,5 +62,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// The specified analysis could not be retrieved, or an error occurred.
         /// </summary>
         AnalysisUnavailable = 10,
+
+        /// <summary>
+        /// The requested data is unavailable, or an error occurred.
+        /// </summary>
+        DataUnavailable = 11,
     }
 }

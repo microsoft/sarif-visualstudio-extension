@@ -21,6 +21,8 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 
 using Newtonsoft.Json;
 
+using Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForAdo.Models;
+
 using Result = CSharpFunctionalExtensions.Result;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
@@ -31,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string SettingsFilePath = "AdvSecADO.json";
         private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
-        private const string ListBuildsApiQueryString = "/_apis/build/builds?api-version=6.0";
+        private const string ListBuildsApiQueryString = "/_apis/build/builds?api-version=6.0&deletedFilter=excludeDeleted";
         private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=6.0";
 
         private readonly string[] scopes = new string[] { "499b84ac-1321-427f-aa17-267ca6975798/user_impersonation" }; // Constant value to target Azure DevOps. Do not change!
@@ -105,20 +107,37 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         }
 
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetLatestBuildIdAsync()"/>
-        public async Task<string> GetLatestBuildIdAsync()
+        public async Task<Result<int, ErrorType>> GetLatestBuildIdAsync()
         {
+            // TODO: what filters are needed?
             HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
                 HttpMethod.Get,
-                ListBuildsApiQueryString,
+                AzureDevOpsBaseUrl + ListBuildsApiQueryString,
                 token: "token-here");
+            HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
 
-            return await Task.FromResult(string.Empty);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                List<Build> builds = JsonConvert.DeserializeObject<List<Build>>(await responseMessage.Content.ReadAsStringAsync());
+
+                if (builds.Count > 0)
+                {
+                    return Result.Success<int, ErrorType>(builds.First().Id);
+                }
+            }
+
+            return Result.Failure<int, ErrorType>(ErrorType.DataUnavailable);
         }
 
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetArtifactDownloadUrlAsync(string)"/>
-        public async Task<string> GetArtifactDownloadUrlAsync(string buildId)
+        public async Task<Result<string, ErrorType>> GetArtifactDownloadUrlAsync(int buildId)
         {
-            return await Task.FromResult(buildId);
+            HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
+                HttpMethod.Get,
+                AzureDevOpsBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId),
+                token: "token-here");
+
+            return await Task.FromResult(string.Empty);
         }
 
         private async Task<AuthenticationResult> AuthenticateAsync()
@@ -135,7 +154,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             {
                 IEnumerable<IAccount> accounts = await application.GetAccountsAsync();
                 result = await application
-                    .AcquireTokenSilent(scopes, accounts.FirstOrDefault())
+                    .AcquireTokenSilent(this.scopes, accounts.FirstOrDefault())
                     .ExecuteAsync();
             }
             catch (MsalUiRequiredException ex)
