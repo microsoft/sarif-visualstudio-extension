@@ -604,9 +604,9 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
-                for (int i = this.SarifResult.RelatedLocations.Count - 1; i >= 0; --i)
+                foreach (Location location in this.SarifResult.RelatedLocations)
                 {
-                    this.RelatedLocations.Add(this.SarifResult.RelatedLocations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
+                    this.RelatedLocations.Add(location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 

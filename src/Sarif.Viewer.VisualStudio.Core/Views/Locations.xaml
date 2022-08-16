@@ -55,7 +55,9 @@
                     </TextBlock>
                 </WrapPanel>
             </WrapPanel.ToolTip>
-            <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}" TextWrapping="Wrap"
+            <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}"
+                       Margin="{Binding NestingLevel, Converter={StaticResource NestingLevelToMarginConverter}, ConverterParameter=20}"
+                       TextWrapping="Wrap"
                        Style="{StaticResource LocationTextStyleNoMargin}">
 				<Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
             </TextBlock>
@@ -175,27 +177,27 @@
                                                 <ControlTemplate TargetType="GridViewColumnHeader">
                                                     <Grid>
                                                         <Border Name="GridViewHeaderBorder"
-                                                Style="{StaticResource GridViewHeaderBorderStyle}">
+                                                                Style="{StaticResource GridViewHeaderBorderStyle}">
                                                             <ContentPresenter Name="HeaderContent"
-                                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                              RecognizesAccessKey="True"
-                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                              TextElement.Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"
+                                                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                              RecognizesAccessKey="True"
+                                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                                              TextElement.Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"
                                                                               TextElement.FontWeight="SemiBold"
-                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                              Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
+                                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                              Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
                                                         </Border>
                                                         <Thumb x:Name="PART_HeaderGripper"
-                                               Style="{StaticResource GridViewColumnHeaderGripperStyle}" />
+                                                               Style="{StaticResource GridViewColumnHeaderGripperStyle}" />
                                                     </Grid>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter TargetName="GridViewHeaderBorder"
-                                                    Property="Background"
-                                                    Value="{DynamicResource {x:Static vs_shell:HeaderColors.MouseOverBrushKey}}"/>
+                                                                    Property="Background"
+                                                                    Value="{DynamicResource {x:Static vs_shell:HeaderColors.MouseOverBrushKey}}"/>
                                                             <Setter TargetName="HeaderContent"
-                                                    Property="TextElement.Foreground"
-                                                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextHoverBrushKey}}"/>
+                                                                    Property="TextElement.Foreground"
+                                                                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextHoverBrushKey}}"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -210,21 +212,23 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
                                                     <Border SnapsToDevicePixels="True"
-                                            Background="{TemplateBinding Background}"
-                                            CornerRadius="0"
-                                            Padding="0,3,0,2">
-                                                        <Border Name="InnerBorder" CornerRadius="0" BorderThickness="0">
+                                                            Background="{TemplateBinding Background}"
+                                                            CornerRadius="0"
+                                                            Padding="0,3,0,2">
+                                                        <Border Name="InnerBorder"
+                                                                CornerRadius="0"
+                                                                BorderThickness="0">
                                                             <Grid>
                                                                 <Grid.RowDefinitions>
                                                                     <RowDefinition MaxHeight="11" />
                                                                     <RowDefinition />
                                                                 </Grid.RowDefinitions>
-                                                                <GridViewRowPresenter Grid.RowSpan="2" 
-                                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
-                                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                                <GridViewRowPresenter Grid.RowSpan="2"
+                                                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                                                 <Grid.InputBindings>
                                                                     <MouseBinding Gesture="LeftDoubleClick"
-                                                                  Command="{Binding NavigateCommand}"/>
+                                                                                  Command="{Binding NavigateCommand}"/>
                                                                 </Grid.InputBindings>
                                                             </Grid>
                                                         </Border>
