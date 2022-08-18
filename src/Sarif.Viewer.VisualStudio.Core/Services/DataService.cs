@@ -26,10 +26,18 @@ namespace Microsoft.Sarif.Viewer.Services
     {
         public const string EnhancedResultDataLogName = "EnhancedResultData";
 
-        private readonly IComponentModel componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+        private readonly IComponentModel componentModel;
+
+        private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
+
+        public DataService()
+        {
+            this.componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
+            this.sarifErrorListEventSelectionService = this.componentModel.GetService<ISarifErrorListEventSelectionService>();
+        }
 
         /// <inheritdoc/>
-        public void SendEnhancedResultData(Stream stream)
+        public int SendEnhancedResultData(Stream stream)
         {
             Assumes.NotNull(stream);
 
@@ -42,28 +50,44 @@ namespace Microsoft.Sarif.Viewer.Services
 
             if (sarifLog != null)
             {
-                this.SendEnhancedResultData(sarifLog);
+                return this.SendEnhancedResultData(sarifLog);
             }
+
+            return -1;
         }
 
         /// <inheritdoc/>
-        public void SendEnhancedResultData(SarifLog sarifLog)
+        public int SendEnhancedResultData(SarifLog sarifLog)
         {
-            SendEnhancedResultDataAsync(sarifLog).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
+            Assumes.NotNull(sarifLog);
+
+            int cookie = -1;
+
+            ThreadHelper.JoinableTaskFactory.Run(async () => cookie = await this.SendEnhancedResultDataAsync(sarifLog));
+
+            return cookie;
         }
 
-        private async Task SendEnhancedResultDataAsync(SarifLog sarifLog)
+        /// <inheritdoc/>
+        public void CloseEnhancedResultData(int cookie)
+        {
+            this.CloseEnhancedResultDataAsync(cookie).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
+        }
+
+        private async System.Threading.Tasks.Task<int> SendEnhancedResultDataAsync(SarifLog sarifLog)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             Assumes.NotNull(sarifLog);
             Assumes.True(sarifLog.Runs?.Count == 1);
 
+            int runIndex = -1;
+
             if (this.componentModel != null)
             {
                 await ErrorListService.CloseSarifLogItemsAsync(new string[] { EnhancedResultDataLogName });
 
-                int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
+                runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
                 var dataCache = new RunDataCache(runIndex, EnhancedResultDataLogName, sarifLog);
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
 
@@ -80,14 +104,27 @@ namespace Microsoft.Sarif.Viewer.Services
                     dataCache.SarifErrors.Add(sarifErrorListItem);
                 }
 
-                ISarifErrorListEventSelectionService sarifErrorListEventSelectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
-                sarifErrorListEventSelectionService.NavigatedItem = items[0];
-                sarifErrorListEventSelectionService.SelectedItem = items[0];
+                this.sarifErrorListEventSelectionService.NavigatedItem = items[0];
+                this.sarifErrorListEventSelectionService.SelectedItem = items[0];
 
                 items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
 
             SarifExplorerWindow.Find()?.Show();
+
+            return runIndex;
+        }
+
+        private async Task CloseEnhancedResultDataAsync(int cookie)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            await ErrorListService.CloseSarifLogItemsAsync(new string[] { EnhancedResultDataLogName });
+
+            this.sarifErrorListEventSelectionService.NavigatedItem = null;
+            this.sarifErrorListEventSelectionService.SelectedItem = null;
+
+            SarifExplorerWindow.Find()?.Close();
         }
     }
 }

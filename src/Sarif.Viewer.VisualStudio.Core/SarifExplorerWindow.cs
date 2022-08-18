@@ -146,6 +146,12 @@ namespace Microsoft.Sarif.Viewer
             ((IVsWindowFrame)this.Frame).Show();
         }
 
+        public void Close()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            ((IVsWindowFrame)this.Frame).CloseFrame((uint)__FRAMECLOSE.FRAMECLOSE_NoSave);
+        }
+
         public void UpdateSelectionList(params object[] items)
         {
             ThreadHelper.ThrowIfNotOnUIThread();

@@ -16,12 +16,20 @@ namespace Microsoft.Sarif.Viewer.Services
         /// Sends enhanced SARIF result data.
         /// </summary>
         /// <param name="stream">A <see cref="Stream"/> containing the enhanced result data.</param>
-        void SendEnhancedResultData(Stream stream);
+        /// <returns>The cookie value of the enhanced result data.</returns>
+        int SendEnhancedResultData(Stream stream);
 
         /// <summary>
         /// Sends enhanced SARIF result data.
         /// </summary>
         /// <param name="sarifLog">A <see cref="SarifLog"/> containing the enhanced result data.</param>
-        void SendEnhancedResultData(SarifLog sarifLog);
+        /// <returns>The cookie value of the enhanced result data.</returns>
+        int SendEnhancedResultData(SarifLog sarifLog);
+
+        /// <summary>
+        /// Cleans up enhanced SARIF result data.
+        /// </summary>
+        /// <param name="cookie">The cookie value of the enhanced result data.</param>
+        void CloseEnhancedResultData(int cookie);
     }
 }
