@@ -51,6 +51,14 @@
         <Setter Property="Orientation" Value="Horizontal"/>
     </Style>
 
+    <Style x:Key="ListViewItemWrapPanelStyle" TargetType="WrapPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+    </Style>
+
+    <Style x:Key="ListViewItemStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+    </Style>
+
     <Style x:Key="ListBoxItemToolTipRegionTextStyle" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
     </Style>
@@ -61,6 +69,7 @@
 
     <Style x:Key="LocationTextStyle" BasedOn="{StaticResource LocationTextBaseStyle}" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="LocationTextStyleNoMargin" BasedOn="{StaticResource LocationTextBaseStyle}" TargetType="TextBlock">
@@ -70,6 +79,45 @@
     <Style x:Key="RelatedLocationsTreeViewItemHeaderTextStyle" BasedOn="{StaticResource PanelHeader}" TargetType="TextBlock">
         <Setter Property="DockPanel.Dock" Value="Left"/>
         <Setter Property="Margin" Value="5,0,0,0"/>
+    </Style>
+
+    <Style x:Key="RelatedLocationListViewStyle" TargetType="ListView">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusOutline}"/>
+        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="Padding" Value="-2,1,-2,0"/>
+    </Style>
+
+    <Style x:Key="GridViewHeaderBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:HeaderColors.SeparatorLineBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Padding" Value="4,3,2,1"/>
+    </Style>
+
+    <Style x:Key="GridViewHeaderBorderPresenterStyle" TargetType="ContentPresenter">
+        <Setter Property="Margin" Value="0,0,0,1"/>
+    </Style>
+
+    <Style x:Key="GridViewColumnHeaderGripperStyle" TargetType="Thumb">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.SeparatorLineBrushKey}}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border Padding="{TemplateBinding Padding}"
+                            Background="Transparent">
+                        <Rectangle Fill="{TemplateBinding Background}"
+                                   HorizontalAlignment="Center"
+                                   Width="3"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

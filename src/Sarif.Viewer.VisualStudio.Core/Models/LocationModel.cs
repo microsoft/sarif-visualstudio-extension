@@ -64,6 +64,8 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
+        public string LocationDisplayString => $"{this.FileName} {this.RegionDisplayString}";
+
         public string Module
         {
             get
@@ -116,6 +118,8 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         public int Index { get; set; }
+
+        public int NestingLevel { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this model shows as selected (without affecting keyboard focus)

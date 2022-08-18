@@ -14,6 +14,7 @@
     <converters:CollectionToInvertedVisibilityConverter x:Key="CollectionToInvertedVisibilityConverter" />
     <converters:MultipleStringsToVisibilityConverter x:Key="MultipleStringsToVisibilityConverter" />
     <converters:FileExistsToBooleanConverter x:Key="FileExistsToBooleanConverter" />
+    <converters:NestingLevelToMarginConverter x:Key="NestingLevelToMarginConverter" />
 
     <!-- Default Styles-->
     <Style TargetType="{x:Type Control}"
