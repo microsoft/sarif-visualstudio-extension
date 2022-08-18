@@ -64,6 +64,8 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
+        public string LocationDisplayString => $"{this.FileName} {this.RegionDisplayString}";
+
         public string Module
         {
             get

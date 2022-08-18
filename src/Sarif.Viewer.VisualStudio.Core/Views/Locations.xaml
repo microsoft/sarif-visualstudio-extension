@@ -9,14 +9,10 @@
 
     <!-- Related Location GridView Location Cell Template -->
     <DataTemplate x:Key="RelatedLocationLocationCellTemplate">
-        <WrapPanel Style="{StaticResource ListBoxItemWrapPanelStyle}">
-            <WrapPanel.InputBindings>
-                <MouseBinding Gesture="LeftClick"
-                              Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}"
-                              CommandParameter="{Binding}" />
-            </WrapPanel.InputBindings>
-            <WrapPanel.ToolTip>
-                <WrapPanel Style="{StaticResource ListBoxItemWrapPanelStyle}">
+        <TextBlock Text="{Binding LocationDisplayString, Mode=OneWay}"
+                   Style="{StaticResource LocationTextStyle}">
+            <TextBlock.ToolTip>
+                <StackPanel Style="{StaticResource ListViewItemStackPanelStyle}">
                     <TextBlock>
 					    <Run Text="{Binding FilePath, Mode=OneWay}" />
                     </TextBlock>
@@ -28,28 +24,21 @@
                                Style="{StaticResource ListBoxItemToolTipRegionTextStyle}">
 						<Run Text="{Binding Region.StartColumn, Mode=OneWay, StringFormat={StaticResource Locations_ListBoxItem_ToolTip_RegionStartColumn_Text_FormatString}}" />
                     </TextBlock>
-                </WrapPanel>
-            </WrapPanel.ToolTip>
-            <TextBlock Style="{StaticResource LocationTextStyle}">
-				<Run Text="{Binding FileName, Mode=OneWay}" />
-            </TextBlock>
-            <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
-                       Style="{StaticResource LocationTextStyle}">
-				<Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
-            </TextBlock>
-        </WrapPanel>
+                </StackPanel>                    
+            </TextBlock.ToolTip>
+        </TextBlock>
     </DataTemplate>
 
     <!-- Related Location GridView Message Cell Template -->
     <DataTemplate x:Key="RelatedLocationMessageCellTemplate">
-        <WrapPanel Style="{StaticResource ListBoxItemWrapPanelStyle}">
+        <WrapPanel Style="{StaticResource ListViewItemWrapPanelStyle}">
             <WrapPanel.InputBindings>
                 <MouseBinding Gesture="LeftClick"
                               Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}"
                               CommandParameter="{Binding}" />
             </WrapPanel.InputBindings>
             <WrapPanel.ToolTip>
-                <WrapPanel Style="{StaticResource ListBoxItemWrapPanelStyle}">
+                <WrapPanel Style="{StaticResource ListViewItemWrapPanelStyle}">
                     <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
 						<Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
                     </TextBlock>

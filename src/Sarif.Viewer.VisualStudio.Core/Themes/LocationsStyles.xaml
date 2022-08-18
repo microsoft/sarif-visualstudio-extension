@@ -51,6 +51,14 @@
         <Setter Property="Orientation" Value="Horizontal"/>
     </Style>
 
+    <Style x:Key="ListViewItemWrapPanelStyle" TargetType="WrapPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+    </Style>
+
+    <Style x:Key="ListViewItemStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+    </Style>
+
     <Style x:Key="ListBoxItemToolTipRegionTextStyle" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
     </Style>
@@ -61,6 +69,7 @@
 
     <Style x:Key="LocationTextStyle" BasedOn="{StaticResource LocationTextBaseStyle}" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="LocationTextStyleNoMargin" BasedOn="{StaticResource LocationTextBaseStyle}" TargetType="TextBlock">
