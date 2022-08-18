@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Debugger.Evaluation.IL;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
@@ -281,13 +282,17 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// </summary>
         /// <param name="sarifLog">The SARIF log containing the enhanced result data.</param>
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> containing true if the operation succeeded; otherwise, false.</returns>
-        public Task<bool> SendEnhancedResultDataAsync(SarifLog sarifLog)
+        public async Task<int> SendEnhancedResultDataAsync(SarifLog sarifLog)
         {
-            return this.CallServiceApiAsync(ViewerDataServiceInterfaceName, (service) =>
+            int cookie = -1;
+
+            bool result = await this.CallServiceApiAsync(ViewerDataServiceInterfaceName, (service) =>
             {
-                service.SendEnhancedResultData(sarifLog);
+                cookie = service.SendEnhancedResultData(sarifLog);
                 return true;
             });
+
+            return result ? cookie : -1;
         }
 
         /// <summary>
@@ -295,11 +300,29 @@ namespace Microsoft.Sarif.Viewer.Interop
         /// </summary>
         /// <param name="stream">The stream containing the enhanced result data.</param>
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> containing true if the operation succeeded; otherwise, false.</returns>
-        public Task<bool> SendEnhancedResultDataAsync(Stream stream)
+        public async Task<int> SendEnhancedResultDataAsync(Stream stream)
+        {
+            int cookie = -1;
+
+            bool result = await this.CallServiceApiAsync(ViewerDataServiceInterfaceName, (service) =>
+            {
+                cookie = service.SendEnhancedResultData(stream);
+                return true;
+            });
+
+            return result ? cookie : -1;
+        }
+
+        /// <summary>
+        /// Sends enhanced result data to the SARIF extension.
+        /// </summary>
+        /// <param name="cookie">The cookie value of the enhanced result data.</param>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> containing true if the operation succeeded; otherwise, false.</returns>
+        public Task<bool> CloseEnhancedResultDataAsync(int cookie)
         {
             return this.CallServiceApiAsync(ViewerDataServiceInterfaceName, (service) =>
             {
-                service.SendEnhancedResultData(stream);
+                service.CloseEnhancedResultData(cookie);
                 return true;
             });
         }
