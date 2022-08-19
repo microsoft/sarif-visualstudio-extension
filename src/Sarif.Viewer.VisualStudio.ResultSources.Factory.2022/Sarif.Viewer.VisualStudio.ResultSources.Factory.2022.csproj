@@ -39,7 +39,7 @@
       <Version>2.29.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK">
-      <Version>17.0.31902.203</Version>
+      <Version>17.3.32804.24</Version>
     </PackageReference>
     <PackageReference Include="Ninject">
       <Version>3.3.6</Version>

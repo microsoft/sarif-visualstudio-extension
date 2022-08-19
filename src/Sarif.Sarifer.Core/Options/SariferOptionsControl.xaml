@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              Foreground="{DynamicResource {x:Static vsui:EnvironmentColors.DialogTextBrushKey}}"
-             Background="{DynamicResource {x:Static vsui:EnvironmentColors.DialogBrushKey}}" >
+             Background="Transparent" >
     <UserControl.Resources>
         <ResourceDictionary>
           <ResourceDictionary.MergedDictionaries>
