@@ -446,7 +446,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return true;
             }
-            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions() ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase); ;
             allowedList.Clear();
 
             var mockFileSystem = new Mock<IFileSystem>();
@@ -473,7 +473,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return false;
             }
-            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions() ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase); ;
             allowedList.Clear();
 
             var mockFileSystem = new Mock<IFileSystem>();
@@ -500,7 +500,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return false;
             }
-            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions() ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase); ;
             allowedList.Clear();
             allowedList.Add(".EXE");
 
@@ -530,7 +530,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = true;
                 return true;
             }
-            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions() ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase); ;
             allowedList.Clear();
 
             var mockFileSystem = new Mock<IFileSystem>();
@@ -559,7 +559,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 alwaysAllow = false;
                 return true;
             }
-            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions() ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             allowedList.Clear();
 
             var mockFileSystem = new Mock<IFileSystem>();
@@ -582,7 +582,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             string pdbFileExt = ".pdb";
             string pdbFileExtUpperCase = ".PDB";
 
-            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            HashSet<string> allowedList = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions() ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase); ;
             CodeAnalysisResultManager.Instance.AddAllowedFileExtension(pdbFileExt);
 
             allowedList.Contains(pdbFileExt).Should().BeTrue();
