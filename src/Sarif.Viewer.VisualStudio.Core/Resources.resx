@@ -387,7 +387,7 @@
     <value>Clang log files (*.yaml)|*.yaml</value>
   </data>
   <data name="ConfirmOpenBinaryFileDialog_AlwaysAllowLabel" xml:space="preserve">
-    <value>Always allow open file with extension '{0}'</value>
+    <value>Always allow open files with extension '{0}'</value>
   </data>
   <data name="ConfirmOpenBinaryFileDialog_Message" xml:space="preserve">
     <value>The target file with extension '{0}' is a binary file.
