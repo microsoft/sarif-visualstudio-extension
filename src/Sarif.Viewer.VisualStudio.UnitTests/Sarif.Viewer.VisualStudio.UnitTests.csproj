@@ -92,14 +92,6 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif.Converters\Sarif.Converters.csproj">
-      <Project>{ba882944-7d32-4543-959a-964b7795f11e}</Project>
-      <Name>Sarif.Converters</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
-      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
-      <Name>Sarif</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.csproj">
       <Project>{c4714e68-1701-45d5-9510-e298bb227cf2}</Project>
       <Name>Sarif.Viewer.VisualStudio.Shell</Name>

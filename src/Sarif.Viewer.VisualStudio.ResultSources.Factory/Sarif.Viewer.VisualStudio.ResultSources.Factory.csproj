@@ -26,10 +26,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
-      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
-      <Name>Sarif</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.ACL\Sarif.Viewer.VisualStudio.ResultSources.ACL.csproj">
       <Project>{47c77d8f-518c-4329-993a-a86a2564155b}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL</Name>
