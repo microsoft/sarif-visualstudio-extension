@@ -135,11 +135,6 @@ function Set-SarifFileAssociationRegistrySettings {
     }
 }
 
-if (-not (Test-Path "$RepoRoot\Src\sarif-pattern-matcher") -or (Get-ChildItem "$RepoRoot\Src\sarif-pattern-matcher" | Measure-Object).Count -eq 0) {
-    Write-Information "Retrieving sarif-pattern-matcher submodule..."
-    git submodule update --init --recursive
-}
-
 if (-not $NoClean) {
     Remove-DirectorySafely $BuildRoot
 }
@@ -155,11 +150,6 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
-    & $RepoRoot\src\sarif-pattern-matcher\BuildAndTest.cmd -NoTest -Configuration $Configuration -NoFormat
-    if ($LASTEXITCODE -ne 0) {
-        Exit-WithFailureMessage $ScriptName "sarif-pattern-matcher failed."
-    }
-
     Invoke-Build
 }
 
@@ -172,7 +162,6 @@ if (-not $NoTest) {
 
 if (-not $NoFormat) {
     dotnet tool update --global dotnet-format --version 4.1.131201
-    dotnet-format --folder --exclude .\src\sarif-pattern-matcher\
 }
 
 if (-not $NoSigningDirectory) {
