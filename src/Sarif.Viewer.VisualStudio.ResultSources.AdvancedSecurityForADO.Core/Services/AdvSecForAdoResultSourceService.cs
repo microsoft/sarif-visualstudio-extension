@@ -129,7 +129,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             return Result.Failure<int, ErrorType>(ErrorType.DataUnavailable);
         }
 
-        /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetArtifactDownloadUrlAsync(string)"/>
+        /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetArtifactDownloadUrlAsync(int)"/>
         public async Task<Result<string, ErrorType>> GetArtifactDownloadUrlAsync(int buildId)
         {
             HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
