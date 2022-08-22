@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Package the SARIF SDK using binaries from the signing directory.
+    Package the SARIF Viewer using binaries from the signing directory.
 .DESCRIPTION
-    Builds the SARIF SDK NuGet Packages from the signing directory after
-    they have been signed.
+    Builds the SARIF Viewer NuGet packages with signed binaries from
+    the signing directory.
 .PARAMETER Configuration
     The build configuration: Release or Debug. Default=Release
 #>
@@ -20,7 +20,7 @@ Import-Module -Force $PSScriptRoot\Projects.psm1
 
 # Copy signed binaries back into the normal directory structure.
 function Copy-FromSigningDirectory {
-    Write-Information "Copying files from signing directory..."
+    Write-Information "Copying signed binaries from signing directory..."
     $SigningDirectory = "$BinRoot\Signing"
 
     foreach ($project in $Projects.Product) {
@@ -38,13 +38,11 @@ function Copy-FromSigningDirectory {
         }
     }
 
-    # Copy the Viewer and SARIFER assemblies. The names don't fit the pattern binary name == project name,
-    # so we copy them by hand.
+    # Copy the Viewer assemblies.
+    # The names don't fit the pattern binary name == project name, so we copy them by hand.
     foreach ($framework in $Frameworks) {
-        Copy-Item -Force -Path $SigningDirectory\$framework\2019\Microsoft.Sarif.Viewer.dll -Destination $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll
-        Copy-Item -Force -Path $SigningDirectory\$framework\2022\Microsoft.Sarif.Viewer.dll -Destination $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.dll
-        Copy-Item -Force -Path $SigningDirectory\$framework\2019\Microsoft.Sarif.Sarifer.dll -Destination $BinRoot\${Platform}_$Configuration\Sarif.Sarifer.VisualStudio\Microsoft.Sarif.Sarifer.dll
-        Copy-Item -Force -Path $SigningDirectory\$framework\2022\Microsoft.Sarif.Sarifer.dll -Destination $BinRoot\${Platform}_$Configuration\Sarif.Sarifer.VisualStudio.2022\Microsoft.Sarif.Sarifer.dll
+        Copy-Item -Force -Path $SigningDirectory\$framework\2019\* -Destination $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\
+        Copy-Item -Force -Path $SigningDirectory\$framework\2022\* -Destination $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio.2022\
     }
 }
 
