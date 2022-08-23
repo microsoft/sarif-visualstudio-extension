@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer.Options
     {
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
-        private readonly bool keyEventAdornmentEnabledDefaultValue = false;
+        private readonly bool keyEventAdornmentEnabledDefaultValue = true;
 
         private readonly AsyncPackage package;
 
