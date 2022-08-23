@@ -18,5 +18,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)InfoBarService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IStatusBarService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StatusBarService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ShellUtilities.cs" />
   </ItemGroup>
 </Project>

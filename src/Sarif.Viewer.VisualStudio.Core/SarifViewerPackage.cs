@@ -9,8 +9,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-using EnvDTE80;
-
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.FileMonitor;
@@ -18,6 +16,7 @@ using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Factory;
 using Microsoft.Sarif.Viewer.Services;
+using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
@@ -168,7 +167,7 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
-            string solutionPath = GetSolutionDirectoryPath();
+            string solutionPath = ShellUtilities.GetSolutionDirectoryPath();
             if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
             {
                 var resultSourceFactory = new ResultSourceFactory(solutionPath, this);
@@ -237,7 +236,7 @@ namespace Microsoft.Sarif.Viewer
             try
             {
                 // Best effort delete, no harm if this fails.
-                fileSystem.FileDelete(Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif"));
+                fileSystem.FileDelete(Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), "scan-results.sarif"));
             }
             catch (Exception) { }
         }
@@ -252,22 +251,8 @@ namespace Microsoft.Sarif.Viewer
 
         private void ResultSourceHost_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
         {
-            string path = Path.Combine(GetDotSarifDirectoryPath(), e.LogFileName);
+            string path = Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), e.LogFileName);
             e.SarifLog.Save(path);
-        }
-
-        private static string GetSolutionDirectoryPath()
-        {
-            var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
-            string solutionFilePath = dte.Solution?.FullName;
-            return !string.IsNullOrWhiteSpace(solutionFilePath)
-                ? Path.GetDirectoryName(solutionFilePath)
-                : null;
-        }
-
-        private static string GetDotSarifDirectoryPath()
-        {
-            return Path.Combine(GetSolutionDirectoryPath(), ".sarif");
         }
     }
 }
