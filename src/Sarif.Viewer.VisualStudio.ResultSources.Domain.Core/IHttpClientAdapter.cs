@@ -33,5 +33,20 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain
         /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
         /// <returns>The <see cref="HttpResponseMessage"/>.</returns>
         Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Downloads a file and saves it to a temporary file location.
+        /// </summary>
+        /// <param name="url">The file download URL.</param>
+        /// <returns>The absolute path of the file if the download was successful; otherwise, null.</returns>
+        Task<string> DownloadFileAsync(string url);
+
+        /// <summary>
+        /// Downloads a file and saves it to the specified location.
+        /// </summary>
+        /// <param name="url">The file download URL.</param>
+        /// <param name="filePath">The absolute path at which to save the file.</param>
+        /// <returns>The absolute path of the file if the download was successful; otherwise, null.</returns>
+        Task<string> DownloadFileAsync(string url, string filePath);
     }
 }
