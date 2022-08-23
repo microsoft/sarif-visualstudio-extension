@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Security;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -18,23 +19,23 @@ using Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
+using Microsoft.Sarif.Viewer.Shell;
 
 using Newtonsoft.Json;
 
-using Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForAdo.Models;
-
 using Result = CSharpFunctionalExtensions.Result;
+using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 {
     public class AdvSecForAdoResultSourceService : IResultSourceService, IAdvSecForAdoResultSourceService
     {
+        private const string SettingsFilePath = "AdvSecADO.json";
         private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
-        private const string SettingsFilePath = "AdvSecADO.json";
-        private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
-        private const string ListBuildsApiQueryString = "/_apis/build/builds?api-version=6.0&deletedFilter=excludeDeleted";
-        private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=6.0";
+        private const string AzureDevOpsBaseUrl = "https://localhost:7067/"; // https://dev.azure.com/";
+        private const string ListBuildsApiQueryString = "_apis/build/builds?deletedFilter=excludeDeleted"; // api-version=7.0&
+        private const string GetBuildArtifactApiQueryStringFormat = "_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
 
         private readonly string[] scopes = new string[] { "499b84ac-1321-427f-aa17-267ca6975798/user_impersonation" }; // Constant value to target Azure DevOps. Do not change!
         private readonly string solutionRootPath;
@@ -101,9 +102,27 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         }
 
         /// <inheritdoc cref="IResultSourceService.RequestAnalysisResultsAsync(object)"/>
-        public Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null)
+        public async Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null)
         {
-            throw new NotImplementedException();
+            Result<int, ErrorType> buildResult = await this.GetLatestBuildIdAsync();
+
+            if (buildResult.IsSuccess)
+            {
+                Maybe<SarifLog> artifactResult = await DownloadAndExtractArtifactAsync(buildResult.Value);
+
+                if (artifactResult.HasValue)
+                {
+                    var eventArgs = new ResultsUpdatedEventArgs
+                    {
+                        SarifLog = artifactResult.Value,
+                        LogFileName = "scan-results.sarif",
+                    };
+                    RaiseResultsUpdatedEvent(eventArgs);
+                    return Result.Success<bool, ErrorType>(true);
+                }
+            }
+
+            return Result.Failure<bool, ErrorType>(ErrorType.AnalysesUnavailable);
         }
 
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetLatestBuildIdAsync()"/>
@@ -118,7 +137,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                List<Build> builds = JsonConvert.DeserializeObject<List<Build>>(await responseMessage.Content.ReadAsStringAsync());
+                List<Models.Build> builds = JsonConvert.DeserializeObject<List<Models.Build>>(await responseMessage.Content.ReadAsStringAsync());
 
                 if (builds.Count > 0)
                 {
@@ -129,15 +148,56 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             return Result.Failure<int, ErrorType>(ErrorType.DataUnavailable);
         }
 
-        /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetArtifactDownloadUrlAsync(int)"/>
-        public async Task<Result<string, ErrorType>> GetArtifactDownloadUrlAsync(int buildId)
+        /// <inheritdoc cref="IAdvSecForAdoResultSourceService.DownloadAndExtractArtifactAsync(int)"/>
+        public async Task<Maybe<SarifLog>> DownloadAndExtractArtifactAsync(int buildId)
         {
-            HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
-                HttpMethod.Get,
-                AzureDevOpsBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId),
-                token: "token-here");
+            string url = AzureDevOpsBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
+            SarifLog sarifLog = null;
 
-            return await Task.FromResult(string.Empty);
+            try
+            {
+                string downloadedFilePath = await this.httpClientAdapter.DownloadFileAsync(url);
+
+                if (!string.IsNullOrWhiteSpace(downloadedFilePath))
+                {
+                    string extractFolder = Path.GetTempPath();
+
+                    try
+                    {
+                        using (ZipArchive zipArchive = ZipFile.OpenRead(downloadedFilePath))
+                        {
+                            foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                            {
+                                if (entry.FullName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    string fileName = "scan-results.sarif";
+
+                                    // Gets the full path to ensure that relative segments are removed.
+                                    string destinationPath = Path.GetFullPath(Path.Combine(extractFolder, fileName));
+
+                                    // Ordinal match is safest because case-sensitive volumes can be mounted
+                                    // within volumes that are case-insensitive.
+                                    if (destinationPath.StartsWith(extractFolder, StringComparison.Ordinal))
+                                    {
+                                        string sarifFolder = ShellUtilities.GetDotSarifDirectoryPath();
+                                        string outputPath = Path.Combine(sarifFolder, fileName);
+                                        entry.ExtractToFile(outputPath);
+                                        sarifLog = SarifLog.Load(outputPath);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            catch (SecurityException) { }
+            catch (IOException) { }
+
+            return sarifLog;
         }
 
         private async Task<AuthenticationResult> AuthenticateAsync()
@@ -157,13 +217,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                     .AcquireTokenSilent(this.scopes, accounts.FirstOrDefault())
                     .ExecuteAsync();
             }
-            catch (MsalUiRequiredException ex)
+            catch (MsalUiRequiredException)
             {
                 // If the token has expired or the cache was empty, display a login prompt
-                result = await application
-                    .AcquireTokenInteractive(scopes)
-                    .WithClaims(ex.Claims)
-                    .ExecuteAsync();
+                // result = await application
+                //    .AcquireTokenInteractive(scopes)
+                //    .WithClaims(ex.Claims)
+                //    .ExecuteAsync();
+                result = new AuthenticationResult(Guid.NewGuid().ToString(), true, Guid.NewGuid().ToString(), DateTime.Now.AddYears(1), DateTime.Now.AddYears(1), null, null, null, null, Guid.Empty);
             }
 
             return result;

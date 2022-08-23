@@ -11,7 +11,7 @@
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
-    <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio.ResultSources.Domain\Microsoft.Sarif.Viewer.ResultSources.Domain.xml</DocumentationFile>
+    <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Microsoft.Sarif.Viewer.ResultSources.Domain.2022.xml</DocumentationFile>
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build2022.props))\build2022.props" />
   <ItemGroup>

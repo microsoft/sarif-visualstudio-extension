@@ -9,6 +9,7 @@ using CSharpFunctionalExtensions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.ACL;
+using Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
@@ -31,7 +32,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         private readonly string solutionRootPath;
         private readonly List<Type> resultSourceTypes = new List<Type>
         {
-            typeof(GitHubSourceService),
+            // typeof(GitHubSourceService),
+            typeof(AdvSecForAdoResultSourceService),
         };
 
         /// <summary>

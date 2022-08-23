@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             }
 
-            // Currently this service only supports one result source.
+            // Currently this service only supports one result source per solution.
             if (this.resultSourceService == null)
             {
                 Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync();

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForAdo.Models
+namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
 {
     internal class Build
     {

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForAdo.Models
+namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
 {
     internal class ArtifactResource
     {
