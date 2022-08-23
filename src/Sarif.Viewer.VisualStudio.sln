@@ -71,6 +71,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO", "Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.csproj", "{4D7EFC40-949F-4D36-A301-607BA8F8712E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.2022", "Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.2022\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.2022.csproj", "{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -285,6 +287,18 @@ Global
 		{4D7EFC40-949F-4D36-A301-607BA8F8712E}.Release|x64.Build.0 = Release|x64
 		{4D7EFC40-949F-4D36-A301-607BA8F8712E}.Release|x86.ActiveCfg = Release|x86
 		{4D7EFC40-949F-4D36-A301-607BA8F8712E}.Release|x86.Build.0 = Release|x86
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Debug|x64.ActiveCfg = Debug|x64
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Debug|x64.Build.0 = Debug|x64
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Debug|x86.ActiveCfg = Debug|x86
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Debug|x86.Build.0 = Debug|x86
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x64.ActiveCfg = Release|x64
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x64.Build.0 = Release|x64
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x86.ActiveCfg = Release|x86
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -306,6 +320,7 @@ Global
 		{00E789EC-6AD5-446F-9618-A8B46336E916} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{86BE9731-7A5E-4B0B-A040-4AEC83FD67AF} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{4D7EFC40-949F-4D36-A301-607BA8F8712E} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}
@@ -319,6 +334,7 @@ Global
 		Sarif.Viewer.VisualStudio.ResultSources.ACL.Core\Sarif.Viewer.VisualStudio.ResultSources.ACL.Core.projitems*{47c77d8f-518c-4329-993a-a86a2564155b}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Core\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Core.projitems*{4d7efc40-949f-4d36-a301-607ba8f8712e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core.projitems*{52dce73d-148d-47e1-a595-9eada6b3b7c5}*SharedItemsImports = 4
+		Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Core\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Core.projitems*{64cafbf8-5543-435c-bdd6-7df96e0ee223}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{689af24b-33f0-44e9-aa2e-faca775736a8}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Core\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Core.projitems*{86be9731-7a5e-4b0b-a040-4aec83fd67af}*SharedItemsImports = 13
