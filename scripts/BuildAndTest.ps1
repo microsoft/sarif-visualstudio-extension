@@ -102,13 +102,11 @@ function New-SigningDirectory {
         }
     }
 
-    # Copy the Viewer and SARIFER assemblies. The names don't fit the pattern binary name == project name,
+    # Copy the Viewer assemblies. The names don't fit the pattern binary name == project name,
     # so we copy them by hand.
     foreach ($framework in $Frameworks) {
-        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework\2019
-        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio.2022\Microsoft.Sarif.Viewer.dll -Destination $SigningDirectory\$framework\2022
-        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Sarifer\Microsoft.Sarif.Sarifer.dll -Destination $SigningDirectory\$framework\2019
-        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Sarifer.2022\Microsoft.Sarif.Sarifer.dll -Destination $SigningDirectory\$framework\2022
+        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio\*Sarif.Viewer*.dll -Destination $SigningDirectory\$framework\2019
+        Copy-Item -Force -Path $BinRoot\${Platform}_$Configuration\Sarif.Viewer.VisualStudio.2022\*Sarif.Viewer*.dll -Destination $SigningDirectory\$framework\2022
     }
 }
 
@@ -137,11 +135,6 @@ function Set-SarifFileAssociationRegistrySettings {
     }
 }
 
-if (-not (Test-Path "$RepoRoot\Src\sarif-pattern-matcher") -or (Get-ChildItem "$RepoRoot\Src\sarif-pattern-matcher" | Measure-Object).Count -eq 0) {
-    Write-Information "Retrieving sarif-pattern-matcher submodule..."
-    git submodule update --init --recursive
-}
-
 if (-not $NoClean) {
     Remove-DirectorySafely $BuildRoot
 }
@@ -157,11 +150,6 @@ if (-not $NoRestore) {
 }
 
 if (-not $NoBuild) {
-    & $RepoRoot\src\sarif-pattern-matcher\BuildAndTest.cmd -NoTest -Configuration $Configuration -NoFormat
-    if ($LASTEXITCODE -ne 0) {
-        Exit-WithFailureMessage $ScriptName "sarif-pattern-matcher failed."
-    }
-
     Invoke-Build
 }
 
@@ -174,7 +162,6 @@ if (-not $NoTest) {
 
 if (-not $NoFormat) {
     dotnet tool update --global dotnet-format --version 4.1.131201
-    dotnet-format --folder --exclude .\src\sarif-pattern-matcher\
 }
 
 if (-not $NoSigningDirectory) {
