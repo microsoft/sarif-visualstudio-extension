@@ -19,8 +19,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         private const char PrefixChar = '-';
         private const string Ellipsis = "\u2026";
         private const int MaxLength = 100;
-        private static readonly Color FontColor = Color.FromArgb(112, 210, 153, 48);
-        private static readonly Brush FontBrush = new SolidColorBrush(FontColor);
 
         public KeyEventAdornment(IList<ITextMarkerTag> tags, int prefixLength, double fontSize, FontFamily fontFamily)
         {
@@ -45,11 +43,13 @@ namespace Microsoft.Sarif.Viewer.Tags
             string prefix = new string(PrefixChar, prefixLength);
 
             this.Text = $" {prefix}{shortText}";
-            this.Foreground = FontBrush;
             this.FontFamily = fontFamily;
             this.FontSize = fontSize;
             this.FontStyle = FontStyles.Italic;
             this.Width = 2000;
+            this.SetResourceReference(
+                TextBlock.ForegroundProperty,
+                Microsoft.VisualStudio.PlatformUI.EnvironmentColors.SmartTagFillBrushKey);
 
             if (fullText != shortText)
             {
@@ -118,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 message = $" : {message}";
             }
 
-            return $"{prefix}Key Event {index}{message}{Environment.NewLine}";
+            return $"{prefix}Step {index}{message}{Environment.NewLine}";
         }
     }
 }
