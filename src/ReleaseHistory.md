@@ -6,6 +6,9 @@
 * FEATURE: Generate Popup from Xaml.
 * FEATURE: Result sources platform + GitHub Advanced Security source service
 
+## [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Enable "Run Static Analyzer" gesture for solution explorer folder view.
+
 ## **3.0.73** [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifer)
 * Publish official release to marketplace.
 * Enable Spam Analyzer Dynamic Mode.
