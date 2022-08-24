@@ -46,7 +46,6 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.FontFamily = fontFamily;
             this.FontSize = fontSize;
             this.FontStyle = FontStyles.Italic;
-            this.Width = 2000;
             this.SetResourceReference(
                 TextBlock.ForegroundProperty,
                 Microsoft.VisualStudio.PlatformUI.EnvironmentColors.SmartTagFillBrushKey);
