@@ -49,6 +49,9 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
     </PackageReference>
+    <PackageReference Include="Sarif.Sdk">
+      <Version>2.4.15</Version>
+    </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -59,12 +62,6 @@
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
       <Version>6.0.0</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
-      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
-      <Name>Sarif</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems" Label="Shared" />
 </Project>

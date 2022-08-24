@@ -56,10 +56,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sarif-pattern-matcher\Src\sarif-sdk\src\Sarif\Sarif.csproj">
-      <Project>{bf73bd60-7dbc-4da0-a13d-13246eef8a93}</Project>
-      <Name>Sarif</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.ACL.2022\Sarif.Viewer.VisualStudio.ResultSources.ACL.2022.csproj">
       <Project>{14424761-9691-45e7-9bc9-3920c1618cac}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL.2022</Name>

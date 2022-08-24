@@ -97,6 +97,40 @@ namespace Microsoft.Sarif.Viewer {
                 return ResourceManager.GetString("ConfirmDownloadDialog_Title", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Always allow open file with extension &apos;{0}&apos;.
+        /// </summary>
+        public static string ConfirmOpenBinaryFileDialog_AlwaysAllowLabel
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmOpenBinaryFileDialog_AlwaysAllowLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The target file with extension '{0}' is a binary file.
+        ///Do you want to open this file in the Visual Studio?
+        /// </summary>
+        public static string ConfirmOpenBinaryFileDialog_Message
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmOpenBinaryFileDialog_Message", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Open Binary File.
+        /// </summary>
+        public static string ConfirmOpenBinaryFileDialog_Title
+        {
+            get
+            {
+                return ResourceManager.GetString("ConfirmOpenBinaryFileDialog_Title", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Browse to Another Location….
