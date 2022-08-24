@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
@@ -48,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.FontStyle = FontStyles.Italic;
             this.SetResourceReference(
                 TextBlock.ForegroundProperty,
-                Microsoft.VisualStudio.PlatformUI.EnvironmentColors.SmartTagFillBrushKey);
+                EnvironmentColors.SmartTagFillBrushKey);
 
             if (fullText != shortText)
             {
