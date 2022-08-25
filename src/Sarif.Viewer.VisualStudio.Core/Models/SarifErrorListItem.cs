@@ -341,6 +341,9 @@ namespace Microsoft.Sarif.Viewer
         public LocationCollection RelatedLocations { get; }
 
         [Browsable(false)]
+        public IList<LocationTreeNode> RelatedLocationsTreeNodes { get; set; }
+
+        [Browsable(false)]
         public AnalysisStepCollection AnalysisSteps { get; }
 
         [Browsable(false)]
@@ -608,6 +611,8 @@ namespace Microsoft.Sarif.Viewer
                 {
                     this.RelatedLocations.Add(location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
                 }
+
+                this.RelatedLocationsTreeNodes = this.BuildLocationTree(this.RelatedLocations);
             }
 
             if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
@@ -643,6 +648,32 @@ namespace Microsoft.Sarif.Viewer
                             this.SarifResult.GetSerializedPropertyValue(propertyName)));
                 }
             }
+        }
+
+        private IList<LocationTreeNode> BuildLocationTree(IList<LocationModel> locationModels)
+        {
+            var rootNode = new LocationTreeNode(null, null);
+            LocationTreeNode lastNode = rootNode;
+            int lastLevel = -1;
+
+            foreach (LocationModel locationModel in locationModels)
+            {
+                int levelChange = locationModel.NestingLevel - lastLevel;
+
+                while (levelChange <= 0)
+                {
+                    lastNode = lastNode.Parent;
+                    levelChange++;
+                }
+
+                var newNode = new LocationTreeNode(locationModel, lastNode);
+                lastNode.Children.Add(newNode);
+                lastNode = newNode;
+
+                lastLevel = locationModel.NestingLevel;
+            }
+
+            return rootNode.Children;
         }
 
         /// <summary>
@@ -853,6 +884,24 @@ namespace Microsoft.Sarif.Viewer
 
                 SdkUIUtilities.OpenExternalUrl(uriString);
             }
+        }
+
+        private void RelatedLocationsTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            /*
+            if (this.ContextTree.SelectedItem is ContextHierarchyAdapter contextHierarchy)
+            {
+                var context = contextHierarchy.Item;
+
+                if (context.Location != null)
+                {
+                    Document.Open(context.Location.FullPath, context.Location.Line);
+                }
+
+                TelemetryEvent.ContextItemClicked(this.result.Warning, this.uniqueId).PostEvent();
+                e.Handled = true;
+            }
+            */
         }
     }
 }
