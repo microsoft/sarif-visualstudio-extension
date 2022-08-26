@@ -35,7 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Converters\FileExistsToBooleanConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\Int32ToVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\MultipleStringsToVisibilityConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Converters\NestingLevelToMarginConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\ObjectToVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Converters\StringToVisibilityConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DelegateCommand.cs" />
