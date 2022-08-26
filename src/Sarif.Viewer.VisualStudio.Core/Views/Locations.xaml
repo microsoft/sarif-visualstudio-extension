@@ -10,20 +10,27 @@
 
     <!-- Location and Related Location Template -->
     <DataTemplate x:Key="CodeLocationCollectionTemplate">
-        <StackPanel Orientation="Vertical">
 
-            <TreeView Visibility="{Binding Locations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TreeView Grid.Row="0"
+                      Visibility="{Binding Locations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
                       Style="{StaticResource LocationsTreeViewStyle}">
                 <TreeViewItem Style="{StaticResource TreeViewItemStyle}">
                     <TreeViewItem.Header>
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Left"
-                                       Text="{StaticResource Locations_TreeViewItem_Header_Label_Text_String}" 
+                                       Text="{StaticResource Locations_TreeViewItem_Header_Label_Text_String}"
                                        Style="{StaticResource PanelHeader}"/>
                             <TextBlock DockPanel.Dock="Left"
                                        Visibility="{Binding Locations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
                                        Style="{StaticResource LocationCountTextStyle}">
-                                <Run Text="{Binding Locations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}"/>
+                            <Run Text="{Binding Locations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}"/>
                             </TextBlock>
                         </DockPanel>
                     </TreeViewItem.Header>
@@ -64,6 +71,7 @@
                                                         </TextBlock>
                                                     </WrapPanel>
                                                 </WrapPanel.ToolTip>
+
                                                 <TextBlock Style="{StaticResource LocationTextBaseStyle}">
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
@@ -81,36 +89,42 @@
                 </TreeViewItem>
             </TreeView>
 
-            <Separator Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+            <Separator Grid.Row="1" Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
                        Style="{StaticResource SectionSeparatorStyle}"/>
 
-            <TreeView ScrollViewer.CanContentScroll="False"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                      Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
-                      Style="{StaticResource TreeViewStyleBase}">
-                <TreeViewItem Style="{StaticResource TreeViewItemStyle}">
-                    <TreeViewItem.Header>
-                        <DockPanel>
-                            <TextBlock Text="Related Locations"
-                                       Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}" />
-                            <TextBlock Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
-                                       Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}">
-                                <Run Text="{Binding RelatedLocations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}" />
-                            </TextBlock>
-                        </DockPanel>
-                    </TreeViewItem.Header>
-                    <TreeViewItem>
+            <ScrollViewer Grid.Row="2">
+                <TreeView ScrollViewer.CanContentScroll="True"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+                          Style="{StaticResource TreeViewStyleBase}">
+                    <TreeView.Template>
+                        <ControlTemplate>
+                            <!-- This prevents the control from eating scroll events. -->
+                            <ItemsPresenter x:Name="ItemsPresenter"/>
+                        </ControlTemplate>
+                    </TreeView.Template>
+                    <TreeViewItem Style="{StaticResource TreeViewItemStyle}">
                         <TreeViewItem.Header>
-                            <DockPanel Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
+                            <DockPanel>
+                                <TextBlock Text="Related Locations"
+                                           Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}" />
+                                <TextBlock Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
+                                           Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}">
+                                    <Run Text="{Binding RelatedLocations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}" />
+                                </TextBlock>
+                            </DockPanel>
+                        </TreeViewItem.Header>
+                        <TreeViewItem>
+                            <TreeViewItem.Header>
                                 <TreeView x:Name="ContextTree"
+                                          ScrollViewer.CanContentScroll="True"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                           Background="Transparent"
                                           BorderThickness="0"
                                           ItemsSource="{Binding RelatedLocationsTreeNodes, Mode=OneTime}"
-                                          HorizontalContentAlignment="Stretch"
-                                          ScrollViewer.CanContentScroll="True"
-                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                          HorizontalContentAlignment="Stretch">
                                     <TreeView.Resources>
                                         <!-- Renders the hierarchy adapter type. -->
                                         <HierarchicalDataTemplate DataType="{x:Type local:LocationTreeNode}"
@@ -251,13 +265,12 @@
                                         </Style>
                                     </TreeView.ItemContainerStyle>
                                 </TreeView>
-                            </DockPanel>
-                        </TreeViewItem.Header>
+                            </TreeViewItem.Header>
+                        </TreeViewItem>
                     </TreeViewItem>
-                </TreeViewItem>
-            </TreeView>
-
-        </StackPanel>
+                </TreeView>
+            </ScrollViewer>
+        </Grid>
     </DataTemplate>
 
 </ResourceDictionary>
