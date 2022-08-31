@@ -5,8 +5,12 @@ using Microsoft.VisualStudio.Telemetry;
 
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
+    /// <summary>
+    /// The class utilizes Visual Studio SDK TelemetryService to send telemetry data.
+    /// </summary>
     internal class KeyEventTelemetryClient : ITelemetryClient
     {
+        /// <inheritdoc/>
         public void PostEvent(TelemetryEvent eventName)
         {
             TelemetryService.DefaultSession.PostEvent(eventName);

@@ -53,7 +53,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             // act
             var telemetry = new KeyEventTelemetry(mockSession.Object);
-            telemetry.TrackEvent(eventName, additionalProperties);
+            telemetry.TrackEvent(eventName, properties: additionalProperties);
 
             // assert
             mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);

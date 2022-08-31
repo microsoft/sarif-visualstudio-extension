@@ -11,8 +11,22 @@ using Microsoft.VisualStudio.Telemetry;
 
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
+    /// <summary>
+    /// The class provide the functionalities for interacting with telemetry in VS.
+    /// </summary>
     internal class KeyEventTelemetry
     {
+        /// <summary>
+        /// Definitions of Key Event telemetry event names.
+        /// </summary>
+        internal class EventNames
+        {
+            internal const string DisplayKeyEventData = "DisplayKeyEventData";
+        }
+
+        /// <summary>
+        /// Prefix added to all Key Event related events.
+        /// </summary>
         internal const string Product = "VS/Extensions/SarifViewer/KeyEvents/";
 
         private static string vsVersion;
@@ -20,6 +34,10 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
         private readonly ITelemetryClient telemetryClient;
 
+        /// <summary>
+        /// Gets current Visual Studio version number to be sent along with telemetry event.
+        /// Example: "17.4.32821.20 MAIN".
+        /// </summary>
         public static string VsVersion
         {
             get
@@ -34,21 +52,36 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             }
         }
 
+        /// <summary>
+        /// Gets the current Visual Studio extension version number to be sent along with telemetry event.
+        /// Example: "3.0.104.21826".
+        /// </summary>
         public static string ExtensionVersion
         {
             get
             {
-                extensionVersion ??= Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                extensionVersion ??= VsUtilities.GetVsixVersion();
                 return extensionVersion;
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyEventTelemetry"/> class.
+        /// </summary>
+        /// <param name="telemetryClient">Instance of <see cref="ITelemetryClient" />.</param>
         public KeyEventTelemetry(ITelemetryClient telemetryClient = null)
         {
             this.telemetryClient = telemetryClient ?? new KeyEventTelemetryClient();
         }
 
-        public void TrackEvent(string eventName, TelemetryResult result = TelemetryResult.Success)
+        /// <summary>
+        /// Construct a user task TelemetryEvent and send it through telemetry client.
+        /// </summary>
+        /// <param name="eventName">The event name that is unique, not null.</param>
+        /// <param name="result">The result of this user task.</param>
+        /// <param name="properties">Custom dimensions data can be used to aggregate data.</param>
+        /// <exception cref="ArgumentNullException">Throws if eventName is null.</exception>
+        public void TrackEvent(string eventName, TelemetryResult result = TelemetryResult.Success, Dictionary<string, string> properties = null)
         {
             if (eventName == null)
             {
@@ -57,34 +90,21 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
             UserTaskEvent trackEvent = CreateEvent(eventName, result);
 
-            this.telemetryClient.PostEvent(trackEvent);
-        }
-
-        public void TrackEvent(string eventName, Dictionary<string, string> properties, TelemetryResult result = TelemetryResult.Success)
-        {
-            if (eventName == null)
+            if (properties != null)
             {
-                throw new ArgumentNullException(nameof(eventName));
-            }
-
-            if (properties == null)
-            {
-                throw new ArgumentNullException(nameof(properties));
-            }
-
-            UserTaskEvent trackEvent = CreateEvent(eventName, result);
-
-            foreach (KeyValuePair<string, string> propertie in properties)
-            {
-                if (!trackEvent.Properties.ContainsKey(propertie.Key))
-                {
-                    trackEvent.Properties[propertie.Key] = propertie.Value;
-                }
+                this.AddProperties(trackEvent, properties);
             }
 
             this.telemetryClient.PostEvent(trackEvent);
         }
 
+        /// <summary>
+        /// Construct a FaultEvent representing a fault and send it through telemetry client.
+        /// </summary>
+        /// <param name="eventName">The event name that is unique, not null.</param>
+        /// <param name="ex">The exception object.</param>
+        /// <param name="properties">Custom dimensions data can be used to aggregate data.</param>
+        /// <exception cref="ArgumentNullException">Throws if eventName is null.</exception>
         public void TrackException(string eventName, Exception ex, Dictionary<string, string> properties = null)
         {
             if (eventName == null)
@@ -101,13 +121,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
             if (properties != null)
             {
-                foreach (KeyValuePair<string, string> propertie in properties)
-                {
-                    if (!faultEvent.Properties.ContainsKey(propertie.Key))
-                    {
-                        faultEvent.Properties[propertie.Key] = propertie.Value;
-                    }
-                }
+                this.AddProperties(faultEvent, properties);
             }
 
             this.telemetryClient.PostEvent(faultEvent);
@@ -148,6 +162,17 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             catch (MissingMemberException mme)
             {
                 Trace.WriteLine(string.Format("Error populating telemetry context: {0}", mme.ToString()));
+            }
+        }
+
+        private void AddProperties(TelemetryEvent telemetryEvent, IDictionary<string, string> additionalProperties)
+        {
+            foreach (KeyValuePair<string, string> propertie in additionalProperties)
+            {
+                if (!telemetryEvent.Properties.ContainsKey(propertie.Key))
+                {
+                    telemetryEvent.Properties[propertie.Key] = propertie.Value;
+                }
             }
         }
     }
