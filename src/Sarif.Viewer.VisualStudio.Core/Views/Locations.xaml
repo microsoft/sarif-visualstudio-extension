@@ -124,13 +124,11 @@
                                           ScrollViewer.CanContentScroll="True"
                                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                          Background="Transparent"
-                                          BorderThickness="0"
                                           ItemsSource="{Binding RelatedLocations, Mode=OneTime}"
                                           KeyboardNavigation.AcceptsReturn="True"
                                           KeyboardNavigation.IsTabStop="True"
                                           KeyboardNavigation.TabNavigation="Continue"
-                                          HorizontalContentAlignment="Stretch">
+                                          Style="{StaticResource RelatedLocationsTreeViewStyle}">
                                     <TreeView.Resources>
                                         <!-- The default expander shapes from MSDN. -->
                                         <Style x:Key="ExpandCollapseToggleStyle"
@@ -172,13 +170,11 @@
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type local:LocationModel}"
                                                                   ItemsSource="{Binding Children, Mode=OneTime}">
-                                            <TextBlock TextWrapping="Wrap"
-                                                       Margin="-5,0,0,0"
-                                                       HorizontalAlignment="Left">
+                                            <TextBlock Style="{StaticResource RelatedLocationsTreeViewItemTextStyle}">
                                                 <Run Text="{Binding Message}"/>
                                                 <Run Text=" "/>
                                                 <Run Text="{Binding LocationDisplayString, Mode=OneWay}"
-                                                     Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}"/>
+                                                     Style="{StaticResource RelatedLocationsTreeViewItemLocationTextStyle}"/>
                                                 <TextBlock.InputBindings>
                                                     <MouseBinding MouseAction="LeftDoubleClick"
                                                                   Command="{Binding NavigateCommand}"/>

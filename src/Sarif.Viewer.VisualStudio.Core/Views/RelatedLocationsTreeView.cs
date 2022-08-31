@@ -32,6 +32,7 @@ namespace Microsoft.Sarif.Viewer.Views
                     oldSelectedLocation.IsSelected = false;
                     newSelectedLocation.IsSelected = true;
                     locationModels.SelectedItem = newSelectedLocation;
+                    e.Handled = true;
                 }
             }
         }
@@ -47,6 +48,8 @@ namespace Microsoft.Sarif.Viewer.Views
                     if (treeView.SelectedItem is LocationModel locationModel)
                     {
                         locationModel.NavigateTo();
+                        treeView.Focus();
+                        e.Handled = true;
                     }
                 }
             }
