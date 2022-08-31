@@ -105,10 +105,10 @@
                             </TreeView.ItemTemplate>
                             <TreeView.InputBindings>
                                 <KeyBinding Command="{Binding SelectPreviousCommand}"
-                                            Gesture="CTRL+ALT+SHIFT+F7"
+                                            Gesture="CTRL+ALT+SHIFT+F8"
                                             CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
                                 <KeyBinding Command="{Binding SelectNextCommand}"
-                                            Gesture="CTRL+ALT+SHIFT+F8"
+                                            Gesture="CTRL+ALT+SHIFT+F9"
                                             CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
                             </TreeView.InputBindings>
                         </views:AnalysisStepView>
