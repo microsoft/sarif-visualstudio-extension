@@ -91,7 +91,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\InvocationModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LocationCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LocationModel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\LocationTreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ReplacementModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RuleModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />

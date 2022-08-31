@@ -89,7 +89,8 @@
                 </TreeViewItem>
             </TreeView>
 
-            <Separator Grid.Row="1" Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+            <Separator Grid.Row="1"
+                       Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
                        Style="{StaticResource SectionSeparatorStyle}"/>
 
             <ScrollViewer Grid.Row="2">
@@ -123,21 +124,12 @@
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                                           Background="Transparent"
                                           BorderThickness="0"
-                                          ItemsSource="{Binding RelatedLocationsTreeNodes, Mode=OneTime}"
+                                          ItemsSource="{Binding RelatedLocations, Mode=OneTime}"
+                                          KeyboardNavigation.AcceptsReturn="True"
+                                          KeyboardNavigation.IsTabStop="True"
+                                          KeyboardNavigation.TabNavigation="Continue"
                                           HorizontalContentAlignment="Stretch">
                                     <TreeView.Resources>
-                                        <!-- Renders the hierarchy adapter type. -->
-                                        <HierarchicalDataTemplate DataType="{x:Type local:LocationTreeNode}"
-                                                                  ItemsSource="{Binding Children, Mode=OneTime}">
-                                            <TextBlock TextWrapping="Wrap"
-                                                       Margin="-5,0,0,0"
-                                                       HorizontalAlignment="Left">
-                                                <Run Text="{Binding Location.Message}"/>
-                                                <Run Text=" "/>
-                                                <Run Text="{Binding Location.LocationDisplayString, Mode=OneWay}"
-                                                     Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}"/>
-                                            </TextBlock>
-                                        </HierarchicalDataTemplate>
                                         <!-- The default expander shapes from MSDN. -->
                                         <Style x:Key="ExpandCollapseToggleStyle"
                                                TargetType="ToggleButton">
@@ -169,12 +161,35 @@
                                             </Setter>
                                         </Style>
                                     </TreeView.Resources>
+                                    <TreeView.InputBindings>
+                                        <KeyBinding Key="Enter"
+                                                    Command="{Binding SelectedItem.NavigateCommand}"/>
+                                        <KeyBinding Key="Space"
+                                                    Command="{Binding SelectedItem.NavigateCommand}"/>
+                                    </TreeView.InputBindings>
                                     <TreeView.Template>
                                         <ControlTemplate>
                                             <!-- This prevents the control from eating scroll events. -->
                                             <ItemsPresenter x:Name="ItemsPresenter"/>
                                         </ControlTemplate>
                                     </TreeView.Template>
+                                    <TreeView.ItemTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type local:LocationModel}"
+                                                                  ItemsSource="{Binding Children, Mode=OneTime}">
+                                            <TextBlock TextWrapping="Wrap"
+                                                       Margin="-5,0,0,0"
+                                                       HorizontalAlignment="Left">
+                                                <Run Text="{Binding Message}"/>
+                                                <Run Text=" "/>
+                                                <Run Text="{Binding LocationDisplayString, Mode=OneWay}"
+                                                     Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}"/>
+                                                <TextBlock.InputBindings>
+                                                    <MouseBinding MouseAction="LeftDoubleClick"
+                                                                  Command="{Binding NavigateCommand}"/>
+                                                </TextBlock.InputBindings>
+                                            </TextBlock>
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.ItemTemplate>
                                     <TreeView.ItemContainerStyle>
                                         <Style TargetType="{x:Type TreeViewItem}">
                                             <Setter Property="Foreground"
@@ -214,10 +229,6 @@
                                                                             Grid.Row="1"
                                                                             Grid.Column="1"
                                                                             Grid.ColumnSpan="2"/>
-                                                            <Grid.InputBindings>
-                                                                <MouseBinding Gesture="LeftDoubleClick"
-                                                                              Command="{Binding NavigateCommand}"/>
-                                                            </Grid.InputBindings>
                                                         </Grid>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsExpanded"

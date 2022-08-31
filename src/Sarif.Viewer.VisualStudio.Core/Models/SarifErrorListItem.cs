@@ -341,9 +341,6 @@ namespace Microsoft.Sarif.Viewer
         public LocationCollection RelatedLocations { get; }
 
         [Browsable(false)]
-        public IList<LocationTreeNode> RelatedLocationsTreeNodes { get; set; }
-
-        [Browsable(false)]
         public AnalysisStepCollection AnalysisSteps { get; }
 
         [Browsable(false)]
@@ -607,12 +604,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
-                foreach (Location location in this.SarifResult.RelatedLocations)
-                {
-                    this.RelatedLocations.Add(location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
-                }
-
-                this.RelatedLocationsTreeNodes = this.BuildLocationTree(this.RelatedLocations);
+                this.BuildRelatedLocationsTree();
             }
 
             if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
@@ -650,30 +642,40 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        private IList<LocationTreeNode> BuildLocationTree(IList<LocationModel> locationModels)
+        internal void BuildRelatedLocationsTree()
         {
-            var rootNode = new LocationTreeNode(null, null);
-            LocationTreeNode lastNode = rootNode;
+            var rootNode = new LocationModel();
+            LocationModel lastNode = rootNode;
             int lastLevel = -1;
 
-            foreach (LocationModel locationModel in locationModels)
+            foreach (Location location in this.SarifResult.RelatedLocations)
             {
+                var locationModel = location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
                 int levelChange = locationModel.NestingLevel - lastLevel;
 
-                while (levelChange <= 0)
+                while (levelChange++ <= 0)
                 {
                     lastNode = lastNode.Parent;
-                    levelChange++;
                 }
 
-                var newNode = new LocationTreeNode(locationModel, lastNode);
-                lastNode.Children.Add(newNode);
-                lastNode = newNode;
+                if (locationModel.NestingLevel > 0)
+                {
+                    locationModel.Parent = lastNode;
+                    lastNode?.Children.Add(locationModel);
+                }
+                else
+                {
+                    this.RelatedLocations.Add(locationModel);
+                }
 
                 lastLevel = locationModel.NestingLevel;
+                lastNode = locationModel;
             }
 
-            return rootNode.Children;
+            foreach (LocationModel model in rootNode.Children)
+            {
+                model.Parent = null;
+            }
         }
 
         /// <summary>

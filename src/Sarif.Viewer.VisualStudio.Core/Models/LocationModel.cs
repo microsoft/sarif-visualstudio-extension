@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -15,6 +17,12 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _module;
         private bool _isEssential;
         private bool _isSelected;
+        private DelegateCommand _navigateCommand;
+
+        public LocationModel()
+            : base(resultId: -1, runIndex: -1)
+        {
+        }
 
         public LocationModel(int resultId, int runIndex)
             : base(resultId: resultId, runIndex: runIndex)
@@ -120,7 +128,11 @@ namespace Microsoft.Sarif.Viewer.Models
 
         public int Index { get; set; }
 
-        public int NestingLevel { get; set; }
+        public int NestingLevel { get; set; } = 0;
+
+        public IList<LocationModel> Children { get; } = new List<LocationModel>();
+
+        public LocationModel Parent { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this model shows as selected (without affecting keyboard focus)
@@ -148,5 +160,26 @@ namespace Microsoft.Sarif.Viewer.Models
         /// Gets or sets a persistent span that represents the location's region.
         /// </summary>
         public IPersistentSpan PersistentSpan { get; set; }
+
+        public DelegateCommand NavigateCommand
+        {
+            get
+            {
+                this._navigateCommand ??= new DelegateCommand(this.Navigate);
+                return this._navigateCommand;
+            }
+
+            set
+            {
+                this._navigateCommand = value;
+            }
+        }
+
+        private void Navigate()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            this.IsSelected = true;
+            this.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+        }
     }
 }

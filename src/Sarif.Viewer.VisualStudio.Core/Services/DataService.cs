@@ -98,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
                 foreach (Result r in run.Results)
                 {
-                    var sarifErrorListItem = new SarifErrorListItem(run, 0, r, string.Empty, projectNameCache);
+                    var sarifErrorListItem = new SarifErrorListItem(run, runIndex, r, null, projectNameCache);
                     sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
                     items.Add(sarifErrorListItem);
                     dataCache.SarifErrors.Add(sarifErrorListItem);
