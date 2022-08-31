@@ -58,6 +58,7 @@ namespace Microsoft.Sarif.Viewer.Views
         private void RelatedLocationsTreeView_Unloaded(object sender, RoutedEventArgs e)
         {
             SelectedItemChanged -= this.RelatedLocationsTreeView_SelectedItemChanged;
+            KeyDown -= this.RelatedLocationsTreeView_KeyDown;
             Unloaded -= this.RelatedLocationsTreeView_Unloaded;
         }
     }
