@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.FontStyle = FontStyles.Italic;
             this.SetResourceReference(
                 TextBlock.ForegroundProperty,
-                EnvironmentColors.SmartTagFillBrushKey);
+                EnvironmentColors.ExtensionManagerStarHighlight2BrushKey);
 
             if (fullText != shortText)
             {

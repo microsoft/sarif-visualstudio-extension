@@ -285,6 +285,8 @@ namespace Microsoft.Sarif.Viewer.Models
                         var control = treeView as TreeView;
                         var model = control.DataContext as AnalysisStep;
                         model.SelectedItem = this.FindPrevious();
+                        model.SelectedItem.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: false);
+                        control.Focus();
                     });
                 }
 
@@ -304,6 +306,8 @@ namespace Microsoft.Sarif.Viewer.Models
                         var control = treeView as TreeView;
                         var model = control.DataContext as AnalysisStep;
                         model.SelectedItem = this.FindNext();
+                        model.SelectedItem.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: false);
+                        control.Focus();
                     });
                 }
 
