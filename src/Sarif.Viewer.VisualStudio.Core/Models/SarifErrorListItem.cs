@@ -887,23 +887,5 @@ namespace Microsoft.Sarif.Viewer
                 SdkUIUtilities.OpenExternalUrl(uriString);
             }
         }
-
-        private void RelatedLocationsTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            /*
-            if (this.ContextTree.SelectedItem is ContextHierarchyAdapter contextHierarchy)
-            {
-                var context = contextHierarchy.Item;
-
-                if (context.Location != null)
-                {
-                    Document.Open(context.Location.FullPath, context.Location.Line);
-                }
-
-                TelemetryEvent.ContextItemClicked(this.result.Warning, this.uniqueId).PostEvent();
-                e.Handled = true;
-            }
-            */
-        }
     }
 }
