@@ -97,6 +97,7 @@
                 <TreeView ScrollViewer.CanContentScroll="True"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          KeyboardNavigation.IsTabStop="True"
                           Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
                           Style="{StaticResource TreeViewStyleBase}">
                     <TreeView.Template>
