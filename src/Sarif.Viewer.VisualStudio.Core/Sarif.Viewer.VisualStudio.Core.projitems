@@ -175,6 +175,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParserFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\AnalysisStepView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\RelatedLocationsTreeView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.xaml.cs">
       <DependentUpon>ResolveEmbeddedFileDialog.xaml</DependentUpon>
     </Compile>

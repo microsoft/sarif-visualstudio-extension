@@ -165,7 +165,7 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
-                this._navigateCommand ??= new DelegateCommand(this.Navigate);
+                this._navigateCommand ??= new DelegateCommand(this.NavigateTo);
                 return this._navigateCommand;
             }
 
@@ -175,7 +175,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        private void Navigate()
+        public void NavigateTo()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             this.IsSelected = true;
