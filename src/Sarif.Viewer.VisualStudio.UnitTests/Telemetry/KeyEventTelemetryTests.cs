@@ -1,0 +1,120 @@
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+using FluentAssertions;
+
+using Microsoft.Sarif.Viewer.Telemetry;
+using Microsoft.VisualStudio.Telemetry;
+
+using Moq;
+
+using Xunit;
+
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
+{
+    public class KeyEventTelemetryTests : SarifViewerPackageUnitTests
+    {
+        [Fact]
+        public void KeyEventTelemetry_TrackEvent_Tests()
+        {
+            // arrange
+            TelemetryEvent userEvent = null;
+            var mockSession = new Mock<ITelemetryClient>();
+            mockSession.Setup(m => m.PostEvent(It.IsAny<TelemetryEvent>())).Callback<TelemetryEvent>(e => userEvent = e);
+            string eventName = "TestEvent";
+
+            // act
+            var telemetry = new KeyEventTelemetry(mockSession.Object);
+            telemetry.TrackEvent(eventName);
+
+            // assert
+            mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
+            var userTaskEvent = userEvent as UserTaskEvent;
+            VerifyUserEvent(userTaskEvent, eventName);
+            VerifyEventProperties(userTaskEvent, additionalProperties: null);
+        }
+
+        [Fact]
+        public void KeyEventTelemetry_TrackEventWithAdditionProperties_Tests()
+        {
+            // arrange
+            TelemetryEvent userEvent = null;
+            var mockSession = new Mock<ITelemetryClient>();
+            mockSession.Setup(m => m.PostEvent(It.IsAny<TelemetryEvent>())).Callback<TelemetryEvent>(e => userEvent = e);
+            var additionalProperties = new Dictionary<string, string>();
+            additionalProperties.Add("source", "test.cpp");
+            additionalProperties.Add("line", "55");
+            additionalProperties.Add("column", "3");
+            string eventName = "DisplayKeyEventData";
+
+            // act
+            var telemetry = new KeyEventTelemetry(mockSession.Object);
+            telemetry.TrackEvent(eventName, additionalProperties);
+
+            // assert
+            mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
+            var userTaskEvent = userEvent as UserTaskEvent;
+            VerifyUserEvent(userTaskEvent, eventName);
+            VerifyEventProperties(userTaskEvent, additionalProperties);
+        }
+
+        [Fact]
+        public void KeyEventTelemetry_TrackException_Tests()
+        {
+            // arrange
+            TelemetryEvent userEvent = null;
+            var mockSession = new Mock<ITelemetryClient>();
+            mockSession.Setup(m => m.PostEvent(It.IsAny<TelemetryEvent>())).Callback<TelemetryEvent>(e => userEvent = e);
+            var additionalProperties = new Dictionary<string, string>();
+            additionalProperties.Add("line", "1");
+            additionalProperties.Add("column", "1");
+            string eventName = "FailedToRenderKeyEvent";
+            var ex = new NullReferenceException();
+
+            // act
+            var telemetry = new KeyEventTelemetry(mockSession.Object);
+            telemetry.TrackException(eventName, ex, additionalProperties);
+
+            // assert
+            mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
+            var faultEvent = userEvent as FaultEvent;
+            VerifyFaultEvent(faultEvent, eventName);
+            VerifyEventProperties(faultEvent, additionalProperties);
+        }
+
+        private void VerifyUserEvent(UserTaskEvent userTaskEvent, string eventName)
+        {
+            userTaskEvent.Should().NotBeNull();
+            userTaskEvent.Name.Should().Be((KeyEventTelemetry.Product + eventName).ToLower());
+            userTaskEvent.Result.Should().Be(TelemetryResult.Success);
+        }
+
+        private void VerifyFaultEvent(FaultEvent faultEvent, string eventName)
+        {
+            faultEvent.Should().NotBeNull();
+            faultEvent.Name.Should().Be((KeyEventTelemetry.Product + eventName).ToLower());
+        }
+
+        private void VerifyEventProperties(TelemetryEvent userTaskEvent, Dictionary<string, string> additionalProperties)
+        {
+            userTaskEvent.HasProperties.Should().BeTrue();
+            userTaskEvent.Properties.ContainsKey("VS.Version").Should().BeTrue();
+            userTaskEvent.Properties["VS.Version"].Should().Be(string.Empty); // in test VS version is set to empty string
+            userTaskEvent.Properties.ContainsKey("VS.Version").Should().BeTrue();
+            userTaskEvent.Properties["Extension.Version"].Should().Be(Assembly.GetAssembly(typeof(KeyEventTelemetry)).GetName().Version.ToString());
+
+            if (additionalProperties != null)
+            {
+                foreach (KeyValuePair<string, string> pair in additionalProperties)
+                {
+                    userTaskEvent.Properties.ContainsKey(pair.Key).Should().BeTrue();
+                    userTaskEvent.Properties[pair.Key].Should().Be(pair.Value);
+                }
+            }
+        }
+    }
+}

@@ -43,6 +43,9 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>16.0.206</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Telemetry">
+      <Version>16.3.250</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
     </PackageReference>

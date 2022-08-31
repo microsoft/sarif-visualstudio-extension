@@ -75,6 +75,7 @@
     <Compile Include="StringBuilderFileStreamMock.cs" />
     <Compile Include="SuppressionTests.cs" />
     <Compile Include="Tags\SarifLocationErrorTagTests.cs" />
+    <Compile Include="Telemetry\KeyEventTelemetryTests.cs" />
     <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
     <Compile Include="UriExtensionsTests.cs" />

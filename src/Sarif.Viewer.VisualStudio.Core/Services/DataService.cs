@@ -12,6 +12,7 @@ using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 
@@ -30,10 +31,13 @@ namespace Microsoft.Sarif.Viewer.Services
 
         private readonly ISarifErrorListEventSelectionService sarifErrorListEventSelectionService;
 
+        private readonly KeyEventTelemetry keyEventTelemetry;
+
         public DataService()
         {
             this.componentModel = (IComponentModel)AsyncPackage.GetGlobalService(typeof(SComponentModel));
             this.sarifErrorListEventSelectionService = this.componentModel.GetService<ISarifErrorListEventSelectionService>();
+            this.keyEventTelemetry = new KeyEventTelemetry();
         }
 
         /// <inheritdoc/>
@@ -108,6 +112,8 @@ namespace Microsoft.Sarif.Viewer.Services
                 this.sarifErrorListEventSelectionService.SelectedItem = items[0];
 
                 items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+
+                this.keyEventTelemetry.TrackEvent("DisplayKeyEventData");
             }
 
             SarifExplorerWindow.Find()?.Show();
