@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
             if (properties != null)
             {
-                this.AddProperties(trackEvent, properties);
+                this.MergeEventProperties(trackEvent, properties);
             }
 
             this.telemetryClient.PostEvent(trackEvent);
@@ -121,7 +121,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
             if (properties != null)
             {
-                this.AddProperties(faultEvent, properties);
+                this.MergeEventProperties(faultEvent, properties);
             }
 
             this.telemetryClient.PostEvent(faultEvent);
@@ -165,7 +165,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             }
         }
 
-        private void AddProperties(TelemetryEvent telemetryEvent, IDictionary<string, string> additionalProperties)
+        private void MergeEventProperties(TelemetryEvent telemetryEvent, IDictionary<string, string> additionalProperties)
         {
             foreach (KeyValuePair<string, string> propertie in additionalProperties)
             {
