@@ -104,8 +104,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             userTaskEvent.HasProperties.Should().BeTrue();
             userTaskEvent.Properties.ContainsKey("VS.Version").Should().BeTrue();
             userTaskEvent.Properties["VS.Version"].Should().Be(string.Empty); // in test VS version is set to empty string
-            userTaskEvent.Properties.ContainsKey("VS.Version").Should().BeTrue();
-            userTaskEvent.Properties["Extension.Version"].Should().Be(Assembly.GetAssembly(typeof(KeyEventTelemetry)).GetName().Version.ToString());
+            userTaskEvent.Properties.ContainsKey("Extension.Version").Should().BeTrue();
+            userTaskEvent.Properties["Extension.Version"].Should().Be("?"); // in test Extension version returns "?"
 
             if (additionalProperties != null)
             {
