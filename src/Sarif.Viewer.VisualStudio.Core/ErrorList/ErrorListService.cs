@@ -539,7 +539,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             SarifTableDataSource.Instance.CleanAllErrors();
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
             SarifLocationTagHelpers.RefreshTags();
-            new DataService().CloseEnhancedResultData(0);
         }
 
         public static void SendFeedback(FeedbackModel feedback)

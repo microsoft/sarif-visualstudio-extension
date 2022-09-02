@@ -14,6 +14,7 @@ using System.Windows.Forms;
 
 using Microsoft.CodeAnalysis.Sarif.Converters;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Services;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -258,6 +259,7 @@ namespace Microsoft.Sarif.Viewer
             try
             {
                 await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true, openInEditor: true).ConfigureAwait(continueOnCapturedContext: false);
+                new DataService().CloseEnhancedResultData(0);
             }
             catch (InvalidOperationException)
             {
