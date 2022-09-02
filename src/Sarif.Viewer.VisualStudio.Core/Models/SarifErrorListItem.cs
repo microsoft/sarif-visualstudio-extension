@@ -63,6 +63,12 @@ namespace Microsoft.Sarif.Viewer
             { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
         };
 
+        internal SarifErrorListItem(Result result)
+            : this()
+        {
+            this.SarifResult = result;
+        }
+
         internal SarifErrorListItem()
         {
             this.Locations = new LocationCollection(string.Empty);
@@ -644,8 +650,7 @@ namespace Microsoft.Sarif.Viewer
 
         internal void BuildRelatedLocationsTree()
         {
-            var rootNode = new LocationModel();
-            LocationModel lastNode = rootNode;
+            LocationModel lastNode = null;
             int lastLevel = -1;
 
             foreach (Location location in this.SarifResult.RelatedLocations)
@@ -655,7 +660,7 @@ namespace Microsoft.Sarif.Viewer
 
                 while (levelChange++ <= 0)
                 {
-                    lastNode = lastNode.Parent;
+                    lastNode = lastNode?.Parent;
                 }
 
                 if (locationModel.NestingLevel > 0)
@@ -670,11 +675,6 @@ namespace Microsoft.Sarif.Viewer
 
                 lastLevel = locationModel.NestingLevel;
                 lastNode = locationModel;
-            }
-
-            foreach (LocationModel model in rootNode.Children)
-            {
-                model.Parent = null;
             }
         }
 

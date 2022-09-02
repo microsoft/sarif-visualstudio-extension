@@ -89,6 +89,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedbackType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FixModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\InvocationModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ISarifErrorListItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LocationCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LocationModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ReplacementModel.cs" />
