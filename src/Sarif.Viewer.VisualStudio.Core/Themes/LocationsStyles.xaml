@@ -88,12 +88,13 @@
     </Style>
 
     <Style x:Key="RelatedLocationsTreeViewItemTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemTextBrushKey}}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="Margin" Value="-5,0,0,0"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
     </Style>
 
-    <Style x:Key="RelatedLocationsTreeViewItemLocationTextStyle" TargetType="Run">
+    <Style x:Key="RelatedLocationsTreeViewItemLocationTextStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}"/>
     </Style>
 
