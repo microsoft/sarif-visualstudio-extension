@@ -113,7 +113,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
                 items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
 
-                this.keyEventTelemetry.TrackEvent(KeyEventTelemetry.EventNames.DisplayKeyEventData);
+                this.keyEventTelemetry.TrackEvent(KeyEventTelemetry.EventNames.DisplayKeyEventData, item: items[0], pathIndex: null);
             }
 
             SarifExplorerWindow.Find()?.Show();

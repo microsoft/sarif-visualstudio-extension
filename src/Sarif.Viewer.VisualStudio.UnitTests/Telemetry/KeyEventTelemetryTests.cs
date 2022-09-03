@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 using FluentAssertions;
 
@@ -29,13 +28,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             // act
             var telemetry = new KeyEventTelemetry(mockSession.Object);
-            telemetry.TrackEvent(eventName);
+            telemetry.TrackEvent(eventName, null, null);
 
             // assert
             mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
             var userTaskEvent = userEvent as UserTaskEvent;
             VerifyUserEvent(userTaskEvent, eventName);
-            VerifyEventProperties(userTaskEvent, additionalProperties: null);
+            VerifyEventProperties(userTaskEvent, null, null, null);
         }
 
         [Fact]
@@ -53,13 +52,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             // act
             var telemetry = new KeyEventTelemetry(mockSession.Object);
-            telemetry.TrackEvent(eventName, properties: additionalProperties);
+            telemetry.TrackEvent(eventName, null, null, properties: additionalProperties);
 
             // assert
             mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
             var userTaskEvent = userEvent as UserTaskEvent;
             VerifyUserEvent(userTaskEvent, eventName);
-            VerifyEventProperties(userTaskEvent, additionalProperties);
+            VerifyEventProperties(userTaskEvent, null, null, additionalProperties);
         }
 
         [Fact]
@@ -77,13 +76,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             // act
             var telemetry = new KeyEventTelemetry(mockSession.Object);
-            telemetry.TrackException(eventName, ex, additionalProperties);
+            telemetry.TrackException(eventName, null, null, ex, additionalProperties);
 
             // assert
             mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
             var faultEvent = userEvent as FaultEvent;
             VerifyFaultEvent(faultEvent, eventName);
-            VerifyEventProperties(faultEvent, additionalProperties);
+            VerifyEventProperties(faultEvent, null, null, additionalProperties);
         }
 
         private void VerifyUserEvent(UserTaskEvent userTaskEvent, string eventName)
@@ -99,13 +98,24 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             faultEvent.Name.Should().Be((KeyEventTelemetry.Product + eventName).ToLower());
         }
 
-        private void VerifyEventProperties(TelemetryEvent userTaskEvent, Dictionary<string, string> additionalProperties)
+        private void VerifyEventProperties(TelemetryEvent userTaskEvent, SarifErrorListItem item, int? keyEventPathIndex, Dictionary<string, string> additionalProperties)
         {
             userTaskEvent.HasProperties.Should().BeTrue();
-            userTaskEvent.Properties.ContainsKey("VS.Version").Should().BeTrue();
-            userTaskEvent.Properties["VS.Version"].Should().Be(string.Empty); // in test VS version is set to empty string
-            userTaskEvent.Properties.ContainsKey("Extension.Version").Should().BeTrue();
-            userTaskEvent.Properties["Extension.Version"].Should().Be("?"); // in test Extension version returns "?"
+
+            userTaskEvent.Properties.ContainsKey(KeyEventTelemetry.PropertyNames.VsVersion).Should().BeTrue();
+            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.VsVersion].Should().Be(string.Empty); // in test VS version is set to empty string
+
+            userTaskEvent.Properties.ContainsKey(KeyEventTelemetry.PropertyNames.ExtVersion).Should().BeTrue();
+            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.ExtVersion].Should().Be("?"); // in test Extension version returns "?"
+
+            userTaskEvent.Properties.ContainsKey(KeyEventTelemetry.PropertyNames.WarningId).Should().BeTrue();
+            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.WarningId].Should().Be(item?.Rule?.Id);
+
+            userTaskEvent.Properties.ContainsKey(KeyEventTelemetry.PropertyNames.WarningItemId).Should().BeTrue();
+            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.WarningItemId].Should().Be(item?.ResultGuid);
+
+            userTaskEvent.Properties.ContainsKey(KeyEventTelemetry.PropertyNames.WarningPathIndex).Should().BeTrue();
+            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.WarningPathIndex].Should().Be(keyEventPathIndex);
 
             if (additionalProperties != null)
             {

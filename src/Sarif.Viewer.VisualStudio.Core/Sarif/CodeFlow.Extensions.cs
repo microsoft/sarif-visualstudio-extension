@@ -37,14 +37,14 @@ namespace Microsoft.Sarif.Viewer.Sarif
             return model;
         }
 
-        public static AnalysisStep ToAnalysisStep(this CodeFlow codeFlow, Run run, int resultId, int runIndex)
+        public static AnalysisStep ToAnalysisStep(this CodeFlow codeFlow, Run run, SarifErrorListItem sarifErrorListItem, int runIndex)
         {
             if (codeFlow.ThreadFlows?[0]?.Locations?.Count == 0)
             {
                 return null;
             }
 
-            List<AnalysisStepNode> topLevelNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run, resultId, runIndex);
+            List<AnalysisStepNode> topLevelNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run, sarifErrorListItem, runIndex);
 
             return new AnalysisStep(topLevelNodes);
         }

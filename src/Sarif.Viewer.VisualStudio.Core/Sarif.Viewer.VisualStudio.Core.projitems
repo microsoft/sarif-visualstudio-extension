@@ -171,6 +171,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\ITelemetryProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\KeyEventTelemetry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\KeyEventTelemetryClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\Telemetry.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Uri.extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\AdoVersionControlParser.cs" />

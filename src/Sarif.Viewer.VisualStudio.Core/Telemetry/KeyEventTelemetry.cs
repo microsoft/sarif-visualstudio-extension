@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
 
+using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.VisualStudio.Telemetry;
+using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
@@ -21,7 +23,17 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// </summary>
         internal class EventNames
         {
-            internal const string DisplayKeyEventData = "DisplayKeyEventData";
+            internal const string DisplayKeyEventData = nameof(DisplayKeyEventData);
+            internal const string NavigateToKeyEventWarning = nameof(NavigateToKeyEventWarning);
+        }
+
+        internal class PropertyNames
+        {
+            internal const string WarningId = nameof(WarningId);
+            internal const string WarningItemId = nameof(WarningItemId);
+            internal const string WarningPathIndex = nameof(WarningPathIndex);
+            internal const string VsVersion = "VS.Version";
+            internal const string ExtVersion = "Extension.Version";
         }
 
         /// <summary>
@@ -65,6 +77,8 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             }
         }
 
+        public static KeyEventTelemetry Instance = new KeyEventTelemetry();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyEventTelemetry"/> class.
         /// </summary>
@@ -78,10 +92,32 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// Construct a user task TelemetryEvent and send it through telemetry client.
         /// </summary>
         /// <param name="eventName">The event name that is unique, not null.</param>
+        /// <param name="item"><see cref="SarifErrorListItem"/> contains the Key Event data.</param>
+        /// <param name="pathIndex">The Key Event path index.</param>
         /// <param name="result">The result of this user task.</param>
         /// <param name="properties">Custom dimensions data can be used to aggregate data.</param>
         /// <exception cref="ArgumentNullException">Throws if eventName is null.</exception>
-        public void TrackEvent(string eventName, TelemetryResult result = TelemetryResult.Success, Dictionary<string, string> properties = null)
+        public void TrackEvent(string eventName, SarifErrorListItem item, int? pathIndex, TelemetryResult result = TelemetryResult.Success, Dictionary<string, string> properties = null)
+        {
+            if (eventName == null)
+            {
+                throw new ArgumentNullException(nameof(eventName));
+            }
+
+            this.TrackEvent(eventName, item?.Rule?.Id, item?.ResultGuid, pathIndex, result, properties);
+        }
+
+        /// <summary>
+        /// Construct a user task TelemetryEvent and send it through telemetry client.
+        /// </summary>
+        /// <param name="eventName">The event name that is unique, not null.</param>
+        /// <param name="warningId">The Key Event warning Id.</param>
+        /// <param name="warningItemId">The Key Event warning item Id.</param>
+        /// <param name="pathIndex">The Key Event path index.</param>
+        /// <param name="result">The result of this user task.</param>
+        /// <param name="properties">Custom dimensions data can be used to aggregate data.</param>
+        /// <exception cref="ArgumentNullException">Throws if eventName is null.</exception>
+        public void TrackEvent(string eventName, string warningId, string warningItemId, int? pathIndex, TelemetryResult result = TelemetryResult.Success, Dictionary<string, string> properties = null)
         {
             if (eventName == null)
             {
@@ -89,6 +125,8 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             }
 
             UserTaskEvent trackEvent = CreateEvent(eventName, result);
+
+            PopulateContext(trackEvent, warningId, warningItemId, pathIndex);
 
             if (properties != null)
             {
@@ -102,10 +140,12 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// Construct a FaultEvent representing a fault and send it through telemetry client.
         /// </summary>
         /// <param name="eventName">The event name that is unique, not null.</param>
+        /// <param name="item"><see cref="SarifErrorListItem"/> contains the Key Event data.</param>
+        /// <param name="pathIndex">The Key Event path index.</param>
         /// <param name="ex">The exception object.</param>
         /// <param name="properties">Custom dimensions data can be used to aggregate data.</param>
         /// <exception cref="ArgumentNullException">Throws if eventName is null.</exception>
-        public void TrackException(string eventName, Exception ex, Dictionary<string, string> properties = null)
+        public void TrackException(string eventName, SarifErrorListItem item, int? pathIndex, Exception ex, Dictionary<string, string> properties = null)
         {
             if (eventName == null)
             {
@@ -119,6 +159,8 @@ namespace Microsoft.Sarif.Viewer.Telemetry
 
             FaultEvent faultEvent = CreateExceptionEvent(eventName, ex);
 
+            PopulateContext(faultEvent, item?.Rule?.Id, item?.ResultGuid, pathIndex);
+
             if (properties != null)
             {
                 this.MergeEventProperties(faultEvent, properties);
@@ -131,8 +173,6 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         {
             var userEvent = new UserTaskEvent(Product + eventName, result);
 
-            PopulateContext(userEvent);
-
             return userEvent;
         }
 
@@ -140,24 +180,18 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         {
             var userEvent = new FaultEvent(Product + eventName, ex.Message, ex);
 
-            PopulateContext(userEvent);
-
             return userEvent;
         }
 
-        private static void PopulateContext(TelemetryEvent userEvent)
+        private static void PopulateContext(TelemetryEvent userEvent, string warningId, string warningItemId, int? pathIndex)
         {
             try
             {
-                if (!userEvent.Properties.ContainsKey("VS.Version"))
-                {
-                    userEvent.Properties["VS.Version"] = KeyEventTelemetry.VsVersion;
-                }
-
-                if (!userEvent.Properties.ContainsKey("Extension.Version"))
-                {
-                    userEvent.Properties["Extension.Version"] = KeyEventTelemetry.ExtensionVersion;
-                }
+                userEvent.SetValue(PropertyNames.WarningId, warningId);
+                userEvent.SetValue(PropertyNames.WarningItemId, warningItemId);
+                userEvent.SetValue(PropertyNames.WarningPathIndex, pathIndex?.ToString());
+                userEvent.SetValue(PropertyNames.VsVersion, VsVersion);
+                userEvent.SetValue(PropertyNames.ExtVersion, ExtensionVersion);
             }
             catch (MissingMemberException mme)
             {

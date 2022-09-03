@@ -88,6 +88,7 @@ namespace Microsoft.Sarif.Viewer
 
             this.RunIndex = runIndex;
             this.ResultId = Interlocked.Increment(ref currentResultId);
+            this.ResultGuid = result.Guid;
             this.SarifResult = result;
             ReportingDescriptor rule = result.GetRule(run);
             this.Tool = run.Tool.ToToolModel();
@@ -192,6 +193,14 @@ namespace Microsoft.Sarif.Viewer
         /// <see cref="RunIndex"/> property is not yet used.
         /// </remarks>
         public int ResultId { get; }
+
+        /// <summary>
+        /// Gets the Sarif result's guid. Can be null.
+        /// </summary>
+        /// <remarks>
+        /// In Key Event scenario, it is used to identify each unique warning and log to telemetry.
+        /// </remarks>
+        public string ResultGuid { get; }
 
         /// <summary>
         /// Gets reference to corresponding <see cref="SarifLog.Result" /> object.
@@ -622,7 +631,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in this.SarifResult.CodeFlows)
                 {
-                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
                     if (analysisStep != null)
                     {
                         this.AnalysisSteps.Add(analysisStep);
