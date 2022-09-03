@@ -27,7 +27,6 @@ using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
-using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.PlatformUI;
