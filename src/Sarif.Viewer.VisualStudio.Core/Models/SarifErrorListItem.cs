@@ -63,6 +63,12 @@ namespace Microsoft.Sarif.Viewer
             { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
         };
 
+        internal SarifErrorListItem(Result result)
+            : this()
+        {
+            this.SarifResult = result;
+        }
+
         internal SarifErrorListItem()
         {
             this.Locations = new LocationCollection(string.Empty);
@@ -604,10 +610,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
-                foreach (Location location in this.SarifResult.RelatedLocations)
-                {
-                    this.RelatedLocations.Add(location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
-                }
+                this.BuildRelatedLocationsTree();
             }
 
             if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
@@ -642,6 +645,36 @@ namespace Microsoft.Sarif.Viewer
                             propertyName,
                             this.SarifResult.GetSerializedPropertyValue(propertyName)));
                 }
+            }
+        }
+
+        internal void BuildRelatedLocationsTree()
+        {
+            LocationModel lastNode = null;
+            int lastLevel = -1;
+
+            foreach (Location location in this.SarifResult.RelatedLocations)
+            {
+                var locationModel = location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                int levelChange = locationModel.NestingLevel - lastLevel;
+
+                while (levelChange++ <= 0)
+                {
+                    lastNode = lastNode?.Parent;
+                }
+
+                if (locationModel.NestingLevel > 0)
+                {
+                    locationModel.Parent = lastNode;
+                    lastNode?.Children.Add(locationModel);
+                }
+                else
+                {
+                    this.RelatedLocations.Add(locationModel);
+                }
+
+                lastLevel = locationModel.NestingLevel;
+                lastNode = locationModel;
             }
         }
 

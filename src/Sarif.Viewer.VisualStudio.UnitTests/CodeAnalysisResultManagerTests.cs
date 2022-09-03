@@ -12,6 +12,7 @@ using EnvDTE80;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Views;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Workspace;
@@ -522,7 +523,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c" },
                 Contents = new ArtifactContent { Text = EmbeddedFileContent },
             };
-            dataCache.FileDetails.Add(PathInLogFile, new Models.ArtifactDetailsModel(artifact));
+            dataCache.FileDetails.Add(PathInLogFile, new ArtifactDetailsModel(artifact));
             this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
 
             var sarifErrorListItem = new SarifErrorListItem { LogFilePath = @"C:\Code\sarif-sdk\src\.sarif\Result.sarif" };
@@ -592,7 +593,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c" },
                 Contents = new ArtifactContent { Text = EmbeddedFileContent },
             };
-            dataCache.FileDetails.Add(PathInLogFile, new Models.ArtifactDetailsModel(artifact));
+            dataCache.FileDetails.Add(PathInLogFile, new ArtifactDetailsModel(artifact));
             this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
 
             var sarifErrorListItem = new SarifErrorListItem { LogFilePath = @"C:\Code\sarif-sdk\src\.sarif\Result.sarif" };
@@ -615,7 +616,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c".ToUpper() },
                 Contents = new ArtifactContent { Text = EmbeddedFileContent },
             };
-            dataCache.FileDetails[PathInLogFile] = new Models.ArtifactDetailsModel(artifact);
+            dataCache.FileDetails[PathInLogFile] = new ArtifactDetailsModel(artifact);
             this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;
 
             // Act.
@@ -655,7 +656,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Hashes = new Dictionary<string, string> { ["sha-256"] = "e1bb39f712fbb56ee0ae3782c68d1278a6ab494b7e2daf214400af283b75307c" },
                 Contents = new ArtifactContent { Text = EmbeddedFileContent },
             };
-            dataCache.FileDetails.Add(PathInLogFile, new Models.ArtifactDetailsModel(artifact));
+            dataCache.FileDetails.Add(PathInLogFile, new ArtifactDetailsModel(artifact));
 
             // simulate user cancelled dialog without selecting any option
             this.embeddedFileDialogResult = ResolveEmbeddedFileDialogResult.None;

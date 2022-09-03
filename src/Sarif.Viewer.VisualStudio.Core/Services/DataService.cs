@@ -69,9 +69,9 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void CloseEnhancedResultData(int cookie)
+        public void CloseEnhancedResultData()
         {
-            this.CloseEnhancedResultDataAsync(cookie).FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
+            this.CloseEnhancedResultDataAsync().FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
         }
 
         private async System.Threading.Tasks.Task<int> SendEnhancedResultDataAsync(SarifLog sarifLog)
@@ -98,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.Services
 
                 foreach (Result r in run.Results)
                 {
-                    var sarifErrorListItem = new SarifErrorListItem(run, 0, r, string.Empty, projectNameCache);
+                    var sarifErrorListItem = new SarifErrorListItem(run, runIndex, r, null, projectNameCache);
                     sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
                     items.Add(sarifErrorListItem);
                     dataCache.SarifErrors.Add(sarifErrorListItem);
@@ -115,7 +115,7 @@ namespace Microsoft.Sarif.Viewer.Services
             return runIndex;
         }
 
-        private async Task CloseEnhancedResultDataAsync(int cookie)
+        private async Task CloseEnhancedResultDataAsync()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
