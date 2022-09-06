@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 using FluentAssertions;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.Telemetry;
 
@@ -85,6 +86,79 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             VerifyEventProperties(faultEvent, null, null, additionalProperties);
         }
 
+        [Fact]
+        public void KeyEventTelemetry_TrackEventWithKeyEventGuidAndPath_Tests()
+        {
+            // arrange
+            TelemetryEvent userEvent = null;
+            var mockSession = new Mock<ITelemetryClient>();
+            mockSession.Setup(m => m.PostEvent(It.IsAny<TelemetryEvent>())).Callback<TelemetryEvent>(e => userEvent = e);
+            string eventName = "ShowEvent";
+
+            var run = new Run();
+            var result = new Result
+            {
+                Guid = Guid.NewGuid().ToString(),
+                Rule = new ReportingDescriptorReference { Id = "C0694" },
+                CodeFlows = new CodeFlow[]
+                {
+                    new CodeFlow
+                    {
+                        ThreadFlows = new ThreadFlow[]
+                        {
+                            new ThreadFlow
+                            {
+                                Locations = new []
+                                {
+                                    new ThreadFlowLocation
+                                    {
+                                        Index = 0,
+                                    },
+                                    new ThreadFlowLocation
+                                    {
+                                        Index = 1,
+                                    },
+                                    new ThreadFlowLocation
+                                    {
+                                        Index = 2,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            result.Run = run;
+            var keyEventItem = new SarifErrorListItem(
+                run,
+                runIndex: 0,
+                result: result,
+                logFilePath: "EnhancedData",
+                projectNameCache: new ProjectNameCache(solution: null))
+            {
+                FileName = "file.cpp",
+            };
+
+            // act
+            var telemetry = new KeyEventTelemetry(mockSession.Object);
+            telemetry.TrackEvent(eventName, keyEventItem, pathIndex: null);
+
+            // assert
+            mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Once);
+            var userTaskEvent = userEvent as UserTaskEvent;
+            VerifyUserEvent(userTaskEvent, eventName);
+            VerifyEventProperties(userTaskEvent, keyEventItem, null, null);
+
+            eventName = "NavigationEvent";
+            telemetry.TrackEvent(eventName, keyEventItem, pathIndex: 0);
+
+            mockSession.Verify(m => m.PostEvent(It.IsAny<TelemetryEvent>()), Times.Exactly(2));
+            userTaskEvent = userEvent as UserTaskEvent;
+            VerifyUserEvent(userTaskEvent, eventName);
+            VerifyEventProperties(userTaskEvent, keyEventItem, 0, null);
+
+        }
+
         private void VerifyUserEvent(UserTaskEvent userTaskEvent, string eventName)
         {
             userTaskEvent.Should().NotBeNull();
@@ -115,7 +189,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.WarningItemId].Should().Be(item?.ResultGuid);
 
             userTaskEvent.Properties.ContainsKey(KeyEventTelemetry.PropertyNames.WarningPathIndex).Should().BeTrue();
-            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.WarningPathIndex].Should().Be(keyEventPathIndex);
+            userTaskEvent.Properties[KeyEventTelemetry.PropertyNames.WarningPathIndex].Should().Be(keyEventPathIndex?.ToString());
 
             if (additionalProperties != null)
             {
