@@ -132,7 +132,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
                 // Get length of the longest line.
                 int maxSpaceChar = linesContainsKeyEvent.Any() ?
-                    linesContainsKeyEvent.Keys.Max(line => line.End.Position - line.Start.Position) :
+                    linesContainsKeyEvent.Keys.Max(line => this.NormalizeTextLength(line)) :
                     0;
 
                 foreach (KeyValuePair<IWpfTextViewLine, IList<ITextMarkerTag>> line in linesContainsKeyEvent)
@@ -213,13 +213,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// Create TextBlock control at end of the given lines.
         /// </summary>
         /// <param name="line">Line to add the adornments.</param>
-        private void CreateVisuals(ITextViewLine line, IList<ITextMarkerTag> tags, int maxSpaceChar)
+        private void CreateVisuals(IWpfTextViewLine line, IList<ITextMarkerTag> tags, int maxSpaceChar)
         {
             SnapshotSpan extent = line.Extent;
             Geometry geometry = this.view.TextViewLines.GetMarkerGeometry(extent);
             if (geometry != null)
             {
-                int charLength = line.End.Position - line.Start.Position;
+                int charLength = this.NormalizeTextLength(line);
                 int numberOfSpace = maxSpaceChar - charLength;
 
                 UIElement tagGraphic = new KeyEventAdornment(
@@ -242,6 +242,20 @@ namespace Microsoft.Sarif.Viewer.Tags
                         null);
                 }
             }
+        }
+
+        private int NormalizeTextLength(IWpfTextViewLine line)
+        {
+            int tabWidth = 4;
+            string text;
+
+            if (line == null || (text = line.Extent.GetText()) == null)
+            {
+                return 0;
+            }
+
+            int tabCount = text.Count(c => c == '\t');
+            return (tabCount * (tabWidth - 1)) + text.Length;
         }
     }
 }

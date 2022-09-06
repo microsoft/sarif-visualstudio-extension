@@ -16,6 +16,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
+    <PackageReference Include="Sarif.Sdk">
+      <Version>2.4.15</Version>
+    </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.console" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
@@ -62,6 +65,7 @@
     <Compile Include="Models\ArtifactChangeModelTests.cs" />
     <Compile Include="Models\ReplacementModelTests.cs" />
     <Compile Include="Models\RuleModelTests.cs" />
+    <Compile Include="Models\SarifErrorListItemTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="SarifTextViewCreationListenerTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />

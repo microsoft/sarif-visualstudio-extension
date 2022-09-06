@@ -240,7 +240,7 @@
                 </TabItem.Header>
                 <ContentControl ContentTemplate="{StaticResource CodeLocationCollectionTemplate}"
                                 Content="{Binding}"
-                                IsTabStop="False"/>
+                                IsTabStop="True"/>
             </TabItem>
             <TabItem Visibility="{Binding AnalysisSteps, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
                 <TabItem.Header>
@@ -256,7 +256,7 @@
 
                 <ContentControl ContentTemplate="{StaticResource AnalysisStepTemplate}"
                                 Content="{Binding AnalysisSteps}"
-                                IsTabStop="False"/>
+                                IsTabStop="True"/>
             </TabItem>
             <TabItem Visibility="{Binding Stacks, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
                 <TabItem.Header>
@@ -272,7 +272,7 @@
 
                 <ContentControl ContentTemplate="{StaticResource StackCollectionTemplate}"
                                 Content="{Binding Stacks}"
-                                IsTabStop="False"
+                                IsTabStop="True"
                                 Style="{StaticResource StacksTabItemContentStyle}"/>
             </TabItem>
             <TabItem>
@@ -283,7 +283,7 @@
 
                 <ContentControl ContentTemplate="{StaticResource InfoTemplate}"
                                 Content="{Binding}"
-                                IsTabStop="False" />
+                                IsTabStop="True" />
             </TabItem>
         </TabControl>
     </Grid>
