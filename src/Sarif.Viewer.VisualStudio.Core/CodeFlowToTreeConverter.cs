@@ -71,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
             return root.Children;
         }
 
-        internal static List<AnalysisStepNode> ToFlatList(CodeFlow codeFlow, Run run, int resultId, int runIndex)
+        internal static List<AnalysisStepNode> ToFlatList(CodeFlow codeFlow, Run run, SarifErrorListItem sarifErrorListItem, int runIndex)
         {
             var results = new List<AnalysisStepNode>();
 
@@ -96,7 +96,12 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         artifactLocation.Uri = run.Artifacts[artifactLocation.Index].Location.Uri;
                     }
 
-                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex, index: ++index)
+                    var newNode = new AnalysisStepNode(
+                        resultId: sarifErrorListItem?.ResultId ?? 0,
+                        runIndex: runIndex,
+                        index: ++index,
+                        resultGuid: sarifErrorListItem?.ResultGuid,
+                        ruleId: sarifErrorListItem.Rule?.Id)
                     {
                         Location = location,
                         Children = new List<AnalysisStepNode>(),
