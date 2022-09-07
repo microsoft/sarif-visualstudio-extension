@@ -93,7 +93,7 @@
                 <Setter Property="Opacity" Value="0.5"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True">
-                <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.TitleBarActiveGradientBrushKey}}" />
+                <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.TitleBarDragHandleActiveBrushKey}}" />
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.TitleBarActiveTextBrushKey}}" />
                 <Setter Property="Opacity" Value="1.0"/>
             </DataTrigger>
@@ -108,7 +108,7 @@
                 <Setter Property="Opacity" Value="0.5"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TreeViewItem}}}" Value="True">
-                <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.TitleBarActiveGradientBrushKey}}" />
+                <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.TitleBarDragHandleActiveBrushKey}}" />
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.TitleBarActiveTextBrushKey}}" />
             </DataTrigger>
         </Style.Triggers>

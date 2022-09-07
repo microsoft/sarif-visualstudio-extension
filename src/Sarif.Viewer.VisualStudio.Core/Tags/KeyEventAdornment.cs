@@ -51,11 +51,8 @@ namespace Microsoft.Sarif.Viewer.Tags
                 TextBlock.ForegroundProperty,
                 EnvironmentColors.ExtensionManagerStarHighlight2BrushKey);
 
-            if (fullText != shortText)
-            {
-                this.ToolTip = tooltipText;
-                this.Cursor = Cursors.Arrow;
-            }
+            this.ToolTip = tooltipText;
+            this.Cursor = Cursors.Arrow;
         }
 
         private static void FormatText(IList<AnalysisStepNode> nodes, out string fullText, out string conciseText, out string tooltipText)
