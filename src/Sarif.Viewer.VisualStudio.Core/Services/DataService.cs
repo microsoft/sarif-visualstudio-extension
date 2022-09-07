@@ -73,7 +73,7 @@ namespace Microsoft.Sarif.Viewer.Services
         }
 
         /// <inheritdoc/>
-        public void CloseEnhancedResultData()
+        public void CloseEnhancedResultData(int cookie)
         {
             this.CloseEnhancedResultDataAsync().FileAndForget(Constants.FileAndForgetFaultEventNames.SendEnhancedData);
         }
