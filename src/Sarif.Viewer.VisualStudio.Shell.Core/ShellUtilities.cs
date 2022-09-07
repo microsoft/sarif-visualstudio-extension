@@ -9,8 +9,15 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Shell
 {
+    /// <summary>
+    /// Utility methods that access the VS shell.
+    /// </summary>
     public static class ShellUtilities
     {
+        /// <summary>
+        /// Gets the absolute path of the current solution.
+        /// </summary>
+        /// <returns>The absolute solution path.</returns>
         public static string GetSolutionDirectoryPath()
         {
             var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
@@ -20,6 +27,10 @@ namespace Microsoft.Sarif.Viewer.Shell
                 : null;
         }
 
+        /// <summary>
+        /// Gets the absolute path of the current solution's .
+        /// </summary>
+        /// <returns>The absolute.sarif directory path.</returns>
         public static string GetDotSarifDirectoryPath()
         {
             return Path.Combine(GetSolutionDirectoryPath(), ".sarif");

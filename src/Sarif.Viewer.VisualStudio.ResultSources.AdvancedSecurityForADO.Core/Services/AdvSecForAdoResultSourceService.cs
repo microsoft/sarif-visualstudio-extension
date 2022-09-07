@@ -23,6 +23,7 @@ using Microsoft.Sarif.Viewer.Shell;
 
 using Newtonsoft.Json;
 
+using File = System.IO.File;
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
 
@@ -31,9 +32,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
     public class AdvSecForAdoResultSourceService : IResultSourceService, IAdvSecForAdoResultSourceService
     {
         private const string SettingsFilePath = "AdvSecADO.json";
-        private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
+
+        // private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
+        private const string ClientId = "16acf595-5442-4b4b-8450-88b6ebfc098b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
-        private const string AzureDevOpsBaseUrl = "https://localhost:7067/"; // https://dev.azure.com/";
+
+        // private const string AzureDevOpsBaseUrl = "https://localhost:7067/";
+        private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
+        private const string OrgAndProject = "advsec/Dogfood/";
         private const string ListBuildsApiQueryString = "_apis/build/builds?deletedFilter=excludeDeleted"; // api-version=7.0&
         private const string GetBuildArtifactApiQueryStringFormat = "_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
 
@@ -45,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
         private Settings settings;
         private string authorityUrl;
-        private string authHeader;
+        private string accessToken;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AdvSecForAdoResultSourceService"/> class.
@@ -85,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                         this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
                         AuthenticationResult authResult = await AuthenticateAsync();
-                        this.authHeader = authResult.CreateAuthorizationHeader();
+                        this.accessToken = authResult.AccessToken;
                     }
                     catch (JsonSerializationException) { }
                 }
@@ -131,17 +137,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             // TODO: what filters are needed?
             HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
                 HttpMethod.Get,
-                AzureDevOpsBaseUrl + ListBuildsApiQueryString,
-                token: "token-here");
+                AzureDevOpsBaseUrl + OrgAndProject + ListBuildsApiQueryString,
+                token: this.accessToken);
             HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                List<Models.Build> builds = JsonConvert.DeserializeObject<List<Models.Build>>(await responseMessage.Content.ReadAsStringAsync());
-
-                if (builds.Count > 0)
+                try
                 {
-                    return Result.Success<int, ErrorType>(builds.First().Id);
+                    List<Models.Build> builds = JsonConvert.DeserializeObject<List<Models.Build>>(await responseMessage.Content.ReadAsStringAsync());
+
+                    if (builds.Count > 0)
+                    {
+                        return Result.Success<int, ErrorType>(builds.First().Id);
+                    }
+                }
+                catch
+                {
                 }
             }
 
@@ -151,7 +163,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.DownloadAndExtractArtifactAsync(int)"/>
         public async Task<Maybe<SarifLog>> DownloadAndExtractArtifactAsync(int buildId)
         {
-            string url = AzureDevOpsBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
+            string url = AzureDevOpsBaseUrl + OrgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
             SarifLog sarifLog = null;
 
             try
@@ -208,7 +220,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                 .WithDefaultRedirectUri()
                 .Build();
 
-            AuthenticationResult result;
+            AuthenticationResult result = null;
 
             try
             {
@@ -217,14 +229,21 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                     .AcquireTokenSilent(this.scopes, accounts.FirstOrDefault())
                     .ExecuteAsync();
             }
-            catch (MsalUiRequiredException)
+            catch (MsalUiRequiredException ex)
             {
-                // If the token has expired or the cache was empty, display a login prompt
-                // result = await application
-                //    .AcquireTokenInteractive(scopes)
-                //    .WithClaims(ex.Claims)
-                //    .ExecuteAsync();
-                result = new AuthenticationResult(Guid.NewGuid().ToString(), true, Guid.NewGuid().ToString(), DateTime.Now.AddYears(1), DateTime.Now.AddYears(1), null, null, null, null, Guid.Empty);
+                try
+                {
+                    // If the token has expired or the cache was empty, display a login prompt
+                    result = await application
+                       .AcquireTokenInteractive(scopes)
+                       .WithClaims(ex.Claims)
+                       .ExecuteAsync();
+
+                    // result = new AuthenticationResult(Guid.NewGuid().ToString(), true, Guid.NewGuid().ToString(), DateTime.Now.AddYears(1), DateTime.Now.AddYears(1), null, null, null, null, Guid.Empty);
+                }
+                catch
+                {
+                }
             }
 
             return result;
