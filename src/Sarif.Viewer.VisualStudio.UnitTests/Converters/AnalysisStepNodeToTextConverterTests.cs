@@ -164,6 +164,37 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
             VerifyConversion(analysisStepNode, snippet.Trim());
         }
 
+        [Fact]
+        public void AnalysisStepNodeToTextConverter_WithIndex()
+        {
+            const string message = "my_function";
+            const int index = 10;
+
+            var analysisStepNode = new AnalysisStepNode(resultId: 0, runIndex: 0)
+            {
+                Index = index,
+                Location = new ThreadFlowLocation
+                {
+                    Location = new Location
+                    {
+                        Message = new Message
+                        {
+                            Text = message,
+                        },
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            Region = new Region
+                            {
+                                StartLine = 42,
+                            },
+                        },
+                    },
+                },
+            };
+
+            VerifyConversion(analysisStepNode, $"{index} {message}");
+        }
+
         private static void VerifyConversion(AnalysisStepNode analysisStepNode, string expectedText)
         {
             var converter = new AnalysisStepNodeToTextConverter();
