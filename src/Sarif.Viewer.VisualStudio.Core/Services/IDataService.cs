@@ -29,6 +29,7 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <summary>
         /// Cleans up enhanced SARIF result data.
         /// </summary>
-        void CloseEnhancedResultData();
+        /// <param name="cookie">The cookie value of the enhanced result data.</param>
+        void CloseEnhancedResultData(int cookie);
     }
 }

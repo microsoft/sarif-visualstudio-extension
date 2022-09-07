@@ -259,7 +259,7 @@ namespace Microsoft.Sarif.Viewer
             try
             {
                 await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true, openInEditor: true).ConfigureAwait(continueOnCapturedContext: false);
-                new DataService().CloseEnhancedResultData();
+                new DataService().CloseEnhancedResultData(0);
             }
             catch (InvalidOperationException)
             {
