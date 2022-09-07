@@ -91,7 +91,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                         this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
                         AuthenticationResult authResult = await AuthenticateAsync();
-                        this.accessToken = authResult.AccessToken;
+                        this.accessToken = authResult?.AccessToken;
                     }
                     catch (JsonSerializationException) { }
                 }
