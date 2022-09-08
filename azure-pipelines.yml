@@ -35,6 +35,9 @@ extends:
               outputs:
               - output: pipelineArtifact
                 targetPath: $(System.DefaultWorkingDirectory)
+            
+            breakGlass:
+              justification: Testing Break Glass Scenario
 
             steps:
               - checkout: self
