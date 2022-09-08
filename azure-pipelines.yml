@@ -26,32 +26,32 @@ extends:
       stages:
       - stage: build
         jobs:
-        - job: build
-          templateContext:
-            inputs:
-            - input: checkout
-              repository: self
-              displayName: build
-            outputs:
-            - output: pipelineArtifact
-              targetPath: $(System.DefaultWorkingDirectory)
-
-          steps:
-            - checkout: self
-              submodules: recursive
-              
-            - task: BatchScript@1
-              displayName: 'Run VsDevCmd.bat'
+          - job: build
+            templateContext:
               inputs:
-                filename: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat'
-                modifyEnvironment: true
+              - input: checkout
+                repository: self
+                displayName: build
+              outputs:
+              - output: pipelineArtifact
+                targetPath: $(System.DefaultWorkingDirectory)
 
-            - task: PowerShell@2
-              displayName: Build and Test
-              inputs:
-                targetType: filePath
-                filePath: ./scripts/BuildAndTest.ps1
+            steps:
+              - checkout: self
+                submodules: recursive
+                
+              - task: BatchScript@1
+                displayName: 'Run VsDevCmd.bat'
+                inputs:
+                  filename: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat'
+                  modifyEnvironment: true
 
-            - task: ComponentGovernanceComponentDetection@0
-              inputs:
-                ignoreDirectories: 'src\sarif-pattern-matcher'
+              - task: PowerShell@2
+                displayName: Build and Test
+                inputs:
+                  targetType: filePath
+                  filePath: ./scripts/BuildAndTest.ps1
+
+              - task: ComponentGovernanceComponentDetection@0
+                inputs:
+                  ignoreDirectories: 'src\sarif-pattern-matcher'
