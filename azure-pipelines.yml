@@ -31,7 +31,7 @@ extends:
               inputs:
               - input: checkout
                 repository: self
-                displayName: build
+                submodules: recursive
               outputs:
               - output: pipelineArtifact
                 targetPath: $(System.DefaultWorkingDirectory)
@@ -40,8 +40,6 @@ extends:
                 justification: Testing Break Glass Scenario
 
             steps:
-              - checkout: self
-                submodules: recursive
                 
               - task: BatchScript@1
                 displayName: 'Run VsDevCmd.bat'
