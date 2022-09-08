@@ -48,12 +48,15 @@ extends:
                 inputs:
                   filename: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat'
                   modifyEnvironment: true
+              
+              - script: "tree $(System.DefaultWorkingDirectory)"
+                displayName: "tree"
 
               - task: PowerShell@2
                 displayName: Build and Test
                 inputs:
                   targetType: filePath
-                  filePath: $(System.DefaultWorkingDirectory)/scripts/BuildAndTest.ps1
+                  filePath: ./scripts/BuildAndTest.ps1
 
               - task: ComponentGovernanceComponentDetection@0
                 inputs:
