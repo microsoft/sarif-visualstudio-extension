@@ -56,7 +56,7 @@ extends:
                 displayName: Build and Test
                 inputs:
                   targetType: filePath
-                  filePath: ./scripts/BuildAndTest.ps1
+                  filePath: $(System.DefaultWorkingDirectory)/sarif-visualstudio-extension/scripts/BuildAndTest.ps1
 
               - task: ComponentGovernanceComponentDetection@0
                 inputs:
