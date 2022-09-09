@@ -79,6 +79,10 @@ Copyright (c) Microsoft. All rights reserved.
       <Group guid="guidSariferCommandSet" id="SariferFileContextMenuGroup" priority="0x600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ITEMNODE"/>
       </Group>
+
+      <Group guid="guidSariferFolderViewCommandSet" id="SariferSolutionFolderContextMenuGroup" priority="0x600">
+        <Parent guid="guidWorkspacePackageCmdSet" id="idmWSE_ContextMenu"/>
+      </Group>
     </Groups>
 
     <!--
@@ -118,6 +122,12 @@ Copyright (c) Microsoft. All rights reserved.
         </Strings>
       </Button>
 
+      <Button guid="guidSariferFolderViewCommandSet" id="cmdidAnalyzeSolutionFolder" priority="0x100" type="Button">
+        <Parent guid="guidSariferFolderViewCommandSet" id="SariferSolutionFolderContextMenuGroup"/>
+          <Strings>
+            <ButtonText>Run Static Analyzers</ButtonText>
+          </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -159,5 +169,14 @@ Copyright (c) Microsoft. All rights reserved.
       <IDSymbol name="cmdidAnalyzeFile" value="0x2040"/>
     </GuidSymbol>
 
+    <GuidSymbol name="guidSariferFolderViewCommandSet" value="{71F099FC-EC9E-47D4-9723-9F3865CD0858}">
+      <IDSymbol name="SariferSolutionFolderContextMenuGroup" value="0x1050"/>
+      <IDSymbol name="cmdidAnalyzeSolutionFolder" value="0x2050"/>
+    </GuidSymbol>
+
+    <!-- Command set for solution explorer folder view context menu. -->
+    <GuidSymbol name="guidWorkspacePackageCmdSet" value="{cfb400f1-5c60-4f3c-856e-180d28def0b7}">
+      <IDSymbol name="idmWSE_ContextMenu" value="0x0002"/>
+    </GuidSymbol>
   </Symbols>
 </CommandTable>

@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
@@ -86,8 +87,9 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <typeparam name="T">The type of the deserialized object.</typeparam>
         /// <param name="storageFileName">The isolated storage file.</param>
+        /// <param name="instance">Instance to be populated.</param>
         /// <returns>Object deserialized from isolated storage file.</returns>
-        internal static T GetStoredObject<T>(string storageFileName)
+        internal static T GetStoredObject<T>(string storageFileName, T instance = null)
             where T : class
         {
             var store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
@@ -98,6 +100,12 @@ namespace Microsoft.Sarif.Viewer
                 {
                     using (var reader = new StreamReader(stream))
                     {
+                        if (instance != null)
+                        {
+                            JsonConvert.PopulateObject(reader.ReadToEnd(), instance);
+                            return instance;
+                        }
+
                         return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
                     }
                 }
@@ -126,7 +134,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         [SuppressMessage("Microsoft.Usage", "CA1806:DoNotIgnoreMethodResults", Justification = "By design")]
-        internal static IVsWindowFrame OpenDocument(IServiceProvider provider, string file, bool usePreviewPane)
+        internal static IVsWindowFrame OpenDocument(IServiceProvider provider, string file, bool usePreviewPane, bool promptForBinFile = true)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (string.IsNullOrEmpty(file))
@@ -137,6 +145,12 @@ namespace Microsoft.Sarif.Viewer
 
             // We should not throw exceptions if we cannot find the file
             if (!File.Exists(file))
+            {
+                return null;
+            }
+
+            // prompt user if open binary file in editor
+            if (!promptForBinFile || !AllowOpenBinaryFile(file))
             {
                 return null;
             }
@@ -190,7 +204,7 @@ namespace Microsoft.Sarif.Viewer
             uint cookieDocLock = FindDocument(runningDocTable, file);
 
             IVsWindowFrame windowFrame;
-            Guid textViewGuid = VSConstants.LOGVIEWID_TextView;
+            Guid textViewGuid = VSConstants.LOGVIEWID_Primary;
 
             // Unused variables
             IVsUIHierarchy uiHierarchy;
@@ -732,7 +746,7 @@ namespace Microsoft.Sarif.Viewer
 
             string fullText = AppendEndPunctuation(input);
 
-            string firstSentence = ExtensionMethods.GetFirstSentence(sb.ToString());
+            string firstSentence = CodeAnalysis.Sarif.ExtensionMethods.GetFirstSentence(sb.ToString());
 
             // ExtensionMethods.GetFirstSentence has an issue it appends '.' even the string ends with other punctuations '!' or '?'
             firstSentence = AppendEndPunctuation(firstSentence.TrimEnd('.'));
@@ -842,6 +856,79 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return false;
+        }
+
+        internal static bool IsBinaryFile(Stream fileStream)
+        {
+            fileStream = fileStream ?? throw new ArgumentNullException(nameof(fileStream));
+
+            // check first N chars of the file, if contains NUL char its binary file.
+            // similar check by git https://github.com/git/git/blob/9c9b961d7eb15fb583a2a812088713a68a85f1c0/xdiff-interface.c#L187-L193
+            const int numCharsToCheck = 8000;
+            const int nullChar = 0;
+
+            using (var streamReader = new StreamReader(fileStream))
+            {
+                for (int i = 0; i < numCharsToCheck; i++)
+                {
+                    if (streamReader.EndOfStream)
+                    {
+                        return false;
+                    }
+
+                    if (streamReader.Read() == nullChar)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        internal delegate bool PromptOpenBinaryFileDelegate(string fileExtension, out bool alwaysAllow);
+
+        internal static bool PromptIfOpenBinaryFile(string fileExtension, out bool alwaysAllow)
+        {
+            MessageDialogCommand result = MessageDialog.Show(
+                    Resources.ConfirmOpenBinaryFileDialog_Title,
+                    string.Format(Resources.ConfirmOpenBinaryFileDialog_Message, fileExtension),
+                    MessageDialogCommandSet.YesNo,
+                    string.Format(Resources.ConfirmOpenBinaryFileDialog_AlwaysAllowLabel, fileExtension),
+                    out alwaysAllow);
+
+            return result == MessageDialogCommand.Yes;
+        }
+
+        internal static bool AllowOpenBinaryFile(string filePath, IFileSystem filesystem = null, PromptOpenBinaryFileDelegate promptDelegate = null)
+        {
+            string fileExtension = Path.GetExtension(filePath);
+            HashSet<string> allowedFileExtensions = CodeAnalysisResultManager.Instance.GetAllowedFileExtensions();
+            bool allowed = allowedFileExtensions.Contains(fileExtension);
+
+            if (!allowed)
+            {
+                filesystem ??= FileSystem.Instance;
+                using (Stream stream = filesystem.FileOpenRead(filePath))
+                {
+                    if (!IsBinaryFile(stream))
+                    {
+                        return true;
+                    }
+                }
+
+                promptDelegate ??= PromptIfOpenBinaryFile;
+                bool result = promptDelegate(fileExtension, out bool alwaysAllow);
+
+                if (result && alwaysAllow)
+                {
+                    CodeAnalysisResultManager.Instance.AddAllowedFileExtension(fileExtension);
+                }
+
+                return result;
+            }
+
+            return true;
         }
     }
 }
