@@ -23,18 +23,17 @@ namespace Microsoft.Sarif.Viewer.Views
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // Reflect the change in selection in the tree view back to the call tree.
             if (this.DataContext is SarifErrorListItem errorListItem)
             {
                 if (e.OldValue is LocationModel oldSelectedLocation)
                 {
-                    oldSelectedLocation.IsSelected = false;
+                    oldSelectedLocation.IsSelectedNode = false;
                     errorListItem.RelatedLocations.SelectedItem = null;
                 }
 
                 if (e.NewValue is LocationModel newSelectedLocation)
                 {
-                    newSelectedLocation.IsSelected = true;
+                    newSelectedLocation.IsSelectedNode = true;
                     errorListItem.RelatedLocations.SelectedItem = newSelectedLocation;
                 }
 

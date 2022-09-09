@@ -375,7 +375,7 @@ namespace Microsoft.Sarif.Viewer
                                   this.SarifResult.RelatedLocations?.Any() == true;
 
         [Browsable(false)]
-        public int LocationsCount => this.Locations.Count + this.RelatedLocations.Count;
+        public int LocationsCount => this.Locations.Count + this.RelatedLocations.DeepCount;
 
         [Browsable(false)]
         public bool HasMultipleLocations => this.LocationsCount > 1;
