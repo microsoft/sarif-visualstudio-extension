@@ -114,7 +114,7 @@
                                            Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}" />
                                 <TextBlock Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
                                            Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}">
-                                    <Run Text="{Binding RelatedLocations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}" />
+                                    <Run Text="{Binding RelatedLocations.DeepCount, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}" />
                                 </TextBlock>
                             </DockPanel>
                         </TreeViewItem.Header>
@@ -184,9 +184,14 @@
                                                                     <Setter Property="Foreground"
                                                                             Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemTextBrushKey}}"/>
                                                                 </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsSelectedNode}"
+                                                                             Value="true">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemTextBrushKey}}"/>
+                                                                </DataTrigger>
                                                                 <MultiDataTrigger>
                                                                     <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
+                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsMouseOver}"
                                                                                    Value="true"/>
                                                                         <Condition Binding="{Binding IsSelected}"
                                                                                    Value="false"/>

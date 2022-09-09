@@ -17,6 +17,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _module;
         private bool _isEssential;
         private bool _isSelected;
+        private bool _isSelectedNode;
         private DelegateCommand _navigateCommand;
 
         public LocationModel()
@@ -157,6 +158,24 @@ namespace Microsoft.Sarif.Viewer.Models
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this model's TreeViewItem is selected.
+        /// in the SARIF explorer UI.
+        /// </summary>
+        public bool IsSelectedNode
+        {
+            get => this._isSelectedNode;
+
+            set
+            {
+                if (value != this._isSelectedNode)
+                {
+                    this._isSelectedNode = value;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a persistent span that represents the location's region.
         /// </summary>
         public IPersistentSpan PersistentSpan { get; set; }
@@ -178,7 +197,6 @@ namespace Microsoft.Sarif.Viewer.Models
         public void NavigateTo()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.IsSelected = true;
             this.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
         }
     }

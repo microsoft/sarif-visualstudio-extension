@@ -14,6 +14,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _message;
         private LocationModel _selectedItem;
         private DelegateCommand<LocationModel> _selectedCommand;
+        private int _deepCount = -1;
 
         public LocationCollection(string message)
         {
@@ -144,6 +145,36 @@ namespace Microsoft.Sarif.Viewer.Models
             set
             {
                 this._selectedCommand = value;
+            }
+        }
+
+        public int DeepCount
+        {
+            get
+            {
+                if (this._deepCount == -1)
+                {
+                    static int GetChildCount(LocationModel locationModel)
+                    {
+                        int children = 1;
+                        foreach (LocationModel lm in locationModel.Children)
+                        {
+                            children += GetChildCount(lm);
+                        }
+
+                        return children;
+                    }
+
+                    int locationCount = 0;
+                    foreach (LocationModel lm in this)
+                    {
+                        locationCount += GetChildCount(lm);
+                    }
+
+                    this._deepCount = locationCount;
+                }
+
+                return this._deepCount;
             }
         }
 
