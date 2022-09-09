@@ -22,6 +22,11 @@ extends:
           registry: 1espipelinesdevpme.azurecr.io
           tenantId: PME
           identityType: 1ESPipelineIdentity
+      
+      sdl:  
+        baseline:    
+          baselineFile: $(Build.SourcesDirectory)\guardian\SDL\.gdnbaselines
+
         
       stages:
       - stage: build
