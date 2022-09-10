@@ -24,6 +24,8 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool EnableGitHubAdvancedSecurity { get; set; } = false;
 
+        public bool EnableKeyEventAdornment { get; set; } = true;
+
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
         /// </summary>

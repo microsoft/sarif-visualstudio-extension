@@ -41,6 +41,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideToolWindow(typeof(SarifExplorerWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
+    [ProvideService(typeof(SDataService))]
     [ProvideService(typeof(ISarifLocationTaggerService))]
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
@@ -87,6 +88,7 @@ namespace Microsoft.Sarif.Viewer
         {
             { typeof(SLoadSarifLogService), new ServiceInformation { Creator = type => new LoadSarifLogService(), Promote = true } },
             { typeof(SCloseSarifLogService), new ServiceInformation { Creator = type => new CloseSarifLogService(), Promote = true } },
+            { typeof(SDataService), new ServiceInformation { Creator = type => new DataService(), Promote = true } },
             { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService(), Promote = false } },
             { typeof(ISarifErrorListEventSelectionService), new ServiceInformation { Creator = type => new SarifErrorListEventProcessor(), Promote = false } },
 

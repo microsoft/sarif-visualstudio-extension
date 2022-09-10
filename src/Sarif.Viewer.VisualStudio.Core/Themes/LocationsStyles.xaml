@@ -51,6 +51,14 @@
         <Setter Property="Orientation" Value="Horizontal"/>
     </Style>
 
+    <Style x:Key="ListViewItemWrapPanelStyle" TargetType="WrapPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+    </Style>
+
+    <Style x:Key="ListViewItemStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal"/>
+    </Style>
+
     <Style x:Key="ListBoxItemToolTipRegionTextStyle" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
     </Style>
@@ -61,6 +69,7 @@
 
     <Style x:Key="LocationTextStyle" BasedOn="{StaticResource LocationTextBaseStyle}" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="LocationTextStyleNoMargin" BasedOn="{StaticResource LocationTextBaseStyle}" TargetType="TextBlock">
@@ -70,6 +79,24 @@
     <Style x:Key="RelatedLocationsTreeViewItemHeaderTextStyle" BasedOn="{StaticResource PanelHeader}" TargetType="TextBlock">
         <Setter Property="DockPanel.Dock" Value="Left"/>
         <Setter Property="Margin" Value="5,0,0,0"/>
+    </Style>
+
+    <Style x:Key="RelatedLocationsTreeViewStyle" TargetType="TreeView">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Margin" Value="-20,0,0,0"/>
+    </Style>
+
+    <Style x:Key="RelatedLocationsTreeViewItemTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemTextBrushKey}}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+    <Style x:Key="RelatedLocationsTreeViewItemLocationTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}"/>
     </Style>
 
 </ResourceDictionary>

@@ -8,5 +8,7 @@ namespace Microsoft.Sarif.Viewer.Options
         bool ShouldMonitorSarifFolder { get; }
 
         bool IsGitHubAdvancedSecurityEnabled { get; }
+
+        bool IsKeyEventAdornmentEnabled { get; }
     }
 }

@@ -55,6 +55,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // so we can properly filter the tags being shown in the editor
             // to the currently selected item.
             this.sarifErrorListEventSelectionService.SelectedItemChanged += this.SelectedSarifItemChanged;
+            this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SelectedSarifItemChanged;
 
             // Subscribe to the caret position so we can send enter and exit notifications
             // to the tags so they can decide potentially change their colors.

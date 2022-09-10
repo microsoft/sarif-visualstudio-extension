@@ -63,6 +63,12 @@ namespace Microsoft.Sarif.Viewer
             { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
         };
 
+        internal SarifErrorListItem(Result result)
+            : this()
+        {
+            this.SarifResult = result;
+        }
+
         internal SarifErrorListItem()
         {
             this.Locations = new LocationCollection(string.Empty);
@@ -88,6 +94,7 @@ namespace Microsoft.Sarif.Viewer
 
             this.RunIndex = runIndex;
             this.ResultId = Interlocked.Increment(ref currentResultId);
+            this.ResultGuid = result.Guid;
             this.SarifResult = result;
             ReportingDescriptor rule = result.GetRule(run);
             this.Tool = run.Tool.ToToolModel();
@@ -192,6 +199,14 @@ namespace Microsoft.Sarif.Viewer
         /// <see cref="RunIndex"/> property is not yet used.
         /// </remarks>
         public int ResultId { get; }
+
+        /// <summary>
+        /// Gets the Sarif result's guid. Can be null.
+        /// </summary>
+        /// <remarks>
+        /// In Key Event scenario, it is used to identify each unique warning and log to telemetry.
+        /// </remarks>
+        public string ResultGuid { get; }
 
         /// <summary>
         /// Gets reference to corresponding <see cref="SarifLog.Result" /> object.
@@ -360,7 +375,7 @@ namespace Microsoft.Sarif.Viewer
                                   this.SarifResult.RelatedLocations?.Any() == true;
 
         [Browsable(false)]
-        public int LocationsCount => this.Locations.Count + this.RelatedLocations.Count;
+        public int LocationsCount => this.Locations.Count + this.RelatedLocations.DeepCount;
 
         [Browsable(false)]
         public bool HasMultipleLocations => this.LocationsCount > 1;
@@ -604,10 +619,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
-                for (int i = this.SarifResult.RelatedLocations.Count - 1; i >= 0; --i)
-                {
-                    this.RelatedLocations.Add(this.SarifResult.RelatedLocations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
-                }
+                this.BuildRelatedLocationsTree();
             }
 
             if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
@@ -622,7 +634,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in this.SarifResult.CodeFlows)
                 {
-                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
                     if (analysisStep != null)
                     {
                         this.AnalysisSteps.Add(analysisStep);
@@ -642,6 +654,36 @@ namespace Microsoft.Sarif.Viewer
                             propertyName,
                             this.SarifResult.GetSerializedPropertyValue(propertyName)));
                 }
+            }
+        }
+
+        internal void BuildRelatedLocationsTree()
+        {
+            LocationModel lastNode = null;
+            int lastLevel = -1;
+
+            foreach (Location location in this.SarifResult.RelatedLocations)
+            {
+                var locationModel = location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                int levelChange = locationModel.NestingLevel - lastLevel;
+
+                while (levelChange++ <= 0)
+                {
+                    lastNode = lastNode?.Parent;
+                }
+
+                if (locationModel.NestingLevel > 0)
+                {
+                    locationModel.Parent = lastNode;
+                    lastNode?.Children.Add(locationModel);
+                }
+                else
+                {
+                    this.RelatedLocations.Add(locationModel);
+                }
+
+                lastLevel = locationModel.NestingLevel;
+                lastNode = locationModel;
             }
         }
 

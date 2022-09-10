@@ -47,7 +47,12 @@
                           IsChecked="{Binding EnableGitHubAdvancedSecurity, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_EnableGitHubAdvancedSecurity}"
                           AutomationProperties.AutomationId="EnableGitHubAdvancedSecurityCheckBox" />
-
+                <CheckBox x:Name="EnableKeyEventAdornmentCheckBox"
+                          Margin="5"
+                          Style="{StaticResource CheckBoxStyle}"
+                          IsChecked="{Binding EnableKeyEventAdornment, Mode=TwoWay}"
+                          Content="{StaticResource SarifViewerOptionsControl_EnableKeyEventAdornment}"
+                          AutomationProperties.AutomationId="EnableKeyEventAdornmentCheckBox" />
             </StackPanel>
         </GroupBox>
     </Grid>

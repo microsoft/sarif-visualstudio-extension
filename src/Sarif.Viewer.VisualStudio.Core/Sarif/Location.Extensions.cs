@@ -42,6 +42,11 @@ namespace Microsoft.Sarif.Viewer.Sarif
                 }
             }
 
+            if (location.TryGetProperty<int>("nestingLevel", out int nestingLevel))
+            {
+                model.NestingLevel = nestingLevel;
+            }
+
             model.Message = location.Message?.Text;
             model.LogicalLocation = location.LogicalLocation?.FullyQualifiedName;
 
