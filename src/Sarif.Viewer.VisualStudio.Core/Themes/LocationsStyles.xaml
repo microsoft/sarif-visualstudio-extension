@@ -14,19 +14,16 @@
     <Style x:Key="TreeViewStyleBase" TargetType="TreeView">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
     </Style>
 
     <Style x:Key="LocationsTreeViewStyle" BasedOn="{StaticResource TreeViewStyleBase}" TargetType="TreeView">
-        <Setter Property="Margin" Value="0,10,0,0"/>
+        <Setter Property="Margin" Value="-1,10,0,0"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style x:Key="LocationCountTextStyle" BasedOn="{StaticResource PanelHeader}" TargetType="TextBlock">
         <Setter Property="Margin" Value="5,0,0,0"/>
-    </Style>
-
-    <Style x:Key="TreeViewItemStyle" TargetType="TreeViewItem">
-        <Setter Property="IsExpanded" Value="True"/>
     </Style>
 
     <Style x:Key="TreeViewItemListBoxStyle" TargetType="ListBox">
@@ -78,7 +75,7 @@
 
     <Style x:Key="RelatedLocationsTreeViewItemHeaderTextStyle" BasedOn="{StaticResource PanelHeader}" TargetType="TextBlock">
         <Setter Property="DockPanel.Dock" Value="Left"/>
-        <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
     </Style>
 
     <Style x:Key="RelatedLocationsTreeViewStyle" TargetType="TreeView">
