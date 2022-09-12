@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.VisualStudio.Debugger.Evaluation.IL;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
