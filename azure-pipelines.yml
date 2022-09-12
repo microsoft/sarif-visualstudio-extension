@@ -42,7 +42,7 @@ extends:
                 targetPath: $(System.DefaultWorkingDirectory)
             
               breakGlass:
-                justification: Testing Break Glass Scenario
+                justification: Because of the batch script task below
 
             steps:
                 
