@@ -258,7 +258,8 @@
                                     <TreeView.ItemTemplate>
                                         <HierarchicalDataTemplate DataType="{x:Type models:LocationModel}"
                                                                   ItemsSource="{Binding Children, Mode=OneTime}">
-                                            <StackPanel Orientation="Vertical">
+                                            <StackPanel Orientation="Vertical"
+                                                        Background="Transparent">
                                                 <TextBlock Text="{Binding Message}"
                                                            Style="{StaticResource RelatedLocationsTreeViewItemTextStyle}"/>
                                                 <TextBlock Text="{Binding LocationDisplayString, Mode=OneWay}">
@@ -279,7 +280,7 @@
                                                                 </DataTrigger>
                                                                 <MultiDataTrigger>
                                                                     <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsMouseOver}"
+                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
                                                                                    Value="true"/>
                                                                         <Condition Binding="{Binding IsSelected}"
                                                                                    Value="false"/>
