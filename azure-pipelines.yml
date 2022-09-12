@@ -16,12 +16,7 @@ extends:
       pool:
         name: 1ES-Shared-Hosted-Pool_Windows-Server-2022
         os: windows
-      containers:
-        default_windows_container:
-          image: 1espipelinesdevpme.azurecr.io/windows/ltsc2022/vse2022:latest
-          registry: 1espipelinesdevpme.azurecr.io
-          tenantId: PME
-          identityType: 1ESPipelineIdentity
+      
       
       sdl:  
         baseline:    
