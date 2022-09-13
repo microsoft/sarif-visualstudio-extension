@@ -1,10 +1,14 @@
 # SARIF Viewer Visual Studio extension Release History
 
-## To Be Released
+## **3.0.98** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* FEATURE: Result sources platform + GitHub Advanced Security source service
+* FEATURE: Key Event adornments + improved Locations view
+* REVERT FEATURE: Generate Popup from Xaml (security vulnerability)
+
+## **3.0.74** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 ## [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Error list expando for long message does not work.
 * FEATURE: Generate Popup from Xaml.
-* FEATURE: Result sources platform + GitHub Advanced Security source service
 
 ## [SARIFER](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * BUGFIX: Enable "Run Static Analyzer" gesture for solution explorer folder view.
