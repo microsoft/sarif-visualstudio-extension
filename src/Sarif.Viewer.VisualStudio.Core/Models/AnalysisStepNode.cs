@@ -9,6 +9,7 @@ using System.Windows;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Converters;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 
@@ -26,10 +27,16 @@ namespace Microsoft.Sarif.Viewer.Models
         private int _nestingLevel;
         private Thickness _textMargin;
         private DelegateCommand _navigateCommand;
+        private int _index;
+        private string _resultGuid;
+        private string _ruleId;
 
-        public AnalysisStepNode(int resultId, int runIndex)
+        public AnalysisStepNode(int resultId, int runIndex, int index = 0, string resultGuid = null, string ruleId = null)
             : base(resultId, runIndex)
         {
+            this._index = index;
+            this._resultGuid = resultGuid;
+            this._ruleId = ruleId;
         }
 
         [Browsable(false)]
@@ -309,6 +316,45 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
+        public int Index
+        {
+            get
+            {
+                return this._index;
+            }
+
+            set
+            {
+                this._index = value;
+            }
+        }
+
+        public string ResultGuid
+        {
+            get
+            {
+                return this._resultGuid;
+            }
+
+            set
+            {
+                this._resultGuid = value;
+            }
+        }
+
+        public string RuleId
+        {
+            get
+            {
+                return this._ruleId;
+            }
+
+            set
+            {
+                this._ruleId = value;
+            }
+        }
+
         public Dictionary<string, string> Properties
         {
             get
@@ -446,7 +492,8 @@ namespace Microsoft.Sarif.Viewer.Models
         private void Navigate()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            this.NavigateTo(usePreviewPane: true, moveFocusToCaretLocation: false);
+            KeyEventTelemetry.Instance.TrackEvent(KeyEventTelemetry.EventNames.NavigateToKeyEventWarning, this._ruleId, this._resultGuid, this._index);
+            this.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
         }
     }
 }

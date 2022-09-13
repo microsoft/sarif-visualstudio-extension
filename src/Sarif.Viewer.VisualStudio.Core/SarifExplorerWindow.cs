@@ -29,7 +29,7 @@ namespace Microsoft.Sarif.Viewer
     /// </para>
     /// </remarks>
     [Guid("ab561bcc-e01d-4781-8c2e-95a9170bfdd5")]
-    public class SarifExplorerWindow : ToolWindowPane, IToolWindow
+    public class SarifExplorerWindow : ToolWindowPane, IToolWindow, IVsWindowFrameNotify3
     {
         /// <summary>
         /// Track selection is for development (design time) only. It has no impact on runtime.
@@ -146,6 +146,12 @@ namespace Microsoft.Sarif.Viewer
             ((IVsWindowFrame)this.Frame).Show();
         }
 
+        public void Close()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            ((IVsWindowFrame)this.Frame).CloseFrame((uint)__FRAMECLOSE.FRAMECLOSE_NoSave);
+        }
+
         public void UpdateSelectionList(params object[] items)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -228,5 +234,39 @@ namespace Microsoft.Sarif.Viewer
 
             return vsPackage.FindToolWindow(typeof(SarifExplorerWindow), 0, true) as SarifExplorerWindow;
         }
+
+        // start of IVsWindowFrameNotify3 interfaces
+        public int OnClose(ref uint pgrfSaveOptions)
+        {
+            if (this.sarifErrorListEventSelectionService != null)
+            {
+                this.sarifErrorListEventSelectionService.SelectedItem = null;
+                this.sarifErrorListEventSelectionService.NavigatedItem = null;
+            }
+
+            return Microsoft.VisualStudio.VSConstants.S_OK;
+        }
+
+        public int OnDockableChange(int fDockable, int x, int y, int w, int h)
+        {
+            return Microsoft.VisualStudio.VSConstants.S_OK;
+        }
+
+        public int OnMove(int x, int y, int w, int h)
+        {
+            return Microsoft.VisualStudio.VSConstants.S_OK;
+        }
+
+        public int OnShow(int fShow)
+        {
+            return Microsoft.VisualStudio.VSConstants.S_OK;
+        }
+
+        public int OnSize(int x, int y, int w, int h)
+        {
+            return Microsoft.VisualStudio.VSConstants.S_OK;
+        }
+
+        // end of IVsWindowFrameNotify3 interfaces
     }
 }

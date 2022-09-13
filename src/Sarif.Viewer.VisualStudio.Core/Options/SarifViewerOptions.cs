@@ -11,6 +11,8 @@ namespace Microsoft.Sarif.Viewer.Options
     {
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
+        private readonly bool keyEventAdornmentEnabledDefaultValue = true;
+
         private readonly AsyncPackage package;
 
         private readonly SarifViewerOptionPage optionPage;
@@ -31,6 +33,8 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
 
         public bool IsGitHubAdvancedSecurityEnabled => this.optionPage?.EnableGitHubAdvancedSecurity ?? this.IsGitHubAdvancedSecurityEnabled;
+
+        public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
 
         /// <summary>
         /// Gets the instance of the command.

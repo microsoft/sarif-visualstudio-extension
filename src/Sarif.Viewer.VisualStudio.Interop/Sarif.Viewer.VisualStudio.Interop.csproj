@@ -34,6 +34,9 @@
     </PackageReference>
     <!-- Necessary to resolve version conflict on Newtonsoft.Json: -->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Sarif.Sdk">
+      <Version>2.4.15</Version>
+    </PackageReference>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>

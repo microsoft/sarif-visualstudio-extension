@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Controls;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Telemetry;
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Models
@@ -282,9 +283,7 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._selectPreviousCommand = new DelegateCommand<TreeView>(treeView =>
                     {
-                        var control = treeView as TreeView;
-                        var model = control.DataContext as AnalysisStep;
-                        model.SelectedItem = this.FindPrevious();
+                        this.NavigateTo(treeView, this.FindPrevious());
                     });
                 }
 
@@ -301,14 +300,29 @@ namespace Microsoft.Sarif.Viewer.Models
                 {
                     this._selectNextCommand = new DelegateCommand<TreeView>(treeView =>
                     {
-                        var control = treeView as TreeView;
-                        var model = control.DataContext as AnalysisStep;
-                        model.SelectedItem = this.FindNext();
+                        this.NavigateTo(treeView, this.FindNext());
                     });
                 }
 
                 return this._selectNextCommand;
             }
+        }
+
+        internal void NavigateTo(TreeView treeview, AnalysisStepNode node)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var model = treeview.DataContext as AnalysisStep;
+            model.SelectedItem = node;
+            model.SelectedItem.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: false);
+
+            KeyEventTelemetry.Instance.TrackEvent(
+                KeyEventTelemetry.EventNames.NavigateToKeyEventWarning,
+                model.SelectedItem.RuleId,
+                model.SelectedItem.ResultGuid,
+                model.SelectedItem.Index);
+
+            treeview.Focus();
         }
 
         internal void ExpandAll()

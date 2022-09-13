@@ -128,7 +128,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             topLevelNodes[1].Parent.Should().Be(null);
             topLevelNodes[1].Children[0].Parent.Location.Location.Message.Text.Should().Be("fifth parent");
 
-            List<AnalysisStepNode> flatNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, resultId: 0, runIndex: 0);
+            SarifErrorListItem sarifErrorListItem = new SarifErrorListItem();
+            List<AnalysisStepNode> flatNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, sarifErrorListItem, runIndex: 0);
             VerifyCodeFlowFlatList(flatNodes, codeFlow, run: null);
         }
 
@@ -213,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             topLevelNodes[1].Children[1].Parent.Location.Location.Message.Text.Should().Be("second parent");
             topLevelNodes[1].Children[2].Parent.Location.Location.Message.Text.Should().Be("second parent");
 
-            List<AnalysisStepNode> flatNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, resultId: 0, runIndex: 0);
+            List<AnalysisStepNode> flatNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, new SarifErrorListItem(), runIndex: 0);
             VerifyCodeFlowFlatList(flatNodes, codeFlow, run: null);
         }
 
@@ -251,7 +252,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             topLevelNodes[1].Parent.Should().Be(null);
             topLevelNodes[2].Parent.Should().Be(null);
 
-            List<AnalysisStepNode> flatNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, resultId: 0, runIndex: 0);
+            List<AnalysisStepNode> flatNodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, new SarifErrorListItem(), runIndex: 0);
             VerifyCodeFlowFlatList(flatNodes, codeFlow, run: null);
         }
 
@@ -372,7 +373,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             });
 
-            List<AnalysisStepNode> nodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, resultId: 0, runIndex: 0);
+            List<AnalysisStepNode> nodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run: null, new SarifErrorListItem(), runIndex: 0);
             VerifyCodeFlowFlatList(nodes, codeFlow, run: null);
         }
 
@@ -512,7 +513,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     new Artifact { Location = new ArtifactLocation { Uri = new Uri("path/to/file3.cpp", UriKind.Relative), } },
                 },
             };
-            List<AnalysisStepNode> nodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run, resultId: 0, runIndex: 0);
+            List<AnalysisStepNode> nodes = CodeFlowToTreeConverter.ToFlatList(codeFlow, run, new SarifErrorListItem(), runIndex: 0);
             VerifyCodeFlowFlatList(nodes, codeFlow, run: null);
         }
 

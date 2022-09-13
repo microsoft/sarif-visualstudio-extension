@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Models;
 
 using Moq;
 
@@ -211,7 +212,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            IDictionary<string, Models.ArtifactDetailsModel> fileDetails = this.CurrentRunDataCache.FileDetails;
+            IDictionary<string, ArtifactDetailsModel> fileDetails = this.CurrentRunDataCache.FileDetails;
 
             fileDetails.Should().ContainKey(Key1);
         }
@@ -221,7 +222,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -249,7 +250,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
             string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key2);
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
             string fileText = mockContent;
 
             fileDetail.Sha256Hash.Should().BeEquivalentTo(ExpectedHashValue2);
@@ -275,7 +276,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
             string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key8);
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key8];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key8];
             string fileText = mockContent;
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -287,7 +288,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key3];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key3];
             string contents = fileDetail.GetContents();
 
             contents.Should().Be(ExpectedContents1);
@@ -298,7 +299,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key4];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key4];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -310,7 +311,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key5];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key5];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -320,7 +321,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public void SarifFileWithContents_HandlesEmptyTextContents()
         {
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key6];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key6];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(EmptyStringHash);
@@ -332,7 +333,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key7];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key7];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);
@@ -344,7 +345,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            Models.ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key1];
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key1];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue1);

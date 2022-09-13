@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 
@@ -37,7 +36,6 @@ namespace Microsoft.Sarif.Viewer
     {
         // max length of concise text, 0 indexed
         internal static int MaxConcisedTextLength = 150;
-        internal static string XamlPropertyName = "Xaml";
 
         // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
         private static int currentResultId;
@@ -62,6 +60,12 @@ namespace Microsoft.Sarif.Viewer
             { FailureLevel.Warning, PredefinedErrorTypeNames.Warning },
             { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
         };
+
+        internal SarifErrorListItem(Result result)
+            : this()
+        {
+            this.SarifResult = result;
+        }
 
         internal SarifErrorListItem()
         {
@@ -88,6 +92,7 @@ namespace Microsoft.Sarif.Viewer
 
             this.RunIndex = runIndex;
             this.ResultId = Interlocked.Increment(ref currentResultId);
+            this.ResultGuid = result.Guid;
             this.SarifResult = result;
             ReportingDescriptor rule = result.GetRule(run);
             this.Tool = run.Tool.ToToolModel();
@@ -98,12 +103,6 @@ namespace Microsoft.Sarif.Viewer
 
             this.RawMessage = result.GetMessageText(rule, concise: false).Trim();
             (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
-
-            string xamlContent = null;
-            if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out xamlContent) == true)
-            {
-                this.XamlMessage = Regex.Unescape(xamlContent);
-            }
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -194,6 +193,14 @@ namespace Microsoft.Sarif.Viewer
         public int ResultId { get; }
 
         /// <summary>
+        /// Gets the Sarif result's guid. Can be null.
+        /// </summary>
+        /// <remarks>
+        /// In Key Event scenario, it is used to identify each unique warning and log to telemetry.
+        /// </remarks>
+        public string ResultGuid { get; }
+
+        /// <summary>
         /// Gets reference to corresponding <see cref="SarifLog.Result" /> object.
         /// </summary>
         public Result SarifResult { get; }
@@ -253,9 +260,6 @@ namespace Microsoft.Sarif.Viewer
         public bool HasDetailsContent =>
             !string.IsNullOrWhiteSpace(this.Message)
             && this.Message != this.ShortMessage;
-
-        [Browsable(false)]
-        public string XamlMessage { get; }
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
@@ -360,7 +364,7 @@ namespace Microsoft.Sarif.Viewer
                                   this.SarifResult.RelatedLocations?.Any() == true;
 
         [Browsable(false)]
-        public int LocationsCount => this.Locations.Count + this.RelatedLocations.Count;
+        public int LocationsCount => this.Locations.Count + this.RelatedLocations.DeepCount;
 
         [Browsable(false)]
         public bool HasMultipleLocations => this.LocationsCount > 1;
@@ -453,7 +457,6 @@ namespace Microsoft.Sarif.Viewer
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.PlainMessage,
-                        tooltipXamlString: this.XamlMessage,
                         context: this);
                 }
 
@@ -604,10 +607,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
-                for (int i = this.SarifResult.RelatedLocations.Count - 1; i >= 0; --i)
-                {
-                    this.RelatedLocations.Add(this.SarifResult.RelatedLocations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
-                }
+                this.BuildRelatedLocationsTree();
             }
 
             if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
@@ -622,7 +622,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 foreach (CodeFlow codeFlow in this.SarifResult.CodeFlows)
                 {
-                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
                     if (analysisStep != null)
                     {
                         this.AnalysisSteps.Add(analysisStep);
@@ -642,6 +642,36 @@ namespace Microsoft.Sarif.Viewer
                             propertyName,
                             this.SarifResult.GetSerializedPropertyValue(propertyName)));
                 }
+            }
+        }
+
+        internal void BuildRelatedLocationsTree()
+        {
+            LocationModel lastNode = null;
+            int lastLevel = -1;
+
+            foreach (Location location in this.SarifResult.RelatedLocations)
+            {
+                var locationModel = location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                int levelChange = locationModel.NestingLevel - lastLevel;
+
+                while (levelChange++ <= 0)
+                {
+                    lastNode = lastNode?.Parent;
+                }
+
+                if (locationModel.NestingLevel > 0)
+                {
+                    locationModel.Parent = lastNode;
+                    lastNode?.Children.Add(locationModel);
+                }
+                else
+                {
+                    this.RelatedLocations.Add(locationModel);
+                }
+
+                lastLevel = locationModel.NestingLevel;
+                lastNode = locationModel;
             }
         }
 
