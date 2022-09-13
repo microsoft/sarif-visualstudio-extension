@@ -28,9 +28,6 @@
     <!-- Necessary to resolve version conflict on Newtonsoft.Json: -->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="Xunit.StaFact">
-      <Version>1.1.11</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -80,7 +77,6 @@
     <Compile Include="StringBuilderFileStreamMock.cs" />
     <Compile Include="SuppressionTests.cs" />
     <EmbeddedResource Include="TestData\BinaryTestFiles\NonBinaries\csharpfile.cs" />
-    <Compile Include="Tags\SarifLocationErrorTagTests.cs" />
     <Compile Include="Telemetry\KeyEventTelemetryTests.cs" />
     <Compile Include="TestTraits.cs" />
     <Compile Include="TestUtilities.cs" />
@@ -91,7 +87,6 @@
     <Compile Include="Models\AnalysisStepNodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VersionControlParserTests.cs" />
-    <Compile Include="XamlUtilitiesTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -126,5 +121,8 @@
   <ItemGroup>
     <EmbeddedResource Include="TestData\BinaryTestFiles\Binaries\testapp.pdb" />
     <EmbeddedResource Include="TestData\BinaryTestFiles\NonBinaries\test.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tags\" />
   </ItemGroup>
 </Project>
