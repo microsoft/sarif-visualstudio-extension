@@ -164,8 +164,16 @@ namespace Microsoft.Sarif.Viewer
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+            SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
             return;
+        }
+
+        private void SolutionEvents_OnAfterCloseSolution(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            SarifExplorerWindow.Find()?.Close();
         }
 
         private async Task InitializeResultSourceHostAsync()
@@ -192,10 +200,8 @@ namespace Microsoft.Sarif.Viewer
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                if (vsShell == null)
-                {
-                    vsShell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
-                }
+
+                vsShell ??= Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
 
                 return vsShell;
             }
