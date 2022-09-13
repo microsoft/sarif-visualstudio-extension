@@ -18,8 +18,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     public class SarifErrorListItemTests
     {
         private const string FileName = "file.c";
-        private const string InvalidXaml = "<html><head><title>Title</title></head></html>";
-        private const string ValidXamlWithHyperlink = "<UserControl\r\n    xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"\r\n    xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\r\n    xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\r\n    xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\">\r\n    <StackPanel>\r\n        <TextBlock>\r\n            <Hyperlink NavigateUri=\"https://test.com\">Test Link</Hyperlink>\r\n        </TextBlock>\r\n    </StackPanel>\r\n</UserControl>";
 
         // Run object used in tests that don't require a populated run object.
         private static readonly Run EmptyRun = new Run();
@@ -924,47 +922,23 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Properties.First(kv => kv.Key == "nullObj").Value.Should().BeNull();
             item.Properties.First(kv => kv.Key == "object").Value.Should().BeEquivalentTo("{\"foo\":\"bar\"}");
         }
-
-        [Fact]
-        public void SarifErrorListItem_WithXamlProperty_ContainsXamlMessage()
+        private static SarifErrorListItem MakeErrorListItem(Result result)
         {
-            var result = new Result
+            return MakeErrorListItem(EmptyRun, result);
+        }
+
+        private static SarifErrorListItem MakeErrorListItem(Run run, Result result)
+        {
+            result.Run = run;
+            return new SarifErrorListItem(
+                run,
+                runIndex: 0,
+                result: result,
+                logFilePath: "log.sarif",
+                projectNameCache: new ProjectNameCache(solution: null))
             {
-                Message = new Message
-                {
-                    Text = "Message to be a tooltip.",
-                },
-                RuleId = "TST0001",
-                Locations = new[]
-                {
-                    new Location
-                    {
-                        PhysicalLocation = new PhysicalLocation
-                        {
-                            Region = new Region
-                            {
-                                StartLine = 10,
-                                StartColumn = 6,
-                            },
-                        },
-                    },
-                },
+                FileName = FileName,
             };
-
-            result.Message.SetProperty(SarifErrorListItem.XamlPropertyName, ValidXamlWithHyperlink);
-
-            var run = new Run
-            {
-                Tool = new Tool(),
-            };
-
-            SarifErrorListItem item = TestUtilities.MakeErrorListItem(run, result);
-            item.Message.Should().Be(result.Message.Text);
-            item.XamlMessage.Should().Be(ValidXamlWithHyperlink);
-
-            ResultTextMarker lineMarker = item.LineMarker;
-            lineMarker.ToolTipContent.Should().Be(result.Message.Text);
-            lineMarker.ToolTipXamlString.Should().Be(ValidXamlWithHyperlink);
         }
     }
 }
