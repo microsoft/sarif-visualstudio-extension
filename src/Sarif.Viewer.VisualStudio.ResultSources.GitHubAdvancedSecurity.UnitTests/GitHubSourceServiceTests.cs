@@ -314,7 +314,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
+            string accessToken = "GITHUB-ACCESS-TOKEN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -437,7 +437,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
+            string accessToken = "GITHUB-ACCESS-TOKEN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -485,7 +485,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
+            string accessToken = "GITHUB-ACCESS-TOKEN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -535,7 +535,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
             string commitHash = "64ab23c";
-            string accessToken = "gho_aCc3Ss70keN";
+            string accessToken = "GITHUB-ACCESS-TOKEN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -583,7 +583,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
+            string accessToken = "GITHUB-ACCESS-TOKEN";
             string expectedAnalysisId = "321";
 
             var httpResponseMessage = new HttpResponseMessage()
@@ -635,7 +635,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
             string commitHash = "64ab23c";
-            string accessToken = "gho_aCc3Ss70keN";
+            string accessToken = "GITHUB-ACCESS-TOKEN";
             string expectedAnalysisId = "321";
 
             var httpResponseMessage = new HttpResponseMessage()
