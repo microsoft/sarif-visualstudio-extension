@@ -31,7 +31,7 @@
         <Setter Property="Foreground"
                 Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}" />
         <Setter Property="FontWeight"
-                Value="DemiBold" />
+                Value="{DynamicResource {x:Static vs_env:VsFonts.Environment111PercentFontWeightKey}}"/>
         <Setter Property="Margin"
                 Value="0 0 10 0" />
     </Style>
