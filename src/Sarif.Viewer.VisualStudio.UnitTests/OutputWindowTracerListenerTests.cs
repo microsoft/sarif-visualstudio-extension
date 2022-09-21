@@ -36,20 +36,20 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockOutputWindow = new Mock<IVsOutputWindow>();
             mockOutputWindow.Setup(o => o.CreatePane(ref It.Ref<Guid>.IsAny, It.IsAny<string>(), 1, 1)).Returns(0);
             mockOutputWindow.Setup(o => o.GetPane(ref It.Ref<Guid>.IsAny, out pane));
+            string expectedLogString = "Test log";
 
-            // act
+            // act..assert
             var outputWindowTraceListener = new OutputWindowTracerListener(mockOutputWindow.Object, "TestPane");
 
-            Trace.Write("Test log");
+            Trace.Write(expectedLogString);
 
-            // assert
             mockPane.Verify(p => p.OutputStringThreadSafe(It.IsAny<string>()), Times.Once);
-            currentOutputString.Should().Be("Test log");
+            currentOutputString.Should().Be(expectedLogString);
 
-            Trace.WriteLine("More test logs");
+            Trace.WriteLine(expectedLogString);
 
             mockPane.Verify(p => p.OutputStringThreadSafe(It.IsAny<string>()), Times.Exactly(2));
-            currentOutputString.Should().Be(Environment.NewLine + "More test logs");
+            currentOutputString.Should().Be(Environment.NewLine + expectedLogString);
         }
     }
 }

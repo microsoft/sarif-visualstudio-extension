@@ -95,19 +95,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             try
             {
-                Trace.WriteLine($"Processing SARIF log file {filePath}");
+                Trace.WriteLine($"Processing SARIF log file `{filePath}`");
                 await ProcessLogFileCoreAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
-                Trace.WriteLine($"SARIF log file {filePath} processed");
+                Trace.WriteLine($"SARIF log file `{filePath}` processed");
             }
             catch (JsonException je)
             {
-                Trace.WriteLine($"An error occurred while processing SARIF log file {filePath} due to error: {je.Message}");
+                Trace.WriteLine($"An error occurred while processing SARIF log file `{filePath}` due to error: `{je.Message}`");
                 RaiseLogProcessed(ExceptionalConditions.InvalidJson);
             }
             catch (Exception ex)
             {
                 // for all other exceptions e.g. IO exception. throw it here will crash VS.
-                Trace.WriteLine($"An error occurred while reading SARIF log file {filePath}. due to error: {ex.Message}");
+                Trace.WriteLine($"An error occurred while reading SARIF log file `{filePath}` due to error: `{ex.Message}`");
             }
         }
 
