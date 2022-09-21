@@ -27,26 +27,50 @@ namespace Microsoft.Sarif.Viewer
 
         public override void Write(string message)
         {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
             if (this.EnsurePane())
             {
-                ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                if (!SarifViewerPackage.IsUnitTesting)
                 {
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                    {
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                        this.pane.OutputStringThreadSafe(message);
+                    }).FileAndForget(OutputWindowEvent);
+                }
+                else
+                {
                     this.pane.OutputStringThreadSafe(message);
-                }).FileAndForget(OutputWindowEvent);
+                }
             }
         }
 
         public override void WriteLine(string message)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             this.Write(Environment.NewLine + message);
         }
 
         private bool EnsurePane()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             if (this.pane == null)
             {
