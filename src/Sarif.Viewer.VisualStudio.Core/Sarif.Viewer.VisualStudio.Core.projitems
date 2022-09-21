@@ -108,6 +108,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControl.xaml.cs">
       <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)OutputWindowTracerListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectKind.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectNameCache.cs" />

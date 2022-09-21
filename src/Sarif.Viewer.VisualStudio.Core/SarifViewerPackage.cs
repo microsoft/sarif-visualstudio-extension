@@ -50,6 +50,7 @@ namespace Microsoft.Sarif.Viewer
     public sealed class SarifViewerPackage : AsyncPackage
     {
         private ResultSourceHost resultSourceHost;
+        private OutputWindowTracerListener outputWindowTraceListener;
 
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
@@ -57,6 +58,7 @@ namespace Microsoft.Sarif.Viewer
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
         public const string OptionCategoryName = "SARIF Viewer";
         public const string OptionPageName = "General";
+        public const string OutputPaneName = "SARIF Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
@@ -145,6 +147,11 @@ namespace Microsoft.Sarif.Viewer
 
             // initialize Option first since other componments may depends on options.
             await SarifViewerOption.InitializeAsync(this).ConfigureAwait(false);
+
+            if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
+            {
+                this.outputWindowTraceListener = new OutputWindowTracerListener(output, OutputPaneName);
+            }
 
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
