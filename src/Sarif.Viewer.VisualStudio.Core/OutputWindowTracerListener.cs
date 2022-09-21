@@ -11,8 +11,6 @@ namespace Microsoft.Sarif.Viewer
 {
     public class OutputWindowTracerListener : TraceListener
     {
-        private const string OutputWindowEvent = "Microsoft/SARIF/Viewer/WriteToOutputPane/Failed";
-
         private readonly string _name;
         private readonly IVsOutputWindow _outputWindowService;
 
@@ -42,7 +40,7 @@ namespace Microsoft.Sarif.Viewer
                     {
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                         this.pane.OutputStringThreadSafe(message);
-                    }).FileAndForget(OutputWindowEvent);
+                    }).FileAndForget(Constants.FileAndForgetFaultEventNames.OutputWindowEvent);
                 }
                 else
                 {
