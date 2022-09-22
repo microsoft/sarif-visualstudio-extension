@@ -1,5 +1,8 @@
 # SARIF Viewer Visual Studio extension Release History
 
+## Unreleased ** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* FEATURE: Enable logging to the VS console to support debugging scenarios.
+
 ## **3.0.98** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: Result sources platform + GitHub Advanced Security source service
 * FEATURE: Key Event adornments + improved Locations view
