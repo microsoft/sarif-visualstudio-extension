@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -25,47 +26,44 @@ namespace Microsoft.Sarif.Viewer
 
         public override void Write(string message)
         {
-            if (!SarifViewerPackage.IsUnitTesting)
+            try
             {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
-                ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108
-            }
-
-            if (this.EnsurePane())
-            {
-                if (!SarifViewerPackage.IsUnitTesting)
+                if (this.EnsurePane())
                 {
-                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                    if (!SarifViewerPackage.IsUnitTesting)
                     {
-                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+                        {
+                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                            this.pane.OutputStringThreadSafe(message);
+                        }).FileAndForget(Constants.FileAndForgetFaultEventNames.OutputWindowEvent);
+                    }
+                    else
+                    {
+#pragma warning disable VSTHRD010 // Only for unit tests.
                         this.pane.OutputStringThreadSafe(message);
-                    }).FileAndForget(Constants.FileAndForgetFaultEventNames.OutputWindowEvent);
+#pragma warning restore VSTHRD010
+                    }
                 }
-                else
-                {
-                    this.pane.OutputStringThreadSafe(message);
-                }
+            }
+            catch (COMException)
+            {
+                // COMException is thrown if called from non UI thread.
             }
         }
 
         public override void WriteLine(string message)
         {
-            if (!SarifViewerPackage.IsUnitTesting)
-            {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
-                ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108
-            }
-
+#pragma warning disable VSTHRD010 // Thread check inside this.Write().
             this.Write(Environment.NewLine + message);
+#pragma warning restore VSTHRD010
         }
 
         private bool EnsurePane()
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally.
                 ThreadHelper.ThrowIfNotOnUIThread();
 #pragma warning restore VSTHRD108
             }
