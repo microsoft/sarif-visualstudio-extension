@@ -26,29 +26,22 @@ namespace Microsoft.Sarif.Viewer
 
         public override void Write(string message)
         {
-            try
+            if (this.EnsurePane())
             {
-                if (this.EnsurePane())
+                if (!ThreadHelper.CheckAccess() && !SarifViewerPackage.IsUnitTesting)
                 {
-                    if (!SarifViewerPackage.IsUnitTesting)
+                    ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
                     {
-                        ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                        {
-                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                            this.pane.OutputStringThreadSafe(message);
-                        }).FileAndForget(Constants.FileAndForgetFaultEventNames.OutputWindowEvent);
-                    }
-                    else
-                    {
-#pragma warning disable VSTHRD010 // Only for unit tests.
+                        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                         this.pane.OutputStringThreadSafe(message);
-#pragma warning restore VSTHRD010
-                    }
+                    }).FileAndForget(Constants.FileAndForgetFaultEventNames.OutputWindowEvent);
                 }
-            }
-            catch (COMException)
-            {
-                // COMException is thrown if called from non UI thread.
+                else
+                {
+#pragma warning disable VSTHRD010 // For unit tests or already from UI thread.
+                    this.pane.OutputStringThreadSafe(message);
+#pragma warning restore VSTHRD010
+                }
             }
         }
 
@@ -61,15 +54,15 @@ namespace Microsoft.Sarif.Viewer
 
         private bool EnsurePane()
         {
-            if (!SarifViewerPackage.IsUnitTesting)
-            {
-#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally.
-                ThreadHelper.ThrowIfNotOnUIThread();
-#pragma warning restore VSTHRD108
-            }
-
             if (this.pane == null)
             {
+                if (!SarifViewerPackage.IsUnitTesting)
+                {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally.
+                    ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+                }
+
                 var guid = Guid.NewGuid();
                 this._outputWindowService.CreatePane(ref guid, this._name, fInitVisible: 1, fClearWithSolution: 1);
                 this._outputWindowService.GetPane(ref guid, out this.pane);
