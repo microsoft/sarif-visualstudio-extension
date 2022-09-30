@@ -14,6 +14,8 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
 
+using Mapster;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio;
@@ -694,6 +696,42 @@ namespace Microsoft.Sarif.Viewer
             return inlines;
         }
 
+        internal static string EscapeHyperlinks(string message)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnorePatternWhitespace);
+            int start = 0;
+
+            if (matches.Count > 0)
+            {
+                Group group = null;
+
+                foreach (Match match in matches)
+                {
+                    group = match.Groups["text"];
+
+                    // Add the plain text segment between the end of the last group and the current link.
+                    stringBuilder.Append(UnescapeBrackets(message.Substring(start, group.Index - 1 - start)));
+
+                    stringBuilder.Append($"{group.Value}");
+
+                    start = match.Index + match.Length;
+                }
+            }
+            else
+            {
+                return message;
+            }
+
+            if (stringBuilder.Length > 0 && start < message.Length)
+            {
+                // Add the plain text segment after the last link
+                stringBuilder.Append(UnescapeBrackets(message.Substring(start)));
+            }
+
+            return stringBuilder.ToString();
+        }
+
         /// <summary>
         /// Convert a collection of Inline elements into plain text.
         /// </summary>
@@ -724,7 +762,7 @@ namespace Microsoft.Sarif.Viewer
 
             const string ellipsis = "\u2026";
             const string hyperlinkGroup = "link_text";
-            string pattern = $"\\[(?<{hyperlinkGroup}>[\\w \\.]+)\\]\\(([\\w\\.:\\/ ]*)\\)";
+            string pattern = $"\\[(?<{hyperlinkGroup}>[\\W \\.]+)\\]\\(([\\w\\.:\\/ ]*)\\)";
 
             MatchCollection matches = Regex.Matches(input, pattern, RegexOptions.Multiline);
             var sb = new StringBuilder(input);
