@@ -3,14 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
@@ -21,7 +28,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         private const string Ellipsis = "\u2026";
         private const int MaxLength = 100;
 
-        public KeyEventAdornment(IList<ITextMarkerTag> tags, int prefixLength, double fontSize, FontFamily fontFamily)
+        public KeyEventAdornment(IList<ITextMarkerTag> tags, int prefixLength, double fontSize, FontFamily fontFamily, RoutedEventHandler clickHandler)
         {
             List<AnalysisStepNode> nodes = new List<AnalysisStepNode>();
             foreach (ITextMarkerTag tag in tags)
@@ -37,13 +44,39 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             nodes.Sort((a, b) => a.Index.CompareTo(b.Index));
 
-            FormatText(nodes, out string fullText, out string shortText, out string tooltipText);
+            FormatText(nodes, prefixLength, out string fullText, out string shortText, out string tooltipText);
 
             // prefixLength is calculated by (longest length of lines have tag) - (current line lenght)
             // the prefix let the all key event text start locations align at same column
             string prefix = new string(PrefixChar, prefixLength);
 
-            this.Text = $" {prefix}{shortText}";
+            List<Inline> inlines = SdkUIUtilities.GetMessageInlines(fullText, clickHandler);
+            if (inlines?.Any() == true)
+            {
+                this.Inlines.AddRange(inlines);
+            }
+            else
+            {
+                this.Inlines.Add(fullText);
+            }
+
+            /*
+            this.Inlines.Add($" {prefix}{shortText}");
+
+            Hyperlink hyperLink = new Hyperlink()
+            {
+                Tag = nodes.Max(n => n.Index) + 1,
+            };
+            hyperLink.Inlines.Add("▶");
+
+            if (clickHandler != null)
+            {
+                hyperLink.Click += clickHandler;
+            }
+
+            this.Inlines.Add(hyperLink);
+            */
+
             this.FontFamily = fontFamily;
             this.FontSize = fontSize;
             this.FontStyle = FontStyles.Italic;
@@ -51,11 +84,21 @@ namespace Microsoft.Sarif.Viewer.Tags
                 TextBlock.ForegroundProperty,
                 EnvironmentColors.ExtensionManagerStarHighlight2BrushKey);
 
-            this.ToolTip = tooltipText;
+            this.ToolTip = SdkUIUtilities.EscapeHyperlinks(tooltipText);
             this.Cursor = Cursors.Arrow;
         }
 
-        private static void FormatText(IList<AnalysisStepNode> nodes, out string fullText, out string conciseText, out string tooltipText)
+        internal void Update(ITextMarkerTag textMarkerTag)
+        {
+            if (textMarkerTag is null)
+            {
+                throw new ArgumentNullException(nameof(textMarkerTag));
+            }
+
+            // rect.Fill = MakeBrush(colorTag.Color);
+        }
+
+        private static void FormatText(IList<AnalysisStepNode> nodes, int prefixLength, out string fullText, out string conciseText, out string tooltipText)
         {
             var displayText = new StringBuilder();
             var hintText = new StringBuilder();
@@ -66,12 +109,12 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (AnalysisStepNode node in nodes)
             {
-                displayText.Append(CreateKeyEventText(node.Index, node.Message, separator));
-                hintText.Append(CreateKeyEventText(node.Index, node.Message));
+                displayText.Append(CreateKeyEventText(node.Index, node.Message, prefixLength + 3));
+                hintText.Append(CreateKeyEventText(node.Index, node.Message, 0));
             }
 
             tooltipText = hintText.ToString();
-            fullText = ReplaceLineBreaker(displayText.ToString(), " ");
+            fullText = displayText.ToString(); // ReplaceLineBreaker(displayText.ToString(), " ");
             conciseText = GetConciseText(fullText, MaxLength);
         }
 
@@ -100,22 +143,29 @@ namespace Microsoft.Sarif.Viewer.Tags
             return input.Replace("\r\n", newValue).Replace("\n", newValue);
         }
 
-        private static string CreateKeyEventText(int index, string message, string prefix = null)
+        private static string CreateKeyEventText(int index, string message, int prefixLength)
         {
-            prefix ??= string.Empty;
-            if (!string.IsNullOrEmpty(prefix))
-            {
-                // Add a space between prefix and first char of the sentence.
-                prefix += " ";
-            }
+            string prefix = prefixLength > 0 ?
+                $" {new string(PrefixChar, prefixLength)} Step {index} : " :
+                string.Empty;
+            prefixLength = prefix.Length;
 
             message ??= string.Empty;
             if (!string.IsNullOrEmpty(message))
             {
-                message = $" : {message}";
+                // prefixLength += 3;
             }
 
-            return $"{prefix}Step {index}{message}{Environment.NewLine}";
+            string[] lines = message.Split(new string[] { "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                builder.Append(i == 0 ? prefix : new string(' ', prefixLength));
+                builder.Append(lines[i]);
+                builder.Append(i == lines.Length - 1 ? string.Empty : Environment.NewLine);
+            }
+
+            return builder.ToString();
         }
     }
 }

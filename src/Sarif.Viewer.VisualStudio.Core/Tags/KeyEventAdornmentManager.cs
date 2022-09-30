@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -82,7 +83,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// Handles whenever the text displayed in the view changes by adding the adornment to any reformatted lines.
         /// </summary>
-        /// <remarks><para>This event is raised whenever the rendered text displayed in the <see cref="ITextView"/> changes.</para>
+        /// <remarks><para>This event is raised whenever the rendered text displayed in the <see href="ITextView"/> changes.</para>
         /// <para>It is raised whenever the view does a layout (which happens when DisplayTextLineContainingBufferPosition is called or in response to text or classification changes).</para>
         /// <para>It is also raised whenever the view scrolls horizontally or when its size changes.</para>
         /// </remarks>
@@ -226,7 +227,8 @@ namespace Microsoft.Sarif.Viewer.Tags
                     tags,
                     numberOfSpace,
                     this.view.FormattedLineSource.DefaultTextProperties.FontRenderingEmSize,
-                    this.view.FormattedLineSource.DefaultTextProperties.Typeface.FontFamily);
+                    this.view.FormattedLineSource.DefaultTextProperties.Typeface.FontFamily,
+                    this.InlineLink_Click);
 
                 // element.Measure(new Size(1000.0, 20.0));
                 Canvas.SetLeft(tagGraphic, geometry.Bounds.Right);
@@ -256,6 +258,27 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             int tabCount = text.Count(c => c == '\t');
             return (tabCount * (tabWidth - 1)) + text.Length;
+        }
+
+        internal void InlineLink_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!(sender is Hyperlink hyperLink))
+            {
+                return;
+            }
+
+            if (hyperLink.Tag is int id)
+            {
+                AnalysisStepNode node = this.currentErrorListItem.AnalysisSteps?.First()?.TopLevelNodes?.FirstOrDefault(n => n.Index == id);
+
+                if (node == null)
+                {
+                    return;
+                }
+
+                node.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+            }
         }
     }
 }
