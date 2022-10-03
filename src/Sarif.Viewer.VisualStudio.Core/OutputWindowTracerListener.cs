@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -12,15 +11,15 @@ namespace Microsoft.Sarif.Viewer
 {
     public class OutputWindowTracerListener : TraceListener
     {
-        private readonly string _name;
-        private readonly IVsOutputWindow _outputWindowService;
+        private readonly string paneName;
+        private readonly IVsOutputWindow outputWindowService;
 
         private IVsOutputWindowPane pane;
 
         public OutputWindowTracerListener(IVsOutputWindow outputWindowService, string name)
         {
-            this._outputWindowService = outputWindowService;
-            this._name = name;
+            this.outputWindowService = outputWindowService;
+            this.paneName = name;
             Trace.Listeners.Add(this);
         }
 
@@ -64,8 +63,8 @@ namespace Microsoft.Sarif.Viewer
                 }
 
                 var guid = Guid.NewGuid();
-                this._outputWindowService.CreatePane(ref guid, this._name, fInitVisible: 1, fClearWithSolution: 1);
-                this._outputWindowService.GetPane(ref guid, out this.pane);
+                this.outputWindowService.CreatePane(ref guid, this.paneName, fInitVisible: 1, fClearWithSolution: 1);
+                this.outputWindowService.GetPane(ref guid, out this.pane);
             }
 
             return this.pane != null;
