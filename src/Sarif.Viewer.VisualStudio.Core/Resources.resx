@@ -396,4 +396,13 @@ Do you want to open this file in Visual Studio?</value>
   <data name="ConfirmOpenBinaryFileDialog_Title" xml:space="preserve">
     <value>Confirm Open Binary File</value>
   </data>
+  <data name="TraceLog_OpenSarifFileException" xml:space="preserve">
+    <value>An error occurred while processing SARIF log file `{0}` due to error: `{1}`.</value>
+  </data>
+  <data name="TraceLog_ProcessingSarifFile" xml:space="preserve">
+    <value>Processing the SARIF log file `{0}`.</value>
+  </data>
+  <data name="TraceLog_SarifFileProcessed" xml:space="preserve">
+    <value>The SARIF log file `{0}` processed.</value>
+  </data>
 </root>
