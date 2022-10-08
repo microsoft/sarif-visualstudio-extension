@@ -37,9 +37,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         private const string ClientId = "16acf595-5442-4b4b-8450-88b6ebfc098b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
 
-        // private const string AzureDevOpsBaseUrl = "https://localhost:7067/";
-        private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
-        private const string OrgAndProject = "advsec/Dogfood/";
+        // *** SIMULATION ***
+        private const string AzureDevOpsBaseUrl = "https://ado-api-simulator.azurewebsites.net/";
+
+        // private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
+        // private const string OrgAndProject = "advsec/Dogfood/";
+
+        // *** END SIMULATION ***
+
         private const string ListBuildsApiQueryString = "_apis/build/builds?deletedFilter=excludeDeleted"; // api-version=7.0&
         private const string GetBuildArtifactApiQueryStringFormat = "_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
 
@@ -90,8 +95,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                         this.settings = JsonConvert.DeserializeObject<Settings>(settingsText);
                         this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
-                        AuthenticationResult authResult = await AuthenticateAsync();
+                        // *** SIMULATION ***
+                        // AuthenticationResult authResult = await AuthenticateAsync();
+                        var authResult = new AuthenticationResult(Guid.NewGuid().ToString(), true, Guid.NewGuid().ToString(), DateTime.Now.AddYears(1), DateTime.Now.AddYears(1), null, null, null, null, Guid.Empty);
                         this.accessToken = authResult?.AccessToken;
+                        await Task.FromResult(authResult);
+
+                        // *** END SIMULATION ***
                     }
                     catch (JsonSerializationException) { }
                 }
@@ -134,11 +144,20 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetLatestBuildIdAsync()"/>
         public async Task<Result<int, ErrorType>> GetLatestBuildIdAsync()
         {
+            // *** SIMULATION ***
             // TODO: what filters are needed?
+            // HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
+            //    HttpMethod.Get,
+            //    AzureDevOpsBaseUrl + OrgAndProject + ListBuildsApiQueryString,
+            //    token: this.accessToken);
+
             HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
-                HttpMethod.Get,
-                AzureDevOpsBaseUrl + OrgAndProject + ListBuildsApiQueryString,
-                token: this.accessToken);
+               HttpMethod.Get,
+               AzureDevOpsBaseUrl + ListBuildsApiQueryString,
+               token: this.accessToken);
+
+            // *** END SIMULATION ***
+
             HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
 
             if (responseMessage.IsSuccessStatusCode)
@@ -163,7 +182,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.DownloadAndExtractArtifactAsync(int)"/>
         public async Task<Maybe<SarifLog>> DownloadAndExtractArtifactAsync(int buildId)
         {
-            string url = AzureDevOpsBaseUrl + OrgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
+            // *** SIMULATION ***
+            // string url = AzureDevOpsBaseUrl + OrgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
+            string url = AzureDevOpsBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
+
+            // *** END SIMULATION ***
+
             SarifLog sarifLog = null;
 
             try
@@ -238,8 +262,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                        .AcquireTokenInteractive(scopes)
                        .WithClaims(ex.Claims)
                        .ExecuteAsync();
-
-                    // result = new AuthenticationResult(Guid.NewGuid().ToString(), true, Guid.NewGuid().ToString(), DateTime.Now.AddYears(1), DateTime.Now.AddYears(1), null, null, null, null, Guid.Empty);
                 }
                 catch
                 {
