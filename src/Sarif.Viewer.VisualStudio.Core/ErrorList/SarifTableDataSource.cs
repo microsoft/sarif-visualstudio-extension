@@ -107,6 +107,35 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        public void UpdateError(int oldItemIdentity, SarifErrorListItem newItem)
+        {
+            if (newItem == null)
+            {
+                return;
+            }
+
+            using (this.tableEntriesLock.EnterWriteLock())
+            {
+                if (this.logFileToTableEntries.TryGetValue(newItem.LogFilePath, out List<SarifResultTableEntry> entries))
+                {
+                    SarifResultTableEntry entryToRemove = entries.First(entry => (int)entry.Identity == oldItemIdentity);
+
+                    if (entryToRemove != null)
+                    {
+                        var newEntry = new SarifResultTableEntry(newItem);
+
+                        this.CallSinks(sink => sink.ReplaceEntries(new[] { entryToRemove }, new[] { newEntry }));
+
+                        entries.Remove(entryToRemove);
+
+                        entries.Add(newEntry);
+
+                        entryToRemove.Dispose();
+                    }
+                }
+            }
+        }
+
         public void ClearErrorsForLogFiles(IEnumerable<string> logFiles)
         {
             IImmutableList<SarifResultTableEntry> entriesToRemove;
