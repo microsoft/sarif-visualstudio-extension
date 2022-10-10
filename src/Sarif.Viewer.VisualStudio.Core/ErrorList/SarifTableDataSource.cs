@@ -45,10 +45,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = new SarifTableDataSource();
-                }
+                _instance ??= new SarifTableDataSource();
 
                 return _instance;
             }
@@ -57,6 +54,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public override string Identifier => Guids.GuidVSPackageString;
 
         public override string DisplayName => Resources.ErrorListTableDataSourceDisplayName;
+
+        internal Dictionary<string, List<SarifResultTableEntry>> LogFileToTableEntries => this.logFileToTableEntries;
 
         public override IDisposable Subscribe(ITableDataSink sink)
         {
