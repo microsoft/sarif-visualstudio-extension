@@ -402,19 +402,19 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (this.fileSystem.FileExists(this.resolvedFullFilePath) &&
-                Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out Uri uri))
+            if (this.fileSystem.FileExists(this.resolvedFullFilePath))
             {
-                // Fill out the region's properties
-                this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
-            }
-
-            if (this.fileSystem.FileExists(this.resolvedFullFilePath) &&
-                !Path.IsPathRooted(this.resolvedFullFilePath) &&
-                Uri.TryCreate(Path.Combine(this.fileSystem.EnvironmentCurrentDirectory, this.resolvedFullFilePath), UriKind.Absolute, out Uri fullPathUri))
-            {
-                // Fill out the region's properties
-                this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, fullPathUri, populateSnippet: true);
+                Uri resolvedUri;
+                if (Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out resolvedUri) ||
+                    (!Path.IsPathRooted(this.resolvedFullFilePath) &&
+                    Uri.TryCreate(
+                        Path.Combine(this.fileSystem.EnvironmentCurrentDirectory, this.resolvedFullFilePath),
+                        UriKind.Absolute,
+                        out resolvedUri)))
+                {
+                    // Fill out the region's properties
+                    this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, resolvedUri, populateSnippet: true);
+                }
             }
 
             this.regionAndFilePathAreFullyPopulated = this.fullyPopulatedRegion != null;
