@@ -117,7 +117,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             {
                 if (this.logFileToTableEntries.TryGetValue(newItem.LogFilePath, out List<SarifResultTableEntry> entries))
                 {
-                    SarifResultTableEntry entryToRemove = entries.First(entry => (int)entry.Identity == oldItemIdentity);
+                    SarifResultTableEntry entryToRemove = entries.FirstOrDefault(entry => (int)entry.Identity == oldItemIdentity);
 
                     if (entryToRemove != null)
                     {
