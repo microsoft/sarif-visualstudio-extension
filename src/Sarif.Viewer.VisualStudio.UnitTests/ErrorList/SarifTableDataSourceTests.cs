@@ -97,6 +97,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             oldItemIdentity += 1; // identity does not exist
             SarifTableDataSource.Instance.UpdateError(oldItemIdentity, item);
+
+            item = entries[0].Error;
+            item.LineNumber.Should().Be(5);
+            item.ColumnNumber.Should().Be(6);
         }
     }
 }
