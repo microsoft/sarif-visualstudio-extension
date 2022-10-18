@@ -2,9 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Converters;
@@ -30,6 +33,8 @@ namespace Microsoft.Sarif.Viewer.Models
         private int _index;
         private string _resultGuid;
         private string _ruleId;
+        private ObservableCollection<AnalysisStepState> _state;
+        private ObservableCollection<Inline> _messageInlines;
 
         public AnalysisStepNode(int resultId, int runIndex, int index = 0, string resultGuid = null, string ruleId = null)
             : base(resultId, runIndex)
@@ -130,6 +135,22 @@ namespace Microsoft.Sarif.Viewer.Models
 
                 return text;
             }
+        }
+
+        public ObservableCollection<Inline> MessageInlines => this._messageInlines ??=
+            new ObservableCollection<Inline>(
+                SdkUIUtilities.GetMessageInlines(
+                    AnalysisStepNodeToTextConverter.MakeDisplayString(this), InlineLink_Click, this.ToDict(this.State)));
+
+        internal IDictionary<string, string> ToDict(IList<AnalysisStepState> list)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (AnalysisStepState state in list)
+            {
+                result[state.Expression] = state.Value;
+            }
+
+            return result;
         }
 
         internal override ResultTextMarker LineMarker
@@ -370,6 +391,33 @@ namespace Microsoft.Sarif.Viewer.Models
                 }
 
                 return properties;
+            }
+        }
+
+        public ObservableCollection<AnalysisStepState> State
+        {
+            get { return this._state; }
+            set { this._state = value; }
+        }
+
+        internal void InlineLink_Click(object sender, RoutedEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!(sender is Hyperlink hyperLink))
+            {
+                return;
+            }
+
+            if (hyperLink.Tag is int id)
+            {
+                AnalysisStepNode node = this._analysisStep?.TopLevelNodes?.FirstOrDefault(n => n.Index == id);
+
+                if (node == null)
+                {
+                    return;
+                }
+
+                node.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
         }
 
