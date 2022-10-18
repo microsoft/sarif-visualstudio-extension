@@ -50,7 +50,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             // the prefix let the all key event text start locations align at same column
             string prefix = new string(PrefixChar, prefixLength);
 
-            List<Inline> inlines = SdkUIUtilities.GetMessageInlines(fullText, clickHandler);
+            List<Inline> inlines = SdkUIUtilities.GetMessageInlines(fullText, clickHandler, this.ToDict(nodes.First().State));
             if (inlines?.Any() == true)
             {
                 this.Inlines.AddRange(inlines);
@@ -96,6 +96,17 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
 
             // rect.Fill = MakeBrush(colorTag.Color);
+        }
+
+        internal IDictionary<string, string> ToDict(IList<AnalysisStepState> list)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (AnalysisStepState state in list)
+            {
+                result[state.Expression] = state.Value;
+            }
+
+            return result;
         }
 
         private static void FormatText(IList<AnalysisStepNode> nodes, int prefixLength, out string fullText, out string conciseText, out string tooltipText)

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 using Microsoft.CodeAnalysis.Sarif;
@@ -106,6 +107,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         Location = location,
                         Children = new List<AnalysisStepNode>(),
                         NestingLevel = location.NestingLevel - minNestingLevel,
+                        State = new ObservableCollection<AnalysisStepState>(ConvertToAnalysisStepState(location)),
                     };
 
                     results.Add(newNode);
@@ -113,6 +115,18 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
             }
 
             return results;
+        }
+
+        internal static IEnumerable<AnalysisStepState> ConvertToAnalysisStepState(ThreadFlowLocation location)
+        {
+            IDictionary<string, MultiformatMessageString> states = location?.State;
+            if (states?.Any() == true)
+            {
+                foreach (string key in states.Keys)
+                {
+                    yield return new AnalysisStepState(key, states[key]?.Text);
+                }
+            }
         }
     }
 }

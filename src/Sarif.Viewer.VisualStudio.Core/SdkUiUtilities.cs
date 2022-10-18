@@ -28,6 +28,8 @@ using Microsoft.VisualStudio.TextManager.Interop;
 
 using Newtonsoft.Json;
 
+using static System.Windows.Forms.LinkLabel;
+
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
@@ -612,8 +614,9 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="message">The message to process.</param>
         /// <param name="clickHandler">A delegate for the Hyperlink.Click event.</param>
+        /// <param name="stateDict">A dictionary for state.</param>
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
-        internal static List<XamlDoc.Inline> GetMessageInlines(string message, RoutedEventHandler clickHandler)
+        internal static List<XamlDoc.Inline> GetMessageInlines(string message, RoutedEventHandler clickHandler, IDictionary<string, string> stateDict = null)
         {
             List<XamlDoc.Inline> inlines = null;
             if (!ThreadHelper.CheckAccess() && !SarifViewerPackage.IsUnitTesting)
@@ -622,24 +625,31 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    inlines = GetMessageInlinesHelper(message, clickHandler);
+                    inlines = GetMessageInlinesHelper(message, clickHandler, stateDict);
                 });
 #pragma warning disable VSTHRD001
             }
             else
             {
-                inlines = GetMessageInlinesHelper(message, clickHandler);
+                inlines = GetMessageInlinesHelper(message, clickHandler, stateDict);
             }
 
             return inlines;
         }
 
-        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, RoutedEventHandler clickHandler)
+        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, RoutedEventHandler clickHandler, IDictionary<string, string> stateDict = null)
         {
             var inlines = new List<XamlDoc.Inline>();
 
             MatchCollection matches = Regex.Matches(message, EmbeddedLinkPattern, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnorePatternWhitespace);
             int start = 0;
+
+            string searchReg = null;
+
+            if (stateDict?.Any() == true)
+            {
+                searchReg = string.Join("|", stateDict.Keys.Select(k => $"\\b{k}\\b"));
+            }
 
             if (matches.Count > 0)
             {
@@ -649,8 +659,18 @@ namespace Microsoft.Sarif.Viewer
                 {
                     group = match.Groups["text"];
 
-                    // Add the plain text segment between the end of the last group and the current link.
-                    inlines.Add(new XamlDoc.Run(UnescapeBrackets(message.Substring(start, group.Index - 1 - start))));
+                    string subText = message.Substring(start, group.Index - 1 - start);
+
+                    if (stateDict?.Any() == true)
+                    {
+                        ParseStateInString(subText, searchReg, inlines, stateDict);
+                    }
+                    else
+                    {
+                        // Add the plain text segment between the end of the last group and the current link.
+                        inlines.Add(new XamlDoc.Run(UnescapeBrackets(subText)));
+                    }
+
                     object target = null;
 
                     if (clickHandler != null)
@@ -677,6 +697,7 @@ namespace Microsoft.Sarif.Viewer
                                 // Stash the id of the target location. This is used in SarifSnapshot.ErrorListInlineLink_Click.
                                 Tag = target,
                             };
+                            link.TextDecorations = null;
 
                             // Set the hyperlink text
                             link.Inlines.Add(new XamlDoc.Run($"{group.Value}"));
@@ -699,11 +720,51 @@ namespace Microsoft.Sarif.Viewer
 
             if (inlines.Count > 0 && start < message.Length)
             {
-                // Add the plain text segment after the last link
-                inlines.Add(new XamlDoc.Run(UnescapeBrackets(message.Substring(start))));
+                if (stateDict?.Any() == true)
+                {
+                    ParseStateInString(message.Substring(start), searchReg, inlines, stateDict);
+                }
+                else
+                {
+                    // Add the plain text segment after the last link
+                    inlines.Add(new XamlDoc.Run(UnescapeBrackets(message.Substring(start))));
+                }
             }
 
             return inlines;
+        }
+
+        internal static void ParseStateInString(string text, string regex, List<XamlDoc.Inline> inlines, IDictionary<string, string> stateDict)
+        {
+            if (stateDict?.Any() == true)
+            {
+                MatchCollection stateMatches = Regex.Matches(text, regex, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnorePatternWhitespace);
+                int subStart = 0;
+                foreach (Match stateMatch in stateMatches)
+                {
+                    string beforeStateText = text.Substring(subStart, stateMatch.Index - subStart);
+                    inlines.Add(new XamlDoc.Run(UnescapeBrackets(beforeStateText)));
+
+                    string stateText = stateMatch.Value;
+                    var stateRun = new XamlDoc.Run(UnescapeBrackets(stateText));
+                    if (stateDict.TryGetValue(stateText, out string stateValue))
+                    {
+                        stateRun.ToolTip = $"{stateText} == {stateValue}";
+                    }
+
+                    stateRun.TextDecorations = new TextDecorationCollection { TextDecorations.Underline };
+
+                    inlines.Add(stateRun);
+
+                    subStart = stateMatch.Index + stateMatch.Length;
+                }
+
+                if (subStart < text.Length)
+                {
+                    // Add the plain text segment after the last link
+                    inlines.Add(new XamlDoc.Run(UnescapeBrackets(text.Substring(subStart))));
+                }
+            }
         }
 
         internal static string EscapeHyperlinks(string message)

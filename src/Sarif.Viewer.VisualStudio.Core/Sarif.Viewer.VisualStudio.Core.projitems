@@ -99,6 +99,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStep.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStepCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStepNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AnalysisStepState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactChangeModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactDetailsModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedbackModel.cs" />

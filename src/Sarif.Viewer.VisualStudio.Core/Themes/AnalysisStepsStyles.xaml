@@ -83,7 +83,8 @@
     
     <Style x:Key="AnalysisStepMessageTextStyle" BasedOn="{StaticResource AnalysisStepTextStyle}" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
-        <Setter Property="FontWeight" Value="{DynamicResource {x:Static vs_env:VsFonts.Environment111PercentFontWeightKey}}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Padding" Value="0,0,5,5" />
         <Setter Property="Margin" Value="{Binding TextMargin}" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding Location.Importance}" Value="Essential">
@@ -104,6 +105,7 @@
     <Style x:Key="AnalysisStepLocationTextStyle" BasedOn="{StaticResource AnalysisStepTextStyle}" TargetType="TextBlock">
         <Setter Property="Visibility" Value="{Binding LocationDisplayString, Converter={StaticResource StringToVisibilityConverter}}" />
         <Setter Property="Foreground" Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+        <Setter Property="Padding" Value="0,0,5,5" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding Location.Importance}" Value="Unimportant">
                 <Setter Property="Opacity" Value="0.5"/>
@@ -126,4 +128,51 @@
         <Setter Property="Visibility" Value="{Binding Visibility}" />
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="InfoPropertyKey" BasedOn="{StaticResource PropertyKey}">
+        <Setter Property="Margin" Value="0,0,5,5" />
+    </Style>
+
+    <Style x:Key="PropertyListViewStyle" TargetType="ListView">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Margin" Value="0,0,0,0"/>
+        <Setter Property="Padding" Value="-2,1,-2,0"/>
+    </Style>
+
+    <Style x:Key="StackFrameListViewStyle" TargetType="ListView">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="Padding" Value="-2,1,-2,0"/>
+    </Style>
+
+    <Style x:Key="GridViewHeaderBorderPresenterStyle" TargetType="ContentPresenter">
+        <Setter Property="Margin" Value="0,0,0,1"/>
+    </Style>
+
+    <Style x:Key="GridViewColumnHeaderGripperStyle" TargetType="Thumb">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.SeparatorLineBrushKey}}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border Padding="{TemplateBinding Padding}"
+                            Background="Transparent">
+                        <Rectangle Fill="{TemplateBinding Background}"
+                                   HorizontalAlignment="Center"
+                                   Width="3"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="GridViewHeaderBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vs_shell:HeaderColors.SeparatorLineBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Padding" Value="4,3,2,1"/>
+    </Style>
 </ResourceDictionary>
