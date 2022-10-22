@@ -45,10 +45,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = new SarifTableDataSource();
-                }
+                _instance ??= new SarifTableDataSource();
 
                 return _instance;
             }
@@ -57,6 +54,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public override string Identifier => Guids.GuidVSPackageString;
 
         public override string DisplayName => Resources.ErrorListTableDataSourceDisplayName;
+
+        internal Dictionary<string, List<SarifResultTableEntry>> LogFileToTableEntries => this.logFileToTableEntries;
 
         public override IDisposable Subscribe(ITableDataSink sink)
         {
@@ -102,6 +101,35 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     else
                     {
                         this.logFileToTableEntries.Add(tableEntry.Error.LogFilePath, new List<SarifResultTableEntry> { tableEntry });
+                    }
+                }
+            }
+        }
+
+        public void UpdateError(int oldItemIdentity, SarifErrorListItem newItem)
+        {
+            if (newItem == null)
+            {
+                return;
+            }
+
+            using (this.tableEntriesLock.EnterWriteLock())
+            {
+                if (this.logFileToTableEntries.TryGetValue(newItem.LogFilePath, out List<SarifResultTableEntry> entries))
+                {
+                    SarifResultTableEntry entryToRemove = entries.FirstOrDefault(entry => (int)entry.Identity == oldItemIdentity);
+
+                    if (entryToRemove != null)
+                    {
+                        var newEntry = new SarifResultTableEntry(newItem);
+
+                        this.CallSinks(sink => sink.ReplaceEntries(new[] { entryToRemove }, new[] { newEntry }));
+
+                        entries.Remove(entryToRemove);
+
+                        entries.Add(newEntry);
+
+                        entryToRemove.Dispose();
                     }
                 }
             }
