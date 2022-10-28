@@ -33,7 +33,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider);
         }
 
-        public ResultSourceHost(ResultSourceFactory resultSourceFactory)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultSourceHost"/> class.
+        /// </summary>
+        /// <param name="resultSourceFactory">The <see cref="IResultSourceFactory"/>.</param>
+        public ResultSourceHost(IResultSourceFactory resultSourceFactory)
         {
             this.resultSourceFactory = resultSourceFactory;
         }
