@@ -73,6 +73,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
 
+        /// <summary>
+        /// Command menu group (command set GUID).
+        /// </summary>
+        public static readonly Guid ResultSourceServiceCommandSet = new Guid("b04424d9-49bc-4e04-9ecc-ad5b68cce4bc");
+
         // VS Package that provides this command, not null.
         private readonly Package package;
 
@@ -131,13 +136,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IServiceProvider ServiceProvider
-        {
-            get
-            {
-                return this.package;
-            }
-        }
+        private IServiceProvider ServiceProvider => this.package;
 
         /// <summary>
         /// Initializes the singleton instance of the command.

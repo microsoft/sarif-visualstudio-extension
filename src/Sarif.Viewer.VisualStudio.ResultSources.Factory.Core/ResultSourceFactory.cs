@@ -72,9 +72,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync()
         {
             var ctorArg = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
+            int index = -1;
 
             foreach (Type type in this.resultSourceTypes)
             {
+                index++;
                 if (this.standardKernel.Get(type, ctorArg) is IResultSourceService sourceService)
                 {
                     Result result = await sourceService.IsActiveAsync();
@@ -83,7 +85,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                     {
                         try
                         {
-                            await sourceService.InitializeAsync();
+                            sourceService.FirstMenuId = 0x5000;
+                            sourceService.FirstCommandId = 0x8B67;
                             return Result.Success<IResultSourceService, ErrorType>(sourceService);
                         }
                         catch (Exception) { }

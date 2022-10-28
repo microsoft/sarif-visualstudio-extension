@@ -35,6 +35,7 @@ using Newtonsoft.Json.Linq;
 using Octokit;
 
 using Result = CSharpFunctionalExtensions.Result;
+using SarifResult = Microsoft.CodeAnalysis.Sarif.Result;
 using Secret = Microsoft.Sarif.Viewer.ResultSources.Domain.Models.Secret;
 using Task = System.Threading.Tasks.Task;
 
@@ -52,12 +53,21 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         private const string BaseUrl = "https://github.com";
         private const string DeviceCodeUrlFormat = "https://github.com/login/device/code?client_id={0}&scope={1}";
         private const string AccessTokenUrlFormat = "https://github.com/login/oauth/access_token?client_id={0}&device_code={1}&grant_type=urn:ietf:params:oauth:grant-type:device_code";
-        private const string CodeScanningBaseApiUrlFormat = "https://api.github.com/repos/{0}/{1}/code-scanning/analyses";
+        private const string CodeScanningBaseApiUrlFormat = "https://api.github.com/repos/{0}/{1}/code-scanning/";
+        private const string GetAnalysesEndpoint = "analyses";
+        private const string DismissAlertEndpointFormat = "alerts/{0}";
         private const string GitLocalRefFileBaseRelativePath = @".git\refs\remotes\origin";
         private const int ScanResultsPollIntervalSeconds = 10;
         private const int ScanResultsPollTimeoutSeconds = 1200;
 
         private static readonly TargetUri s_baseTargetUri = new TargetUri(BaseUrl);
+        private static readonly Dictionary<string, string> s_DismissAlertReasons = new Dictionary<string, string>
+        {
+            // { "UI string", "GHAS API value" } -- https://docs.github.com/en/rest/code-scanning#update-a-code-scanning-alert
+            { Resources.DismissAlertReason_FalsePositive, "false positive" },
+            { Resources.DismissAlertReason_WontFix, "won't fix" },
+            { Resources.DismissAlertReason_UsedInTests, "used in tests" },
+        };
 
         private readonly IServiceProvider serviceProvider;
         private readonly IHttpClientAdapter httpClientAdapter;
@@ -119,10 +129,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             this.browserService = new BrowserService();
         }
 
-        /// <summary>
-        /// The event raised when new scan results are available.
-        /// </summary>
-        public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
+        /// <inheritdoc cref="IResultSourceService.ServiceEvent"/>
+        public event EventHandler<ServiceEventArgs> ServiceEvent;
+
+        /// <inheritdoc cref="IResultSourceService.FirstMenuId"/>
+        public int FirstMenuId { get; set; }
+
+        /// <inheritdoc cref="IResultSourceService.FirstCommandId"/>
+        public int FirstCommandId { get; set; }
 
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
         public async Task InitializeAsync()
@@ -133,8 +147,34 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             Match match = Regex.Match(repoUrl, GitHubRepoUriPattern);
             if (match.Success)
             {
-                codeScanningBaseApiUrl = string.Format(CodeScanningBaseApiUrlFormat, match.Groups["user"], match.Groups["repo"]);
+                this.codeScanningBaseApiUrl = string.Format(CodeScanningBaseApiUrlFormat, match.Groups["user"], match.Groups["repo"]);
             }
+
+            // Add the "Dismiss alert" command to the Error List context menu.
+            var flyout = new ErrorListMenuFlyout(Resources.DismissAlert_FlyoutMenuText)
+            {
+                BeforeQueryStatusMenuCommand = this.DismissAlerts_BeforeQueryStatusAsync,
+            };
+
+            foreach (string key in s_DismissAlertReasons.Keys)
+            {
+                var command = new ErrorListMenuCommand(key)
+                {
+                    InvokeMenuCommand = this.DismissAlert_ExecuteAsync,
+                    BeforeQueryStatusMenuCommand = this.DismissAlerts_BeforeQueryStatusAsync,
+                };
+
+                flyout.Commands.Add(command);
+            }
+
+            var eventArgs = new RequestAddMenuItemsEventArgs()
+            {
+                FirstMenuId = this.FirstMenuId,
+                FirstCommandId = this.FirstCommandId + 10,
+            };
+            eventArgs.MenuItems.Flyouts.Add(flyout);
+
+            RaiseServiceEvent(eventArgs);
         }
 
         /// <inheritdoc cref="IGitHubSourceService.IsGitHubProject()"/>
@@ -359,6 +399,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                 HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
                     HttpMethod.Get,
                     baseUrl + $"/{analysisId}",
+                    bodyParameters: null,
                     "application/sarif+json",
                     accessToken);
 
@@ -500,7 +541,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                 {
                     Result<string, ErrorType> getAnalysisIdResult = await GetAnalysisIdAsync(
                         httpClientAdapter,
-                        codeScanningBaseApiUrl,
+                        codeScanningBaseApiUrl + GetAnalysesEndpoint,
                         this.scanDataRequestParameters.BranchName,
                         accessToken,
                         this.scanDataRequestParameters.CommitHash);
@@ -509,7 +550,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                     {
                         Result<SarifLog, string> getResultsResult = await GetAnalysisResultsAsync(
                             httpClientAdapter,
-                            codeScanningBaseApiUrl,
+                            codeScanningBaseApiUrl + GetAnalysesEndpoint,
                             getAnalysisIdResult.Value,
                             accessToken);
 
@@ -521,7 +562,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                                 SarifLog = getResultsResult.Value,
                                 LogFileName = "scan-results.sarif",
                             };
-                            RaiseResultsUpdatedEvent(eventArgs);
+                            RaiseServiceEvent(eventArgs);
                             break;
                         }
                     }
@@ -548,15 +589,73 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                     new Run
                     {
                         Tool = new Tool(),
-                        Results = new List<Microsoft.CodeAnalysis.Sarif.Result>(),
+                        Results = new List<SarifResult>(),
                     },
                 },
             };
         }
 
-        private void RaiseResultsUpdatedEvent(GitRepoEventArgs eventArgs = null)
+        private async Task<ResultSourceServiceAction> DismissAlert_ExecuteAsync(MenuCommandInvokedEventArgs e)
         {
-            ResultsUpdated?.Invoke(this, eventArgs);
+            if (e.SarifResults.Count == 1)
+            {
+                Maybe<Secret> getAccessTokenResult = await GetCachedAccessTokenAsync();
+                if (getAccessTokenResult.HasValue)
+                {
+                    string accessToken = getAccessTokenResult.Value.Value;
+
+                    Maybe<SarifResult> result = e.SarifResults.TryFirst();
+
+                    if (result.HasValue)
+                    {
+                        SarifResult sarifResult = result.Value;
+
+                        if (sarifResult.TryGetProperty<int>("github/alertNumber", out int alertNumber))
+                        {
+                            string url = this.codeScanningBaseApiUrl + string.Format(DismissAlertEndpointFormat, alertNumber) + $"?ref=refs/heads/{this.scanDataRequestParameters.BranchName}";
+
+                            if (s_DismissAlertReasons.TryGetValue(e.MenuCommand.Text, out string reason))
+                            {
+                                HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
+                                    new HttpMethod("PATCH"),
+                                    url,
+                                    bodyParameters: new Dictionary<string, string>
+                                    {
+                                        { "state", "dismissed" },
+                                        { "dismissed_reason", reason },
+                                    },
+                                    accept: "application/vnd.github+json",
+                                    token: accessToken);
+
+                                HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
+
+                                if (responseMessage.IsSuccessStatusCode)
+                                {
+                                    return ResultSourceServiceAction.DismissSelectedItem;
+                                }
+                                else
+                                {
+                                    string content = await responseMessage.Content.ReadAsStringAsync();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ResultSourceServiceAction.None;
+        }
+
+        private async Task<ResultSourceServiceAction> DismissAlerts_BeforeQueryStatusAsync(MenuCommandBeforeQueryStatusEventArgs e)
+        {
+            return e.SarifResults.Count == e.SelectedItemsCount
+                ? await Task.FromResult(ResultSourceServiceAction.None)
+                : await Task.FromResult(ResultSourceServiceAction.DisableMenuCommand);
+        }
+
+        private void RaiseServiceEvent(ServiceEventArgs eventArgs = null)
+        {
+            ServiceEvent?.Invoke(this, eventArgs);
         }
 
         private void InitializeFileWatchers()
