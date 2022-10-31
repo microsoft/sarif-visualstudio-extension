@@ -484,6 +484,16 @@ namespace Microsoft.Sarif.Viewer
                 {
                     location.FilePath = remappedPath;
                     location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
+
+                    if (this.LineNumber != location.Region.StartLine)
+                    {
+                        this.LineNumber = location.Region.StartLine;
+                    }
+
+                    if (this.ColumnNumber != location.Region.StartColumn)
+                    {
+                        this.ColumnNumber = location.Region.StartColumn;
+                    }
                 }
             }
 
@@ -883,6 +893,34 @@ namespace Microsoft.Sarif.Viewer
 
                 SdkUIUtilities.OpenExternalUrl(uriString);
             }
+        }
+
+        // Generates an unique hash value using the properties affect content of error list item.
+        // If any of these properties changes, needs to refresh error list item.
+        internal int GetIdentity()
+        {
+            int hashCode = -509415362;
+            int hashFactor = -1521134295;
+
+            // ignore FileName because it usally updated to a physical file path during file resolving
+            // but error list only shows file name not the full path
+            // hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetIdentity(this.FileName);
+
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.Category);
+            hashCode = (hashCode * hashFactor) + this.LineNumber.GetHashCode();
+            hashCode = (hashCode * hashFactor) + this.ColumnNumber.GetHashCode();
+            hashCode = (hashCode * hashFactor) + this.Level.GetHashCode();
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.ProjectName);
+            hashCode = (hashCode * hashFactor) + this.VSSuppressionState.GetHashCode();
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.Message);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.RawMessage);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.ShortMessage);
+            hashCode = (hashCode * hashFactor) + this.HasDetailsContent.GetHashCode();
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.HelpLink);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<ToolModel>.Default.GetHashCode(this.Tool);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<RuleModel>.Default.GetHashCode(this.Rule);
+
+            return hashCode;
         }
     }
 }

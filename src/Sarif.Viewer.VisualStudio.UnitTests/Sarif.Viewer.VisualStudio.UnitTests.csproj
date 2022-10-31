@@ -55,6 +55,7 @@
     <Compile Include="ErrorList\SarifErrorListItemTests.cs" />
     <Compile Include="ErrorList\SarifFileWithContentsTests.cs" />
     <Compile Include="ErrorList\SarifResultEntryTests.cs" />
+    <Compile Include="ErrorList\SarifTableDataSourceTests.cs" />
     <Compile Include="ExceptionalConditionsCalculatorTests.cs" />
     <Compile Include="FileWatcher\SarifFolderWatcherTests.cs" />
     <Compile Include="Models\AnalysisStepCollectionTests.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="OutputWindowTracerListenerTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="ResourceExtractor.cs" />
+    <Compile Include="ResultTextMarkerTests.cs" />
     <Compile Include="SarifTextViewCreationListenerTests.cs" />
     <Compile Include="SarifViewerPackageUnitTests.cs" />
     <Compile Include="Sarif\ArtifactChangeExtensionsTests.cs" />

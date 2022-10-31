@@ -74,7 +74,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public SarifResultTableEntry(SarifErrorListItem error)
         {
-            this.Identity = error.GetHashCode();
+            this.Identity = error.GetIdentity();
             this.Error = error;
 
             // Set the data that's fast to retrieve into the dictionary of values.
