@@ -20,6 +20,7 @@ using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Views;
@@ -523,7 +524,13 @@ namespace Microsoft.Sarif.Viewer
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (SarifErrorListItem sarifError in sarifErrors)
             {
+                int oldIdentity = sarifError.GetIdentity();
                 sarifError.RemapFilePath(originalPath, remappedPath);
+
+                if (sarifError.GetIdentity() != oldIdentity)
+                {
+                    SarifTableDataSource.Instance.UpdateError(oldIdentity, sarifError);
+                }
             }
         }
 
