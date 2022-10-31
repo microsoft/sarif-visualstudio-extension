@@ -113,7 +113,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
         {
             var mockResultSource = new Mock<IResultSourceService>();
             mockResultSource.Setup(s => s.RequestAnalysisScanResultsAsync(null));
-            
+
             var mockResultSourceFactory = new Mock<IResultSourceFactory>();
             mockResultSourceFactory.Setup(f => f.GetResultSourceServiceAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
 

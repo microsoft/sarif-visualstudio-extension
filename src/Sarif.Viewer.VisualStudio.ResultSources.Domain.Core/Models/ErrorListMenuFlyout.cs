@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
 
         public IList<ErrorListMenuFlyout> Flyouts { get; set; } = new List<ErrorListMenuFlyout>();
 
-        public IList<ErrorListMenuCommand> Commands { get; set;  } = new List<ErrorListMenuCommand>();
+        public IList<ErrorListMenuCommand> Commands { get; set; } = new List<ErrorListMenuCommand>();
 
         public int DescendantCommandsCount
         {
