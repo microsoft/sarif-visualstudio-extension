@@ -170,7 +170,7 @@
       
       <!-- Error List result source service #1 menu items -->
       <Button guid="guidSarifErrorListResultSourceServiceCommandSet" id="c4883543-de09-4989-83c2-16e40d105831" priority="0x1000" >
-        <Parent guid="guidSarifErrorListResultSourceServiceCommandSet" id="2ee78ada-af4b-4e2c-aaa8-0326ef12d611" />
+        <Parent guid="guidSarifErrorListResultSourceServiceCommandSet" id="9abdbc25-a08d-49dd-9065-4eb669194441" />
         <CommandFlag>DynamicItemStart</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
@@ -214,14 +214,14 @@
 
     <GuidSymbol name="guidSarifErrorListResultSourceServiceCommandSet" value="{b04424d9-49bc-4e04-9ecc-ad5b68cce4bc}">
       <!-- MENUS -->
-      <IDSymbol name="9655cb55-c0b8-4636-9d9a-6a8685f76ee0" value="20480"/>
+      <IDSymbol name="9655cb55-c0b8-4636-9d9a-6a8685f76ee0" value="0x5000"/>
 
       <!-- GROUPS -->
-      <IDSymbol name="2ee78ada-af4b-4e2c-aaa8-0326ef12d611" value="24576"/>
-      <IDSymbol name="9abdbc25-a08d-49dd-9065-4eb669194441" value="24577"/>
+      <IDSymbol name="2ee78ada-af4b-4e2c-aaa8-0326ef12d611" value="0x6000"/>
+      <IDSymbol name="9abdbc25-a08d-49dd-9065-4eb669194441" value="0x6001"/>
 
       <!-- BUTTONS -->
-      <IDSymbol name="c4883543-de09-4989-83c2-16e40d105831" value="35687"/>
+      <IDSymbol name="c4883543-de09-4989-83c2-16e40d105831" value="0x8B67"/>
     </GuidSymbol>
 
   </Symbols>

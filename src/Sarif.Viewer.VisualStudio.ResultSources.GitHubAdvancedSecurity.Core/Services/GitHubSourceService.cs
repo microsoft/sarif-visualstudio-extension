@@ -170,7 +170,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             var eventArgs = new RequestAddMenuItemsEventArgs()
             {
                 FirstMenuId = this.FirstMenuId,
-                FirstCommandId = this.FirstCommandId + 10,
+                FirstCommandId = this.FirstCommandId,
             };
             eventArgs.MenuItems.Flyouts.Add(flyout);
 
