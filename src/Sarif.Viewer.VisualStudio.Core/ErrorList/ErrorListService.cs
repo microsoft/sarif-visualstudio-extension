@@ -62,7 +62,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
-            ThreadHelper.JoinableTaskFactory.Run(() => ProcessLogFileWrapperAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
+            if (!IsSarifLogOpened(filePath))
+            {
+                ThreadHelper.JoinableTaskFactory.Run(() => ProcessLogFileWrapperAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
+            }
         }
 
         public static async Task ProcessLogFileWrapperAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
