@@ -27,5 +27,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
         /// Gets or sets the name of the log file.
         /// </summary>
         public string LogFileName { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the log should be written to the .sarif directory.
+        /// </summary>
+        public bool UseDotSarifDirectory { get; set; }
     }
 }
