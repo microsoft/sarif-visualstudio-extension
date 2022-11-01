@@ -10,8 +10,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BrowserService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DateTimeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FileWatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GitExe.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IDateTimeProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IFileWatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IGitExe.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IInfoBarService.cs" />

@@ -55,6 +55,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             this.standardKernel.Bind<IGitExe>().To<GitExe>();
             this.standardKernel.Bind<IInfoBarService>().To<InfoBarService>();
             this.standardKernel.Bind<IStatusBarService>().To<StatusBarService>();
+            this.standardKernel.Bind<IDateTimeProvider>().To<DateTimeProvider>();
         }
 
         /// <summary>
