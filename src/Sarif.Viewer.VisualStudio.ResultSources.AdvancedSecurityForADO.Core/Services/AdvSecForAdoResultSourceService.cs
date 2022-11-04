@@ -37,19 +37,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
     public class AdvSecForAdoResultSourceService : IResultSourceService, IAdvSecForAdoResultSourceService
     {
         private const string SettingsFilePath = "AdvSecADO.json";
-
-        // *** SIMULATION ***
         private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
-
-        // private const string ClientId = "16acf595-5442-4b4b-8450-88b6ebfc098b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
-
-        // private const string AzureDevOpsBaseUrl = "https://ado-api-simulator.azurewebsites.net/";
-
         private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
-
-        // *** END SIMULATION ***
-
         private const string ListBuildsApiQueryString = "/_apis/build/builds?deletedFilter=excludeDeleted&statusFilter=completed"; // api-version=7.0&
         private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
 
@@ -108,28 +98,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                         this.orgAndProject = $"{settings.OrganizationName}/{settings.ProjectName}";
                         this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
-                        /*
-                        Maybe<Domain.Entities.Secret> accessToken = secretStoreRepository.ReadSecret(s_baseTargetUri);
-                        if (accessToken.HasValue && !accessToken.Value.IsExpired)
-                        {
-                            this.accessToken = accessToken.Value.Value;
-                        }
-                        else
-                        {
-                            secretStoreRepository.DeleteSecret(s_baseTargetUri);
-
-                            // *** SIMULATION ***
-                            AuthenticationResult authResult = await AuthenticateAsync();
-
-                            // var authResult = new AuthenticationResult(Guid.NewGuid().ToString(), true, Guid.NewGuid().ToString(), DateTime.Now.AddYears(1), DateTime.Now.AddYears(1), null, null, null, null, Guid.Empty);
-                            this.accessToken = authResult?.AccessToken;
-                            this.secretStoreRepository.WriteSecret(s_baseTargetUri, new Domain.Entities.Secret() { Value = this.accessToken, ExpiresOn = authResult?.ExpiresOn });
-                        }
-                        */
-
-                        // await Task.FromResult(authResult);
-
-                        // *** END SIMULATION ***
                         this.publicClientApplication = PublicClientApplicationBuilder
                             .Create(ClientId)
                             .WithAuthority(this.authorityUrl)
@@ -183,19 +151,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
             if (accessToken.HasValue)
             {
-                // *** SIMULATION ***
-                // TODO: what filters are needed?
                 HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
                    HttpMethod.Get,
                    AzureDevOpsBaseUrl + this.orgAndProject + ListBuildsApiQueryString + $"repositoryType={settings.RepositoryType}",
                    token: accessToken.Value);
-
-                // HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
-                //    HttpMethod.Get,
-                //    AzureDevOpsBaseUrl + ListBuildsApiQueryString,
-                //    token: this.accessToken);
-
-                // *** END SIMULATION ***
 
                 HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
 
@@ -234,13 +193,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.DownloadAndExtractArtifactAsync(int)"/>
         public async Task<Maybe<SarifLog>> DownloadAndExtractArtifactAsync(int buildId)
         {
-            // *** SIMULATION ***
-            // string url = AzureDevOpsBaseUrl + this.orgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
-
-            // string url = AzureDevOpsBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
-
-            // *** END SIMULATION ***
-
             SarifLog sarifLog = null;
 
             try
