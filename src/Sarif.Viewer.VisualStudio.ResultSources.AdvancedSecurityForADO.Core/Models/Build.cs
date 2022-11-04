@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+
+using Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Models;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
 {
@@ -12,5 +12,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
         public int Id { get; set; }
 
         public string BuildNumber { get; set; }
+
+        public string Status { get; set; }
+
+        public string Result { get; set; }
+
+        public DateTime FinishTime { get; set; }
+
+        public string Url { get; set; }
+
+        public string SourceBranch { get; set; }
+
+        public BuildRepository Repository { get; set; }
+
+        public DefinitionReference Definition { get; set; }
     }
 }

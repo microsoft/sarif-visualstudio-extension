@@ -19,6 +19,7 @@ using Microsoft.Identity.Client;
 using Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Entities;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Shell;
@@ -26,6 +27,7 @@ using Microsoft.Sarif.Viewer.Shell;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using AdoBuild = Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models.Build;
 using File = System.IO.File;
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
@@ -48,7 +50,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
         // *** END SIMULATION ***
 
-        private const string ListBuildsApiQueryString = "/_apis/build/builds?deletedFilter=excludeDeleted"; // api-version=7.0&
+        private const string ListBuildsApiQueryString = "/_apis/build/builds?deletedFilter=excludeDeleted&statusFilter=completed"; // api-version=7.0&
         private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
 
         private static readonly TargetUri s_baseTargetUri = new TargetUri(AzureDevOpsBaseUrl);
@@ -56,6 +58,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         private readonly string[] scopes = new string[] { "499b84ac-1321-427f-aa17-267ca6975798/user_impersonation" }; // Constant value to target Azure DevOps. Do not change!
         private readonly string solutionRootPath;
         private readonly IServiceProvider serviceProvider;
+        private readonly ISecretStoreRepository secretStoreRepository;
         private readonly IHttpClientAdapter httpClientAdapter;
         private readonly IFileSystem fileSystem;
 
@@ -69,16 +72,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
         /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
         /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="fileSystem">The file system.</param>
         public AdvSecForAdoResultSourceService(
             string solutionRootPath,
             IServiceProvider serviceProvider,
+            ISecretStoreRepository secretStoreRepository,
             IHttpClientAdapter httpClientAdapter,
             IFileSystem fileSystem)
         {
             this.solutionRootPath = solutionRootPath;
             this.serviceProvider = serviceProvider;
+            this.secretStoreRepository = secretStoreRepository;
             this.httpClientAdapter = httpClientAdapter;
             this.fileSystem = fileSystem;
         }
@@ -173,44 +179,52 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
         /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetLatestBuildIdAsync()"/>
         public async Task<Result<int, ErrorType>> GetLatestBuildIdAsync()
         {
-            AuthenticationResult authResult = await AuthenticateAsync();
+            Maybe<string> accessToken = await this.GetAccessTokenAsync();
 
-            // *** SIMULATION ***
-            // TODO: what filters are needed?
-            HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
-               HttpMethod.Get,
-               AzureDevOpsBaseUrl + this.orgAndProject + ListBuildsApiQueryString,
-               token: authResult?.AccessToken);
-
-            // HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
-            //    HttpMethod.Get,
-            //    AzureDevOpsBaseUrl + ListBuildsApiQueryString,
-            //    token: this.accessToken);
-
-            // *** END SIMULATION ***
-
-            HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
-
-            if (responseMessage.IsSuccessStatusCode)
+            if (accessToken.HasValue)
             {
-                try
+                // *** SIMULATION ***
+                // TODO: what filters are needed?
+                HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
+                   HttpMethod.Get,
+                   AzureDevOpsBaseUrl + this.orgAndProject + ListBuildsApiQueryString + $"repositoryType={settings.RepositoryType}",
+                   token: accessToken.Value);
+
+                // HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
+                //    HttpMethod.Get,
+                //    AzureDevOpsBaseUrl + ListBuildsApiQueryString,
+                //    token: this.accessToken);
+
+                // *** END SIMULATION ***
+
+                HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
+
+                if (responseMessage.IsSuccessStatusCode)
                 {
-                    string content = await responseMessage.Content.ReadAsStringAsync();
-                    var jObject = JObject.Parse(content);
-
-                    if (jObject.TryGetValue("value", out JToken jToken))
+                    try
                     {
-                        List<Models.Build> builds = JsonConvert.DeserializeObject<List<Models.Build>>(jToken.ToString());
+                        string content = await responseMessage.Content.ReadAsStringAsync();
+                        var jObject = JObject.Parse(content);
 
-                        if (builds.Count > 0)
+                        if (jObject.TryGetValue("value", out JToken jToken))
                         {
-                            return Result.Success<int, ErrorType>(builds.First().Id);
+                            List<AdoBuild> builds = JsonConvert.DeserializeObject<List<AdoBuild>>(jToken.ToString());
+
+                            if (builds.Count > 0)
+                            {
+                                var filteredBuilds = builds
+                                    .Where(b => b.Definition?.Name == settings.PipelineName)
+                                    .Where(b => b.Definition.Type == "build")
+                                    .Where(b => b.Result == "succeeded" || b.Result == "partiallySucceeded")
+                                    .ToList();
+                                return Result.Success<int, ErrorType>(filteredBuilds.First().Id);
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
                 }
             }
 
@@ -231,59 +245,62 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
             try
             {
-                AuthenticationResult authResult = await AuthenticateAsync();
+                Maybe<string> accessToken = await this.GetAccessTokenAsync();
 
-                HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
-                   HttpMethod.Get,
-                   AzureDevOpsBaseUrl + this.orgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId),
-                   token: authResult?.AccessToken);
-
-                // string downloadedFilePath = await this.httpClientAdapter.DownloadFileAsync(url);
-                HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
-
-                if (responseMessage.IsSuccessStatusCode)
+                if (accessToken.HasValue)
                 {
-                    string tempFilePath = Path.GetTempFileName();
+                    HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
+                       HttpMethod.Get,
+                       AzureDevOpsBaseUrl + this.orgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId),
+                       token: accessToken.Value);
 
-                    using (Stream stream = await responseMessage.Content.ReadAsStreamAsync())
+                    // string downloadedFilePath = await this.httpClientAdapter.DownloadFileAsync(url);
+                    HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
+
+                    if (responseMessage.IsSuccessStatusCode)
                     {
-                        using (var fileStream = new FileStream(tempFilePath, FileMode.Create))
-                        {
-                            await stream.CopyToAsync(fileStream);
-                        }
-                    }
+                        string tempFilePath = Path.GetTempFileName();
 
-                    string extractFolder = Path.GetTempPath();
-
-                    try
-                    {
-                        using (ZipArchive zipArchive = ZipFile.OpenRead(tempFilePath))
+                        using (Stream stream = await responseMessage.Content.ReadAsStreamAsync())
                         {
-                            foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                            using (var fileStream = new FileStream(tempFilePath, FileMode.Create))
                             {
-                                if (entry.FullName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
+                                await stream.CopyToAsync(fileStream);
+                            }
+                        }
+
+                        string extractFolder = Path.GetTempPath();
+
+                        try
+                        {
+                            using (ZipArchive zipArchive = ZipFile.OpenRead(tempFilePath))
+                            {
+                                foreach (ZipArchiveEntry entry in zipArchive.Entries)
                                 {
-                                    string fileName = "scan-results.sarif";
-
-                                    // Gets the full path to ensure that relative segments are removed.
-                                    string destinationPath = Path.GetFullPath(Path.Combine(extractFolder, fileName));
-
-                                    // Ordinal match is safest because case-sensitive volumes can be mounted
-                                    // within volumes that are case-insensitive.
-                                    if (destinationPath.StartsWith(extractFolder, StringComparison.Ordinal))
+                                    if (entry.FullName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        string sarifFolder = ShellUtilities.GetDotSarifDirectoryPath();
-                                        string outputPath = Path.Combine(sarifFolder, fileName);
-                                        entry.ExtractToFile(outputPath);
-                                        sarifLog = SarifLog.Load(outputPath);
-                                        break;
+                                        string fileName = "scan-results.sarif";
+
+                                        // Gets the full path to ensure that relative segments are removed.
+                                        string destinationPath = Path.GetFullPath(Path.Combine(extractFolder, fileName));
+
+                                        // Ordinal match is safest because case-sensitive volumes can be mounted
+                                        // within volumes that are case-insensitive.
+                                        if (destinationPath.StartsWith(extractFolder, StringComparison.Ordinal))
+                                        {
+                                            string sarifFolder = ShellUtilities.GetDotSarifDirectoryPath();
+                                            string outputPath = Path.Combine(sarifFolder, fileName);
+                                            entry.ExtractToFile(outputPath);
+                                            sarifLog = SarifLog.Load(outputPath);
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    catch
-                    {
+                        catch
+                        {
+                        }
                     }
                 }
             }
@@ -316,6 +333,29 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                 }
                 catch
                 {
+                }
+            }
+
+            return result;
+        }
+
+        private async Task<Maybe<string>> GetAccessTokenAsync()
+        {
+            string result = null;
+
+            Maybe<Domain.Entities.Secret> accessToken = this.secretStoreRepository.ReadSecret(s_baseTargetUri);
+            if (accessToken.HasValue && !accessToken.Value.IsExpired)
+            {
+                result = accessToken.Value;
+            }
+            else
+            {
+                AuthenticationResult authResult = await AuthenticateAsync();
+
+                if (authResult != null)
+                {
+                    result = authResult.AccessToken;
+                    this.secretStoreRepository.WriteSecret(s_baseTargetUri, new Domain.Entities.Secret { Value = result });
                 }
             }
 

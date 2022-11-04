@@ -13,6 +13,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
         [JsonProperty("project")]
         public string ProjectName { get; set; }
 
+        [JsonProperty("pipelineName")]
+        public string PipelineName { get; set; }
+
+        [JsonProperty("repositoryType")]
+        public string RepositoryType { get; set; }
+
         [JsonProperty("tenant")]
         public string Tenant { get; set; }
     }
