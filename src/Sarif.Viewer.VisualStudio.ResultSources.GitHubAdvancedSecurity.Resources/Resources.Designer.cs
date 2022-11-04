@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity {
+namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Resources {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Resources.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,18 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to GHAS: Dismiss alert.
+        /// </summary>
+        public static string DismissAlert_FlyoutMenuText {
+            get {
+                return ResourceManager.GetString("DismissAlert_FlyoutMenuText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to False positive.
         /// </summary>
-        internal static string DismissAlertReason_FalsePositive {
+        public static string DismissAlertReason_FalsePositive {
             get {
                 return ResourceManager.GetString("DismissAlertReason_FalsePositive", resourceCulture);
             }
@@ -72,31 +81,18 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity {
         /// <summary>
         ///   Looks up a localized string similar to Used in tests.
         /// </summary>
-        internal static string DismissAlertReason_UsedInTests {
+        public static string DismissAlertReason_UsedInTests {
             get {
                 return ResourceManager.GetString("DismissAlertReason_UsedInTests", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Won&apos;t fix.
         /// </summary>
-        internal static string DismissAlertReason_WontFix
-        {
-            get
-            {
+        public static string DismissAlertReason_WontFix {
+            get {
                 return ResourceManager.GetString("DismissAlertReason_WontFix", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to GHAS: Dismiss alert.
-        /// </summary>
-        internal static string DismissAlert_FlyoutMenuText
-        {
-            get
-            {
-                return ResourceManager.GetString("DismissAlert_FlyoutMenuText", resourceCulture);
             }
         }
     }

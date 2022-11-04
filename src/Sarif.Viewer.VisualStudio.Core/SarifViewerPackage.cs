@@ -54,6 +54,8 @@ namespace Microsoft.Sarif.Viewer
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
+        private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
+
         private ISarifErrorListEventSelectionService selectionService;
         private IVsTaskList2 vsTaskList2Service;
 
@@ -196,6 +198,16 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
+            {
+                foreach (OleMenuCommand menuCommand in menuCommands)
+                {
+                    mcs.RemoveCommand(menuCommand);
+                }
+            }
+
+            this.menuCommands.Clear();
+
             SarifExplorerWindow.Find()?.Close();
         }
 
@@ -264,6 +276,7 @@ namespace Microsoft.Sarif.Viewer
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
 
+            this.resultSourceHost.ServiceEvent -= this.ResultSourceHost_ServiceEvent;
             this.resultSourceHost = null;
 
             var fileSystem = new FileSystem();
@@ -308,6 +321,7 @@ namespace Microsoft.Sarif.Viewer
                                 (sender, e) => BeforeQueryStatusResultSourceServiceMenuItem(sender, flyout),
                                 commandId);
                             flyoutMenu.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandBeforeQueryStatusCallbackKey, flyout.BeforeQueryStatusMenuCommand);
+                            menuCommands.Add(flyoutMenu);
 
                             return flyoutMenu;
                         }
@@ -322,29 +336,32 @@ namespace Microsoft.Sarif.Viewer
                                 commandId);
                             menuCommand.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey, command.InvokeMenuCommand);
                             menuCommand.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandBeforeQueryStatusCallbackKey, command.BeforeQueryStatusMenuCommand);
+                            menuCommands.Add(menuCommand);
 
                             return menuCommand;
                         }
 
-                        OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>();
-                        int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
-                        int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
-                        int flyoutCount = 0;
-                        int commandCount = 0;
-
-                        for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
+                        using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
                         {
-                            ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
-                            OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
-                            mcs.AddCommand(flyoutMenu);
-                            flyoutCount++;
+                            int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
+                            int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
+                            int flyoutCount = 0;
+                            int commandCount = 0;
 
-                            for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
+                            for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
                             {
-                                ErrorListMenuCommand command = flyout.Commands[c];
-                                OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
-                                mcs.AddCommand(menuCommand);
-                                commandCount++;
+                                ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
+                                OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
+                                mcs.AddCommand(flyoutMenu);
+                                flyoutCount++;
+
+                                for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
+                                {
+                                    ErrorListMenuCommand command = flyout.Commands[c];
+                                    OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
+                                    mcs.AddCommand(menuCommand);
+                                    commandCount++;
+                                }
                             }
                         }
                     }
