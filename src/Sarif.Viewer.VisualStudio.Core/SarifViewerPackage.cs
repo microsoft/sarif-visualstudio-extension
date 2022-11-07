@@ -302,8 +302,22 @@ namespace Microsoft.Sarif.Viewer
                 case ResultSourceServiceEventType.ResultsUpdated:
                     if (e is ResultsUpdatedEventArgs resultsUpdatedEventArgs)
                     {
-                        string path = Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), resultsUpdatedEventArgs.LogFileName);
-                        resultsUpdatedEventArgs.SarifLog.Save(path);
+                        if (resultsUpdatedEventArgs.UseDotSarifDirectory)
+                        {
+                            // Auto-load from the .sarif directory.
+                            string path = Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), resultsUpdatedEventArgs.LogFileName);
+                            resultsUpdatedEventArgs.SarifLog.Save(path);
+                        }
+                        else
+                        {
+                            this.JoinableTaskFactory.Run(async () =>
+                            {
+                                // Load using the EnhancedResultData log name to activate key event adornments.
+                                string[] logNames = new[] { DataService.EnhancedResultDataLogName };
+                                await ErrorListService.CloseSarifLogItemsAsync(logNames);
+                                await ErrorListService.ProcessSarifLogAsync(resultsUpdatedEventArgs.SarifLog, DataService.EnhancedResultDataLogName, cleanErrors: false, openInEditor: false);
+                            });
+                        }
                     }
 
                     break;

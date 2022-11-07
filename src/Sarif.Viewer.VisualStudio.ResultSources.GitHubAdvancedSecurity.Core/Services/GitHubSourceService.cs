@@ -562,6 +562,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                                 BranchName = this.scanDataRequestParameters.BranchName,
                                 SarifLog = getResultsResult.Value,
                                 LogFileName = "scan-results.sarif",
+                                UseDotSarifDirectory = false,
                             };
                             RaiseServiceEvent(eventArgs);
                             break;
