@@ -80,8 +80,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             this.fileSystem = fileSystem;
         }
 
-        /// <inheritdoc cref="IResultSourceService.ResultsUpdated"/>
-        public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
+        /// <inheritdoc cref="IResultSourceService.ServiceEvent"/>
+        public event EventHandler<ServiceEventArgs> ServiceEvent;
+
+        /// <inheritdoc cref="IResultSourceService.FirstMenuId"/>
+        public int FirstMenuId { get; set; }
+
+        /// <inheritdoc cref="IResultSourceService.FirstCommandId"/>
+        public int FirstCommandId { get; set; }
 
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
         public async Task InitializeAsync()
@@ -142,7 +148,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                         SarifLog = artifactResult.Value,
                         LogFileName = "scan-results.sarif",
                     };
-                    RaiseResultsUpdatedEvent(eventArgs);
+                    RaiseServiceEvent(eventArgs);
                     return Result.Success<bool, ErrorType>(true);
                 }
             }
@@ -291,9 +297,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
             return result;
         }
 
-        private void RaiseResultsUpdatedEvent(ResultsUpdatedEventArgs eventArgs = null)
+        private void RaiseServiceEvent(ServiceEventArgs eventArgs = null)
         {
-            ResultsUpdated?.Invoke(this, eventArgs);
+            ServiceEvent?.Invoke(this, eventArgs);
         }
     }
 }
