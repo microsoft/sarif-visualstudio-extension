@@ -89,6 +89,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\FeedbackType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\FixModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\InvocationModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ISarifErrorListItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LocationCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\LocationModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ReplacementModel.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControl.xaml.cs">
       <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)OutputWindowTracerListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectKind.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectNameCache.cs" />
@@ -137,10 +139,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Sarif\Tool.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SdkUiUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\CloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ICloseSarifLogService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ILoadSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\LoadSarifLogService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SCloseSarifLogService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\SDataService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\SLoadSarifLogService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SpanHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTag.cs" />
@@ -148,6 +153,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTagger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ISarifLocationTaggerService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\ITextViewCaretListenerService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\KeyEventAdornment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\KeyEventAdornmentManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tags\KeyEventTextViewCreationListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationErrorTag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationErrorTagger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tags\SarifLocationTagBase.cs" />
@@ -161,6 +169,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tags\TextViewCaretListenerService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\FeedbackTelemetryEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\ITelemetryProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\KeyEventTelemetry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\KeyEventTelemetryClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\Telemetry.Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Telemetry\TelemetryProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Uri.extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\AdoVersionControlParser.cs" />
@@ -169,6 +181,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParserFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\AnalysisStepView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\RelatedLocationsTreeView.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\ResolveEmbeddedFileDialog.xaml.cs">
       <DependentUpon>ResolveEmbeddedFileDialog.xaml</DependentUpon>
     </Compile>
@@ -179,7 +192,6 @@
       <DependentUpon>SarifViewerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)WeakEventHandlerManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)XamlUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />

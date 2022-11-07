@@ -49,7 +49,9 @@ namespace Microsoft.Sarif.Viewer.Converters
                 }
             }
 
-            return text;
+            string index = node.Index != 0 ? $"{node.Index} " : string.Empty;
+
+            return index + text;
         }
     }
 }

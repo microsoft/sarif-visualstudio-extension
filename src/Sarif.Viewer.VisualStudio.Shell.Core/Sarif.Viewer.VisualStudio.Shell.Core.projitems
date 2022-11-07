@@ -21,5 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IStatusBarService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ShellUtilities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StatusBarService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VsUtilities.cs" />
   </ItemGroup>
 </Project>

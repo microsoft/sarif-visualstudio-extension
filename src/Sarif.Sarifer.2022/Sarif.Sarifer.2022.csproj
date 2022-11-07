@@ -27,6 +27,7 @@
     <UseCodebase>true</UseCodebase>
     <VsixType>v3</VsixType>
     <CodeAnalysisRuleSet>..\.ruleset</CodeAnalysisRuleSet>
+	<DeployExtension Condition="'$(AppVeyor)' != ''">False</DeployExtension>
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
   <ItemGroup>
@@ -36,6 +37,17 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.31902.203" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading">
+      <Version>17.2.32</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers">
+      <Version>17.2.32</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
+      <Version>17.1.11-preview-0002</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools">
       <Version>17.3.2093</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

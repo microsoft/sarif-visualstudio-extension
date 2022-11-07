@@ -18,19 +18,51 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
     /// </summary>
     public class ResultSourceHost
     {
+        private readonly IResultSourceFactory resultSourceFactory;
         private IResultSourceService resultSourceService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultSourceHost"/> class.
+        /// </summary>
+        /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
+        /// <param name="serviceProvider">The service provider.</param>
+        public ResultSourceHost(
+            string solutionRootPath,
+            IServiceProvider serviceProvider)
+        {
+            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultSourceHost"/> class.
+        /// </summary>
+        /// <param name="resultSourceFactory">The <see cref="IResultSourceFactory"/>.</param>
+        public ResultSourceHost(IResultSourceFactory resultSourceFactory)
+        {
+            this.resultSourceFactory = resultSourceFactory;
+        }
 
         /// <summary>
         /// The event raised when new scan results are available.
         /// </summary>
-        public event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
+        public event EventHandler<ServiceEventArgs> ServiceEvent;
+
+        /// <summary>
+        /// Gets the maximum number of child menus per flyout in the Error List context menu.
+        /// </summary>
+        public static int ErrorListContextdMenuChildFlyoutsPerFlyout => 3;
+
+        /// <summary>
+        /// Gets the maximum number of menu commands per flyout in the Error List context menu.
+        /// </summary>
+        public static int ErrorListContextdMenuCommandsPerFlyout => 10;
 
         /// <summary>
         /// Requests analysis results from the active source service, if any.
         /// </summary>
         /// <param name="resultSourceFactory">The <see cref="IResultSourceFactory"/>.</param>
         /// <returns>An asynchronous <see cref="Task"/>.</returns>
-        public async Task RequestAnalysisResultsAsync(IResultSourceFactory resultSourceFactory)
+        public async Task RequestAnalysisResultsAsync()
         {
             if (!ResultSourceFactory.IsUnitTesting)
             {
@@ -44,8 +76,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 
                 if (result.IsSuccess)
                 {
+                    // We have an active results service.
                     this.resultSourceService = result.Value;
-                    this.resultSourceService.ResultsUpdated += this.ResultSourceService_ResultsUpdated;
+
+                    // Hook up the service event handler.
+                    this.resultSourceService.ServiceEvent += this.ResultSourceService_ServiceEvent;
+
+                    await this.resultSourceService.InitializeAsync();
                 }
             }
 
@@ -59,9 +96,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             }
         }
 
-        private void ResultSourceService_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
+        private void ResultSourceService_ServiceEvent(object sender, ServiceEventArgs e)
         {
-            ResultsUpdated?.Invoke(this, e);
+            ServiceEvent?.Invoke(this, e);
         }
     }
 }

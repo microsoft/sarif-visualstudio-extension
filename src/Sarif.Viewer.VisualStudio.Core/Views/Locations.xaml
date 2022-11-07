@@ -1,10 +1,128 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+                    xmlns:models="clr-namespace:Microsoft.Sarif.Viewer.Models"
+                    xmlns:views="clr-namespace:Microsoft.Sarif.Viewer.Views">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Views/LocationsStringResources.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/LocationsStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
+    
+    <Style x:Key="ExpandCollapseToggleStyle"
+           TargetType="ToggleButton">
+        <Setter Property="Focusable"
+                Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid Width="15"
+                          Height="13"
+                          Background="Transparent">
+                        <Path x:Name="ExpandPath"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"
+                              Margin="1,1,1,1"
+                              Fill="{TemplateBinding Background}"
+                              Data="M 4 0 L 8 4 L 4 8 Z"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked"
+                                 Value="True">
+                            <Setter Property="Data"
+                                    TargetName="ExpandPath"
+                                    Value="M 0 4 L 8 4 L 4 8 Z"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TreeViewItemContainerStyle" TargetType="{x:Type TreeViewItem}">
+        <!-- Default tree view template from MSDN. -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TreeViewItem}">
+                    <Grid Margin="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition MinWidth="19"
+                                              Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ToggleButton x:Name="Expander"
+                                      VerticalAlignment="Top"
+                                      Margin="0,5,0,0"
+                                      Style="{StaticResource ExpandCollapseToggleStyle}"
+                                      IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                      ClickMode="Press"
+                                      Background="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemGlyphBrushKey}}"/>
+                        <Border Name="ItemPanel"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="2"
+                                Background="{TemplateBinding Background}">
+                            <ContentPresenter x:Name="PART_Header"
+                                              ContentSource="Header"
+                                              Margin="5,1,5,1"
+                                              HorizontalAlignment="Stretch"/>
+                        </Border>
+                        <ItemsPresenter x:Name="ItemContent"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Grid.ColumnSpan="2"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded"
+                                 Value="false">
+                            <Setter TargetName="ItemContent"
+                                    Property="Visibility"
+                                    Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="HasItems"
+                                 Value="false">
+                            <Setter TargetName="Expander"
+                                    Property="Visibility"
+                                    Value="Hidden"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver"
+                                 Value="true"
+                                 SourceName="ItemPanel">
+                            <Setter TargetName="ItemPanel"
+                                    Property="Background"
+                                    Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemBackgroundHoverBrushKey}}"/>
+                            <Setter TargetName="ItemPanel"
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemBorderHoverBrushKey}}"/>
+                            <Setter Property="Cursor"
+                                    Value="Hand"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected"
+                                           Value="true"/>
+                                <Condition Property="IsFocused"
+                                           Value="true"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="ItemPanel"
+                                    Property="Background"
+                                    Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemBackgroundSelectedBrushKey}}"/>
+                            <Setter TargetName="ItemPanel"
+                                    Property="BorderBrush"
+                                    Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemBorderSelectedBrushKey}}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- Location and Related Location Template -->
     <DataTemplate x:Key="CodeLocationCollectionTemplate">
@@ -13,22 +131,23 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <TreeView Grid.Row="1"
+            <TreeView Grid.Row="0"
                       Visibility="{Binding Locations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+                      ItemContainerStyle="{StaticResource TreeViewItemContainerStyle}"
+                      KeyboardNavigation.IsTabStop="True"
                       Style="{StaticResource LocationsTreeViewStyle}">
-                <TreeViewItem Style="{StaticResource TreeViewItemStyle}">
+                <TreeViewItem IsExpanded="True"
+                              Style="{StaticResource TreeViewItemContainerStyle}">
                     <TreeViewItem.Header>
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Left"
-                                       Text="{StaticResource Locations_TreeViewItem_Header_Label_Text_String}" 
-                                       Style="{StaticResource PanelHeader}"/>
+                                       Text="{StaticResource Locations_TreeViewItem_Header_Label_Text_String}"
+                                       Style="{StaticResource LocationsTreeViewItemHeaderTextStyle}"/>
                             <TextBlock DockPanel.Dock="Left"
-                                       Visibility="{Binding Locations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
-                                       Style="{StaticResource LocationCountTextStyle}">
+                                       Visibility="{Binding Locations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}">
                                 <Run Text="{Binding Locations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}"/>
                             </TextBlock>
                         </DockPanel>
@@ -70,7 +189,8 @@
                                                         </TextBlock>
                                                     </WrapPanel>
                                                 </WrapPanel.ToolTip>
-                                                <TextBlock Style="{StaticResource LocationTextBaseStyle}">
+
+                                                <TextBlock>
                                                     <Run Text="{Binding FileName, Mode=OneWay}" />
                                                 </TextBlock>
                                                 <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
@@ -87,86 +207,104 @@
                 </TreeViewItem>
             </TreeView>
 
-            <Separator Grid.Row="2"
+            <Separator Grid.Row="1"
                        Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
                        Style="{StaticResource SectionSeparatorStyle}"/>
-            
-            <TreeView Grid.Row="3"
-                      Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
-                      Style="{StaticResource TreeViewStyleBase}">
-                <TreeViewItem Style="{StaticResource TreeViewItemStyle}">
-                    <TreeViewItem.Header>
-                        <DockPanel>
-                            <TextBlock Text="Related Locations"
-                                       Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}" />
-                            <TextBlock Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
-                                       Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}">
-                                <Run Text="{Binding RelatedLocations.Count, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}" />
-                            </TextBlock>
-                        </DockPanel>
-                    </TreeViewItem.Header>
-                    <TreeViewItem>
-                        <TreeViewItem.Header>
-                            <DockPanel Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
-                                <ListBox ItemsSource="{Binding RelatedLocations}"
-                                         SelectedItem="{Binding RelatedLocations.SelectedItem, Mode=TwoWay}"
-                                         ItemContainerStyle="{StaticResource ListBoxItemContainerStyle}"
-                                         Style="{StaticResource TreeViewItemListBoxStyle}">
-                                    <ListBox.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <DockPanel Style="{StaticResource ListBoxItemPanelStyle}" />
-                                        </ItemsPanelTemplate>
-                                    </ListBox.ItemsPanel>
 
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <WrapPanel Style="{StaticResource ListBoxItemWrapPanelStyle}">
-                                                <WrapPanel.InputBindings>
-                                                    <MouseBinding Gesture="LeftClick"
-                                                                  Command="{Binding DataContext.SelectedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}"
-                                                                  CommandParameter="{Binding}" />
-                                                </WrapPanel.InputBindings>
-                                                <WrapPanel.ToolTip>
-                                                    <WrapPanel Style="{StaticResource ListBoxItemWrapPanelStyle}">
-                                                        <TextBlock>
-                                                            <Run Text="{Binding FilePath, Mode=OneWay}" />
-                                                        </TextBlock>
-                                                        <TextBlock Visibility="{Binding Region.StartLine, Converter={StaticResource Int32ToVisibilityConverter}}"
-                                                                   Style="{StaticResource ListBoxItemToolTipRegionTextStyle}">
-                                                            <Run Text="{Binding Region.StartLine, Mode=OneWay, StringFormat={StaticResource Locations_ListBoxItem_ToolTip_RegionStartLine_Text_FormatString}}" />
-                                                        </TextBlock>
-                                                        <TextBlock Visibility="{Binding Region.StartColumn, Converter={StaticResource Int32ToVisibilityConverter}}"
-                                                                   Style="{StaticResource ListBoxItemToolTipRegionTextStyle}">
-                                                            <Run Text="{Binding Region.StartColumn, Mode=OneWay, StringFormat={StaticResource Locations_ListBoxItem_ToolTip_RegionStartColumn_Text_FormatString}}" />
-                                                        </TextBlock>
-                                                        <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}">
-                                                            <Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
-                                                        </TextBlock>
-                                                    </WrapPanel>
-                                                </WrapPanel.ToolTip>
-                                                <TextBlock Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding FileName, Mode=OneWay}" />
-                                                </TextBlock>
-                                                <TextBlock Visibility="{Binding RegionDisplayString, Converter={StaticResource StringToVisibilityConverter}}"
-                                                           Style="{StaticResource LocationTextStyle}">
-                                                    <Run Text="{Binding RegionDisplayString, Mode=OneWay}" />
-                                                </TextBlock>
-                                                <TextBlock Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}"
-                                                           Style="{StaticResource LocationTextStyleNoMargin}">
-                                                    <Run Text="{Binding Message, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Message_FormatString}}" />
-                                                </TextBlock>
-                                            </WrapPanel>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
+            <ScrollViewer Grid.Row="2">
+                <TreeView ScrollViewer.CanContentScroll="True"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          KeyboardNavigation.IsTabStop="True"
+                          Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+                          ItemContainerStyle="{StaticResource TreeViewItemContainerStyle}"
+                          Style="{StaticResource TreeViewStyleBase}">
+                    <TreeView.Template>
+                        <ControlTemplate>
+                            <!-- This prevents the control from eating scroll events. -->
+                            <ItemsPresenter x:Name="ItemsPresenter"/>
+                        </ControlTemplate>
+                    </TreeView.Template>
+                    <TreeViewItem IsExpanded="True" Style="{StaticResource TreeViewItemContainerStyle}">
+                        <TreeViewItem.Header>
+                            <DockPanel>
+                                <TextBlock Text="Related Locations"
+                                           Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}" />
+                                <TextBlock Visibility="{Binding RelatedLocations, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=1}"
+                                           Style="{StaticResource RelatedLocationsTreeViewItemHeaderTextStyle}">
+                                    <Run Text="{Binding RelatedLocations.DeepCount, Mode=OneWay, StringFormat={StaticResource Locations_TreeViewItem_Header_Count_Text_FormatString}}" />
+                                </TextBlock>
                             </DockPanel>
                         </TreeViewItem.Header>
+                        <TreeViewItem>
+                            <TreeViewItem.Header>
+                                <views:RelatedLocationsTreeView x:Name="ContextTree"
+                                                                ScrollViewer.CanContentScroll="True"
+                                                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                                ItemsSource="{Binding RelatedLocations, Mode=OneTime}"
+                                                                KeyboardNavigation.AcceptsReturn="True"
+                                                                KeyboardNavigation.IsTabStop="True"
+                                                                KeyboardNavigation.TabNavigation="Continue"
+                                                                ItemContainerStyle="{StaticResource TreeViewItemContainerStyle}"
+                                                                Style="{StaticResource RelatedLocationsTreeViewStyle}">
+                                    <TreeView.Template>
+                                        <ControlTemplate>
+                                            <!-- This prevents the control from eating scroll events. -->
+                                            <ItemsPresenter x:Name="ItemsPresenter"/>
+                                        </ControlTemplate>
+                                    </TreeView.Template>
+                                    <TreeView.ItemTemplate>
+                                        <HierarchicalDataTemplate DataType="{x:Type models:LocationModel}"
+                                                                  ItemsSource="{Binding Children, Mode=OneTime}">
+                                            <StackPanel Orientation="Vertical"
+                                                        Background="Transparent">
+                                                <TextBlock Text="{Binding Message}"
+                                                           Style="{StaticResource RelatedLocationsTreeViewItemTextStyle}"/>
+                                                <TextBlock Text="{Binding LocationDisplayString, Mode=OneWay}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground"
+                                                                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolboxDisabledContentTextBrushKey}}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsSelected}"
+                                                                             Value="true">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemTextBrushKey}}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsSelectedNode}"
+                                                                             Value="true">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemTextBrushKey}}"/>
+                                                                </DataTrigger>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=StackPanel}, Path=IsMouseOver}"
+                                                                                   Value="true"/>
+                                                                        <Condition Binding="{Binding IsSelected}"
+                                                                                   Value="false"/>
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource {x:Static vs_shell:CommonDocumentColors.ListItemBorderSelectedBrushKey}}"/>
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <StackPanel.InputBindings>
+                                                    <MouseBinding MouseAction="LeftDoubleClick"
+                                                                  Command="{Binding NavigateCommand}"/>
+                                                </StackPanel.InputBindings>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.ItemTemplate>
+                                </views:RelatedLocationsTreeView>
+                            </TreeViewItem.Header>
+                        </TreeViewItem>
                     </TreeViewItem>
-                </TreeViewItem>
-            </TreeView>
-
+                </TreeView>
+            </ScrollViewer>
         </Grid>
-
     </DataTemplate>
 
 </ResourceDictionary>

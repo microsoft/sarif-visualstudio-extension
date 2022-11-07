@@ -43,6 +43,9 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>16.0.206</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Telemetry">
+      <Version>16.3.250</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration">
       <Version>16.3.43</Version>
     </PackageReference>
@@ -144,6 +147,12 @@
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Factory\Sarif.Viewer.VisualStudio.ResultSources.Factory.csproj">
       <Project>{97fd92d6-b72d-4dc8-a2d9-341356505ed2}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.Factory</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources.csproj">
+      <Project>{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources</Name>
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>

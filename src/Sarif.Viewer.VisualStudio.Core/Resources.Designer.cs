@@ -762,7 +762,40 @@ namespace Microsoft.Sarif.Viewer {
                 return ResourceManager.GetString("SendFeedbackSucceeded", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while processing SARIF log file `{0}` due to error: `{1}`..
+        /// </summary>
+        public static string TraceLog_OpenSarifFileException
+        {
+            get
+            {
+                return ResourceManager.GetString("TraceLog_OpenSarifFileException", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Processing SARIF log file `{0}`.
+        /// </summary>
+        public static string TraceLog_ProcessingSarifFile
+        {
+            get
+            {
+                return ResourceManager.GetString("TraceLog_ProcessingSarifFile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to The SARIF log file `{0}` processed.
+        /// </summary>
+        public static string TraceLog_SarifFileProcessed
+        {
+            get
+            {
+                return ResourceManager.GetString("TraceLog_SarifFileProcessed", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to The log file you have opened conforms to a pre-release SARIF version 2 schema. This file will be automatically transformed to SARIF version {0}. Would you like to save the transformed file?.
         /// </summary>

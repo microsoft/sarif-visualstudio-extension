@@ -30,10 +30,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
     {
         private readonly StandardKernel standardKernel;
         private readonly string solutionRootPath;
-        private readonly List<Type> resultSourceTypes = new List<Type>
+        private readonly Dictionary<Type, (int, int)> resultSources = new Dictionary<Type, (int firstMenuId, int firstCommandId)>
         {
-            // typeof(GitHubSourceService),
-            typeof(AdvSecForAdoResultSourceService),
+            // { typeof(GitHubSourceService), (firstMenuId: 0x5000, firstCommandId: 0x8B67) },
+            { typeof(AdvSecForAdoResultSourceService), (firstMenuId: 0x7000, firstCommandId: 0x9B67) },
         };
 
         /// <summary>
@@ -75,10 +75,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync()
         {
             var ctorArg = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
+            int index = -1;
 
-            foreach (Type type in this.resultSourceTypes)
+            foreach (KeyValuePair<Type, (int, int)> kvp in this.resultSources)
             {
-                if (this.standardKernel.Get(type, ctorArg) is IResultSourceService sourceService)
+                index++;
+                if (this.standardKernel.Get(kvp.Key, ctorArg) is IResultSourceService sourceService)
                 {
                     Result result = await sourceService.IsActiveAsync();
 
@@ -86,7 +88,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                     {
                         try
                         {
-                            await sourceService.InitializeAsync();
+                            sourceService.FirstMenuId = kvp.Value.Item1;
+                            sourceService.FirstCommandId = kvp.Value.Item2;
                             return Result.Success<IResultSourceService, ErrorType>(sourceService);
                         }
                         catch (Exception) { }

@@ -42,6 +42,8 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
         private AnalyzeFileCommand analyzeFileCommand;
         private OutputWindowTracerListener outputWindowTraceListener;
 
+        public static bool IsUnitTesting { get; set; } = false;
+
         public void Dispose()
         {
             this.Dispose(disposing: true);

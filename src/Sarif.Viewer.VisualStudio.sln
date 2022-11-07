@@ -53,6 +53,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022", "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022.csproj", "{AC806514-8CCF-4471-AE70-BAFC83ECCBC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources", "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources.csproj", "{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}"
+EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.ResultSources.Factory.Core", "Sarif.Viewer.VisualStudio.ResultSources.Factory.Core\Sarif.Viewer.VisualStudio.ResultSources.Factory.Core.shproj", "{8D7B18CF-1038-4492-AAF5-4708BA1D60CC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.Factory", "Sarif.Viewer.VisualStudio.ResultSources.Factory\Sarif.Viewer.VisualStudio.ResultSources.Factory.csproj", "{97FD92D6-B72D-4DC8-A2D9-341356505ED2}"
@@ -299,6 +301,18 @@ Global
 		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x64.Build.0 = Release|x64
 		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x86.ActiveCfg = Release|x86
 		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223}.Release|x86.Build.0 = Release|x86
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Debug|x64.ActiveCfg = Debug|x64
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Debug|x64.Build.0 = Debug|x64
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Debug|x86.ActiveCfg = Debug|x86
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Debug|x86.Build.0 = Debug|x86
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x64.ActiveCfg = Release|x64
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x64.Build.0 = Release|x64
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x86.ActiveCfg = Release|x86
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -321,6 +335,7 @@ Global
 		{86BE9731-7A5E-4B0B-A040-4AEC83FD67AF} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{4D7EFC40-949F-4D36-A301-607BA8F8712E} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{64CAFBF8-5543-435C-BDD6-7DF96E0EE223} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
+		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}

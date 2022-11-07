@@ -24,6 +24,7 @@
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.ResultSources.Factory" Path="|Sarif.Viewer.VisualStudio.ResultSources.Factory|" AssemblyName="|Sarif.Viewer.VisualStudio.ResultSources.Factory;AssemblyName|" />
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.ResultSources.GitHubAdvancedSecurity" Path="|Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity|" AssemblyName="|Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity;AssemblyName|" />
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.Shell" Path="|Sarif.Viewer.VisualStudio.Shell|" AssemblyName="|Sarif.Viewer.VisualStudio.Shell;AssemblyName|" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.ResultSources.GitHubAdvancedSecurity.Resources" Path="|Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources|" AssemblyName="|Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources;AssemblyName|" />
     </Assets>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,17.0)" DisplayName="Visual Studio core editor" />

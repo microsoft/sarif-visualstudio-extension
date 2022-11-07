@@ -11,5 +11,6 @@ namespace Microsoft.CodeAnalysis.Sarif.Sarifer
     internal static class Guids
     {
         public static readonly Guid SariferCommandSet = new Guid("{CD8EE607-A630-4652-B2BA-748F534235C1}");
+        public static readonly Guid SariferFolderViewCommandSet = new Guid("71F099FC-EC9E-47D4-9723-9F3865CD0858");
     }
 }

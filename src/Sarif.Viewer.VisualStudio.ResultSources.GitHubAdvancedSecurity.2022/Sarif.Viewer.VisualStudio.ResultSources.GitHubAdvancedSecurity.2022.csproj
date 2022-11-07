@@ -72,6 +72,10 @@
       <Project>{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain.2022</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources.csproj">
+      <Project>{6c18770e-f2d2-4a9e-b5ec-0a3e77ef5005}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell.2022\Sarif.Viewer.VisualStudio.Shell.2022.csproj">
       <Project>{3585559d-e715-41de-ae14-f2e18eb516ca}</Project>
       <Name>Sarif.Viewer.VisualStudio.Shell.2022</Name>

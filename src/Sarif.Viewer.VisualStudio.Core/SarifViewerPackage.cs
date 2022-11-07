@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -19,12 +21,15 @@ using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
 using Newtonsoft.Json;
+
+using ResultSourcesConstants = Microsoft.Sarif.Viewer.ResultSources.Domain.Models.Constants;
 
 using Task = System.Threading.Tasks.Task;
 
@@ -40,6 +45,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideToolWindow(typeof(SarifExplorerWindow), Style = VsDockStyle.Tabbed, Window = "3ae79031-e1bc-11d0-8f78-00a0c9110057", Transient = true)]
     [ProvideService(typeof(SLoadSarifLogService))]
     [ProvideService(typeof(SCloseSarifLogService))]
+    [ProvideService(typeof(SDataService))]
     [ProvideService(typeof(ISarifLocationTaggerService))]
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
@@ -47,7 +53,12 @@ namespace Microsoft.Sarif.Viewer
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
+        private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
+
+        private ISarifErrorListEventSelectionService selectionService;
+
         private ResultSourceHost resultSourceHost;
+        private OutputWindowTracerListener outputWindowTraceListener;
 
         /// <summary>
         /// OpenSarifFileCommandPackage GUID string.
@@ -55,6 +66,7 @@ namespace Microsoft.Sarif.Viewer
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
         public const string OptionCategoryName = "SARIF Viewer";
         public const string OptionPageName = "General";
+        public const string OutputPaneName = "SARIF Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
         public static bool IsUnitTesting { get; set; } = false;
@@ -86,6 +98,7 @@ namespace Microsoft.Sarif.Viewer
         {
             { typeof(SLoadSarifLogService), new ServiceInformation { Creator = type => new LoadSarifLogService(), Promote = true } },
             { typeof(SCloseSarifLogService), new ServiceInformation { Creator = type => new CloseSarifLogService(), Promote = true } },
+            { typeof(SDataService), new ServiceInformation { Creator = type => new DataService(), Promote = true } },
             { typeof(ISarifLocationTaggerService), new ServiceInformation { Creator = type => new SarifLocationTaggerService(), Promote = false } },
             { typeof(ISarifErrorListEventSelectionService), new ServiceInformation { Creator = type => new SarifErrorListEventProcessor(), Promote = false } },
 
@@ -143,6 +156,16 @@ namespace Microsoft.Sarif.Viewer
             // initialize Option first since other componments may depends on options.
             await SarifViewerOption.InitializeAsync(this).ConfigureAwait(false);
 
+            if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
+            {
+                this.outputWindowTraceListener = new OutputWindowTracerListener(output, OutputPaneName);
+            }
+
+            var componentModel = await this.GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
+            Assumes.Present(componentModel);
+
+            this.selectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
+
             OpenLogFileCommands.Initialize(this);
             CodeAnalysisResultManager.Instance.Register();
             SarifToolWindowCommand.Initialize(this);
@@ -156,25 +179,46 @@ namespace Microsoft.Sarif.Viewer
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
                 this.sarifFolderMonitor?.StartWatch();
-
-                await InitializeResultSourceHostAsync();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+            SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
+
+            await this.InitializeResultSourceHostAsync();
             return;
+        }
+
+        private void SolutionEvents_OnAfterCloseSolution(object sender, EventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
+            {
+                foreach (OleMenuCommand menuCommand in menuCommands)
+                {
+                    mcs.RemoveCommand(menuCommand);
+                }
+            }
+
+            this.menuCommands.Clear();
+
+            SarifExplorerWindow.Find()?.Close();
         }
 
         private async Task InitializeResultSourceHostAsync()
         {
-            string solutionPath = ShellUtilities.GetSolutionDirectoryPath();
-            if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+            if (this.resultSourceHost == null)
             {
-                var resultSourceFactory = new ResultSourceFactory(solutionPath, this);
-                this.resultSourceHost = new ResultSourceHost();
-                this.resultSourceHost.ResultsUpdated += this.ResultSourceHost_ResultsUpdated;
-                await this.resultSourceHost.RequestAnalysisResultsAsync(resultSourceFactory);
+                string solutionPath = ShellUtilities.GetSolutionDirectoryPath();
+                if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+                {
+                    this.resultSourceHost = new ResultSourceHost(solutionPath, this);
+                    this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
+                }
             }
+
+            await this.resultSourceHost?.RequestAnalysisResultsAsync();
         }
 
         private object CreateService(IServiceContainer container, Type serviceType)
@@ -189,10 +233,8 @@ namespace Microsoft.Sarif.Viewer
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                if (vsShell == null)
-                {
-                    vsShell = Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
-                }
+
+                vsShell ??= Package.GetGlobalService(typeof(SVsShell)) as IVsShell;
 
                 return vsShell;
             }
@@ -229,7 +271,11 @@ namespace Microsoft.Sarif.Viewer
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
 
-            this.resultSourceHost = null;
+            if (this.resultSourceHost != null)
+            {
+                this.resultSourceHost.ServiceEvent -= this.ResultSourceHost_ServiceEvent;
+                this.resultSourceHost = null;
+            }
 
             var fileSystem = new FileSystem();
 
@@ -249,10 +295,77 @@ namespace Microsoft.Sarif.Viewer
             this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
-        private void ResultSourceHost_ResultsUpdated(object sender, ResultsUpdatedEventArgs e)
+        private void ResultSourceHost_ServiceEvent(object sender, ServiceEventArgs e)
         {
-            string path = Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), e.LogFileName);
-            e.SarifLog.Save(path);
+            switch (e.ServiceEventType)
+            {
+                case ResultSourceServiceEventType.ResultsUpdated:
+                    if (e is ResultsUpdatedEventArgs resultsUpdatedEventArgs)
+                    {
+                        string path = Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), resultsUpdatedEventArgs.LogFileName);
+                        resultsUpdatedEventArgs.SarifLog.Save(path);
+                    }
+
+                    break;
+                case ResultSourceServiceEventType.RequestAddMenuItems:
+                    if (e is RequestAddMenuItemsEventArgs requestAddMenuCommandEventArgs)
+                    {
+                        OleMenuCommand CreateFlyoutMenu(ErrorListMenuFlyout flyout, int id)
+                        {
+                            var commandId = new CommandID(ErrorListCommand.ResultSourceServiceCommandSet, id);
+                            var flyoutMenu = new OleMenuCommand(
+                                null, // invokeHandler
+                                null, // changeHandler
+                                (sender, e) => ErrorListCommand.Instance.ResultSourceServiceMenuItem_BeforeQueryStatus(sender, flyout),
+                                commandId);
+                            flyoutMenu.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandBeforeQueryStatusCallbackKey, flyout.BeforeQueryStatusMenuCommand);
+                            menuCommands.Add(flyoutMenu);
+
+                            return flyoutMenu;
+                        }
+
+                        OleMenuCommand CreateDynamicMenuCommand(ErrorListMenuCommand command, int id)
+                        {
+                            var commandId = new CommandID(ErrorListCommand.ResultSourceServiceCommandSet, id);
+                            var menuCommand = new OleMenuCommand(
+                                (sender, e) => ErrorListCommand.Instance.ResultSourceServiceMenuCommand_Invoke(sender),
+                                null, // changeHandler
+                                (sender, e) => ErrorListCommand.Instance.ResultSourceServiceMenuItem_BeforeQueryStatus(sender, command),
+                                commandId);
+                            menuCommand.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey, command.InvokeMenuCommand);
+                            menuCommand.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandBeforeQueryStatusCallbackKey, command.BeforeQueryStatusMenuCommand);
+                            menuCommands.Add(menuCommand);
+
+                            return menuCommand;
+                        }
+
+                        using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
+                        {
+                            int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
+                            int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
+                            int flyoutCount = 0;
+                            int commandCount = 0;
+
+                            for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
+                            {
+                                ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
+                                OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
+                                mcs.AddCommand(flyoutMenu);
+                                flyoutCount++;
+
+                                for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
+                                {
+                                    ErrorListMenuCommand command = flyout.Commands[c];
+                                    OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
+                                    mcs.AddCommand(menuCommand);
+                                    commandCount++;
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+            }
         }
     }
 }

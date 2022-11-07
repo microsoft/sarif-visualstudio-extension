@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:vs_env="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
              xmlns:viewModels="clr-namespace:Microsoft.Sarif.Viewer.ViewModels"
              xmlns:controls="clr-namespace:Microsoft.Sarif.Viewer.Controls"
              mc:Ignorable="d"
@@ -11,6 +12,8 @@
              d:DesignWidth="500"
              d:DataContext="{x:Static viewModels:ViewModelLocator.DesignTime}"
              FocusManager.FocusedElement="{Binding ElementName=RuleIdHyperlink}"
+             FontFamily="{DynamicResource {x:Static vs_env:VsFonts.EnvironmentFontFamilyKey}}"
+             FontSize="{DynamicResource {x:Static vs_env:VsFonts.EnvironmentFontSizeKey}}"
              Background="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}">
     <UserControl.Resources>
 
@@ -240,7 +243,7 @@
                 </TabItem.Header>
                 <ContentControl ContentTemplate="{StaticResource CodeLocationCollectionTemplate}"
                                 Content="{Binding}"
-                                IsTabStop="False"/>
+                                IsTabStop="True"/>
             </TabItem>
             <TabItem Visibility="{Binding AnalysisSteps, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
                 <TabItem.Header>
@@ -256,7 +259,7 @@
 
                 <ContentControl ContentTemplate="{StaticResource AnalysisStepTemplate}"
                                 Content="{Binding AnalysisSteps}"
-                                IsTabStop="False"/>
+                                IsTabStop="True"/>
             </TabItem>
             <TabItem Visibility="{Binding Stacks, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}">
                 <TabItem.Header>
@@ -272,7 +275,7 @@
 
                 <ContentControl ContentTemplate="{StaticResource StackCollectionTemplate}"
                                 Content="{Binding Stacks}"
-                                IsTabStop="False"
+                                IsTabStop="True"
                                 Style="{StaticResource StacksTabItemContentStyle}"/>
             </TabItem>
             <TabItem>
@@ -283,7 +286,7 @@
 
                 <ContentControl ContentTemplate="{StaticResource InfoTemplate}"
                                 Content="{Binding}"
-                                IsTabStop="False" />
+                                IsTabStop="True" />
             </TabItem>
         </TabControl>
     </Grid>

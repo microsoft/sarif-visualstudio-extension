@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:converters="clr-namespace:Microsoft.Sarif.Viewer.Converters"
-                    xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0">
+                    xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+                    xmlns:vs_env="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0">
 
     <!-- Converters -->
     <converters:BooleanToVisibilityConverter x:Key="BooleanToVisiblityConverter" />
@@ -15,55 +16,28 @@
     <converters:MultipleStringsToVisibilityConverter x:Key="MultipleStringsToVisibilityConverter" />
     <converters:FileExistsToBooleanConverter x:Key="FileExistsToBooleanConverter" />
 
-    <!-- Default Styles-->
-    <Style TargetType="{x:Type Control}"
-           x:Key="BaseStyle">
-        <Setter Property="FontFamily"
-                Value="Segoe UI" />
-        <Setter Property="FontSize"
-                Value="11.5" />
-    </Style>
-    <Style TargetType="{x:Type Button}"
-           BasedOn="{StaticResource BaseStyle}"></Style>
-    <Style TargetType="{x:Type Label}"
-           BasedOn="{StaticResource BaseStyle}"></Style>
-    <Style TargetType="{x:Type TextBox}"
-           BasedOn="{StaticResource BaseStyle}"></Style>
-    <Style TargetType="{x:Type ListView}"
-           BasedOn="{StaticResource BaseStyle}"></Style>
-
-    <Style TargetType="TextBlock"
-           x:Key="BaseTextBlockStyle">
-        <Setter Property="FontFamily"
-                Value="Segoe UI" />
-        <Setter Property="FontSize"
-                Value="11.5" />
-    </Style>
-
-    <Style TargetType="TextBlock"
-           x:Key="PanelHeader">
+    <Style x:Key="PanelHeader"
+           TargetType="TextBlock">
         <Setter Property="Foreground"
                 Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}" />
         <Setter Property="FontSize"
-                Value="12" />
+                Value="{DynamicResource {x:Static vs_env:VsFonts.Environment111PercentFontSizeKey}}" />
         <Setter Property="FontWeight"
-                Value="DemiBold" />
+                Value="{DynamicResource {x:Static vs_env:VsFonts.Environment111PercentFontWeightKey}}" />
     </Style>
 
-    <Style TargetType="TextBlock"
-           x:Key="PropertyKey"
-           BasedOn="{StaticResource BaseTextBlockStyle}">
+    <Style x:Key="PropertyKey"
+           TargetType="TextBlock">
         <Setter Property="Foreground"
                 Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}" />
         <Setter Property="FontWeight"
-                Value="DemiBold" />
+                Value="{DynamicResource {x:Static vs_env:VsFonts.Environment111PercentFontWeightKey}}"/>
         <Setter Property="Margin"
                 Value="0 0 10 0" />
     </Style>
 
-    <Style TargetType="TextBlock"
-           x:Key="PropertyValue"
-           BasedOn="{StaticResource BaseTextBlockStyle}">
+    <Style x:Key="PropertyValue"
+           TargetType="TextBlock">
         <Setter Property="Foreground"
                 Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}" />
     </Style>
@@ -81,7 +55,7 @@
         <Setter Property="Foreground"
                 Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTabTextBrushKey}}" />
         <Setter Property="FontWeight"
-                Value="DemiBold" />
+                Value="{DynamicResource {x:Static vs_env:VsFonts.Environment111PercentFontWeightKey}}"/>
     </Style>
 
     <Style TargetType="Hyperlink"

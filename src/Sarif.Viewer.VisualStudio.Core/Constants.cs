@@ -27,9 +27,19 @@ namespace Microsoft.Sarif.Viewer
             public const string LoadSarifLogs = "Microsoft/SARIF/Viewer/LoadSarifLogs/Failed";
 
             /// <summary>
-            /// Indicates a telemetry write failed.
+            /// Used when sending enhanced data through the data service.
+            /// </summary>
+            public const string SendEnhancedData = "Microsoft/SARIF/Viewer/DataService/SendEnhancedData/Failed";
+
+            /// <summary>
+            /// Used when writing telemetry event fails.
             /// </summary>
             public const string TelemetryWriteEvent = "Microsoft/SARIF/Viewer/Telemetry/WriteEvent/Failed";
+
+            /// <summary>
+            /// Used when writing log into the output window pane fails.
+            /// </summary>
+            public const string OutputWindowEvent = "Microsoft/SARIF/Viewer/OutputPane/Write/Failed";
         }
     }
 }
