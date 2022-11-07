@@ -34,6 +34,7 @@ using Newtonsoft.Json.Linq;
 
 using Octokit;
 
+using ResourceStrings = Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Resources.Resources;
 using Result = CSharpFunctionalExtensions.Result;
 using SarifResult = Microsoft.CodeAnalysis.Sarif.Result;
 using Secret = Microsoft.Sarif.Viewer.ResultSources.Domain.Models.Secret;
@@ -64,9 +65,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         private static readonly Dictionary<string, string> s_DismissAlertReasons = new Dictionary<string, string>
         {
             // { "UI string", "GHAS API value" } -- https://docs.github.com/en/rest/code-scanning#update-a-code-scanning-alert
-            { Resources.DismissAlertReason_FalsePositive, "false positive" },
-            { Resources.DismissAlertReason_WontFix, "won't fix" },
-            { Resources.DismissAlertReason_UsedInTests, "used in tests" },
+            { ResourceStrings.DismissAlertReason_FalsePositive, "false positive" },
+            { ResourceStrings.DismissAlertReason_WontFix, "won't fix" },
+            { ResourceStrings.DismissAlertReason_UsedInTests, "used in tests" },
         };
 
         private readonly IServiceProvider serviceProvider;
@@ -151,7 +152,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
 
             // Add the "Dismiss alert" command to the Error List context menu.
-            var flyout = new ErrorListMenuFlyout(Resources.DismissAlert_FlyoutMenuText)
+            var flyout = new ErrorListMenuFlyout(ResourceStrings.DismissAlert_FlyoutMenuText)
             {
                 BeforeQueryStatusMenuCommand = this.DismissAlerts_BeforeQueryStatusAsync,
             };

@@ -54,8 +54,9 @@ namespace Microsoft.Sarif.Viewer
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
+        private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
+
         private ISarifErrorListEventSelectionService selectionService;
-        private IVsTaskList2 vsTaskList2Service;
 
         private ResultSourceHost resultSourceHost;
         private OutputWindowTracerListener outputWindowTraceListener;
@@ -161,11 +162,6 @@ namespace Microsoft.Sarif.Viewer
                 this.outputWindowTraceListener = new OutputWindowTracerListener(output, OutputPaneName);
             }
 
-            if (await this.GetServiceAsync(typeof(SVsErrorList)) is IVsTaskList2 taskListService)
-            {
-                this.vsTaskList2Service = taskListService;
-            }
-
             var componentModel = await this.GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
             Assumes.Present(componentModel);
 
@@ -189,12 +185,24 @@ namespace Microsoft.Sarif.Viewer
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
             SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
+
+            await this.InitializeResultSourceHostAsync();
             return;
         }
 
         private void SolutionEvents_OnAfterCloseSolution(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+
+            using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
+            {
+                foreach (OleMenuCommand menuCommand in menuCommands)
+                {
+                    mcs.RemoveCommand(menuCommand);
+                }
+            }
+
+            this.menuCommands.Clear();
 
             SarifExplorerWindow.Find()?.Close();
         }
@@ -264,7 +272,11 @@ namespace Microsoft.Sarif.Viewer
             // stop watcher when the solution is closed.
             this.sarifFolderMonitor?.StopWatch();
 
-            this.resultSourceHost = null;
+            if (this.resultSourceHost != null)
+            {
+                this.resultSourceHost.ServiceEvent -= this.ResultSourceHost_ServiceEvent;
+                this.resultSourceHost = null;
+            }
 
             var fileSystem = new FileSystem();
 
@@ -319,9 +331,10 @@ namespace Microsoft.Sarif.Viewer
                             var flyoutMenu = new OleMenuCommand(
                                 null, // invokeHandler
                                 null, // changeHandler
-                                (sender, e) => BeforeQueryStatusResultSourceServiceMenuItem(sender, flyout),
+                                (sender, e) => ErrorListCommand.Instance.ResultSourceServiceMenuItem_BeforeQueryStatus(sender, flyout),
                                 commandId);
                             flyoutMenu.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandBeforeQueryStatusCallbackKey, flyout.BeforeQueryStatusMenuCommand);
+                            menuCommands.Add(flyoutMenu);
 
                             return flyoutMenu;
                         }
@@ -330,100 +343,44 @@ namespace Microsoft.Sarif.Viewer
                         {
                             var commandId = new CommandID(ErrorListCommand.ResultSourceServiceCommandSet, id);
                             var menuCommand = new OleMenuCommand(
-                                (sender, e) => this.InvokeResultSourceServiceMenuCommand(sender),
+                                (sender, e) => ErrorListCommand.Instance.ResultSourceServiceMenuCommand_Invoke(sender),
                                 null, // changeHandler
-                                (sender, e) => BeforeQueryStatusResultSourceServiceMenuItem(sender, command),
+                                (sender, e) => ErrorListCommand.Instance.ResultSourceServiceMenuItem_BeforeQueryStatus(sender, command),
                                 commandId);
                             menuCommand.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey, command.InvokeMenuCommand);
                             menuCommand.Properties.Add(ResultSourcesConstants.ResultSourceServiceMenuCommandBeforeQueryStatusCallbackKey, command.BeforeQueryStatusMenuCommand);
+                            menuCommands.Add(menuCommand);
 
                             return menuCommand;
                         }
 
-                        OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>();
-                        int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
-                        int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
-                        int flyoutCount = 0;
-                        int commandCount = 0;
-
-                        for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
+                        using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
                         {
-                            ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
-                            OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
-                            mcs.AddCommand(flyoutMenu);
-                            flyoutCount++;
+                            int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
+                            int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
+                            int flyoutCount = 0;
+                            int commandCount = 0;
 
-                            for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
+                            for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
                             {
-                                ErrorListMenuCommand command = flyout.Commands[c];
-                                OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
-                                mcs.AddCommand(menuCommand);
-                                commandCount++;
+                                ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
+                                OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
+                                mcs.AddCommand(flyoutMenu);
+                                flyoutCount++;
+
+                                for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
+                                {
+                                    ErrorListMenuCommand command = flyout.Commands[c];
+                                    OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
+                                    mcs.AddCommand(menuCommand);
+                                    commandCount++;
+                                }
                             }
                         }
                     }
 
                     break;
             }
-        }
-
-        private void InvokeResultSourceServiceMenuCommand(object sender)
-        {
-            // This handler extracts the SARIF logs from the error list items and passes them to the result source service.
-            // This is necessary becuse the service can't circular-reference the Viewer project.
-            if (this.selectionService.SelectedItems is List<SarifErrorListItem> selectedItems
-                && sender is OleMenuCommand menuCommand)
-            {
-                if (menuCommand.Properties.Contains(ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey)
-                    && menuCommand.Properties[ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey] is Func<MenuCommandInvokedEventArgs, Task<ResultSourceServiceAction>> callback)
-                {
-                    foreach (SarifErrorListItem item in selectedItems)
-                    {
-                        if (item.SarifResult != null)
-                        {
-                            var eventArgs = new MenuCommandInvokedEventArgs(new[] { item.SarifResult }, menuCommand);
-                            ResultSourceServiceAction action = this.JoinableTaskFactory.Run(async () => await callback(eventArgs));
-
-                            if (action == ResultSourceServiceAction.DismissSelectedItem)
-                            {
-                                SarifTableDataSource.Instance.RemoveError(item);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private void BeforeQueryStatusResultSourceServiceMenuItem(object sender, ErrorListMenuItem menuItem)
-        {
-            if (sender is OleMenuCommand menuCommand)
-            {
-                // We'd prefer to disable a flyout, but it doesn't seem possible.
-                // So we just have to hide it instead.
-                menuCommand.Text = menuItem.Text;
-                menuCommand.Enabled = false;
-                menuCommand.Visible = false;
-
-                if (this.selectionService.SelectedItems is List<SarifErrorListItem> selectedItems)
-                {
-                    // At least one SARIF item is selected.
-                    int selectedItemCount = this.JoinableTaskFactory.Run(async () => await this.GetSelectedErrorListItemCountAsync());
-                    var sarifResults = selectedItems.Select(o => o.SarifResult).ToList();
-                    var eventArgs = new MenuCommandBeforeQueryStatusEventArgs(sarifResults, selectedItemCount);
-
-                    ResultSourceServiceAction action = this.JoinableTaskFactory.Run(async () => await menuItem.BeforeQueryStatusMenuCommand(eventArgs));
-                    menuCommand.Enabled = menuCommand.Visible = action != ResultSourceServiceAction.DisableMenuCommand;
-                }
-            }
-        }
-
-        private async Task<int> GetSelectedErrorListItemCountAsync()
-        {
-            await JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            int count = 0;
-            this.vsTaskList2Service.GetSelectionCount(out count);
-            return count;
         }
 
         private static string GetSolutionDirectoryPath()
