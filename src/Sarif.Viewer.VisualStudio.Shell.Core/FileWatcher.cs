@@ -74,7 +74,10 @@ namespace Microsoft.Sarif.Viewer.Shell
                 return;
             }
 
-            this.fileSystemWatcher = CreateFileSystemWatcher(this.FilePath, this.Filter);
+            if (this.fileSystemWatcher == null)
+            {
+                this.fileSystemWatcher = CreateFileSystemWatcher(this.FilePath, this.Filter);
+            }
 
             // Start listening for changes to the file.
             fileSystemWatcher.EnableRaisingEvents = true;
