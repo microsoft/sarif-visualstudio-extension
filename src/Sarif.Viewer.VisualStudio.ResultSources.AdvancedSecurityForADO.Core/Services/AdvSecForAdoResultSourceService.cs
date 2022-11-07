@@ -20,7 +20,6 @@ using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
-using Microsoft.Sarif.Viewer.ResultSources.Domain.Entities;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Shell;
@@ -38,6 +37,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
     public class AdvSecForAdoResultSourceService : IResultSourceService, IAdvSecForAdoResultSourceService
     {
         private const string SettingsFilePath = "AdvSecADO.json";
+        private const string ScanResultsFileName = "advsec-ado-results.sarif";
         private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
@@ -146,7 +146,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                     var eventArgs = new ResultsUpdatedEventArgs
                     {
                         SarifLog = artifactResult.Value,
-                        LogFileName = "scan-results.sarif",
+                        LogFileName = ScanResultsFileName,
+                        UseDotSarifDirectory = false,
                     };
                     RaiseServiceEvent(eventArgs);
                     return Result.Success<bool, ErrorType>(true);
@@ -238,7 +239,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                             {
                                 if (entry.FullName.EndsWith(".sarif", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    string fileName = "scan-results.sarif";
+                                    string fileName = ScanResultsFileName;
 
                                     // Gets the full path to ensure that relative segments are removed.
                                     string destinationPath = Path.GetFullPath(Path.Combine(extractFolder, fileName));
