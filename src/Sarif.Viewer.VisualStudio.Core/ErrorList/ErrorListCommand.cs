@@ -6,13 +6,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
+
+using ResultSourcesConstants = Microsoft.Sarif.Viewer.ResultSources.Domain.Models.Constants;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
@@ -73,6 +79,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static readonly Guid CommandSet = new Guid("76648814-13bf-4ecf-ad5c-2a7e2953e62f");
 
+        /// <summary>
+        /// Command menu group (command set GUID).
+        /// </summary>
+        public static readonly Guid ResultSourceServiceCommandSet = new Guid("b04424d9-49bc-4e04-9ecc-ad5b68cce4bc");
+
         // VS Package that provides this command, not null.
         private readonly Package package;
 
@@ -82,6 +93,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         // Service that provides access to the currently selected Error List item, if any.
         private readonly ISarifErrorListEventSelectionService selectionService;
 
+        // Task list service.
+        private readonly IVsTaskList2 vsTaskList2Service;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorListCommand"/> class.
         /// Adds our command handlers for menu (commands must exist in the command table file).
@@ -89,6 +103,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <param name="package">Owner package, not null.</param>
         private ErrorListCommand(Package package)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             this.package = package ?? throw new ArgumentNullException(nameof(package));
 
             this.menuCommandService = this.ServiceProvider.GetService(typeof(IMenuCommandService)) as IMenuCommandService;
@@ -117,6 +133,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             this.selectionService = componentModel.GetService<ISarifErrorListEventSelectionService>();
             this.selectionService.SelectedItemChanged += this.SelectionService_SelectedItemChanged;
             Assumes.Present(this.selectionService);
+
+            if (this.ServiceProvider.GetService(typeof(SVsErrorList)) is IVsTaskList2 taskListService)
+            {
+                this.vsTaskList2Service = taskListService;
+            }
         }
 
         /// <summary>
@@ -131,13 +152,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IServiceProvider ServiceProvider
-        {
-            get
-            {
-                return this.package;
-            }
-        }
+        private IServiceProvider ServiceProvider => this.package;
 
         /// <summary>
         /// Initializes the singleton instance of the command.
@@ -146,6 +161,65 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void Initialize(Package package)
         {
             Instance = new ErrorListCommand(package);
+        }
+
+        internal void ResultSourceServiceMenuCommand_Invoke(object sender)
+        {
+            // This handler extracts the SARIF logs from the error list items and passes them to the result source service.
+            // This is necessary becuse the service can't circular-reference the Viewer project.
+            if (this.selectionService.SelectedItems is List<SarifErrorListItem> selectedItems
+                && sender is OleMenuCommand menuCommand)
+            {
+                if (menuCommand.Properties.Contains(ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey)
+                    && menuCommand.Properties[ResultSourcesConstants.ResultSourceServiceMenuCommandInvokeCallbackKey] is Func<MenuCommandInvokedEventArgs, Task<ResultSourceServiceAction>> callback)
+                {
+                    foreach (SarifErrorListItem item in selectedItems)
+                    {
+                        if (item.SarifResult != null)
+                        {
+                            var eventArgs = new MenuCommandInvokedEventArgs(new[] { item.SarifResult }, menuCommand);
+                            ResultSourceServiceAction action = ThreadHelper.JoinableTaskFactory.Run(async () => await callback(eventArgs));
+
+                            if (action == ResultSourceServiceAction.DismissSelectedItem)
+                            {
+                                SarifTableDataSource.Instance.RemoveError(item);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        internal void ResultSourceServiceMenuItem_BeforeQueryStatus(object sender, ErrorListMenuItem menuItem)
+        {
+            if (sender is OleMenuCommand menuCommand)
+            {
+                // We'd prefer to disable a flyout, but it doesn't seem possible.
+                // So we just have to hide it instead.
+                menuCommand.Text = menuItem.Text;
+                menuCommand.Enabled = false;
+                menuCommand.Visible = false;
+
+                if (this.selectionService.SelectedItems is List<SarifErrorListItem> selectedItems)
+                {
+                    // At least one SARIF item is selected.
+                    int selectedItemCount = ThreadHelper.JoinableTaskFactory.Run(async () => await this.GetSelectedErrorListItemCountAsync());
+                    var sarifResults = selectedItems.Select(o => o.SarifResult).ToList();
+                    var eventArgs = new MenuCommandBeforeQueryStatusEventArgs(sarifResults, selectedItemCount);
+
+                    ResultSourceServiceAction action = ThreadHelper.JoinableTaskFactory.Run(async () => await menuItem.BeforeQueryStatusMenuCommand(eventArgs));
+                    menuCommand.Enabled = menuCommand.Visible = action != ResultSourceServiceAction.DisableMenuCommand;
+                }
+            }
+        }
+
+        private async Task<int> GetSelectedErrorListItemCountAsync()
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            int count = 0;
+            this.vsTaskList2Service.GetSelectionCount(out count);
+            return count;
         }
 
         private void SelectionService_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)

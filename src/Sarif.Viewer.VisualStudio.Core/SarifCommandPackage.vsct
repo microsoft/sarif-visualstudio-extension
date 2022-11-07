@@ -40,6 +40,17 @@
           <ButtonText>Provide feedback on result</ButtonText>
         </Strings>
       </Menu>
+
+      <!-- Result source service flyouts -->
+      <Menu guid="guidSarifErrorListResultSourceServiceCommandSet" id="9655cb55-c0b8-4636-9d9a-6a8685f76ee0" priority="0x0250" type="Menu">
+        <Parent guid="guidSarifErrorListResultSourceServiceCommandSet" id="2ee78ada-af4b-4e2c-aaa8-0326ef12d611" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText></ButtonText>
+        </Strings>
+      </Menu>
     </Menus>
 
     <!-- In this section you can define new menu groups. A menu group is a container for
@@ -58,6 +69,14 @@
       </Group>
       <Group guid="guidSarifErrorListCmdSet" id="NonUsefulResultMenuGroup" priority="0x200">
         <Parent guid="guidSarifErrorListCmdSet" id="cmdidProvideFeedbackSubmenu" />
+      </Group>
+
+      <!-- Error List result source service #1 groups -->
+      <Group guid="guidSarifErrorListResultSourceServiceCommandSet" id="2ee78ada-af4b-4e2c-aaa8-0326ef12d611" priority="0x4000">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_ERRORLIST"/>
+      </Group>
+      <Group guid="guidSarifErrorListResultSourceServiceCommandSet" id="9abdbc25-a08d-49dd-9065-4eb669194441" priority="0x4000">
+        <Parent guid="guidSarifErrorListResultSourceServiceCommandSet" id="9655cb55-c0b8-4636-9d9a-6a8685f76ee0"/>
       </Group>
     </Groups>
 
@@ -144,11 +163,22 @@
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
-          <Strings>
-            <ButtonText>I fixed this!</ButtonText>
-          </Strings>
+        <Strings>
+          <ButtonText>I fixed this!!!!!</ButtonText>
+        </Strings>
       </Button>
-
+      
+      <!-- Error List result source service #1 menu items -->
+      <Button guid="guidSarifErrorListResultSourceServiceCommandSet" id="c4883543-de09-4989-83c2-16e40d105831" priority="0x1000" >
+        <Parent guid="guidSarifErrorListResultSourceServiceCommandSet" id="9abdbc25-a08d-49dd-9065-4eb669194441" />
+        <CommandFlag>DynamicItemStart</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText></ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
@@ -160,7 +190,6 @@
     <GuidSymbol name="guidOpenSarifFileCommandPackageCmdSet" value="{a236a757-af66-4cf0-a3c8-facbb61d5cf1}">
       <IDSymbol name="ImportAnalysisLogCommandId" value="0x0100" />
       <IDSymbol name="OpenFileMenuGroup" value="0x1150" />
-      <IDSymbol name="cmdidTestSubCommand" value="0x0200" />
     </GuidSymbol>
 
     <GuidSymbol value="{e6de64e8-7731-4ffd-8633-e1cbf03609ad}" name="guidSarifViewerPackageCmdSet">
@@ -181,6 +210,18 @@
       <IDSymbol name="cmdidOtherResultCommand" value="0x0307"/>
       <IDSymbol name="cmdidSuppressResultCommand" value="0x0308"/>
       <IDSymbol name="cmdidIFixedThisCommand" value="0x0309"/>
+    </GuidSymbol>
+
+    <GuidSymbol name="guidSarifErrorListResultSourceServiceCommandSet" value="{b04424d9-49bc-4e04-9ecc-ad5b68cce4bc}">
+      <!-- MENUS -->
+      <IDSymbol name="9655cb55-c0b8-4636-9d9a-6a8685f76ee0" value="0x5000"/>
+
+      <!-- GROUPS -->
+      <IDSymbol name="2ee78ada-af4b-4e2c-aaa8-0326ef12d611" value="0x6000"/>
+      <IDSymbol name="9abdbc25-a08d-49dd-9065-4eb669194441" value="0x6001"/>
+
+      <!-- BUTTONS -->
+      <IDSymbol name="c4883543-de09-4989-83c2-16e40d105831" value="0x8B67"/>
     </GuidSymbol>
 
   </Symbols>

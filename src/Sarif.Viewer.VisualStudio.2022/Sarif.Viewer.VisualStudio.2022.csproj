@@ -151,6 +151,12 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources.csproj">
+      <Project>{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell.2022\Sarif.Viewer.VisualStudio.Shell.2022.csproj">
       <Project>{3585559D-E715-41DE-AE14-F2E18EB516CA}</Project>
       <Name>Sarif.Viewer.VisualStudio.Shell.2022</Name>

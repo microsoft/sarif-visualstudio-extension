@@ -16,9 +16,19 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
     public interface IResultSourceService
     {
         /// <summary>
-        /// The event raised when new scan results are available.
+        /// The event raised for all events that can be fired by the result service.
         /// </summary>
-        event EventHandler<ResultsUpdatedEventArgs> ResultsUpdated;
+        event EventHandler<ServiceEventArgs> ServiceEvent;
+
+        /// <summary>
+        /// Gets or sets the first menu ID of the range that is available to the result source service.
+        /// </summary>
+        int FirstMenuId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the first command ID of the range that is available to the result source service.
+        /// </summary>
+        int FirstCommandId { get; set; }
 
         /// <summary>
         /// Initializes the service instance.

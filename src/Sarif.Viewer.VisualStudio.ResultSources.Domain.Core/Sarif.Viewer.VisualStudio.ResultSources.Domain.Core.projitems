@@ -14,9 +14,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)Errors\Error.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HttpClientAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IHttpClientAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuFlyout.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuItems.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\MenuCommandBeforeQueryStatusEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\MenuCommandInvokedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NoContent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\RequestAddMenuItemsEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ResultSourceServiceAction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ResultSourceServiceEventType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ResultsUpdatedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Secret.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ServiceEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ErrorType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IResultSourceService.cs" />
   </ItemGroup>
