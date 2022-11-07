@@ -12,12 +12,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Errors\GitHubServiceError.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\UserVerificationResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\VerificationCode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\GitHubSourceService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\GitRepoEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IGitHubSourceService.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />
   </ItemGroup>
 </Project>
