@@ -483,16 +483,20 @@ namespace Microsoft.Sarif.Viewer
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
                     location.FilePath = remappedPath;
-                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
 
-                    if (this.LineNumber != location.Region.StartLine)
+                    if (location.Region != null)
                     {
-                        this.LineNumber = location.Region.StartLine;
-                    }
+                        location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
 
-                    if (this.ColumnNumber != location.Region.StartColumn)
-                    {
-                        this.ColumnNumber = location.Region.StartColumn;
+                        if (this.LineNumber != location.Region.StartLine)
+                        {
+                            this.LineNumber = location.Region.StartLine;
+                        }
+
+                        if (this.ColumnNumber != location.Region.StartColumn)
+                        {
+                            this.ColumnNumber = location.Region.StartColumn;
+                        }
                     }
                 }
             }
