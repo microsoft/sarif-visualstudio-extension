@@ -192,7 +192,7 @@ namespace Microsoft.Sarif.Viewer.Fixes
             ThreadHelper.ThrowIfNotOnUIThread();
 
             // Calculate persistent spans for the error locations.
-            IEnumerable<LocationModel> locationsNeedingPersistentSpans = errors.SelectMany(error => error.Locations);
+            IEnumerable<LocationModel> locationsNeedingPersistentSpans = errors.SelectMany(error => error.Locations.Where(l => l.Region != null));
             foreach (LocationModel location in locationsNeedingPersistentSpans)
             {
                 if (SpanHelper.TryCreatePersistentSpan(location.Region, this.textBuffer, this.persistentSpanFactory, out IPersistentSpan persistentSpan))
