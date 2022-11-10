@@ -9,8 +9,10 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AdvancedSecuritySettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactResource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AzureDevOpsServiceType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AzureDevOpsSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Build.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BuildArtifact.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BuildRepository.cs" />

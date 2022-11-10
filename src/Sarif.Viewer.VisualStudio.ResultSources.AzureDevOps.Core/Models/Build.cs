@@ -3,7 +3,7 @@
 
 using System;
 
-using Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps.Models;
+using Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
 {

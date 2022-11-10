@@ -5,8 +5,10 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
 {
-    internal class Settings
+    internal abstract class Settings
     {
+        public abstract string SettingsFileName { get; }
+
         [JsonProperty("organization")]
         public string OrganizationName { get; set; }
 

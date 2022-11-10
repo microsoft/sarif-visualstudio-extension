@@ -3,10 +3,8 @@
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
 {
-    public class BuildRepository
+    internal class AdvancedSecuritySettings : Settings
     {
-        public string Id { get; set; }
-
-        public string Type { get; set; }
+        public override string SettingsFileName => "AdvSecForADO.json";
     }
 }

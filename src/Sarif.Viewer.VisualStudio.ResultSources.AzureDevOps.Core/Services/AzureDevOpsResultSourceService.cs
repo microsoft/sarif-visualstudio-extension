@@ -35,7 +35,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 {
     public class AzureDevOpsResultSourceService : IResultSourceService, IAzureDevOpsResultSourceService
     {
-        private const string SettingsFilePath = "AdvSecADO.json";
         private const string ScanResultsFileName = "advsec-ado-results.sarif";
         private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
@@ -43,14 +42,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private const string ListBuildsApiQueryString = "/_apis/build/builds?deletedFilter=excludeDeleted&statusFilter=completed"; // api-version=7.0&
         private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
 
-        private static readonly TargetUri s_baseTargetUri = new TargetUri(AzureDevOpsBaseUrl);
-
         private readonly string[] scopes = new string[] { "499b84ac-1321-427f-aa17-267ca6975798/user_impersonation" }; // Constant value to target Azure DevOps. Do not change!
         private readonly string solutionRootPath;
-        private readonly IServiceProvider serviceProvider;
-        private readonly ISecretStoreRepository secretStoreRepository;
         private readonly IHttpClientAdapter httpClientAdapter;
         private readonly IFileSystem fileSystem;
+
+        private readonly Dictionary<string, (AzureDevOpsServiceType ServiceType, Type SettingsType)> serviceDictionary = new Dictionary<string, (AzureDevOpsServiceType ServiceType, Type SettingsType)>
+        {
+            { "AzureDevOps.json", (AzureDevOpsServiceType.AzureDevOps, typeof(AzureDevOpsSettings)) },
+            { "AdvSecForADO.json", (AzureDevOpsServiceType.AdvancedSecurity, typeof(AdvancedSecuritySettings)) },
+        };
 
         private Settings settings;
         private IPublicClientApplication publicClientApplication;
@@ -61,20 +62,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         /// Initializes a new instance of the <see cref="AzureDevOpsResultSourceService"/> class.
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
-        /// <param name="serviceProvider">The service provider.</param>
-        /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
         /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="fileSystem">The file system.</param>
         public AzureDevOpsResultSourceService(
             string solutionRootPath,
-            IServiceProvider serviceProvider,
-            ISecretStoreRepository secretStoreRepository,
             IHttpClientAdapter httpClientAdapter,
             IFileSystem fileSystem)
         {
             this.solutionRootPath = solutionRootPath;
-            this.serviceProvider = serviceProvider;
-            this.secretStoreRepository = secretStoreRepository;
             this.httpClientAdapter = httpClientAdapter;
             this.fileSystem = fileSystem;
         }
@@ -93,31 +88,25 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         {
             if (!string.IsNullOrWhiteSpace(this.solutionRootPath))
             {
-                string path = Path.Combine(this.solutionRootPath, SettingsFilePath);
-                if (fileSystem.FileExists(path))
+                Result<Settings, string> populateSettingsResult = PopulateSettings();
+
+                if (populateSettingsResult.IsSuccess)
                 {
-                    string settingsText = File.ReadAllText(path);
+                    this.orgAndProject = $"{settings.OrganizationName}/{settings.ProjectName}";
+                    this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
-                    try
-                    {
-                        this.settings = JsonConvert.DeserializeObject<Settings>(settingsText);
-                        this.orgAndProject = $"{settings.OrganizationName}/{settings.ProjectName}";
-                        this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
+                    StorageCreationProperties storageProperties =
+                        new StorageCreationPropertiesBuilder($"{Path.GetFileNameWithoutExtension(this.settings.SettingsFileName)}_MSAL_cache_{settings.Tenant}.txt", MsalCacheHelper.UserRootDirectory)
+                        .Build();
 
-                        StorageCreationProperties storageProperties =
-                            new StorageCreationPropertiesBuilder($"AdvSecADO_MSAL_cache_{settings.Tenant}.txt", MsalCacheHelper.UserRootDirectory)
-                            .Build();
+                    this.publicClientApplication = PublicClientApplicationBuilder
+                        .Create(ClientId)
+                        .WithAuthority(this.authorityUrl)
+                        .WithDefaultRedirectUri()
+                        .Build();
 
-                        this.publicClientApplication = PublicClientApplicationBuilder
-                            .Create(ClientId)
-                            .WithAuthority(this.authorityUrl)
-                            .WithDefaultRedirectUri()
-                            .Build();
-
-                        MsalCacheHelper cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
-                        cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);
-                    }
-                    catch (JsonSerializationException) { }
+                    MsalCacheHelper cacheHelper = await MsalCacheHelper.CreateAsync(storageProperties);
+                    cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);
                 }
             }
         }
@@ -125,9 +114,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         /// <inheritdoc cref="IResultSourceService.IsActiveAsync()"/>
         public Task<Result> IsActiveAsync()
         {
-            Result result = !string.IsNullOrWhiteSpace(this.solutionRootPath) && fileSystem.FileExists(Path.Combine(this.solutionRootPath, SettingsFilePath)) ?
-                Result.Success() :
-                Result.Failure(nameof(AzureDevOpsResultSourceService));
+            Result<Settings, string> populateSettingsResult = PopulateSettings();
+
+            Result result = populateSettingsResult.IsSuccess
+                ? Result.Success()
+                : Result.Failure(populateSettingsResult.Error);
             return Task.FromResult(result);
         }
 
@@ -264,6 +255,40 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             catch (IOException) { }
 
             return sarifLog;
+        }
+
+        private Result<Settings, string> PopulateSettings()
+        {
+            if (this.settings != null)
+            {
+                return Result.Success<Settings, string>(this.settings);
+            }
+
+            if (!string.IsNullOrWhiteSpace(this.solutionRootPath))
+            {
+                foreach (string settingsFileName in serviceDictionary.Keys)
+                {
+                    string path = Path.Combine(this.solutionRootPath, settingsFileName);
+                    if (fileSystem.FileExists(path))
+                    {
+                        string settingsText = File.ReadAllText(path);
+
+                        try
+                        {
+                            this.settings = (Settings)JsonConvert.DeserializeObject(settingsText, serviceDictionary[settingsFileName].SettingsType);
+                            return Result.Success<Settings, string>(this.settings);
+                        }
+                        catch (JsonSerializationException ex)
+                        {
+                            return Result.Failure<Settings, string>(ex.ToString());
+                        }
+                    }
+                }
+
+                return Result.Failure<Settings, string>($"No settings file found in {this.solutionRootPath}");
+            }
+
+            return Result.Failure<Settings, string>($"{nameof(this.solutionRootPath)} not provided");
         }
 
         private async Task<AuthenticationResult> AuthenticateAsync()
