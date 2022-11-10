@@ -33,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         private readonly Dictionary<Type, (int, int)> resultSources = new Dictionary<Type, (int firstMenuId, int firstCommandId)>
         {
             // { typeof(GitHubSourceService), (firstMenuId: 0x5000, firstCommandId: 0x8B67) },
-            { typeof(AdvSecForAdoResultSourceService), (firstMenuId: 0x7000, firstCommandId: 0x9B67) },
+            { typeof(AzureDevOpsResultSourceService), (firstMenuId: 0x7000, firstCommandId: 0x9B67) },
         };
 
         /// <summary>

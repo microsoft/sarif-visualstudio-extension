@@ -10,12 +10,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactResource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AzureDevOpsServiceType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Build.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BuildArtifact.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\BuildRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DefinitionReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Settings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\AdvSecForAdoResultSourceService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\IAdvSecForAdoResultSourceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\AzureDevOpsResultSourceService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IAzureDevOpsResultSourceService.cs" />
   </ItemGroup>
 </Project>

@@ -22,7 +22,6 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
-using Microsoft.Sarif.Viewer.Shell;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -34,7 +33,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 {
-    public class AdvSecForAdoResultSourceService : IResultSourceService, IAdvSecForAdoResultSourceService
+    public class AzureDevOpsResultSourceService : IResultSourceService, IAzureDevOpsResultSourceService
     {
         private const string SettingsFilePath = "AdvSecADO.json";
         private const string ScanResultsFileName = "advsec-ado-results.sarif";
@@ -59,14 +58,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private string authorityUrl;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AdvSecForAdoResultSourceService"/> class.
+        /// Initializes a new instance of the <see cref="AzureDevOpsResultSourceService"/> class.
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
         /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="fileSystem">The file system.</param>
-        public AdvSecForAdoResultSourceService(
+        public AzureDevOpsResultSourceService(
             string solutionRootPath,
             IServiceProvider serviceProvider,
             ISecretStoreRepository secretStoreRepository,
@@ -128,7 +127,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         {
             Result result = !string.IsNullOrWhiteSpace(this.solutionRootPath) && fileSystem.FileExists(Path.Combine(this.solutionRootPath, SettingsFilePath)) ?
                 Result.Success() :
-                Result.Failure(nameof(AdvSecForAdoResultSourceService));
+                Result.Failure(nameof(AzureDevOpsResultSourceService));
             return Task.FromResult(result);
         }
 
@@ -157,7 +156,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             return Result.Failure<bool, ErrorType>(ErrorType.AnalysesUnavailable);
         }
 
-        /// <inheritdoc cref="IAdvSecForAdoResultSourceService.GetLatestBuildIdAsync()"/>
+        /// <inheritdoc cref="IAzureDevOpsResultSourceService.GetLatestBuildIdAsync()"/>
         public async Task<Result<int, ErrorType>> GetLatestBuildIdAsync()
         {
             AuthenticationResult authResult = await AuthenticateAsync();
@@ -200,7 +199,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             return Result.Failure<int, ErrorType>(ErrorType.DataUnavailable);
         }
 
-        /// <inheritdoc cref="IAdvSecForAdoResultSourceService.DownloadAndExtractArtifactAsync(int)"/>
+        /// <inheritdoc cref="IAzureDevOpsResultSourceService.DownloadAndExtractArtifactAsync(int)"/>
         public async Task<Maybe<SarifLog>> DownloadAndExtractArtifactAsync(int buildId)
         {
             SarifLog sarifLog = null;

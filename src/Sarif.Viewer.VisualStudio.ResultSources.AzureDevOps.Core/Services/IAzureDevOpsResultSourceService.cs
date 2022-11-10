@@ -10,7 +10,7 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 {
-    public interface IAdvSecForAdoResultSourceService
+    public interface IAzureDevOpsResultSourceService
     {
         /// <summary>
         /// Gets the latest build ID from the static analysis pipeline.
