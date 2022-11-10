@@ -194,7 +194,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)WeakEventHandlerManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)Data\ruleLookup.json" />

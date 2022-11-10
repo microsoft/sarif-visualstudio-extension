@@ -106,7 +106,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                         this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
                         StorageCreationProperties storageProperties =
-                            new StorageCreationPropertiesBuilder("AdvSecADO_MSAL_cache.txt", MsalCacheHelper.UserRootDirectory)
+                            new StorageCreationPropertiesBuilder($"AdvSecADO_MSAL_cache_{settings.Tenant}.txt", MsalCacheHelper.UserRootDirectory)
                             .Build();
 
                         this.publicClientApplication = PublicClientApplicationBuilder
@@ -164,7 +164,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
 
             HttpRequestMessage requestMessage = httpClientAdapter.BuildRequest(
                 HttpMethod.Get,
-                AzureDevOpsBaseUrl + this.orgAndProject + ListBuildsApiQueryString + $"repositoryType={settings.RepositoryType}",
+                AzureDevOpsBaseUrl + this.orgAndProject + ListBuildsApiQueryString, // + $"repositoryType={settings.RepositoryType}",
                 token: authResult?.AccessToken);
 
             HttpResponseMessage responseMessage = await httpClientAdapter.SendAsync(requestMessage);
@@ -242,15 +242,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
                                     string fileName = ScanResultsFileName;
 
                                     // Gets the full path to ensure that relative segments are removed.
-                                    string destinationPath = Path.GetFullPath(Path.Combine(extractFolder, fileName));
+                                    string outputPath = Path.GetFullPath(Path.Combine(extractFolder, fileName));
 
                                     // Ordinal match is safest because case-sensitive volumes can be mounted
                                     // within volumes that are case-insensitive.
-                                    if (destinationPath.StartsWith(extractFolder, StringComparison.Ordinal))
+                                    if (outputPath.StartsWith(extractFolder, StringComparison.Ordinal))
                                     {
-                                        string sarifFolder = ShellUtilities.GetDotSarifDirectoryPath();
-                                        string outputPath = Path.Combine(sarifFolder, fileName);
-                                        entry.ExtractToFile(outputPath);
+                                        entry.ExtractToFile(outputPath, true);
                                         sarifLog = SarifLog.Load(outputPath);
                                         break;
                                     }

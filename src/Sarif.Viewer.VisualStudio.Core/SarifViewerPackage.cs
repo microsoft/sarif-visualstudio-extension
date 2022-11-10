@@ -279,12 +279,15 @@ namespace Microsoft.Sarif.Viewer
 
             var fileSystem = new FileSystem();
 
-            try
+            foreach (string path in fileSystem.DirectoryGetFiles(ShellUtilities.GetDotSarifDirectoryPath(), "*.sarif"))
             {
-                // Best effort delete, no harm if this fails.
-                fileSystem.FileDelete(Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), "scan-results.sarif"));
+                try
+                {
+                    // Best effort delete, no harm if this fails.
+                    fileSystem.FileDelete(path);
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
         }
 
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
