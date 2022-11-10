@@ -17,7 +17,7 @@ using Microsoft.Alm.Authentication;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
-using Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models;
+using Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
@@ -27,12 +27,12 @@ using Microsoft.Sarif.Viewer.Shell;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using AdoBuild = Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models.Build;
+using AdoBuild = Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models.Build;
 using File = System.IO.File;
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
+namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 {
     public class AdvSecForAdoResultSourceService : IResultSourceService, IAdvSecForAdoResultSourceService
     {

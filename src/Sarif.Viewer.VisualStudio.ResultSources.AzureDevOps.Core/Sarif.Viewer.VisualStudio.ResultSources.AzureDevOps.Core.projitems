@@ -6,7 +6,7 @@
     <SharedGUID>86be9731-7a5e-4b0b-a040-4aec83fd67af</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO</Import_RootNamespace>
+    <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactResource.cs" />

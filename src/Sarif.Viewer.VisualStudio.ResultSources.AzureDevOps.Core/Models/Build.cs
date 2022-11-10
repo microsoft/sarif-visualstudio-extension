@@ -3,9 +3,9 @@
 
 using System;
 
-using Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.Models;
+using Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps.Models;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
+namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
 {
     internal class Build
     {

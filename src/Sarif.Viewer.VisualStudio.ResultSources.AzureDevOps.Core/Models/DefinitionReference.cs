@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
+namespace Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps.Models
 {
-    internal class BuildArtifact
+    public class DefinitionReference
     {
         public int Id { get; set; }
 
         public string Name { get; set; }
 
-        public string Source { get; set; }
+        public string Url { get; set; }
 
-        public ArtifactResource Resource { get; set; }
+        public string Type { get; set; }
     }
 }

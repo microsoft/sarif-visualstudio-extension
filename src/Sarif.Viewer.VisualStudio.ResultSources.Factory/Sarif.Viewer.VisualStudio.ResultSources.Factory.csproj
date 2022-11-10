@@ -30,9 +30,9 @@
       <Project>{47c77d8f-518c-4329-993a-a86a2564155b}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO\Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO.csproj">
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps\Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps.csproj">
       <Project>{4d7efc40-949f-4d36-a301-607ba8f8712e}</Project>
-      <Name>Sarif.Viewer.VisualStudio.ResultSources.AdvancedSecurityForADO</Name>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps</Name>
     </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj">
       <Project>{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}</Project>

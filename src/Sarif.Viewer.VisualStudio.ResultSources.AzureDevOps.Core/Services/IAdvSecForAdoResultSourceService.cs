@@ -8,7 +8,7 @@ using CSharpFunctionalExtensions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services
+namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 {
     public interface IAdvSecForAdoResultSourceService
     {

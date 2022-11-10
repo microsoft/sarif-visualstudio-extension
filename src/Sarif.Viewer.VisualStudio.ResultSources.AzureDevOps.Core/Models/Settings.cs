@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Models
+namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
 {
     internal class Settings
     {

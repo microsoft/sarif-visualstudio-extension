@@ -9,7 +9,7 @@ using CSharpFunctionalExtensions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.ACL;
-using Microsoft.Sarif.Viewer.ResultSources.AdvancedSecurityForAdo.Services;
+using Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
