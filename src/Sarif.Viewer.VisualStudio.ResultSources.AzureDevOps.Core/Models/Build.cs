@@ -3,8 +3,6 @@
 
 using System;
 
-using Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models;
-
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
 {
     internal class Build

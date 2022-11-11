@@ -13,13 +13,11 @@ using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
 
-using Microsoft.Alm.Authentication;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain;
-using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 

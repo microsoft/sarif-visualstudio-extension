@@ -533,7 +533,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             SarifLogsMonitor.Instance.StartWatch(logFilePath);
 
-            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
+            // RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
         }
 
         public static void CleanAllErrors()
