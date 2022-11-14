@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
+namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Entities
 {
     internal class Build
     {
@@ -20,6 +20,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Models
         public string Url { get; set; }
 
         public string SourceBranch { get; set; }
+
+        public string SourceVersion { get; set; }
 
         public BuildRepository Repository { get; set; }
 

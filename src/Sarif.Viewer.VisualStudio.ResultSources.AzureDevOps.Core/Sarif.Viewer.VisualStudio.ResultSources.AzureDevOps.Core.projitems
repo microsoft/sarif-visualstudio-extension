@@ -9,14 +9,15 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\GitRepository.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AdvancedSecuritySettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\ArtifactResource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\ArtifactResource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AzureDevOpsServiceType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AzureDevOpsSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Build.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\BuildArtifact.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\BuildRepository.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Models\DefinitionReference.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Build.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\BuildArtifact.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\BuildRepository.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\DefinitionReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Settings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AzureDevOpsResultSourceService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IAzureDevOpsResultSourceService.cs" />

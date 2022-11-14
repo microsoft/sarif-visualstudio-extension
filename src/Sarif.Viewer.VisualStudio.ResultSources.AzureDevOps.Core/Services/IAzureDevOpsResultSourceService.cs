@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Entities;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
@@ -13,10 +14,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
     public interface IAzureDevOpsResultSourceService
     {
         /// <summary>
-        /// Gets the latest build ID from the static analysis pipeline.
+        /// Gets the solution's ADO <see cref="GitRepository"/>.
         /// </summary>
-        /// <returns>The latest build ID.</returns>
-        Task<Result<int, ErrorType>> GetLatestBuildIdAsync();
+        /// <returns>The repository.</returns>
+        Task<Maybe<GitRepository>> GetRepositoryAsync();
+
+        /// <summary>
+        /// Gets the build ID for the current commit hash.
+        /// </summary>
+        /// <returns>The build ID.</returns>
+        Task<Result<int, ErrorType>> GetBuildIdAsync();
 
         /// <summary>
         /// Downloads and extracts the static analysis results artifact for the specified build.

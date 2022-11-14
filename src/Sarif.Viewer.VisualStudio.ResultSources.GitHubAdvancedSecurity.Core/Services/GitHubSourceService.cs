@@ -582,9 +582,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             _ = this.statusBarService.ClearStatusTextAsync();
         }
 
-        private static SarifLog CreateEmptySarifLog()
-        {
-            return new SarifLog
+        private static SarifLog CreateEmptySarifLog() => new SarifLog
             {
                 Runs = new List<Run>
                 {
@@ -595,7 +593,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                     },
                 },
             };
-        }
 
         private async Task<ResultSourceServiceAction> DismissAlert_ExecuteAsync(MenuCommandInvokedEventArgs e)
         {
