@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security;
+using System.Threading;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -23,6 +24,9 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Shell;
+using Microsoft.VisualStudio.Imaging;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -44,6 +48,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private const string ListBuildsApiQueryStringFormat = "/_apis/build/builds?repositoryId={0}&branchName={1}deletedFilter=excludeDeleted&statusFilter=completed"; // api-version=7.0&
         private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
         private const string GitLocalRefFileBaseRelativePath = @".git\refs\remotes\origin";
+        private const int ScanResultsPollIntervalSeconds = 10;
+        private const int ScanResultsPollTimeoutSeconds = 1200;
 
         private readonly string[] scopes = new string[] { "499b84ac-1321-427f-aa17-267ca6975798/user_impersonation" }; // Constant value to target Azure DevOps. Do not change!
         private readonly string solutionRootPath;
@@ -52,6 +58,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private readonly IFileWatcher fileWatcherGitPush;
         private readonly IFileSystem fileSystem;
         private readonly IGitExe gitExe;
+        private readonly IInfoBarService infoBarService;
+        private readonly IStatusBarService statusBarService;
 
         private readonly Dictionary<string, (AzureDevOpsServiceType ServiceType, Type SettingsType)> serviceDictionary = new Dictionary<string, (AzureDevOpsServiceType ServiceType, Type SettingsType)>
         {
@@ -67,6 +75,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 
         private string repoPath;
         private (string BranchName, string CommitHash) scanDataRequestParameters;
+        private IVsInfoBarUIElement infoBar;
+        private CancellationTokenSource pollingCancellationTokenSource;
+        private Task pollingTask = Task.CompletedTask;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AzureDevOpsResultSourceService"/> class.
@@ -77,13 +88,17 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         /// <param name="fileWatcherGitPush">The file watcher for Git pushes.</param>
         /// <param name="fileSystem">The file system.</param>
         /// <param name="gitExe">The <see cref="IGitExe"/>.</param>
+        /// <param name="infoBarService">The <see cref="IInfoBarService"/>.</param>
+        /// <param name="statusBarService">The <see cref="IStatusBarService"/>.</param>
         public AzureDevOpsResultSourceService(
             string solutionRootPath,
             IHttpClientAdapter httpClientAdapter,
             IFileWatcher fileWatcherBranchChange,
             IFileWatcher fileWatcherGitPush,
             IFileSystem fileSystem,
-            IGitExe gitExe)
+            IGitExe gitExe,
+            IInfoBarService infoBarService,
+            IStatusBarService statusBarService)
         {
             this.solutionRootPath = solutionRootPath;
             this.httpClientAdapter = httpClientAdapter;
@@ -91,6 +106,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             this.fileWatcherGitPush = fileWatcherGitPush;
             this.fileSystem = fileSystem;
             this.gitExe = gitExe;
+            this.infoBarService = infoBarService;
+            this.statusBarService = statusBarService;
+
+            this.pollingCancellationTokenSource = new CancellationTokenSource();
         }
 
         /// <inheritdoc cref="IResultSourceService.ServiceEvent"/>
@@ -153,26 +172,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         /// <inheritdoc cref="IResultSourceService.RequestAnalysisResultsAsync(object)"/>
         public async Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null)
         {
-            Result<int, ErrorType> buildResult = await this.GetBuildIdAsync();
+            await this.UpdateBranchAndCommitHashAsync();
+            this.InitializeFileWatchers();
 
-            if (buildResult.IsSuccess)
+            lock (this.pollingTask)
             {
-                Maybe<SarifLog> artifactResult = await DownloadAndExtractArtifactAsync(buildResult.Value);
+                _ = this.statusBarService.SetStatusTextAsync("Retrieving static analysis results...");
 
-                if (artifactResult.HasValue)
+                bool showInfoBar = data is IConvertible d && d.ToBoolean(null);
+
+                if (this.pollingTask.IsCompleted)
                 {
-                    var eventArgs = new ResultsUpdatedEventArgs
-                    {
-                        SarifLog = artifactResult.Value,
-                        LogFileName = ScanResultsFileName,
-                        UseDotSarifDirectory = false,
-                    };
-                    RaiseServiceEvent(eventArgs);
-                    return Result.Success<bool, ErrorType>(true);
+                    // Start polling but don't wait for task completion.
+                    this.pollingTask = this.PollForUpdatedResultsAsync(showInfoBar);
                 }
             }
 
-            return Result.Failure<bool, ErrorType>(ErrorType.AnalysesUnavailable);
+            return Result.Success<bool, ErrorType>(true);
         }
 
         /// <inheritdoc cref="IAzureDevOpsResultSourceService.GetRepositoryAsync()"/>
@@ -266,6 +282,67 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             }
 
             return sarifLog;
+        }
+
+        internal async Task PollForUpdatedResultsAsync(bool showInfoBar = false)
+        {
+            DateTime timeoutTime = DateTime.UtcNow.AddSeconds(ScanResultsPollTimeoutSeconds);
+
+            if (showInfoBar)
+            {
+                void CancelPollingCallback()
+                {
+                    this.pollingCancellationTokenSource.Cancel();
+                }
+
+                Action cancelPollingCallbackMethod = CancelPollingCallback;
+
+                var infoBarModel = new InfoBarModel(
+                    textSpans: new[]
+                    {
+                            new InfoBarTextSpan("The Microsoft SARIF Viewer is waiting for new static analysis results from Azure DevOps"),
+                    },
+                    actionItems: new[]
+                    {
+                            new InfoBarButton("Cancel", cancelPollingCallbackMethod),
+                    },
+                    image: KnownMonikers.Activity,
+                    isCloseButtonVisible: true);
+
+                await this.ShowInfoBarAsync(infoBarModel);
+            }
+
+            while (!this.pollingCancellationTokenSource.IsCancellationRequested && timeoutTime > DateTime.UtcNow)
+            {
+                Result<int, ErrorType> buildResult = await this.GetBuildIdAsync();
+
+                if (buildResult.IsSuccess)
+                {
+                    Maybe<SarifLog> artifactResult = await DownloadAndExtractArtifactAsync(buildResult.Value);
+
+                    if (artifactResult.HasValue)
+                    {
+                        var eventArgs = new ResultsUpdatedEventArgs
+                        {
+                            SarifLog = artifactResult.Value,
+                            LogFileName = ScanResultsFileName,
+                            UseDotSarifDirectory = false,
+                        };
+                        RaiseServiceEvent(eventArgs);
+                        break;
+                    }
+                }
+
+                await Task.Delay(ScanResultsPollIntervalSeconds * 1000);
+            }
+
+            await CloseInfoBarAsync();
+
+            this.pollingCancellationTokenSource.Cancel();
+            this.pollingCancellationTokenSource.Dispose();
+            this.pollingCancellationTokenSource = new CancellationTokenSource();
+
+            _ = this.statusBarService.ClearStatusTextAsync();
         }
 
         internal (string Path, string Name) ParseBranchString(string branch)
@@ -428,6 +505,25 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private void RaiseServiceEvent(ServiceEventArgs eventArgs = null)
         {
             ServiceEvent?.Invoke(this, eventArgs);
+        }
+
+        private async Task ShowInfoBarAsync(InfoBarModel infoBarModel)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            await this.CloseInfoBarAsync();
+            this.infoBar = this.infoBarService.ShowInfoBar(infoBarModel);
+        }
+
+        private async Task CloseInfoBarAsync()
+        {
+            if (this.infoBar != null)
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                _ = this.infoBarService.CloseInfoBar(this.infoBar);
+                this.infoBar = null;
+            }
         }
     }
 }
