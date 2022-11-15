@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
@@ -101,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeFalse();

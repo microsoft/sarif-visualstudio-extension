@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 
 using Microsoft.VisualStudio.Shell;
 
@@ -10,6 +11,8 @@ namespace Microsoft.Sarif.Viewer.Options
     internal class SarifViewerOption : ISarifViewerOptions
     {
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
+
+        private readonly bool isGitHubAdvancedSecurityEnabled = false;
 
         private readonly bool keyEventAdornmentEnabledDefaultValue = true;
 
@@ -26,15 +29,23 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.optionPage = (SarifViewerOptionPage)this.package.GetDialogPage(typeof(SarifViewerOptionPage));
+            this.OptionStates = new Dictionary<string, bool>
+            {
+                { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
+                { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
+                { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
+            };
         }
 
         private SarifViewerOption() { }
 
         public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
 
-        public bool IsGitHubAdvancedSecurityEnabled => this.optionPage?.EnableGitHubAdvancedSecurity ?? this.IsGitHubAdvancedSecurityEnabled;
+        public bool IsGitHubAdvancedSecurityEnabled => this.optionPage?.EnableGitHubAdvancedSecurity ?? this.isGitHubAdvancedSecurityEnabled;
 
         public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
+
+        public readonly Dictionary<string, bool> OptionStates;
 
         /// <summary>
         /// Gets the instance of the command.
@@ -57,6 +68,16 @@ namespace Microsoft.Sarif.Viewer.Options
         public static void InitializeForUnitTests()
         {
             Instance = new SarifViewerOption();
+        }
+
+        public bool IsOptionEnabled(string optionName)
+        {
+            if (this.OptionStates.TryGetValue(optionName, out bool state))
+            {
+                return state;
+            }
+
+            return false;
         }
     }
 }
