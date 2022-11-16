@@ -153,7 +153,13 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
             this.RunIndex = runIndex;
             string ruleId = null;
 
@@ -167,7 +173,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
+            this.RawMessage = FormatNotficationText(notification);
             (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
 
             this.Level = notification.Level;
@@ -925,6 +931,23 @@ namespace Microsoft.Sarif.Viewer
             hashCode = (hashCode * hashFactor) + EqualityComparer<RuleModel>.Default.GetHashCode(this.Rule);
 
             return hashCode;
+        }
+
+        private static string FormatNotficationText(Notification notification)
+        {
+            string message = notification.Message.Text?.Trim() ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(notification.Exception?.Kind?.Trim()))
+            {
+                message += Environment.NewLine + $"[Exception type: {notification.Exception.Kind.Trim()}]";
+            }
+
+            if (!string.IsNullOrWhiteSpace(notification.Exception?.Message?.Trim()))
+            {
+                message += Environment.NewLine + $"[Exception message: {notification.Exception.Message.Trim()}]";
+            }
+
+            return message;
         }
     }
 }
