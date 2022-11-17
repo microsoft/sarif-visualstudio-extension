@@ -31,6 +31,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         int FirstCommandId { get; set; }
 
         /// <summary>
+        /// Gets or sets the callback method to get the option state for the specified key.
+        /// </summary>
+        Func<string, bool> GetOptionStateCallback { get; set; }
+
+        /// <summary>
         /// Initializes the service instance.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>

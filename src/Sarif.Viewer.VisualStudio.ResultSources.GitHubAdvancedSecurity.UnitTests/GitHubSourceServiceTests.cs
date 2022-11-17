@@ -43,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             var mockGitExe = new Mock<IGitExe>();
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), (string key) => true, null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
             result.IsSuccess.Should().BeTrue();
         }
@@ -59,7 +59,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             var mockGitExe = new Mock<IGitExe>();
             mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
+            CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
+            result.IsSuccess.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task IsActive_ReturnsFalse_WhenServiceIsDisabled_Async()
+        {
+            string path = @"C:\Git\MyProject";
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
+
+            var mockGitExe = new Mock<IGitExe>();
+            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
+
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), (string key) => false, null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
             result.IsSuccess.Should().BeFalse();
         }
@@ -73,7 +89,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockGitExe = new Mock<IGitExe>();
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object, null, null);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, null, mockGitExe.Object, null, null);
 
             (string Path, string Name) result = gitHubSourceService.ParseBranchString(input);
             result.Path.Should().Be(expectedPath);
@@ -89,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockGitExe = new Mock<IGitExe>();
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object, null, null);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, null, mockGitExe.Object, null, null);
 
             (string Path, string Name) result = gitHubSourceService.ParseBranchString(input);
             result.Path.Should().Be(expectedPath);
@@ -105,7 +121,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var mockGitExe = new Mock<IGitExe>();
 
-            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockGitExe.Object, null, null);
+            var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, null, mockGitExe.Object, null, null);
 
             (string Path, string Name) result = gitHubSourceService.ParseBranchString(input);
             result.Path.Should().Be(expectedPath);
@@ -142,6 +158,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                (string key) => true,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -193,6 +210,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                (string key) => true,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -239,6 +257,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -293,6 +312,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -353,6 +373,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                (string key) => true,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -414,6 +435,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                (string key) => true,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -458,6 +480,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -506,6 +529,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -555,6 +579,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -603,6 +628,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
@@ -654,6 +680,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 
             var gitHubSourceService = new GitHubSourceService(
                 path,
+                null,
                 mockServiceProvider.Object,
                 mockHttpClientAdapter.Object,
                 mockSecretStoreRepository.Object,
