@@ -58,6 +58,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         private const string GetAnalysesEndpoint = "analyses";
         private const string DismissAlertEndpointFormat = "alerts/{0}";
         private const string GitLocalRefFileBaseRelativePath = @".git\refs\remotes\origin";
+        private const string OptionStateKey = "GitHubAdvancedSecurity";
         private const int ScanResultsPollIntervalSeconds = 10;
         private const int ScanResultsPollTimeoutSeconds = 1200;
 
@@ -93,6 +94,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// Initializes a new instance of the <see cref="GitHubSourceService"/> class.
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
+        /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
@@ -104,6 +106,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// <param name="statusBarService">The <see cref="IStatusBarService"/>.</param>
         public GitHubSourceService(
             string solutionRootPath,
+            Func<string, bool> getOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -114,6 +117,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             IInfoBarService infoBarService,
             IStatusBarService statusBarService)
         {
+            this.GetOptionStateCallback = getOptionStateCallback;
             this.serviceProvider = serviceProvider;
             this.httpClientAdapter = httpClientAdapter;
             this.secretStoreRepository = secretStoreRepository;
@@ -138,6 +142,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
 
         /// <inheritdoc cref="IResultSourceService.FirstCommandId"/>
         public int FirstCommandId { get; set; }
+
+        /// <inheritdoc cref="IResultSourceService.GetOptionStateCallback"/>
+        public Func<string, bool> GetOptionStateCallback { get; set; }
 
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
         public async Task InitializeAsync()
@@ -178,17 +185,23 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             RaiseServiceEvent(eventArgs);
         }
 
-        /// <inheritdoc cref="IGitHubSourceService.IsGitHubProject()"/>
+        /// <inheritdoc cref="IGitHubSourceService.IsActiveAsync()"/>
         public async Task<Result> IsActiveAsync()
         {
-            if (string.IsNullOrWhiteSpace(this.repoPath))
+            if (this.GetOptionStateCallback != null && this.GetOptionStateCallback("GitHubAdvancedSecurity"))
             {
-                this.repoPath = await gitExe.GetRepoRootAsync();
+                if (string.IsNullOrWhiteSpace(this.repoPath))
+                {
+                    this.repoPath = await gitExe.GetRepoRootAsync();
+                }
+
+                if (!string.IsNullOrWhiteSpace(this.repoPath) && fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")))
+                {
+                    return Result.Success();
+                }
             }
 
-            return !string.IsNullOrWhiteSpace(this.repoPath) && fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")) ?
-                Result.Success() :
-                Result.Failure(nameof(GitHubSourceService));
+            return Result.Failure(nameof(GitHubSourceService));
         }
 
         /// <inheritdoc cref="IGitHubSourceService.GetUserVerificationCodeAsync()"/>

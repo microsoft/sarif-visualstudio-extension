@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 using EnvDTE80;
 
@@ -212,14 +210,17 @@ namespace Microsoft.Sarif.Viewer
             if (this.resultSourceHost == null)
             {
                 string solutionPath = GetSolutionDirectoryPath();
-                if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+                if (!string.IsNullOrWhiteSpace(solutionPath))
                 {
-                    this.resultSourceHost = new ResultSourceHost(solutionPath, this);
+                    this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerOption.Instance.IsOptionEnabled);
                     this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
                 }
             }
 
-            await this.resultSourceHost?.RequestAnalysisResultsAsync();
+            if (this.resultSourceHost != null)
+            {
+                await this.resultSourceHost.RequestAnalysisResultsAsync();
+            }
         }
 
         private object CreateService(IServiceContainer container, Type serviceType)

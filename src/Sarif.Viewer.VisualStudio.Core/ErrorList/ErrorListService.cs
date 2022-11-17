@@ -214,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                     Resources.VersionPropertyNotFound_DialogTitle,
                                                     null, // title
-                                                    OLEMSGICON.OLEMSGICON_QUERY,
+                                                    OLEMSGICON.OLEMSGICON_WARNING,
                                                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                                                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                     return;
