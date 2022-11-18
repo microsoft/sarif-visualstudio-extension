@@ -937,14 +937,16 @@ namespace Microsoft.Sarif.Viewer
         {
             string message = notification.Message.Text?.Trim() ?? string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(notification.Exception?.Kind?.Trim()))
+            string kind = notification.Exception?.Kind?.Trim();
+            if (!string.IsNullOrWhiteSpace(kind))
             {
-                message += Environment.NewLine + $"[Exception type: {notification.Exception.Kind.Trim()}]";
+                message += Environment.NewLine + $"[Exception type: {kind}]";
             }
 
-            if (!string.IsNullOrWhiteSpace(notification.Exception?.Message?.Trim()))
+            string exceptionMessage = notification.Exception?.Message?.Trim();
+            if (!string.IsNullOrWhiteSpace(exceptionMessage))
             {
-                message += Environment.NewLine + $"[Exception message: {notification.Exception.Message.Trim()}]";
+                message += Environment.NewLine + $"[Exception message: {exceptionMessage}]";
             }
 
             return message;
