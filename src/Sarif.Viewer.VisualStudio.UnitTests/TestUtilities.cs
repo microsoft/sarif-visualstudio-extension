@@ -42,5 +42,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 FileName = "file.c",
             };
         }
+
+        internal static SarifErrorListItem MakeErrorListItem(Notification notification)
+        {
+            return new SarifErrorListItem(
+                EmptyRun,
+                runIndex: 0,
+                notification: notification,
+                logFilePath: "log.sarif",
+                projectNameCache: new ProjectNameCache(solution: null));
+        }
     }
 }
