@@ -14,6 +14,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private DelegateCommand _expandAllCommand;
         private DelegateCommand _collapseAllCommand;
         private DelegateCommand _intelligentExpandCommand;
+        private DelegateCommand _variableCheckedCommand;
 
         public AnalysisStepCollection()
         {
@@ -73,6 +74,24 @@ namespace Microsoft.Sarif.Viewer.Models
             }
 
             set => this._expandAllCommand = value;
+        }
+
+        public DelegateCommand StateCheckedCommand
+        {
+            get
+            {
+                this._variableCheckedCommand ??= new DelegateCommand(this.Test);
+                return this._variableCheckedCommand;
+            }
+
+            set
+            {
+                this._variableCheckedCommand = value;
+            }
+        }
+
+        internal void Test()
+        {
         }
 
         public DelegateCommand CollapseAllCommand
