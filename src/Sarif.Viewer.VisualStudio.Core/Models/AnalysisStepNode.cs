@@ -35,6 +35,7 @@ namespace Microsoft.Sarif.Viewer.Models
         private string _ruleId;
         private ObservableCollection<AnalysisStepState> _state;
         private ObservableCollection<Inline> _messageInlines;
+        private DelegateCommand _variableCheckedCommand;
 
         public AnalysisStepNode(int resultId, int runIndex, int index = 0, string resultGuid = null, string ruleId = null)
             : base(resultId, runIndex)
@@ -535,6 +536,24 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 this._navigateCommand = value;
             }
+        }
+
+        public DelegateCommand StateCheckedCommand
+        {
+            get
+            {
+                this._variableCheckedCommand ??= new DelegateCommand(this.Test);
+                return this._variableCheckedCommand;
+            }
+
+            set
+            {
+                this._variableCheckedCommand = value;
+            }
+        }
+
+        private void Test()
+        {
         }
 
         private void Navigate()

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
+﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 
 using Mapster;
@@ -708,7 +709,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            if (inlines.Count > 0 && start < message.Length)
+            if (start < message.Length)
             {
                 if (stateDict?.Any() == true)
                 {
@@ -739,7 +740,15 @@ namespace Microsoft.Sarif.Viewer
                     var stateRun = new XamlDoc.Run(UnescapeBrackets(stateText));
                     if (stateDict.TryGetValue(stateText, out string stateValue))
                     {
-                        stateRun.ToolTip = $"{stateText} == {stateValue}";
+                        var textBlock = new TextBlock();
+                        var link = new XamlDoc.Hyperlink(new XamlDoc.Run(" ◀ "));
+                        link.TextDecorations = null;
+                        textBlock.Inlines.Add(link);
+                        textBlock.Inlines.Add(new XamlDoc.Run($"{stateText} == {stateValue}"));
+                        var link1 = new XamlDoc.Hyperlink(new XamlDoc.Run(" ▶ "));
+                        link1.TextDecorations = null;
+                        textBlock.Inlines.Add(link1);
+                        stateRun.ToolTip = textBlock; // $"{stateText} == {stateValue}";
                     }
 
                     stateRun.TextDecorations = new TextDecorationCollection { TextDecorations.Underline };

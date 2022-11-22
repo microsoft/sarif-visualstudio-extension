@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Controls;
 
 using Microsoft.CodeAnalysis.Sarif;
@@ -13,6 +14,7 @@ namespace Microsoft.Sarif.Viewer.Models
 {
     internal class AnalysisStep : NotifyPropertyChangedObject
     {
+        private AnalysisStepNode _previousItem;
         private AnalysisStepNode _selectedItem;
         private DelegateCommand<TreeView> _selectPreviousCommand;
         private DelegateCommand<TreeView> _selectNextCommand;
@@ -57,7 +59,29 @@ namespace Microsoft.Sarif.Viewer.Models
             {
                 if (this._selectedItem != value)
                 {
+                    this._previousItem = this._selectedItem;
+
                     this._selectedItem = value;
+
+                    this.CompareAnalysisStepState(this._previousItem, this._selectedItem);
+
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public AnalysisStepNode PreviousItem
+        {
+            get
+            {
+                return this._previousItem;
+            }
+
+            set
+            {
+                if (this._previousItem != value)
+                {
+                    this._previousItem = value;
 
                     this.NotifyPropertyChanged();
                 }
@@ -365,6 +389,29 @@ namespace Microsoft.Sarif.Viewer.Models
                 foreach (AnalysisStepNode child in this.TopLevelNodes)
                 {
                     child.SetVerbosity(importance);
+                }
+            }
+        }
+
+        internal void CompareAnalysisStepState(AnalysisStepNode previus, AnalysisStepNode current)
+        {
+            if (current?.State?.Any() != true || previus?.State?.Any() != true)
+            {
+                return;
+            }
+
+            foreach (AnalysisStepState state in previus.State)
+            {
+                state.ValueChanged = false;
+            }
+
+            foreach (AnalysisStepState state in current.State)
+            {
+                AnalysisStepState old =
+                    previus.State.FirstOrDefault(s => s.Expression == state.Expression);
+                if (old != null && old.Value != state.Value)
+                {
+                    state.ValueChanged = true;
                 }
             }
         }

@@ -9,7 +9,7 @@
         <ResourceDictionary Source="pack://application:,,,/Microsoft.Sarif.Viewer;component/Themes/AnalysisStepsStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-    <DataTemplate x:Key="AnalysisStepTemplate">
+    <DataTemplate x:Key="AnalysisStepTemplate" x:Name="AnalysisStepTemplate">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -212,16 +212,31 @@
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=ValueChanged}" Value="True">
+                                <Setter Property="Foreground" Value="Orange" />
+                            </DataTrigger>
+                        </Style.Triggers>
                     </Style>
                 </ListView.Resources>
                 <ListView.View>
                     <GridView>
+                        <GridViewColumn Width="25">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox
+                                        IsChecked="{Binding Selected}"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.StateCheckedCommand}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         <GridViewColumn Header="Expression"
                                         DisplayMemberBinding="{Binding Expression}"
-                                        Width="130" />
+                                        Width="120" />
                         <GridViewColumn Header="Value"
                                         DisplayMemberBinding="{Binding Value}"
-                                        Width="Auto" />
+                                        Width="250" />
                     </GridView>
                 </ListView.View>
             </ListView>

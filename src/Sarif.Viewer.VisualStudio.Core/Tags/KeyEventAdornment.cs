@@ -84,6 +84,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 TextBlock.ForegroundProperty,
                 EnvironmentColors.ExtensionManagerStarHighlight2BrushKey);
 
+            var textbox = new TextBlock();
             this.ToolTip = SdkUIUtilities.EscapeHyperlinks(tooltipText);
             this.Cursor = Cursors.Arrow;
         }

@@ -43,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                         }
                     }
 
-                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex, index: ++index)
+                    var newNode = new AnalysisStepNode(resultId: resultId, runIndex: runIndex, index: location.Index == 0 ? ++index : location.Index)
                     {
                         Location = location,
                         Children = new List<AnalysisStepNode>(),
@@ -100,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                     var newNode = new AnalysisStepNode(
                         resultId: sarifErrorListItem?.ResultId ?? 0,
                         runIndex: runIndex,
-                        index: ++index,
+                        index: location.Index == 0 ? ++index : location.Index,
                         resultGuid: sarifErrorListItem?.ResultGuid,
                         ruleId: sarifErrorListItem.Rule?.Id)
                     {
