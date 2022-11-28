@@ -59,5 +59,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 this.filteredColumnValues.Add(filteredColumnValue);
             }
         }
+
+        public IEnumerable<string> GetFilteredValues(string columnName)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            var filter = this.ErrorListTableControl?.GetFilter(columnName) as ColumnHashSetFilter;
+
+            return filter?.Excluded;
+        }
     }
 }

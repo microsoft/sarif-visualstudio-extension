@@ -405,4 +405,7 @@ Do you want to open this file in Visual Studio?</value>
   <data name="TraceLog_SarifFileProcessed" xml:space="preserve">
     <value>The SARIF log file `{0}` processed.</value>
   </data>
+  <data name="WarningResultsHaveBeenFiltered" xml:space="preserve">
+    <value>The SARIF viewer received one or more SARIF logs, the results may be hidden because the ErrorList filter settings.</value>
+  </data>
 </root>

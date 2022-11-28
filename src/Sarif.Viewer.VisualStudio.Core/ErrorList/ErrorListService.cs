@@ -533,7 +533,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             SarifLogsMonitor.Instance.StartWatch(logFilePath);
 
-            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
+            bool resultsFiltered = Instance.CheckIfResultsFilteredBySeverity(sarifLog);
+            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog, resultsFiltered));
         }
 
         public static void CleanAllErrors()
@@ -721,6 +722,59 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     }
                 }
             }
+        }
+
+        internal bool CheckIfResultsFilteredBySeverity(SarifLog sarifLog)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            IEnumerable<string> excludedValues = this.columnFilterer.GetFilteredValues(StandardTableKeyNames.ErrorSeverity);
+            if (excludedValues?.Any() != true)
+            {
+                return false;
+            }
+
+            bool hasError = false, hasWarning = false, hasMessage = false;
+            foreach (Run run in sarifLog.Runs)
+            {
+                foreach (Result result in run.Results)
+                {
+                    if (!hasError && result.Level == FailureLevel.Error)
+                    {
+                        hasError = true;
+                        if (excludedValues.Contains("error", StringComparer.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+
+                        continue;
+                    }
+
+                    if (!hasWarning && result.Level == FailureLevel.Warning)
+                    {
+                        hasWarning = true;
+                        if (excludedValues.Contains("warning", StringComparer.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+
+                        continue;
+                    }
+
+                    if (!hasMessage && result.Level == FailureLevel.Note)
+                    {
+                        hasMessage = true;
+                        if (excludedValues.Contains("message", StringComparer.OrdinalIgnoreCase))
+                        {
+                            return true;
+                        }
+
+                        continue;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static void RaiseLogProcessed(ExceptionalConditions conditions)

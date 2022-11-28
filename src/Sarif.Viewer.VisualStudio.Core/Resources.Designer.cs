@@ -840,5 +840,13 @@ namespace Microsoft.Sarif.Viewer {
                 return ResourceManager.GetString("VersionPropertyNotFound_DialogTitle", resourceCulture);
             }
         }
+
+        public static string WarningResultsHaveBeenFiltered
+        {
+            get
+            {
+                return ResourceManager.GetString("WarningResultsHaveBeenFiltered", resourceCulture);
+            }
+        }
     }
 }
