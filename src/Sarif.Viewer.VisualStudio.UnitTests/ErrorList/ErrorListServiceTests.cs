@@ -219,7 +219,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             ErrorListService.Instance.ColumnFilterer = mockColumnFilter.Object;
 
             ErrorListService.ProcessSarifLogAsync(testLog, "logId", false, false).ConfigureAwait(false);
-            
+
             this.logExceptionalConditions.HasFlag(ExceptionalConditions.ResultsFiltered).Should().BeTrue();
         }
 
