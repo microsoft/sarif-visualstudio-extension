@@ -1,20 +1,26 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.RegularExpressions;
 
 using FluentAssertions;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.VisualStudio.Shell.TableManager;
+
+using Moq;
 
 using Xunit;
 
+using Match = System.Text.RegularExpressions.Match;
+
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
-    public class ErrorListServiceTests
+    public class ErrorListServiceTests : SarifViewerPackageUnitTests
     {
         private static readonly TestCase[] s_testCases = new TestCase[]
         {
@@ -151,6 +157,72 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             this.numberOfExceptionLogged.Should().Be(numberOfException + 1);
         }
 
+        [Fact]
+        public void ProcessSarifLogAsync_ResultsFiltered_ShouldShowNotification()
+        {
+            // unhook original event handler and hook test event
+            ErrorListService.LogProcessed -= ErrorListService.ErrorListService_LogProcessed;
+            ErrorListService.LogProcessed += ErrorListServiceTest_LogProcessed;
+
+            var testLog = new SarifLog
+            {
+                Runs = new List<Run>
+                {
+                    new Run
+                    {
+                        Tool = new Tool
+                        {
+                            Driver = new ToolComponent
+                            {
+                                Name = "Test",
+                                SemanticVersion = "1.0",
+                            },
+                        },
+                        Results = new List<Result>
+                        {
+                            new Result
+                            {
+                                AnalysisTarget = new ArtifactLocation
+                                {
+                                    Uri = new Uri("file:///item.cpp"),
+                                },
+                                RuleId = "E0001",
+                                Message = new Message { Text = "Error description" },
+                                Level = FailureLevel.Error,
+                                Locations = new List<Location>
+                                {
+                                    new Location(),
+                                },
+                            },
+                            new Result
+                            {
+                                AnalysisTarget = new ArtifactLocation
+                                {
+                                    Uri = new Uri("file:///item.cpp"),
+                                },
+                                RuleId = "C0001",
+                                Message = new Message { Text = "Warning number 1" },
+                                Level = FailureLevel.Warning,
+                                Locations = new List<Location>
+                                {
+                                    new Location(),
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+
+            var mockColumnFilter = new Mock<IColumnFilterer>();
+            mockColumnFilter.Setup(x => x.GetFilteredValues(StandardTableKeyNames.ErrorSeverity)).Returns(new[] { "warning", "note" });
+
+            ErrorListService.Instance.ColumnFilterer = mockColumnFilter.Object;
+
+            ErrorListService.ProcessSarifLogAsync(testLog, "logId", false, false).ConfigureAwait(false);
+            
+            this.logExceptionalConditions.HasFlag(ExceptionalConditions.ResultsFiltered).Should().BeTrue();
+        }
+
         private struct TestCase
         {
             public string Title { get; set; }
@@ -163,9 +235,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         private int numberOfExceptionLogged = 0;
+
+        private ExceptionalConditions logExceptionalConditions;
+
         private void ErrorListServiceTest_LogProcessed(object sender, LogProcessedEventArgs e)
         {
             this.numberOfExceptionLogged++;
+            this.logExceptionalConditions = e.ExceptionalConditions;
         }
     }
 }

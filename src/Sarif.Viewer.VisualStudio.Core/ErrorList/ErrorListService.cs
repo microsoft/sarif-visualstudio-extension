@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        private readonly ColumnFilterer columnFilterer = new ColumnFilterer();
+        internal IColumnFilterer ColumnFilterer = new ColumnFilterer();
 
         static ErrorListService()
         {
@@ -533,7 +533,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             SarifLogsMonitor.Instance.StartWatch(logFilePath);
 
-            bool resultsFiltered = Instance.CheckIfResultsFilteredBySeverity(sarifLog);
+            bool resultsFiltered = CheckIfResultsFilteredBySeverity(sarifLog, Instance.ColumnFilterer);
             RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog, resultsFiltered));
         }
 
@@ -652,7 +652,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Creating this table source adds "Suppression State" to the list of available columns.
             SuppressionStateTableDataSource dataSource = SuppressionStateTableDataSource.Instance;
 
-            this.columnFilterer.FilterOut(
+            this.ColumnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
                 filteredValue: nameof(VSSuppressionState.Suppressed));
         }
@@ -669,7 +669,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // (Actually, it appears to be there by default, so this might not be necessary:)
             BaselineStateTableDataSource dataSource = BaselineStateTableDataSource.Instance;
 
-            this.columnFilterer.FilterOut(
+            this.ColumnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,
                 filteredValue: nameof(BaselineState.Absent));
         }
@@ -724,11 +724,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal bool CheckIfResultsFilteredBySeverity(SarifLog sarifLog)
+        internal static bool CheckIfResultsFilteredBySeverity(SarifLog sarifLog, IColumnFilterer filterer)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            IEnumerable<string> excludedValues = this.columnFilterer.GetFilteredValues(StandardTableKeyNames.ErrorSeverity);
+            IEnumerable<string> excludedValues = filterer.GetFilteredValues(StandardTableKeyNames.ErrorSeverity);
             if (excludedValues?.Any() != true)
             {
                 return false;

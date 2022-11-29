@@ -14,7 +14,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
     // does so once per column/value pair. The idea is that if the user ever checks the
     // box in the filter UI to show a certain value in a certain column, we should never
     // hide that column again.
-    internal class ColumnFilterer
+    internal class ColumnFilterer : IColumnFilterer
     {
         // The set of column/value pairs that have been filtered so far.
         private readonly HashSet<FilteredColumnValue> filteredColumnValues = new HashSet<FilteredColumnValue>();

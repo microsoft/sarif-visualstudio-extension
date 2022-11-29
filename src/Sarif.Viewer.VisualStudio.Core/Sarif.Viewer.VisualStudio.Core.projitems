@@ -44,6 +44,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilteredColumnValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\IColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessorProvider.cs" />
