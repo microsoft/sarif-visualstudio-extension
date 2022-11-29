@@ -34,7 +34,7 @@ extends:
                 submodules: recursive
               outputs:
               - output: pipelineArtifact
-                targetPath: $(System.DefaultWorkingDirectory)
+                targetPath: $(System.DefaultWorkingDirectory)/bld/bin
             
               breakGlass:
                 justification: Because of the batch script task below
