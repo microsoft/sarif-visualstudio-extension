@@ -515,7 +515,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                     if (!resultsFiltered)
                     {
-                        resultsFiltered = CheckIfResultsFilteredBySeverity(
+                        resultsFiltered = AreResultsFilteredBySeverity(
                             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runIndex],
                             Instance.ColumnFilterer);
                     }
@@ -726,7 +726,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        internal static bool CheckIfResultsFilteredBySeverity(RunDataCache runData, IColumnFilterer filterer)
+        internal static bool AreResultsFilteredBySeverity(RunDataCache runData, IColumnFilterer filterer)
         {
             IEnumerable<string> excludedValues = filterer.GetFilteredValues(StandardTableKeyNames.ErrorSeverity);
 
