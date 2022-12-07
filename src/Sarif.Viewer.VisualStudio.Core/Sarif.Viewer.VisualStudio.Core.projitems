@@ -44,6 +44,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilteredColumnValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\IColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessorProvider.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultTextMarker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RunDataCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RunSummary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifExplorerWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifFileAndContentDefinitions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifTextViewCreationListener.cs" />

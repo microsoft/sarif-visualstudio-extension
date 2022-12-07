@@ -34,6 +34,8 @@ namespace Microsoft.Sarif.Viewer
         // keep a reference to SarifLog object
         public SarifLog SarifLog;
 
+        public RunSummary RunSummary;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RunDataCache"/> class.
         /// Used for testing.
@@ -59,6 +61,13 @@ namespace Microsoft.Sarif.Viewer
             this.LogFilePath = logFilePath;
             this.FileRegionsCache = new FileRegionsCache();
             this.SarifLog = sarifLog;
+            this.RunSummary = new RunSummary();
+        }
+
+        internal void AddSarifResult(SarifErrorListItem sarifErrorListItem)
+        {
+            this.SarifErrors.Add(sarifErrorListItem);
+            this.RunSummary.Count(sarifErrorListItem);
         }
     }
 }
