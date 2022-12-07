@@ -1,7 +1,12 @@
 # SARIF Viewer Visual Studio extension Release History
 
-## Unreleased ** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+## **3.0.113** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: Enable logging to the VS console to support debugging scenarios.
+* FEATURE: Update Error List items when properties change.
+* FEATURE: Add support for dismissing GHAS alerts.
+* FEATURE: Add support for key event adornments in GHAS alerts.
+* FEATURE: Show info bar when the Error List is filtered based on error level (error/warning/message).
+* BUGFIX: Support empty line text regions.
 
 ## **3.0.98** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: Result sources platform + GitHub Advanced Security source service
