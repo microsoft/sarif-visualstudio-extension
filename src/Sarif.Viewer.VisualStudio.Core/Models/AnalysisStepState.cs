@@ -14,13 +14,17 @@ namespace Microsoft.Sarif.Viewer.Models
     {
         private DelegateCommand _variableCheckedCommand;
 
+        private readonly string _value;
+
         public bool Selected { get; set; }
 
         public bool ValueChanged { get; set; }
 
         public string Expression { get; set; }
 
-        public string Value { get; set; }
+        public string Value { get => this._value; }
+
+        public string NormalizedValue { get => this.NormalizeStateValue(); }
 
         public DelegateCommand VariableCheckedCommand
         {
@@ -42,11 +46,21 @@ namespace Microsoft.Sarif.Viewer.Models
         public AnalysisStepState(string expression, string value)
         {
             this.Expression = expression;
-            this.Value = value;
+            this._value = value;
         }
 
         private void Test()
         {
+        }
+
+        private string NormalizeStateValue()
+        {
+            if (this._value == null)
+            {
+                return null;
+            }
+
+            return this._value.Replace("{expr}", this.Expression);
         }
     }
 }

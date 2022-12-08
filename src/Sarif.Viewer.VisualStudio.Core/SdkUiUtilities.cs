@@ -649,7 +649,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (stateDict?.Any() == true)
             {
-                searchReg = string.Join("|", stateDict.Keys.Select(k => $"\\b{k}\\b"));
+                searchReg = string.Join("|", stateDict.Keys.Select(k => $"\\b{Regex.Escape(k)}\\b"));
             }
 
             if (matches.Count > 0)
@@ -754,7 +754,7 @@ namespace Microsoft.Sarif.Viewer
                         var link = new XamlDoc.Hyperlink(new XamlDoc.Run(" ◀ "));
                         link.TextDecorations = null;
                         textBlock.Inlines.Add(link);
-                        textBlock.Inlines.Add(new XamlDoc.Run($"{stateText} == {stateValue}"));
+                        textBlock.Inlines.Add(new XamlDoc.Run(StateString(stateText, stateValue)));
                         var link1 = new XamlDoc.Hyperlink(new XamlDoc.Run(" ▶ "));
                         link1.TextDecorations = null;
                         textBlock.Inlines.Add(link1);
@@ -774,6 +774,17 @@ namespace Microsoft.Sarif.Viewer
                     inlines.Add(new XamlDoc.Run(UnescapeBrackets(text.Substring(subStart))));
                 }
             }
+        }
+
+        private static string StateString(string key, string value)
+        {
+            string placeHolder = "{expr}";
+            if (value.Contains(placeHolder))
+            {
+                return value.Replace(placeHolder, key);
+            }
+
+            return $"{key} == {value}";
         }
 
         internal static string EscapeHyperlinks(string message)

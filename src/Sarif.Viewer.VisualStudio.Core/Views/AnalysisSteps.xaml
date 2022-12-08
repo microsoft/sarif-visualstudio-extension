@@ -12,16 +12,16 @@
     <DataTemplate x:Key="AnalysisStepTemplate" x:Name="AnalysisStepTemplate">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="32" />
+                <RowDefinition MinHeight="150" />
+                <RowDefinition Height="5"/>
+                <RowDefinition Height="150" MinHeight="50" />
             </Grid.RowDefinitions>
             <ToolBarTray Grid.Row="0"
-                         Style="{StaticResource ToolBarTrayStyle}">
+                             Style="{StaticResource ToolBarTrayStyle}">
                 <ToolBar ToolBarTray.IsLocked="True"
-                         KeyboardNavigation.TabNavigation="Continue"
-                         Style="{StaticResource ToolBarStyle}">
+                             KeyboardNavigation.TabNavigation="Continue"
+                             Style="{StaticResource ToolBarStyle}">
                     <ToolBar.Template>
                         <ControlTemplate TargetType="ToolBar">
                             <Grid x:Name="ToolBarGrid" Style="{StaticResource ToolBarGridStyle}">
@@ -43,94 +43,88 @@
                         </ControlTemplate>
                     </ToolBar.Template>
                     <Button x:Name="ToolBarButtonExpand"
-                            Command="{Binding ExpandAllCommand}"
-                            ToolTip="{StaticResource AnalysisSteps_ToolBarButtonExpand_ToolTip_String}"
-                            Style="{StaticResource ToolBarGlyphButtonStyle}">
+                                Command="{Binding ExpandAllCommand}"
+                                ToolTip="{StaticResource AnalysisSteps_ToolBarButtonExpand_ToolTip_String}"
+                                Style="{StaticResource ToolBarGlyphButtonStyle}">
                         <TextBlock Text="+"
-                                   Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
+                                       Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
                     </Button>
                     <Button x:Name="ToolBarButtonCollapse"
-                            Command="{Binding CollapseAllCommand}"
-                            ToolTip="{StaticResource AnalysisSteps_ToolBarButtonCollapse_ToolTip_String}"
-                            Style="{StaticResource ToolBarGlyphButtonStyle}">
+                                Command="{Binding CollapseAllCommand}"
+                                ToolTip="{StaticResource AnalysisSteps_ToolBarButtonCollapse_ToolTip_String}"
+                                Style="{StaticResource ToolBarGlyphButtonStyle}">
                         <TextBlock Text="-"
-                                   Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
+                                       Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
                     </Button>
                     <Button x:Name="ToolBarButtonIntelligentExpand"
-                            Command="{Binding IntelligentExpandCommand}"
-                            ToolTip="{StaticResource AnalysisSteps_ToolBarButtonIntelligentExpand_ToolTip_String}"
-                            Style="{StaticResource ToolBarGlyphButtonStyle}">
+                                Command="{Binding IntelligentExpandCommand}"
+                                ToolTip="{StaticResource AnalysisSteps_ToolBarButtonIntelligentExpand_ToolTip_String}"
+                                Style="{StaticResource ToolBarGlyphButtonStyle}">
                         <TextBlock Text="±"
-                                   Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
+                                       Style="{StaticResource ToolBarGlyphButtonTextStyle}"/>
                     </Button>
                     <Separator Style="{StaticResource ToolBarSeparatorStyle}" />
                     <Slider x:Name="ToolBarSlider"
-                            Style="{StaticResource ToolBarSliderStyle}"/>
+                                Style="{StaticResource ToolBarSliderStyle}"/>
                 </ToolBar>
             </ToolBarTray>
-            <ItemsControl Grid.Row="1"
-                          ItemsSource="{Binding}"
-                          IsTabStop="False"
-                          ItemContainerStyle="{StaticResource ItemsControlContainerStyle}">
+            <ItemsControl Grid.Row="1" ItemsSource="{Binding}" IsTabStop="False">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <DockPanel IsItemsHost="True"
-                                   LastChildFill="True"/>
+                        <DockPanel IsItemsHost="True" LastChildFill="True"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <DockPanel>
-                            <views:AnalysisStepView
-                                DockPanel.Dock="Top"
-                                Height="600"
-                                ItemsSource="{Binding TopLevelNodes}"
-                                Grid.IsSharedSizeScope="True"
-                                KeyboardNavigation.TabNavigation="Continue"
-                                ItemContainerStyle="{StaticResource TreeViewItemContainerStyle}"
-                                Style="{StaticResource TreeViewStyle}">
-                                <TreeView.ItemTemplate>
-                                    <HierarchicalDataTemplate DataType="x:Type local:AnalysisStepNode"
-                                                              ItemsSource="{Binding Children}">
-                                        <Grid ToolTip="{Binding Location.Kinds, Converter={StaticResource CollectionToJoinedStringConverter}, ConverterParameter=', '}">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition SharedSizeGroup="IndexGroup" />
-                                                <ColumnDefinition SharedSizeGroup="MessageGroup" />
-                                                <ColumnDefinition SharedSizeGroup="LocationGroup" />
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.InputBindings>
-                                                <MouseBinding Gesture="LeftDoubleClick"
-                                                                  Command="{Binding NavigateCommand}"/>
-                                            </Grid.InputBindings>
-                                            <TextBlock Grid.Column="0"
-                                                           Text="{Binding Index, Mode=OneWay}"
-                                                           Style="{StaticResource AnalysisStepLocationTextStyle}" />
-                                            <controls:BindableTextBlock Grid.Column="1"
-                                                InlineList="{Binding MessageInlines}"
-                                                Style="{StaticResource AnalysisStepMessageTextStyle}"/>
-                                            <TextBlock Grid.Column="2"
-                                                           Text="{Binding LocationDisplayString, Mode=OneWay}"
-                                                           Style="{StaticResource AnalysisStepLocationTextStyle}" />
-                                        </Grid>
-                                    </HierarchicalDataTemplate>
-                                </TreeView.ItemTemplate>
-                                <TreeView.InputBindings>
-                                    <KeyBinding Command="{Binding SelectPreviousCommand}"
-                                                Gesture="CTRL+ALT+SHIFT+F8"
-                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
-                                    <KeyBinding Command="{Binding SelectNextCommand}"
-                                                Gesture="CTRL+ALT+SHIFT+F9"
-                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
-                                </TreeView.InputBindings>
-                            </views:AnalysisStepView>
-                        </DockPanel>
+                        <views:AnalysisStepView
+                            ItemsSource="{Binding TopLevelNodes}"
+                            KeyboardNavigation.TabNavigation="Continue"
+                            ItemContainerStyle="{StaticResource TreeViewItemContainerStyle}"
+                            Style="{StaticResource TreeViewStyle}">
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="x:Type local:AnalysisStepNode" ItemsSource="{Binding Children}">
+                                    <Grid ToolTip="{Binding Location.Kinds, Converter={StaticResource CollectionToJoinedStringConverter}, ConverterParameter=', '}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition SharedSizeGroup="IndexGroup" />
+                                            <ColumnDefinition SharedSizeGroup="MessageGroup" />
+                                            <ColumnDefinition SharedSizeGroup="LocationGroup" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.InputBindings>
+                                            <MouseBinding Gesture="LeftDoubleClick"
+                                                                Command="{Binding NavigateCommand}"/>
+                                        </Grid.InputBindings>
+                                        <TextBlock Grid.Column="0"
+                                                        Text="{Binding Index, Mode=OneWay}"
+                                                        Style="{StaticResource AnalysisStepLocationTextStyle}" />
+                                        <controls:BindableTextBlock Grid.Column="1"
+                                            InlineList="{Binding MessageInlines}"
+                                            Style="{StaticResource AnalysisStepMessageTextStyle}" TextWrapping="WrapWithOverflow"/>
+                                        <TextBlock Grid.Column="2"
+                                                        Text="{Binding LocationDisplayString, Mode=OneWay}"
+                                                        Style="{StaticResource AnalysisStepLocationTextStyle}" />
+                                    </Grid>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                            <TreeView.InputBindings>
+                                <KeyBinding Command="{Binding SelectPreviousCommand}"
+                                            Gesture="CTRL+ALT+SHIFT+F8"
+                                            CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
+                                <KeyBinding Command="{Binding SelectNextCommand}"
+                                            Gesture="CTRL+ALT+SHIFT+F9"
+                                            CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeView}}" />
+                            </TreeView.InputBindings>
+                        </views:AnalysisStepView>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <GridSplitter Grid.Row="2" ResizeDirection="Rows" Background="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                      ResizeBehavior="PreviousAndNext" />
             <ListView Grid.Row="3"
-                      Visibility="{Binding SelectedItem.State, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
-                      ItemsSource="{Binding SelectedItem.State}"
-                      Style="{StaticResource StackFrameListViewStyle}">
+                    ItemsSource="{Binding SelectedItem.State}"
+                    Style="{StaticResource StackFrameListViewStyle}"
+                    MinHeight="100"
+                    BorderThickness="0.5">
                 <ListView.Resources>
                     <Style TargetType="GridViewColumnHeader">
                         <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -140,26 +134,26 @@
                                 <ControlTemplate TargetType="GridViewColumnHeader">
                                     <Grid>
                                         <Border Name="GridViewHeaderBorder"
-                                                Style="{StaticResource GridViewHeaderBorderStyle}">
+                                            Style="{StaticResource GridViewHeaderBorderStyle}">
                                             <ContentPresenter Name="HeaderContent"
-                                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                              RecognizesAccessKey="True"
-                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                              TextElement.Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"
-                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                              Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
+                                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                            RecognizesAccessKey="True"
+                                                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                            TextElement.Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextActiveBrushKey}}"
+                                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                            Style="{StaticResource GridViewHeaderBorderPresenterStyle}"/>
                                         </Border>
                                         <Thumb x:Name="PART_HeaderGripper"
-                                               Style="{StaticResource GridViewColumnHeaderGripperStyle}" />
+                                            Style="{StaticResource GridViewColumnHeaderGripperStyle}" />
                                     </Grid>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="GridViewHeaderBorder"
-                                                    Property="Background"
-                                                    Value="{DynamicResource {x:Static vs_shell:HeaderColors.MouseOverBrushKey}}"/>
+                                                Property="Background"
+                                                Value="{DynamicResource {x:Static vs_shell:HeaderColors.MouseOverBrushKey}}"/>
                                             <Setter TargetName="HeaderContent"
-                                                    Property="TextElement.Foreground"
-                                                    Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextHoverBrushKey}}"/>
+                                                Property="TextElement.Foreground"
+                                                Value="{DynamicResource {x:Static vs_shell:EnvironmentColors.CommandBarTextHoverBrushKey}}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -174,9 +168,9 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
                                     <Border SnapsToDevicePixels="True"
-                                            Background="{TemplateBinding Background}"
-                                            CornerRadius="0"
-                                            Padding="0,3,0,2">
+                                        Background="{TemplateBinding Background}"
+                                        CornerRadius="0"
+                                        Padding="0,3,0,2">
                                         <Border Name="InnerBorder" CornerRadius="0" BorderThickness="0">
                                             <Grid>
                                                 <Grid.RowDefinitions>
@@ -184,8 +178,8 @@
                                                     <RowDefinition />
                                                 </Grid.RowDefinitions>
                                                 <GridViewRowPresenter Grid.RowSpan="2" 
-                                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
-                                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                                             </Grid>
                                         </Border>
                                     </Border>
@@ -221,22 +215,22 @@
                 </ListView.Resources>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Width="25">
+                        <GridViewColumn Width="27">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <CheckBox
-                                        IsChecked="{Binding Selected}"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.StateCheckedCommand}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
+                                    IsChecked="{Binding Selected}"
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.StateCheckedCommand}"
+                                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                         <GridViewColumn Header="Expression"
-                                        DisplayMemberBinding="{Binding Expression}"
-                                        Width="120" />
+                                    DisplayMemberBinding="{Binding Expression}"
+                                    Width="120" />
                         <GridViewColumn Header="Value"
-                                        DisplayMemberBinding="{Binding Value}"
-                                        Width="250" />
+                                    DisplayMemberBinding="{Binding NormalizedValue}"
+                                    Width="250" />
                     </GridView>
                 </ListView.View>
             </ListView>

@@ -100,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio
                     var newNode = new AnalysisStepNode(
                         resultId: sarifErrorListItem?.ResultId ?? 0,
                         runIndex: runIndex,
-                        index: location.Index == 0 ? ++index : location.Index,
+                        index: location.Index == -1 ? ++index : location.Index,
                         resultGuid: sarifErrorListItem?.ResultGuid,
                         ruleId: sarifErrorListItem.Rule?.Id)
                     {
