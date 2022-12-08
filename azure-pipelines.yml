@@ -4,22 +4,56 @@ pr:
 pool:
   vmImage: 'windows-latest'
 
-steps:
-- checkout: self
-  submodules: recursive
-  
-- task: BatchScript@1
-  displayName: 'Run VsDevCmd.bat'
-  inputs:
-    filename: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat'
-    modifyEnvironment: true
+resources:
+  repositories:
+    - repository: 1esPipelines
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+extends:
+    template: v1/1ES.Unofficial.PipelineTemplate.yml@1esPipelines
+    parameters:
+      pool:
+        name: 1ES-Shared-Hosted-Pool_Windows-Server-2022
+        os: windows
+      
+      
+      sdl:  
+        baseline:    
+          baselineFile: $(Build.SourcesDirectory)\guardian\SDL\.gdnbaselines
 
-- task: PowerShell@2
-  displayName: Build and Test
-  inputs:
-    targetType: filePath
-    filePath: ./scripts/BuildAndTest.ps1
+        
+      stages:
+      - stage: build
+        jobs:
+          - job: build
+            templateContext:
+              inputs:
+              - input: checkout
+                repository: self
+                submodules: recursive
+              outputs:
+              - output: pipelineArtifact
+                targetPath: $(System.DefaultWorkingDirectory)
+            
+              breakGlass:
+                justification: Because of the batch script task below
 
-- task: ComponentGovernanceComponentDetection@0
-  inputs:
-    ignoreDirectories: 'src\sarif-pattern-matcher'
+            steps:
+                
+              - task: BatchScript@1
+                displayName: 'Run VsDevCmd.bat'
+                inputs:
+                  filename: 'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat'
+                  modifyEnvironment: true
+              
+              - script: "tree $(System.DefaultWorkingDirectory)"
+                displayName: "tree"
+
+              - task: PowerShell@2
+                displayName: Build and Test
+                inputs:
+                  targetType: filePath
+                  filePath: $(System.DefaultWorkingDirectory)/scripts/BuildAndTest.ps1
+
+              

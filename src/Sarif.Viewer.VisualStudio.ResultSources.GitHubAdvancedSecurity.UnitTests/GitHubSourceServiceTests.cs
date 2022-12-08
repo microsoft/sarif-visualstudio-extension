@@ -30,6 +30,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
 {
     public class GitHubSourceServiceTests
     {
+        private const string GitHubAccessToken = "GITHUB-ACCESS-TOKEN";
+
         [Fact]
         public async Task IsActive_ReturnsTrue_WhenPathContainsDotGitDirectory_Async()
         {
@@ -116,7 +118,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
             string branch = "my-branch";
-            var cachedSecret = new Entities.Secret { Value = "GITHUB-ACCESS-TOKEN" };
+            var cachedSecret = new Entities.Secret { Value = GitHubAccessToken };
 
             var mockServiceProvider = new Mock<IServiceProvider>();
 
@@ -314,12 +316,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(@"{""access_token"": """ + accessToken + @"""}")
+                Content = new StringContent(@"{""access_token"": """ + GitHubAccessToken + @"""}")
             };
 
             var userVerificationResponse = new UserVerificationResponse()
@@ -367,7 +368,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             Result<Models.Secret, Error> result = await gitHubSourceService.GetRequestedAccessTokenAsync(userVerificationResponse);
 
             result.IsSuccess.Should().BeTrue();
-            result.Value.Value.Should().Be(accessToken);
+            result.Value.Value.Should().Be(GitHubAccessToken);
         }
 
         [Fact]
@@ -437,7 +438,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -472,7 +472,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockHttpClientAdapter.Object,
                 uri,
                 branch,
-                accessToken,
+                GitHubAccessToken,
                 null // commitHash
             );
 
@@ -485,7 +485,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -521,7 +520,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockHttpClientAdapter.Object,
                 uri,
                 branch,
-                accessToken,
+                GitHubAccessToken,
                 null // commitHash
             );
 
@@ -535,7 +534,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
             string commitHash = "64ab23c";
-            string accessToken = "gho_aCc3Ss70keN";
 
             var httpResponseMessage = new HttpResponseMessage()
             {
@@ -571,7 +569,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockHttpClientAdapter.Object,
                 uri,
                 branch,
-                accessToken,
+                GitHubAccessToken,
                 commitHash);
 
             result.Error.Should().Be(ErrorType.AnalysesUnavailable);
@@ -583,7 +581,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string path = @"C:\Git\MyProject";
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
-            string accessToken = "gho_aCc3Ss70keN";
             string expectedAnalysisId = "321";
 
             var httpResponseMessage = new HttpResponseMessage()
@@ -620,7 +617,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockHttpClientAdapter.Object,
                 uri,
                 branch,
-                accessToken,
+                GitHubAccessToken,
                 null //commitHash
             );
 
@@ -635,7 +632,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             string uri = "https://api.github.com/repos/user/myproject/code-scanning/analyses";
             string branch = "my-branch";
             string commitHash = "64ab23c";
-            string accessToken = "gho_aCc3Ss70keN";
             string expectedAnalysisId = "321";
 
             var httpResponseMessage = new HttpResponseMessage()
@@ -672,7 +668,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
                 mockHttpClientAdapter.Object,
                 uri,
                 branch,
-                accessToken,
+                GitHubAccessToken,
                 commitHash);
 
             result.IsSuccess.Should().Be(true);

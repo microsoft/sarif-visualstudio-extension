@@ -6,7 +6,10 @@
              xmlns:local="clr-namespace:Microsoft.Sarif.Viewer.Controls"
              xmlns:controls="clr-namespace:Microsoft.Sarif.Viewer.Controls"
              xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
-             mc:Ignorable="d" 
+             xmlns:vs_env="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             mc:Ignorable="d"
+             FontFamily="{DynamicResource {x:Static vs_env:VsFonts.EnvironmentFontFamilyKey}}"
+             FontSize="{DynamicResource {x:Static vs_env:VsFonts.Environment122PercentFontSizeKey}}"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <Style x:Key="FocusOutline">

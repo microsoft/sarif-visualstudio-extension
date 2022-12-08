@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 
@@ -37,7 +36,6 @@ namespace Microsoft.Sarif.Viewer
     {
         // max length of concise text, 0 indexed
         internal static int MaxConcisedTextLength = 150;
-        internal static string XamlPropertyName = "Xaml";
 
         // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
         private static int currentResultId;
@@ -105,12 +103,6 @@ namespace Microsoft.Sarif.Viewer
 
             this.RawMessage = result.GetMessageText(rule, concise: false).Trim();
             (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
-
-            string xamlContent = null;
-            if (this.SarifResult?.Message?.TryGetProperty(XamlPropertyName, out xamlContent) == true)
-            {
-                this.XamlMessage = Regex.Unescape(xamlContent);
-            }
 
             this.FileName = result.GetPrimaryTargetFile(run);
             this.ProjectName = projectNameCache.GetName(this.FileName);
@@ -268,9 +260,6 @@ namespace Microsoft.Sarif.Viewer
         public bool HasDetailsContent =>
             !string.IsNullOrWhiteSpace(this.Message)
             && this.Message != this.ShortMessage;
-
-        [Browsable(false)]
-        public string XamlMessage { get; }
 
         [Browsable(false)]
         public SnapshotSpan Span { get; set; }
@@ -468,7 +457,6 @@ namespace Microsoft.Sarif.Viewer
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
                         tooltipContent: this.PlainMessage,
-                        tooltipXamlString: this.XamlMessage,
                         context: this);
                 }
 
