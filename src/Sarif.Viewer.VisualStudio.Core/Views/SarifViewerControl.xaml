@@ -32,7 +32,8 @@
     <!-- The user control starts here. -->
     <Grid KeyboardNavigation.TabNavigation="Cycle">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" MaxHeight="230" MinHeight="80" />
+            <RowDefinition Height="5" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -40,9 +41,8 @@
         <Grid Grid.Row="0"
               Style="{StaticResource HeaderGridStyle}">
             <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
-                <RowDefinition />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" MaxHeight="200" MinHeight="50" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -94,19 +94,27 @@
                     </DockPanel>
                 </DockPanel>
             </Border>
-            <TextBlock Grid.Row="2"
-                       Text="{Binding ShortMessage}"
-                       Visibility="{Binding MessageInlines, Converter={StaticResource CollectionToInvertedVisibilityConverter}, ConverterParameter=0}"
-                       Style="{StaticResource HeaderMessageTextStyle}" />
-            <controls:BindableTextBlock Grid.Row="2"
-                                        Visibility="{Binding MessageInlines, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
-                                        InlineList="{Binding MessageInlines}"
-                                        Style="{StaticResource HeaderMessageTextStyle}"/>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          Height="auto"
+                          VerticalAlignment="Stretch" MaxHeight="200" MinHeight="50">
+                <StackPanel>
+                    <TextBlock Text="{Binding ShortMessage}"
+                               Visibility="{Binding MessageInlines, Converter={StaticResource CollectionToInvertedVisibilityConverter}, ConverterParameter=0}"
+                               Style="{StaticResource HeaderMessageTextStyle}" />
+                    <controls:BindableTextBlock Visibility="{Binding MessageInlines, Converter={StaticResource CollectionToVisibilityConverter}, ConverterParameter=0}"
+                                                InlineList="{Binding MessageInlines}"
+                                                Style="{StaticResource HeaderMessageTextStyle}" />
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
+
+        <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="{DynamicResource {x:Static vs_shell:HeaderColors.DefaultBrushKey}}"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                      ResizeBehavior="PreviousAndNext" />
         
         <!-- These are the tabs which display the result information. -->
-        <TabControl x:Name="ViolationPropertiesTabControl"
-                    Grid.Row="1"
+        <TabControl x:Name="ViolationPropertiesTabControl" BorderThickness="1"
+                    Grid.Row="2"
                     SelectedValue="{Binding SelectedTab, Mode=TwoWay}">
             <TabControl.Resources>
                 <Style BasedOn="{StaticResource TabControlStyle}" TargetType="{x:Type TabControl}">
