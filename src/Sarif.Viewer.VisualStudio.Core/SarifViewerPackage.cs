@@ -355,27 +355,25 @@ namespace Microsoft.Sarif.Viewer
                             return menuCommand;
                         }
 
-                        using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
+                        OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>();
+                        int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
+                        int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
+                        int flyoutCount = 0;
+                        int commandCount = 0;
+
+                        for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
                         {
-                            int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
-                            int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
-                            int flyoutCount = 0;
-                            int commandCount = 0;
+                            ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
+                            OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
+                            mcs.AddCommand(flyoutMenu);
+                            flyoutCount++;
 
-                            for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
+                            for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
                             {
-                                ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
-                                OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
-                                mcs.AddCommand(flyoutMenu);
-                                flyoutCount++;
-
-                                for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
-                                {
-                                    ErrorListMenuCommand command = flyout.Commands[c];
-                                    OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
-                                    mcs.AddCommand(menuCommand);
-                                    commandCount++;
-                                }
+                                ErrorListMenuCommand command = flyout.Commands[c];
+                                OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
+                                mcs.AddCommand(menuCommand);
+                                commandCount++;
                             }
                         }
                     }
