@@ -922,23 +922,87 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Properties.First(kv => kv.Key == "nullObj").Value.Should().BeNull();
             item.Properties.First(kv => kv.Key == "object").Value.Should().BeEquivalentTo("{\"foo\":\"bar\"}");
         }
-        private static SarifErrorListItem MakeErrorListItem(Result result)
-        {
-            return MakeErrorListItem(EmptyRun, result);
-        }
 
-        private static SarifErrorListItem MakeErrorListItem(Run run, Result result)
+        [Fact]
+        public void SarifErrorListItem_NotificationWithException()
         {
-            result.Run = run;
-            return new SarifErrorListItem(
-                run,
-                runIndex: 0,
-                result: result,
-                logFilePath: "log.sarif",
-                projectNameCache: new ProjectNameCache(solution: null))
+            var notificationWithoutException = new Notification
             {
-                FileName = FileName,
+                Locations = new List<Location>
+                {
+                    new Location
+                    {
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            ArtifactLocation = new ArtifactLocation
+                            {
+                                Uri = new Uri("file:///Logs/Tests/program.cs")
+                            }
+                        }
+                    }
+                },
+                Message = new Message
+                {
+                    Text = "An exception of type 'TargetInvocationException' was raised analyzing 'program.cs' for check 'DoNotExposePlaintextSecrets/GoogleApiKey' (which has been disabled)."
+                },
+                Level = FailureLevel.Error,
             };
+
+            var notificationWithException = new Notification
+            {
+                Locations = new List<Location>
+                {
+                    new Location
+                    {
+                        PhysicalLocation = new PhysicalLocation
+                        {
+                            ArtifactLocation = new ArtifactLocation
+                            {
+                                Uri = new Uri("file:///Logs/Tests/program.cs")
+                            }
+                        }
+                    }
+                },
+                Message = new Message
+                {
+                    Text = "An exception of type 'TargetInvocationException' was raised analyzing 'program.cs' for check 'DoNotExposePlaintextSecrets/GoogleApiKey' (which has been disabled)."
+                },
+                Level = FailureLevel.Error,
+                Exception = new ExceptionData
+                {
+                    Kind = "FileNotFoundException",
+                    Message = "Could not load file or assembly 'Marvin, Version=1.1.0.0, Culture=neutral, PublicKeyToken=21a5e83f6f5bb844' or one of its dependencies. The system cannot find the file specified."
+                },
+                Descriptor = new ReportingDescriptorReference
+                {
+                    Id = "ERR998.ExceptionInAnalyze"
+                },
+                AssociatedRule = new ReportingDescriptorReference
+                {
+                    Id = "SEC101/003"
+                }
+            };
+
+            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[0] = new RunDataCache();
+
+            SarifErrorListItem item = TestUtilities.MakeErrorListItem(notificationWithException);
+
+            item.Should().NotBeNull();
+            item.Level.Should().Be(FailureLevel.Error);
+            item.RawMessage.Should().Contain("An exception of type 'TargetInvocationException'");
+            item.RawMessage.Should().Contain("FileNotFoundException");
+            item.RawMessage.Should().Contain("Could not load file or assembly 'Marvin, Version=1.1.0.0");
+            item.FileName.Should().Contain("program.cs");
+            item.Locations.Should().NotBeNullOrEmpty();
+
+            item = TestUtilities.MakeErrorListItem(notificationWithoutException);
+            item.Should().NotBeNull();
+            item.Level.Should().Be(FailureLevel.Error);
+            item.RawMessage.Should().Contain("An exception of type 'TargetInvocationException'");
+            item.RawMessage.Should().NotContain("FileNotFoundException");
+            item.RawMessage.Should().NotContain("Could not load file or assembly 'Marvin, Version=1.1.0.0");
+            item.FileName.Should().Contain("program.cs");
+            item.Locations.Should().NotBeNullOrEmpty();
         }
     }
 }

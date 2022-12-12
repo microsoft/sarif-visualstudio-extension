@@ -49,10 +49,13 @@ namespace Microsoft.Sarif.Viewer
         /// The SARIF log to analyze, or null if the log could not be parsed because it was not in
         /// valid JSON format.
         /// </param>
+        /// <param name="resultsFiltered">
+        /// Whether the results of SARIF log have been filtered by ErrorList.
+        /// </param>
         /// <returns>
         /// A set of flags specifying all the exceptional conditions present in <paramref name="log"/>.
         /// </returns>
-        internal static ExceptionalConditions Calculate(SarifLog log)
+        internal static ExceptionalConditions Calculate(SarifLog log, bool resultsFiltered = false)
         {
             ExceptionalConditions conditions = ExceptionalConditions.None;
 
@@ -73,6 +76,11 @@ namespace Microsoft.Sarif.Viewer
                 if (conditions == ExceptionalConditions.None && !log.HasResults())
                 {
                     conditions |= ExceptionalConditions.NoResults;
+                }
+
+                if (resultsFiltered)
+                {
+                    conditions |= ExceptionalConditions.ResultsFiltered;
                 }
             }
             else

@@ -153,7 +153,13 @@ namespace Microsoft.Sarif.Viewer
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
             this.RunIndex = runIndex;
             string ruleId = null;
 
@@ -167,7 +173,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
+            this.RawMessage = FormatNotficationText(notification);
             (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
 
             this.Level = notification.Level;
@@ -483,7 +489,21 @@ namespace Microsoft.Sarif.Viewer
                 if (location.FilePath.Equals(originalPath, StringComparison.OrdinalIgnoreCase))
                 {
                     location.FilePath = remappedPath;
-                    location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
+
+                    if (location.Region != null)
+                    {
+                        location.Region = regionsCache.PopulateTextRegionProperties(location.Region, uri, true);
+
+                        if (this.LineNumber != location.Region.StartLine)
+                        {
+                            this.LineNumber = location.Region.StartLine;
+                        }
+
+                        if (this.ColumnNumber != location.Region.StartColumn)
+                        {
+                            this.ColumnNumber = location.Region.StartColumn;
+                        }
+                    }
                 }
             }
 
@@ -883,6 +903,53 @@ namespace Microsoft.Sarif.Viewer
 
                 SdkUIUtilities.OpenExternalUrl(uriString);
             }
+        }
+
+        // Generates an unique hash value using the properties affect content of error list item.
+        // If any of these properties changes, needs to refresh error list item.
+        internal int GetIdentity()
+        {
+            int hashCode = -509415362;
+            int hashFactor = -1521134295;
+
+            // ignore FileName because it usally updated to a physical file path during file resolving
+            // but error list only shows file name not the full path
+            // hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetIdentity(this.FileName);
+
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.Category);
+            hashCode = (hashCode * hashFactor) + this.LineNumber.GetHashCode();
+            hashCode = (hashCode * hashFactor) + this.ColumnNumber.GetHashCode();
+            hashCode = (hashCode * hashFactor) + this.Level.GetHashCode();
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.ProjectName);
+            hashCode = (hashCode * hashFactor) + this.VSSuppressionState.GetHashCode();
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.Message);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.RawMessage);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.ShortMessage);
+            hashCode = (hashCode * hashFactor) + this.HasDetailsContent.GetHashCode();
+            hashCode = (hashCode * hashFactor) + EqualityComparer<string>.Default.GetHashCode(this.HelpLink);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<ToolModel>.Default.GetHashCode(this.Tool);
+            hashCode = (hashCode * hashFactor) + EqualityComparer<RuleModel>.Default.GetHashCode(this.Rule);
+
+            return hashCode;
+        }
+
+        private static string FormatNotficationText(Notification notification)
+        {
+            string message = notification.Message.Text?.Trim() ?? string.Empty;
+
+            string kind = notification.Exception?.Kind?.Trim();
+            if (!string.IsNullOrWhiteSpace(kind))
+            {
+                message += Environment.NewLine + $"[Exception type: {kind}]";
+            }
+
+            string exceptionMessage = notification.Exception?.Message?.Trim();
+            if (!string.IsNullOrWhiteSpace(exceptionMessage))
+            {
+                message += Environment.NewLine + $"[Exception message: {exceptionMessage}]";
+            }
+
+            return message;
         }
     }
 }

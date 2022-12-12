@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer
         /// Indicates whether a call to <see cref="TryToFullyPopulateRegionAndFilePath"/> has already occurred and what the result
         /// of the remap was.
         /// </summary>
-        private bool? regionAndFilePathAreFullyPopulated;
+        internal bool? regionAndFilePathAreFullyPopulated;
 
         /// <summary>
         /// Contains the file path after a call to <see cref="TryToFullyPopulateRegionAndFilePath"/>.
@@ -73,6 +73,11 @@ namespace Microsoft.Sarif.Viewer
         /// That is as long as they don't modify the document in another editor (say notepad).
         /// </remarks>
         private IPersistentSpan persistentSpan;
+
+        /// <summary>
+        /// The file system used to access files/directories.
+        /// </summary>
+        private readonly IFileSystem fileSystem;
 
         /// <summary>
         /// Gets the fully populated file path.
@@ -145,8 +150,9 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="nonHghlightedColor">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="context">The data context for this result marker.</param>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context)
-            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context)
+        /// <param name="fileSystem">The file system.</param>
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context, IFileSystem fileSystem = null)
+            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context, fileSystem: fileSystem)
         {
         }
 
@@ -163,10 +169,11 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
         /// <param name="context">The data context for this result marker.</param>
+        /// <param name="fileSystem">The file system.</param>
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context, IFileSystem fileSystem = null)
         {
             this.ResultId = resultId;
             this.RunIndex = runIndex;
@@ -178,6 +185,7 @@ namespace Microsoft.Sarif.Viewer
             this.ToolTipContent = tooltipContent;
             this.ErrorType = errorType;
             this.Context = context;
+            this.fileSystem = fileSystem ?? new FileSystem();
         }
 
         /// <summary>
@@ -365,9 +373,14 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
-        private bool TryToFullyPopulateRegionAndFilePath()
+        internal bool TryToFullyPopulateRegionAndFilePath()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally.
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108 // Assert thread affinity unconditionally.
+            }
 
             if (this.regionAndFilePathAreFullyPopulated.HasValue)
             {
@@ -379,7 +392,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (File.Exists(this.FullFilePath))
+            if (this.fileSystem.FileExists(this.FullFilePath))
             {
                 this.resolvedFullFilePath = this.FullFilePath;
             }
@@ -389,11 +402,19 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (File.Exists(this.resolvedFullFilePath) &&
-                Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out Uri uri))
+            if (this.fileSystem.FileExists(this.resolvedFullFilePath))
             {
-                // Fill out the region's properties
-                this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, uri, populateSnippet: true);
+                Uri resolvedUri;
+                if (Uri.TryCreate(this.resolvedFullFilePath, UriKind.Absolute, out resolvedUri) ||
+                    (!Path.IsPathRooted(this.resolvedFullFilePath) &&
+                    Uri.TryCreate(
+                        Path.Combine(this.fileSystem.EnvironmentCurrentDirectory, this.resolvedFullFilePath),
+                        UriKind.Absolute,
+                        out resolvedUri)))
+                {
+                    // Fill out the region's properties
+                    this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, resolvedUri, populateSnippet: true);
+                }
             }
 
             this.regionAndFilePathAreFullyPopulated = this.fullyPopulatedRegion != null;

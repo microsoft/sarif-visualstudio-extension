@@ -63,5 +63,11 @@
       <Version>6.0.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.csproj">
+      <Project>{c4714e68-1701-45d5-9510-e298bb227cf2}</Project>
+      <Name>Sarif.Viewer.VisualStudio.Shell</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems" Label="Shared" />
 </Project>

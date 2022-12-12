@@ -51,7 +51,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public static readonly ErrorListService Instance = new ErrorListService();
 
-        private readonly ColumnFilterer columnFilterer = new ColumnFilterer();
+        internal IColumnFilterer ColumnFilterer = new ColumnFilterer();
 
         static ErrorListService()
         {
@@ -214,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider,
                                                     Resources.VersionPropertyNotFound_DialogTitle,
                                                     null, // title
-                                                    OLEMSGICON.OLEMSGICON_QUERY,
+                                                    OLEMSGICON.OLEMSGICON_WARNING,
                                                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                                                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
                     return;
@@ -496,24 +496,29 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             bool hasResults = false;
+            bool resultsFiltered = false;
 
             foreach (Run run in sarifLog.Runs)
             {
                 // run.tool is required, add one if it's missing
-                if (run.Tool == null)
+                run.Tool ??= new Tool
                 {
-                    run.Tool = new Tool
+                    Driver = new ToolComponent
                     {
-                        Driver = new ToolComponent
-                        {
-                            Name = Resources.UnknownToolName,
-                        },
-                    };
-                }
+                        Name = Resources.UnknownToolName,
+                    },
+                };
 
-                if (Instance.WriteRunToErrorList(run, logFilePath, sarifLog) > 0)
+                if (Instance.WriteRunToErrorList(run, logFilePath, sarifLog, out int runIndex) > 0)
                 {
                     hasResults = true;
+
+                    if (!resultsFiltered)
+                    {
+                        resultsFiltered = AreResultsFilteredBySeverity(
+                            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runIndex],
+                            Instance.ColumnFilterer);
+                    }
                 }
             }
 
@@ -533,7 +538,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             SarifLogsMonitor.Instance.StartWatch(logFilePath);
 
-            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog));
+            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog, resultsFiltered));
         }
 
         public static void CleanAllErrors()
@@ -561,7 +566,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private int WriteRunToErrorList(Run run, string logFilePath, SarifLog sarifLog)
+        private int WriteRunToErrorList(Run run, string logFilePath, SarifLog sarifLog, out int runIndex)
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -570,11 +575,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 #pragma warning restore VSTHRD108
             }
 
-            int runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
+            runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
             var dataCache = new RunDataCache(runIndex, logFilePath, sarifLog);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
-            var sarifErrors = new List<SarifErrorListItem>();
 
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
@@ -588,7 +592,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 {
                     result.Run = run;
                     var sarifError = new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache);
-                    sarifErrors.Add(sarifError);
+                    dataCache.AddSarifResult(sarifError);
                 }
             }
 
@@ -601,7 +605,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         foreach (Notification configurationNotification in invocation.ToolConfigurationNotifications)
                         {
                             var sarifError = new SarifErrorListItem(run, runIndex, configurationNotification, logFilePath, projectNameCache);
-                            sarifErrors.Add(sarifError);
+                            dataCache.AddSarifResult(sarifError);
                         }
                     }
 
@@ -612,7 +616,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                             if (toolNotification.Level != FailureLevel.Note)
                             {
                                 var sarifError = new SarifErrorListItem(run, runIndex, toolNotification, logFilePath, projectNameCache);
-                                sarifErrors.Add(sarifError);
+                                dataCache.AddSarifResult(sarifError);
                             }
                         }
                     }
@@ -629,15 +633,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 this.ShowFilteredSuppressionStateColumn();
             }
 
-            (dataCache.SarifErrors as List<SarifErrorListItem>).AddRange(sarifErrors);
-            SarifTableDataSource.Instance.AddErrors(sarifErrors);
+            SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
 
-            Trace.WriteLine($"{sarifErrors.Count} results loaded from SARIF log file {logFilePath}");
+            Trace.WriteLine($"{dataCache.SarifErrors.Count} results loaded from SARIF log file {logFilePath}");
 
             // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
             SarifLocationTagHelpers.RefreshTags();
 
-            return sarifErrors.Count;
+            return dataCache.SarifErrors.Count;
         }
 
         // Show the Suppression State column. The first time it is shown, filter out "Suppressed"
@@ -651,7 +654,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // Creating this table source adds "Suppression State" to the list of available columns.
             SuppressionStateTableDataSource dataSource = SuppressionStateTableDataSource.Instance;
 
-            this.columnFilterer.FilterOut(
+            this.ColumnFilterer.FilterOut(
                 columnName: SarifResultTableEntry.SuppressionStateColumnName,
                 filteredValue: nameof(VSSuppressionState.Suppressed));
         }
@@ -668,7 +671,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             // (Actually, it appears to be there by default, so this might not be necessary:)
             BaselineStateTableDataSource dataSource = BaselineStateTableDataSource.Instance;
 
-            this.columnFilterer.FilterOut(
+            this.ColumnFilterer.FilterOut(
                 columnName: StandardTableKeyNames.ErrorCategory,
                 filteredValue: nameof(BaselineState.Absent));
         }
@@ -721,6 +724,20 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     }
                 }
             }
+        }
+
+        internal static bool AreResultsFilteredBySeverity(RunDataCache runData, IColumnFilterer filterer)
+        {
+            IEnumerable<string> excludedValues = filterer.GetFilteredValues(StandardTableKeyNames.ErrorSeverity);
+
+            if (excludedValues?.Any() != true)
+            {
+                return false;
+            }
+
+            return (runData.RunSummary.MessageResultsCount > 0 && excludedValues.Contains("message", StringComparer.OrdinalIgnoreCase)) ||
+                (runData.RunSummary.WarningResultsCount > 0 && excludedValues.Contains("warning", StringComparer.OrdinalIgnoreCase)) ||
+                (runData.RunSummary.ErrorResultsCount > 0 && excludedValues.Contains("error", StringComparer.OrdinalIgnoreCase));
         }
 
         private static void RaiseLogProcessed(ExceptionalConditions conditions)

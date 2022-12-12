@@ -35,5 +35,10 @@ namespace Microsoft.Sarif.Viewer
         /// The log file contained at least one error-level tool execution notification.
         /// </summary>
         ExecutionError = 0x00000008,
+
+        /// <summary>
+        /// The log file contains results have been filtered by ErrorList.
+        /// </summary>
+        ResultsFiltered = 0x00000010,
     }
 }

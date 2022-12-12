@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
@@ -101,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeFalse();
@@ -117,8 +117,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             var mockResultSourceFactory = new Mock<IResultSourceFactory>();
             mockResultSourceFactory.Setup(f => f.GetResultSourceServiceAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
 
-            var resultSourceHost = new ResultSourceHost();
-            await resultSourceHost.RequestAnalysisResultsAsync(mockResultSourceFactory.Object);
+            var resultSourceHost = new ResultSourceHost(mockResultSourceFactory.Object);
+            await resultSourceHost.RequestAnalysisResultsAsync();
 
             mockResultSource.Verify(s => s.RequestAnalysisScanResultsAsync(null), Times.Once);
         }
