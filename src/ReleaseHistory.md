@@ -1,5 +1,8 @@
 # SARIF Viewer Visual Studio extension Release History
 
+## **3.0.115** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
+* BUGFIX: Menu items don't respond
+
 ## **3.0.113** [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=WDGIS.MicrosoftSarifViewer)
 * FEATURE: Enable logging to the VS console to support debugging scenarios.
 * FEATURE: Update Error List items when properties change.
