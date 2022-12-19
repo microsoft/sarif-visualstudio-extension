@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Shell;
 
 using Moq;
 
@@ -48,8 +49,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var fileSystemMock = new Mock<IFileSystem>();
             fileSystemMock.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(true);
 
+            var fileSystem2Mock = new Mock<IFileSystem2>();
+            fileSystem2Mock.Setup(fs => fs.IsPathRooted(It.IsAny<string>())).Returns(true);
+
             string sourceFilePath = Path.Combine(Directory.GetCurrentDirectory(), @"src\view\controller.cs");
-            var textMarker = new ResultTextMarker(runIndex: 1, resultId: 1, uriBaseId: "SRCROOT", region: new Region(), fullFilePath: sourceFilePath, nonHghlightedColor: string.Empty, highlightedColor: string.Empty, context: null, fileSystem: fileSystemMock.Object);
+            var textMarker = new ResultTextMarker(runIndex: 1, resultId: 1, uriBaseId: "SRCROOT", region: new Region(), fullFilePath: sourceFilePath, nonHghlightedColor: string.Empty, highlightedColor: string.Empty, context: null, fileSystem: fileSystemMock.Object, fileSystem2: fileSystem2Mock.Object);
 
             textMarker.TryToFullyPopulateRegionAndFilePath().Should().BeTrue();
             textMarker.regionAndFilePathAreFullyPopulated.Should().BeTrue();
@@ -62,8 +66,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             fileSystemMock.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(true);
             fileSystemMock.Setup(fs => fs.EnvironmentCurrentDirectory).Returns(Directory.GetCurrentDirectory());
 
+            var fileSystem2Mock = new Mock<IFileSystem2>();
+            fileSystem2Mock.Setup(fs => fs.IsPathRooted(It.IsAny<string>())).Returns(true);
+
             string sourceFilePath = "src/view/controller.cs";
-            var textMarker = new ResultTextMarker(runIndex: 1, resultId: 1, uriBaseId: "SRCROOT", region: new Region(), fullFilePath: sourceFilePath, nonHghlightedColor: string.Empty, highlightedColor: string.Empty, context: null, fileSystem: fileSystemMock.Object);
+            var textMarker = new ResultTextMarker(runIndex: 1, resultId: 1, uriBaseId: "SRCROOT", region: new Region(), fullFilePath: sourceFilePath, nonHghlightedColor: string.Empty, highlightedColor: string.Empty, context: null, fileSystem: fileSystemMock.Object, fileSystem2: fileSystem2Mock.Object);
 
             textMarker.TryToFullyPopulateRegionAndFilePath().Should().BeTrue();
             textMarker.regionAndFilePathAreFullyPopulated.Should().BeTrue();
