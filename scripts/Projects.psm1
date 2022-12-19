@@ -16,22 +16,24 @@ $Projects.Vsix = @(
 	"Sarif.Viewer.VisualStudio")
 $Projects.NuGet = @("Sarif.Viewer.VisualStudio.Interop")
 $Projects.Library = @(
+	"Sarif.Viewer.VisualStudio.GitHelper.2022",
+	"Sarif.Viewer.VisualStudio.GitHelper",
 	"Sarif.Viewer.VisualStudio.ResultSources.ACL.2022",
 	"Sarif.Viewer.VisualStudio.ResultSources.ACL",
 	"Sarif.Viewer.VisualStudio.ResultSources.Domain.2022",
 	"Sarif.Viewer.VisualStudio.ResultSources.Domain",
-	"Sarif.Viewer.VisualStudio.Shell.2022",
-	"Sarif.Viewer.VisualStudio.Shell",
 	"Sarif.Viewer.VisualStudio.ResultSources.Factory.2022",
 	"Sarif.Viewer.VisualStudio.ResultSources.Factory",
 	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022",
 	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity",
-	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources")
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources",
+	"Sarif.Viewer.VisualStudio.Shell.2022",
+	"Sarif.Viewer.VisualStudio.Shell")
 $Projects.Product = $Projects.Vsix + $Projects.NuGet
 $Projects.Test = @(
-	"Sarif.Viewer.VisualStudio.UnitTests",
 	"Sarif.Viewer.VisualStudio.ResultSources.Factory.UnitTests",
-	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests")
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests",
+	"Sarif.Viewer.VisualStudio.UnitTests")
 $Projects.All = $Projects.Product + $Projects.Test + $Projects.Library
 
 Export-ModuleMember -Variable Frameworks, Projects

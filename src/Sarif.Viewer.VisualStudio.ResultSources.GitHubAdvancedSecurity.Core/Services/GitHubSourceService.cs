@@ -57,7 +57,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         private const string CodeScanningBaseApiUrlFormat = "https://api.github.com/repos/{0}/{1}/code-scanning/";
         private const string GetAnalysesEndpoint = "analyses";
         private const string DismissAlertEndpointFormat = "alerts/{0}";
-        private const string GitLocalRefFileBaseRelativePath = @".git\refs\remotes\origin";
         private const int ScanResultsPollIntervalSeconds = 10;
         private const int ScanResultsPollTimeoutSeconds = 1200;
 

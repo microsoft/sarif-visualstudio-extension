@@ -132,6 +132,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.GitHelper\Sarif.Viewer.VisualStudio.GitHelper.csproj">
+      <Project>{747CD298-9A46-4051-88B4-3BEDB9F87507}</Project>
+      <Name>Sarif.Viewer.VisualStudio.GitHelper</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.ACL\Sarif.Viewer.VisualStudio.ResultSources.ACL.csproj">
       <Project>{47C77D8F-518C-4329-993A-A86A2564155B}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL</Name>
