@@ -392,7 +392,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (this.fileSystem.FileExists(this.FullFilePath))
+            if (Path.IsPathRooted(this.resolvedFullFilePath) && this.fileSystem.FileExists(this.FullFilePath))
             {
                 this.resolvedFullFilePath = this.FullFilePath;
             }
