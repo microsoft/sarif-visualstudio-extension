@@ -31,7 +31,15 @@ namespace Microsoft.Sarif.Viewer
             sourceRelativePath += "/";
             sourceRelativePath += relativeFilePath;
 
-            if (Uri.TryCreate(this.details.RepositoryUri, sourceRelativePath, out Uri sourceUri) &&
+            var baseUri = new Uri(this.details.RepositoryUri.ToString());
+            if (!baseUri.AbsolutePath.EndsWith("/"))
+            {
+                UriBuilder builder = new UriBuilder(baseUri);
+                builder.Path = baseUri.AbsolutePath + "/";
+                baseUri = builder.Uri;
+            }
+
+            if (Uri.TryCreate(baseUri, sourceRelativePath, out Uri sourceUri) &&
                 sourceUri.IsHttpScheme())
             {
                 return new Uri(ConvertToRawPath(sourceUri.ToString()));

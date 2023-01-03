@@ -145,6 +145,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     Expected = "https://raw.githubusercontent.com/microsoft/sarif-visualstudio-extension/main/.github/workflows/dotnet-format.yml",
                 },
 
+                new
+                {
+                    VCData = new VersionControlDetails
+                            {
+                                RepositoryUri = new Uri("https://github.com/microsoft/sarif-visualstudio-extension"),
+                                RevisionId = "378c2ee96a7dc1d8e487e2a02ce4dc73f67750e7",
+                                Branch = "main",
+                            },
+                    ExpectedParser = true,
+                    RelativeFilePathInput = ".github/workflows/dotnet-format.yml",
+                    Expected = "https://raw.githubusercontent.com/microsoft/sarif-visualstudio-extension/main/.github/workflows/dotnet-format.yml",
+                },
+
                 // not supported source control
                 new
                 {
