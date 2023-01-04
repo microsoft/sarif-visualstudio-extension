@@ -42,6 +42,9 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>16.0.206</Version>
     </PackageReference>
+    <PackageReference Include="Sarif.Sdk">
+      <Version>2.4.15</Version>
+    </PackageReference>
     <PackageReference Include="StyleCop.Analyzers">
       <Version>1.1.118</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

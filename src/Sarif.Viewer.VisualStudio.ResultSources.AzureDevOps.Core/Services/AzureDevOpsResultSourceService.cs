@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ using Newtonsoft.Json.Linq;
 
 using AdoBuild = Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Entities.Build;
 using File = System.IO.File;
+using Match = System.Text.RegularExpressions.Match;
 using Result = CSharpFunctionalExtensions.Result;
 using Task = System.Threading.Tasks.Task;
 
@@ -44,10 +46,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private const string ClientId = "b86035bd-b0d6-48e8-aa8e-ac09b247525b";
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string AzureDevOpsBaseUrl = "https://dev.azure.com/";
-        private const string ListRepositoriesApiQueryString = "/_apis/git/repositories?api-version=6.0";
-        private const string ListBuildsApiQueryStringFormat = "/_apis/build/builds?repositoryId={0}&branchName={1}deletedFilter=excludeDeleted&statusFilter=completed"; // api-version=7.0&
-        private const string GetBuildArtifactApiQueryStringFormat = "/_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
+        private const string AzureDevOpsRepoBaseUrlFormat = "https://{0}@dev.azure.com/";
+        private const string ListRepositoriesApiQueryString = "_apis/git/repositories?api-version=6.0";
+        private const string ListBuildsApiQueryStringFormat = "_apis/build/builds?repositoryId={0}&branchName=refs/heads/{1}&deletedFilter=excludeDeleted&statusFilter=completed&repositoryType={2}&api-version=6.0";
+        private const string GetBuildArtifactApiQueryStringFormat = "_apis/build/builds/{0}/artifacts?artifactName=CodeAnalysisLogs&api-version=7.0&%24format=zip";
         private const string GitLocalRefFileBaseRelativePath = @".git\refs\remotes\origin";
+        private const string DevOpsUriPattern = @"https://dev.azure.com/(?<org>[a-zA-Z\d-]+)/(?<project>[a-zA-Z\d-]+)/_git/"; // ADO org and project names allow letters, numbers, and hyphens
         private const int ScanResultsPollIntervalSeconds = 10;
         private const int ScanResultsPollTimeoutSeconds = 1200;
 
@@ -64,14 +68,17 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         private readonly Dictionary<string, (AzureDevOpsServiceType ServiceType, Type SettingsType)> serviceDictionary = new Dictionary<string, (AzureDevOpsServiceType ServiceType, Type SettingsType)>
         {
             { "AzureDevOps.json", (AzureDevOpsServiceType.AzureDevOps, typeof(AzureDevOpsSettings)) },
-            { "AdvSecForADO.json", (AzureDevOpsServiceType.AdvancedSecurity, typeof(AdvancedSecuritySettings)) },
+            { "AdvSecADO.json", (AzureDevOpsServiceType.AdvancedSecurity, typeof(AdvancedSecuritySettings)) },
         };
 
         private string repositoryId;
         private Settings settings;
         private IPublicClientApplication publicClientApplication;
-        private string orgAndProject;
         private string authorityUrl;
+
+        private string cachedOrgAndProject;
+        private string cachedRepoBaseUrl;
+        private string cachedRepoBaseIdUrl;
 
         private string repoPath;
         private (string BranchName, string CommitHash) scanDataRequestParameters;
@@ -106,6 +113,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             this.fileWatcherGitPush = fileWatcherGitPush;
             this.fileSystem = fileSystem;
             this.gitExe = gitExe;
+            this.gitExe.RepoPath = solutionRootPath;
             this.infoBarService = infoBarService;
             this.statusBarService = statusBarService;
 
@@ -121,6 +129,33 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         /// <inheritdoc cref="IResultSourceService.FirstCommandId"/>
         public int FirstCommandId { get; set; }
 
+        private string OrgAndProject
+        {
+            get
+            {
+                this.cachedOrgAndProject = this.cachedOrgAndProject ?? $"{settings.OrganizationName}/{settings.ProjectName}/";
+                return this.cachedOrgAndProject;
+            }
+        }
+
+        private string RepoBaseUrl
+        {
+            get
+            {
+                this.cachedRepoBaseUrl = this.cachedRepoBaseUrl ?? AzureDevOpsBaseUrl + this.OrgAndProject;
+                return this.cachedRepoBaseUrl;
+            }
+        }
+
+        private string RepoBaseIdUrl
+        {
+            get
+            {
+                this.cachedRepoBaseIdUrl = this.cachedRepoBaseIdUrl ?? string.Format(AzureDevOpsRepoBaseUrlFormat, this.settings.OrganizationName) + this.OrgAndProject;
+                return this.cachedRepoBaseIdUrl;
+            }
+        }
+
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
         public async Task InitializeAsync()
         {
@@ -128,11 +163,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
 
             if (!string.IsNullOrWhiteSpace(this.solutionRootPath))
             {
-                Result<Settings, string> populateSettingsResult = PopulateSettings();
+                Result<Settings, string> populateSettingsResult = await PopulateSettingsAsync();
 
                 if (populateSettingsResult.IsSuccess)
                 {
-                    this.orgAndProject = $"{settings.OrganizationName}/{settings.ProjectName}";
                     this.authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, this.settings.Tenant);
 
                     StorageCreationProperties storageProperties =
@@ -159,14 +193,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         }
 
         /// <inheritdoc cref="IResultSourceService.IsActiveAsync()"/>
-        public Task<Result> IsActiveAsync()
+        public async Task<Result> IsActiveAsync()
         {
-            Result<Settings, string> populateSettingsResult = PopulateSettings();
+            Result<Settings, string> populateSettingsResult = await PopulateSettingsAsync();
 
             Result result = populateSettingsResult.IsSuccess
                 ? Result.Success()
                 : Result.Failure(populateSettingsResult.Error);
-            return Task.FromResult(result);
+            return result;
         }
 
         /// <inheritdoc cref="IResultSourceService.RequestAnalysisResultsAsync(object)"/>
@@ -195,15 +229,25 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         public async Task<Maybe<GitRepository>> GetRepositoryAsync()
         {
             GitRepository gitRepository = null;
-            string url = AzureDevOpsBaseUrl + this.orgAndProject + ListRepositoriesApiQueryString;
-            Result<List<GitRepository>, (HttpStatusCode statusCode, string reason)> result = await GetDeserializedHttpResponseObjectAsync<List<GitRepository>>(url);
+            string remoteUrl = await this.gitExe.GetRepoUriAsync();
 
-            if (result.IsSuccess)
+            if (remoteUrl.StartsWith(this.RepoBaseUrl, StringComparison.OrdinalIgnoreCase))
             {
-                string remoteUrl = await this.gitExe.GetRepoUriAsync();
-                gitRepository = result.Value
-                    .Where(r => r.RemoteUrl.Equals(remoteUrl, StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault();
+                string url = this.RepoBaseUrl + ListRepositoriesApiQueryString;
+                Result<List<GitRepository>, (HttpStatusCode statusCode, string reason)> result = await GetDeserializedHttpResponseObjectAsync<List<GitRepository>>(url);
+
+                if (result.IsSuccess)
+                {
+                    int index = remoteUrl.IndexOf("/_git/");
+
+                    if (index != -1)
+                    {
+                        string repoUrl = this.RepoBaseIdUrl + remoteUrl.Substring(index + 1);
+                        gitRepository = result.Value
+                            .Where(r => r.RemoteUrl.Equals(repoUrl, StringComparison.OrdinalIgnoreCase))
+                            .FirstOrDefault();
+                    }
+                }
             }
 
             return gitRepository;
@@ -212,7 +256,15 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         /// <inheritdoc cref="IAzureDevOpsResultSourceService.GetBuildIdAsync()"/>
         public async Task<Result<int, ErrorType>> GetBuildIdAsync()
         {
-            string url = AzureDevOpsBaseUrl + this.orgAndProject + string.Format(ListBuildsApiQueryStringFormat, this.repositoryId, this.scanDataRequestParameters.BranchName); // + $"repositoryType={settings.RepositoryType}"
+            string MakeBuildRequestUrl()
+            {
+                // The repo name only applies when it's on ADO
+                string branch = !string.IsNullOrWhiteSpace(this.repositoryId) ? this.scanDataRequestParameters.BranchName : "main";
+                string url = this.RepoBaseUrl + string.Format(ListBuildsApiQueryStringFormat, this.repositoryId, branch, this.settings.RepositoryType);
+                return url;
+            }
+
+            string url = MakeBuildRequestUrl();
             Result<List<AdoBuild>, (HttpStatusCode statusCode, string reason)> result = await GetDeserializedHttpResponseObjectAsync<List<AdoBuild>>(url);
 
             if (result.IsSuccess && result.Value.Any())
@@ -237,7 +289,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
         public async Task<Maybe<SarifLog>> DownloadAndExtractArtifactAsync(int buildId)
         {
             SarifLog sarifLog = null;
-            string url = AzureDevOpsBaseUrl + this.orgAndProject + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
+            string url = this.RepoBaseUrl + string.Format(GetBuildArtifactApiQueryStringFormat, buildId);
             Result<HttpContent, (HttpStatusCode statusCode, string reason)> result = await GetHttpResponseContentAsync(url);
 
             if (result.IsSuccess)
@@ -300,11 +352,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
                 var infoBarModel = new InfoBarModel(
                     textSpans: new[]
                     {
-                            new InfoBarTextSpan("The Microsoft SARIF Viewer is waiting for new static analysis results from Azure DevOps"),
+                        new InfoBarTextSpan("The Microsoft SARIF Viewer is waiting for new static analysis results from Azure DevOps"),
                     },
                     actionItems: new[]
                     {
-                            new InfoBarButton("Cancel", cancelPollingCallbackMethod),
+                        new InfoBarButton("Cancel", cancelPollingCallbackMethod),
                     },
                     image: KnownMonikers.Activity,
                     isCloseButtonVisible: true);
@@ -439,7 +491,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
             _ = RequestAnalysisResultsAsync(data: true);
         }
 
-        private Result<Settings, string> PopulateSettings()
+        private async Task<Result<Settings, string>> PopulateSettingsAsync()
         {
             if (this.settings != null)
             {
@@ -458,6 +510,21 @@ namespace Microsoft.Sarif.Viewer.ResultSources.AzureDevOps.Services
                         try
                         {
                             this.settings = (Settings)JsonConvert.DeserializeObject(settingsText, serviceDictionary[settingsFileName].SettingsType);
+
+                            if (string.IsNullOrWhiteSpace(this.settings.OrganizationName)
+                                || string.IsNullOrWhiteSpace(this.settings.ProjectName))
+                            {
+                                // If org and project are omitted from the settings file, we assume the pipeline is in the same place as the repo.
+                                string originUri = await this.gitExe.GetRepoUriAsync();
+                                Match match = Regex.Match(originUri, DevOpsUriPattern);
+
+                                if (match.Success)
+                                {
+                                    this.settings.OrganizationName = match.Groups["org"].Value;
+                                    this.settings.ProjectName = match.Groups["project"].Value;
+                                }
+                            }
+
                             return Result.Success<Settings, string>(this.settings);
                         }
                         catch (JsonSerializationException ex)

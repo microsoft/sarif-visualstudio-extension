@@ -26,6 +26,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.Workspace;
 
 using Newtonsoft.Json;
 
@@ -50,6 +51,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.FolderOpened_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
@@ -184,9 +186,23 @@ namespace Microsoft.Sarif.Viewer
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
             SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
+            SolutionEvents.OnAfterCloseFolder += this.SolutionEvents_OnAfterCloseFolder;
+            SolutionEvents.OnAfterOpenFolder += this.SolutionEvents_OnAfterOpenFolder;
 
             await this.InitializeResultSourceHostAsync();
             return;
+        }
+
+        private void SolutionEvents_OnAfterCloseFolder(object sender, FolderEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            this.SolutionEvents_OnAfterCloseSolution(sender, e);
+        }
+
+        private void SolutionEvents_OnAfterOpenFolder(object sender, FolderEventArgs e)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete(sender, e);
         }
 
         private void SolutionEvents_OnAfterCloseSolution(object sender, EventArgs e)
@@ -210,10 +226,11 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this.resultSourceHost == null)
             {
-                string solutionPath = ShellUtilities.GetSolutionDirectoryPath();
-                if (!string.IsNullOrWhiteSpace(solutionPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+                string rootPath = ShellUtilities.GetSolutionDirectoryPath();
+
+                if (!string.IsNullOrWhiteSpace(rootPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
                 {
-                    this.resultSourceHost = new ResultSourceHost(solutionPath, this);
+                    this.resultSourceHost = new ResultSourceHost(rootPath, this);
                     this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
                 }
             }
@@ -279,14 +296,18 @@ namespace Microsoft.Sarif.Viewer
 
             var fileSystem = new FileSystem();
 
-            foreach (string path in fileSystem.DirectoryGetFiles(ShellUtilities.GetDotSarifDirectoryPath(), "*.sarif"))
+            string dotSarifPath = ShellUtilities.GetDotSarifDirectoryPath();
+            if (fileSystem.DirectoryExists(dotSarifPath))
             {
-                try
+                foreach (string path in fileSystem.DirectoryGetFiles(dotSarifPath, "*.sarif"))
                 {
-                    // Best effort delete, no harm if this fails.
-                    fileSystem.FileDelete(path);
+                    try
+                    {
+                        // Best effort delete, no harm if this fails.
+                        fileSystem.FileDelete(path);
+                    }
+                    catch (Exception) { }
                 }
-                catch (Exception) { }
             }
         }
 

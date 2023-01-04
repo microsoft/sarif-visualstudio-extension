@@ -5,6 +5,7 @@ using System.IO;
 
 using EnvDTE80;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Shell
@@ -22,9 +23,15 @@ namespace Microsoft.Sarif.Viewer.Shell
         {
             var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
             string solutionFilePath = dte.Solution?.FullName;
-            return !string.IsNullOrWhiteSpace(solutionFilePath)
-                ? Path.GetDirectoryName(solutionFilePath)
-                : null;
+
+            if (!string.IsNullOrWhiteSpace(solutionFilePath))
+            {
+                return FileSystem.Instance.FileExists(solutionFilePath)
+                    ? Path.GetDirectoryName(solutionFilePath)
+                    : solutionFilePath;
+            }
+
+            return null;
         }
 
         /// <summary>

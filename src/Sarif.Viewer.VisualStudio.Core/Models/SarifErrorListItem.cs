@@ -357,11 +357,11 @@ namespace Microsoft.Sarif.Viewer
         public ObservableCollection<KeyValuePair<string, string>> Properties { get; }
 
         [Browsable(false)]
-        public bool HasDetails => this.SarifResult.Fixes?.Any() == true ||
-                                  this.SarifResult.Stacks?.Any() == true ||
-                                  this.SarifResult.CodeFlows?.Any() == true ||
-                                  this.SarifResult.Locations?.Any() == true ||
-                                  this.SarifResult.RelatedLocations?.Any() == true;
+        public bool HasDetails => this.SarifResult?.Fixes?.Any() == true ||
+                                  this.SarifResult?.Stacks?.Any() == true ||
+                                  this.SarifResult?.CodeFlows?.Any() == true ||
+                                  this.SarifResult?.Locations?.Any() == true ||
+                                  this.SarifResult?.RelatedLocations?.Any() == true;
 
         [Browsable(false)]
         public int LocationsCount => this.Locations.Count + this.RelatedLocations.DeepCount;
@@ -580,7 +580,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
                 {
-                    foreach (Fix fix in this.SarifResult.Fixes)
+                    foreach (Fix fix in this.SarifResult?.Fixes)
                     {
                         var fixModel = fix.ToFixModel(runDataCache.OriginalUriBasePaths, FileRegionsCache.Instance);
                         foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
@@ -593,9 +593,9 @@ namespace Microsoft.Sarif.Viewer
                 }
                 else
                 {
-                    foreach (Fix fix in this.SarifResult.Fixes)
+                    foreach (Fix fix in this.SarifResult?.Fixes)
                     {
-                        this.Fixes.Add(fix.ToFixModel(this.SarifResult.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
+                        this.Fixes.Add(fix.ToFixModel(this.SarifResult?.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
                     }
                 }
             }
@@ -610,33 +610,33 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            if (this.SarifResult.Locations?.Any() == true && this.Locations?.Any() == false)
+            if (this.SarifResult?.Locations?.Any() == true && this.Locations?.Any() == false)
             {
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = this.SarifResult.Locations.Count - 1; i >= 0; --i)
                 {
-                    this.Locations.Add(this.SarifResult.Locations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
+                    this.Locations.Add(this.SarifResult?.Locations[i].ToLocationModel(this.SarifResult?.Run, resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 
-            if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
+            if (this.SarifResult?.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
                 this.BuildRelatedLocationsTree();
             }
 
-            if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
+            if (this.SarifResult?.Stacks?.Any() == true && this.Stacks?.Any() == false)
             {
-                foreach (Stack stack in this.SarifResult.Stacks)
+                foreach (Stack stack in this.SarifResult?.Stacks)
                 {
                     this.Stacks.Add(stack.ToStackCollection(resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 
-            if (this.SarifResult.CodeFlows?.Any() == true && this.AnalysisSteps?.Any() == false)
+            if (this.SarifResult?.CodeFlows?.Any() == true && this.AnalysisSteps?.Any() == false)
             {
-                foreach (CodeFlow codeFlow in this.SarifResult.CodeFlows)
+                foreach (CodeFlow codeFlow in this.SarifResult?.CodeFlows)
                 {
-                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
+                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult?.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
                     if (analysisStep != null)
                     {
                         this.AnalysisSteps.Add(analysisStep);
@@ -647,14 +647,14 @@ namespace Microsoft.Sarif.Viewer
                 this.AnalysisSteps.IntelligentExpand();
             }
 
-            if (this.SarifResult.PropertyNames?.Any() == true && this.Properties?.Any() == false)
+            if (this.SarifResult?.PropertyNames?.Any() == true && this.Properties?.Any() == false)
             {
-                foreach (string propertyName in this.SarifResult.PropertyNames)
+                foreach (string propertyName in this.SarifResult?.PropertyNames)
                 {
                     this.Properties.Add(
                         new KeyValuePair<string, string>(
                             propertyName,
-                            this.SarifResult.GetSerializedPropertyValue(propertyName)));
+                            this.SarifResult?.GetSerializedPropertyValue(propertyName)));
                 }
             }
         }
@@ -664,9 +664,9 @@ namespace Microsoft.Sarif.Viewer
             LocationModel lastNode = null;
             int lastLevel = -1;
 
-            foreach (Location location in this.SarifResult.RelatedLocations)
+            foreach (Location location in this.SarifResult?.RelatedLocations)
             {
-                var locationModel = location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                var locationModel = location.ToLocationModel(this.SarifResult?.Run, resultId: this.ResultId, runIndex: this.RunIndex);
                 int levelChange = locationModel.NestingLevel - lastLevel;
 
                 while (levelChange++ <= 0)
@@ -854,7 +854,6 @@ namespace Microsoft.Sarif.Viewer
                 // look in Result.CodeFlows or Result.Stacks.
                 LocationModel location = this.RelatedLocations.Concat(this.Locations)
                                                               .FirstOrDefault(l => l.Id == id);
-
                 if (location == null)
                 {
                     return;
