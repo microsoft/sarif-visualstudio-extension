@@ -18,7 +18,9 @@ using System.Windows.Forms;
 using Mapster;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
+using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
@@ -605,9 +607,9 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         /// <param name="message">The message to process.</param>
         /// <param name="clickHandler">A delegate for the Hyperlink.Click event.</param>
-        /// <param name="stateDict">A dictionary for state.</param>
+        /// <param name="node">AnalysisStepNode.</param>
         /// <returns>A collection of Inline elements that represent the specified message.</returns>
-        internal static List<XamlDoc.Inline> GetMessageInlines(string message, RoutedEventHandler clickHandler, IDictionary<string, string> stateDict = null)
+        internal static List<XamlDoc.Inline> GetMessageInlines(string message, RoutedEventHandler clickHandler, AnalysisStepNode node = null)
         {
             List<XamlDoc.Inline> inlines = null;
             if (!ThreadHelper.CheckAccess() && !SarifViewerPackage.IsUnitTesting)
@@ -616,19 +618,19 @@ namespace Microsoft.Sarif.Viewer
                 ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    inlines = GetMessageInlinesHelper(message, clickHandler, stateDict);
+                    inlines = GetMessageInlinesHelper(message, clickHandler, node);
                 });
 #pragma warning disable VSTHRD001
             }
             else
             {
-                inlines = GetMessageInlinesHelper(message, clickHandler, stateDict);
+                inlines = GetMessageInlinesHelper(message, clickHandler, node);
             }
 
             return inlines;
         }
 
-        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, RoutedEventHandler clickHandler, IDictionary<string, string> stateDict = null)
+        private static List<XamlDoc.Inline> GetMessageInlinesHelper(string message, RoutedEventHandler clickHandler, AnalysisStepNode node = null)
         {
             var inlines = new List<XamlDoc.Inline>();
 
@@ -637,9 +639,9 @@ namespace Microsoft.Sarif.Viewer
 
             string searchReg = null;
 
-            if (stateDict?.Any() == true)
+            if (node?.State?.Any() == true)
             {
-                searchReg = string.Join("|", stateDict.Keys.Select(k => $"\\b{Regex.Escape(k)}\\b"));
+                searchReg = string.Join("|", node.State.ToDict().Keys.Select(k => $"\\b{Regex.Escape(k)}\\b"));
             }
 
             if (matches.Count > 0)
@@ -652,9 +654,9 @@ namespace Microsoft.Sarif.Viewer
 
                     string subText = message.Substring(start, group.Index - 1 - start);
 
-                    if (stateDict?.Any() == true)
+                    if (node?.State?.Any() == true)
                     {
-                        ParseStateInString(subText, searchReg, inlines, stateDict);
+                        ParseStateInString(subText, searchReg, inlines, node, clickHandler);
                     }
                     else
                     {
@@ -711,9 +713,9 @@ namespace Microsoft.Sarif.Viewer
 
             if (start < message.Length)
             {
-                if (stateDict?.Any() == true)
+                if (node?.State?.Any() == true)
                 {
-                    ParseStateInString(message.Substring(start), searchReg, inlines, stateDict);
+                    ParseStateInString(message.Substring(start), searchReg, inlines, node, clickHandler);
                 }
                 else
                 {
@@ -725,8 +727,9 @@ namespace Microsoft.Sarif.Viewer
             return inlines;
         }
 
-        internal static void ParseStateInString(string text, string regex, List<XamlDoc.Inline> inlines, IDictionary<string, string> stateDict)
+        internal static void ParseStateInString(string text, string regex, List<XamlDoc.Inline> inlines, AnalysisStepNode node, RoutedEventHandler clickHandler)
         {
+            IDictionary<string, string> stateDict = node?.State?.ToDict();
             if (stateDict?.Any() == true)
             {
                 MatchCollection stateMatches = Regex.Matches(text, regex, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnorePatternWhitespace);
@@ -738,22 +741,54 @@ namespace Microsoft.Sarif.Viewer
 
                     string stateText = stateMatch.Value;
                     var stateRun = new XamlDoc.Run(UnescapeBrackets(stateText));
-                    if (stateDict.TryGetValue(stateText, out string stateValue))
-                    {
-                        var textBlock = new TextBlock();
-                        var link = new XamlDoc.Hyperlink(new XamlDoc.Run(" ◀ "));
-                        link.TextDecorations = null;
-                        textBlock.Inlines.Add(link);
-                        textBlock.Inlines.Add(new XamlDoc.Run(StateString(stateText, stateValue)));
-                        var link1 = new XamlDoc.Hyperlink(new XamlDoc.Run(" ▶ "));
-                        link1.TextDecorations = null;
-                        textBlock.Inlines.Add(link1);
-                        stateRun.ToolTip = textBlock; // $"{stateText} == {stateValue}";
-                    }
-
                     stateRun.TextDecorations = new TextDecorationCollection { TextDecorations.Underline };
 
-                    inlines.Add(stateRun);
+                    if (stateDict.TryGetValue(stateText, out string stateValue))
+                    {
+                        var container = new XamlDoc.Span();
+
+                        stateRun.ToolTip = StateString(stateText, stateValue);
+
+                        // var textBlock = new TextBlock();
+                        var link = new XamlDoc.Hyperlink(new XamlDoc.Run(" "));
+                        link.TextDecorations = null;
+                        link.Cursor = System.Windows.Input.Cursors.Hand;
+                        link.Tag = new LinkTag { Index = node.Index, StateKey = stateText, Forward = false };
+                        link.Click += clickHandler;
+
+                        // textBlock.Inlines.Add(link);
+
+                        // textBlock.Inlines.Add(new XamlDoc.Run(StateString(stateText, stateValue)));
+
+                        var link1 = new XamlDoc.Hyperlink(new XamlDoc.Run(" "));
+                        link1.TextDecorations = null;
+                        link1.Cursor = System.Windows.Input.Cursors.Hand;
+                        link1.Tag = new LinkTag { Index = node.Index, StateKey = stateText, Forward = true };
+                        link1.Click += clickHandler;
+
+                        // textBlock.Inlines.Add(link1);
+
+                        // stateRun.ToolTip = textBlock; // $"{stateText} == {stateValue}";
+                        container.MouseEnter += (sender, eventArg) =>
+                        {
+                            ((XamlDoc.Run)link.Inlines.First()).Text = "<";
+                            ((XamlDoc.Run)link1.Inlines.First()).Text = ">";
+                        };
+                        container.MouseLeave += (sender, eventArg) =>
+                        {
+                            ((XamlDoc.Run)link.Inlines.First()).Text = " ";
+                            ((XamlDoc.Run)link1.Inlines.First()).Text = " ";
+                        };
+
+                        container.Inlines.Add(link);
+                        container.Inlines.Add(stateRun);
+                        container.Inlines.Add(link1);
+                        inlines.Add(container);
+                    }
+                    else
+                    {
+                        inlines.Add(stateRun);
+                    }
 
                     subStart = stateMatch.Index + stateMatch.Length;
                 }

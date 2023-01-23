@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -12,12 +11,8 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
-using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
-using Microsoft.VisualStudio.ComponentModelHost;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
@@ -28,8 +23,14 @@ namespace Microsoft.Sarif.Viewer.Tags
         private const string Ellipsis = "\u2026";
         private const int MaxLength = 100;
 
+        private readonly int prefixLength;
+        private readonly RoutedEventHandler routedEventHandler;
+
         public KeyEventAdornment(IList<ITextMarkerTag> tags, int prefixLength, double fontSize, FontFamily fontFamily, RoutedEventHandler clickHandler)
         {
+            this.prefixLength = prefixLength;
+            this.routedEventHandler = clickHandler;
+
             List<AnalysisStepNode> nodes = new List<AnalysisStepNode>();
             foreach (ITextMarkerTag tag in tags)
             {
@@ -44,13 +45,13 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             nodes.Sort((a, b) => a.Index.CompareTo(b.Index));
 
-            FormatText(nodes, prefixLength, out string fullText, out string shortText, out string tooltipText);
+            this.FormatText(nodes, prefixLength, out string fullText, out string shortText, out string tooltipText, out List<Inline> inlines);
 
             // prefixLength is calculated by (longest length of lines have tag) - (current line lenght)
             // the prefix let the all key event text start locations align at same column
             string prefix = new string(PrefixChar, prefixLength);
 
-            List<Inline> inlines = SdkUIUtilities.GetMessageInlines(fullText, clickHandler, this.ToDict(nodes.First().State));
+            // List<Inline> inlines = SdkUIUtilities.GetMessageInlines(fullText, clickHandler, this.ToDict(nodes.First().State));
             if (inlines?.Any() == true)
             {
                 this.Inlines.AddRange(inlines);
@@ -84,12 +85,11 @@ namespace Microsoft.Sarif.Viewer.Tags
                 TextBlock.ForegroundProperty,
                 EnvironmentColors.ExtensionManagerStarHighlight2BrushKey);
 
-            var textbox = new TextBlock();
-            this.ToolTip = SdkUIUtilities.EscapeHyperlinks(tooltipText);
+            // this.ToolTip = SdkUIUtilities.EscapeHyperlinks(tooltipText);
             this.Cursor = Cursors.Arrow;
         }
 
-        internal void Update(ITextMarkerTag textMarkerTag)
+        internal void Update(IList<ITextMarkerTag> textMarkerTag)
         {
             if (textMarkerTag is null)
             {
@@ -99,21 +99,12 @@ namespace Microsoft.Sarif.Viewer.Tags
             // rect.Fill = MakeBrush(colorTag.Color);
         }
 
-        internal IDictionary<string, string> ToDict(IList<AnalysisStepState> list)
-        {
-            var result = new Dictionary<string, string>();
-            foreach (AnalysisStepState state in list)
-            {
-                result[state.Expression] = state.Value;
-            }
-
-            return result;
-        }
-
-        private static void FormatText(IList<AnalysisStepNode> nodes, int prefixLength, out string fullText, out string conciseText, out string tooltipText)
+        private void FormatText(IList<AnalysisStepNode> nodes, int prefixLength, out string fullText, out string conciseText, out string tooltipText, out List<Inline> inlines)
         {
             var displayText = new StringBuilder();
             var hintText = new StringBuilder();
+
+            inlines = new List<Inline>();
 
             // used to separate multiple key events, e.g.
             // --- Key Event 1 --- Key Event 2: message
@@ -121,8 +112,10 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (AnalysisStepNode node in nodes)
             {
-                displayText.Append(CreateKeyEventText(node.Index, node.Message, prefixLength + 3));
+                string nodeString = CreateKeyEventText(node.Index, node.Message, prefixLength + 3) + Environment.NewLine;
+                displayText.Append(nodeString);
                 hintText.Append(CreateKeyEventText(node.Index, node.Message, 0));
+                inlines.AddRange(SdkUIUtilities.GetMessageInlines(nodeString, this.routedEventHandler, node));
             }
 
             tooltipText = hintText.ToString();
@@ -179,5 +172,14 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             return builder.ToString();
         }
+    }
+
+    public class LinkTag
+    {
+        public int Index { get; set; }
+
+        public string StateKey { get; set; }
+
+        public bool Forward { get; set; }
     }
 }

@@ -85,9 +85,9 @@
                                 <HierarchicalDataTemplate DataType="x:Type local:AnalysisStepNode" ItemsSource="{Binding Children}">
                                     <Grid ToolTip="{Binding Location.Kinds, Converter={StaticResource CollectionToJoinedStringConverter}, ConverterParameter=', '}">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition SharedSizeGroup="IndexGroup" />
-                                            <ColumnDefinition SharedSizeGroup="MessageGroup" />
-                                            <ColumnDefinition SharedSizeGroup="LocationGroup" />
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition MinWidth="400" />
+                                            <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.InputBindings>
                                             <MouseBinding Gesture="LeftDoubleClick"
@@ -98,7 +98,7 @@
                                                         Style="{StaticResource AnalysisStepLocationTextStyle}" />
                                         <controls:BindableTextBlock Grid.Column="1"
                                             InlineList="{Binding MessageInlines}"
-                                            Style="{StaticResource AnalysisStepMessageTextStyle}" TextWrapping="WrapWithOverflow"/>
+                                            Style="{StaticResource AnalysisStepMessageTextStyle}"/>
                                         <TextBlock Grid.Column="2"
                                                         Text="{Binding LocationDisplayString, Mode=OneWay}"
                                                         Style="{StaticResource AnalysisStepLocationTextStyle}" />
