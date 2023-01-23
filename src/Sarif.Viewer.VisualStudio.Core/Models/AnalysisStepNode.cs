@@ -141,18 +141,7 @@ namespace Microsoft.Sarif.Viewer.Models
         public ObservableCollection<Inline> MessageInlines => this._messageInlines ??=
             new ObservableCollection<Inline>(
                 SdkUIUtilities.GetMessageInlines(
-                    AnalysisStepNodeToTextConverter.MakeDisplayString(this), InlineLink_Click, this.ToDict(this.State)));
-
-        internal IDictionary<string, string> ToDict(IList<AnalysisStepState> list)
-        {
-            var result = new Dictionary<string, string>();
-            foreach (AnalysisStepState state in list)
-            {
-                result[state.Expression] = state.Value;
-            }
-
-            return result;
-        }
+                    AnalysisStepNodeToTextConverter.MakeDisplayString(this), InlineLink_Click, this));
 
         internal override ResultTextMarker LineMarker
         {

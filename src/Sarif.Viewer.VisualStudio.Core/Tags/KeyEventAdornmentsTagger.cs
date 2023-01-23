@@ -48,6 +48,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.sarifTextMarkerTagger = sarifTextMarkerTagger;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
             this.sarifErrorListEventSelectionService.NavigatedItemChanged += this.SarifErrorListEventSelectionService_NavigatedItemChanged;
+            this.tagAggregator.BatchedTagsChanged += this.TagAggregator_BatchedTagsChanged;
         }
 
         private void SarifErrorListEventSelectionService_NavigatedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
@@ -56,6 +57,12 @@ namespace Microsoft.Sarif.Viewer.Tags
             {
                 this.currentErrorListItem = e.NewItem;
             }
+
+            this.adornmentCache.Clear();
+        }
+
+        private void TagAggregator_BatchedTagsChanged(object sender, BatchedTagsChangedEventArgs e)
+        {
         }
 
         public void Dispose()
@@ -77,8 +84,10 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             ITextSnapshot snapshot = spans[0].Snapshot;
 
+            /*
             IEnumerable<IMappingTagSpan<ITextMarkerTag>> textMarkerTags =
                 this.sarifTextMarkerTagger.GetTags(spans).Where(t => t.Tag is SarifLocationTextMarkerTag sarifTag && sarifTag.Context is AnalysisStepNode).ToList();
+            */
 
             IEnumerable<IMappingTagSpan<ITextMarkerTag>> tags =
                 this.tagAggregator.GetTags(spans)
@@ -88,6 +97,22 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (IMappingTagSpan<ITextMarkerTag> dataTagSpan in tags)
             {
+                if (this.TryMapToSingleSnapshotSpan(dataTagSpan.Span, this.view.TextSnapshot, out SnapshotSpan span) &&
+                        this.view.TextViewLines.IntersectsBufferSpan(span))
+                {
+                    IWpfTextViewLine containingBufferPosition =
+                            this.view.GetTextViewLineContainingBufferPosition(span.Start);
+                    if (containingBufferPosition != null)
+                    {
+                        int prefixLength = maxLineLength - this.NormalizeTextLength(containingBufferPosition);
+
+                        SnapshotSpan adornmentSpan = new SnapshotSpan(containingBufferPosition.Extent.End, 0);
+
+                        yield return Tuple.Create(adornmentSpan, (PositionAffinity?)PositionAffinity.Successor, dataTagSpan.Tag, prefixLength);
+                    }
+                }
+
+                /*
                 NormalizedSnapshotSpanCollection textMarkerTagSpans = dataTagSpan.Span.GetSpans(snapshot);
 
                 // Ignore data tags that are split by projection.
@@ -97,19 +122,22 @@ namespace Microsoft.Sarif.Viewer.Tags
                     continue;
                 }
 
-                IWpfTextViewLine containingBufferPosition = this.view.TextViewLines.GetTextViewLineContainingBufferPosition(textMarkerTagSpans[0].Start);
+                IWpfTextViewLine containingBufferPosition =
+                    this.view.GetTextViewLineContainingBufferPosition(textMarkerTagSpans[0].Start);
 
-                int prefixLength = maxLineLength - this.NormalizeTextLength(containingBufferPosition);
+                if (containingBufferPosition != null)
+                {
+                    int prefixLength = maxLineLength - this.NormalizeTextLength(containingBufferPosition);
 
-                // SnapshotSpan adornmentSpan = new SnapshotSpan(containingBufferPosition.End, 0);
+                    SnapshotSpan adornmentSpan = new SnapshotSpan(containingBufferPosition.Extent.End, 0);
 
-                SnapshotSpan adornmentSpan = new SnapshotSpan(containingBufferPosition.Extent.End, 0);
-
-                yield return Tuple.Create(adornmentSpan, (PositionAffinity?)PositionAffinity.Successor, dataTagSpan.Tag, prefixLength);
+                    yield return Tuple.Create(adornmentSpan, (PositionAffinity?)PositionAffinity.Successor, dataTagSpan.Tag, prefixLength);
+                }
+                */
             }
         }
 
-        protected override KeyEventAdornment CreateAdornment(ITextMarkerTag dataTag, SnapshotSpan span, int prefixLength)
+        protected override KeyEventAdornment CreateAdornment(IList<ITextMarkerTag> dataTags, SnapshotSpan span, int prefixLength)
         {
             if (this.view.FormattedLineSource == null)
             {
@@ -117,14 +145,14 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
 
             return new KeyEventAdornment(
-                new[] { dataTag },
+                dataTags,
                 prefixLength,
                 this.view.FormattedLineSource.DefaultTextProperties.FontRenderingEmSize,
                 this.view.FormattedLineSource.DefaultTextProperties.Typeface.FontFamily,
                 InlineLink_Click);
         }
 
-        protected override bool UpdateAdornment(KeyEventAdornment adornment, ITextMarkerTag dataTag)
+        protected override bool UpdateAdornment(KeyEventAdornment adornment, IList<ITextMarkerTag> dataTag)
         {
             adornment.Update(dataTag);
             return true;
@@ -148,6 +176,24 @@ namespace Microsoft.Sarif.Viewer.Tags
                 }
 
                 node.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+            }
+
+            if (hyperLink.Tag is LinkTag linkTag)
+            {
+                IOrderedEnumerable<AnalysisStepNode> nodes = this.currentErrorListItem.AnalysisSteps?.First()?.TopLevelNodes?
+                    .Where(n => n.State.Any(s => s.Expression == linkTag.StateKey)).OrderBy(n => n.Index);
+
+                AnalysisStepNode node;
+                if (linkTag.Forward)
+                {
+                    node = nodes?.FirstOrDefault(n => n.Index > linkTag.Index);
+                }
+                else
+                {
+                    node = nodes?.FirstOrDefault(n => n.Index < linkTag.Index);
+                }
+
+                node?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
             }
         }
 

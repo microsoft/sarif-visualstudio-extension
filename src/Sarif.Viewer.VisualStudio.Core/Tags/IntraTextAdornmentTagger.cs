@@ -19,7 +19,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     {
         private readonly List<SnapshotSpan> invalidatedSpans = new List<SnapshotSpan>();
 
-        private Dictionary<SnapshotSpan, TAdornment> adornmentCache = new Dictionary<SnapshotSpan, TAdornment>();
+        protected Dictionary<SnapshotSpan, TAdornment> adornmentCache = new Dictionary<SnapshotSpan, TAdornment>();
 
         protected readonly IWpfTextView view;
 
@@ -34,11 +34,34 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.view.TextBuffer.Changed += HandleBufferChanged;
         }
 
-        protected abstract TAdornment CreateAdornment(TData data, SnapshotSpan span, int prefixLength);
+        protected abstract TAdornment CreateAdornment(IList<TData> data, SnapshotSpan span, int prefixLength);
 
-        protected abstract bool UpdateAdornment(TAdornment adornment, TData data);
+        protected abstract bool UpdateAdornment(TAdornment adornment, IList<TData> data);
 
         protected abstract IEnumerable<Tuple<SnapshotSpan, PositionAffinity?, TData, int>> GetAdornmentData(NormalizedSnapshotSpanCollection spans);
+
+        private void HandleLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
+        {
+            SnapshotSpan visibleSpan = view.TextViewLines.FormattedSpan;
+
+            // Filter out the adornments that are no longer visible.
+            var toRemove = new List<SnapshotSpan>(
+                from keyValuePair
+                in adornmentCache
+                where !keyValuePair.Key.TranslateTo(visibleSpan.Snapshot, SpanTrackingMode.EdgeExclusive).IntersectsWith(visibleSpan)
+                select keyValuePair.Key);
+
+            foreach (SnapshotSpan span in toRemove)
+            {
+                // adornmentCache.Remove(span);
+            }
+
+            _ = ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                this.AsyncUpdate();
+            });
+        }
 
         private void HandleBufferChanged(object sender, TextContentChangedEventArgs args)
         {
@@ -66,7 +89,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        private void AsyncUpdate()
+        protected void AsyncUpdate()
         {
             // Store the snapshot that we're now current with and send an event
             // for the text that has changed.
@@ -105,23 +128,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         protected void RaiseTagsChanged(SnapshotSpan span)
         {
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(span));
-        }
-
-        private void HandleLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
-        {
-            SnapshotSpan visibleSpan = view.TextViewLines.FormattedSpan;
-
-            // Filter out the adornments that are no longer visible.
-            var toRemove = new List<SnapshotSpan>(
-                from keyValuePair
-                in adornmentCache
-                where !keyValuePair.Key.TranslateTo(visibleSpan.Snapshot, SpanTrackingMode.EdgeExclusive).IntersectsWith(visibleSpan)
-                select keyValuePair.Key);
-
-            foreach (SnapshotSpan span in toRemove)
-            {
-                adornmentCache.Remove(span);
-            }
         }
 
         // Produces tags on the snapshot that the tag consumer asked for.
@@ -184,14 +190,31 @@ namespace Microsoft.Sarif.Viewer.Tags
                 }
             }
 
-            foreach (Tuple<SnapshotSpan, PositionAffinity?, TData, int> spanDataPair in GetAdornmentData(spans).Distinct(new AdornmentDataComparer()))
+            var adornmentsData = GetAdornmentData(spans).ToList();
+
+            // var distinctAdormentData = adornmentsData.Distinct(new AdornmentDataComparer()).ToList();
+            var spanTagsMap = new Dictionary<SnapshotSpan, IList<Tuple<SnapshotSpan, PositionAffinity?, TData, int>>>();
+            foreach (var data in adornmentsData)
             {
+                if (!spanTagsMap.ContainsKey(data.Item1))
+                {
+                    spanTagsMap[data.Item1] = new List<Tuple<SnapshotSpan, PositionAffinity?, TData, int>>();
+                }
+
+                spanTagsMap[data.Item1].Add(data);
+            }
+
+            foreach (var spanDataPairs in spanTagsMap)
+            {
+                var spanDataPairList = spanDataPairs.Value;
+
                 // Look up the corresponding adornment or create one if it's new.
                 TAdornment adornment;
-                SnapshotSpan snapshotSpan = spanDataPair.Item1;
-                PositionAffinity? affinity = spanDataPair.Item2;
-                TData adornmentData = spanDataPair.Item3;
-                int prefixLength = spanDataPair.Item4;
+                SnapshotSpan snapshotSpan = spanDataPairs.Key;
+                PositionAffinity? affinity = spanDataPairList.First().Item2;
+                IList<TData> adornmentData = spanDataPairList.Select(x => x.Item3).ToList();
+                int prefixLength = spanDataPairList.First().Item4;
+
                 if (adornmentCache.TryGetValue(snapshotSpan, out adornment))
                 {
                     if (UpdateAdornment(adornment, adornmentData))
