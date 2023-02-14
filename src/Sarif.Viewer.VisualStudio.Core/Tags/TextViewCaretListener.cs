@@ -20,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.Tags
     internal class TextViewCaretListener<T>
         where T : ITag
     {
-        private readonly TextMarkerTagCompaerer textMarkerTagCompaerer = new TextMarkerTagCompaerer();
+        private readonly TextMarkerTagComparer textMarkerTagComparer = new TextMarkerTagComparer();
         private readonly ITagger<T> tagger;
         private readonly ITextView textView;
         private List<ISarifLocationTag> previousTagsCaretWasIn;
@@ -111,13 +111,13 @@ namespace Microsoft.Sarif.Viewer.Tags
                     Select(tag => tag.Tag as ISarifLocationTag)
                 : Enumerable.Empty<ISarifLocationTag>()).ToList();
 
-            if (this.previousTagsCaretWasIn != null && tagsCaretIsCurrentlyIn.SequenceEqual(this.previousTagsCaretWasIn, this.textMarkerTagCompaerer))
+            if (this.previousTagsCaretWasIn != null && tagsCaretIsCurrentlyIn.SequenceEqual(this.previousTagsCaretWasIn, this.textMarkerTagComparer))
             {
                 return;
             }
 
-            IEnumerable<ISarifLocationTag> tagsToNotifyOfCaretEnter = tagsCaretIsCurrentlyIn.Where(tagCaretIsCurrentlyIn => this.previousTagsCaretWasIn == null || !this.previousTagsCaretWasIn.Contains(tagCaretIsCurrentlyIn, this.textMarkerTagCompaerer));
-            IEnumerable<ISarifLocationTag> tagsToNotifyOfCaretLeave = this.previousTagsCaretWasIn?.Except(tagsToNotifyOfCaretEnter, this.textMarkerTagCompaerer);
+            IEnumerable<ISarifLocationTag> tagsToNotifyOfCaretEnter = tagsCaretIsCurrentlyIn.Where(tagCaretIsCurrentlyIn => this.previousTagsCaretWasIn == null || !this.previousTagsCaretWasIn.Contains(tagCaretIsCurrentlyIn, this.textMarkerTagComparer));
+            IEnumerable<ISarifLocationTag> tagsToNotifyOfCaretLeave = this.previousTagsCaretWasIn?.Except(tagsToNotifyOfCaretEnter, this.textMarkerTagComparer);
 
             // Start an update batch in case the notifications cause a series of changes to tags. (Such as highlight colors).
             foreach (ISarifLocationTag tagToNotify in tagsToNotifyOfCaretEnter)
@@ -157,7 +157,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// in a tag. The tag reference itself can be different, but the tags can represent
         /// the same location. This is important when preventing multiple caret notifications.
         /// </summary>
-        private class TextMarkerTagCompaerer : IEqualityComparer<ISarifLocationTag>
+        private class TextMarkerTagComparer : IEqualityComparer<ISarifLocationTag>
         {
             public bool Equals(ISarifLocationTag x, ISarifLocationTag y)
             {
