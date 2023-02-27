@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
@@ -216,7 +217,7 @@ namespace Microsoft.Sarif.Viewer
                                     runIndex: this.RunIndex,
                                     resultId: this.ResultId,
                                     errorType: this.ErrorType,
-                                    toolTipContent: this.ToolTipContent,
+                                    content: this.ToolTipContent,
                                     context: this.Context));
             }
 

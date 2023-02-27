@@ -5,14 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Navigation;
 
 using EnvDTE;
 
 using EnvDTE80;
+
+using Markdig.Wpf;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -77,7 +83,7 @@ namespace Microsoft.Sarif.Viewer
             this.Properties = new ObservableCollection<KeyValuePair<string, string>>();
         }
 
-        public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
+        public SarifErrorListItem(CodeAnalysis.Sarif.Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -150,7 +156,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
+        public SarifErrorListItem(CodeAnalysis.Sarif.Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -251,9 +257,9 @@ namespace Microsoft.Sarif.Viewer
         public string RawMessage { get; set; }
 
         [Browsable(false)]
-        public string PlainMessage => !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
-                                      SdkUIUtilities.GetPlainText(this.MessageInlines) :
-                                      this.RawMessage;
+        public object Content => this.CreateContent();
+
+        private object _content;
 
         [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
@@ -462,7 +468,7 @@ namespace Microsoft.Sarif.Viewer
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
-                        tooltipContent: this.PlainMessage,
+                        tooltipContent: this.Content,
                         context: this);
                 }
 
@@ -950,6 +956,77 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return message;
+        }
+
+        /// <summary>
+        /// Creates the content that goes into the ToolTipContent that gets rendered on hover.
+        /// Will attempt to render markdown first, however if it fails it will fall back to plaintext.
+        /// </summary>
+        /// <returns>ToolTipContent to render.</returns>
+        private object CreateContent()
+        {
+            if (_content == null)
+            {
+                if (!string.IsNullOrWhiteSpace(this.SarifResult.Message.Markdown))
+                {
+                    try
+                    {
+                        MarkdownViewer viewer = new MarkdownViewer();
+                        viewer.Markdown = this.SarifResult.Message.Markdown;
+                        foreach (Block block in viewer.Document.Blocks)
+                        {
+                            foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
+                            {
+                                if (blockChild is Hyperlink hyperlink)
+                                {
+                                    hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
+                                    hyperlink.MouseDown += Block_MouseDown;
+                                }
+                            }
+                        }
+
+                        _content = viewer;
+                        return _content;
+                    }
+                    catch (Exception)
+                    {
+                        // catch and swallow silently, fallback to plaintext
+                    }
+                }
+
+                _content = !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
+                                          SdkUIUtilities.GetPlainText(this.MessageInlines) :
+                                          this.RawMessage;
+                return _content;
+            }
+            else
+            {
+                return _content;
+            }
+        }
+
+        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Hyperlink hyperlink)
+            {
+                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Called when a hyperlink in the insight presentation is clicked.
+        /// This logs the "PopupLinkClick" telemetry event and then invokes the URI.
+        /// </summary>
+        /// <param name="sender">a.</param>
+        /// <param name="e">e.</param>
+        private static void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            if (sender is Hyperlink hyperlink)
+            {
+                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
+                e.Handled = true;
+            }
         }
     }
 }
