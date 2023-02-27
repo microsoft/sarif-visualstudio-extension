@@ -55,13 +55,13 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             get
             {
+                ThreadHelper.ThrowIfNotOnUIThread();
                 if (_toolTipContent != null)
                 {
                     return _toolTipContent;
                 }
                 else
                 {
-                    ThreadHelper.ThrowIfNotOnUIThread();
                     int maxHeight = 800;
                     var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
                     if (dte != null && dte.MainWindow != null)
