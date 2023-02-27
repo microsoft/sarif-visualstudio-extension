@@ -34,6 +34,9 @@
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build2022.props))\build2022.props" />
   <ItemGroup>
+    <PackageReference Include="Markdig.Wpf.Signed">
+      <Version>0.5.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
       <Version>5.0.3</Version>

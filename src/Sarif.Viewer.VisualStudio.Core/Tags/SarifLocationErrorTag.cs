@@ -61,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 }
                 else
                 {
-                    StackPanel stackPanel = new StackPanel();
+                    ThreadHelper.ThrowIfNotOnUIThread();
                     int maxHeight = 800;
                     var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
                     if (dte != null && dte.MainWindow != null)
