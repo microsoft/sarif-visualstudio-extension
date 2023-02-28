@@ -56,31 +56,21 @@ namespace Microsoft.Sarif.Viewer.Tags
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                if (_toolTipContent != null)
+                int maxHeight = 800;
+                var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
+                if (dte != null && dte.MainWindow != null)
                 {
-                    return _toolTipContent;
+                    maxHeight = dte.MainWindow.Height / 2;
                 }
-                else
-                {
-                    int maxHeight = 800;
-                    var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
-                    if (dte != null && dte.MainWindow != null)
-                    {
-                        maxHeight = dte.MainWindow.Height / 2;
-                    }
 
-                    ScrollViewer scrollViewer = new ScrollViewer()
-                    {
-                        MaxHeight = maxHeight,
-                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                        Content = Content,
-                    };
-                    _toolTipContent = scrollViewer;
-                    return scrollViewer;
-                }
+                ScrollViewer scrollViewer = new ScrollViewer()
+                {
+                    MaxHeight = maxHeight,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Content = Content,
+                };
+                return scrollViewer;
             }
         }
-
-        private object _toolTipContent;
     }
 }
