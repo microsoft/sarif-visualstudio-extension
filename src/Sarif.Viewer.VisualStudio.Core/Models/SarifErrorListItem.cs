@@ -967,7 +967,7 @@ namespace Microsoft.Sarif.Viewer
         {
             if (_content == null)
             {
-                if (!string.IsNullOrWhiteSpace(this.SarifResult.Message.Markdown))
+                if (this.SarifResult != null && this.SarifResult.Message != null && !string.IsNullOrWhiteSpace(this.SarifResult.Message.Markdown))
                 {
                     try
                     {
