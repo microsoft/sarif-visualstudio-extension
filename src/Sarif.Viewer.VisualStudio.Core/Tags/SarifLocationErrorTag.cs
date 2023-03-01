@@ -40,7 +40,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             : base(persistentSpan, runIndex: runIndex, resultId: resultId, context: context)
         {
             this.ErrorType = errorType;
-            this.Content = content;
+            this.content = content;
         }
 
         /// <summary>
@@ -57,14 +57,14 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <remarks>
         /// This may be null.
         /// </remarks>
-        public List<(string strContent, TextRenderType renderType)> Content { get; }
+        private readonly List<(string strContent, TextRenderType renderType)> content;
 
         public object ToolTipContent
         {
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                foreach ((string strContent, TextRenderType renderType) item in Content)
+                foreach ((string strContent, TextRenderType renderType) item in content)
                 {
                     if (item.renderType == TextRenderType.Markdown)
                     {
@@ -78,8 +78,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                                 {
                                     if (blockChild is Hyperlink hyperlink)
                                     {
-                                        hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
-                                        hyperlink.MouseDown += Block_MouseDown;
+                                       hyperlink.MouseDown += Block_MouseDown;
                                     }
                                 }
                             }
@@ -105,22 +104,12 @@ namespace Microsoft.Sarif.Viewer.Tags
             }
         }
 
-        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Hyperlink hyperlink)
-            {
-                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
-                e.Handled = true;
-            }
-        }
-
         /// <summary>
-        /// Called when a hyperlink in the insight presentation is clicked.
-        /// This logs the "PopupLinkClick" telemetry event and then invokes the URI.
+        /// Called when a hyperlink in the markdown is clicked.
         /// </summary>
-        /// <param name="sender">a.</param>
-        /// <param name="e">e.</param>
-        private static void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        /// <param name="sender">The object that was clicked.</param>
+        /// <param name="e">The event of being clicked.</param>
+        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Hyperlink hyperlink)
             {

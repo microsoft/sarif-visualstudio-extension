@@ -1005,8 +1005,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.Locations.Should().NotBeNullOrEmpty();
         }
 
+
         /// <summary>
-        /// Tests to see if we are able to 
+        /// Tests to see if we are able to correctly make a Sarif error list item hold and properly order markdown text and plain text to be rendered later.
         /// </summary>
         [Fact]
         public void SarifErrorListItem_WithMarkdownContent()
@@ -1022,7 +1023,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 Message = message
             };
 
-            var item = new SarifErrorListItem(result)
+            var errorListItem = new SarifErrorListItem(result)
             {
                 FileName = "file.ext",
                 Region = new Region
@@ -1031,14 +1032,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 },
             };
 
-            ResultTextMarker lineMarker = item.LineMarker;
-            lineMarker.Should().NotBe(null);
-
-            Console.WriteLine("helo");
-            object a = lineMarker.Context;
-            string x = lineMarker.Context.ToString();
-            string y = lineMarker.Context.GetType().Name;
-            //lineMarker.Context.Should().BeOfType<MarkdownViewer>();
+            errorListItem.Content.Count().Should().Be(2);
+            errorListItem.Content[0].renderType.Should().Be(TextRenderType.Markdown);
+            errorListItem.Content[1].renderType.Should().Be(TextRenderType.Text);
+            errorListItem.Content[0].strContent.Should().Be(message.Markdown);
+            errorListItem.Content[1].strContent.Should().Be(message.Text);
         }
     }
 }

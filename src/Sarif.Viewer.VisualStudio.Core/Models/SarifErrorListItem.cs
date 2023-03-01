@@ -84,6 +84,7 @@ namespace Microsoft.Sarif.Viewer
             : this()
         {
             this.SarifResult = result;
+            this.RawMessage = result.Message?.Text;
         }
 
         internal SarifErrorListItem()
