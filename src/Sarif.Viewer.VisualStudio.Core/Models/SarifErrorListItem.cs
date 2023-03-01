@@ -38,6 +38,19 @@ using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
+    internal enum TextRenderType
+    {
+        /// <summary>
+        /// Denotes that a string should be rendered as plaintext
+        /// </summary>
+        Text,
+
+        /// <summary>
+        /// Denotes that a string should be rendered as markdown
+        /// </summary>
+        Markdown,
+    }
+
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
         // max length of concise text, 0 indexed
@@ -256,10 +269,13 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string RawMessage { get; set; }
 
+        /// <summary>
+        /// Gets an ordered list of the different text to render and the format it should be rendered in. Sorted by most preferred format to render to least.
+        /// </summary>
         [Browsable(false)]
-        public object Content => this.CreateContent();
+        public List<(string strContent, TextRenderType renderType)> Content => this.CreateContent();
 
-        private object _content;
+        private List<(string strContent, TextRenderType renderType)> _content;
 
         [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
@@ -963,69 +979,25 @@ namespace Microsoft.Sarif.Viewer
         /// Will attempt to render markdown first, however if it fails it will fall back to plaintext.
         /// </summary>
         /// <returns>ToolTipContent to render.</returns>
-        private object CreateContent()
+        private List<(string strContent, TextRenderType renderType)> CreateContent()
         {
             if (_content == null)
             {
+                _content = new List<(string strContent, TextRenderType renderType)>();
                 if (this.SarifResult != null && this.SarifResult.Message != null && !string.IsNullOrWhiteSpace(this.SarifResult.Message.Markdown))
                 {
-                    try
-                    {
-                        MarkdownViewer viewer = new MarkdownViewer();
-                        viewer.Markdown = this.SarifResult.Message.Markdown;
-                        foreach (Block block in viewer.Document.Blocks)
-                        {
-                            foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
-                            {
-                                if (blockChild is Hyperlink hyperlink)
-                                {
-                                    hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
-                                    hyperlink.MouseDown += Block_MouseDown;
-                                }
-                            }
-                        }
-
-                        _content = viewer;
-                        return _content;
-                    }
-                    catch (Exception)
-                    {
-                        // catch and swallow silently, fallback to plaintext
-                    }
+                    _content.Add((this.SarifResult.Message.Markdown, TextRenderType.Markdown));
                 }
 
-                _content = !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
+                string textContent = !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
                                           SdkUIUtilities.GetPlainText(this.MessageInlines) :
                                           this.RawMessage;
+                _content.Add((textContent, TextRenderType.Text));
                 return _content;
             }
             else
             {
                 return _content;
-            }
-        }
-
-        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Hyperlink hyperlink)
-            {
-                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
-                e.Handled = true;
-            }
-        }
-
-        /// <summary>
-        /// Called when a hyperlink in the insight presentation is clicked.
-        /// This logs the "PopupLinkClick" telemetry event and then invokes the URI.
-        /// </summary>
-        /// <param name="sender">a.</param>
-        /// <param name="e">e.</param>
-        private static void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
-        {
-            if (sender is Hyperlink hyperlink)
-            {
-                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
-                e.Handled = true;
             }
         }
     }

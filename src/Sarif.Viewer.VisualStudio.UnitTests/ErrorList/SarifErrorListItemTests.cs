@@ -1004,5 +1004,41 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.FileName.Should().Contain("program.cs");
             item.Locations.Should().NotBeNullOrEmpty();
         }
+
+        /// <summary>
+        /// Tests to see if we are able to 
+        /// </summary>
+        [Fact]
+        public void SarifErrorListItem_WithMarkdownContent()
+        {
+            var message = new Message()
+            {
+                Markdown = "Sample-markdown",
+                Text = "Sample-text",
+            };
+
+            var result = new Result()
+            {
+                Message = message
+            };
+
+            var item = new SarifErrorListItem(result)
+            {
+                FileName = "file.ext",
+                Region = new Region
+                {
+                    StartLine = 5,
+                },
+            };
+
+            ResultTextMarker lineMarker = item.LineMarker;
+            lineMarker.Should().NotBe(null);
+
+            Console.WriteLine("helo");
+            object a = lineMarker.Context;
+            string x = lineMarker.Context.ToString();
+            string y = lineMarker.Context.GetType().Name;
+            //lineMarker.Context.Should().BeOfType<MarkdownViewer>();
+        }
     }
 }

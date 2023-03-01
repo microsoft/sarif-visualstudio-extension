@@ -4,11 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.UI.WebControls;
+using System.Windows.Controls;
+
+using EnvDTE;
+
+using EnvDTE80;
 
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
+
+using Sarif.Viewer.VisualStudio.Core.Models;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
@@ -95,13 +103,28 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (SnapshotSpan span in spans)
             {
-                foreach (ISarifLocationTag possibleTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
+                List<IErrorTag> errorTags = new List<IErrorTag>();
+                SnapshotSpan possibleTagSnapshotSpan = default(SnapshotSpan);
+                bool foundPossibleTagSnapshotSpan = false;
+                foreach (ISarifLocationTag possibleLocTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
-                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.PersistentSpan.Span.GetSpan(span.Snapshot);
+                    possibleTagSnapshotSpan = possibleLocTag.PersistentSpan.Span.GetSpan(span.Snapshot);
                     if (span.IntersectsWith(possibleTagSnapshotSpan))
                     {
-                        yield return new TagSpan<IErrorTag>(possibleTagSnapshotSpan, (IErrorTag)possibleTag);
+                        foundPossibleTagSnapshotSpan = true;
+                        errorTags.Add((IErrorTag)possibleLocTag);
                     }
+                }
+
+                ScrollViewerWrapper wrapper = new ScrollViewerWrapper(errorTags);
+
+                if (foundPossibleTagSnapshotSpan == false)
+                {
+                    yield break;
+                }
+                else
+                {
+                    yield return new TagSpan<IErrorTag>(possibleTagSnapshotSpan, wrapper);
                 }
             }
         }

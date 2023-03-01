@@ -1,11 +1,19 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Navigation;
 
 using EnvDTE;
 using EnvDTE80;
+
+using Markdig.Wpf;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -28,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="errorType">The Visual Studio error type to display.</param>
         /// <param name="content">The content to use when displaying a tool tip for this error. This parameter may be null.</param>
         /// <param name="context">Gets the data context for this tag.</param>
-        public SarifLocationErrorTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string errorType, object content, object context)
+        public SarifLocationErrorTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string errorType, List<(string strContent, TextRenderType renderType)> content, object context)
             : base(persistentSpan, runIndex: runIndex, resultId: resultId, context: context)
         {
             this.ErrorType = errorType;
@@ -49,27 +57,75 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <remarks>
         /// This may be null.
         /// </remarks>
-        public object Content { get; }
+        public List<(string strContent, TextRenderType renderType)> Content { get; }
 
         public object ToolTipContent
         {
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-                int maxHeight = 800;
-                var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
-                if (dte != null && dte.MainWindow != null)
+                foreach ((string strContent, TextRenderType renderType) item in Content)
                 {
-                    maxHeight = dte.MainWindow.Height / 2;
+                    if (item.renderType == TextRenderType.Markdown)
+                    {
+                        try
+                        {
+                            MarkdownViewer viewer = new MarkdownViewer();
+                            viewer.Markdown = item.strContent;
+                            foreach (Block block in viewer.Document.Blocks)
+                            {
+                                foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
+                                {
+                                    if (blockChild is Hyperlink hyperlink)
+                                    {
+                                        hyperlink.RequestNavigate += Hyperlink_RequestNavigate;
+                                        hyperlink.MouseDown += Block_MouseDown;
+                                    }
+                                }
+                            }
+
+                            return viewer;
+                        }
+                        catch (Exception)
+                        {
+                            // catch and swallow silently
+                        }
+                    }
+                    else if (item.renderType == TextRenderType.Text)
+                    {
+                        return item.strContent;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
 
-                ScrollViewer scrollViewer = new ScrollViewer()
-                {
-                    MaxHeight = maxHeight,
-                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    Content = Content,
-                };
-                return scrollViewer;
+                return null;
+            }
+        }
+
+        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Hyperlink hyperlink)
+            {
+                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// Called when a hyperlink in the insight presentation is clicked.
+        /// This logs the "PopupLinkClick" telemetry event and then invokes the URI.
+        /// </summary>
+        /// <param name="sender">a.</param>
+        /// <param name="e">e.</param>
+        private static void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            if (sender is Hyperlink hyperlink)
+            {
+                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
+                e.Handled = true;
             }
         }
     }
