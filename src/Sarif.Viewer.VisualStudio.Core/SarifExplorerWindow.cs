@@ -118,7 +118,6 @@ namespace Microsoft.Sarif.Viewer
                     // The implementation here is a bit weird because we are telling the "data model" about the
                     // item that is to be selected in the UI. In a better world, the concept of "selection" would
                     // be in the UI logic, not the data model.
-                    node.AnalysisStep.SelectedItem = node;
                     this.UpdateSelectionList(node.TypeDescriptor);
                 }
             }
