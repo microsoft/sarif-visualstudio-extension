@@ -65,20 +65,29 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            ITextSnapshotLine startTextLine = currentSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
-            ITextSnapshotLine endTextLine = currentSnapshot.GetLineFromLineNumber(textSpan.iEndLine);
-
-            if (textSpan.iStartIndex > startTextLine.Length)
+            try
             {
-                return false;
+                ITextSnapshotLine startTextLine = currentSnapshot.GetLineFromLineNumber(textSpan.iStartLine);
+                ITextSnapshotLine endTextLine = currentSnapshot.GetLineFromLineNumber(textSpan.iEndLine);
+
+                if (textSpan.iStartIndex > startTextLine.Length)
+                {
+                    return false;
+                }
+
+                // If we are highlighting just one line and the end column of the end line is out of scope
+                // or we are highlighting just one line and we reset the start column above, then highlight the entire line.
+                if (textSpan.iEndLine == textSpan.iStartLine && textSpan.iStartIndex > textSpan.iEndIndex)
+                {
+                    textSpan.iStartIndex = 0;
+                    textSpan.iEndIndex = endTextLine.Length - 1;
+                }
             }
-
-            // If we are highlighting just one line and the end column of the end line is out of scope
-            // or we are highlighting just one line and we reset the start column above, then highlight the entire line.
-            if (textSpan.iEndLine == textSpan.iStartLine && textSpan.iStartIndex > textSpan.iEndIndex)
+            catch (ArgumentOutOfRangeException)
             {
-                textSpan.iStartIndex = 0;
-                textSpan.iEndIndex = endTextLine.Length - 1;
+                // This exception can be thrown even though the range check above has passed.
+                // Unknown cause. Net effect is no text highlighting.
+                return false;
             }
 
             return true;
