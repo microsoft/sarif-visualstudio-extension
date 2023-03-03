@@ -2,30 +2,22 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Sarif;
 
 namespace Microsoft.Sarif.Viewer
 {
-    public class AdoVersionControlParser : IVersionControlParser
+    public class AdoVersionControlParser : VersionControlParser
     {
-        private readonly VersionControlDetails details;
         private static readonly Regex regex = new Regex(
             @"^(?<protocol>https?://)(?<site>dev\.azure\.com)/(?<org>.*?)/(?<project>.*?)/(?<api>_git)/(?<repo>.*?)\?path=(?<filepath>.*?)(&version=GB(?<version>.*?))?$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal AdoVersionControlParser(VersionControlDetails versionControl)
-        {
-            this.details = versionControl;
-        }
+            : base(versionControl) { }
 
-        public Uri GetSourceFileUri(string relativeFilePath)
+        public override Uri GetSourceFileUri(string relativeFilePath)
         {
             // github link format:
             // https://dev.azure.com/{org}/{project}/_git/{repo}?path={filepath}
@@ -34,16 +26,10 @@ namespace Microsoft.Sarif.Viewer
             string version = this.details.Branch ?? this.details.RevisionId;
             sourceRelativePath += string.IsNullOrWhiteSpace(version) ? string.Empty : $"version=GB{version}";
 
-            if (Uri.TryCreate(this.details.RepositoryUri, sourceRelativePath, out Uri sourceUri) &&
-                sourceUri.IsHttpScheme())
-            {
-                return new Uri(ConvertToRawPath(sourceUri.ToString()));
-            }
-
-            return null;
+            return CreateUri(sourceRelativePath);
         }
 
-        public string ConvertToRawPath(string url)
+        public override string ConvertToRawPath(string url)
         {
             // convert ado file access page link to file raw content link
             // from https://dev.azure.com/{org}/{project}/_git/{repo}?path={filepath}&version={branch|commitId}
@@ -74,7 +60,7 @@ namespace Microsoft.Sarif.Viewer
                                    string.Empty));
         }
 
-        public string GetLocalRelativePath(Uri uri, string relativeFilePath)
+        public override string GetLocalRelativePath(Uri uri, string relativeFilePath)
         {
             // for Ado the file link url has not full path to the file.
             // e.g. https://dev.azure.com/{org}/{project}/_git/{repo}?path={filepath}
