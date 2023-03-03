@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
@@ -81,6 +82,11 @@ namespace Microsoft.Sarif.Viewer
         private readonly IFileSystem fileSystem;
 
         /// <summary>
+        /// The file system used to access files/directories.
+        /// </summary>
+        private readonly IFileSystem2 fileSystem2;
+
+        /// <summary>
         /// Gets the fully populated file path.
         /// </summary>
         /// <remarks>
@@ -152,8 +158,9 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
         /// <param name="context">The data context for this result marker.</param>
         /// <param name="fileSystem">The file system.</param>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context, IFileSystem fileSystem = null)
-            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context, fileSystem: fileSystem)
+        /// <param name="fileSystem2">The file system 2.</param>
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
+            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context, fileSystem: fileSystem, fileSystem2: fileSystem2)
         {
         }
 
@@ -171,10 +178,11 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
         /// <param name="context">The data context for this result marker.</param>
         /// <param name="fileSystem">The file system.</param>
+        /// <param name="fileSystem2">The file system 2.</param>
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, List<(string strContent, TextRenderType renderType)> tooltipContent, object context, IFileSystem fileSystem = null)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, List<(string strContent, TextRenderType renderType)> tooltipContent, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
         {
             this.ResultId = resultId;
             this.RunIndex = runIndex;
@@ -187,6 +195,7 @@ namespace Microsoft.Sarif.Viewer
             this.ErrorType = errorType;
             this.Context = context;
             this.fileSystem = fileSystem ?? new FileSystem();
+            this.fileSystem2 = fileSystem2 ?? new FileSystem2();
         }
 
         /// <summary>
@@ -393,7 +402,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            if (this.fileSystem.FileExists(this.FullFilePath))
+            if (this.fileSystem2.IsPathRooted(this.FullFilePath) && this.fileSystem.FileExists(this.FullFilePath))
             {
                 this.resolvedFullFilePath = this.FullFilePath;
             }

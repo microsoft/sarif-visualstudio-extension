@@ -7,6 +7,9 @@
   <PropertyGroup>
     <DocumentationFile>..\..\bld\bin\AnyCPU_Debug\Sarif.Viewer.VisualStudio\Microsoft.Sarif.Viewer.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DeployExtension>True</DeployExtension>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <!-- Hack: https://github.com/dotnet/Nerdbank.GitVersioning/issues/404, since its a vsix with pages -->
   <Import Project="$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(MSBuildProjectExtensionsPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props')" />
