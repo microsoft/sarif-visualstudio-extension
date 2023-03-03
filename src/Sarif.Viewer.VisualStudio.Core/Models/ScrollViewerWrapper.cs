@@ -14,6 +14,7 @@ using EnvDTE80;
 
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -26,6 +27,15 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
     internal class ScrollViewerWrapper : IErrorTag
     {
         private readonly List<IErrorTag> objectsToWrap;
+        private static readonly Dictionary<string, int> errorTypeToRank = new Dictionary<string, int>()
+        {
+            { PredefinedErrorTypeNames.SyntaxError, 1 },
+            { PredefinedErrorTypeNames.CompilerError, 2 },
+            { PredefinedErrorTypeNames.OtherError, 3 },
+            { PredefinedErrorTypeNames.Warning, 4 },
+            { PredefinedErrorTypeNames.Suggestion, 5 },
+            { PredefinedErrorTypeNames.HintedSuggestion, 6 },
+        };
 
         public ScrollViewerWrapper(List<IErrorTag> objectsToWrap)
         {
@@ -41,7 +51,29 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                     return string.Empty;
                 }
 
-                return this.objectsToWrap[0].ErrorType;
+                string highestErrorStr = PredefinedErrorTypeNames.HintedSuggestion;
+                int highestRank = errorTypeToRank[highestErrorStr];
+                foreach (IErrorTag errorTag in this.objectsToWrap)
+                {
+                    string errorType = errorTag.ErrorType;
+                    int tagRank = 1;
+                    if (errorTypeToRank.ContainsKey(errorType))
+                    {
+                        tagRank = errorTypeToRank[errorType];
+                    }
+                    else
+                    {
+                        tagRank = errorTypeToRank[PredefinedErrorTypeNames.OtherError];
+                    }
+
+                    if (tagRank < highestRank)
+                    {
+                        highestRank = tagRank;
+                        highestErrorStr = errorType;
+                    }
+                }
+
+                return highestErrorStr;
             }
         }
 
