@@ -6,10 +6,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using System.Windows.Navigation;
 
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.Utilities;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
@@ -122,6 +126,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     if (entryToRemove != null)
                     {
                         var newEntry = new SarifResultTableEntry(newItem);
+
+                        var settings = new JsonSerializerSettings
+                        {
+                            Error = (object sender, ErrorEventArgs args) =>
+                            {
+                                args.ErrorContext.Handled = true;
+                            },
+                            NullValueHandling = NullValueHandling.Ignore,
+                            MissingMemberHandling = MissingMemberHandling.Ignore,
+                        };
+
+                        string newEntryStr = JsonConvert.SerializeObject(newEntry, settings);
+                        string oldEntryStr = JsonConvert.SerializeObject(entryToRemove, settings);
 
                         this.CallSinks(sink => sink.ReplaceEntries(new[] { entryToRemove }, new[] { newEntry }));
 

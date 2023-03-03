@@ -739,7 +739,7 @@ namespace Microsoft.Sarif.Viewer
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T : ITag
         {
-            IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
+            // IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
             IEnumerable<ResultTextMarker> resultTextMarkers = this.CollectResultTextMarkers(includeChildTags: includeChildTags, includeResultTag: includeResultTag);
 
             return resultTextMarkers.SelectMany(resultTextMarker => resultTextMarker.GetTags<T>(textBuffer, persistentSpanFactory));

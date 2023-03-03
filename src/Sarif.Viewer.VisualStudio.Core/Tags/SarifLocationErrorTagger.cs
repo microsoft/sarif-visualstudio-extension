@@ -83,6 +83,12 @@ namespace Microsoft.Sarif.Viewer.Tags
                     .SelectMany(sarifListItem =>
                         sarifListItem.GetTags<IErrorTag>(this.TextBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true));
 
+                var nullSpans = resultLocationTags.Where(x => x.PersistentSpan.Span == null);
+                if (nullSpans.Any())
+                {
+                    Console.WriteLine("stop");
+                }
+
                 IEnumerable<ISarifLocationTag> associatedLocationTags = this.sarifErrorListEventSelectionService.SelectedItem != null
                     ? errorsInCurrentFile
                         .SelectMany(sarifListItem =>
@@ -116,14 +122,13 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                 }
 
-                ScrollViewerWrapper wrapper = new ScrollViewerWrapper(errorTags);
-
-                if (foundPossibleTagSnapshotSpan == false)
+                if (foundPossibleTagSnapshotSpan == false || errorTags.Count == 0)
                 {
                     yield break;
                 }
                 else
                 {
+                    ScrollViewerWrapper wrapper = new ScrollViewerWrapper(errorTags);
                     yield return new TagSpan<IErrorTag>(possibleTagSnapshotSpan, wrapper);
                 }
             }

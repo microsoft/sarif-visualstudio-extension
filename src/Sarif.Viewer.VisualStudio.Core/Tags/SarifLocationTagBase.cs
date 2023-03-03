@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
+
 using Microsoft.VisualStudio.Text;
 
 namespace Microsoft.Sarif.Viewer.Tags
@@ -17,6 +19,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         public SarifLocationTagBase(IPersistentSpan persistentSpan, int runIndex, int resultId, object context)
         {
             this.PersistentSpan = persistentSpan;
+            if (persistentSpan == null || persistentSpan.Span == null)
+            {
+                Console.WriteLine("hi");
+            }
+
             this.RunIndex = runIndex;
             this.ResultId = resultId;
             this.Context = context;

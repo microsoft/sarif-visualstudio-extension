@@ -36,6 +36,11 @@ namespace Microsoft.Sarif.Viewer
                         endIndex: documentSpan.iEndIndex,
                         trackingMode: SpanTrackingMode.EdgeInclusive);
 
+            if (persistentSpan.Span == null)
+            {
+                Console.WriteLine("hello");
+            }
+
             return true;
         }
 

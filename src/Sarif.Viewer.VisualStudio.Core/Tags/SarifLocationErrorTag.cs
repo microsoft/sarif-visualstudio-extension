@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                     else if (item.renderType == TextRenderType.Text)
                     {
-                        return item.strContent;
+                        return new TextBlock() { Text = item.strContent };
                     }
                     else
                     {
