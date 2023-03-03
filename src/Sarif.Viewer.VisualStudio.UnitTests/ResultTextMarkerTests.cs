@@ -68,7 +68,5 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             textMarker.TryToFullyPopulateRegionAndFilePath().Should().BeTrue();
             textMarker.regionAndFilePathAreFullyPopulated.Should().BeTrue();
         }
-
-
     }
 }

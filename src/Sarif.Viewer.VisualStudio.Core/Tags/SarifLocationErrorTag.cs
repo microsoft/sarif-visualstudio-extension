@@ -100,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                 }
 
-                throw new ArgumentException("Failed to parse content into UI element");
+                return null;
             }
         }
 

@@ -19,11 +19,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         public SarifLocationTagBase(IPersistentSpan persistentSpan, int runIndex, int resultId, object context)
         {
             this.PersistentSpan = persistentSpan;
-            if (persistentSpan == null || persistentSpan.Span == null)
-            {
-                Console.WriteLine("hi");
-            }
-
             this.RunIndex = runIndex;
             this.ResultId = resultId;
             this.Context = context;
