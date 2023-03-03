@@ -83,12 +83,6 @@ namespace Microsoft.Sarif.Viewer.Tags
                     .SelectMany(sarifListItem =>
                         sarifListItem.GetTags<IErrorTag>(this.TextBuffer, this.persistentSpanFactory, includeChildTags: false, includeResultTag: true));
 
-                var nullSpans = resultLocationTags.Where(x => x.PersistentSpan.Span == null);
-                if (nullSpans.Any())
-                {
-                    Console.WriteLine("stop");
-                }
-
                 IEnumerable<ISarifLocationTag> associatedLocationTags = this.sarifErrorListEventSelectionService.SelectedItem != null
                     ? errorsInCurrentFile
                         .SelectMany(sarifListItem =>
@@ -109,27 +103,31 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (SnapshotSpan span in spans)
             {
-                List<IErrorTag> errorTags = new List<IErrorTag>();
-                SnapshotSpan possibleTagSnapshotSpan = default(SnapshotSpan);
-                bool foundPossibleTagSnapshotSpan = false;
-                foreach (ISarifLocationTag possibleLocTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
+                Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedBySpan = new Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)>();
+
+                foreach (ISarifLocationTag locationTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
-                    possibleTagSnapshotSpan = possibleLocTag.PersistentSpan.Span.GetSpan(span.Snapshot);
-                    if (span.IntersectsWith(possibleTagSnapshotSpan))
+                    SnapshotSpan snapshotSpan = locationTag.PersistentSpan.Span.GetSpan(span.Snapshot);
+                    if (snapshotSpan.IntersectsWith(span))
                     {
-                        foundPossibleTagSnapshotSpan = true;
-                        errorTags.Add((IErrorTag)possibleLocTag);
+                        (int start, int end) spanKey = (snapshotSpan.Start, snapshotSpan.End);
+                        if (!groupedBySpan.ContainsKey(spanKey))
+                        {
+                            groupedBySpan[spanKey] = (new List<IErrorTag>(), snapshotSpan);
+                        }
+
+                        groupedBySpan[spanKey].tagList.Add((IErrorTag)locationTag);
                     }
                 }
 
-                if (foundPossibleTagSnapshotSpan == false || errorTags.Count == 0)
+                foreach (KeyValuePair<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedTags in groupedBySpan)
                 {
-                    yield break;
-                }
-                else
-                {
-                    ScrollViewerWrapper wrapper = new ScrollViewerWrapper(errorTags);
-                    yield return new TagSpan<IErrorTag>(possibleTagSnapshotSpan, wrapper);
+                    (int start, int end) key = groupedTags.Key;
+                    List<IErrorTag> tags = groupedTags.Value.tagList;
+                    SnapshotSpan snapshotSpan = groupedTags.Value.snapshotSpan;
+
+                    ScrollViewerWrapper wrapper = new ScrollViewerWrapper(tags);
+                    yield return new TagSpan<IErrorTag>(snapshotSpan, wrapper);
                 }
             }
         }

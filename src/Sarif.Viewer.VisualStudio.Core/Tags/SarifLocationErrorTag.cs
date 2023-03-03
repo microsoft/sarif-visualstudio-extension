@@ -96,11 +96,11 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                     else
                     {
-                        return null;
+                        throw new ArgumentException($"Unknown text render type {item.renderType}");
                     }
                 }
 
-                return null;
+                throw new ArgumentException("Failed to parse content into UI element");
             }
         }
 
