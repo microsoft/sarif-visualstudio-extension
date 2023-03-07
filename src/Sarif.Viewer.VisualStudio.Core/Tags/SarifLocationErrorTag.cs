@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Navigation;
 
 using EnvDTE;
@@ -15,7 +16,9 @@ using EnvDTE80;
 
 using Markdig.Wpf;
 
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 
@@ -70,6 +73,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     {
                         try
                         {
+                            SolidColorBrush textBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
                             MarkdownViewer viewer = new MarkdownViewer();
                             viewer.Markdown = item.strContent;
                             foreach (Block block in viewer.Document.Blocks)
@@ -78,11 +82,18 @@ namespace Microsoft.Sarif.Viewer.Tags
                                 {
                                     if (blockChild is Hyperlink hyperlink)
                                     {
-                                       hyperlink.MouseDown += Block_MouseDown;
+                                        SolidColorBrush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
+                                        hyperlink.Foreground = hyperlinkBrush;
+                                        hyperlink.MouseDown += Block_MouseDown;
+                                    }
+                                    else if (blockChild is Run runBlock)
+                                    {
+                                        runBlock.Foreground = textBrush;
                                     }
                                 }
                             }
 
+                            viewer.Foreground = textBrush;
                             return viewer;
                         }
                         catch (Exception)
@@ -116,6 +127,12 @@ namespace Microsoft.Sarif.Viewer.Tags
                 System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
                 e.Handled = true;
             }
+        }
+
+        private static SolidColorBrush GetBrushFromThemeColor(ThemeResourceKey themeResourceKey)
+        {
+            System.Drawing.Color color = VSColorTheme.GetThemedColor(themeResourceKey);
+            return new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B));
         }
     }
 }

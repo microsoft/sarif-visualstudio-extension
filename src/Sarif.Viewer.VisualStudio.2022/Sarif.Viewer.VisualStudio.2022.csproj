@@ -199,4 +199,10 @@
       <DesignTime>True</DesignTime>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="Styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
 </Project>

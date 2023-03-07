@@ -1,0 +1,54 @@
+﻿<ResourceDictionary
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:vsUI="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+    mc:Ignorable="d" >
+    
+    <!--
+        General style sheet to apply VS theme colors to various types of controls. 
+        Not comprehensive. Add/modify as needed.
+    -->
+
+    <Style TargetType="UserControl">
+        <Setter Property="Background" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ToolWindowBackgroundBrushKey}}" />
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ToolWindowTextBrushKey}}"/>
+    </Style>
+
+    <Style TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ButtonTextBrushKey}}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ToolWindowButtonHoverActiveBrushKey}}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Background" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.SystemButtonFaceBrushKey}}" />
+            </Trigger>
+        </Style.Triggers>        
+    </Style>
+
+    <Style TargetType="Menu">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ToolWindowTextBrushKey}}" />
+        <Setter Property="Background" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ToolWindowBackgroundBrushKey}}" />
+    </Style>
+
+    <Style TargetType="MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ButtonTextBrushKey}}" />
+        <Setter Property="Background" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.SystemButtonFaceBrushKey}}" />
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ButtonTextBrushKey}}" />
+    </Style>
+
+    <Style TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ButtonTextBrushKey}}" />
+        <Setter Property="Background" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.ToolWindowBackgroundBrushKey}}" />
+    </Style>
+
+    <Style TargetType="Hyperlink">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static vsUI:EnvironmentColors.PanelHyperlinkBrushKey}}" />
+    </Style>
+
+</ResourceDictionary>

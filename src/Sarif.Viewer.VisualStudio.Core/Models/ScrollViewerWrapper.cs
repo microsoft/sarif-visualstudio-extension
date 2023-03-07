@@ -7,12 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 using EnvDTE;
 
 using EnvDTE80;
 
 using Microsoft.Sarif.Viewer.Tags;
+using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -94,7 +96,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                 var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
                 if (dte != null && dte.MainWindow != null)
                 {
-                    maxHeight = dte.MainWindow.Height / 2;
+                    maxHeight = dte.MainWindow.Height / 3;
                 }
 
                 ScrollViewer scrollViewer = new ScrollViewer()
@@ -103,6 +105,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                     Content = stackPanel,
                 };
+
                 return scrollViewer;
             }
         }
