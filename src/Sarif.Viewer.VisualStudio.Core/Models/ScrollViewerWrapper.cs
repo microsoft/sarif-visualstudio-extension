@@ -8,13 +8,9 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
 using EnvDTE;
-
 using EnvDTE80;
-
 using Markdig.Wpf;
-
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
