@@ -13,6 +13,8 @@ using EnvDTE;
 
 using EnvDTE80;
 
+using Markdig.Wpf;
+
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
@@ -28,7 +30,11 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
     /// </summary>
     internal class ScrollViewerWrapper : IErrorTag
     {
+        /// <summary>
+        /// A collection of error tags that are to be wrapped and displayed in order.
+        /// </summary>
         private readonly List<IErrorTag> objectsToWrap;
+
         private static readonly Dictionary<string, int> errorTypeToRank = new Dictionary<string, int>()
         {
             { PredefinedErrorTypeNames.SyntaxError, 1 },
@@ -44,6 +50,10 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
             this.objectsToWrap = objectsToWrap;
         }
 
+        /// <summary>
+        /// Gets the highest error type of the error tags that are wrapped.
+        /// The order of severity is defined in <see cref="ScrollViewerWrapper.errorTypeToRank"/>.
+        /// </summary>
         public string ErrorType
         {
             get
@@ -79,6 +89,9 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
             }
         }
 
+        /// <summary>
+        /// Gets the content that is to be displayed to the end user. Will wrap all of the child content in a scroll viewer, and will scale the height to prevent content from goin off screen.
+        /// </summary>
         public object ToolTipContent
         {
             get
@@ -86,10 +99,10 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
 
                 var stackPanel = new StackPanel();
-                IEnumerable<object> y = this.objectsToWrap.Select(x => x.ToolTipContent);
-                foreach (IErrorTag x in this.objectsToWrap)
+                foreach (IErrorTag objectToWrap in this.objectsToWrap)
                 {
-                    stackPanel.Children.Add((UIElement)x.ToolTipContent);
+                    UIElement tooltip = (UIElement)objectToWrap.ToolTipContent;
+                    stackPanel.Children.Add(tooltip);
                 }
 
                 int maxHeight = 800;
