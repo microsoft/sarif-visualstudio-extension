@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 
 using EnvDTE;
+
 using EnvDTE80;
 
 using Markdig.Wpf;
