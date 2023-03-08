@@ -34,6 +34,7 @@ using Microsoft.VisualStudio.Text.Tagging;
 
 using Newtonsoft.Json;
 
+using Run = Microsoft.CodeAnalysis.Sarif.Run;
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
@@ -97,7 +98,7 @@ namespace Microsoft.Sarif.Viewer
             this.Properties = new ObservableCollection<KeyValuePair<string, string>>();
         }
 
-        public SarifErrorListItem(CodeAnalysis.Sarif.Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
+        public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -170,7 +171,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public SarifErrorListItem(CodeAnalysis.Sarif.Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
+        public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
