@@ -181,6 +181,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\AdoVersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\GithubVersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\IVersionControlParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParserFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\AnalysisStepView.cs" />
