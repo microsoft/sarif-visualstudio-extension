@@ -38,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
         [Fact]
         public void ErrorTypeSortingTest()
         {
-            ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>() {  lowPriorityTag, highPriorityTag });
+            ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag });
             wrapper.ErrorType.Should().Be(PredefinedErrorTypeNames.SyntaxError);
 
             ScrollViewerWrapper wrapperOtherOrder = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag });
