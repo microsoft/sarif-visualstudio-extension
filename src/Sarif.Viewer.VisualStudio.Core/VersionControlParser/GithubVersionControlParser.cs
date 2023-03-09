@@ -5,23 +5,19 @@ using System;
 using System.Text.RegularExpressions;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Sarif;
 
 namespace Microsoft.Sarif.Viewer
 {
-    internal class GithubVersionControlParser : IVersionControlParser
+    internal class GithubVersionControlParser : VersionControlParser
     {
-        private readonly VersionControlDetails details;
         private static readonly Regex regex = new Regex(
             @"^(?<protocol>https?://)(?<site>github\.com)/(?<user>.*?)/(?<repo>.*?)(?<folder>/tree/|/blob/)(?<path>.*?)$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         internal GithubVersionControlParser(VersionControlDetails versionControl)
-        {
-            this.details = versionControl;
-        }
+            : base(versionControl) { }
 
-        public Uri GetSourceFileUri(string relativeFilePath)
+        public override Uri GetSourceFileUri(string relativeFilePath)
         {
             // github link format:
             // https://github.com/<username>/<reponame>/<blob|tree>/<commitmentid|branch>/path/to/file
@@ -31,16 +27,10 @@ namespace Microsoft.Sarif.Viewer
             sourceRelativePath += "/";
             sourceRelativePath += relativeFilePath;
 
-            if (Uri.TryCreate(this.details.RepositoryUri, sourceRelativePath, out Uri sourceUri) &&
-                sourceUri.IsHttpScheme())
-            {
-                return new Uri(ConvertToRawPath(sourceUri.ToString()));
-            }
-
-            return null;
+            return CreateUri(sourceRelativePath);
         }
 
-        public string ConvertToRawPath(string url)
+        public override string ConvertToRawPath(string url)
         {
             // convert github file access page link to file raw content link
             // from https://github.com/<username>/<repo>/<blob|tree>/<branch>/path/to/file
@@ -65,7 +55,7 @@ namespace Microsoft.Sarif.Viewer
                                m.Groups["path"]);
         }
 
-        public string GetLocalRelativePath(Uri uri, string relativeFilePath)
+        public override string GetLocalRelativePath(Uri uri, string relativeFilePath)
         {
             // for Github the file link url has full path to the file.
             // e.g. https://github.com/<username>/<repo>/<blob|tree>/<branch>/path/to/file
