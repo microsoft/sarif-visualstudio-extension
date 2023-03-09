@@ -1,27 +1,17 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 using EnvDTE;
 
 using EnvDTE80;
 
-using Markdig.Wpf;
-
-using Microsoft.Sarif.Viewer.Tags;
-using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
-
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Sarif.Viewer.VisualStudio.Core.Models
 {
