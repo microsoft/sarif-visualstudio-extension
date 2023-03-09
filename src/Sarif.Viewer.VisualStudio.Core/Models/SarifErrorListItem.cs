@@ -979,7 +979,7 @@ namespace Microsoft.Sarif.Viewer
             if (_content == null)
             {
                 _content = new List<(string strContent, TextRenderType renderType)>();
-                if (this.SarifResult != null && this.SarifResult.Message != null && !string.IsNullOrWhiteSpace(this.SarifResult.Message.Markdown))
+                if (!string.IsNullOrWhiteSpace(this.SarifResult?.Message?.Markdown))
                 {
                     _content.Add((this.SarifResult.Message.Markdown, TextRenderType.Markdown));
                 }

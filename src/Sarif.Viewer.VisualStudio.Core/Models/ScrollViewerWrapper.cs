@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -89,7 +90,19 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                 ThreadHelper.ThrowIfNotOnUIThread();
 
                 var stackPanel = new StackPanel();
-                foreach (IErrorTag objectToWrap in this.objectsToWrap)
+
+                IEnumerable<IErrorTag> sortedObjects = this.objectsToWrap.OrderBy(x =>
+                {
+                    int rank;
+                    if (!errorTypeToRank.TryGetValue(x.ErrorType, out rank))
+                    {
+                        rank = ScrollViewerWrapper.errorTypeToRank[PredefinedErrorTypeNames.OtherError];
+                    }
+
+                    return rank;
+                });
+
+                foreach (IErrorTag objectToWrap in sortedObjects)
                 {
                     UIElement tooltip = (UIElement)objectToWrap.ToolTipContent;
                     stackPanel.Children.Add(tooltip);

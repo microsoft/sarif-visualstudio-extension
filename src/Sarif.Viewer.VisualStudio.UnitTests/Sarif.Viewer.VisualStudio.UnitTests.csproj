@@ -64,6 +64,7 @@
     <Compile Include="Models\ReplacementModelTests.cs" />
     <Compile Include="Models\RuleModelTests.cs" />
     <Compile Include="Models\SarifErrorListItemTests.cs" />
+    <Compile Include="Models\ScrollViewerWrapperTests.cs" />
     <Compile Include="OutputWindowTracerListenerTests.cs" />
     <Compile Include="ProjectNameCacheTests.cs" />
     <Compile Include="ResourceExtractor.cs" />
