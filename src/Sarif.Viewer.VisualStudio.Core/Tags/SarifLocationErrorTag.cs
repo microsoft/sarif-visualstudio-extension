@@ -28,12 +28,12 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <summary>
         /// The default fontsize for text components.
         /// </summary>
-        private static readonly int fontSize = 16;
+        private const int FontSize = 16;
 
         /// <summary>
         /// The color for text. Changes based on user theme.
         /// </summary>
-        private static readonly SolidColorBrush textBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
+        private static readonly SolidColorBrush TextBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifLocationErrorTag"/> class.
@@ -93,8 +93,8 @@ namespace Microsoft.Sarif.Viewer.Tags
                     else if (item.renderType == TextRenderType.Text)
                     {
                         TextBlock textblock = new TextBlock() { Text = item.strContent };
-                        textblock.FontSize = fontSize;
-                        textblock.Foreground = textBrush;
+                        textblock.FontSize = FontSize;
+                        textblock.Foreground = TextBrush;
                         return textblock;
                     }
                     else
@@ -125,7 +125,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                     else if (blockChild is Run runBlock)
                     {
-                        runBlock.Foreground = textBrush;
+                        runBlock.Foreground = TextBrush;
                     }
                     else if (blockChild is ListItem listBlock)
                     {
@@ -133,7 +133,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                 }
 
-                block.Foreground = textBrush;
+                block.Foreground = TextBrush;
             }
         }
 
