@@ -85,7 +85,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                             viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
                             return viewer;
                         }
-                        catch (Exception)
+                        catch (NotSupportedException)
                         {
                             // catch and swallow silently
                         }
@@ -146,7 +146,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (sender is Hyperlink hyperlink)
             {
-                System.Diagnostics.Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
+                Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
                 e.Handled = true;
             }
         }
