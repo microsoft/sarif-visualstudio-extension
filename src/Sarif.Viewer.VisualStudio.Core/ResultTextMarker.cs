@@ -446,7 +446,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (this.persistentSpan != null && this.persistentSpan.Span != null)
+            if (this.persistentSpan?.Span != null)
             {
                 return true;
             }

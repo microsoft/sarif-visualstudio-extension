@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -99,7 +100,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                     else
                     {
-                        throw new ArgumentException($"Unknown text render type {item.renderType}");
+                        throw new ArgumentException($"Unsupported text render type {item.renderType}. Only {TextRenderType.Text}, {TextRenderType.Markdown} are supported");
                     }
                 }
 

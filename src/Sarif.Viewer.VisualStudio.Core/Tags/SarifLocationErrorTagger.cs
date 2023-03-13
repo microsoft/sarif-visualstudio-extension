@@ -98,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (SnapshotSpan span in spans)
             {
-                Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedBySpan = new Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)>();
+                var groupedBySpan = new Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)>();
 
                 foreach (ISarifLocationTag locationTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
