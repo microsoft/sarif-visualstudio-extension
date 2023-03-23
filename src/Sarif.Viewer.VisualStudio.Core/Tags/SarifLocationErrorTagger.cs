@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.UI.WebControls;
 
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
+
+using Sarif.Viewer.VisualStudio.Core.Models;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
@@ -95,13 +98,27 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             foreach (SnapshotSpan span in spans)
             {
-                foreach (ISarifLocationTag possibleTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
+                var groupedBySpan = new Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)>();
+
+                foreach (ISarifLocationTag locationTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
-                    SnapshotSpan possibleTagSnapshotSpan = possibleTag.PersistentSpan.Span.GetSpan(span.Snapshot);
-                    if (span.IntersectsWith(possibleTagSnapshotSpan))
+                    SnapshotSpan snapshotSpan = locationTag.PersistentSpan.Span.GetSpan(span.Snapshot);
+                    if (snapshotSpan.IntersectsWith(span))
                     {
-                        yield return new TagSpan<IErrorTag>(possibleTagSnapshotSpan, (IErrorTag)possibleTag);
+                        (int start, int end) spanKey = (snapshotSpan.Start, snapshotSpan.End);
+                        if (!groupedBySpan.ContainsKey(spanKey))
+                        {
+                            groupedBySpan[spanKey] = (new List<IErrorTag>(), snapshotSpan);
+                        }
+
+                        groupedBySpan[spanKey].tagList.Add((IErrorTag)locationTag);
                     }
+                }
+
+                foreach (KeyValuePair<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedTags in groupedBySpan)
+                {
+                    List<IErrorTag> tags = groupedTags.Value.tagList;
+                    yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags));
                 }
             }
         }

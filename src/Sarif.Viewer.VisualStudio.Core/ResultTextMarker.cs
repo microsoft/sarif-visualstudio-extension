@@ -129,7 +129,7 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
         /// </remarks>
-        public object ToolTipContent { get; }
+        public List<(string strContent, TextRenderType renderType)> ToolTipContent { get; }
 
         /// <summary>
         /// Gets the data context for this result marker.
@@ -181,7 +181,7 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, object tooltipContent, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, List<(string strContent, TextRenderType renderType)> tooltipContent, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
         {
             this.ResultId = resultId;
             this.RunIndex = runIndex;
@@ -225,7 +225,7 @@ namespace Microsoft.Sarif.Viewer
                                     runIndex: this.RunIndex,
                                     resultId: this.ResultId,
                                     errorType: this.ErrorType,
-                                    toolTipContent: this.ToolTipContent,
+                                    content: this.ToolTipContent,
                                     context: this.Context));
             }
 
@@ -446,7 +446,7 @@ namespace Microsoft.Sarif.Viewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            if (this.persistentSpan != null)
+            if (this.persistentSpan?.Span != null)
             {
                 return true;
             }

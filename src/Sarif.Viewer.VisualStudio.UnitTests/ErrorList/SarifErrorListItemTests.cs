@@ -1004,5 +1004,39 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             item.FileName.Should().Contain("program.cs");
             item.Locations.Should().NotBeNullOrEmpty();
         }
+
+
+        /// <summary>
+        /// Tests to see if we are able to correctly make a Sarif error list item hold and properly order markdown text and plain text to be rendered later.
+        /// </summary>
+        [Fact]
+        public void SarifErrorListItem_WithMarkdownContent()
+        {
+            var message = new Message()
+            {
+                Markdown = "Sample-markdown",
+                Text = "Sample-text",
+            };
+
+            var result = new Result()
+            {
+                Message = message
+            };
+
+            var errorListItem = new SarifErrorListItem(result)
+            {
+                FileName = "file.ext",
+                Region = new Region
+                {
+                    StartLine = 5,
+                },
+            };
+
+            errorListItem.Content.Count().Should().Be(2);
+            errorListItem.Content[0].renderType.Should().Be(TextRenderType.Markdown);
+            errorListItem.Content[1].renderType.Should().Be(TextRenderType.Text);
+            errorListItem.Content[0].strContent.Should().Be(message.Markdown);
+            errorListItem.Content[1].strContent.Should().Be(message.Text);
+        }
     }
 }

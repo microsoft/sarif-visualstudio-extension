@@ -28,10 +28,24 @@ using Microsoft.VisualStudio.Text.Tagging;
 
 using Newtonsoft.Json;
 
+using Run = Microsoft.CodeAnalysis.Sarif.Run;
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
+    internal enum TextRenderType
+    {
+        /// <summary>
+        /// Denotes that a string should be rendered as plaintext
+        /// </summary>
+        Text,
+
+        /// <summary>
+        /// Denotes that a string should be rendered as markdown
+        /// </summary>
+        Markdown,
+    }
+
     internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
         // max length of concise text, 0 indexed
@@ -65,6 +79,7 @@ namespace Microsoft.Sarif.Viewer
             : this()
         {
             this.SarifResult = result;
+            this.RawMessage = result.Message?.Text;
         }
 
         internal SarifErrorListItem()
@@ -250,10 +265,13 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string RawMessage { get; set; }
 
+        /// <summary>
+        /// Gets an ordered list of the different text to render and the format it should be rendered in. Sorted by most preferred format to render to least.
+        /// </summary>
         [Browsable(false)]
-        public string PlainMessage => !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
-                                      SdkUIUtilities.GetPlainText(this.MessageInlines) :
-                                      this.RawMessage;
+        public List<(string strContent, TextRenderType renderType)> Content => this.CreateContent();
+
+        private List<(string strContent, TextRenderType renderType)> _content;
 
         [Browsable(false)]
         public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
@@ -462,7 +480,7 @@ namespace Microsoft.Sarif.Viewer
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
                         errorType: predefinedErrorType,
-                        tooltipContent: this.PlainMessage,
+                        tooltipContent: this.Content,
                         context: this);
                 }
 
@@ -716,7 +734,6 @@ namespace Microsoft.Sarif.Viewer
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T : ITag
         {
-            IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
             IEnumerable<ResultTextMarker> resultTextMarkers = this.CollectResultTextMarkers(includeChildTags: includeChildTags, includeResultTag: includeResultTag);
 
             return resultTextMarkers.SelectMany(resultTextMarker => resultTextMarker.GetTags<T>(textBuffer, persistentSpanFactory));
@@ -950,6 +967,33 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return message;
+        }
+
+        /// <summary>
+        /// Creates the content that goes into the ToolTipContent that gets rendered on hover.
+        /// Will attempt to render markdown first, however if it fails it will fall back to plaintext.
+        /// </summary>
+        /// <returns>ToolTipContent to render.</returns>
+        private List<(string strContent, TextRenderType renderType)> CreateContent()
+        {
+            if (_content == null)
+            {
+                _content = new List<(string strContent, TextRenderType renderType)>();
+                if (!string.IsNullOrWhiteSpace(this.SarifResult?.Message?.Markdown))
+                {
+                    _content.Add((this.SarifResult.Message.Markdown, TextRenderType.Markdown));
+                }
+
+                string textContent = !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
+                                          SdkUIUtilities.GetPlainText(this.MessageInlines) :
+                                          this.RawMessage;
+                _content.Add((textContent, TextRenderType.Text));
+                return _content;
+            }
+            else
+            {
+                return _content;
+            }
         }
     }
 }
