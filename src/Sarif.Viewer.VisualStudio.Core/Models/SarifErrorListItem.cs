@@ -15,6 +15,7 @@ using EnvDTE;
 using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.CodeFinder;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -25,6 +26,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.Workspace;
 
 using Newtonsoft.Json;
 
@@ -131,9 +133,32 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.Region != null)
             {
-                this.LineNumber = this.Region.StartLine;
+                this.LineNumber = 1;
+
+                // this.LineNumber = this.Region.StartLine;
                 this.ColumnNumber = this.Region.StartColumn;
             }
+
+            PhysicalLocation primaryPhysicalLocation = result.GetPrimaryPhysicalLocation();
+            LogicalLocation primaryLogicalLocation = result.GetPrimaryLogicalLocation();
+
+/*            // If the primary physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
+            if (primaryPhysicalLocation != null && primaryPhysicalLocation.PropertyNames.Contains("StartLine") && primaryPhysicalLocation.PropertyNames.Contains("EndLine")
+                && this.Region?.Snippet?.Text != null && primaryLogicalLocation?.FullyQualifiedName != null && result.Guid != null)
+            {
+                MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code;
+                if (this.Region.Snippet.Text == primaryLogicalLocation.FullyQualifiedName)
+                {
+                    typeHint = MatchQuery.MatchTypeHint.Function;
+                }
+
+                MatchQuery query = new MatchQuery(textToFind: this.Region.Snippet.Text,
+                    lineNumberHint: this.LineNumber,
+                    callingSignature: primaryLogicalLocation.FullyQualifiedName,
+                    id: result.Guid,
+                    typeHint: typeHint);
+                CodeFinder codeFinder = new CodeFinder.CodeFinder(LocalFilePath, fileContents);
+            }*/
         }
 
         /// <summary>
