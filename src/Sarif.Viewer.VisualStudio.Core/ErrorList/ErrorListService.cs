@@ -23,6 +23,7 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.Sarif.Viewer.CodeFinder;
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Models;
@@ -34,6 +35,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.TaskStatusCenter;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 using Newtonsoft.Json;
 
@@ -585,15 +587,53 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             var projectNameCache = new ProjectNameCache(dte?.Solution);
 
             this.StoreFileDetails(run.Artifacts);
-
+            List<SarifErrorListItem> sarifErrorListItems = new List<SarifErrorListItem>();
             if (run.Results != null)
             {
                 foreach (Result result in run.Results)
                 {
                     result.Run = run;
-                    var sarifError = new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache);
-                    dataCache.AddSarifResult(sarifError);
+                    sarifErrorListItems.Add(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
                 }
+            }
+
+            Dictionary<string, CodeFinder.CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder.CodeFinder>(); // local file path -> codefinder
+            foreach (SarifErrorListItem item in sarifErrorListItems)
+            {
+/*                if (item.queries != null)
+                {
+                    // try to do codefinding now, then modify the existing fields so we can treat as normal
+                    for (int i = 0; i < item.queries.Count; i++)
+                    {
+                        (Uri filePath, MatchQuery query)? queryTuple = item.queries[i];
+                        if (queryTuple != null)
+                        {
+                            Uri filePath = queryTuple.Value.filePath;
+                            MatchQuery query = queryTuple.Value.query;
+                            if (!codeFinderCache.ContainsKey(filePath))
+                            {
+                                string fileContent = SdkUIUtilities.TryGetFileContent(filePath);
+                                codeFinderCache[filePath] = new CodeFinder.CodeFinder(filePath, fileContent);
+                            }
+
+                            CodeFinder.CodeFinder finder = codeFinderCache[filePath];
+                            List<MatchResult> results = finder.FindMatchesWithFunction(query);
+                            MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
+                            if (bestResult != null)
+                            {
+                                // if it's the first, we want to change the line number of the error list item too
+                                if (i == 0)
+                                {
+                                    item.LineNumber = bestResult.LineNumber;
+                                }
+
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
+                            }
+                        }
+                    }
+                }*/
+
+                dataCache.AddSarifResult(item);
             }
 
             if (run.Invocations != null)

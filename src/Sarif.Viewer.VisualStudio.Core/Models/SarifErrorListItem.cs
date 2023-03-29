@@ -139,26 +139,39 @@ namespace Microsoft.Sarif.Viewer
                 this.ColumnNumber = this.Region.StartColumn;
             }
 
-            PhysicalLocation primaryPhysicalLocation = result.GetPrimaryPhysicalLocation();
-            LogicalLocation primaryLogicalLocation = result.GetPrimaryLogicalLocation();
-
-/*            // If the primary physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
-            if (primaryPhysicalLocation != null && primaryPhysicalLocation.PropertyNames.Contains("StartLine") && primaryPhysicalLocation.PropertyNames.Contains("EndLine")
-                && this.Region?.Snippet?.Text != null && primaryLogicalLocation?.FullyQualifiedName != null && result.Guid != null)
+            // If the physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
+            if (result.Locations?[0].PhysicalLocation != null
+                && result.Locations[0].PhysicalLocation.PropertyNames.Contains("StartLine")
+                && result.Locations[0].PhysicalLocation.PropertyNames.Contains("EndLine"))
             {
-                MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code;
-                if (this.Region.Snippet.Text == primaryLogicalLocation.FullyQualifiedName)
+                this.queries = new List<(string filePath, MatchQuery query)?>();
+                foreach (Location l in result.Locations)
                 {
-                    typeHint = MatchQuery.MatchTypeHint.Function;
-                }
+                    if (l != null)
+                    {
+                        PhysicalLocation currentPhysicalLocation = l.PhysicalLocation;
+                        LogicalLocation currentLogicalLocation = l.LogicalLocation;
+                        if (currentPhysicalLocation.PropertyNames.Contains("StartLine") && currentPhysicalLocation.PropertyNames.Contains("EndLine")
+                            && currentPhysicalLocation.Region?.Snippet?.Text != null && currentPhysicalLocation.ArtifactLocation?.Uri != null && currentLogicalLocation?.FullyQualifiedName != null && result.Guid != null)
+                        {
+                            MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code;
+                            if (currentPhysicalLocation.Region.Snippet.Text == currentLogicalLocation.FullyQualifiedName)
+                            {
+                                typeHint = MatchQuery.MatchTypeHint.Function;
+                            }
 
-                MatchQuery query = new MatchQuery(textToFind: this.Region.Snippet.Text,
-                    lineNumberHint: this.LineNumber,
-                    callingSignature: primaryLogicalLocation.FullyQualifiedName,
-                    id: result.Guid,
-                    typeHint: typeHint);
-                CodeFinder codeFinder = new CodeFinder.CodeFinder(LocalFilePath, fileContents);
-            }*/
+                            MatchQuery query = new MatchQuery(textToFind: currentPhysicalLocation.Region.Snippet.Text,
+                                lineNumberHint: this.LineNumber,
+                                callingSignature: currentLogicalLocation.FullyQualifiedName,
+                                id: result.Guid,
+                                typeHint: typeHint);
+                            this.queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
+                        }
+                    }
+
+                    this.queries.Add(null);
+                }
+            }
         }
 
         /// <summary>
@@ -429,6 +442,11 @@ namespace Microsoft.Sarif.Viewer
 
             this.OpenLogFile();
         });
+
+        /// <summary>
+        ///  A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.
+        /// </summary>
+        public List<(Uri filePath, MatchQuery query)?> queries;
 
         internal void OpenLogFile()
         {

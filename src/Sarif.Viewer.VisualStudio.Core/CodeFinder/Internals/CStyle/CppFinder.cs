@@ -260,7 +260,6 @@ namespace Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle
             // a leading underscore from the first part and a trailing underscore from the last part.
             // Only do this if there are at least 2 parts as the extra underscores don't seem to be added for function
             // signatures with only one valid part.
-            // E.g. _ToastController::TryStartLifetimeManagerIfNecessary_ -> ToastController::TryStartLifetimeManagerIfNecessary
             if (tryBlockIndicated && newParts.Count > 1)
             {
                 string firstPart = newParts[0];

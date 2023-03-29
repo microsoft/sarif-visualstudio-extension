@@ -23,6 +23,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Workspace.Logging;
 
 using Newtonsoft.Json;
 
@@ -345,6 +346,16 @@ namespace Microsoft.Sarif.Viewer
             textView = null;
 
             return false;
+        }
+
+        public static string TryGetFileContent(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return null;
+            }
+
+            return File.ReadAllText(filePath);
         }
 
         public static bool TryGetFileNameFromTextBuffer(ITextBuffer textBuffer, out string filename)
