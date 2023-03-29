@@ -258,7 +258,7 @@ namespace Microsoft.Sarif.Viewer
 
             try
             {
-                await ErrorListService.ProcessLogFileAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true, openInEditor: true).ConfigureAwait(continueOnCapturedContext: false);
+                await ErrorListService.ProcessLogFileWithTracesAsync(logFile, toolFormat, promptOnLogConversions: true, cleanErrors: true, openInEditor: true).ConfigureAwait(continueOnCapturedContext: false);
                 new DataService().CloseEnhancedResultData(cookie: 0);
             }
             catch (InvalidOperationException)

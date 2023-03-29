@@ -297,6 +297,11 @@ namespace Microsoft.Sarif.Viewer
             this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
+        /// <summary>
+        /// This event is fired when <see cref="ResultSourceHost.ServiceEvent"/> is fired.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The arguments that were passed by the method that invoked the result source host service event.</param>
         private void ResultSourceHost_ServiceEvent(object sender, ServiceEventArgs e)
         {
             switch (e.ServiceEventType)
@@ -391,6 +396,10 @@ namespace Microsoft.Sarif.Viewer
                 : null;
         }
 
+        /// <summary>
+        /// Gets the .sarif directory that is used for this solution.
+        /// </summary>
+        /// <returns>A string of where the .sarif directory for this solution is.</returns>
         private static string GetDotSarifDirectoryPath()
         {
             return Path.Combine(GetSolutionDirectoryPath(), ".sarif");
