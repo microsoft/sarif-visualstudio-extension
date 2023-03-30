@@ -58,7 +58,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <inheritdoc/>
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
         {
             if (this.tagsDirty)
