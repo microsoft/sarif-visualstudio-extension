@@ -641,7 +641,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-            var dataCache = new RunDataCache(runIndex, logFilePath, sarifLog);
+            var dataCache = new RunDataCache(logFilePath, sarifLog);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
 
