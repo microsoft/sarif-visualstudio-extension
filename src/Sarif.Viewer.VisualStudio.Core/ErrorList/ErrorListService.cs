@@ -41,6 +41,9 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
+    /// <summary>
+    /// Primarily responsible for creating <see cref="SarifErrorListItem"/>s.
+    /// </summary>
     public class ErrorListService
     {
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";

@@ -112,35 +112,6 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        /// <summary>
-        /// Fired when this error list item is disposed.
-        /// </summary>
-        /// <remarks>
-        /// An example of the usage of this is making sure that the SARIF explorer window
-        /// doesn't hold on to a disposed object when the error list is cleared.
-        /// </remarks>
-        public event EventHandler Disposed;
-
-        private FailureLevel GetEffectiveLevel(Result result)
-        {
-            switch (result.Kind)
-            {
-                case ResultKind.Review:
-                case ResultKind.Open:
-                    return FailureLevel.Warning;
-
-                case ResultKind.NotApplicable:
-                case ResultKind.Informational:
-                case ResultKind.Pass:
-                    return FailureLevel.Note;
-
-                case ResultKind.Fail:
-                case ResultKind.None: // Should never happen.
-                default: // Should never happen.
-                    return result.Level != FailureLevel.Warning ? result.Level : this.Rule.FailureLevel;
-            }
-        }
-
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
@@ -178,6 +149,35 @@ namespace Microsoft.Sarif.Viewer
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();
             this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
             this.HelpLink = this.Rule?.HelpUri;
+        }
+
+        /// <summary>
+        /// Fired when this error list item is disposed.
+        /// </summary>
+        /// <remarks>
+        /// An example of the usage of this is making sure that the SARIF explorer window
+        /// doesn't hold on to a disposed object when the error list is cleared.
+        /// </remarks>
+        public event EventHandler Disposed;
+
+        private FailureLevel GetEffectiveLevel(Result result)
+        {
+            switch (result.Kind)
+            {
+                case ResultKind.Review:
+                case ResultKind.Open:
+                    return FailureLevel.Warning;
+
+                case ResultKind.NotApplicable:
+                case ResultKind.Informational:
+                case ResultKind.Pass:
+                    return FailureLevel.Note;
+
+                case ResultKind.Fail:
+                case ResultKind.None: // Should never happen.
+                default: // Should never happen.
+                    return result.Level != FailureLevel.Warning ? result.Level : this.Rule.FailureLevel;
+            }
         }
 
         [Browsable(false)]
@@ -249,6 +249,9 @@ namespace Microsoft.Sarif.Viewer
             return this.Message;
         }
 
+        /// <summary>
+        /// Gets or sets the line marker for highlighting that represents the primary region of this item.
+        /// </summary>
         [Browsable(false)]
         public ResultTextMarker LineMarker
         {
@@ -384,9 +387,12 @@ namespace Microsoft.Sarif.Viewer
             SarifLocationTagHelpers.RefreshTags();
         }
 
+        /// <summary>
+        /// Populates the <see cref="Fixes"/> field from the <see cref="SarifResult.Fixes"/>.
+        /// </summary>
         internal void PopulateFixModelsIfNot()
         {
-            // populate FixModels if they are not
+            // Populate FixModels if they are not populated
             if (this.SarifResult?.Fixes?.Any() == true && this.Fixes?.Any() == false)
             {
                 if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
@@ -412,6 +418,10 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Populates the <see cref="Locations"/> , <see cref="RelatedLocations"/>, <see cref="CodeFlows"/>, <see cref="Stacks"/>, and <see cref="Properties"/> fields from <see cref="SarifResult"/>.
+        /// Only callable from the UI thread.
+        /// </summary>
         internal void PopulateAdditionalPropertiesIfNot()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -518,6 +528,15 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public bool IsFixed { get; set; }
 
+        /// <summary>
+        /// Builds the tags that are to be used in code highglighting and popups.
+        /// </summary>
+        /// <typeparam name="T">Type that the result text marker should use.</typeparam>
+        /// <param name="textBuffer">The textbuffer representing the file the tags are being built for.</param>
+        /// <param name="persistentSpanFactory">The span factory that is to actually create the spans.</param>
+        /// <param name="includeChildTags">True will set it to include child tags in the location tags returned.</param>
+        /// <param name="includeResultTag">True will set it to include result tags in the location tags returned.</param>
+        /// <returns>The list of <see cref="ISarifLocationTag"/> that are used to display highlights and popups in the VS editor window.</returns>
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T : ITag
         {
@@ -709,8 +728,11 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        // Generates an unique hash value using the properties affect content of error list item.
-        // If any of these properties changes, needs to refresh error list item.
+        /// <summary>
+        /// Generates an unique hash value using the properties affect content of error list item.
+        /// If any of these properties changes, needs to refresh error list item.
+        /// </summary>
+        /// <returns>The hash of the error list item object.</returns>
         internal int GetIdentity()
         {
             int hashCode = -509415362;

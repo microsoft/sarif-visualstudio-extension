@@ -38,7 +38,9 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal partial class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
-        // max length of concise text, 0 indexed
+        /// <summary>
+        /// Max length of concise text, 0 indexed.
+        /// </summary>
         internal static int MaxConcisedTextLength = 150;
 
         /// <summary>
@@ -230,7 +232,9 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public bool HasMultipleLocations => this.LocationsCount > 1;
 
-        // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
+        /// <summary>
+        /// Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
+        /// </summary>
         private static int currentResultId;
 
         private string _fileName;

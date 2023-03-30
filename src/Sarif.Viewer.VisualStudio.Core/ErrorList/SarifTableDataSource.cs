@@ -13,6 +13,9 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
+    /// <summary>
+    /// Data structure passed to the error list that handles changing the <see cref="SarifResultTableEntry"/> collection.
+    /// </summary>
     internal class SarifTableDataSource : SarifTableDataSourceBase, IDisposable
     {
         private static SarifTableDataSource _instance;

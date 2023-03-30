@@ -177,7 +177,7 @@ namespace Microsoft.Sarif.Viewer
                 // [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
-                this.sarifFolderMonitor?.StartWatch();
+                this.sarifFolderMonitor?.StartWatching();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -271,7 +271,7 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
         {
             // stop watcher when the solution is closed.
-            this.sarifFolderMonitor?.StopWatch();
+            this.sarifFolderMonitor?.StopWatching();
 
             if (this.resultSourceHost != null)
             {
@@ -292,7 +292,7 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
             // start to watch when the solution is loaded.
-            this.sarifFolderMonitor?.StartWatch();
+            this.sarifFolderMonitor?.StartWatching();
 
             this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }

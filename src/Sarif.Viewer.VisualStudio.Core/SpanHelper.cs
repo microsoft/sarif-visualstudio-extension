@@ -10,6 +10,9 @@ using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Microsoft.Sarif.Viewer
 {
+    /// <summary>
+    /// Helper class that builds spans to be used in code highlighting.
+    /// </summary>
     internal static class SpanHelper
     {
         /// <summary>
@@ -48,6 +51,13 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
+        /// <summary>
+        /// Produces a <paramref name="textSpan"/> representing the <paramref name="region"/> and <paramref name="textBuffer"/> if available.
+        /// </summary>
+        /// <param name="region">The region to make a textspan from.</param>
+        /// <param name="textBuffer">The textbuffer to make the textspan from.</param>
+        /// <param name="textSpan">The textspan that is output.</param>
+        /// <returns>True if it succesfully found a valid textspan.</returns>
         internal static bool TryCreateTextSpanWithinDocumentFromSourceRegion(Region region, ITextBuffer textBuffer, out TextSpan textSpan)
         {
             if (!SarifViewerPackage.IsUnitTesting)

@@ -68,6 +68,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </remarks>
         private readonly List<(string strContent, TextRenderType renderType)> content;
 
+        /// <summary>
+        /// Gets the content that will be displayed in the VS editor UI.
+        /// </summary>
         public object ToolTipContent
         {
             get
