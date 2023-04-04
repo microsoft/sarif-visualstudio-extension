@@ -183,9 +183,18 @@ namespace Microsoft.Sarif.Viewer
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
             SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
+            SolutionEvents.OnBeforeOpenProject += this.SolutionEvents_OnBeforeOpenProject;
 
             await this.InitializeResultSourceHostAsync();
             return;
+        }
+
+        private void SolutionEvents_OnBeforeOpenProject(object sender, EventArgs e)
+        {
+            // start watcher when the solution is opened.
+            this.sarifFolderMonitor?.StartWatch();
+
+            this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
         private void SolutionEvents_OnAfterCloseSolution(object sender, EventArgs e)
