@@ -53,7 +53,15 @@
                           IsChecked="{Binding EnableKeyEventAdornment, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_EnableKeyEventAdornment}"
                           AutomationProperties.AutomationId="EnableKeyEventAdornmentCheckBox" />
+
+                <TextBlock>Underline error results with a</TextBlock>
+                <ComboBox SelectedIndex="{Binding ErrorUnderlineColorIndex, Mode =TwoWay}">
+                        <ComboBoxItem >Red squiggle</ComboBoxItem>
+                        <ComboBoxItem>Green squiggle</ComboBoxItem>
+                        <ComboBoxItem>Blue squiggle</ComboBoxItem>
+                    </ComboBox>
             </StackPanel>
+            
         </GroupBox>
     </Grid>
 </UserControl>

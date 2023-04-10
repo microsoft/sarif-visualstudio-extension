@@ -10,6 +10,24 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
+    public enum UnderlineColors
+    {
+        /// <summary>
+        /// Highlights the text with a green underline
+        /// </summary>
+        Green,
+
+        /// <summary>
+        /// Highlights the text with a purple underline
+        /// </summary>
+        Purple,
+
+        /// <summary>
+        /// Highlights the text with a blue underline
+        /// </summary>
+        Blue,
+    }
+
     [ComVisible(true)]
     public class SarifViewerOptionPage : UIElementDialogPage
     {
@@ -25,6 +43,21 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool EnableGitHubAdvancedSecurity { get; set; } = false;
 
         public bool EnableKeyEventAdornment { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the index representing what an error needs to be underlined as.
+        /// </summary>
+        public int ErrorUnderlineColorIndex { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the index representing what a warning needs to be underlined as.
+        /// </summary>
+        public int WarningUnderlineColorIndex { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets the index representing what a note needs to be underlined as.
+        /// </summary>
+        public int NoteUnderlineColorIndex { get; set; } = 2;
 
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
