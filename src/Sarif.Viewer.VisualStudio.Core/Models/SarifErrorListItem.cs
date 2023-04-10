@@ -9,11 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
-
 using EnvDTE;
-
 using EnvDTE80;
-
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.CodeFinder;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -27,9 +24,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Workspace;
-
 using Newtonsoft.Json;
-
 using Run = Microsoft.CodeAnalysis.Sarif.Run;
 using XamlDoc = System.Windows.Documents;
 
@@ -144,7 +139,7 @@ namespace Microsoft.Sarif.Viewer
                 && result.Locations[0].PhysicalLocation.PropertyNames.Contains("StartLine")
                 && result.Locations[0].PhysicalLocation.PropertyNames.Contains("EndLine"))
             {
-                this.queries = new List<(string filePath, MatchQuery query)?>();
+                this.queries = new List<(Uri filePath, MatchQuery query)?>();
                 foreach (Location l in result.Locations)
                 {
                     if (l != null)
@@ -446,7 +441,7 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         ///  A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.
         /// </summary>
-        public List<(Uri filePath, MatchQuery query)?> queries;
+        public List<(Uri filePath, CodeFinder.MatchQuery query)?> queries;
 
         internal void OpenLogFile()
         {
