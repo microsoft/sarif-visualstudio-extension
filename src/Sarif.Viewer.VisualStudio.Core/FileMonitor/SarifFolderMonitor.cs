@@ -50,7 +50,11 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
             this.fileWatcher?.Dispose();
         }
 
-        internal void StartWatch(string solutionPath = null)
+        /// <summary>
+        /// Starts watching the .sarif folder under a particular path for files being created or destroyed. If the path does not exist it will create a new directory of that path.
+        /// </summary>
+        /// <param name="solutionPath">(Optional). The solution path to watch. Of no path is provided it will use the default solution directory if exists.</param>
+        internal void StartWatching(string solutionPath = null)
         {
             this.solutionFolder = solutionPath ?? this.GetSolutionDirectory();
             if (string.IsNullOrEmpty(this.solutionFolder) || !fileSystem.DirectoryExists(this.solutionFolder))
@@ -92,7 +96,7 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
             }
         }
 
-        internal void StopWatch()
+        internal void StopWatching()
         {
             if (this.fileWatcher != null)
             {
@@ -109,6 +113,10 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
             }
         }
 
+        /// <summary>
+        /// Loads the files into the <see cref="SarifFolderMonitor.sarifLoadLogService"/> if they have not been loaded already.
+        /// </summary>
+        /// <param name="targetFolderPath">The folder to load the files from.</param>
         internal void LoadExistingSarifLogs(string targetFolderPath)
         {
             if (!string.IsNullOrEmpty(targetFolderPath) && this.fileSystem.DirectoryExists(targetFolderPath) && !this.filesLoaded)

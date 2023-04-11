@@ -35,13 +35,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockCloseService = new Mock<ICloseSarifLogService>();
 
             var monitor = new SarifFolderMonitor(mockFileSystem.Object, mockFileWatcher.Object, mockLoadService.Object, mockCloseService.Object);
-            monitor.StartWatch(solutionDirectory);
+            monitor.StartWatching(solutionDirectory);
 
             // methods should not be called
             mockLoadService.Verify(m => m.LoadSarifLogs(It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()), Times.Never);
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
 
-            monitor.StopWatch();
+            monitor.StopWatching();
 
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Never);
         }
@@ -67,13 +67,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockCloseService = new Mock<ICloseSarifLogService>();
 
             var monitor = new SarifFolderMonitor(mockFileSystem.Object, mockFileWatcher.Object, mockLoadService.Object, mockCloseService.Object);
-            monitor.StartWatch(solutionDirectory);
+            monitor.StartWatching(solutionDirectory);
 
             mockLoadService.Verify(m => m.LoadSarifLogs(It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()), Times.Once);
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
             mockFileWatcher.Verify(m => m.Start(), Times.Once);
 
-            monitor.StopWatch();
+            monitor.StopWatching();
 
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Once);
             mockFileWatcher.Verify(m => m.Stop(), Times.Once);
@@ -105,13 +105,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockCloseService = new Mock<ICloseSarifLogService>();
 
             var monitor = new SarifFolderMonitor(mockFileSystem.Object, mockFileWatcher.Object, mockLoadService.Object, mockCloseService.Object);
-            monitor.StartWatch(solutionDirectory);
+            monitor.StartWatching(solutionDirectory);
 
             mockLoadService.Verify(m => m.LoadSarifLogs(It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()), Times.Once);
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
             mockFileWatcher.Verify(m => m.Start(), Times.Once);
 
-            monitor.StopWatch();
+            monitor.StopWatching();
 
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Once);
             mockFileWatcher.Verify(m => m.Stop(), Times.Once);
@@ -143,7 +143,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockCloseService = new Mock<ICloseSarifLogService>();
 
             var monitor = new SarifFolderMonitor(mockFileSystem.Object, mockFileWatcher.Object, mockLoadService.Object, mockCloseService.Object);
-            monitor.StartWatch(solutionDirectory);
+            monitor.StartWatching(solutionDirectory);
 
             mockLoadService.Verify(m => m.LoadSarifLogs(It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()), Times.Once);
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
@@ -169,7 +169,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // 2 files created, expect method to be called 1 + 2 times
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Exactly(3));
 
-            monitor.StopWatch();
+            monitor.StopWatching();
 
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Once);
             mockFileWatcher.Verify(m => m.Stop(), Times.Once);
@@ -201,7 +201,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockCloseService = new Mock<ICloseSarifLogService>();
 
             var monitor = new SarifFolderMonitor(mockFileSystem.Object, mockFileWatcher.Object, mockLoadService.Object, mockCloseService.Object);
-            monitor.StartWatch(solutionDirectory);
+            monitor.StartWatching(solutionDirectory);
 
             mockLoadService.Verify(m => m.LoadSarifLogs(It.IsAny<IEnumerable<string>>(), It.IsAny<bool>()), Times.Once);
             mockLoadService.Verify(m => m.LoadSarifLog(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
@@ -228,7 +228,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             // 2 files deleted, method expected to be called 1 + 2 times
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Exactly(3));
 
-            monitor.StopWatch();
+            monitor.StopWatching();
 
             mockCloseService.Verify(m => m.CloseSarifLogs(It.IsAny<IEnumerable<string>>()), Times.Exactly(4));
             mockFileWatcher.Verify(m => m.Stop(), Times.Once);

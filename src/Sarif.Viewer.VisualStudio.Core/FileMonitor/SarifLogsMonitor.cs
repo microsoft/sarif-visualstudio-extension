@@ -13,6 +13,9 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.FileMonitor
 {
+    /// <summary>
+    /// Watches a sarif log file in the file system, firing events when the fileis changed or renamed.
+    /// </summary>
     internal class SarifLogsMonitor : IDisposable
     {
         private readonly IFileSystem fileSystem;
@@ -27,7 +30,7 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
 
         internal static SarifLogsMonitor Instance = new SarifLogsMonitor(new FileSystem());
 
-        internal void StartWatch(string logFilePath)
+        internal void StartWatching(string logFilePath)
         {
             if (!fileSystem.FileExists(logFilePath))
             {
@@ -78,11 +81,11 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 await ErrorListService.CloseSarifLogItemsAsync(new string[] { filePath });
-                await ErrorListService.ProcessLogFileAsync(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
+                await ErrorListService.ProcessLogFileWithTracesAsync(filePath, ToolFormat.None, promptOnLogConversions: true, cleanErrors: false, openInEditor: false);
             });
         }
 
-        internal void StopWatch(string logFilePath)
+        internal void StopWatching(string logFilePath)
         {
             if (FileWatcherMap.TryGetValue(logFilePath, out Shell.IFileWatcher watcher))
             {
