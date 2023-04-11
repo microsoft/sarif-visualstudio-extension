@@ -12,7 +12,7 @@ namespace Microsoft.Sarif.Viewer.Services
         /// <inheritdoc/>
         public void CloseAllSarifLogs()
         {
-            ErrorListService.CloseAllSarifLogs();
+            ErrorListService.CleanAllErrors();
         }
 
         /// <inheritdoc/>

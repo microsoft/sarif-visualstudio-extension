@@ -19,6 +19,9 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
+    /// <summary>
+    /// The model class that holds the information that appears in the error list of Visual Studio.
+    /// </summary>
     internal sealed class SarifResultTableEntry : WpfTableEntryBase, IDisposable
     {
         internal const string SuppressionStateColumnName = "suppression";
@@ -72,6 +75,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             StandardTableKeyNames.ErrorCategory,
         });
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SarifResultTableEntry"/> class.
+        /// Parses the <paramref name="error"/> error into a format that can be displayed in the error list in the VS UI.
+        /// </summary>
+        /// <param name="error">Error to parse and display to the end user.</param>
         public SarifResultTableEntry(SarifErrorListItem error)
         {
             this.Identity = error.GetIdentity();
@@ -139,6 +147,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public SarifErrorListItem Error { get; }
 
+        /// <summary>
+        /// Gets the hash of this object. Based on the <see cref="Error"/> property.
+        /// </summary>
         public override object Identity { get; }
 
         public override bool CanSetValue(string keyName) => false;

@@ -27,8 +27,6 @@ namespace Microsoft.Sarif.Viewer
 
         public string LogFilePath { get; }
 
-        public int RunIndex { get; }
-
         public IList<SarifErrorListItem> SarifErrors { get; set; } = new List<SarifErrorListItem>();
 
         // keep a reference to SarifLog object
@@ -41,23 +39,17 @@ namespace Microsoft.Sarif.Viewer
         /// Used for testing.
         /// </summary>
         internal RunDataCache()
-            : this(runIndex: 0, logFilePath: null, sarifLog: null)
+            : this(logFilePath: null, sarifLog: null)
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RunDataCache"/> class.
-        /// Used for testing.
         /// </summary>
-        /// <param name="runIndex">Index of each log/run.</param>
-        internal RunDataCache(int runIndex)
-            : this(runIndex: runIndex, logFilePath: null, sarifLog: null)
+        /// <param name="logFilePath">The log file path where the log file is from.</param>
+        /// <param name="sarifLog">The sarif log the run is to represent.</param>
+        public RunDataCache(string logFilePath, SarifLog sarifLog)
         {
-        }
-
-        public RunDataCache(int runIndex, string logFilePath, SarifLog sarifLog)
-        {
-            this.RunIndex = runIndex;
             this.LogFilePath = logFilePath;
             this.FileRegionsCache = new FileRegionsCache();
             this.SarifLog = sarifLog;

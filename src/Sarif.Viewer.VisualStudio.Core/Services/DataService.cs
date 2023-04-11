@@ -92,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.Services
                 await ErrorListService.CloseSarifLogItemsAsync(new string[] { EnhancedResultDataLogName });
 
                 runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-                var dataCache = new RunDataCache(runIndex, EnhancedResultDataLogName, sarifLog);
+                var dataCache = new RunDataCache(EnhancedResultDataLogName, sarifLog);
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
 
                 var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;

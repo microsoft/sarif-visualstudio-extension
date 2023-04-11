@@ -111,6 +111,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\ReplacementModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RuleModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItemProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ScrollViewerWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackFrameModel.cs" />
