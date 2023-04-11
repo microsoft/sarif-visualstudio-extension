@@ -84,16 +84,24 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// </summary>
         public static readonly Guid ResultSourceServiceCommandSet = new Guid("b04424d9-49bc-4e04-9ecc-ad5b68cce4bc");
 
-        // VS Package that provides this command, not null.
+        /// <summary>
+        /// VS Package that provides this command, not null.
+        /// </summary>
         private readonly Package package;
 
-        // Service for accessing menu commands.
+        /// <summary>
+        /// Service for accessing menu commands.
+        /// </summary>
         private readonly IMenuCommandService menuCommandService;
 
-        // Service that provides access to the currently selected Error List item, if any.
+        /// <summary>
+        /// Service that provides access to the currently selected Error List item, if any.
+        /// </summary>
         private readonly ISarifErrorListEventSelectionService selectionService;
 
-        // Task list service.
+        /// <summary>
+        /// Task list service.
+        /// </summary>
         private readonly IVsTaskList2 vsTaskList2Service;
 
         /// <summary>

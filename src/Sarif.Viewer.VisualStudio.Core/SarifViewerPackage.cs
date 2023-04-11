@@ -177,7 +177,7 @@ namespace Microsoft.Sarif.Viewer
                 // [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
-                this.sarifFolderMonitor?.StartWatch();
+                this.sarifFolderMonitor?.StartWatching();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
@@ -192,7 +192,7 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnBeforeOpenProject(object sender, EventArgs e)
         {
             // start watcher when the solution is opened.
-            this.sarifFolderMonitor?.StartWatch();
+            this.sarifFolderMonitor?.StartWatching();
 
             this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
@@ -280,7 +280,7 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
         {
             // stop watcher when the solution is closed.
-            this.sarifFolderMonitor?.StopWatch();
+            this.sarifFolderMonitor?.StopWatching();
 
             if (this.resultSourceHost != null)
             {
@@ -301,11 +301,16 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
             // start to watch when the solution is loaded.
-            this.sarifFolderMonitor?.StartWatch();
+            this.sarifFolderMonitor?.StartWatching();
 
             this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
+        /// <summary>
+        /// This event is fired when <see cref="ResultSourceHost.ServiceEvent"/> is fired.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The arguments that were passed by the method that invoked the result source host service event.</param>
         private void ResultSourceHost_ServiceEvent(object sender, ServiceEventArgs e)
         {
             switch (e.ServiceEventType)
@@ -400,6 +405,10 @@ namespace Microsoft.Sarif.Viewer
                 : null;
         }
 
+        /// <summary>
+        /// Gets the .sarif directory that is used for this solution.
+        /// </summary>
+        /// <returns>A string of where the .sarif directory for this solution is.</returns>
         private static string GetDotSarifDirectoryPath()
         {
             return Path.Combine(GetSolutionDirectoryPath(), ".sarif");

@@ -41,6 +41,9 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
+    /// <summary>
+    /// Primarily responsible for creating <see cref="SarifErrorListItem"/>s.
+    /// </summary>
     public class ErrorListService
     {
         private const string VersionRegexPattern = @"""version""\s*:\s*""(?<version>[\d.]+)""";
@@ -60,6 +63,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
 
+        /// <summary>
+        /// Processes a log file on a seperate thread and fills the caches responsible for different functionality.
+        /// Blocks the caller of this method.
+        /// </summary>
+        /// <param name="filePath">The file path of the log being processed.</param>
+        /// <param name="toolFormat">The format of the tool that created the log. Types are listed in <see cref="ToolFormat"/>.</param>
+        /// <param name="promptOnLogConversions">Whether to ask the user if they want to convert logs to the sarif format.</param>
+        /// <param name="cleanErrors">Whether we need to clean out existing errors before refilling the caches.</param>
+        /// <param name="openInEditor">Whether we need to open the file in-editor.</param>
         public static void ProcessLogFile(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             ThreadHelper.JoinableTaskFactory.Run(() => ProcessLogFileWrapperAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor));
@@ -85,13 +97,23 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             ITaskHandler taskHandler = taskStatusCenterService.PreRegister(taskHandlerOptions, taskProgressData);
 
-            Task task = ProcessLogFileAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
+            Task task = ProcessLogFileWithTracesAsync(filePath, toolFormat, promptOnLogConversions, cleanErrors, openInEditor);
             taskHandler.RegisterTask(task);
 
             await task.ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public static async Task ProcessLogFileAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        /// <summary>
+        /// Processes the log file asynchronously.
+        /// Handles tracing related information to the output window.
+        /// </summary>
+        /// <param name="filePath">The file path of the log to process.</param>
+        /// <param name="toolFormat">The type of tool that produces the log file.</param>
+        /// <param name="promptOnLogConversions">Whether there is a need to prompt the user before converting files to the sarif format. </param>
+        /// <param name="cleanErrors">Whether we need to clean out caches before processing the new log file.</param>
+        /// <param name="openInEditor">Whether we need ot open the file in-editor.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static async Task ProcessLogFileWithTracesAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
         {
             try
             {
@@ -111,7 +133,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        public static async Task ProcessLogFileCoreAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        /// <summary>
+        /// Converts an arbitrary log file to the stable sarif log file format.
+        /// </summary>
+        /// <param name="toolFormat">Format of the tool that created the log file.</param>
+        /// <param name="filePath">The file path of the log to convert.</param>
+        /// <param name="promptOnLogConversions">Whether to prompt log conversions.</param>
+        /// <returns>An asynchronous task that returns a sarif log of the lrepresenting the log file as well as where it was saved.</returns>
+        private static async Task<(SarifLog log, string outputPath)> ConvertLogsToSarifStableAsync(string toolFormat, string filePath, bool promptOnLogConversions)
         {
             SarifLog log = null;
             string logText = null;
@@ -146,7 +175,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                         if (response == MessageDialogCommand.Cancel)
                         {
-                            return;
+                            throw new TaskCanceledException();
                         }
 
                         var settingsV1 = new JsonSerializerSettings()
@@ -166,7 +195,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                             if (string.IsNullOrEmpty(outputPath))
                             {
-                                return;
+                                throw new TaskCanceledException();
                             }
                         }
 
@@ -182,7 +211,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                         if (response == MessageDialogCommand.Cancel)
                         {
-                            return;
+                            throw new TaskCanceledException();
                         }
 
                         log = PrereleaseCompatibilityTransformer.UpdateToCurrentVersion(logText, Formatting.Indented, out logText);
@@ -194,7 +223,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                             if (string.IsNullOrEmpty(outputPath))
                             {
-                                return;
+                                throw new TaskCanceledException();
                             }
                         }
                     }
@@ -217,7 +246,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                                     OLEMSGICON.OLEMSGICON_WARNING,
                                                     OLEMSGBUTTON.OLEMSGBUTTON_OK,
                                                     OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-                    return;
+                    throw new TaskCanceledException();
                 }
             }
             else
@@ -230,7 +259,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                 if (response == MessageDialogCommand.Cancel)
                 {
-                    return;
+                    throw new TaskCanceledException();
                 }
 
                 // The converter doesn't have async methods, so spin
@@ -274,7 +303,29 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 log = JsonConvert.DeserializeObject<SarifLog>(logText);
             }
 
-            await ProcessSarifLogAsync(log, outputPath, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
+            return (log, outputPath);
+        }
+
+        /// <summary>
+        /// Processes a log file asynchronously. Will convert non-sarif logs to the sarif format.
+        /// </summary>
+        /// <param name="filePath">The file path of the log to convert.</param>
+        /// <param name="toolFormat">The format of the tool that created the log.</param>
+        /// <param name="promptOnLogConversions">Whether to prompt the user about log conversions.</param>
+        /// <param name="cleanErrors">Whether we need to delete the existing cache of data.</param>
+        /// <param name="openInEditor">Whether we need to open the file in-editor.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public static async Task ProcessLogFileCoreAsync(string filePath, string toolFormat, bool promptOnLogConversions, bool cleanErrors, bool openInEditor)
+        {
+            try
+            {
+                (SarifLog log, string outputPath) logTuple = await ConvertLogsToSarifStableAsync(toolFormat, filePath, promptOnLogConversions);
+                await ProcessSarifLogAsync(logTuple.log, logTuple.outputPath, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
+            }
+            catch (Exception)
+            {
+                // swallow to prevent crashing.
+            }
         }
 
         /// <summary>
@@ -311,7 +362,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
                 }
 
-                SarifLogsMonitor.Instance.StopWatch(logFile);
+                SarifLogsMonitor.Instance.StopWatching(logFile);
             }
 
             foreach (int runIdToClear in runIdsToClear)
@@ -364,14 +415,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        /// <summary>
-        /// Closes all SARIF logs opened in the viewer.
-        /// </summary>
-        public static void CloseAllSarifLogs()
-        {
-            CleanAllErrors();
-        }
-
         public static bool IsSarifLogOpened(string logFile)
         {
             return SarifTableDataSource.Instance.HasErrorsFromLog(logFile) ||
@@ -419,7 +462,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 null;
         }
 
-        private static async System.Threading.Tasks.Task SaveLogFileAsync(string filePath, string logText)
+        /// <summary>
+        /// Saves a string to the file path provided, handling logging.
+        /// </summary>
+        /// <param name="filePath">The file on the device to save the text to.</param>
+        /// <param name="logText">The text to save into the file.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        private static async Task SaveLogFileAsync(string filePath, string logText)
         {
             string error = null;
 
@@ -473,6 +522,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        /// <summary>
+        /// Processes the sarif log, puttng the informtion into the appropriate caches.
+        /// </summary>
+        /// <param name="sarifLog">The log to process and load into caches.</param>
+        /// <param name="logFilePath">The file path of the log being loaded in.</param>
+        /// <param name="cleanErrors">If true, will wipe previous errors from caches before processing new sarif log.</param>
+        /// <param name="openInEditor">If true, will open the file in editor. </param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
         internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor)
         {
             // The creation of the data models must be done on the UI thread (for now).
@@ -536,7 +593,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            SarifLogsMonitor.Instance.StartWatch(logFilePath);
+            SarifLogsMonitor.Instance.StartWatching(logFilePath);
 
             RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog, resultsFiltered));
         }
@@ -566,6 +623,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        /// <summary>
+        /// Adds information about the sarif errors to the <see cref="CodeAnalysisResultManager"/> cache as well as to the <see cref="SarifTableDataSource"/> instance.
+        /// </summary>
+        /// <param name="run">The run being logged.</param>
+        /// <param name="logFilePath">The file path of the log.</param>
+        /// <param name="sarifLog">The sarif log the run originated from.</param>
+        /// <param name="runIndex">The index of the run in the <see cref="CodeAnalysisResultManager"/>.</param>
+        /// <returns>The number of errors in the cache item added.</returns>
         private int WriteRunToErrorList(Run run, string logFilePath, SarifLog sarifLog, out int runIndex)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -576,7 +641,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-            var dataCache = new RunDataCache(runIndex, logFilePath, sarifLog);
+            var dataCache = new RunDataCache(logFilePath, sarifLog);
             CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
             CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
 
@@ -643,10 +708,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             return dataCache.SarifErrors.Count;
         }
 
-        // Show the Suppression State column. The first time it is shown, filter out "Suppressed"
-        // results. If the user ever adjusts the filter to show Suppressed results, don't ever
-        // filter them out again during the current VS session. The ColumnFilterer class
-        // implements that behavior.
+        /// <summary>
+        /// Shows the Suppression State column. The first time it is shown, filter out "Suppressed"
+        /// results. If the user ever adjusts the filter to show Suppressed results, don't ever
+        /// filter them out again during the current VS session. The ColumnFilterer class
+        /// implements that behavior.
+        /// </summary>
         private void ShowFilteredSuppressionStateColumn()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -659,10 +726,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 filteredValue: nameof(VSSuppressionState.Suppressed));
         }
 
-        // Show the Category column, which we currently overload to show Baseline State.
-        // The first time it is shown, filter out "Absent" results. If the user ever adjusts
-        // the filter to show Suppressed results, don't ever filter them out again during
-        // the current VS session. The ColumnFilterer class implements that behavior.
+        /// <summary>
+        /// Show the Category column, which we currently overload to show Baseline State.
+        /// The first time it is shown, filter out "Absent" results. If the user ever adjusts
+        /// the filter to show Suppressed results, don't ever filter them out again during
+        /// the current VS session. The ColumnFilterer class implements that behavior.
+        /// </summary>
         private void ShowFilteredCategoryColumn()
         {
             ThreadHelper.ThrowIfNotOnUIThread();

@@ -128,6 +128,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
         public ITextBuffer TextBuffer { get; }
 
+        /// <inheritdoc/>
         public void RefreshTags()
         {
             this.tagsDirty = true;

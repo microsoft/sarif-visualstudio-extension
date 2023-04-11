@@ -90,7 +90,7 @@ namespace Microsoft.Sarif.Viewer.Services
                     });
 
                     // We should not clean errors here. If the user wants to clear errors, they can call ICloseSarifLogService.CloseAllSarifLogs.
-                    await ErrorListService.ProcessLogFileAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
+                    await ErrorListService.ProcessLogFileWithTracesAsync(validPaths[validPathIndex], ToolFormat.None, promptOnLogConversions: false, cleanErrors: false, openInEditor: false).ConfigureAwait(continueOnCapturedContext: false);
 
                     taskHandler.Progress.Report(new TaskProgressData
                     {

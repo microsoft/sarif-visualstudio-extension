@@ -7,19 +7,21 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace Microsoft.Sarif.Viewer.ErrorList
 {
-    // Simple holder class that holds an ITableDataSink, and raises an event when
-    // Visual Studio disposes it.
-    //
-    // When a client such as the viewer calls ITableManager.AddSource to add a new
-    // table data source, Visual Studio calls ITableDataSource.Subscribe on the source,
-    // providing a "sink": an object that implements ITableDataSink. In return, VS
-    // receives a disposable object associated with the sink. When the source is
-    // removed, VS calls Dispose on this object, at which point the client must
-    // stop making calls to that sink.
-    //
-    // To accomplish this, SinkHolder raises an event when VS disposes it. The
-    // receiver must remove the associated sink from the list of sinks it maintains.
-    // See SarifTableDataSource.TableSink_Disposed.
+    /// <summary>
+    /// Simple holder class that holds an <see cref="ITableDataSink"/>, and raises an event when
+    /// Visual Studio disposes it.
+    ///
+    /// When a client such as the viewer calls <see cref="ITableManager.AddSource(ITableDataSource, string[])"/>to add a new
+    /// table data source, Visual Studio calls <see cref="ITableDataSource.Subscribe"/>on the source,
+    /// providing a "sink": an object that implements ITableDataSink. In return, VS
+    /// receives a disposable object associated with the sink. When the source is
+    /// removed, VS calls Dispose on this object, at which point the client must
+    /// stop making calls to that sink.
+    ///
+    /// To accomplish this, SinkHolder raises an event <see cref="SinkHolder.Disposed"/> when VS disposes it. The
+    /// receiver must remove the associated sink from the list of sinks it maintains.
+    /// See <see cref="SarifTableDataSource.TableSink_Disposed(object, EventArgs)"/>.
+    /// </summary>
     internal class SinkHolder : IDisposable
     {
         private bool disposed;
