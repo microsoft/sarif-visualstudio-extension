@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
@@ -21,6 +24,13 @@ namespace Microsoft.Sarif.Viewer.Options
         private readonly SarifViewerOptionPage optionPage;
 
         /// <summary>
+        /// This event is triggered whenever the rank filter value or the Insights formatting changes.
+        /// </summary>
+        public event InsightSettingsChangedEventHandler InsightSettingsChanged;
+
+        public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SarifViewerOption"/> class.
         /// Get visual studio option values.
         /// </summary>
@@ -35,6 +45,7 @@ namespace Microsoft.Sarif.Viewer.Options
                 { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
                 { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
             };
+            this.optionPage.InsightSettingsChanged += OnInsightSettingsChanged;
         }
 
         private SarifViewerOption() { }
@@ -44,6 +55,12 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool IsGitHubAdvancedSecurityEnabled => this.optionPage?.EnableGitHubAdvancedSecurity ?? this.isGitHubAdvancedSecurityEnabled;
 
         public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
+
+        public string ErrorUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.ErrorUnderlineColorIndex);
+
+        public string WarningUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.WarningUnderlineColorIndex);
+
+        public string NoteUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.NoteUnderlineColorIndex);
 
         public readonly Dictionary<string, bool> OptionStates;
 
@@ -79,5 +96,44 @@ namespace Microsoft.Sarif.Viewer.Options
 
             return false;
         }
+
+        private void OnInsightSettingsChanged(string setting, object oldValue, object newValue)
+        {
+            if (InsightSettingsChanged != null)
+            {
+                // If any of the settings that impact how insights are shown has changed, invalidate tags for the whole file.
+                InsightSettingsChanged.Invoke(setting, oldValue, newValue);
+            }
+        }
+
+        /// <summary>
+        /// Gets the error type string that is used to highlight a span in VS UI.
+        /// </summary>
+        /// <param name="index">The index of the combobox selected.</param>
+        /// <returns>The string returned from the mapping.</returns>
+        private static string GetErrorTypeFromIndex(int? index)
+        {
+            if (index == null)
+            {
+                return null;
+            }
+
+            IndexToPredefinedErrorTypes.TryGetValue((int)index, out string errorType);
+            return errorType;
+        }
+
+        /// <summary>
+        /// This dictionary is used to map the index to the color of the "squiggle" shown in Visual Studio's editor.
+        /// When changing this you need to change the options in SarifViewerOptionsControl.xaml.
+        /// </summary>
+        private static readonly Dictionary<int, string> IndexToPredefinedErrorTypes = new Dictionary<int, string>
+        {
+            { 0, PredefinedErrorTypeNames.OtherError },
+            { 1, PredefinedErrorTypeNames.Warning },
+            { 2, PredefinedErrorTypeNames.HintedSuggestion },
+            { 3, PredefinedErrorTypeNames.SyntaxError },
+            { 4, PredefinedErrorTypeNames.CompilerError },
+            { 5, PredefinedErrorTypeNames.Suggestion },
+        };
     }
 }

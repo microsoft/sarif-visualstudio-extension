@@ -17,6 +17,7 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -259,7 +260,13 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (this._lineMarker == null && this.Region?.StartLine > 0)
                 {
-                    FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
+                    Dictionary<FailureLevel, string> failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
+                        {
+                            { FailureLevel.Error, SarifViewerOption.Instance?.ErrorUnderlineColor },
+                            { FailureLevel.Warning, SarifViewerOption.Instance?.WarningUnderlineColor },
+                            { FailureLevel.Note, SarifViewerOption.Instance?.NoteUnderlineColor },
+                        };
+                    string predefinedErrorType = failureLevelToPredefinedErrorTypes[this.Level];
 
                     this._lineMarker = new ResultTextMarker(
                         runIndex: this.RunIndex,

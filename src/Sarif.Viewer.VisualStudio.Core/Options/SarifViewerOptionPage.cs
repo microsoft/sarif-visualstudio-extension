@@ -45,19 +45,80 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool EnableKeyEventAdornment { get; set; } = true;
 
         /// <summary>
+        /// This event is triggered whenever the rank filter value or the Insights formatting changes.
+        /// </summary>
+        public event InsightSettingsChangedEventHandler InsightSettingsChanged;
+
+        public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
+
+        private int _errorUnderlineColorIndex = 0;
+
+        /// <summary>
         /// Gets or sets the index representing what an error needs to be underlined as.
         /// </summary>
-        public int ErrorUnderlineColorIndex { get; set; } = 0;
+        public int ErrorUnderlineColorIndex
+        {
+            get
+            {
+                return _errorUnderlineColorIndex;
+            }
+
+            set
+            {
+                if (value != _errorUnderlineColorIndex)
+                {
+                    int oldValue = _errorUnderlineColorIndex;
+                    _errorUnderlineColorIndex = value;
+                    InsightSettingsChanged?.Invoke(nameof(ErrorUnderlineColorIndex), oldValue, _errorUnderlineColorIndex);
+                }
+            }
+        }
+
+        private int _warningUnderlineColorIndex = 1;
 
         /// <summary>
         /// Gets or sets the index representing what a warning needs to be underlined as.
         /// </summary>
-        public int WarningUnderlineColorIndex { get; set; } = 1;
+        public int WarningUnderlineColorIndex
+        {
+            get
+            {
+                return _warningUnderlineColorIndex;
+            }
+
+            set
+            {
+                if (value != _warningUnderlineColorIndex)
+                {
+                    int oldValue = _warningUnderlineColorIndex;
+                    _warningUnderlineColorIndex = value;
+                    InsightSettingsChanged?.Invoke(nameof(WarningUnderlineColorIndex), oldValue, _warningUnderlineColorIndex);
+                }
+            }
+        }
+
+        private int _noteUnderlineColorIndex = 2;
 
         /// <summary>
         /// Gets or sets the index representing what a note needs to be underlined as.
         /// </summary>
-        public int NoteUnderlineColorIndex { get; set; } = 2;
+        public int NoteUnderlineColorIndex
+        {
+            get
+            {
+                return _noteUnderlineColorIndex;
+            }
+
+            set
+            {
+                if (value != _noteUnderlineColorIndex)
+                {
+                    int oldValue = _noteUnderlineColorIndex;
+                    _noteUnderlineColorIndex = value;
+                    InsightSettingsChanged?.Invoke(nameof(NoteUnderlineColorIndex), oldValue, _noteUnderlineColorIndex);
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
