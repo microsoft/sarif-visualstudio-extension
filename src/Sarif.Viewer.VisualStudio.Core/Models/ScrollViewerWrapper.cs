@@ -31,6 +31,12 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
 
         private readonly ISarifViewerOptions sarifViewerOptions;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScrollViewerWrapper"/> class.
+        /// Creates a wrapper around the provided objects that need to be wrapped.
+        /// </summary>
+        /// <param name="objectsToWrap">The objects to be wrapped in a single scroll viewer.</param>
+        /// <param name="sarifViewerOptions">The SarifViewerOptions that are currently being used</param>
         public ScrollViewerWrapper(List<IErrorTag> objectsToWrap, ISarifViewerOptions sarifViewerOptions)
         {
             this.objectsToWrap = objectsToWrap;

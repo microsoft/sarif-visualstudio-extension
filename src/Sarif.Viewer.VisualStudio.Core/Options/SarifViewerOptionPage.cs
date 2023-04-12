@@ -10,23 +10,6 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
-    public enum UnderlineColors
-    {
-        /// <summary>
-        /// Highlights the text with a green underline
-        /// </summary>
-        Green,
-
-        /// <summary>
-        /// Highlights the text with a purple underline
-        /// </summary>
-        Purple,
-
-        /// <summary>
-        /// Highlights the text with a blue underline
-        /// </summary>
-        Blue,
-    }
 
     [ComVisible(true)]
     public class SarifViewerOptionPage : UIElementDialogPage

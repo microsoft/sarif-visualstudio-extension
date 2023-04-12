@@ -55,16 +55,10 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
             this.sarifErrorListEventSelectionService.SelectedItemChanged += this.SarifErrorListEventSelectionService_SelectedItemChanged;
             SarifViewerOption.Instance.InsightSettingsChanged += OnInsightSettingsChanged;
-            TagsChanged += Test;
         }
 
         /// <inheritdoc/>
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
-
-        private void Test(object sender, SnapshotSpanEventArgs e)
-        {
-            Console.Write("hello");
-        }
 
         /// <inheritdoc/>
         public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
