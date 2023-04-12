@@ -150,7 +150,7 @@ namespace Microsoft.Sarif.Viewer.Models
                         fullFilePath: this.FilePath,
                         nonHighlightedColor: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
-                        errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
+                        failureLevel: null, // Suggestion => no squiggle
                         tooltipContent: new List<(string strContent, TextRenderType renderType)>() { tooltipConent },
                         context: this);
                 }

@@ -60,8 +60,26 @@
                     <ComboBoxItem>Green squiggle</ComboBoxItem>
                     <ComboBoxItem>An ellipsis (...)</ComboBoxItem>
                     <ComboBoxItem>Red Squiggle</ComboBoxItem>
-                    <ComboBoxItem>Option 5</ComboBoxItem>
-                    <ComboBoxItem>Option 6</ComboBoxItem>
+                    <ComboBoxItem>Blue squiggle</ComboBoxItem>
+                    <ComboBoxItem>Nothing</ComboBoxItem>
+                </ComboBox>
+                <TextBlock>Underline warning results with a</TextBlock>
+                <ComboBox SelectedIndex="{Binding WarningUnderlineColorIndex, Mode =TwoWay}">
+                    <ComboBoxItem>Purple squiggle</ComboBoxItem>
+                    <ComboBoxItem>Green squiggle</ComboBoxItem>
+                    <ComboBoxItem>An ellipsis (...)</ComboBoxItem>
+                    <ComboBoxItem>Red Squiggle</ComboBoxItem>
+                    <ComboBoxItem>Blue squiggle</ComboBoxItem>
+                    <ComboBoxItem>Nothing</ComboBoxItem>
+                </ComboBox>
+                <TextBlock>Underline note results with a</TextBlock>
+                <ComboBox SelectedIndex="{Binding NoteUnderlineColorIndex, Mode =TwoWay}">
+                    <ComboBoxItem>Purple squiggle</ComboBoxItem>
+                    <ComboBoxItem>Green squiggle</ComboBoxItem>
+                    <ComboBoxItem>An ellipsis (...)</ComboBoxItem>
+                    <ComboBoxItem>Red Squiggle</ComboBoxItem>
+                    <ComboBoxItem>Blue squiggle</ComboBoxItem>
+                    <ComboBoxItem>Nothing</ComboBoxItem>
                 </ComboBox>
             </StackPanel>
             

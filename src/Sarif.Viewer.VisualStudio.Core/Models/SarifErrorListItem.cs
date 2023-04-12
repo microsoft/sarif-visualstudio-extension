@@ -260,14 +260,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (this._lineMarker == null && this.Region?.StartLine > 0)
                 {
-                    Dictionary<FailureLevel, string> failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
-                        {
-                            { FailureLevel.Error, SarifViewerOption.Instance?.ErrorUnderlineColor },
-                            { FailureLevel.Warning, SarifViewerOption.Instance?.WarningUnderlineColor },
-                            { FailureLevel.Note, SarifViewerOption.Instance?.NoteUnderlineColor },
-                        };
-                    string predefinedErrorType = failureLevelToPredefinedErrorTypes[this.Level];
-
                     this._lineMarker = new ResultTextMarker(
                         runIndex: this.RunIndex,
                         resultId: this.ResultId,
@@ -276,7 +268,7 @@ namespace Microsoft.Sarif.Viewer
                         fullFilePath: this.FileName,
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
-                        errorType: predefinedErrorType,
+                        failureLevel: this.Level,
                         tooltipContent: this.Content,
                         context: this);
                 }
