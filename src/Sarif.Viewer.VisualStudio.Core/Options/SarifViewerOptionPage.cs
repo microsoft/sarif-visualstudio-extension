@@ -10,7 +10,6 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
-
     [ComVisible(true)]
     public class SarifViewerOptionPage : UIElementDialogPage
     {
