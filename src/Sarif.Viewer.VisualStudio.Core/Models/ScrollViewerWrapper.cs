@@ -10,6 +10,8 @@ using EnvDTE;
 
 using EnvDTE80;
 
+using Microsoft.Sarif.Viewer;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
@@ -27,9 +29,12 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
         /// </summary>
         private readonly List<IErrorTag> objectsToWrap;
 
-        public ScrollViewerWrapper(List<IErrorTag> objectsToWrap)
+        private readonly ISarifViewerOptions sarifViewerOptions;
+
+        public ScrollViewerWrapper(List<IErrorTag> objectsToWrap, ISarifViewerOptions sarifViewerOptions)
         {
             this.objectsToWrap = objectsToWrap;
+            this.sarifViewerOptions = sarifViewerOptions;
         }
 
         /// <summary>
@@ -47,7 +52,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
 
                 Dictionary<string, int> errorTypeToSeverity = GetRankDictionary();
                 int highestRank = 3;
-                string highestErrorStr = SarifViewerOption.Instance.NoteUnderlineColor;
+                string highestErrorStr = this.sarifViewerOptions.NoteUnderlineColor;
                 foreach (IErrorTag errorTag in this.objectsToWrap)
                 {
                     string errorType = errorTag.ErrorType;
@@ -76,7 +81,6 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
             get
             {
                 ThreadHelper.ThrowIfNotOnUIThread();
-
                 var stackPanel = new StackPanel();
                 Dictionary<string, int> errorTypeToSeverity = GetRankDictionary();
 
@@ -119,20 +123,20 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
         /// Returns a dictionary of error type name to the severity, with 1 being the most severe (error) and 3 being the least (note).
         /// </summary>
         /// <returns>A dictionary of error type name to the severity, with 1 being the most severe (error) and 3 being the least (note).</returns>
-        private static Dictionary<string, int> GetRankDictionary()
+        private Dictionary<string, int> GetRankDictionary()
         {
             Dictionary<string, int> errorTypeToSeverity = new Dictionary<string, int>(); // error type name -> severity rank (1 is error, 2 is warning, 3 is note)
-            errorTypeToSeverity.Add(SarifViewerOption.Instance.ErrorUnderlineColor, 1);
+            errorTypeToSeverity.Add(this.sarifViewerOptions.ErrorUnderlineColor, 1);
 
             // two underline colors can have the same color, we only care about the "highest" rank
-            if (!errorTypeToSeverity.ContainsKey(SarifViewerOption.Instance.WarningUnderlineColor))
+            if (!errorTypeToSeverity.ContainsKey(this.sarifViewerOptions.WarningUnderlineColor))
             {
-                errorTypeToSeverity.Add(SarifViewerOption.Instance.WarningUnderlineColor, 2);
+                errorTypeToSeverity.Add(this.sarifViewerOptions.WarningUnderlineColor, 2);
             }
 
-            if (!errorTypeToSeverity.ContainsKey(SarifViewerOption.Instance.NoteUnderlineColor))
+            if (!errorTypeToSeverity.ContainsKey(this.sarifViewerOptions.NoteUnderlineColor))
             {
-                errorTypeToSeverity.Add(SarifViewerOption.Instance.NoteUnderlineColor, 3);
+                errorTypeToSeverity.Add(this.sarifViewerOptions.NoteUnderlineColor, 3);
             }
 
             return errorTypeToSeverity;

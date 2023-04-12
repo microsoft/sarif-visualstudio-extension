@@ -10,5 +10,11 @@ namespace Microsoft.Sarif.Viewer.Options
         bool IsGitHubAdvancedSecurityEnabled { get; }
 
         bool IsKeyEventAdornmentEnabled { get; }
+
+        string ErrorUnderlineColor { get; }
+
+        string WarningUnderlineColor { get; }
+
+        string NoteUnderlineColor { get; }
     }
 }

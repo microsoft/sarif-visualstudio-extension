@@ -115,7 +115,7 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             if (index == null)
             {
-                return null;
+                return PredefinedErrorTypeNames.Suggestion;
             }
 
             IndexToPredefinedErrorTypes.TryGetValue((int)index, out string errorType);

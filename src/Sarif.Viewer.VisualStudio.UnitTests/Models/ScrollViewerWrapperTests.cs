@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
+using System.Windows.Controls;
 
 using FluentAssertions;
 
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
@@ -28,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
             lowPriorityTag = lowPriorityTagMock.Object;
 
             Mock<IErrorTag> highPriorityTagMock = new Mock<IErrorTag>();
-            highPriorityTagMock.Setup(x => x.ErrorType).Returns(PredefinedErrorTypeNames.SyntaxError);
+            highPriorityTagMock.Setup(x => x.ErrorType).Returns(PredefinedErrorTypeNames.OtherError);
             highPriorityTag = highPriorityTagMock.Object;
         }
 
@@ -38,28 +41,26 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
         [Fact]
         public void ErrorTypeSortingTest()
         {
-            ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag });
-            wrapper.ErrorType.Should().Be(PredefinedErrorTypeNames.SyntaxError);
+            Mock<ISarifViewerOptions> sarifViewerOptionsMock = new Mock<ISarifViewerOptions>();
+            sarifViewerOptionsMock.Setup(x => x.ErrorUnderlineColor).Returns(PredefinedErrorTypeNames.OtherError);
+            sarifViewerOptionsMock.Setup(x => x.WarningUnderlineColor).Returns(PredefinedErrorTypeNames.Warning);
+            sarifViewerOptionsMock.Setup(x => x.NoteUnderlineColor).Returns(PredefinedErrorTypeNames.HintedSuggestion);
 
-            ScrollViewerWrapper wrapperOtherOrder = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag });
-            wrapperOtherOrder.ErrorType.Should().Be(PredefinedErrorTypeNames.SyntaxError);
+            ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag }, sarifViewerOptionsMock.Object);
+            wrapper.ErrorType.Should().Be(PredefinedErrorTypeNames.OtherError);
+
+            ScrollViewerWrapper wrapperOtherOrder = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag }, sarifViewerOptionsMock.Object);
+            wrapperOtherOrder.ErrorType.Should().Be(PredefinedErrorTypeNames.OtherError);
         }
 
         /// <summary>
-        /// Tests to make sure we can properly handle and sort unknown type strings
+        /// Tests to make sure we properly process when we pass an empty error tag in
         /// </summary>
         [Fact]
-        public void ErrorTypeSortingWhenUnexpectedType()
+        public void ProperHandlingOfEmpty()
         {
-            Mock<IErrorTag> unknownPriorityTag = new Mock<IErrorTag>();
-            unknownPriorityTag.Setup(x => x.ErrorType).Returns("Random error type string");
-
-            ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, unknownPriorityTag.Object });
-
-            wrapper.ErrorType.Should().Be("Random error type string");
-
-            wrapper = new ScrollViewerWrapper(new List<IErrorTag>() { highPriorityTag, unknownPriorityTag.Object });
-            wrapper.ErrorType.Should().Be(PredefinedErrorTypeNames.SyntaxError);
+            ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>(), null);
+            wrapper.ErrorType.Should().Be(string.Empty);
         }
 
     }
