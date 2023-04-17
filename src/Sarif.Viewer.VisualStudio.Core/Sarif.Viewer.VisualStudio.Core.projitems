@@ -17,20 +17,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)ContentTypes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\CodeFinder.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\FileSpan.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Language.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\MatchQuery.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\MatchResult.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CodeFinderBase.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\DefaultMatcher.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\FileSpanCollection.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\ListExtensions.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\StringExtensions.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CppFinder.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CSharpFinder.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CStyleFinder.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\ScopeIdentifier.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\CodeFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\FileSpan.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Language.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\MatchQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\MatchResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CodeFinderBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\DefaultMatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\FileSpanCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\ListExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\StringExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CppFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CSharpFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CStyleFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\ScopeIdentifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml.cs">
       <DependentUpon>FeedbackControl.xaml</DependentUpon>
     </Compile>
@@ -58,6 +58,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilePathRemapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilteredColumnValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\IColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ISarifErrorListEventSelectionService.cs" />

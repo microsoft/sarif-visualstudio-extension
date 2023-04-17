@@ -202,6 +202,11 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        public bool TryResolveFilePaths(int resultId, int runIndex, string uriBaseId, List<string> relativePath, out string resolvedPath)
+        {
+
+        }
+
         public bool TryResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath, out string resolvedPath)
         {
             resolvedPath = null;
@@ -289,13 +294,23 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
-        // Contents are embedded in SARIF. Create a file from these contents.
+        /// <summary>
+        /// Contents are embedded in SARIF. Create a file from these contents.
+        /// </summary>
+        /// <param name="runId">The id of the run to create files for.</param>
+        /// <param name="fileName">The name of the file to create.</param>
+        /// <returns>File path of the new file that was created.</returns>
         internal string CreateFileFromContents(int runId, string fileName)
         {
             return this.CreateFileFromContents(this.RunIndexToRunDataCache[runId].FileDetails, fileName);
         }
 
-        // Contents are embedded in SARIF. Create a file from these contents.
+        /// <summary>
+        /// Contents are embedded in SARIF. Create a file from these contents.
+        /// </summary>
+        /// <param name="fileDetailsDictionary">Dictionary of file path to artifact data.</param>
+        /// <param name="fileName">The file name we need the file content for.</param>
+        /// <returns>File path of the new file that was created.</returns>
         internal string CreateFileFromContents(IDictionary<string, ArtifactDetailsModel> fileDetailsDictionary, string fileName)
         {
             if (!fileDetailsDictionary.TryGetValue(fileName, out ArtifactDetailsModel fileData))
@@ -375,6 +390,13 @@ namespace Microsoft.Sarif.Viewer
             return finalPath;
         }
 
+        /// <summary>
+        /// Downloads a file to a specified file path. Handles the permissions of whether we want to access this endpoint.
+        /// </summary>
+        /// <param name="uri">URI to download from.</param>
+        /// <param name="workingDirectory">Directory to download the file to.</param>
+        /// <param name="localRelativePath">(Optional) The file path to save to. Will default to the path defined in <paramref name="uri"/>.</param>
+        /// <returns>File path of the file if downloaded properly. Otherwise, null.</returns>
         internal string HandleHttpFileDownloadRequest(Uri uri, string workingDirectory, string localRelativePath = null)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -430,6 +452,10 @@ namespace Microsoft.Sarif.Viewer
             return null;
         }
 
+        /// <summary>
+        /// Adds a host to the list of allowed hosts to download from. Remembers across sessions.
+        /// </summary>
+        /// <param name="host">The host to allow.</param>
         internal void AddAllowedDownloadHost(string host)
         {
             if (!this._allowedDownloadHosts.Contains(host))
@@ -439,6 +465,14 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Downloads a file to a specified file path.
+        /// </summary>
+        /// <param name="workingDirectory">Directory to download the file to.</param>
+        /// <param name="fileUrl">The http url of the file.</param>
+        /// <param name="localRelativeFilePath">The file path to save to. If null, will use the <paramref name="fileUrl"/>.</param>
+        /// <returns>File path of the file downloaded. Absolute path.</returns>
+        /// <exception cref="Exception">Throws an exception if failed to download the file for any reason.</exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD002:Avoid problematic synchronous waits", Justification = "need to wait http request/file download to be completed before exit the function.")]
         internal string DownloadFile(string workingDirectory, string fileUrl, string localRelativeFilePath)
         {
@@ -477,7 +511,16 @@ namespace Microsoft.Sarif.Viewer
             return destinationFile;
         }
 
-        // Internal rather than private for unit testability.
+        /// <summary>
+        /// TODO: FILL
+        /// Internal rather than private for unit testability.
+        /// </summary>
+        /// <param name="uriBaseId"></param>
+        /// <param name="pathFromLogFile"></param>
+        /// <param name="dataCache"></param>
+        /// <param name="workingDirectory"></param>
+        /// <param name="solutionFullPath"></param>
+        /// <returns></returns>
         internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string workingDirectory = null, string solutionFullPath = null)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -519,14 +562,34 @@ namespace Microsoft.Sarif.Viewer
             return null;
         }
 
-        internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
+        /// <summary>
+        /// Remaps the file paths of the sarif errors using the original path and remppaed file path lists.
+        /// </summary>
+        /// <param name="sarifErrors">The sarif errors that we need to remap.</param>
+        /// <param name="originalPaths">The list of original paths.</param>
+        /// <param name="remappedPaths">The list of remapped paths.</param>
+        /// <exception cref="ArgumentException">Throws when the length of <paramref name="originalPaths"/> does not match <paramref name="remappedPaths"/>.</exception>
+        internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, IEnumerable<string> originalPaths, IEnumerable<string> remappedPaths)
         {
+            if (originalPaths.Count() != remappedPaths.Count())
+            {
+                throw new ArgumentException($"{nameof(RemapFilePaths)} received paths of different length. {nameof(originalPaths)} had a length of {originalPaths.Count()} while {nameof(remappedPaths)} had a length of {remappedPaths.Count()}");
+            }
+
             ThreadHelper.ThrowIfNotOnUIThread();
+            List<int> oldIdentities = new List<int>();
             foreach (SarifErrorListItem sarifError in sarifErrors)
             {
-                int oldIdentity = sarifError.GetIdentity();
-                sarifError.RemapFilePath(originalPath, remappedPath);
+                oldIdentities.Append(sarifError.GetIdentity());
+                foreach ((string originalPath, string remappedPath) in originalPaths.Zip(remappedPaths, (o, r) => (o, r)))
+                {
+                    int oldIdentity = sarifError.GetIdentity();
+                    sarifError.RemapFilePath(originalPath, remappedPath);
+                }
+            }
 
+            foreach ((SarifErrorListItem sarifError, int oldIdentity) in sarifErrors.Zip(oldIdentities, (s, i) => (s, i)))
+            {
                 if (sarifError.GetIdentity() != oldIdentity)
                 {
                     SarifTableDataSource.Instance.UpdateError(oldIdentity, sarifError);
@@ -603,8 +666,12 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        // Find the common suffix between two paths by walking both paths backwards
-        // until they differ or until we reach the beginning.
+        /// <summary>
+        /// Find the common suffix between two paths by walking both paths backwards until they differ or until we reach the beginning.
+        /// </summary>
+        /// <param name="firstPath">The first path to look at.</param>
+        /// <param name="secondPath">The second path to look at.</param>
+        /// <returns>The common suffix of the two file paths.</returns>
         private static string GetCommonSuffix(string firstPath, string secondPath)
         {
             string commonSuffix = null;

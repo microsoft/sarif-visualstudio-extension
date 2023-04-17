@@ -7,11 +7,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using CSharpFunctionalExtensions;
 
 using EnvDTE;
 
@@ -30,12 +33,14 @@ using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.Sarif.Viewer.Telemetry;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell.TableManager;
 using Microsoft.VisualStudio.TaskStatusCenter;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 
 using Newtonsoft.Json;
 
@@ -738,6 +743,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 this.ShowFilteredSuppressionStateColumn();
             }
 
+            IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
+
+            // now we need to map from relative file path to absolute.
+            foreach (string relativeFilePath in relativeFilePaths)
+            {
+
+            }
+
             SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
 
             Trace.WriteLine($"{dataCache.SarifErrors.Count} results loaded from SARIF log file {logFilePath}");
@@ -895,5 +908,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             throw new AggregateException(exceptions);
         }
+
     }
 }

@@ -318,6 +318,11 @@ namespace Microsoft.Sarif.Viewer
             set => this._lineMarker = value;
         }
 
+        /// <summary>
+        /// Remaps the file paths of this object's File name, locations, analysis steps, stack, and fixes.
+        /// </summary>
+        /// <param name="originalPath">The original path.</param>
+        /// <param name="remappedPath">The path it got re-mapped to.</param>
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
