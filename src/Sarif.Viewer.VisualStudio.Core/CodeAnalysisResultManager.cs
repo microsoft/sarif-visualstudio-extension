@@ -520,7 +520,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="dataCache"></param>
         /// <param name="workingDirectory"></param>
         /// <param name="solutionFullPath"></param>
-        /// <returns></returns>
+        /// <returns>The resolved path.</returns>
         internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string workingDirectory = null, string solutionFullPath = null)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -903,6 +903,15 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uriBaseId"></param>
+        /// <param name="pathFromLogFile"></param>
+        /// <param name="dataCache"></param>
+        /// <param name="relativeUri"></param>
+        /// <param name="resolvedPath"></param>
+        /// <returns></returns>
         internal bool TryResolveFilePathFromUriBasePaths(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, out Uri relativeUri, out string resolvedPath)
         {
             relativeUri = null;
@@ -936,6 +945,13 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pathFromLogFile"></param>
+        /// <param name="dataCache"></param>
+        /// <param name="resolvedPath"></param>
+        /// <returns></returns>
         internal bool TryResolveFilePathFromRemappings(string pathFromLogFile, RunDataCache dataCache, out string resolvedPath)
         {
             resolvedPath = null;
@@ -965,6 +981,15 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sources"></param>
+        /// <param name="pathFromLogFile"></param>
+        /// <param name="workingDirectory"></param>
+        /// <param name="fileSystem"></param>
+        /// <param name="resolvedPath"></param>
+        /// <returns></returns>
         internal bool TryResolveFilePathFromSourceControl(IList<VersionControlDetails> sources, string pathFromLogFile, string workingDirectory, IFileSystem fileSystem, out string resolvedPath)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -1019,6 +1044,15 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uriBaseId"></param>
+        /// <param name="originalPath"></param>
+        /// <param name="pathFromLogFile"></param>
+        /// <param name="resolvedPath"></param>
+        /// <param name="dataCache"></param>
+        /// <returns></returns>
         internal bool SaveResolvedPathToUriBaseMapping(string uriBaseId, string originalPath, string pathFromLogFile, string resolvedPath, RunDataCache dataCache)
         {
             Uri.TryCreate(pathFromLogFile, UriKind.Relative, out Uri relativeUri);
@@ -1067,7 +1101,16 @@ namespace Microsoft.Sarif.Viewer
             return true;
         }
 
-        // return false means cannot resolve local file and will use embedded file.
+        /// <summary>
+        /// Verifies that a file with this file path exists.
+        /// </summary>
+        /// <param name="sarifErrorListItem">The error list item.</param>
+        /// <param name="pathFromLogFile">The path defined by the log file.</param>
+        /// <param name="dataCache">Datacache that may be storing the data.</param>
+        /// <param name="resolvedPath">The resolved path of the file.</param>
+        /// <param name="embeddedTempFilePath"></param>
+        /// <param name="newResolvedPath"></param>
+        /// <returns>Return false means cannot resolve local file and will use embedded file.</returns>
         internal bool VerifyFileWithArtifactHash(SarifErrorListItem sarifErrorListItem, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath)
         {
             newResolvedPath = null;
@@ -1119,6 +1162,12 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Gets the hash of the file content. If the file does not exist, null.
+        /// </summary>
+        /// <param name="fileSystem">The file system to use to open the file.</param>
+        /// <param name="filePath">The file path to generate the hash for.</param>
+        /// <returns>Hash of the file content if exists.</returns>
         private string GetFileHash(IFileSystem fileSystem, string filePath)
         {
             if (!fileSystem.FileExists(filePath))
@@ -1132,11 +1181,22 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Normalizes the file path by replcing forward slashes with the platform specific seperation char.
+        /// </summary>
+        /// <param name="path">The file path to normalize.</param>
+        /// <returns>The normalized file path.</returns>
         private static string NormalizeFilePath(string path)
         {
             return path?.Replace('/', Path.DirectorySeparatorChar);
         }
 
+        /// <summary>
+        /// Gets the path of the solution.
+        /// </summary>
+        /// <param name="dte">The package service.</param>
+        /// <param name="workspaceService">The worsepace service.</param>
+        /// <returns>The file path of the root of the solution of open folder.</returns>
         internal static string GetSolutionPath(DTE2 dte, IVsFolderWorkspaceService workspaceService)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -1165,6 +1225,10 @@ namespace Microsoft.Sarif.Viewer
             return solutionPath;
         }
 
+        /// <summary>
+        /// Adds a file extension format to the list of allowed ones. (Including the period)
+        /// </summary>
+        /// <param name="fileExtension">File extension we are interested in allowing the user to read.</param>
         internal void AddAllowedFileExtension(string fileExtension)
         {
             if (!this._allowedFileExtensions.Contains(fileExtension))
@@ -1174,6 +1238,10 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Gets the allowed hashset of file extensions.
+        /// </summary>
+        /// <returns>The hashset of file extensions that are allowed.</returns>
         internal HashSet<string> GetAllowedFileExtensions()
         {
             return this._allowedFileExtensions;

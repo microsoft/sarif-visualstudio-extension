@@ -58,7 +58,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilePathRemapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilteredColumnValue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\IColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ISarifErrorListEventSelectionService.cs" />
