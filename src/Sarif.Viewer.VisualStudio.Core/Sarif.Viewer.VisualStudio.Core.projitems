@@ -108,15 +108,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)Options\ISarifViewerColorOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\ISarifViewerGeneralOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptionsControl.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptionsPage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsPage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsControl.xaml.cs">
-      <DependentUpon>SarifViewerGeneralOptionsControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptionsControl.xaml.cs">
       <DependentUpon>SarifViewerColorOptionsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsControl.xaml.cs">
+      <DependentUpon>SarifViewerGeneralOptionsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)OutputWindowTracerListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectHelper.cs" />
@@ -242,8 +241,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControlResources.xaml">
       <Generator>MSBuild:Compile</Generator>

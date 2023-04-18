@@ -13,18 +13,16 @@ namespace Microsoft.Sarif.Viewer.Options
     [ComVisible(true)]
     public class SarifViewerColorOptionsPage : UIElementDialogPage
     {
-        private readonly Lazy<SarifViewerGeneralOptionsControl> _sarifViewerOptionsControl;
+        private int _errorUnderlineColorIndex = 0;
+        private int _warningUnderlineColorIndex = 1;
+        private int _noteUnderlineColorIndex = 2;
+
+        private readonly Lazy<SarifViewerColorOptionsControl> _sarifViewerColorOptionsControl;
 
         public SarifViewerColorOptionsPage()
         {
-            _sarifViewerOptionsControl = new Lazy<SarifViewerGeneralOptionsControl>(() => new SarifViewerOptionsControl(this));
+            _sarifViewerColorOptionsControl = new Lazy<SarifViewerColorOptionsControl>(() => new SarifViewerColorOptionsControl(this));
         }
-
-        public bool MonitorSarifFolder { get; set; } = true;
-
-        public bool EnableGitHubAdvancedSecurity { get; set; } = false;
-
-        public bool EnableKeyEventAdornment { get; set; } = true;
 
         /// <summary>
         /// This event is triggered whenever the rank filter value or the Insights formatting changes.
@@ -32,8 +30,6 @@ namespace Microsoft.Sarif.Viewer.Options
         public event InsightSettingsChangedEventHandler InsightSettingsChanged;
 
         public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
-
-        private int _errorUnderlineColorIndex = 0;
 
         /// <summary>
         /// Gets or sets the index representing what an error needs to be underlined as.
@@ -56,8 +52,6 @@ namespace Microsoft.Sarif.Viewer.Options
             }
         }
 
-        private int _warningUnderlineColorIndex = 1;
-
         /// <summary>
         /// Gets or sets the index representing what a warning needs to be underlined as.
         /// </summary>
@@ -78,8 +72,6 @@ namespace Microsoft.Sarif.Viewer.Options
                 }
             }
         }
-
-        private int _noteUnderlineColorIndex = 2;
 
         /// <summary>
         /// Gets or sets the index representing what a note needs to be underlined as.
@@ -110,7 +102,7 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             get
             {
-                return _sarifViewerOptionsControl.Value;
+                return _sarifViewerColorOptionsControl.Value;
             }
         }
 

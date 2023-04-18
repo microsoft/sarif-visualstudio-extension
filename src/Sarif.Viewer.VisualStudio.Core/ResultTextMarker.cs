@@ -13,7 +13,6 @@ using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 
@@ -223,9 +222,9 @@ namespace Microsoft.Sarif.Viewer
             {
                 Dictionary<FailureLevel, string> failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
                         {
-                            { FailureLevel.Error, SarifViewerGeneralOptions.Instance?.ErrorUnderlineColor },
-                            { FailureLevel.Warning, SarifViewerGeneralOptions.Instance?.WarningUnderlineColor },
-                            { FailureLevel.Note, SarifViewerGeneralOptions.Instance?.NoteUnderlineColor },
+                            { FailureLevel.Error, SarifViewerColorOptions.Instance?.ErrorUnderlineColor },
+                            { FailureLevel.Warning, SarifViewerColorOptions.Instance?.WarningUnderlineColor },
+                            { FailureLevel.Note, SarifViewerColorOptions.Instance?.NoteUnderlineColor },
                         };
                 string errorType = failureLevelToPredefinedErrorTypes[(FailureLevel)this.FailLevel];
 

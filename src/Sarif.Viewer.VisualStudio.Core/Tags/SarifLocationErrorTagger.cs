@@ -120,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 foreach (KeyValuePair<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedTags in groupedBySpan)
                 {
                     List<IErrorTag> tags = groupedTags.Value.tagList;
-                    yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags, SarifViewerGeneralOptions.Instance));
+                    yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags, SarifViewerColorOptions.Instance));
                 }
             }
         }

@@ -14,13 +14,13 @@ namespace Microsoft.Sarif.Viewer.Options
         /// <summary>
         /// A handle to the options page instance that this control is bound to.
         /// </summary>
-        private readonly SarifViewerColorOptionsPage sariferOptionsPage;
+        private readonly SarifViewerColorOptionsPage colorOptionsPage;
 
         public SarifViewerColorOptionsControl(SarifViewerColorOptionsPage page)
         {
             InitializeComponent();
-            sariferOptionsPage = page;
-            this.DataContext = sariferOptionsPage;
+            colorOptionsPage = page;
+            this.DataContext = colorOptionsPage;
         }
     }
 }

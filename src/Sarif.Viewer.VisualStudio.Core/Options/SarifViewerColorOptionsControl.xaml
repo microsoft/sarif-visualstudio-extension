@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Microsoft.Sarif.Viewer.Options.SarifViewerGeneralOptionsControl"
+﻿<UserControl x:Class="Microsoft.Sarif.Viewer.Options.SarifViewerColorOptionsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"

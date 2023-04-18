@@ -3,13 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 
-namespace Sarif.Viewer.VisualStudio.Core.Options
+namespace Microsoft.Sarif.Viewer.Options
 {
     internal class SarifViewerColorOptions : ISarifViewerColorOptions
     {

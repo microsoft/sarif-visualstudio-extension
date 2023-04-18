@@ -10,14 +10,9 @@ using EnvDTE;
 
 using EnvDTE80;
 
-using Microsoft.Sarif.Viewer;
-using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
-
-using Sarif.Viewer.VisualStudio.Core.Options;
 
 namespace Sarif.Viewer.VisualStudio.Core.Models
 {
