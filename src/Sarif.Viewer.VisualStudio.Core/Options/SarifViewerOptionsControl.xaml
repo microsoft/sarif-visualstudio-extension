@@ -56,30 +56,66 @@
 
                 <TextBlock>Underline error results with a</TextBlock>
                 <ComboBox SelectedIndex="{Binding ErrorUnderlineColorIndex, Mode =TwoWay}">
-                    <ComboBoxItem>Purple squiggle</ComboBoxItem>
-                    <ComboBoxItem>Green squiggle</ComboBoxItem>
-                    <ComboBoxItem>An ellipsis (...)</ComboBoxItem>
-                    <ComboBoxItem>Red Squiggle</ComboBoxItem>
-                    <ComboBoxItem>Blue squiggle</ComboBoxItem>
-                    <ComboBoxItem>Nothing</ComboBoxItem>
+                    <ComboBoxItem>
+                         <TextBlock><Rectangle Height="20" Width="20" Fill="Purple"/>Purple squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Green"/>Green squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Gray"/>An ellipsis (...)</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Red"/>Red Squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Teal"/>Blue squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Transparent"/>Nothing</TextBlock>
+                    </ComboBoxItem>
                 </ComboBox>
                 <TextBlock>Underline warning results with a</TextBlock>
                 <ComboBox SelectedIndex="{Binding WarningUnderlineColorIndex, Mode =TwoWay}">
-                    <ComboBoxItem>Purple squiggle</ComboBoxItem>
-                    <ComboBoxItem>Green squiggle</ComboBoxItem>
-                    <ComboBoxItem>An ellipsis (...)</ComboBoxItem>
-                    <ComboBoxItem>Red Squiggle</ComboBoxItem>
-                    <ComboBoxItem>Blue squiggle</ComboBoxItem>
-                    <ComboBoxItem>Nothing</ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Purple"/>Purple squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Green"/>Green squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Gray"/>An ellipsis (...)</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Red"/>Red Squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Teal"/>Blue squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Transparent"/>Nothing</TextBlock>
+                    </ComboBoxItem>
                 </ComboBox>
                 <TextBlock>Underline note results with a</TextBlock>
                 <ComboBox SelectedIndex="{Binding NoteUnderlineColorIndex, Mode =TwoWay}">
-                    <ComboBoxItem>Purple squiggle</ComboBoxItem>
-                    <ComboBoxItem>Green squiggle</ComboBoxItem>
-                    <ComboBoxItem>An ellipsis (...)</ComboBoxItem>
-                    <ComboBoxItem>Red Squiggle</ComboBoxItem>
-                    <ComboBoxItem>Blue squiggle</ComboBoxItem>
-                    <ComboBoxItem>Nothing</ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Purple"/>Purple squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Green"/>Green squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Gray"/>An ellipsis (...)</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Red"/>Red Squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Teal"/>Blue squiggle</TextBlock>
+                    </ComboBoxItem>
+                    <ComboBoxItem>
+                        <TextBlock><Rectangle Height="20" Width="20" Fill="Transparent"/>Nothing</TextBlock>
+                    </ComboBoxItem>
                 </ComboBox>
             </StackPanel>
             
