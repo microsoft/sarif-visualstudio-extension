@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Microsoft.Sarif.Viewer.Options.SarifViewerOptionsControl"
+﻿<UserControl x:Class="Microsoft.Sarif.Viewer.Options.SarifViewerGeneralOptionsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
@@ -23,37 +23,18 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid x:Name="OuterGrid">
+    <Grid x:Name="OuterColorGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox x:Name="GeneralGroupBox">
+        <GroupBox x:Name="ColorGroupBox">
             <GroupBox.Header>
-                <Label x:Name="GeneralGroupBoxLabel"
-                       Content="{StaticResource SarifViewerOptionsControl_GroupBoxHeader}"
-                       AutomationProperties.AutomationId="GeneralGroupBoxLabel" />
+                <Label x:Name="ColorGroupBoxLabel"
+                       Content="{StaticResource SarifViewerOptionsControl_ColorBoxHeader}"
+                       AutomationProperties.AutomationId="ColorGroupBoxLabel" />
             </GroupBox.Header>
             <StackPanel>
-                <CheckBox x:Name="MonitorSarifFolderCheckBox"
-                          Margin="5"
-                          Style="{StaticResource CheckBoxStyle}"
-                          IsChecked="{Binding MonitorSarifFolder, Mode=TwoWay}"
-                          Content="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder}"
-                          AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
-                <CheckBox x:Name="EnableGitHubAdvancedSecurityCheckBox"
-                          Margin="5"
-                          Style="{StaticResource CheckBoxStyle}"
-                          IsChecked="{Binding EnableGitHubAdvancedSecurity, Mode=TwoWay}"
-                          Content="{StaticResource SarifViewerOptionsControl_EnableGitHubAdvancedSecurity}"
-                          AutomationProperties.AutomationId="EnableGitHubAdvancedSecurityCheckBox" />
-                <CheckBox x:Name="EnableKeyEventAdornmentCheckBox"
-                          Margin="5"
-                          Style="{StaticResource CheckBoxStyle}"
-                          IsChecked="{Binding EnableKeyEventAdornment, Mode=TwoWay}"
-                          Content="{StaticResource SarifViewerOptionsControl_EnableKeyEventAdornment}"
-                          AutomationProperties.AutomationId="EnableKeyEventAdornmentCheckBox" />
-
                 <TextBlock>Underline error results with a</TextBlock>
                 <ComboBox SelectedIndex="{Binding ErrorUnderlineColorIndex, Mode =TwoWay}">
                     <ComboBoxItem>

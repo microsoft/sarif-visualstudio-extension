@@ -3,25 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
-using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 
-namespace Microsoft.Sarif.Viewer.Options
+namespace Sarif.Viewer.VisualStudio.Core.Options
 {
-    internal class SarifViewerOption : ISarifViewerOptions
+    internal class SarifViewerColorOptions : ISarifViewerColorOptions
     {
-        private readonly bool shouldMonitorSarifFolderDefaultValue = true;
-
-        private readonly bool isGitHubAdvancedSecurityEnabled = false;
-
-        private readonly bool keyEventAdornmentEnabledDefaultValue = true;
-
         private readonly AsyncPackage package;
 
-        private readonly SarifViewerOptionPage optionPage;
+        private readonly SarifViewerColorOptionsPage optionPage;
 
         /// <summary>
         /// This event is triggered whenever the rank filter value or the Insights formatting changes.
@@ -31,30 +25,18 @@ namespace Microsoft.Sarif.Viewer.Options
         public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SarifViewerOption"/> class.
+        /// Initializes a new instance of the <see cref="SarifViewerColorOptions"/> class.
         /// Get visual studio option values.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private SarifViewerOption(AsyncPackage package)
+        private SarifViewerColorOptions(AsyncPackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
-            this.optionPage = (SarifViewerOptionPage)this.package.GetDialogPage(typeof(SarifViewerOptionPage));
-            this.OptionStates = new Dictionary<string, bool>
-            {
-                { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
-                { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
-                { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
-            };
+            this.optionPage = (SarifViewerColorOptionsPage)this.package.GetDialogPage(typeof(SarifViewerColorOptionsPage));
             this.optionPage.InsightSettingsChanged += OnInsightSettingsChanged;
         }
 
-        private SarifViewerOption() { }
-
-        public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
-
-        public bool IsGitHubAdvancedSecurityEnabled => this.optionPage?.EnableGitHubAdvancedSecurity ?? this.isGitHubAdvancedSecurityEnabled;
-
-        public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
+        private SarifViewerColorOptions() { }
 
         public string ErrorUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.ErrorUnderlineColorIndex);
 
@@ -67,10 +49,10 @@ namespace Microsoft.Sarif.Viewer.Options
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static SarifViewerOption Instance { get; private set; }
+        public static SarifViewerColorOptions Instance { get; private set; }
 
         /// <summary>
-        /// Initializes the singleton instance of the <see cref="SarifViewerOption"/> class.
+        /// Initializes the singleton instance of the <see cref="SarifViewerColorOptions"/> class.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
@@ -79,12 +61,12 @@ namespace Microsoft.Sarif.Viewer.Options
             // Switch to the main thread
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-            Instance = new SarifViewerOption(package);
+            Instance = new SarifViewerColorOptions(package);
         }
 
         public static void InitializeForUnitTests()
         {
-            Instance = new SarifViewerOption();
+            Instance = new SarifViewerColorOptions();
         }
 
         public bool IsOptionEnabled(string optionName)

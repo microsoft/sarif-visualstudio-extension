@@ -17,6 +17,8 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
+using Sarif.Viewer.VisualStudio.Core.Options;
+
 namespace Sarif.Viewer.VisualStudio.Core.Models
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
         /// </summary>
         private readonly List<IErrorTag> objectsToWrap;
 
-        private readonly ISarifViewerOptions sarifViewerOptions;
+        private readonly ISarifViewerColorOptions sarifViewerOptions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScrollViewerWrapper"/> class.
@@ -37,7 +39,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
         /// </summary>
         /// <param name="objectsToWrap">The objects to be wrapped in a single scroll viewer.</param>
         /// <param name="sarifViewerOptions">The SarifViewerOptions that are currently being used.</param>
-        public ScrollViewerWrapper(List<IErrorTag> objectsToWrap, ISarifViewerOptions sarifViewerOptions)
+        public ScrollViewerWrapper(List<IErrorTag> objectsToWrap, ISarifViewerColorOptions sarifViewerOptions)
         {
             this.objectsToWrap = objectsToWrap;
             this.sarifViewerOptions = sarifViewerOptions;

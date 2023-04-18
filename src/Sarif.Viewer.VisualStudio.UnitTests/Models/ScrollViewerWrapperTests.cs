@@ -41,7 +41,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
         [Fact]
         public void ErrorTypeSortingTest()
         {
-            Mock<ISarifViewerOptions> sarifViewerOptionsMock = new Mock<ISarifViewerOptions>();
+            Mock<ISarifViewerGeneralOptions> sarifViewerOptionsMock = new Mock<ISarifViewerGeneralOptions>();
             sarifViewerOptionsMock.Setup(x => x.ErrorUnderlineColor).Returns(PredefinedErrorTypeNames.OtherError);
             sarifViewerOptionsMock.Setup(x => x.WarningUnderlineColor).Returns(PredefinedErrorTypeNames.Warning);
             sarifViewerOptionsMock.Setup(x => x.NoteUnderlineColor).Returns(PredefinedErrorTypeNames.HintedSuggestion);

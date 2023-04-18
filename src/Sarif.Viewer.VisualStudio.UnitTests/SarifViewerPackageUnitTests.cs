@@ -10,7 +10,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public SarifViewerPackageUnitTests()
         {
             SarifViewerPackage.IsUnitTesting = true;
-            SarifViewerOption.InitializeForUnitTests();
+            SarifViewerGeneralOptions.InitializeForUnitTests();
         }
     }
 }

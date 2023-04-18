@@ -9,14 +9,14 @@ namespace Microsoft.Sarif.Viewer.Options
     /// <summary>
     /// Interaction logic for SariferOptionsControl.xaml.
     /// </summary>
-    public partial class SarifViewerOptionsControl : UserControl
+    public partial class SarifViewerColorOptionsControl : UserControl
     {
         /// <summary>
         /// A handle to the options page instance that this control is bound to.
         /// </summary>
-        private readonly SarifViewerOptionPage sariferOptionsPage;
+        private readonly SarifViewerColorOptionsPage sariferOptionsPage;
 
-        public SarifViewerOptionsControl(SarifViewerOptionPage page)
+        public SarifViewerColorOptionsControl(SarifViewerColorOptionsPage page)
         {
             InitializeComponent();
             sariferOptionsPage = page;

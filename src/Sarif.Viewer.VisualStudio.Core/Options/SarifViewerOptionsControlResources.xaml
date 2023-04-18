@@ -3,6 +3,8 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
     <system:String x:Key="SarifViewerOptionsControl_GroupBoxHeader">General</system:String>
+    
+    <system:String x:Key="SarifViewerOptionsControl_ColorBoxHeader">Highlights</system:String>
 
     <system:String x:Key="SarifViewerOptionsControl_MonitorSarifFolder">Load .sarif files from the .sarif folder automatically</system:String>
 

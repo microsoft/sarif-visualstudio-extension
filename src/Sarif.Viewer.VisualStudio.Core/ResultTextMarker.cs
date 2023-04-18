@@ -223,9 +223,9 @@ namespace Microsoft.Sarif.Viewer
             {
                 Dictionary<FailureLevel, string> failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
                         {
-                            { FailureLevel.Error, SarifViewerOption.Instance?.ErrorUnderlineColor },
-                            { FailureLevel.Warning, SarifViewerOption.Instance?.WarningUnderlineColor },
-                            { FailureLevel.Note, SarifViewerOption.Instance?.NoteUnderlineColor },
+                            { FailureLevel.Error, SarifViewerGeneralOptions.Instance?.ErrorUnderlineColor },
+                            { FailureLevel.Warning, SarifViewerGeneralOptions.Instance?.WarningUnderlineColor },
+                            { FailureLevel.Note, SarifViewerGeneralOptions.Instance?.NoteUnderlineColor },
                         };
                 string errorType = failureLevelToPredefinedErrorTypes[(FailureLevel)this.FailLevel];
 
