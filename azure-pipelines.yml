@@ -57,6 +57,6 @@ extends:
                   filePath: $(System.DefaultWorkingDirectory)/scripts/BuildAndTest.ps1
                   
               - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-                  displayName: 'Generation Task'
-                  inputs:
-                      BuildDropPath: '$(System.ArtifactsDirectory)/buildOutput'              
+                displayName: 'Generation Task'
+                inputs:
+                  BuildDropPath: '$(System.ArtifactsDirectory)/buildOutput'              
