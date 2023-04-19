@@ -54,7 +54,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
             this.sarifErrorListEventSelectionService.SelectedItemChanged += this.SarifErrorListEventSelectionService_SelectedItemChanged;
-            SarifViewerGeneralOptions.Instance.InsightSettingsChanged += OnInsightSettingsChanged;
+            SarifViewerColorOptions.Instance.InsightSettingsChanged += OnInsightSettingsChanged;
         }
 
         /// <inheritdoc/>
@@ -151,7 +151,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (disposing)
             {
                 this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SarifErrorListEventSelectionService_SelectedItemChanged;
-                SarifViewerGeneralOptions.Instance.InsightSettingsChanged -= OnInsightSettingsChanged;
+                SarifViewerColorOptions.Instance.InsightSettingsChanged -= OnInsightSettingsChanged;
                 this.Disposed?.Invoke(this, EventArgs.Empty);
             }
         }

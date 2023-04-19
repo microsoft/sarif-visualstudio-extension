@@ -21,13 +21,6 @@ namespace Microsoft.Sarif.Viewer.Options
         private readonly SarifViewerGeneralOptionsPage optionPage;
 
         /// <summary>
-        /// This event is triggered whenever the rank filter value or the Insights formatting changes.
-        /// </summary>
-        public event InsightSettingsChangedEventHandler InsightSettingsChanged;
-
-        public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SarifViewerGeneralOptions"/> class.
         /// Get visual studio option values.
         /// </summary>
@@ -42,7 +35,6 @@ namespace Microsoft.Sarif.Viewer.Options
                 { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
                 { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
             };
-            this.optionPage.InsightSettingsChanged += OnInsightSettingsChanged;
         }
 
         private SarifViewerGeneralOptions() { }
@@ -86,15 +78,6 @@ namespace Microsoft.Sarif.Viewer.Options
             }
 
             return false;
-        }
-
-        private void OnInsightSettingsChanged(string setting, object oldValue, object newValue)
-        {
-            if (InsightSettingsChanged != null)
-            {
-                // If any of the settings that impact how insights are shown has changed, invalidate tags for the whole file.
-                InsightSettingsChanged.Invoke(setting, oldValue, newValue);
-            }
         }
     }
 }

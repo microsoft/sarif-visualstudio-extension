@@ -27,13 +27,6 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool EnableKeyEventAdornment { get; set; } = true;
 
         /// <summary>
-        /// This event is triggered whenever the rank filter value or the Insights formatting changes.
-        /// </summary>
-        public event InsightSettingsChangedEventHandler InsightSettingsChanged;
-
-        public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
-
-        /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
         /// </summary>
         /// <returns>The WPF child element.</returns>
