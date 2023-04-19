@@ -50,7 +50,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideOptionPage(typeof(SarifViewerGeneralOptionsPage), OptionCategoryName, OptionPageName, 0, 0, true)]
-    [ProvideOptionPage(typeof(SarifViewerGeneralOptionsPage), OptionCategoryName, ColorPickerPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(SarifViewerColorOptionsPage), OptionCategoryName, ColorPickerPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
@@ -156,6 +156,7 @@ namespace Microsoft.Sarif.Viewer
 
             // initialize Option first since other componments may depends on options.
             await SarifViewerGeneralOptions.InitializeAsync(this).ConfigureAwait(false);
+            await SarifViewerColorOptions.InitializeAsync(this).ConfigureAwait(false);
 
             if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
             {
