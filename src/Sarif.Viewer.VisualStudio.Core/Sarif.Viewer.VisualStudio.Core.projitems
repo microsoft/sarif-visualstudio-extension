@@ -15,8 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CodeLocationObjectTypeDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContentTypes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\CodeFinder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\FileSpan.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Language.cs" />
@@ -31,6 +29,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CSharpFinder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CStyleFinder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\ScopeIdentifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml.cs">
       <DependentUpon>FeedbackControl.xaml</DependentUpon>
     </Compile>

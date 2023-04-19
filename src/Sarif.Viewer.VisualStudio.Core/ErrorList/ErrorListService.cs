@@ -630,6 +630,19 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        private string GetUriBaseId(SarifErrorListItem sarifErrorListItem)
+        {
+            //if (artifactIndex >= 0 && run.Artifacts[artifactIndex].Location.UriBaseId != null)
+            //{
+            //    model.UriBaseId = run.Artifacts[artifactIndex].Location.UriBaseId;
+            //}
+            //else
+            //{
+            //    model.UriBaseId = physicalLocation.ArtifactLocation.UriBaseId;
+            //}
+
+        }
+
         /// <summary>
         /// Adds information about the sarif errors to the <see cref="CodeAnalysisResultManager"/> cache as well as to the <see cref="SarifTableDataSource"/> instance.
         /// </summary>
@@ -660,7 +673,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             List<SarifErrorListItem> sarifErrorListItems = new List<SarifErrorListItem>();
             if (run.Results != null)
             {
-                foreach (Result result in run.Results)
+                foreach (CodeAnalysis.Sarif.Result result in run.Results)
                 {
                     result.Run = run;
                     sarifErrorListItems.Add(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
@@ -744,12 +757,17 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
+            IEnumerable<string> uriBaseids = dataCache.SarifErrors.Select(x => GetUriBaseId(x));
+
+    
+
+            List<(string relativePath, string mappedPath)> mappedPairs = new List<(string relativePath, string mappedPath)>();
 
             // now we need to map from relative file path to absolute.
-            foreach (string relativeFilePath in relativeFilePaths)
-            {
+            string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
 
-            }
+            // find the mapped path with codeanalysisresultmanager
+            CodeAnalysisResultManager.Instance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, , relativeFilePaths.ToList());
 
             SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
 
@@ -908,6 +926,5 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             throw new AggregateException(exceptions);
         }
-
     }
 }

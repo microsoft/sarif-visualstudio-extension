@@ -14,6 +14,8 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 
+using CSharpFunctionalExtensions;
+
 using EnvDTE;
 
 using EnvDTE80;
@@ -61,11 +63,15 @@ namespace Microsoft.Sarif.Viewer
 
         internal delegate string PromptForResolvedPathDelegate(SarifErrorListItem sarifErrorListItem, string pathFromLogFile);
 
+        internal delegate string PromptForResolvedPathWithLogPathDelegate(string logFilePath, string pathFromLogFile);
+
         internal delegate ResolveEmbeddedFileDialogResult PromptForEmbeddedFileDelegate(string sarifLogFilePath, bool hasEmbeddedContent, ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult> preference);
 
         private readonly PromptForResolvedPathDelegate _promptForResolvedPathDelegate;
 
         private readonly PromptForEmbeddedFileDelegate _promptForEmbeddedFileDelegate;
+
+        private readonly PromptForResolvedPathWithLogPathDelegate _promptForResolvedPathWithLogPathDelegate;
 
         private static readonly HttpClient s_httpClient = new HttpClient();
 
@@ -73,11 +79,13 @@ namespace Microsoft.Sarif.Viewer
         internal CodeAnalysisResultManager(
             IFileSystem fileSystem,
             PromptForResolvedPathDelegate promptForResolvedPathDelegate = null,
-            PromptForEmbeddedFileDelegate promptForEmbeddedFileDelegate = null)
+            PromptForEmbeddedFileDelegate promptForEmbeddedFileDelegate = null,
+            PromptForResolvedPathWithLogPathDelegate promptForResolvedPathWithLogPathDelegate = null)
         {
             this._fileSystem = fileSystem;
             this._promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? this.PromptForResolvedPath;
             this._promptForEmbeddedFileDelegate = promptForEmbeddedFileDelegate ?? this.PromptForEmbeddedFile;
+            this._promptForResolvedPathWithLogPathDelegate = promptForResolvedPathWithLogPathDelegate ?? this.PromptForResolvedPath;
 
             this._allowedDownloadHosts = SdkUIUtilities.GetStoredObject<List<string>>(AllowedDownloadHostsFileName) ?? new List<string>();
 
@@ -202,14 +210,9 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public bool TryResolveFilePaths(int resultId, int runIndex, string uriBaseId, List<string> relativePath, out string resolvedPath)
+        public List<string> TryResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, string uriBaseId, List<string> relativePaths)
         {
-
-        }
-
-        public bool TryResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath, out string resolvedPath)
-        {
-            resolvedPath = null;
+            List<string> resolvedPaths = new List<string>();
 
             if (!SarifViewerPackage.IsUnitTesting)
             {
@@ -218,6 +221,49 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
+            foreach (string relativePath in relativePaths)
+            {
+                string resolvedPath = FindResolvedPath(dataCache, workingDirectory, logFilePath, uriBaseId, relativePath);
+
+                if (!string.IsNullOrEmpty(resolvedPath))
+                {
+                    // save resolved path to mapping
+                    if (!this.SaveResolvedPathToUriBaseMapping(uriBaseId, relativePath, relativePath, resolvedPath, dataCache))
+                    {
+                        resolvedPath = relativePath;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(resolvedPath) || relativePath.Equals(resolvedPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    resolvedPath = relativePath;
+                }
+
+                resolvedPaths.Append(resolvedPath);
+            }
+
+            return resolvedPaths;
+        }
+
+        /// <summary>
+        /// Tries to resolve the file path and remap corresponding file paths in the datacache described by <paramref name="runIndex"/>.
+        /// </summary>
+        /// <param name="resultId">The id of the <see cref="SarifErrorListItem"/> to find.</param>
+        /// <param name="runIndex">The index of the <see cref="RunDataCache"/> to find.</param>
+        /// <param name="uriBaseId">The base of the uri to use.</param>
+        /// <param name="relativePath">The relative path that needs to be remapped.</param>
+        /// <param name="resolvedPath">The resolved path representing the absolute path.</param>
+        /// <returns>True if it succeeded, false otherwise.</returns>
+        public bool TryResolveFilePath(int resultId, int runIndex, string uriBaseId, string relativePath, out string resolvedPath)
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+                #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+                #pragma warning restore VSTHRD108
+            }
+
+            resolvedPath = null;
             if (!this.RunIndexToRunDataCache.TryGetValue(runIndex, out RunDataCache dataCache))
             {
                 return false;
@@ -229,50 +275,7 @@ namespace Microsoft.Sarif.Viewer
                 return false;
             }
 
-            string solutionPath = GetSolutionPath(
-                (DTE2)Package.GetGlobalService(typeof(DTE)),
-                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
-
-            // File contents embedded in SARIF.
-            bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
-            string embeddedTempFilePath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
-
-            try
-            {
-                resolvedPath = this.GetFilePathFromHttp(sarifErrorListItem, uriBaseId, dataCache, relativePath);
-            }
-            catch (WebException)
-            {
-                // failed to download the file
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(resolvedPath))
-            {
-                // resolve path, existing file in local disk
-                resolvedPath = this.GetRebaselinedFileName(
-                    uriBaseId: uriBaseId,
-                    pathFromLogFile: relativePath,
-                    dataCache: dataCache,
-                    workingDirectory: sarifErrorListItem.WorkingDirectory,
-                    solutionFullPath: solutionPath);
-            }
-
-            // verify resolved file with artifact's Hash
-            if (hasHash)
-            {
-                string currentResolvedPath = resolvedPath;
-                if (!this.VerifyFileWithArtifactHash(sarifErrorListItem, relativePath, dataCache, currentResolvedPath, embeddedTempFilePath, out resolvedPath))
-                {
-                    return false;
-                }
-            }
-
-            if (string.IsNullOrEmpty(resolvedPath))
-            {
-                // User needs to locate file.
-                resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, relativePath);
-            }
+            resolvedPath = FindResolvedPath(dataCache, sarifErrorListItem, uriBaseId, relativePath);
 
             if (!string.IsNullOrEmpty(resolvedPath))
             {
@@ -292,6 +295,139 @@ namespace Microsoft.Sarif.Viewer
             // Update all the paths in this run.
             this.RemapFilePaths(dataCache.SarifErrors, relativePath, resolvedPath);
             return true;
+        }
+
+        /// <summary>
+        /// Finds the resolved absolute path that corresponds to a particular path.
+        /// </summary>
+        /// <param name="dataCache">DataCache that holds the sarif error list item.</param>
+        /// <param name="sarifErrorListItem">The sarif error list item used to remap.</param>
+        /// <param name="uriBaseId">The base of the uri used to search.</param>
+        /// <param name="relativePath">The relative path to resolve.</param>
+        /// <returns>The resolved path if possible, null otherwise.</returns>
+        private string FindResolvedPath(RunDataCache dataCache, SarifErrorListItem sarifErrorListItem, string uriBaseId, string relativePath)
+        {
+            string resolvedPath = null;
+
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
+            string solutionPath = GetSolutionPath(
+                (DTE2)Package.GetGlobalService(typeof(DTE)),
+                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
+
+            // File contents embedded in SARIF.
+            bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
+            string embeddedTempFilePath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
+
+            try
+            {
+                resolvedPath = this.GetFilePathFromHttp(sarifErrorListItem, uriBaseId, dataCache, relativePath);
+            }
+            catch (WebException)
+            {
+                // failed to download the file
+                return resolvedPath;
+            }
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                // resolve path, existing file in local disk
+                resolvedPath = this.GetRebaselinedFileName(
+                    uriBaseId: uriBaseId,
+                    pathFromLogFile: relativePath,
+                    dataCache: dataCache,
+                    workingDirectory: sarifErrorListItem.WorkingDirectory,
+                    solutionFullPath: solutionPath);
+            }
+
+            // verify resolved file with artifact's Hash
+            if (hasHash)
+            {
+                string currentResolvedPath = resolvedPath;
+                if (!this.VerifyFileWithArtifactHash(sarifErrorListItem, relativePath, dataCache, currentResolvedPath, embeddedTempFilePath, out resolvedPath))
+                {
+                    return resolvedPath;
+                }
+            }
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                // User needs to locate file.
+                resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, relativePath);
+            }
+
+            return resolvedPath;
+        }
+
+        /// <summary>
+        /// Finds the resolved absolute path that corresponds to a particular path.
+        /// </summary>
+        /// <param name="dataCache">DataCache that holds the sarif error list item.</param>
+        /// <param name="uriBaseId">The base of the uri used to search.</param>
+        /// <param name="relativePath">The relative path to resolve.</param>
+        /// <returns>The resolved path if possible, null otherwise.</returns>
+        private string FindResolvedPath(RunDataCache dataCache, string workingDirectory, string logFilePath, string uriBaseId, string relativePath)
+        {
+            string resolvedPath = null;
+
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
+            string solutionPath = GetSolutionPath(
+                (DTE2)Package.GetGlobalService(typeof(DTE)),
+                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
+
+            // File contents embedded in SARIF.
+            bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
+            string embeddedTempFilePath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
+
+            try
+            {
+                resolvedPath = this.GetFilePathFromHttp(workingDirectory, uriBaseId, dataCache, relativePath);
+            }
+            catch (WebException)
+            {
+                // failed to download the file
+                return resolvedPath;
+            }
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                // resolve path, existing file in local disk
+                resolvedPath = this.GetRebaselinedFileName(
+                    uriBaseId: uriBaseId,
+                    pathFromLogFile: relativePath,
+                    dataCache: dataCache,
+                    workingDirectory: workingDirectory,
+                    solutionFullPath: solutionPath);
+            }
+
+            // verify resolved file with artifact's Hash
+            if (hasHash)
+            {
+                string currentResolvedPath = resolvedPath;
+                if (!this.VerifyFileWithArtifactHash(logFilePath, relativePath, dataCache, currentResolvedPath, embeddedTempFilePath, out resolvedPath))
+                {
+                    return resolvedPath;
+                }
+            }
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                // User needs to locate file.
+                resolvedPath = this._promptForResolvedPathWithLogPathDelegate(workingDirectory, relativePath);
+            }
+
+            return resolvedPath;
         }
 
         /// <summary>
@@ -511,16 +647,7 @@ namespace Microsoft.Sarif.Viewer
             return destinationFile;
         }
 
-        /// <summary>
-        /// TODO: FILL
-        /// Internal rather than private for unit testability.
-        /// </summary>
-        /// <param name="uriBaseId"></param>
-        /// <param name="pathFromLogFile"></param>
-        /// <param name="dataCache"></param>
-        /// <param name="workingDirectory"></param>
-        /// <param name="solutionFullPath"></param>
-        /// <returns>The resolved path.</returns>
+        // Internal rather than private for unit testability.
         internal string GetRebaselinedFileName(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, string workingDirectory = null, string solutionFullPath = null)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -597,7 +724,27 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            foreach (SarifErrorListItem sarifError in sarifErrors)
+            {
+                int oldIdentity = sarifError.GetIdentity();
+                sarifError.RemapFilePath(originalPath, remappedPath);
+
+                if (sarifError.GetIdentity() != oldIdentity)
+                {
+                    SarifTableDataSource.Instance.UpdateError(oldIdentity, sarifError);
+                }
+            }
+        }
+
         private string PromptForResolvedPath(SarifErrorListItem sarifErrorListItem, string pathFromLogFile)
+        {
+            return PromptForResolvedPath(sarifErrorListItem?.LogFilePath, pathFromLogFile);
+        }
+
+        private string PromptForResolvedPath(string logFilePath, string pathFromLogFile)
         {
             // Opening the OpenFileDialog causes the TreeView to lose focus,
             // which in turn causes the TreeViewItem selection to be unpredictable
@@ -610,7 +757,7 @@ namespace Microsoft.Sarif.Viewer
             var openFileDialog = new OpenFileDialog
             {
                 Title = string.Format(Resources.PromptForResolvedPathDialogTitle, pathFromLogFile),
-                InitialDirectory = sarifErrorListItem != null ? Path.GetDirectoryName(sarifErrorListItem.LogFilePath) : null,
+                InitialDirectory = Path.GetDirectoryName(logFilePath),
                 Filter = $"{fileName}|{fileName}",
                 RestoreDirectory = true,
             };
@@ -834,6 +981,12 @@ namespace Microsoft.Sarif.Viewer
         internal string GetFilePathFromHttp(SarifErrorListItem sarifErrorListItem, string uriBaseId, RunDataCache dataCache, string pathFromLogFile)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
+            return GetFilePathFromHttp(sarifErrorListItem.WorkingDirectory, uriBaseId, dataCache, pathFromLogFile);
+        }
+
+        internal string GetFilePathFromHttp(string workingDirectory, string uriBaseId, RunDataCache dataCache, string pathFromLogFile)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
 
             Uri uri = null;
             if ((uriBaseId != null
@@ -847,7 +1000,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 return this.HandleHttpFileDownloadRequest(
                             VersionControlParserFactory.ConvertToRawFileLink(uri),
-                            sarifErrorListItem.WorkingDirectory);
+                            workingDirectory);
             }
 
             return null;
@@ -903,15 +1056,6 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="uriBaseId"></param>
-        /// <param name="pathFromLogFile"></param>
-        /// <param name="dataCache"></param>
-        /// <param name="relativeUri"></param>
-        /// <param name="resolvedPath"></param>
-        /// <returns></returns>
         internal bool TryResolveFilePathFromUriBasePaths(string uriBaseId, string pathFromLogFile, RunDataCache dataCache, out Uri relativeUri, out string resolvedPath)
         {
             relativeUri = null;
@@ -945,13 +1089,6 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pathFromLogFile"></param>
-        /// <param name="dataCache"></param>
-        /// <param name="resolvedPath"></param>
-        /// <returns></returns>
         internal bool TryResolveFilePathFromRemappings(string pathFromLogFile, RunDataCache dataCache, out string resolvedPath)
         {
             resolvedPath = null;
@@ -981,15 +1118,6 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sources"></param>
-        /// <param name="pathFromLogFile"></param>
-        /// <param name="workingDirectory"></param>
-        /// <param name="fileSystem"></param>
-        /// <param name="resolvedPath"></param>
-        /// <returns></returns>
         internal bool TryResolveFilePathFromSourceControl(IList<VersionControlDetails> sources, string pathFromLogFile, string workingDirectory, IFileSystem fileSystem, out string resolvedPath)
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -1044,15 +1172,6 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="uriBaseId"></param>
-        /// <param name="originalPath"></param>
-        /// <param name="pathFromLogFile"></param>
-        /// <param name="resolvedPath"></param>
-        /// <param name="dataCache"></param>
-        /// <returns></returns>
         internal bool SaveResolvedPathToUriBaseMapping(string uriBaseId, string originalPath, string pathFromLogFile, string resolvedPath, RunDataCache dataCache)
         {
             Uri.TryCreate(pathFromLogFile, UriKind.Relative, out Uri relativeUri);
@@ -1108,8 +1227,8 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="pathFromLogFile">The path defined by the log file.</param>
         /// <param name="dataCache">Datacache that may be storing the data.</param>
         /// <param name="resolvedPath">The resolved path of the file.</param>
-        /// <param name="embeddedTempFilePath"></param>
-        /// <param name="newResolvedPath"></param>
+        /// <param name="embeddedTempFilePath">The temporary file path of the embedded file.</param>
+        /// <param name="newResolvedPath">The new resolved path.</param>
         /// <returns>Return false means cannot resolve local file and will use embedded file.</returns>
         internal bool VerifyFileWithArtifactHash(SarifErrorListItem sarifErrorListItem, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath)
         {
@@ -1156,6 +1275,67 @@ namespace Microsoft.Sarif.Viewer
                 case ResolveEmbeddedFileDialogResult.BrowseAlternateLocation:
                     // if returns null means user cancelled the open file dialog.
                     newResolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, pathFromLogFile);
+                    return !string.IsNullOrEmpty(newResolvedPath);
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifies that a file with this file path exists.
+        /// </summary>
+        /// <param name="logFilePath">The file path of the log.</param>
+        /// <param name="pathFromLogFile">The relative path defined by the log file.</param>
+        /// <param name="dataCache">Datacache that may be storing the data.</param>
+        /// <param name="resolvedPath">The resolved path of the file.</param>
+        /// <param name="embeddedTempFilePath">The temporary file path of the embedded file.</param>
+        /// <param name="newResolvedPath">The new resolved path.</param>
+        /// <returns>Return false means cannot resolve local file and will use embedded file.</returns>
+        internal bool VerifyFileWithArtifactHash(string logFilePath, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath)
+        {
+            newResolvedPath = null;
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                // cannot find corresponding file in local, then use embedded file
+                newResolvedPath = embeddedTempFilePath;
+                return true;
+            }
+
+            if (!dataCache.FileDetails.TryGetValue(pathFromLogFile, out ArtifactDetailsModel fileData))
+            {
+                // has no embedded file, return the path resolved till now
+                newResolvedPath = resolvedPath;
+                return true;
+            }
+
+            string fileHash = this.GetFileHash(this._fileSystem, resolvedPath);
+
+            if (fileHash.Equals(fileData.Sha256Hash, StringComparison.OrdinalIgnoreCase))
+            {
+                // found a file in file system which has same hashcode as embeded content.
+                newResolvedPath = resolvedPath;
+                return true;
+            }
+
+            bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
+            ResolveEmbeddedFileDialogResult dialogResult = this._promptForEmbeddedFileDelegate(logFilePath, hasEmbeddedContent, this.userDialogPreference);
+
+            switch (dialogResult)
+            {
+                case ResolveEmbeddedFileDialogResult.None:
+                    // dialog is cancelled.
+                    newResolvedPath = null;
+                    return false;
+                case ResolveEmbeddedFileDialogResult.OpenEmbeddedFileContent:
+                    newResolvedPath = embeddedTempFilePath;
+                    return true;
+                case ResolveEmbeddedFileDialogResult.OpenLocalFileFromSolution:
+                    newResolvedPath = resolvedPath;
+                    return true;
+                case ResolveEmbeddedFileDialogResult.BrowseAlternateLocation:
+                    // if returns null means user cancelled the open file dialog.
+                    newResolvedPath = this._promptForResolvedPathWithLogPathDelegate(logFilePath, pathFromLogFile);
                     return !string.IsNullOrEmpty(newResolvedPath);
                 default:
                     return false;
@@ -1226,7 +1406,7 @@ namespace Microsoft.Sarif.Viewer
         }
 
         /// <summary>
-        /// Adds a file extension format to the list of allowed ones. (Including the period)
+        /// Adds a file extension format to the list of allowed ones. (Including the period).
         /// </summary>
         /// <param name="fileExtension">File extension we are interested in allowing the user to read.</param>
         internal void AddAllowedFileExtension(string fileExtension)
