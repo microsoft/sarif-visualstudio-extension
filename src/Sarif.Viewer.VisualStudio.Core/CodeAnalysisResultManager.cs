@@ -210,7 +210,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public List<string> TryResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, string uriBaseId, List<string> relativePaths)
+        public List<string> TryResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, List<string> uriBaseIds, List<string> relativePaths)
         {
             List<string> resolvedPaths = new List<string>();
 
@@ -221,7 +221,7 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            foreach (string relativePath in relativePaths)
+            foreach ((string relativePath, string uriBaseId) in relativePaths.Zip(uriBaseIds, (x, y) => (x, y)))
             {
                 string resolvedPath = FindResolvedPath(dataCache, workingDirectory, logFilePath, uriBaseId, relativePath);
 
@@ -239,7 +239,7 @@ namespace Microsoft.Sarif.Viewer
                     resolvedPath = relativePath;
                 }
 
-                resolvedPaths.Append(resolvedPath);
+                resolvedPaths.Add(resolvedPath);
             }
 
             return resolvedPaths;
@@ -710,7 +710,6 @@ namespace Microsoft.Sarif.Viewer
                 oldIdentities.Append(sarifError.GetIdentity());
                 foreach ((string originalPath, string remappedPath) in originalPaths.Zip(remappedPaths, (o, r) => (o, r)))
                 {
-                    int oldIdentity = sarifError.GetIdentity();
                     sarifError.RemapFilePath(originalPath, remappedPath);
                 }
             }

@@ -630,19 +630,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
-        private string GetUriBaseId(SarifErrorListItem sarifErrorListItem)
-        {
-            //if (artifactIndex >= 0 && run.Artifacts[artifactIndex].Location.UriBaseId != null)
-            //{
-            //    model.UriBaseId = run.Artifacts[artifactIndex].Location.UriBaseId;
-            //}
-            //else
-            //{
-            //    model.UriBaseId = physicalLocation.ArtifactLocation.UriBaseId;
-            //}
-
-        }
-
         /// <summary>
         /// Adds information about the sarif errors to the <see cref="CodeAnalysisResultManager"/> cache as well as to the <see cref="SarifTableDataSource"/> instance.
         /// </summary>
@@ -757,9 +744,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
-            IEnumerable<string> uriBaseids = dataCache.SarifErrors.Select(x => GetUriBaseId(x));
-
-    
+            IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.Locations?.FirstOrDefault()?.UriBaseId);
 
             List<(string relativePath, string mappedPath)> mappedPairs = new List<(string relativePath, string mappedPath)>();
 
@@ -767,7 +752,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
 
             // find the mapped path with codeanalysisresultmanager
-            CodeAnalysisResultManager.Instance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, , relativeFilePaths.ToList());
+            List<string> resolvedFilePaths = CodeAnalysisResultManager.Instance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
+            CodeAnalysisResultManager.Instance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths, resolvedFilePaths);
+
+            // remap regions of the sarif error list items
+            // TODO remove below line
+            foreach (SarifErrorListItem error in dataCache.SarifErrors)
+            {
+                error.Region.StartLine = 1;
+            }
 
             SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
 
