@@ -667,42 +667,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 }
             }
 
-            Dictionary<string, CodeFinder.CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder.CodeFinder>(); // local file path -> codefinder
             foreach (SarifErrorListItem item in sarifErrorListItems)
             {
-/*                if (item.queries != null)
-                {
-                    // try to do codefinding now, then modify the existing fields so we can treat as normal
-                    for (int i = 0; i < item.queries.Count; i++)
-                    {
-                        (Uri filePath, MatchQuery query)? queryTuple = item.queries[i];
-                        if (queryTuple != null)
-                        {
-                            Uri filePath = queryTuple.Value.filePath;
-                            MatchQuery query = queryTuple.Value.query;
-                            if (!codeFinderCache.ContainsKey(filePath))
-                            {
-                                string fileContent = SdkUIUtilities.TryGetFileContent(filePath);
-                                codeFinderCache[filePath] = new CodeFinder.CodeFinder(filePath, fileContent);
-                            }
-
-                            CodeFinder.CodeFinder finder = codeFinderCache[filePath];
-                            List<MatchResult> results = finder.FindMatchesWithFunction(query);
-                            MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
-                            if (bestResult != null)
-                            {
-                                // if it's the first, we want to change the line number of the error list item too
-                                if (i == 0)
-                                {
-                                    item.LineNumber = bestResult.LineNumber;
-                                }
-
-                                item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
-                            }
-                        }
-                    }
-                }*/
-
                 dataCache.AddSarifResult(item);
             }
 
@@ -746,20 +712,61 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
             IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.Locations?.FirstOrDefault()?.UriBaseId);
 
-            List<(string relativePath, string mappedPath)> mappedPairs = new List<(string relativePath, string mappedPath)>();
-
             // now we need to map from relative file path to absolute.
             string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
 
             // find the mapped path with codeanalysisresultmanager
             List<string> resolvedFilePaths = CodeAnalysisResultManager.Instance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
-            CodeAnalysisResultManager.Instance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths, resolvedFilePaths);
+            CodeAnalysisResultManager.Instance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
 
-            // remap regions of the sarif error list items
-            // TODO remove below line
-            foreach (SarifErrorListItem error in dataCache.SarifErrors)
+            Dictionary<string, string> unresolvedToResolvedPathDict = new Dictionary<string, string>();
+            foreach ((string relativePath, string resolvedPath) in relativeFilePaths.ToList().Zip(resolvedFilePaths, (x, y) => (x, y)))
             {
-                error.Region.StartLine = 1;
+                unresolvedToResolvedPathDict[relativePath] = resolvedPath;
+            }
+
+            // remap regions nad lineNumber of the sarif error list items
+            Dictionary<string, CodeFinder.CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder.CodeFinder>(); // local file path -> codefinder
+            foreach (SarifErrorListItem item in dataCache.SarifErrors)
+            {
+                List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
+                if (queries != null)
+                {
+                    // try to do codefinding now, then modify the existing fields so we can treat as normal
+                    for (int i = 0; i < queries.Count; i++)
+                    {
+                        (Uri filePath, MatchQuery query)? queryTuple = queries[i];
+                        string resolvedPath = queryTuple?.filePath.AbsolutePath;
+
+                        // string x = queryTuple?.filePath.AbsolutePath;
+                        // string resolvedpath = queryTuple?.filePath.ToString();
+                        MatchQuery query = queryTuple.Value.query;
+                        if (!codeFinderCache.ContainsKey(resolvedPath))
+                        {
+                            string fileContent = SdkUIUtilities.TryGetFileContent(resolvedPath);
+                            codeFinderCache[resolvedPath] = new CodeFinder.CodeFinder(resolvedPath, fileContent);
+                        }
+
+                        CodeFinder.CodeFinder finder = codeFinderCache[resolvedPath];
+                        List<MatchResult> results = finder.FindMatchesWithFunction(query);
+                        MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
+                        if (bestResult != null)
+                        {
+                            // if it's the first, we want to change the line number of the error list item too
+                            if (i == 0)
+                            {
+                                item.LineNumber = bestResult.LineNumber;
+                            }
+
+                            item.LineNumber = bestResult.LineNumber;
+                            item.Region.StartLine = bestResult.LineNumber;
+                            item.Region.EndLine = bestResult.LineNumber;
+                        }
+                    }
+                }
+
+                // error.Region.StartLine = 10;
+                //   error.LineNumber = 10;
             }
 
             SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);

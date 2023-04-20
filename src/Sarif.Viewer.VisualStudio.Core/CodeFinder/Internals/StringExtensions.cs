@@ -52,7 +52,7 @@ namespace Microsoft.Sarif.Viewer.CodeFinder.Internal
             int level = 0;
             for (int i = 0; i < str.Length; i++)
             {
-                int c = str[i];
+                char c = str[i];
                 bool append = true;
 
                 if (level == 0)

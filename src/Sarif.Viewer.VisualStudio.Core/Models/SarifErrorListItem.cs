@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using CSharpFunctionalExtensions;
+
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
@@ -48,7 +50,7 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal partial class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
-        internal SarifErrorListItem(Result result)
+        internal SarifErrorListItem(CodeAnalysis.Sarif.Result result)
             : this()
         {
             this.SarifResult = result;
@@ -65,7 +67,7 @@ namespace Microsoft.Sarif.Viewer
             this.Properties = new ObservableCollection<KeyValuePair<string, string>>();
         }
 
-        public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
+        public SarifErrorListItem(Run run, int runIndex, CodeAnalysis.Sarif.Result result, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -109,21 +111,29 @@ namespace Microsoft.Sarif.Viewer
                 // this.LineNumber = this.Region.StartLine;
                 this.ColumnNumber = this.Region.StartColumn;
             }
+        }
+
+        /// <summary>
+        ///  Gets the queries that can be used to do codefinding for this error list item.
+        /// </summary>
+        /// <returns>A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.</returns>
+        public List<(Uri filePath, CodeFinder.MatchQuery query)?> GetMatchQueries()
+        {
+            List<(Uri filePath, CodeFinder.MatchQuery query)?> queries = new List<(Uri filePath, MatchQuery query)?>();
 
             // If the physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
-            if (result.Locations?[0].PhysicalLocation != null
-                && result.Locations[0].PhysicalLocation.PropertyNames.Contains("StartLine")
-                && result.Locations[0].PhysicalLocation.PropertyNames.Contains("EndLine"))
+            if (this.SarifResult.Locations?[0].PhysicalLocation != null
+                && this.SarifResult.Locations[0].PhysicalLocation.PropertyNames.Contains("StartLine")
+                && this.SarifResult.Locations[0].PhysicalLocation.PropertyNames.Contains("EndLine"))
             {
-                this.queries = new List<(Uri filePath, MatchQuery query)?>();
-                foreach (Location l in result.Locations)
+                foreach (Location l in this.SarifResult.Locations)
                 {
                     if (l != null)
                     {
                         PhysicalLocation currentPhysicalLocation = l.PhysicalLocation;
                         LogicalLocation currentLogicalLocation = l.LogicalLocation;
                         if (currentPhysicalLocation.PropertyNames.Contains("StartLine") && currentPhysicalLocation.PropertyNames.Contains("EndLine")
-                            && currentPhysicalLocation.Region?.Snippet?.Text != null && currentPhysicalLocation.ArtifactLocation?.Uri != null && currentLogicalLocation?.FullyQualifiedName != null && result.Guid != null)
+                            && currentPhysicalLocation.Region?.Snippet?.Text != null && currentPhysicalLocation.ArtifactLocation?.Uri != null && this.SarifResult.Guid != null)
                         {
                             MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code;
                             if (currentPhysicalLocation.Region.Snippet.Text == currentLogicalLocation.FullyQualifiedName)
@@ -133,16 +143,18 @@ namespace Microsoft.Sarif.Viewer
 
                             MatchQuery query = new MatchQuery(textToFind: currentPhysicalLocation.Region.Snippet.Text,
                                 lineNumberHint: this.LineNumber,
-                                callingSignature: currentLogicalLocation.FullyQualifiedName,
-                                id: result.Guid,
+                                callingSignature: currentLogicalLocation?.FullyQualifiedName,
+                                id: this.SarifResult.Guid,
                                 typeHint: typeHint);
-                            this.queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
+                            queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
                         }
                     }
 
-                    this.queries.Add(null);
+                    queries.Add(null);
                 }
             }
+
+            return queries;
         }
 
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
@@ -193,7 +205,7 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         public event EventHandler Disposed;
 
-        private FailureLevel GetEffectiveLevel(Result result)
+        private FailureLevel GetEffectiveLevel(CodeAnalysis.Sarif.Result result)
         {
             switch (result.Kind)
             {
@@ -224,11 +236,6 @@ namespace Microsoft.Sarif.Viewer
 
             this.OpenLogFile();
         });
-
-        /// <summary>
-        ///  A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.
-        /// </summary>
-        public List<(Uri filePath, CodeFinder.MatchQuery query)?> queries;
 
         internal void OpenLogFile()
         {
@@ -421,6 +428,14 @@ namespace Microsoft.Sarif.Viewer
                     {
                         fileChangeModel.FilePath = remappedPath;
                     }
+                }
+            }
+
+            foreach (Location location in this.SarifResult.Locations)
+            {
+                if (location?.PhysicalLocation?.ArtifactLocation?.Uri.ToString() == originalPath)
+                {
+                    location.PhysicalLocation.ArtifactLocation.Uri = new Uri(remappedPath);
                 }
             }
 
