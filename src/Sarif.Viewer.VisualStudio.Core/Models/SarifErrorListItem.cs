@@ -106,9 +106,7 @@ namespace Microsoft.Sarif.Viewer
 
             if (this.Region != null)
             {
-                this.LineNumber = 1;
-
-                // this.LineNumber = this.Region.StartLine;
+                this.LineNumber = this.Region.StartLine;
                 this.ColumnNumber = this.Region.StartColumn;
             }
         }

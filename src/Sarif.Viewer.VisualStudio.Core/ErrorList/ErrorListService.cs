@@ -657,19 +657,13 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             var projectNameCache = new ProjectNameCache(dte?.Solution);
 
             this.StoreFileDetails(run.Artifacts);
-            List<SarifErrorListItem> sarifErrorListItems = new List<SarifErrorListItem>();
             if (run.Results != null)
             {
                 foreach (CodeAnalysis.Sarif.Result result in run.Results)
                 {
                     result.Run = run;
-                    sarifErrorListItems.Add(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
+                    dataCache.AddSarifResult(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
                 }
-            }
-
-            foreach (SarifErrorListItem item in sarifErrorListItems)
-            {
-                dataCache.AddSarifResult(item);
             }
 
             if (run.Invocations != null)
@@ -719,12 +713,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             List<string> resolvedFilePaths = CodeAnalysisResultManager.Instance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
             CodeAnalysisResultManager.Instance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
 
-            Dictionary<string, string> unresolvedToResolvedPathDict = new Dictionary<string, string>();
-            foreach ((string relativePath, string resolvedPath) in relativeFilePaths.ToList().Zip(resolvedFilePaths, (x, y) => (x, y)))
-            {
-                unresolvedToResolvedPathDict[relativePath] = resolvedPath;
-            }
-
             // remap regions nad lineNumber of the sarif error list items
             Dictionary<string, CodeFinder.CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder.CodeFinder>(); // local file path -> codefinder
             foreach (SarifErrorListItem item in dataCache.SarifErrors)
@@ -764,9 +752,6 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         }
                     }
                 }
-
-                // error.Region.StartLine = 10;
-                //   error.LineNumber = 10;
             }
 
             SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);

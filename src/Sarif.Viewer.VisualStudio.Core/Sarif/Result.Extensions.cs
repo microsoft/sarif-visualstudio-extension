@@ -69,39 +69,6 @@ namespace Microsoft.Sarif.Viewer.Sarif
             }
         }
 
-        /// <summary>
-        /// Returns the first physical location of a result. Null if not available.
-        /// </summary>
-        /// <param name="result">The result to get the physical location from.</param>
-        /// <returns>The first physical location.</returns>
-        public static PhysicalLocation GetPrimaryPhysicalLocation(this Result result)
-        {
-            if (result == null || result.Locations == null || result.Locations.Count == 0)
-            {
-                return null;
-            }
-
-            Location primaryLocation = result.Locations[0];
-
-            return primaryLocation.PhysicalLocation;
-        }
-
-        /// <summary>
-        /// Returns the first physical location of a result. Null if not available.
-        /// </summary>
-        /// <param name="result">The result to get the physical location from.</param>
-        /// <returns>The first physical location.</returns>
-        public static LogicalLocation GetPrimaryLogicalLocation(this Result result)
-        {
-            if (result == null || result.Locations == null || result.Locations.Count == 0)
-            {
-                return null;
-            }
-
-            Location primaryLocation = result.Locations[0];
-            return primaryLocation.LogicalLocation;
-        }
-
         public static string GetCategory(this Result result)
         {
             switch (result.BaselineState)
