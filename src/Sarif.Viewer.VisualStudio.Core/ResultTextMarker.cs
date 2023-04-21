@@ -220,12 +220,12 @@ namespace Microsoft.Sarif.Viewer
 
             if (typeof(T) == typeof(IErrorTag) && this.ToolTipContent != null && this.FailLevel != null)
             {
-                Dictionary<FailureLevel, string> failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
-                        {
-                            { FailureLevel.Error, SarifViewerColorOptions.Instance?.ErrorUnderlineColor },
-                            { FailureLevel.Warning, SarifViewerColorOptions.Instance?.WarningUnderlineColor },
-                            { FailureLevel.Note, SarifViewerColorOptions.Instance?.NoteUnderlineColor },
-                        };
+                var failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
+                    {
+                        { FailureLevel.Error, SarifViewerColorOptions.Instance?.GetSelectedColorName("ErrorUnderline") },
+                        { FailureLevel.Warning, SarifViewerColorOptions.Instance?.GetSelectedColorName("WarningUnderline") },
+                        { FailureLevel.Note, SarifViewerColorOptions.Instance?.GetSelectedColorName("NoteUnderline") },
+                    };
                 string errorType = failureLevelToPredefinedErrorTypes[(FailureLevel)this.FailLevel];
 
                 tags.Add(new SarifLocationErrorTag(

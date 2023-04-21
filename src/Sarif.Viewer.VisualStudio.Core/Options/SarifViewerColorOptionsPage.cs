@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -13,98 +15,56 @@ namespace Microsoft.Sarif.Viewer.Options
     [ComVisible(true)]
     public class SarifViewerColorOptionsPage : UIElementDialogPage
     {
-        private int _errorUnderlineColorIndex = 0;
-        private int _warningUnderlineColorIndex = 1;
-        private int _noteUnderlineColorIndex = 2;
-
         private readonly Lazy<SarifViewerColorOptionsControl> _sarifViewerColorOptionsControl;
 
-        public SarifViewerColorOptionsPage()
+        private readonly List<ColorOption> colorOptions = new List<ColorOption>
         {
-            _sarifViewerColorOptionsControl = new Lazy<SarifViewerColorOptionsControl>(() => new SarifViewerColorOptionsControl(this));
-        }
+            new ColorOption("Purple", "Purple squiggle"),
+            new ColorOption("Green", "Green squiggle"),
+            new ColorOption("Gray", "Gray ellipsis (...)"),
+            new ColorOption("Red", "Red squiggle"),
+            new ColorOption("Teal", "Blue squiggle"),
+            new ColorOption("Transpasrent", "Nothing"),
+        };
+
+        private readonly LocationTextDecorationCollection locationTextDecorations;
+
+        public LocationTextDecorationCollection LocationTextDecorations => this.locationTextDecorations;
 
         /// <summary>
         /// This event is triggered whenever the rank filter value or the Insights formatting changes.
         /// </summary>
         public event InsightSettingsChangedEventHandler InsightSettingsChanged;
 
-        public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
+        public delegate void InsightSettingsChangedEventHandler(EventArgs e);
 
-        /// <summary>
-        /// Gets or sets the index representing what an error needs to be underlined as.
-        /// </summary>
-        public int ErrorUnderlineColorIndex
+        public SarifViewerColorOptionsPage()
         {
-            get
-            {
-                return _errorUnderlineColorIndex;
-            }
+            this.locationTextDecorations = new LocationTextDecorationCollection(this.colorOptions);
+            this.locationTextDecorations.SelectedColorChanged += this.SelectedDecorationColorChanged;
 
-            set
-            {
-                if (value != _errorUnderlineColorIndex)
-                {
-                    int oldValue = _errorUnderlineColorIndex;
-                    _errorUnderlineColorIndex = value;
-                    InsightSettingsChanged?.Invoke(nameof(ErrorUnderlineColorIndex), oldValue, _errorUnderlineColorIndex);
-                }
-            }
+            this.locationTextDecorations.Add(new LocationTextDecoration("ErrorUnderline", 0));
+            this.locationTextDecorations.Add(new LocationTextDecoration("WarningUnderline", 1));
+            this.locationTextDecorations.Add(new LocationTextDecoration("NoteUnderline", 2));
+
+            _sarifViewerColorOptionsControl = new Lazy<SarifViewerColorOptionsControl>(() => new SarifViewerColorOptionsControl(this));
         }
 
-        /// <summary>
-        /// Gets or sets the index representing what a warning needs to be underlined as.
-        /// </summary>
-        public int WarningUnderlineColorIndex
+        public ColorOption GetSelectedColorOption(string decorationName)
         {
-            get
-            {
-                return _warningUnderlineColorIndex;
-            }
-
-            set
-            {
-                if (value != _warningUnderlineColorIndex)
-                {
-                    int oldValue = _warningUnderlineColorIndex;
-                    _warningUnderlineColorIndex = value;
-                    InsightSettingsChanged?.Invoke(nameof(WarningUnderlineColorIndex), oldValue, _warningUnderlineColorIndex);
-                }
-            }
+            return this.LocationTextDecorations.Decorations.Where(d => d.Key == decorationName).First().SelectedColorOption;
         }
 
-        /// <summary>
-        /// Gets or sets the index representing what a note needs to be underlined as.
-        /// </summary>
-        public int NoteUnderlineColorIndex
+        private void SelectedDecorationColorChanged(SelectedColorChangedEventArgs e)
         {
-            get
-            {
-                return _noteUnderlineColorIndex;
-            }
-
-            set
-            {
-                if (value != _noteUnderlineColorIndex)
-                {
-                    int oldValue = _noteUnderlineColorIndex;
-                    _noteUnderlineColorIndex = value;
-                    InsightSettingsChanged?.Invoke(nameof(NoteUnderlineColorIndex), oldValue, _noteUnderlineColorIndex);
-                }
-            }
+            InsightSettingsChanged?.Invoke(new EventArgs());
         }
 
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.
         /// </summary>
         /// <returns>The WPF child element.</returns>
-        protected override UIElement Child
-        {
-            get
-            {
-                return _sarifViewerColorOptionsControl.Value;
-            }
-        }
+        protected override UIElement Child => _sarifViewerColorOptionsControl.Value;
 
         /// <summary>
         /// This occurs when the User selecting 'Ok' and right before the dialog page UI closes entirely.

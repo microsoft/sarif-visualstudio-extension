@@ -42,9 +42,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Models
         public void ErrorTypeSortingTest()
         {
             Mock<ISarifViewerColorOptions> sarifViewerOptionsMock = new Mock<ISarifViewerColorOptions>();
-            sarifViewerOptionsMock.Setup(x => x.ErrorUnderlineColor).Returns(PredefinedErrorTypeNames.OtherError);
-            sarifViewerOptionsMock.Setup(x => x.WarningUnderlineColor).Returns(PredefinedErrorTypeNames.Warning);
-            sarifViewerOptionsMock.Setup(x => x.NoteUnderlineColor).Returns(PredefinedErrorTypeNames.HintedSuggestion);
+            sarifViewerOptionsMock.Setup(x => x.GetSelectedColorName("ErrorUnderline")).Returns(PredefinedErrorTypeNames.OtherError);
+            sarifViewerOptionsMock.Setup(x => x.GetSelectedColorName("WarningUnderline")).Returns(PredefinedErrorTypeNames.Warning);
+            sarifViewerOptionsMock.Setup(x => x.GetSelectedColorName("NoteUnderline")).Returns(PredefinedErrorTypeNames.HintedSuggestion);
 
             ScrollViewerWrapper wrapper = new ScrollViewerWrapper(new List<IErrorTag>() { lowPriorityTag, highPriorityTag }, sarifViewerOptionsMock.Object);
             wrapper.ErrorType.Should().Be(PredefinedErrorTypeNames.OtherError);

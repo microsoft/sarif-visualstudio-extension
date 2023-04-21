@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 
-using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Adornments;
 
@@ -21,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.Options
         /// </summary>
         public event InsightSettingsChangedEventHandler InsightSettingsChanged;
 
-        public delegate void InsightSettingsChangedEventHandler(string setting, object oldValue, object newValue);
+        public delegate void InsightSettingsChangedEventHandler(EventArgs e);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifViewerColorOptions"/> class.
@@ -37,11 +36,10 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private SarifViewerColorOptions() { }
 
-        public string ErrorUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.ErrorUnderlineColorIndex);
-
-        public string WarningUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.WarningUnderlineColorIndex);
-
-        public string NoteUnderlineColor => GetErrorTypeFromIndex(this.optionPage?.NoteUnderlineColorIndex);
+        public string GetSelectedColorName(string decorationName)
+        {
+            return this.optionPage.GetSelectedColorOption(decorationName).ColorName;
+        }
 
         public readonly Dictionary<string, bool> OptionStates;
 
@@ -78,12 +76,12 @@ namespace Microsoft.Sarif.Viewer.Options
             return false;
         }
 
-        private void OnInsightSettingsChanged(string setting, object oldValue, object newValue)
+        private void OnInsightSettingsChanged(EventArgs e)
         {
             if (InsightSettingsChanged != null)
             {
                 // If any of the settings that impact how insights are shown has changed, invalidate tags for the whole file.
-                InsightSettingsChanged.Invoke(setting, oldValue, newValue);
+                InsightSettingsChanged.Invoke(e);
             }
         }
 

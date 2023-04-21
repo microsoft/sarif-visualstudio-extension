@@ -167,7 +167,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.RefreshTags();
         }
 
-        private void OnInsightSettingsChanged(string setting, object oldValue, object newValue)
+        private void OnInsightSettingsChanged(EventArgs e)
         {
             RefreshTags();
         }

@@ -55,7 +55,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
 
                 Dictionary<string, int> errorTypeToSeverity = GetRankDictionary();
                 int highestRank = 3;
-                string highestErrorStr = this.sarifViewerOptions.NoteUnderlineColor;
+                string highestErrorStr = this.sarifViewerOptions.GetSelectedColorName("NoteUnderline");
                 foreach (IErrorTag errorTag in this.objectsToWrap)
                 {
                     string errorType = errorTag.ErrorType;
@@ -111,7 +111,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                     maxHeight = dte.MainWindow.Height / 3;
                 }
 
-                ScrollViewer scrollViewer = new ScrollViewer()
+                var scrollViewer = new ScrollViewer()
                 {
                     MaxHeight = maxHeight,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
@@ -128,18 +128,18 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
         /// <returns>A dictionary of error type name to the severity, with 1 being the most severe (error) and 3 being the least (note).</returns>
         private Dictionary<string, int> GetRankDictionary()
         {
-            Dictionary<string, int> errorTypeToSeverity = new Dictionary<string, int>(); // error type name -> severity rank (1 is error, 2 is warning, 3 is note)
-            errorTypeToSeverity.Add(this.sarifViewerOptions.ErrorUnderlineColor, 1);
+            var errorTypeToSeverity = new Dictionary<string, int>(); // error type name -> severity rank (1 is error, 2 is warning, 3 is note)
+            errorTypeToSeverity.Add(this.sarifViewerOptions.GetSelectedColorName("ErrorUnderline"), 1);
 
             // two underline colors can have the same color, we only care about the "highest" rank
-            if (!errorTypeToSeverity.ContainsKey(this.sarifViewerOptions.WarningUnderlineColor))
+            if (!errorTypeToSeverity.ContainsKey(this.sarifViewerOptions.GetSelectedColorName("WarningUnderline")))
             {
-                errorTypeToSeverity.Add(this.sarifViewerOptions.WarningUnderlineColor, 2);
+                errorTypeToSeverity.Add(this.sarifViewerOptions.GetSelectedColorName("WarningUnderline"), 2);
             }
 
-            if (!errorTypeToSeverity.ContainsKey(this.sarifViewerOptions.NoteUnderlineColor))
+            if (!errorTypeToSeverity.ContainsKey(this.sarifViewerOptions.GetSelectedColorName("NoteUnderline")))
             {
-                errorTypeToSeverity.Add(this.sarifViewerOptions.NoteUnderlineColor, 3);
+                errorTypeToSeverity.Add(this.sarifViewerOptions.GetSelectedColorName("NoteUnderline"), 3);
             }
 
             return errorTypeToSeverity;
