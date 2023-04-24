@@ -16,6 +16,9 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public ObservableCollection<ColorOption> ColorOptions { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the index of the highlight color in the dropdown menu. 0 indexed.
+        /// </summary>
         public int SelectedIndex
         {
             get => this.selectedIndex;
@@ -23,8 +26,12 @@ namespace Microsoft.Sarif.Viewer.Options
             {
                 if (value != this.selectedIndex)
                 {
-                    SelectedColorChanged?.Invoke(new SelectedColorChangedEventArgs());
                     this.selectedIndex = value;
+                    SelectedColorChanged?.Invoke(new SelectedColorChangedEventArgs()
+                    {
+                        ErrorType = Key,
+                        NewIndex = this.selectedIndex,
+                    });
                 }
             }
         }
@@ -38,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public delegate void SelectedColorChangedEventHandler(SelectedColorChangedEventArgs e);
 
-        public LocationTextDecoration(string name, int selectedIndex = 0)
+        public LocationTextDecoration(string name, int selectedIndex)
         {
             // Assume name is unique.
             this.Key = name;

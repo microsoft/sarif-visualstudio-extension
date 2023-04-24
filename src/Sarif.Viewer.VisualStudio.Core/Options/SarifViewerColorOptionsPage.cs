@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
@@ -19,15 +20,19 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private readonly List<ColorOption> colorOptions = new List<ColorOption>
         {
-            new ColorOption("Purple", "Purple squiggle"),
-            new ColorOption("Green", "Green squiggle"),
-            new ColorOption("Gray", "Gray ellipsis (...)"),
-            new ColorOption("Red", "Red squiggle"),
-            new ColorOption("Teal", "Blue squiggle"),
-            new ColorOption("Transpasrent", "Nothing"),
+            new ColorOption("Purple", "Purple squiggle", PredefinedErrorTypeNames.OtherError),
+            new ColorOption("Green", "Green squiggle", PredefinedErrorTypeNames.Warning),
+            new ColorOption("Gray", "Gray ellipsis (...)", PredefinedErrorTypeNames.HintedSuggestion),
+            new ColorOption("Red", "Red squiggle", PredefinedErrorTypeNames.SyntaxError),
+            new ColorOption("Teal", "Blue squiggle", PredefinedErrorTypeNames.CompilerError),
+            new ColorOption("Transpasrent", "Nothing", PredefinedErrorTypeNames.Suggestion),
         };
 
-        private readonly LocationTextDecorationCollection locationTextDecorations;
+        public const string ErrorUnderlineString = "ErrorUnderline";
+        public const string WarningUnderlineString = "WarningUnderline";
+        public const string NoteUnderlineString = "NoteUnderline";
+
+        private LocationTextDecorationCollection locationTextDecorations;
 
         public LocationTextDecorationCollection LocationTextDecorations => this.locationTextDecorations;
 
@@ -38,16 +43,92 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public delegate void InsightSettingsChangedEventHandler(EventArgs e);
 
+        private int _errorUnderlineColorIndex = 0;
+
+        public int ErrorUnderlineColorIndex
+        {
+            get
+            {
+                return _errorUnderlineColorIndex;
+            }
+
+            set
+            {
+                if (value != _errorUnderlineColorIndex)
+                {
+                    _errorUnderlineColorIndex = value;
+
+                    // We need to reset the location text decorations due to the index settings being loaded in at aribtrary time, meaning it can be loaded in after the location text decorations are initialized.
+                    // SetLocationTextDecorations();
+                }
+            }
+        }
+
+        private int _warningUnderlineColorIndex = 1;
+
+        public int WarningUnderlineColorIndex
+        {
+            get
+            {
+                return _warningUnderlineColorIndex;
+            }
+
+            set
+            {
+                if (value != _warningUnderlineColorIndex)
+                {
+                    _warningUnderlineColorIndex = value;
+
+                    // We need to reset the location text decorations due to the index settings being loaded in at aribtrary time, meaning it can be loaded in after the location text decorations are initialized.
+                    // SetLocationTextDecorations();
+                }
+            }
+        }
+
+        private int _noteUnderlineColorIndex = 2;
+
+        public int NoteUnderlineColorIndex
+        {
+            get
+            {
+                return _noteUnderlineColorIndex;
+            }
+
+            set
+            {
+                if (value != _noteUnderlineColorIndex)
+                {
+                    _noteUnderlineColorIndex = value;
+
+                    // We need to reset the location text decorations due to the index settings being loaded in at aribtrary time, meaning it can be loaded in after the location text decorations are initialized.
+                    // SetLocationTextDecorations();
+                }
+            }
+        }
+
         public SarifViewerColorOptionsPage()
         {
+            LoadSettingsFromStorage();
+            SetLocationTextDecorations();
+            _sarifViewerColorOptionsControl = new Lazy<SarifViewerColorOptionsControl>(() => new SarifViewerColorOptionsControl(this));
+        }
+
+        /// <summary>
+        /// Resets the location text decorations.
+        /// </summary>
+        private void SetLocationTextDecorations()
+        {
+            if (this.locationTextDecorations != null)
+            {
+                this.locationTextDecorations.SelectedColorChanged -= this.SelectedDecorationColorChanged;
+            }
+
             this.locationTextDecorations = new LocationTextDecorationCollection(this.colorOptions);
             this.locationTextDecorations.SelectedColorChanged += this.SelectedDecorationColorChanged;
 
-            this.locationTextDecorations.Add(new LocationTextDecoration("ErrorUnderline", 0));
-            this.locationTextDecorations.Add(new LocationTextDecoration("WarningUnderline", 1));
-            this.locationTextDecorations.Add(new LocationTextDecoration("NoteUnderline", 2));
-
-            _sarifViewerColorOptionsControl = new Lazy<SarifViewerColorOptionsControl>(() => new SarifViewerColorOptionsControl(this));
+            this.locationTextDecorations.Add(new LocationTextDecoration(ErrorUnderlineString, ErrorUnderlineColorIndex));
+            this.locationTextDecorations.Add(new LocationTextDecoration(WarningUnderlineString, WarningUnderlineColorIndex));
+            this.locationTextDecorations.Add(new LocationTextDecoration(NoteUnderlineString, NoteUnderlineColorIndex));
         }
 
         public ColorOption GetSelectedColorOption(string decorationName)
@@ -57,7 +138,24 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private void SelectedDecorationColorChanged(SelectedColorChangedEventArgs e)
         {
-            InsightSettingsChanged?.Invoke(new EventArgs());
+            if (e.ErrorType == ErrorUnderlineString)
+            {
+                this.ErrorUnderlineColorIndex = e.NewIndex;
+            }
+            else if (e.ErrorType == WarningUnderlineString)
+            {
+                this.WarningUnderlineColorIndex = e.NewIndex;
+            }
+            else if (e.ErrorType == NoteUnderlineString)
+            {
+                this.NoteUnderlineColorIndex = e.NewIndex;
+            }
+            else
+            {
+                throw new Exception($"Unknown error type {e.ErrorType} seen");
+            }
+
+            InsightSettingsChanged?.Invoke(e);
         }
 
         /// <summary>
@@ -88,6 +186,8 @@ namespace Microsoft.Sarif.Viewer.Options
             // This load call ensures we display data that was saved. This is to handle
             // the case when the user hits the cancel button and reloads the page.
             LoadSettingsFromStorage();
+
+            // SetLocationTextDecorations();
 
             base.OnActivate(e);
         }

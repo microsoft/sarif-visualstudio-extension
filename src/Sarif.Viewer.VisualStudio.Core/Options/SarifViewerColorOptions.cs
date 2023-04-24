@@ -38,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public string GetSelectedColorName(string decorationName)
         {
-            return this.optionPage.GetSelectedColorOption(decorationName).ColorName;
+            return this.optionPage.GetSelectedColorOption(decorationName).PredefinedErrorTypeName;
         }
 
         public readonly Dictionary<string, bool> OptionStates;
@@ -84,35 +84,5 @@ namespace Microsoft.Sarif.Viewer.Options
                 InsightSettingsChanged.Invoke(e);
             }
         }
-
-        /// <summary>
-        /// Gets the error type string that is used to highlight a span in VS UI.
-        /// </summary>
-        /// <param name="index">The index of the combobox selected.</param>
-        /// <returns>The string returned from the mapping.</returns>
-        private static string GetErrorTypeFromIndex(int? index)
-        {
-            if (index == null)
-            {
-                return PredefinedErrorTypeNames.Suggestion;
-            }
-
-            IndexToPredefinedErrorTypes.TryGetValue((int)index, out string errorType);
-            return errorType;
-        }
-
-        /// <summary>
-        /// This dictionary is used to map the index to the color of the "squiggle" shown in Visual Studio's editor.
-        /// When changing this you need to change the options in SarifViewerOptionsControl.xaml.
-        /// </summary>
-        private static readonly Dictionary<int, string> IndexToPredefinedErrorTypes = new Dictionary<int, string>
-        {
-            { 0, PredefinedErrorTypeNames.OtherError },
-            { 1, PredefinedErrorTypeNames.Warning },
-            { 2, PredefinedErrorTypeNames.HintedSuggestion },
-            { 3, PredefinedErrorTypeNames.SyntaxError },
-            { 4, PredefinedErrorTypeNames.CompilerError },
-            { 5, PredefinedErrorTypeNames.Suggestion },
-        };
     }
 }
