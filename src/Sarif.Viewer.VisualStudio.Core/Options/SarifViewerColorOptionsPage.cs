@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -36,6 +37,8 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public LocationTextDecorationCollection LocationTextDecorations => this.locationTextDecorations;
 
+        public ObservableCollection<LocationTextDecoration> Decorations => this.locationTextDecorations.Decorations;
+
         /// <summary>
         /// This event is triggered whenever the rank filter value or the Insights formatting changes.
         /// </summary>
@@ -43,74 +46,39 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public delegate void InsightSettingsChangedEventHandler(EventArgs e);
 
-        private int _errorUnderlineColorIndex = 0;
+        // private int _errorUnderlineColorIndex = 0;
 
-        public int ErrorUnderlineColorIndex
-        {
-            get
-            {
-                return _errorUnderlineColorIndex;
-            }
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int ErrorUnderlineColorIndex { get; set; } = 0;
 
-            set
-            {
-                if (value != _errorUnderlineColorIndex)
-                {
-                    _errorUnderlineColorIndex = value;
+        // private int _warningUnderlineColorIndex = 1;
 
-                    // We need to reset the location text decorations due to the index settings being loaded in at aribtrary time, meaning it can be loaded in after the location text decorations are initialized.
-                    // SetLocationTextDecorations();
-                }
-            }
-        }
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int WarningUnderlineColorIndex { get; set; } = 1;
 
-        private int _warningUnderlineColorIndex = 1;
+        // private int _noteUnderlineColorIndex = 2;
 
-        public int WarningUnderlineColorIndex
-        {
-            get
-            {
-                return _warningUnderlineColorIndex;
-            }
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int NoteUnderlineColorIndex { get; set; } = 2;
 
-            set
-            {
-                if (value != _warningUnderlineColorIndex)
-                {
-                    _warningUnderlineColorIndex = value;
+        public bool TestCheck { get; set; } = true;
 
-                    // We need to reset the location text decorations due to the index settings being loaded in at aribtrary time, meaning it can be loaded in after the location text decorations are initialized.
-                    // SetLocationTextDecorations();
-                }
-            }
-        }
-
-        private int _noteUnderlineColorIndex = 2;
-
-        public int NoteUnderlineColorIndex
-        {
-            get
-            {
-                return _noteUnderlineColorIndex;
-            }
-
-            set
-            {
-                if (value != _noteUnderlineColorIndex)
-                {
-                    _noteUnderlineColorIndex = value;
-
-                    // We need to reset the location text decorations due to the index settings being loaded in at aribtrary time, meaning it can be loaded in after the location text decorations are initialized.
-                    // SetLocationTextDecorations();
-                }
-            }
-        }
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string TestIfSave => "Test data";
 
         public SarifViewerColorOptionsPage()
         {
-            LoadSettingsFromStorage();
-            SetLocationTextDecorations();
             _sarifViewerColorOptionsControl = new Lazy<SarifViewerColorOptionsControl>(() => new SarifViewerColorOptionsControl(this));
+        }
+
+        public override void LoadSettingsFromStorage()
+        {
+            base.LoadSettingsFromStorage();
+            SetLocationTextDecorations();
         }
 
         /// <summary>
@@ -118,17 +86,15 @@ namespace Microsoft.Sarif.Viewer.Options
         /// </summary>
         private void SetLocationTextDecorations()
         {
-            if (this.locationTextDecorations != null)
+            if (this.locationTextDecorations == null)
             {
-                this.locationTextDecorations.SelectedColorChanged -= this.SelectedDecorationColorChanged;
+                this.locationTextDecorations = new LocationTextDecorationCollection(this.colorOptions);
+                this.locationTextDecorations.SelectedColorChanged += this.SelectedDecorationColorChanged;
+
+                this.locationTextDecorations.Add(new LocationTextDecoration(ErrorUnderlineString, ErrorUnderlineColorIndex));
+                this.locationTextDecorations.Add(new LocationTextDecoration(WarningUnderlineString, WarningUnderlineColorIndex));
+                this.locationTextDecorations.Add(new LocationTextDecoration(NoteUnderlineString, NoteUnderlineColorIndex));
             }
-
-            this.locationTextDecorations = new LocationTextDecorationCollection(this.colorOptions);
-            this.locationTextDecorations.SelectedColorChanged += this.SelectedDecorationColorChanged;
-
-            this.locationTextDecorations.Add(new LocationTextDecoration(ErrorUnderlineString, ErrorUnderlineColorIndex));
-            this.locationTextDecorations.Add(new LocationTextDecoration(WarningUnderlineString, WarningUnderlineColorIndex));
-            this.locationTextDecorations.Add(new LocationTextDecoration(NoteUnderlineString, NoteUnderlineColorIndex));
         }
 
         public ColorOption GetSelectedColorOption(string decorationName)
@@ -185,9 +151,7 @@ namespace Microsoft.Sarif.Viewer.Options
             // The UI caches the settings even though the tools options page is closed.
             // This load call ensures we display data that was saved. This is to handle
             // the case when the user hits the cancel button and reloads the page.
-            LoadSettingsFromStorage();
-
-            // SetLocationTextDecorations();
+            // LoadSettingsFromStorage();
 
             base.OnActivate(e);
         }

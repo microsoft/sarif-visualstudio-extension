@@ -23,32 +23,35 @@
                        Content="{StaticResource SarifViewerOptionsControl_ColorBoxHeader}"
                        AutomationProperties.AutomationId="ColorGroupBoxLabel" />
             </GroupBox.Header>
-            
-            <ItemsControl ItemsSource="{Binding LocationTextDecorations.Decorations}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Style="{StaticResource DecorationStackPanelStyle}">
-                            <TextBlock Grid.Column="0"
+            <StackPanel>
+                <CheckBox x:Name="TestCheck"
+                          Margin="5"
+                          IsChecked="{Binding TestCheck, Mode=TwoWay}"/>
+                <ItemsControl ItemsSource="{Binding Decorations}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Style="{StaticResource DecorationStackPanelStyle}">
+                                <TextBlock Grid.Column="0"
                                        Text="{Binding Label}"
                                        Style="{StaticResource DecorationLabel}" />
-                            <ComboBox Grid.Column="1"
+                                <ComboBox Grid.Column="1"
                                       ItemsSource="{Binding ColorOptions, Mode=OneTime}"
                                       SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
                                       Style="{StaticResource DecorationComboBox}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Style="{StaticResource DecorationComboBoxItemStackPanel}">
-                                            <Rectangle Fill="{Binding ColorName}" Style="{StaticResource DecorationComboBoxItemColorSwatch}" />
-                                            <TextBlock Text="{Binding Text}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </StackPanel>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Style="{StaticResource DecorationComboBoxItemStackPanel}">
+                                                <Rectangle Fill="{Binding ColorName}" Style="{StaticResource DecorationComboBoxItemColorSwatch}" />
+                                                <TextBlock Text="{Binding Text}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </GroupBox>
     </Grid>
 </UserControl>
