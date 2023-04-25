@@ -86,21 +86,19 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private void SelectedDecorationColorChanged(SelectedColorChangedEventArgs e)
         {
-            if (e.ErrorType == ErrorUnderlineString)
+            switch (e.ErrorType)
             {
-                this.ErrorUnderlineColorIndex = e.NewIndex;
-            }
-            else if (e.ErrorType == WarningUnderlineString)
-            {
-                this.WarningUnderlineColorIndex = e.NewIndex;
-            }
-            else if (e.ErrorType == NoteUnderlineString)
-            {
-                this.NoteUnderlineColorIndex = e.NewIndex;
-            }
-            else
-            {
-                throw new Exception($"Unknown error type {e.ErrorType} seen");
+                case ErrorUnderlineString:
+                    this.ErrorUnderlineColorIndex = e.NewIndex;
+                    break;
+                case WarningUnderlineString:
+                    this.WarningUnderlineColorIndex = e.NewIndex;
+                    break;
+                case NoteUnderlineString:
+                    this.NoteUnderlineColorIndex = e.NewIndex;
+                    break;
+                default:
+                    throw new Exception($"Unknown error type {e.ErrorType} seen");
             }
 
             InsightSettingsChanged?.Invoke(e);
