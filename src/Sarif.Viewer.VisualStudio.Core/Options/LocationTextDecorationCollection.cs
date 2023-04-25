@@ -37,16 +37,6 @@ namespace Microsoft.Sarif.Viewer.Options
             }
         }
 
-/*        /// <summary>
-        /// Updates the indices of the various <see cref="LocationTextDecoration"/> objects.
-        /// Needed as the saved settings may not be loaded
-        /// </summary>
-        /// <param name="indices"></param>
-        public void UpdateIndices(List<(string name, int index)> indices)
-        {
-
-        }*/
-
         private void SelectedDecorationColorChanged(SelectedColorChangedEventArgs e)
         {
             SelectedColorChanged?.Invoke(e);

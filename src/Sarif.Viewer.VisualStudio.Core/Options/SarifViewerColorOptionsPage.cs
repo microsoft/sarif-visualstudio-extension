@@ -46,16 +46,10 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public delegate void InsightSettingsChangedEventHandler(EventArgs e);
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int ErrorUnderlineColorIndex { get; set; } = 0;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int WarningUnderlineColorIndex { get; set; } = 1;
 
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int NoteUnderlineColorIndex { get; set; } = 2;
 
         public SarifViewerColorOptionsPage()
