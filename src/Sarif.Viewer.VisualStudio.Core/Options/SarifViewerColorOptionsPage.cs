@@ -46,29 +46,17 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public delegate void InsightSettingsChangedEventHandler(EventArgs e);
 
-        // private int _errorUnderlineColorIndex = 0;
-
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int ErrorUnderlineColorIndex { get; set; } = 0;
-
-        // private int _warningUnderlineColorIndex = 1;
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int WarningUnderlineColorIndex { get; set; } = 1;
 
-        // private int _noteUnderlineColorIndex = 2;
-
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int NoteUnderlineColorIndex { get; set; } = 2;
-
-        public bool TestCheck { get; set; } = true;
-
-        [Browsable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public string TestIfSave => "Test data";
 
         public SarifViewerColorOptionsPage()
         {
@@ -151,7 +139,7 @@ namespace Microsoft.Sarif.Viewer.Options
             // The UI caches the settings even though the tools options page is closed.
             // This load call ensures we display data that was saved. This is to handle
             // the case when the user hits the cancel button and reloads the page.
-            // LoadSettingsFromStorage();
+            LoadSettingsFromStorage();
 
             base.OnActivate(e);
         }

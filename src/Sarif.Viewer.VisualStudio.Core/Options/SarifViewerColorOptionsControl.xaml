@@ -23,10 +23,6 @@
                        Content="{StaticResource SarifViewerOptionsControl_ColorBoxHeader}"
                        AutomationProperties.AutomationId="ColorGroupBoxLabel" />
             </GroupBox.Header>
-            <StackPanel>
-                <CheckBox x:Name="TestCheck"
-                          Margin="5"
-                          IsChecked="{Binding TestCheck, Mode=TwoWay}"/>
                 <ItemsControl ItemsSource="{Binding Decorations}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -51,7 +47,6 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
         </GroupBox>
     </Grid>
 </UserControl>
