@@ -744,11 +744,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                             if (i == 0)
                             {
                                 item.LineNumber = bestResult.LineNumber;
+                                item.Region.StartLine = bestResult.LineNumber;
+                                item.Region.EndLine = bestResult.LineNumber;
                             }
 
-                            item.LineNumber = bestResult.LineNumber;
-                            item.Region.StartLine = bestResult.LineNumber;
-                            item.Region.EndLine = bestResult.LineNumber;
+                            item.Locations[i].Region.StartLine = bestResult.LineNumber;
+                            item.Locations[i].Region.EndLine = bestResult.LineNumber;
                         }
                     }
                 }

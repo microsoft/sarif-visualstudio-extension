@@ -147,8 +147,10 @@ namespace Microsoft.Sarif.Viewer
                             queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
                         }
                     }
-
-                    queries.Add(null);
+                    else
+                    {
+                        queries.Add(null);
+                    }
                 }
             }
 
