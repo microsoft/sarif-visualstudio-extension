@@ -7,6 +7,7 @@ using System.Linq;
 using System.Web.UI.WebControls;
 
 using Microsoft.Sarif.Viewer.ErrorList;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -53,6 +54,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             this.persistentSpanFactory = persistentSpanFactory;
             this.sarifErrorListEventSelectionService = sarifErrorListEventSelectionService;
             this.sarifErrorListEventSelectionService.SelectedItemChanged += this.SarifErrorListEventSelectionService_SelectedItemChanged;
+            SarifViewerColorOptions.Instance.InsightSettingsChanged += OnInsightSettingsChanged;
         }
 
         /// <inheritdoc/>
@@ -118,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                 foreach (KeyValuePair<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedTags in groupedBySpan)
                 {
                     List<IErrorTag> tags = groupedTags.Value.tagList;
-                    yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags));
+                    yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags, SarifViewerColorOptions.Instance));
                 }
             }
         }
@@ -149,6 +151,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             if (disposing)
             {
                 this.sarifErrorListEventSelectionService.SelectedItemChanged -= this.SarifErrorListEventSelectionService_SelectedItemChanged;
+                SarifViewerColorOptions.Instance.InsightSettingsChanged -= OnInsightSettingsChanged;
                 this.Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -162,6 +165,11 @@ namespace Microsoft.Sarif.Viewer.Tags
         private void SarifErrorListEventSelectionService_SelectedItemChanged(object sender, SarifErrorListSelectionChangedEventArgs e)
         {
             this.RefreshTags();
+        }
+
+        private void OnInsightSettingsChanged(EventArgs e)
+        {
+            RefreshTags();
         }
     }
 }

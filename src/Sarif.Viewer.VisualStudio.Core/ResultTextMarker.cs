@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.IO;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 
@@ -116,12 +116,12 @@ namespace Microsoft.Sarif.Viewer
         public int RunIndex { get; }
 
         /// <summary>
-        /// Gets the Visual Studio error type. See <see cref="PredefinedErrorTypeNames"/> for more information.
+        /// Gets the failure level of the error this marker represents.
         /// </summary>
         /// <remarks>
         /// Used in conjunction with <see cref="SarifLocationErrorTag"/>. This value is null if there is no error to display.
         /// </remarks>
-        public string ErrorType { get; }
+        public FailureLevel? FailLevel { get; }
 
         /// <summary>
         /// Gets the tool-tip content to display.
@@ -159,7 +159,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="fileSystem">The file system.</param>
         /// <param name="fileSystem2">The file system 2.</param>
         public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHghlightedColor, string highlightedColor, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
-            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, errorType: null, tooltipContent: null, context: context, fileSystem: fileSystem, fileSystem2: fileSystem2)
+            : this(runIndex: runIndex, resultId: resultId, uriBaseId: uriBaseId, region: region, fullFilePath: fullFilePath, nonHighlightedColor: nonHghlightedColor, highlightedColor: highlightedColor, failureLevel: null, tooltipContent: null, context: context, fileSystem: fileSystem, fileSystem2: fileSystem2)
         {
         }
 
@@ -173,7 +173,7 @@ namespace Microsoft.Sarif.Viewer
         /// <param name="fullFilePath">The full file path of the location in the SARIF result.</param>
         /// <param name="nonHighlightedColor">The non-highlighted color of the marker.</param>
         /// <param name="highlightedColor">The highlighted color of the marker.</param>
-        /// <param name="errorType">The error type as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
+        /// <param name="failureLevel">The failure level as defined by <see cref="Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames"/>.</param>
         /// <param name="tooltipContent">The tool tip content to display in Visual studio.</param>
         /// <param name="context">The data context for this result marker.</param>
         /// <param name="fileSystem">The file system.</param>
@@ -181,7 +181,7 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// The tool tip content could be as simple as just a string, or something more complex like a WPF/XAML object.
         /// </remarks>
-        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, string errorType, List<(string strContent, TextRenderType renderType)> tooltipContent, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
+        public ResultTextMarker(int runIndex, int resultId, string uriBaseId, Region region, string fullFilePath, string nonHighlightedColor, string highlightedColor, FailureLevel? failureLevel, List<(string strContent, TextRenderType renderType)> tooltipContent, object context, IFileSystem fileSystem = null, IFileSystem2 fileSystem2 = null)
         {
             this.ResultId = resultId;
             this.RunIndex = runIndex;
@@ -191,7 +191,7 @@ namespace Microsoft.Sarif.Viewer
             this.NonHighlightedColor = nonHighlightedColor;
             this.HighlightedColor = highlightedColor;
             this.ToolTipContent = tooltipContent;
-            this.ErrorType = errorType;
+            this.FailLevel = failureLevel;
             this.Context = context;
             this.fileSystem = fileSystem ?? new FileSystem();
             this.fileSystem2 = fileSystem2 ?? new FileSystem2();
@@ -218,13 +218,21 @@ namespace Microsoft.Sarif.Viewer
                 return tags;
             }
 
-            if (typeof(T) == typeof(IErrorTag) && this.ToolTipContent != null && this.ErrorType != null)
+            if (typeof(T) == typeof(IErrorTag) && this.ToolTipContent != null && this.FailLevel != null)
             {
+                var failureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
+                    {
+                        { FailureLevel.Error, SarifViewerColorOptions.Instance?.GetSelectedColorName("ErrorUnderline") },
+                        { FailureLevel.Warning, SarifViewerColorOptions.Instance?.GetSelectedColorName("WarningUnderline") },
+                        { FailureLevel.Note, SarifViewerColorOptions.Instance?.GetSelectedColorName("NoteUnderline") },
+                    };
+                string errorType = failureLevelToPredefinedErrorTypes[(FailureLevel)this.FailLevel];
+
                 tags.Add(new SarifLocationErrorTag(
                                     this.persistentSpan,
                                     runIndex: this.RunIndex,
                                     resultId: this.ResultId,
-                                    errorType: this.ErrorType,
+                                    errorType: errorType,
                                     content: this.ToolTipContent,
                                     context: this.Context));
             }

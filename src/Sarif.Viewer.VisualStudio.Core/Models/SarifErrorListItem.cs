@@ -17,6 +17,7 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -259,8 +260,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (this._lineMarker == null && this.Region?.StartLine > 0)
                 {
-                    FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
-
                     this._lineMarker = new ResultTextMarker(
                         runIndex: this.RunIndex,
                         resultId: this.ResultId,
@@ -269,7 +268,7 @@ namespace Microsoft.Sarif.Viewer
                         fullFilePath: this.FileName,
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
-                        errorType: predefinedErrorType,
+                        failureLevel: this.Level,
                         tooltipContent: this.Content,
                         context: this);
                 }

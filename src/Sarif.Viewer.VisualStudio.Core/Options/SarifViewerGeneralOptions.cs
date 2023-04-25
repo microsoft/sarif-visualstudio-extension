@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
-    internal class SarifViewerOption : ISarifViewerOptions
+    internal class SarifViewerGeneralOptions : ISarifViewerGeneralOptions
     {
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
@@ -18,17 +18,17 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private readonly AsyncPackage package;
 
-        private readonly SarifViewerOptionPage optionPage;
+        private readonly SarifViewerGeneralOptionsPage optionPage;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SarifViewerOption"/> class.
+        /// Initializes a new instance of the <see cref="SarifViewerGeneralOptions"/> class.
         /// Get visual studio option values.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
-        private SarifViewerOption(AsyncPackage package)
+        private SarifViewerGeneralOptions(AsyncPackage package)
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
-            this.optionPage = (SarifViewerOptionPage)this.package.GetDialogPage(typeof(SarifViewerOptionPage));
+            this.optionPage = (SarifViewerGeneralOptionsPage)this.package.GetDialogPage(typeof(SarifViewerGeneralOptionsPage));
             this.OptionStates = new Dictionary<string, bool>
             {
                 { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
@@ -37,7 +37,7 @@ namespace Microsoft.Sarif.Viewer.Options
             };
         }
 
-        private SarifViewerOption() { }
+        private SarifViewerGeneralOptions() { }
 
         public bool ShouldMonitorSarifFolder => this.optionPage?.MonitorSarifFolder ?? this.shouldMonitorSarifFolderDefaultValue;
 
@@ -50,10 +50,10 @@ namespace Microsoft.Sarif.Viewer.Options
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
-        public static SarifViewerOption Instance { get; private set; }
+        public static SarifViewerGeneralOptions Instance { get; private set; }
 
         /// <summary>
-        /// Initializes the singleton instance of the <see cref="SarifViewerOption"/> class.
+        /// Initializes the singleton instance of the <see cref="SarifViewerGeneralOptions"/> class.
         /// </summary>
         /// <param name="package">Owner package, not null.</param>
         /// <returns>A <see cref="System.Threading.Tasks.Task"/> representing the asynchronous operation.</returns>
@@ -62,12 +62,12 @@ namespace Microsoft.Sarif.Viewer.Options
             // Switch to the main thread
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
 
-            Instance = new SarifViewerOption(package);
+            Instance = new SarifViewerGeneralOptions(package);
         }
 
         public static void InitializeForUnitTests()
         {
-            Instance = new SarifViewerOption();
+            Instance = new SarifViewerGeneralOptions();
         }
 
         public bool IsOptionEnabled(string optionName)

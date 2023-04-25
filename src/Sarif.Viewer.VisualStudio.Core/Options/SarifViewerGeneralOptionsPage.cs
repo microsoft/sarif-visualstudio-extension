@@ -11,13 +11,13 @@ using Microsoft.VisualStudio.Shell;
 namespace Microsoft.Sarif.Viewer.Options
 {
     [ComVisible(true)]
-    public class SarifViewerOptionPage : UIElementDialogPage
+    public class SarifViewerGeneralOptionsPage : UIElementDialogPage
     {
-        private readonly Lazy<SarifViewerOptionsControl> _sarifViewerOptionsControl;
+        private readonly Lazy<SarifViewerGeneralOptionsControl> _sarifViewerOptionsControl;
 
-        public SarifViewerOptionPage()
+        public SarifViewerGeneralOptionsPage()
         {
-            _sarifViewerOptionsControl = new Lazy<SarifViewerOptionsControl>(() => new SarifViewerOptionsControl(this));
+            _sarifViewerOptionsControl = new Lazy<SarifViewerGeneralOptionsControl>(() => new SarifViewerGeneralOptionsControl(this));
         }
 
         public bool MonitorSarifFolder { get; set; } = true;
