@@ -19,8 +19,6 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public delegate void SelectedColorChangedEventHandler(SelectedColorChangedEventArgs e);
 
-        public string TestProperty => "Test";
-
         public LocationTextDecorationCollection(List<ColorOption> colorOptions)
         {
             this.Decorations = new ObservableCollection<LocationTextDecoration>();

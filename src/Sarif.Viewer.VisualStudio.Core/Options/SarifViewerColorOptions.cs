@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Text.Adornments;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
