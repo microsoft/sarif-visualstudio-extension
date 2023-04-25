@@ -748,8 +748,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                 item.Region.EndLine = bestResult.LineNumber;
                             }
 
-                            item.Locations[i].Region.StartLine = bestResult.LineNumber;
-                            item.Locations[i].Region.EndLine = bestResult.LineNumber;
+                            item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
+                            item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber;
                         }
                     }
                 }
