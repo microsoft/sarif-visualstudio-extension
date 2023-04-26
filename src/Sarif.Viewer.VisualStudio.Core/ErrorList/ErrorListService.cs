@@ -704,7 +704,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
 
             IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
-            IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.Locations?.FirstOrDefault()?.UriBaseId);
+            IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation.ArtifactLocation.UriBaseId);
 
             // now we need to map from relative file path to absolute.
             string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
