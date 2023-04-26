@@ -10,7 +10,6 @@ using EnvDTE;
 using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.VisualStudio.Shell;

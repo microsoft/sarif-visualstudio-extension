@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.VisualStudio.Telemetry;
-using Microsoft.VisualStudio.Utilities;
 
 namespace Microsoft.Sarif.Viewer.Telemetry
 {
