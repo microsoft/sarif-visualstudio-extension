@@ -48,14 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeAnalysisResultManagerTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CodeFinderUnitTestBase.cs" />
-    <Compile Include="CodeFinder\UnitTests\CppTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CppTests2.cs" />
-    <Compile Include="CodeFinder\UnitTests\CsharpTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CTests2.cs" />
-    <Compile Include="CodeFinder\UnitTests\FileSpanCollectionTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\IgnoredRegionsTests.cs" />
     <Compile Include="ConverterResourceTests.cs" />
     <Compile Include="Converters\CollectionToVisibilityConverterTests.cs" />
     <Compile Include="ErrorList\ErrorListServiceTests.cs" />

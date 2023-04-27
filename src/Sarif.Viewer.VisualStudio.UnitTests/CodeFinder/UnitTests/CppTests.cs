@@ -2,7 +2,7 @@
 
 using Xunit;
 
-namespace Microsoft.DevCanvas.CodeFinder.Tests
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 {
     public class CppTests : CodeFinderUnitTestBase
     {

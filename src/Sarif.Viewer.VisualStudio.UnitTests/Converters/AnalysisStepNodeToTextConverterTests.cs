@@ -11,7 +11,7 @@ using Microsoft.Sarif.Viewer.Models;
 
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Converters
 {
     public class AnalysisStepNodeToTextConverterTests
     {

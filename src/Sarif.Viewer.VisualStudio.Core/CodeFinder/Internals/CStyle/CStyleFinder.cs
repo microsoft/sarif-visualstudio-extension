@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 // Make this visible to the unit test project.
-[assembly: InternalsVisibleTo("CodeFinderUnitTests")]
+[assembly: InternalsVisibleTo("Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder")]
 
 namespace Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.DevCanvas.CodeFinder.Tests
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 {
     /// <summary>
     /// Encapsulates code common to interacting with the CodeFinder library.
