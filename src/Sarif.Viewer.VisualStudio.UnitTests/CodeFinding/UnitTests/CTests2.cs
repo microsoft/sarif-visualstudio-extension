@@ -24,8 +24,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpan(100);
-            Assert.AreEqual(77, span.Start);
-            Assert.AreEqual(130, span.End);
+            77.Should().Be(span.Start);
+            130.Should().Be(span.End);
         }
 
         [Fact]
@@ -33,8 +33,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpan(49);
-            Assert.AreEqual(30, span.Start);
-            Assert.AreEqual(176, span.End);
+            30.Should().Be(span.Start);
+            176.Should().Be(span.End);
         }
 
         [Fact]
@@ -42,8 +42,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpan(30);
-            Assert.AreEqual(30, span.Start);
-            Assert.AreEqual(176, span.End);
+            30.Should().Be(span.Start);
+            176.Should().Be(span.End);
         }
 
         [Fact]
@@ -51,8 +51,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpan(176);
-            Assert.AreEqual(30, span.Start);
-            Assert.AreEqual(176, span.End);
+            30.Should().Be(span.Start);
+            176.Should().Be(span.End);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpan(20);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpan(177);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
         }
 
         [Fact]
@@ -76,8 +76,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpanAtLine(3);
-            Assert.AreEqual(30, span.Start);
-            Assert.AreEqual(176, span.End);
+            30.Should().Be(span.Start);
+            176.Should().Be(span.End);
         }
 
         [Fact]
@@ -85,8 +85,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpanAtLine(5);
-            Assert.AreEqual(77, span.Start);
-            Assert.AreEqual(130, span.End);
+            77.Should().Be(span.Start);
+            130.Should().Be(span.End);
         }
 
         [Fact]
@@ -95,9 +95,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpanAtLine(3);
             System.Collections.Generic.List<string> identifiers = finder.GetScopeIdentifiers(span.Start, out bool isFunction);
-            Assert.AreEqual(1, identifiers.Count);
-            Assert.AreEqual("foo", identifiers[0]);
-            Assert.AreEqual(true, isFunction);
+            1.Should().Be(identifiers.Count);
+            "foo".Should().Be(identifiers[0]);
+            true.Should().Be(isFunction);
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code1);
             FileSpan span = finder.GetScopeSpanAtLine(5);
             System.Collections.Generic.List<string> identifiers = finder.GetScopeIdentifiers(span.Start, out _);
-            Assert.AreEqual(0, identifiers.Count);
+            0.Should().Be(identifiers.Count);
         }
 
         [Fact]
@@ -115,10 +115,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code1);
             var query = new MatchQuery("return true", 4, "foo", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(5, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(0, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            5.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            0.Should().Be(results[0].ScopeMatchDiff);
         }
 
         [Fact]
@@ -127,10 +127,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code1);
             var query = new MatchQuery("return true", 4, "", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(5, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(-1, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            5.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            (-1).Should().Be(results[0].ScopeMatchDiff);
         }
 
         private const string code2 =
@@ -145,8 +145,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code2);
             FileSpan span = finder.GetScopeSpan(62);
-            Assert.AreEqual(60, span.Start);
-            Assert.AreEqual(75, span.End);
+            60.Should().Be(span.Start);
+            75.Should().Be(span.End);
         }
 
         [Fact]
@@ -154,8 +154,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code2);
             FileSpan span = finder.GetScopeSpan(60);
-            Assert.AreEqual(60, span.Start);
-            Assert.AreEqual(75, span.End);
+            60.Should().Be(span.Start);
+            75.Should().Be(span.End);
         }
 
         [Fact]
@@ -163,8 +163,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code2);
             FileSpan span = finder.GetScopeSpan(76);
-            Assert.AreEqual(30, span.Start);
-            Assert.AreEqual(121, span.End);
+            30.Should().Be(span.Start);
+            121.Should().Be(span.End);
         }
 
         [Fact]
@@ -172,8 +172,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         {
             var finder = new CppFinder(code2);
             FileSpan span = finder.GetScopeSpanAtLine(3);
-            Assert.AreEqual(30, span.Start);
-            Assert.AreEqual(121, span.End);
+            30.Should().Be(span.Start);
+            121.Should().Be(span.End);
         }
 
         [Fact]
@@ -182,10 +182,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code2);
             var query = new MatchQuery("return true", 3, "foo", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(3, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(0, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            3.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            0.Should().Be(results[0].ScopeMatchDiff);
         }
 
         [Fact]
@@ -194,10 +194,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code2);
             var query = new MatchQuery("return true", 3, "", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(3, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(-1, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            3.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            (-1).Should().Be(results[0].ScopeMatchDiff);
         }
 
         private const string code3 =
@@ -219,10 +219,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code3);
             var query = new MatchQuery("a -= b", 7, "foo", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(7, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(0, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            7.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            0.Should().Be(results[0].ScopeMatchDiff);
         }
 
         [Fact]
@@ -231,10 +231,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code3);
             var query = new MatchQuery("a -= b", 7, "", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(7, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(-1, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            7.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            (-1).Should().Be(results[0].ScopeMatchDiff);
         }
 
         private const string code4 =
@@ -257,10 +257,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code4);
             var query = new MatchQuery("b += a", 8, "foo", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(8, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(0, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            8.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            0.Should().Be(results[0].ScopeMatchDiff);
         }
 
         [Fact]
@@ -269,10 +269,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code4);
             var query = new MatchQuery("b += a", 8, "", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(1, results.Count);
-            Assert.AreEqual(8, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(-1, results[0].ScopeMatchDiff);
+            1.Should().Be(results.Count);
+            8.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            (-1).Should().Be(results[0].ScopeMatchDiff);
         }
 
         [Fact]
@@ -281,13 +281,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code4);
             var query = new MatchQuery("a > 0", 3, "foo", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(3, results[0].LineNumber);
-            Assert.AreEqual(6, results[1].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(true, results[1].ScopeChecked);
-            Assert.AreEqual(0, results[0].ScopeMatchDiff);
-            Assert.AreEqual(0, results[1].ScopeMatchDiff);
+            2.Should().Be(results.Count);
+            3.Should().Be(results[0].LineNumber);
+            6.Should().Be(results[1].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            true.Should().Be(results[1].ScopeChecked);
+            0.Should().Be(results[0].ScopeMatchDiff);
+            0.Should().Be(results[1].ScopeMatchDiff);
         }
 
         [Fact]
@@ -296,13 +296,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var finder = new CppFinder(code4);
             var query = new MatchQuery("a > 0", 3, "", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
-            Assert.AreEqual(2, results.Count);
-            Assert.AreEqual(3, results[0].LineNumber);
-            Assert.AreEqual(6, results[1].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(true, results[1].ScopeChecked);
-            Assert.AreEqual(-1, results[0].ScopeMatchDiff);
-            Assert.AreEqual(-1, results[1].ScopeMatchDiff);
+            2.Should().Be(results.Count);
+            3.Should().Be(results[0].LineNumber);
+            6.Should().Be(results[1].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            true.Should().Be(results[1].ScopeChecked);
+            (-1).Should().Be(results[0].ScopeMatchDiff);
+            (-1).Should().Be(results[1].ScopeMatchDiff);
         }
 
         private const string code5 =
@@ -329,9 +329,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var query = new MatchQuery("b += a", 9, "foo2", "0");
             System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             results.Count.Should().Be(1);
-            Assert.AreEqual(10, results[0].LineNumber);
-            Assert.AreEqual(true, results[0].ScopeChecked);
-            Assert.AreEqual(0, results[0].ScopeMatchDiff);
+            10.Should().Be(results[0].LineNumber);
+            true.Should().Be(results[0].ScopeChecked);
+            0.Should().Be(results[0].ScopeMatchDiff);
         }
     }
 }

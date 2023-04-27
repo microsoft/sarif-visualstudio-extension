@@ -61,11 +61,11 @@ for fileName in os.listdir('UnitTests'):
             else: 
                 matches = re.match(isTruePatternOne, line)
                 if matches:
-                    newLine = f'{matches.group(1)}({matches.group(2)}).Should().BeTrue();\n'
+                    newLine = f'{matches.group(1)}{matches.group(2)}.Should().BeTrue();\n'
                 else: 
                     matches = re.match(isFalsePatternOne, line)
                     if matches:
-                        newLine = f'{matches.group(1)}({matches.group(2)}).Should().BeFalse());\n'
+                        newLine = f'{matches.group(1)}{matches.group(2)}.Should().BeFalse();\n'
             newFile.append(newLine)
 
     with open(path, 'w') as f:

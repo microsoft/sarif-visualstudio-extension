@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using FluentAssertions;
+
 using Microsoft.Sarif.Viewer.CodeFinding;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
@@ -58,7 +60,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <param name="expectedScopeMatchDiff"></param>
         public static void ValidateMatch(List<MatchResult> actualResults, int expectedLineNumber = 0, int expectedDistanceFromLineHint = 0, bool expectedScopeChecked = true, int? expectedScopeMatchDiff = 0)
         {
-            Assert.AreEqual(1, actualResults.Count, $"Expected 1 match, but found {actualResults.Count} match(es).");
+            1.Should().Be(actualResults.Count, $"Expected 1 match, but found {actualResults.Count} match(es).");
             if (actualResults.Count > 0)
             {
                 MatchResult match = actualResults[0];
@@ -72,7 +74,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <param name="actualResults"></param>
         public static void ValidateNoMatches(List<MatchResult> actualResults)
         {
-            Assert.AreEqual(0, actualResults.Count, $"Expected 0 matches, but found {actualResults.Count} match(es).");
+            0.Should().Be(actualResults.Count, $"Expected 0 matches, but found {actualResults.Count} match(es).");
         }
 
         /// <summary>
@@ -82,7 +84,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <param name="expectedResults"></param>
         public static void ValidateMatches(List<MatchResult> actualResults, List<MatchResult> expectedResults)
         {
-            Assert.AreEqual(expectedResults.Count, actualResults.Count, $"Expected {expectedResults.Count} matches, but found {actualResults.Count} match(es).");
+            expectedResults.Count.Should().Be(actualResults.Count, $"Expected {expectedResults.Count} matches, but found {actualResults.Count} match(es).");
 
             foreach (MatchResult expectedResult in expectedResults)
             {
@@ -93,14 +95,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                     actualResults.Remove(actualResult);
                 }
 
-                Assert.AreEqual(1, actualResultsForThisLine.Count, $"Expected 1 match for line {expectedResult.LineNumber} but found {actualResultsForThisLine.Count} match(es).");
+                1.Should().Be(actualResultsForThisLine.Count, $"Expected 1 match for line {expectedResult.LineNumber} but found {actualResultsForThisLine.Count} match(es).");
                 if (actualResultsForThisLine.Count > 0)
                 {
                     ValidateMatch(actualResultsForThisLine[0], expectedResult);
                 }
             }
 
-            Assert.AreEqual(0, actualResults.Count);
+            0.Should().Be(actualResults.Count);
         }
 
         /// <summary>
@@ -123,10 +125,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <param name="expectedScopeMatchDiff"></param>
         private static void ValidateMatch(MatchResult actualResult, int expectedLineNumber, int expectedDistanceFromLineHint, bool expectedScopeChecked, int? expectedScopeMatchDiff)
         {
-            Assert.AreEqual(expectedLineNumber, actualResult.LineNumber, $"Expected match on line {expectedLineNumber}, but match was found on line {actualResult.LineNumber}");
-            Assert.AreEqual(expectedDistanceFromLineHint, actualResult.DistanceFromLineHint, $"Expected match to be {expectedDistanceFromLineHint} line(s) away from hint, but match was actually {actualResult.DistanceFromLineHint} line(s) away.");
-            Assert.AreEqual(expectedScopeChecked, actualResult.ScopeChecked, $"Expected the scope check to be {expectedScopeChecked} but it was {actualResult.ScopeChecked}.");
-            Assert.AreEqual(expectedScopeMatchDiff, actualResult.ScopeMatchDiff, $"Expected scope match diff of {expectedScopeMatchDiff}, but actually got {actualResult.ScopeMatchDiff}.");
+            expectedLineNumber.Should().Be(actualResult.LineNumber, $"Expected match on line {expectedLineNumber}, but match was found on line {actualResult.LineNumber}");
+            expectedDistanceFromLineHint.Should().Be(actualResult.DistanceFromLineHint, $"Expected match to be {expectedDistanceFromLineHint} line(s) away from hint, but match was actually {actualResult.DistanceFromLineHint} line(s) away.");
+            expectedScopeChecked.Should().Be(actualResult.ScopeChecked, $"Expected the scope check to be {expectedScopeChecked} but it was {actualResult.ScopeChecked}.");
+            expectedScopeMatchDiff.Should().Be(actualResult.ScopeMatchDiff, $"Expected scope match diff of {expectedScopeMatchDiff}, but actually got {actualResult.ScopeMatchDiff}.");
         }
     }
 }

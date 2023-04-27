@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using FluentAssertions;
+
 using Microsoft.Sarif.Viewer.CodeFinding;
 using Microsoft.Sarif.Viewer.CodeFinding.Internal;
 
@@ -127,9 +129,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             var fileCollection = new FileSpanCollection(spans);
 
-            Assert.AreEqual(count, fileCollection.Count);
-            Assert.AreEqual(minPosition, fileCollection.MinPosition);
-            Assert.AreEqual(maxPosition, fileCollection.MaxPosition);
+            count.Should().Be(fileCollection.Count);
+            minPosition.Should().Be(fileCollection.MinPosition);
+            maxPosition.Should().Be(fileCollection.MaxPosition);
         }
 
         /// <summary>
@@ -148,24 +150,24 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             var fileCollection = new FileSpanCollection(spans, 10);
 
-            Assert.AreEqual(0, fileCollection.MinPosition);
-            Assert.AreEqual(90, fileCollection.MaxPosition);
+            0.Should().Be(fileCollection.MinPosition);
+            90.Should().Be(fileCollection.MaxPosition);
 
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(0, 10)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(3, 7)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(20, 30)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(21, 22)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(50, 60)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(58, 59)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(80, 90)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(84, 88)));
+            fileCollection.Contains(new FileSpan(0, 10)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(3, 7)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(20, 30)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(21, 22)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(50, 60)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(58, 59)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(80, 90)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(84, 88)).Should().BeTrue();
 
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(10, 15)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(5, 15)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(15, 25)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(100, 200)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(1000, 1200)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(10000, 10200)));
+            fileCollection.Contains(new FileSpan(10, 15)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(5, 15)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(15, 25)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(100, 200)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(1000, 1200)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(10000, 10200)).Should().BeFalse();
         }
 
         /// <summary>
@@ -185,30 +187,30 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             // Force bucket size to 10 so that the spans above span several buckets.
             var fileCollection = new FileSpanCollection(spans, 10);
 
-            Assert.AreEqual(1, fileCollection.MinPosition);
-            Assert.AreEqual(300, fileCollection.MaxPosition);
+            1.Should().Be(fileCollection.MinPosition);
+            300.Should().Be(fileCollection.MaxPosition);
 
             // Check that smaller spans in different buckets show up as being contained within the
             // first span in the collection (1, 100).
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(1, 10)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(3, 7)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(20, 30)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(21, 22)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(50, 60)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(58, 59)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(80, 90)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(84, 88)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(95, 100)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(1, 100)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(1, 50)));
-            Assert.IsTrue(fileCollection.Contains(new FileSpan(50, 100)));
+            fileCollection.Contains(new FileSpan(1, 10)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(3, 7)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(20, 30)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(21, 22)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(50, 60)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(58, 59)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(80, 90)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(84, 88)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(95, 100)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(1, 100)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(1, 50)).Should().BeTrue();
+            fileCollection.Contains(new FileSpan(50, 100)).Should().BeTrue();
 
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(0, 10)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(50, 150)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(100, 125)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(150, 160)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(1000, 1100)));
-            Assert.IsFalse(fileCollection.Contains(new FileSpan(10000, 10100)));
+            fileCollection.Contains(new FileSpan(0, 10)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(50, 150)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(100, 125)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(150, 160)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(1000, 1100)).Should().BeFalse();
+            fileCollection.Contains(new FileSpan(10000, 10100)).Should().BeFalse();
         }
 
         [Fact]
@@ -225,55 +227,55 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var fileCollection = new FileSpanCollection(spans, 10);
 
             FileSpan span = fileCollection.GetContainingSpan(0);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(4);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(5);
-            Assert.IsTrue(span.Equals(spans[0]));
+            span.Equals(spans[0]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(8);
-            Assert.IsTrue(span.Equals(spans[0]));
+            span.Equals(spans[0]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(10);
-            Assert.IsTrue(span.Equals(spans[0]));
+            span.Equals(spans[0]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(11);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(20);
-            Assert.IsTrue(span.Equals(spans[1]));
+            span.Equals(spans[1]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(25);
-            Assert.IsTrue(span.Equals(spans[1]));
+            span.Equals(spans[1]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(30);
-            Assert.IsTrue(span.Equals(spans[1]));
+            span.Equals(spans[1]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(49);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(80);
-            Assert.IsTrue(span.Equals(spans[3]));
+            span.Equals(spans[3]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(83);
-            Assert.IsTrue(span.Equals(spans[3]));
+            span.Equals(spans[3]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(90);
-            Assert.IsTrue(span.Equals(spans[3]));
+            span.Equals(spans[3]).Should().BeTrue();
 
             span = fileCollection.GetContainingSpan(91);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(100);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(1000);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
 
             span = fileCollection.GetContainingSpan(10000);
-            Assert.AreEqual(null, span);
+            span.Should().Be(null);
         }
 
         [Fact]
@@ -290,46 +292,46 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var fileCollection = new FileSpanCollection(spans, 10);
 
             FileSpan nextSpan = fileCollection.GetNextSpan(0);
-            Assert.IsTrue(nextSpan.Equals(spans[0]));
+            nextSpan.Equals(spans[0]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(1);
-            Assert.IsTrue(nextSpan.Equals(spans[0]));
+            nextSpan.Equals(spans[0]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(5);
-            Assert.IsTrue(nextSpan.Equals(spans[1]));
+            nextSpan.Equals(spans[1]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(7);
-            Assert.IsTrue(nextSpan.Equals(spans[1]));
+            nextSpan.Equals(spans[1]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(11);
-            Assert.IsTrue(nextSpan.Equals(spans[1]));
+            nextSpan.Equals(spans[1]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(20);
-            Assert.IsTrue(nextSpan.Equals(spans[2]));
+            nextSpan.Equals(spans[2]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(25);
-            Assert.IsTrue(nextSpan.Equals(spans[2]));
+            nextSpan.Equals(spans[2]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(49);
-            Assert.IsTrue(nextSpan.Equals(spans[2]));
+            nextSpan.Equals(spans[2]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(59);
-            Assert.IsTrue(nextSpan.Equals(spans[3]));
+            nextSpan.Equals(spans[3]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(60);
-            Assert.IsTrue(nextSpan.Equals(spans[3]));
+            nextSpan.Equals(spans[3]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(65);
-            Assert.IsTrue(nextSpan.Equals(spans[3]));
+            nextSpan.Equals(spans[3]).Should().BeTrue();
 
             nextSpan = fileCollection.GetNextSpan(85);
-            Assert.AreEqual(null, nextSpan);
+            nextSpan.Should().Be(null);
 
             nextSpan = fileCollection.GetNextSpan(95);
-            Assert.AreEqual(null, nextSpan);
+            nextSpan.Should().Be(null);
 
             nextSpan = fileCollection.GetNextSpan(1000);
-            Assert.AreEqual(null, nextSpan);
+            nextSpan.Should().Be(null);
         }
 
         /// <summary>
@@ -344,7 +346,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             int rangeEnd = fileCollection.MaxPosition;
 
             int expectedSpanCount = spans.Count;
-            Assert.AreEqual(expectedSpanCount, fileCollection.Count, $"Expected the collection to contain {expectedSpanCount} spans, but it actually contains {fileCollection.Count}.");
+            expectedSpanCount.Should().Be(fileCollection.Count, $"Expected the collection to contain {expectedSpanCount} spans, but it actually contains {fileCollection.Count}.");
 
             // Go through the whole range, calling GetNextSpan.
             int encounteredSpanCount = 0;
@@ -361,7 +363,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                 // If this test fails, it's not a big deal, but it's a good idea to investigate.
                 int expectedTime = Math.Min(spans.Count * 2, 1000);
                 long actualTime = stopWatch.ElapsedMilliseconds;
-                Assert.IsTrue(actualTime < expectedTime, $"GetNextSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.");
+                actualTime < expectedTime, $"GetNextSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.".Should().BeTrue();
 
                 if (nextSpan != null)
                 {
@@ -371,13 +373,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                     if (curSpan != null)
                     {
                         // Verify the current span is different from the next one.
-                        Assert.IsFalse(nextSpan.Equals(curSpan));
+                        nextSpan.Equals(curSpan).Should().BeFalse();
                     }
                     curSpan = nextSpan;
                 }
             }
 
-            Assert.AreEqual(expectedSpanCount, encounteredSpanCount, $"Expected to encounter {expectedSpanCount} spans but actually encountered {encounteredSpanCount} spans.");
+            expectedSpanCount.Should().Be(encounteredSpanCount, $"Expected to encounter {expectedSpanCount} spans but actually encountered {encounteredSpanCount} spans.");
         }
 
         /// <summary>
@@ -438,85 +440,85 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             var fileCollection = new FileSpanCollection(spans, 10);
 
             FileSpan prevSpan = fileCollection.GetPreviousSpan(0);
-            Assert.AreEqual(null, prevSpan);
+            prevSpan.Should().Be(null);
 
             prevSpan = fileCollection.GetPreviousSpan(1);
-            Assert.AreEqual(null, prevSpan);
+            prevSpan.Should().Be(null);
 
             prevSpan = fileCollection.GetPreviousSpan(5);
-            Assert.AreEqual(null, prevSpan);
+            prevSpan.Should().Be(null);
 
             prevSpan = fileCollection.GetPreviousSpan(10);
-            Assert.AreEqual(null, prevSpan);
+            prevSpan.Should().Be(null);
 
             prevSpan = fileCollection.GetPreviousSpan(11);
-            Assert.IsTrue(prevSpan.Equals(spans[0]));
+            prevSpan.Equals(spans[0]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(19);
-            Assert.IsTrue(prevSpan.Equals(spans[0]));
+            prevSpan.Equals(spans[0]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(20);
-            Assert.IsTrue(prevSpan.Equals(spans[0]));
+            prevSpan.Equals(spans[0]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(25);
-            Assert.IsTrue(prevSpan.Equals(spans[0]));
+            prevSpan.Equals(spans[0]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(30);
-            Assert.IsTrue(prevSpan.Equals(spans[0]));
+            prevSpan.Equals(spans[0]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(31);
-            Assert.IsTrue(prevSpan.Equals(spans[1]));
+            prevSpan.Equals(spans[1]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(45);
-            Assert.IsTrue(prevSpan.Equals(spans[1]));
+            prevSpan.Equals(spans[1]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(50);
-            Assert.IsTrue(prevSpan.Equals(spans[1]));
+            prevSpan.Equals(spans[1]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(55);
-            Assert.IsTrue(prevSpan.Equals(spans[1]));
+            prevSpan.Equals(spans[1]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(60);
-            Assert.IsTrue(prevSpan.Equals(spans[1]));
+            prevSpan.Equals(spans[1]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(65);
-            Assert.IsTrue(prevSpan.Equals(spans[2]));
+            prevSpan.Equals(spans[2]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(70);
-            Assert.IsTrue(prevSpan.Equals(spans[2]));
+            prevSpan.Equals(spans[2]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(75);
-            Assert.IsTrue(prevSpan.Equals(spans[2]));
+            prevSpan.Equals(spans[2]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(80);
-            Assert.IsTrue(prevSpan.Equals(spans[2]));
+            prevSpan.Equals(spans[2]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(85);
-            Assert.IsTrue(prevSpan.Equals(spans[2]));
+            prevSpan.Equals(spans[2]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(90);
-            Assert.IsTrue(prevSpan.Equals(spans[2]));
+            prevSpan.Equals(spans[2]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(91);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(100);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(500);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(1000);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(10000);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(100000);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
 
             prevSpan = fileCollection.GetPreviousSpan(1000000);
-            Assert.IsTrue(prevSpan.Equals(spans[3]));
+            prevSpan.Equals(spans[3]).Should().BeTrue();
         }
 
         /// <summary>
@@ -531,7 +533,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             int rangeEnd = fileCollection.MaxPosition;
 
             int expectedSpanCount = spans.Count;
-            Assert.AreEqual(expectedSpanCount, fileCollection.Count, $"Expected the collection to contain {expectedSpanCount} spans, but it actually contains {fileCollection.Count}.");
+            expectedSpanCount.Should().Be(fileCollection.Count, $"Expected the collection to contain {expectedSpanCount} spans, but it actually contains {fileCollection.Count}.");
 
             // Go through the whole range, calling GetPreviousSpan.
             int encounteredSpanCount = 0;
@@ -546,7 +548,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                 // Verify GetPreviousSpan has good performance, 1ms per span in the collection, capping at 1s.
                 int expectedTime = Math.Min(spans.Count, 1000);
                 long actualTime = stopWatch.ElapsedMilliseconds;
-                Assert.IsTrue(actualTime < expectedTime, $"GetPreviousSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.");
+                actualTime < expectedTime, $"GetPreviousSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.".Should().BeTrue();
 
                 if (prevSpan != null)
                 {
@@ -556,13 +558,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                     if (curSpan != null)
                     {
                         // Verify the current span is different from the next one.
-                        Assert.IsFalse(prevSpan.Equals(curSpan));
+                        prevSpan.Equals(curSpan).Should().BeFalse();
                     }
                     curSpan = prevSpan;
                 }
             }
 
-            Assert.AreEqual(expectedSpanCount, encounteredSpanCount, $"Expected to encounter {expectedSpanCount} spans but actually encountered {encounteredSpanCount} spans.");
+            expectedSpanCount.Should().Be(encounteredSpanCount, $"Expected to encounter {expectedSpanCount} spans but actually encountered {encounteredSpanCount} spans.");
         }
 
         /// <summary>

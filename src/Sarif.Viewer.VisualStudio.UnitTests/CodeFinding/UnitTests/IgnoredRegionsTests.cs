@@ -2,6 +2,7 @@
 using Microsoft.Sarif.Viewer.CodeFinding;
 
 using Xunit;
+using FluentAssertions;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
@@ -75,35 +76,35 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             // Comment in the middle of the substring.
             string substr = finder.Substring(0);
-            Assert.AreEqual("foo(var1, var2, );", substr);
+            "foo(var1, var2, );".Should().Be(substr);
 
             // Substring ends in middle of comment.
             substr = finder.Substring(0, 20);
-            Assert.AreEqual("foo(var1, var2, ", substr);
+            "foo(var1, var2, ".Should().Be(substr);
 
             // Substring starts at comment start.
             substr = finder.Substring(16);
-            Assert.AreEqual(");", substr);
+            ");".Should().Be(substr);
 
             // Substring starts at comment end.
             substr = finder.Substring(27);
-            Assert.AreEqual(");", substr);
+            ");".Should().Be(substr);
 
             // Substring starts within comment.
             substr = finder.Substring(20);
-            Assert.AreEqual(");", substr);
+            ");".Should().Be(substr);
 
             // Substring completely contains comment.
             substr = finder.Substring(16, 11);
-            Assert.AreEqual("", substr);
+            "".Should().Be(substr);
 
             // Comment completely contains substring.
             substr = finder.Substring(18, 4);
-            Assert.AreEqual("", substr);
+            "".Should().Be(substr);
 
             // Substring does not intersect with comment.
             substr = finder.Substring(4, 4);
-            Assert.AreEqual("var1", substr);
+            "var1".Should().Be(substr);
         }
 
         [Fact]
@@ -126,33 +127,31 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             // Substring after comment.
             string substr = finder.Substring(62, 16);
-            Assert.AreEqual("int product = 0;", substr);
+            "int product = 0;".Should().Be(substr);
 
             // Comment in the middle of the substring.
             substr = finder.Substring(62);
-            Assert.AreEqual(
-@"int product = 0;
-    for (int i = 0; i < var2; i++)
-    {
-        product += var1;
-    }
+            @"int product = 0;
+                for (int i = 0; i < var2; i++)
+                {
+                    product += var1;
+                }
 
-        return product;
-}", substr);
+                    return product;
+            }".Should().Be(substr);
 
             // 2 comments in the middle of the substring.
             substr = finder.Substring(0);
-            Assert.AreEqual(
-@"int Multiply(var1, var2)
-{
-        int product = 0;
-    for (int i = 0; i < var2; i++)
-    {
-        product += var1;
-    }
+            @"int Multiply(var1, var2)
+            {
+                    int product = 0;
+                for (int i = 0; i < var2; i++)
+                {
+                    product += var1;
+                }
 
-        return product;
-}", substr);
+                    return product;
+            }".Should().Be(substr);
 
         }
 
@@ -197,28 +196,28 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
             // will confuse the scope detection logic.
 
             System.Collections.Generic.List<MatchResult> matches = finder.FindMatchesWithFunction(new MatchQuery("return a - b", 22));
-            Assert.AreEqual(1, matches.Count);
-            Assert.AreEqual(22, matches[0].LineNumber);
-            Assert.AreEqual(true, matches[0].ScopeChecked);
-            Assert.AreEqual(-3, matches[0].ScopeMatchDiff);
+            1.Should().Be(matches.Count);
+            22.Should().Be(matches[0].LineNumber);
+            true.Should().Be(matches[0].ScopeChecked);
+            (-3).Should().Be(matches[0].ScopeMatchDiff);
 
             matches = finder.FindMatchesWithFunction(new MatchQuery("return a - b", 22, "Foo"));
-            Assert.AreEqual(1, matches.Count);
-            Assert.AreEqual(22, matches[0].LineNumber);
-            Assert.AreEqual(true, matches[0].ScopeChecked);
-            Assert.AreEqual(-2, matches[0].ScopeMatchDiff);
+            1.Should().Be(matches.Count);
+            22.Should().Be(matches[0].LineNumber);
+            true.Should().Be(matches[0].ScopeChecked);
+            (-2).Should().Be(matches[0].ScopeMatchDiff);
 
             matches = finder.FindMatchesWithFunction(new MatchQuery("return a - b", 22, "MyClass::Foo"));
-            Assert.AreEqual(1, matches.Count);
-            Assert.AreEqual(22, matches[0].LineNumber);
-            Assert.AreEqual(true, matches[0].ScopeChecked);
-            Assert.AreEqual(-1, matches[0].ScopeMatchDiff);
+            1.Should().Be(matches.Count);
+            22.Should().Be(matches[0].LineNumber);
+            true.Should().Be(matches[0].ScopeChecked);
+            (-1).Should().Be(matches[0].ScopeMatchDiff);
 
             matches = finder.FindMatchesWithFunction(new MatchQuery("return a - b", 22, "MyNamespace::MyClass::Foo"));
-            Assert.AreEqual(1, matches.Count);
-            Assert.AreEqual(22, matches[0].LineNumber);
-            Assert.AreEqual(true, matches[0].ScopeChecked);
-            Assert.AreEqual(0, matches[0].ScopeMatchDiff);
+            1.Should().Be(matches.Count);
+            22.Should().Be(matches[0].LineNumber);
+            true.Should().Be(matches[0].ScopeChecked);
+            0.Should().Be(matches[0].ScopeMatchDiff);
         }
     }
 }
