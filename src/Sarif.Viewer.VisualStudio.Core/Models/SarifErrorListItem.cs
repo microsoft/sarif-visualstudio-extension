@@ -9,13 +9,16 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+
 using CSharpFunctionalExtensions;
+
 using EnvDTE;
+
 using EnvDTE80;
+
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
-using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -23,7 +26,9 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
+
 using Newtonsoft.Json;
+
 using Run = Microsoft.CodeAnalysis.Sarif.Run;
 using XamlDoc = System.Windows.Documents;
 

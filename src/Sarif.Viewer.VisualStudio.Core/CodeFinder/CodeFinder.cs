@@ -4,10 +4,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 using Microsoft.Sarif.Viewer.CodeFinder.Internal;
 using Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle;
-
-using Sarif.Viewer.VisualStudio.Core.CodeFinder;
 
 namespace Microsoft.Sarif.Viewer.CodeFinder
 {
