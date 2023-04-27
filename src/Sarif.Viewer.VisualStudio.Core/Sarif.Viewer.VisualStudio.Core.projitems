@@ -30,7 +30,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\CStyleFinder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CodeFinder\Internals\CStyle\ScopeIdentifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml.cs">
       <DependentUpon>FeedbackControl.xaml</DependentUpon>
     </Compile>

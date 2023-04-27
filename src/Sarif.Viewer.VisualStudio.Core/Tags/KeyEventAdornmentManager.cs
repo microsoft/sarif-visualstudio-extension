@@ -10,6 +10,7 @@ using System.Windows.Media;
 
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Services;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
