@@ -13,7 +13,6 @@ using CSharpFunctionalExtensions;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.CodeFinder;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Options;
@@ -109,7 +108,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        /// <summary>
+/*        /// <summary>
         ///  Gets the queries that can be used to do codefinding for this error list item.
         /// </summary>
         /// <returns>A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.</returns>
@@ -153,7 +152,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return queries;
-        }
+        }*/
 
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
             : this()
