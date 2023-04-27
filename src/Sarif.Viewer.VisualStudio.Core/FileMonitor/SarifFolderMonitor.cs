@@ -138,7 +138,7 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
 
         private void Watcher_SarifLogFileCreated(object sender, FileSystemEventArgs e)
         {
-            if (!SarifViewerOption.Instance.ShouldMonitorSarifFolder)
+            if (!SarifViewerGeneralOptions.Instance.ShouldMonitorSarifFolder)
             {
                 return;
             }
@@ -159,7 +159,7 @@ namespace Microsoft.Sarif.Viewer.FileMonitor
 
         private void Watcher_SarifLogFileDeleted(object sender, FileSystemEventArgs e)
         {
-            if (!SarifViewerOption.Instance.ShouldMonitorSarifFolder)
+            if (!SarifViewerGeneralOptions.Instance.ShouldMonitorSarifFolder)
             {
                 return;
             }

@@ -230,16 +230,5 @@ namespace Microsoft.Sarif.Viewer
         private ObservableCollection<XamlDoc.Inline> _messageInlines;
         private ResultTextMarker _lineMarker;
         private bool isDisposed;
-
-        /// <summary>
-        /// This dictionary is used to map the SARIF failure level to the color of the "squiggle" shown
-        /// in Visual Studio's editor.
-        /// </summary>
-        private static readonly Dictionary<FailureLevel, string> FailureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
-        {
-            { FailureLevel.Error, PredefinedErrorTypeNames.OtherError },
-            { FailureLevel.Warning, PredefinedErrorTypeNames.Warning },
-            { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
-        };
     }
 }

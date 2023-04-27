@@ -48,7 +48,8 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(SarifViewerGeneralOptionsPage), OptionCategoryName, OptionPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(SarifViewerColorOptionsPage), OptionCategoryName, ColorsPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
@@ -64,6 +65,7 @@ namespace Microsoft.Sarif.Viewer
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
         public const string OptionCategoryName = "SARIF Viewer";
         public const string OptionPageName = "General";
+        public const string ColorsPageName = "Colors";
         public const string OutputPaneName = "SARIF Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
@@ -152,7 +154,8 @@ namespace Microsoft.Sarif.Viewer
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // initialize Option first since other componments may depends on options.
-            await SarifViewerOption.InitializeAsync(this).ConfigureAwait(false);
+            await SarifViewerGeneralOptions.InitializeAsync(this).ConfigureAwait(false);
+            await SarifViewerColorOptions.InitializeAsync(this).ConfigureAwait(false);
 
             if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
             {
@@ -220,7 +223,7 @@ namespace Microsoft.Sarif.Viewer
                 string solutionPath = GetSolutionDirectoryPath();
                 if (!string.IsNullOrWhiteSpace(solutionPath))
                 {
-                    this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerOption.Instance.IsOptionEnabled);
+                    this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.IsOptionEnabled);
                     this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
                 }
             }

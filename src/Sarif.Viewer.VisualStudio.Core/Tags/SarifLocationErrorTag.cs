@@ -16,6 +16,7 @@ using Markdig.Wpf;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Microsoft.Sarif.Viewer.Tags
@@ -42,12 +43,22 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="persistentSpan">The persistent span for the tag within a document.</param>
         /// <param name="runIndex">The SARIF run index associated with this tag.</param>
         /// <param name="resultId">the result ID associated with this tag.</param>
-        /// <param name="errorType">The Visual Studio error type to display.</param>
+        /// <param name="errorType">The Visual Studio error type to display. Must be from the <see cref="PredefinedErrorTypeNames"/> or will only display red underline.</param>
         /// <param name="content">The content to use when displaying a tool tip for this error. This parameter may be null.</param>
         /// <param name="context">Gets the data context for this tag.</param>
         public SarifLocationErrorTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string errorType, List<(string strContent, TextRenderType renderType)> content, object context)
             : base(persistentSpan, runIndex: runIndex, resultId: resultId, context: context)
         {
+            if (errorType != PredefinedErrorTypeNames.SyntaxError &&
+                errorType != PredefinedErrorTypeNames.CompilerError &&
+                errorType != PredefinedErrorTypeNames.OtherError &&
+                errorType != PredefinedErrorTypeNames.Warning &&
+                errorType != PredefinedErrorTypeNames.Suggestion &&
+                errorType != PredefinedErrorTypeNames.HintedSuggestion)
+            {
+                throw new ArgumentException($"Invalid error type {errorType} passed into {nameof(SarifLocationErrorTag)} constructor. Must be from {nameof(PredefinedErrorTypeNames)}");
+            }
+
             this.ErrorType = errorType;
             this.content = content;
         }

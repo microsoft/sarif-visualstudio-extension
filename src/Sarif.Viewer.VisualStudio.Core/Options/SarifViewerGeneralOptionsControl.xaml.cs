@@ -7,20 +7,20 @@ using System.Windows.Controls;
 namespace Microsoft.Sarif.Viewer.Options
 {
     /// <summary>
-    /// Interaction logic for SariferOptionsControl.xaml.
+    /// Interaction logic for SarifGeneralOptionsControl.xaml.
     /// </summary>
-    public partial class SarifViewerOptionsControl : UserControl
+    public partial class SarifViewerGeneralOptionsControl : UserControl
     {
         /// <summary>
         /// A handle to the options page instance that this control is bound to.
         /// </summary>
-        private readonly SarifViewerOptionPage sariferOptionsPage;
+        private readonly SarifViewerGeneralOptionsPage generalOptionsPage;
 
-        public SarifViewerOptionsControl(SarifViewerOptionPage page)
+        public SarifViewerGeneralOptionsControl(SarifViewerGeneralOptionsPage page)
         {
             InitializeComponent();
-            sariferOptionsPage = page;
-            this.DataContext = sariferOptionsPage;
+            generalOptionsPage = page;
+            this.DataContext = generalOptionsPage;
         }
     }
 }

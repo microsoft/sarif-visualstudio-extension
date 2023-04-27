@@ -116,7 +116,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             this.InvalidateAdornments();
 
-            if (SarifViewerOption.Instance?.IsKeyEventAdornmentEnabled != true)
+            if (SarifViewerGeneralOptions.Instance?.IsKeyEventAdornmentEnabled != true)
             {
                 return;
             }
