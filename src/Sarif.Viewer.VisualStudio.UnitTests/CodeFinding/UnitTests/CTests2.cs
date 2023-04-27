@@ -5,7 +5,7 @@ using Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle;
 
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     public class CTests2
     {

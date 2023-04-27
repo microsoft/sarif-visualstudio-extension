@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-using Microsoft.Sarif.Viewer.CodeFinder;
+using Microsoft.Sarif.Viewer.CodeFinding;
 
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     public class CppTests : CodeFinderUnitTestBase
     {

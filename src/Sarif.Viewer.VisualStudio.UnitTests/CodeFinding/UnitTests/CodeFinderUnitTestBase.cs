@@ -4,7 +4,7 @@ using System.Linq;
 
 using Microsoft.Sarif.Viewer.CodeFinding;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     /// <summary>
     /// Encapsulates code common to interacting with the CodeFinder library.
@@ -37,10 +37,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             Console.WriteLine($"Finding matches for \"{textToFind}\" with function signature \"{functionSignature}\" near line {lineNumberHint}...");
 
             var query = new MatchQuery(textToFind, lineNumberHint, functionSignature, "0", typeHint);
-            var results = Finder.FindMatchesWithFunction(query);
+            List<MatchResult> results = Finder.FindMatchesWithFunction(query);
 
             Console.WriteLine($"Found {results.Count} match(es).");
-            foreach (var result in results)
+            foreach (MatchResult result in results)
             {
                 Console.WriteLine($"Line: {result.LineNumber}, ScopeMatchDiff: {result.ScopeMatchDiff}");
             }

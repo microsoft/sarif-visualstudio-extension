@@ -47,14 +47,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeFinder\UnitTests\CodeFinderUnitTestBase.cs" />
-    <Compile Include="CodeFinder\UnitTests\CppTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CppTests2.cs" />
-    <Compile Include="CodeFinder\UnitTests\CsharpTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\CTests2.cs" />
-    <Compile Include="CodeFinder\UnitTests\FileSpanCollectionTests.cs" />
-    <Compile Include="CodeFinder\UnitTests\IgnoredRegionsTests.cs" />
+    <Compile Include="CodeFinding\UnitTests\CodeFinderUnitTestBase.cs" />
+    <Compile Include="CodeFinding\UnitTests\CppTests.cs" />
+    <Compile Include="CodeFinding\UnitTests\CppTests2.cs" />
+    <Compile Include="CodeFinding\UnitTests\CsharpTests.cs" />
+    <Compile Include="CodeFinding\UnitTests\CTests.cs" />
+    <Compile Include="CodeFinding\UnitTests\CTests2.cs" />
+    <Compile Include="CodeFinding\UnitTests\FileSpanCollectionTests.cs" />
+    <Compile Include="CodeFinding\UnitTests\IgnoredRegionsTests.cs" />
     <Compile Include="CodeAnalysisResultManagerTests.cs" />
     <Compile Include="ConverterResourceTests.cs" />
     <Compile Include="Converters\CollectionToVisibilityConverterTests.cs" />

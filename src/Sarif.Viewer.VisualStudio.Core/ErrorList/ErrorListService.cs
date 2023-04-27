@@ -26,7 +26,6 @@ using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
 using Microsoft.Sarif.Viewer.CodeFinding;
-using Microsoft.Sarif.Viewer.CodeFinding;
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Models;

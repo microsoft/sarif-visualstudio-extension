@@ -4,7 +4,7 @@ using Microsoft.Sarif.Viewer.CodeFinding;
 
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     public class CTests : CodeFinderUnitTestBase
     {
