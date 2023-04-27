@@ -25,7 +25,8 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
-using Microsoft.Sarif.Viewer.CodeFinder;
+using Microsoft.Sarif.Viewer.CodeFinding;
+using Microsoft.Sarif.Viewer.CodeFinding;
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Models;
@@ -710,7 +711,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             CodeAnalysisResultManager.Instance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
 
             // remap regions nad lineNumber of the sarif error list items
-            Dictionary<string, CodeFinder.CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder.CodeFinder>(); // local file path -> codefinder
+            Dictionary<string, CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
             foreach (SarifErrorListItem item in dataCache.SarifErrors)
             {
                 List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
@@ -728,10 +729,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                         if (!codeFinderCache.ContainsKey(resolvedPath))
                         {
                             string fileContent = SdkUIUtilities.TryGetFileContent(resolvedPath);
-                            codeFinderCache[resolvedPath] = new CodeFinder.CodeFinder(resolvedPath, fileContent);
+                            codeFinderCache[resolvedPath] = new CodeFinder(resolvedPath, fileContent);
                         }
 
-                        CodeFinder.CodeFinder finder = codeFinderCache[resolvedPath];
+                        CodeFinder finder = codeFinderCache[resolvedPath];
                         List<MatchResult> results = finder.FindMatchesWithFunction(query);
                         MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
                         if (bestResult != null)

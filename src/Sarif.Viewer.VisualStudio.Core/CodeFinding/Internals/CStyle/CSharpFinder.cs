@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle
 {
     /// <summary>
     /// Finds code in C# files.

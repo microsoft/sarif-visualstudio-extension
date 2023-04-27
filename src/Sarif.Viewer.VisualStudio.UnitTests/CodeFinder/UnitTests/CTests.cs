@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using Microsoft.Sarif.Viewer.CodeFinding;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
@@ -76,15 +78,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             List<MatchResult> matches = GetMatches("Add2", 5, "", MatchQuery.MatchTypeHint.Function);
             ValidateMatch(matches, 5);
-        }
-
-        // TODO: This currently fails because we don't detect when extra, un-matched curly braces are introduced because of #if/#else blocks.
-        // Tracked by https://dev.azure.com/microsoft/OS/_workitems/edit/23997257
-        //[Fact]
-        public void TestExtraCurlyBraceInIfMacro()
-        {
-            List<MatchResult> matches = GetMatches("return a / b", 40, "Divide");
-            ValidateMatch(matches, 40);
         }
 
         [Fact]

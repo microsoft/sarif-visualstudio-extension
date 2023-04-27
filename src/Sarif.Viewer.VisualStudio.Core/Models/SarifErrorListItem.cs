@@ -17,7 +17,7 @@ using EnvDTE;
 using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Sarif.Viewer.CodeFinder;
+using Microsoft.Sarif.Viewer.CodeFinding;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Sarif;
@@ -118,9 +118,9 @@ namespace Microsoft.Sarif.Viewer
         ///  Gets the queries that can be used to do codefinding for this error list item.
         /// </summary>
         /// <returns>A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.</returns>
-        public List<(Uri filePath, CodeFinder.MatchQuery query)?> GetMatchQueries()
+        public List<(Uri filePath, MatchQuery query)?> GetMatchQueries()
         {
-            List<(Uri filePath, CodeFinder.MatchQuery query)?> queries = new List<(Uri filePath, MatchQuery query)?>();
+            List<(Uri filePath, MatchQuery query)?> queries = new List<(Uri filePath, MatchQuery query)?>();
 
             // If the physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
             if (this.SarifResult.Locations?[0].PhysicalLocation != null

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle
 {
     /// <summary>
     /// Finds code in C and C++ files.

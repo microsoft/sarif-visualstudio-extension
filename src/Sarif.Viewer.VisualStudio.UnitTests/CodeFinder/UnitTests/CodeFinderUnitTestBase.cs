@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using Microsoft.Sarif.Viewer.CodeFinding;
+
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 {
     /// <summary>
@@ -59,7 +61,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             Assert.AreEqual(1, actualResults.Count, $"Expected 1 match, but found {actualResults.Count} match(es).");
             if (actualResults.Count > 0)
             {
-                var match = actualResults[0];
+                MatchResult match = actualResults[0];
                 ValidateMatch(match, expectedLineNumber, expectedDistanceFromLineHint, expectedScopeChecked, expectedScopeMatchDiff);
             }
         }

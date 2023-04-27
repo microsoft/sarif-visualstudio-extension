@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder
+namespace Microsoft.Sarif.Viewer.CodeFinding
 {
     /// <summary>
     /// A match result. This represents an found instance of the text from a match query.

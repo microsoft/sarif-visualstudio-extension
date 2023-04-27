@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
 {
     /// <summary>
     /// This static class contains extension methods for the "string" class.

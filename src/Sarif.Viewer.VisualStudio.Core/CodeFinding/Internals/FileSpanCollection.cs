@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
 {
     /// <summary>
     /// This is an immutable collection of FileSpan objects, optimized for retrieving the next

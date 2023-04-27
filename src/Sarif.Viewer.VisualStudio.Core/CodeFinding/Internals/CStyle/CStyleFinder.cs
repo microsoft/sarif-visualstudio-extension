@@ -10,7 +10,7 @@ using System.Text;
 // Make this visible to the unit test project.
 [assembly: InternalsVisibleTo("Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder")]
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle
 {
     /// <summary>
     /// Implements functionality common to finding code in files of C-style languages (e.g. C, C++, C#).

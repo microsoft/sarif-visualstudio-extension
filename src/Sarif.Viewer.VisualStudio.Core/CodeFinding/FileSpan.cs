@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder
+namespace Microsoft.Sarif.Viewer.CodeFinding
 {
     /// <summary>
     /// Represents a section of a file, defined as [Start, End] character indices.

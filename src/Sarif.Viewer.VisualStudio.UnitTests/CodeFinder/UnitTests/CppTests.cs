@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using Microsoft.Sarif.Viewer.CodeFinder;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
@@ -376,16 +378,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             List<MatchResult> matches = GetMatches("return new Dispatcher();", 225, "DispatcherFactory::CreateDispatcher");
             ValidateMatch(matches, 225);
-        }
-
-        // TODO: Currently fails because we're not sure how to tell when a function signature has a single
-        // template type embedded vs. a name that includes underscores.
-        // Tracked by https://dev.azure.com/microsoft/OS/_workitems/edit/24051839
-        //[Fact]
-        public void TestMatchInTemplateFunction1()
-        {
-            List<MatchResult> matches = GetMatches("if (items[i] == toFind)", 245, "TemplateTest::Test1::Find_int_");
-            ValidateMatch(matches, 245);
         }
 
         [Fact]

@@ -1,4 +1,7 @@
-﻿using Xunit;
+﻿using Microsoft.Sarif.Viewer.CodeFinder;
+using Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle;
+
+using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 {
@@ -20,8 +23,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             // Verify that we can identify the containing scope for the code within a member function.
             var finder = new CppFinder(code1);
-            var span = finder.GetScopeSpanAtLine(3);
-            var identifiers = finder.GetScopeIdentifiers(span.Start, out var isFunction);
+            FileSpan span = finder.GetScopeSpanAtLine(3);
+            System.Collections.Generic.List<string> identifiers = finder.GetScopeIdentifiers(span.Start, out bool isFunction);
             Assert.AreEqual(2, identifiers.Count);
             Assert.AreEqual("Foo", identifiers[0]);
             Assert.AreEqual("MyClass", identifiers[1]);
@@ -35,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // function is prefixed with the class.
             var finder = new CppFinder(code1);
             var query = new MatchQuery("sum += i", 6, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(6, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -49,7 +52,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // function is prefixed with the class.
             var finder = new CppFinder(code1);
             var query = new MatchQuery("sum += i", 6, "", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(6, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -72,8 +75,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             // Verify that we can identify the containing scope for the code within a member function.
             var finder = new CppFinder(code2);
-            var span = finder.GetScopeSpanAtLine(3);
-            var identifiers = finder.GetScopeIdentifiers(span.Start, out var isFunction);
+            FileSpan span = finder.GetScopeSpanAtLine(3);
+            System.Collections.Generic.List<string> identifiers = finder.GetScopeIdentifiers(span.Start, out bool isFunction);
             Assert.AreEqual(2, identifiers.Count);
             Assert.AreEqual("Foo", identifiers[0]);
             Assert.AreEqual("Class1", identifiers[1]);
@@ -85,8 +88,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             // Verify that we can identify the containing scope for the code within a member function.
             var finder = new CppFinder(code2);
-            var span = finder.GetScopeSpanAtLine(8);
-            var identifiers = finder.GetScopeIdentifiers(span.Start, out var isFunction);
+            FileSpan span = finder.GetScopeSpanAtLine(8);
+            System.Collections.Generic.List<string> identifiers = finder.GetScopeIdentifiers(span.Start, out bool isFunction);
             Assert.AreEqual(2, identifiers.Count);
             Assert.AreEqual("Foo", identifiers[0]);
             Assert.AreEqual("Class2", identifiers[1]);
@@ -98,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             // Verify that we return no scope at line 5.
             var finder = new CppFinder(code2);
-            var span = finder.GetScopeSpanAtLine(5);
+            FileSpan span = finder.GetScopeSpanAtLine(5);
             Assert.AreEqual(null, span);
         }
 
@@ -109,7 +112,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // we find the right instance in the right class scope.
             var finder = new CppFinder(code2);
             var query = new MatchQuery("return a + a", 3, "Class1::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -123,7 +126,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // we find the right instance in the right class scope.
             var finder = new CppFinder(code2);
             var query = new MatchQuery("return a + a", 8, "Class2::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(8, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -136,7 +139,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // When no scope is provided, we should get 2 results.
             var finder = new CppFinder(code2);
             var query = new MatchQuery("return a + a", 8, "", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(8, results[1].LineNumber);
@@ -152,7 +155,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // when a partial, ambiguous scope is provided, we should get 2 results.
             var finder = new CppFinder(code2);
             var query = new MatchQuery("return a + a", 8, "Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(8, results[1].LineNumber);
@@ -185,7 +188,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // implemented within the class declaration.
             var finder = new CppFinder(code3);
             var query = new MatchQuery("return a + a", 12, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -198,7 +201,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify we can find a line of code within a class' constructor.
             var finder = new CppFinder(code3);
             var query = new MatchQuery("this.id = id", 7, "MyClass::MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(7, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -211,7 +214,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify we can find a line of code within a class' constructor.
             var finder = new CppFinder(code3);
             var query = new MatchQuery("this.id = id", 7, "MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(7, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -224,7 +227,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify we can find a line of code within a class' constructor.
             var finder = new CppFinder(code3);
             var query = new MatchQuery("this.id = id", 7, "", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(7, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -253,7 +256,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify that we can find code in a member function of a class that derives from some other class.
             var finder = new CppFinder(code4);
             var query = new MatchQuery("return a + a", 12, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -266,7 +269,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify that we can find code in a constructor that calls the base class in its initialization list.
             var finder = new CppFinder(code4);
             var query = new MatchQuery("this.id = id", 7, "MyClass::MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(7, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -279,7 +282,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify that we can find code within the class itself (not within a member function).
             var finder = new CppFinder(code4);
             var query = new MatchQuery("int id = GetDefaultId()", 3, "MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -292,7 +295,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify that we can find code in the constructor initialization list.
             var finder = new CppFinder(code4);
             var query = new MatchQuery("base()", 5, "MyClass::MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(5, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -305,7 +308,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify that we can find code in the constructor initialization list.
             var finder = new CppFinder(code4);
             var query = new MatchQuery("base()", 5, "MyClass::MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(5, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -318,7 +321,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Verify that we can find the definition of a member function (rather than code within it).
             var finder = new CppFinder(code4);
             var query = new MatchQuery("Foo", 10, "MyClass", "0", MatchQuery.MatchTypeHint.Function);
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(10, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -351,7 +354,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code5);
             var query = new MatchQuery("myThing->DoStuff()", 8, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(8, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -363,7 +366,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code5);
             var query = new MatchQuery("LogException", 12, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -375,7 +378,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code5);
             var query = new MatchQuery("LogException(e, \"Oops!\")", 12, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(12, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -387,7 +390,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code5);
             var query = new MatchQuery("Cleanup()", 17, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(17, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -399,7 +402,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code5);
             var query = new MatchQuery("Cleanup()", 17, "MyClass::Foo$fin$0", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(17, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -411,7 +414,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code5);
             var query = new MatchQuery("Cleanup()", 17, "", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(17, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -436,7 +439,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code6);
             var query = new MatchQuery("myThing->DoStuff()", 5, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(5, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -448,7 +451,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code6);
             var query = new MatchQuery("LogException", 9, "MyClass::Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(9, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -460,7 +463,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code6);
             var query = new MatchQuery("LogException", 9, "MyClass::Foo$filt$0", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(9, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -472,7 +475,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code6);
             var query = new MatchQuery("LogException", 9, "", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(9, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -484,7 +487,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         {
             var finder = new CppFinder(code6);
             var query = new MatchQuery("LogException", 9, "Foo", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(9, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -497,7 +500,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Partial, but incorrect scope should return no matches.
             var finder = new CppFinder(code6);
             var query = new MatchQuery("LogException", 9, "MyClass", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(0, results.Count);
         }
 
@@ -525,7 +528,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Test when the class declaration is somewhat complex.
             var finder = new CppFinder(code7);
             var query = new MatchQuery("\"SettingsContentDialogLaunched\"", 11, "SettingsAppActivityTelemetry::TraceSettingsContentDialogLaunched", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(11, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -578,7 +581,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Test when a namespace is preceded by a macro to ensure we don't mistakenly interpret the namespace as potentially being a function.
             var finder = new CppFinder(code8);
             var query = new MatchQuery("\"SettingsContentDialogLaunched\"", 31, "SystemSettings::Telemetry::SettingsAppActivityTelemetry::TraceSettingsContentDialogLaunched", "0");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(31, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -632,7 +635,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Make sure we find the function definition when the function name is provided and not included in the calling signature.
             var finder = new CppFinder(code9);
             var query = new MatchQuery("SendRequest", 3, "Microsoft::Bluetooth::BthCoreCx::HciTransport", "0", MatchQuery.MatchTypeHint.Function);
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -645,7 +648,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Make sure we find the function definition when the function name is provided and is also included in the calling signature.
             var finder = new CppFinder(code9);
             var query = new MatchQuery("SendRequest", 3, "Microsoft::Bluetooth::BthCoreCx::HciTransport::SendRequest", "0", MatchQuery.MatchTypeHint.Function);
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -658,7 +661,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // Make sure we find the function definition when the text to search and the calling signature are the same.
             var finder = new CppFinder(code9);
             var query = new MatchQuery("Microsoft::Bluetooth::BthCoreCx::HciTransport::SendRequest", 3, "Microsoft::Bluetooth::BthCoreCx::HciTransport::SendRequest", "0", MatchQuery.MatchTypeHint.Function);
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
             Assert.AreEqual(true, results[0].ScopeChecked);
@@ -698,10 +701,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // V2 returns the other match (on line 14) b/c the first match has a ScopeMatchDiff of -1 (the second match has 0)
             // unless whole token matching is enabled.
 
-            var results = finder.FindMatches(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatches(query);
             var bestMatchV1 = MatchResult.GetBestMatch(results);
 
-            var results2 = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results2 = finder.FindMatchesWithFunction(query);
             var bestMatchV2 = MatchResult.GetBestMatch(results2);
 
             Assert.AreEqual(11, bestMatchV2.LineNumber);
@@ -726,7 +729,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 
             // Verify we only match on line 3 when whole token match is enabled (by default).
             var query = new MatchQuery("DoSomething");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(3, results[0].LineNumber);
 
@@ -787,7 +790,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 
             // Verify we only match on line 3 when whole token match is enabled (by default).
             var query = new MatchQuery("RemoveFluidComponent");
-            var results = finder.FindMatchesWithFunction(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatchesWithFunction(query);
             Assert.AreEqual(2, results.Count);
             Assert.AreEqual(1, results[0].LineNumber);
             Assert.AreEqual(4, results[1].LineNumber);
@@ -803,7 +806,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 
             // Verify we only match on line 1 when whole token match is enabled (by default).
             var query = new MatchQuery("namespace", lineNumberHint: 1, "", "", MatchQuery.MatchTypeHint.Class);
-            var results = finder.FindMatches(query);
+            System.Collections.Generic.List<MatchResult> results = finder.FindMatches(query);
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(1, results[0].LineNumber);
         }

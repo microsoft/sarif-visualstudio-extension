@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using Microsoft.Sarif.Viewer.CodeFinder.Internal;
-using Microsoft.Sarif.Viewer.CodeFinder.Internal.CStyle;
+using Microsoft.Sarif.Viewer.CodeFinding.Internal;
+using Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder
+namespace Microsoft.Sarif.Viewer.CodeFinding
 {
     /// <summary>
     /// This class finds text within a code file.

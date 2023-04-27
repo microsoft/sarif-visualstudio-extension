@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using Microsoft.Sarif.Viewer.CodeFinding;
+using Microsoft.Sarif.Viewer.CodeFinding.Internal;
+
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
@@ -221,7 +224,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 
             var fileCollection = new FileSpanCollection(spans, 10);
 
-            var span = fileCollection.GetContainingSpan(0);
+            FileSpan span = fileCollection.GetContainingSpan(0);
             Assert.AreEqual(null, span);
 
             span = fileCollection.GetContainingSpan(4);
@@ -286,7 +289,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 
             var fileCollection = new FileSpanCollection(spans, 10);
 
-            var nextSpan = fileCollection.GetNextSpan(0);
+            FileSpan nextSpan = fileCollection.GetNextSpan(0);
             Assert.IsTrue(nextSpan.Equals(spans[0]));
 
             nextSpan = fileCollection.GetNextSpan(1);
@@ -337,8 +340,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         private void VerifyGetNextSpan(List<FileSpan> spans)
         {
             var fileCollection = new FileSpanCollection(spans);
-            var rangeStart = fileCollection.MinPosition;
-            var rangeEnd = fileCollection.MaxPosition;
+            int rangeStart = fileCollection.MinPosition;
+            int rangeEnd = fileCollection.MaxPosition;
 
             int expectedSpanCount = spans.Count;
             Assert.AreEqual(expectedSpanCount, fileCollection.Count, $"Expected the collection to contain {expectedSpanCount} spans, but it actually contains {fileCollection.Count}.");
@@ -350,7 +353,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             for (int i = rangeStart - 1; i <= rangeEnd + 1; i++)
             {
                 stopWatch.Restart();
-                var nextSpan = fileCollection.GetNextSpan(i);
+                FileSpan nextSpan = fileCollection.GetNextSpan(i);
                 stopWatch.Stop();
 
                 // Verify GetNextSpan has good performance, 2ms per span in the collection, capping at 1s.
@@ -434,7 +437,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 
             var fileCollection = new FileSpanCollection(spans, 10);
 
-            var prevSpan = fileCollection.GetPreviousSpan(0);
+            FileSpan prevSpan = fileCollection.GetPreviousSpan(0);
             Assert.AreEqual(null, prevSpan);
 
             prevSpan = fileCollection.GetPreviousSpan(1);
@@ -524,8 +527,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
         private void VerifyGetPrevSpan(List<FileSpan> spans)
         {
             var fileCollection = new FileSpanCollection(spans);
-            var rangeStart = fileCollection.MinPosition;
-            var rangeEnd = fileCollection.MaxPosition;
+            int rangeStart = fileCollection.MinPosition;
+            int rangeEnd = fileCollection.MaxPosition;
 
             int expectedSpanCount = spans.Count;
             Assert.AreEqual(expectedSpanCount, fileCollection.Count, $"Expected the collection to contain {expectedSpanCount} spans, but it actually contains {fileCollection.Count}.");
@@ -537,7 +540,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             for (int i = rangeEnd + 1; i >= rangeStart - 1; i--)
             {
                 stopWatch.Restart();
-                var prevSpan = fileCollection.GetPreviousSpan(i);
+                FileSpan prevSpan = fileCollection.GetPreviousSpan(i);
                 stopWatch.Stop();
 
                 // Verify GetPreviousSpan has good performance, 1ms per span in the collection, capping at 1s.

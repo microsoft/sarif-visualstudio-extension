@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
 {
     /// <summary>
     /// Provides extension methods for <see cref="List{T}"/>.

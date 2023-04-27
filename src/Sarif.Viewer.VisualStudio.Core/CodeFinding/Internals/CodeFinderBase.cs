@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.Sarif.Viewer.CodeFinder.Internal
+namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
 {
     /// <summary>
     /// Abstract class that all code finders should inherit from.

@@ -1,4 +1,7 @@
-﻿using Xunit;
+﻿using Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle;
+using Microsoft.Sarif.Viewer.CodeFinding;
+
+using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
 {
@@ -71,7 +74,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             var finder = new CppFinder(str);
 
             // Comment in the middle of the substring.
-            var substr = finder.Substring(0);
+            string substr = finder.Substring(0);
             Assert.AreEqual("foo(var1, var2, );", substr);
 
             // Substring ends in middle of comment.
@@ -122,7 +125,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             var finder = new CppFinder(str);
 
             // Substring after comment.
-            var substr = finder.Substring(62, 16);
+            string substr = finder.Substring(62, 16);
             Assert.AreEqual("int product = 0;", substr);
 
             // Comment in the middle of the substring.
@@ -193,7 +196,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinder
             // The curly brace character (L'{') in the code above will appear to be a legitimate curly brace and this
             // will confuse the scope detection logic.
 
-            var matches = finder.FindMatchesWithFunction(new MatchQuery("return a - b", 22));
+            System.Collections.Generic.List<MatchResult> matches = finder.FindMatchesWithFunction(new MatchQuery("return a - b", 22));
             Assert.AreEqual(1, matches.Count);
             Assert.AreEqual(22, matches[0].LineNumber);
             Assert.AreEqual(true, matches[0].ScopeChecked);
