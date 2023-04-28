@@ -116,6 +116,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     },
                 },
             };
+
+            TestUtilities.SetCodeAnalysisResultManager();
         }
 
         [Fact]

@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer
     /// implementation to the user interface activities.
     /// </summary>
     [Guid("4494F79A-6E9F-45EA-895B-7AE959B94D6A")]
-    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents
+    internal sealed class CodeAnalysisResultManager : IVsSolutionEvents, ICodeAnalysisResultManager
     {
         internal const int E_FAIL = unchecked((int)0x80004005);
         internal const uint VSCOOKIE_NIL = 0;
@@ -75,12 +75,15 @@ namespace Microsoft.Sarif.Viewer
 
         private static readonly HttpClient s_httpClient = new HttpClient();
 
+        private static string solutionPathOverride = null;
+
         // This ctor is internal rather than private for unit test purposes.
         internal CodeAnalysisResultManager(
             IFileSystem fileSystem,
             PromptForResolvedPathDelegate promptForResolvedPathDelegate = null,
             PromptForEmbeddedFileDelegate promptForEmbeddedFileDelegate = null,
-            PromptForResolvedPathWithLogPathDelegate promptForResolvedPathWithLogPathDelegate = null)
+            PromptForResolvedPathWithLogPathDelegate promptForResolvedPathWithLogPathDelegate = null,
+            string solutionPath = null)
         {
             this._fileSystem = fileSystem;
             this._promptForResolvedPathDelegate = promptForResolvedPathDelegate ?? this.PromptForResolvedPath;
@@ -98,6 +101,7 @@ namespace Microsoft.Sarif.Viewer
             this.temporaryFilePath = Path.Combine(this.temporaryFilePath, TemporaryFileDirectoryName);
 
             this.userDialogPreference = new ConcurrentDictionary<string, ResolveEmbeddedFileDialogResult>();
+            solutionPathOverride = solutionPath;
         }
 
         public string TempDirectoryPath => this.temporaryFilePath;
@@ -106,17 +110,24 @@ namespace Microsoft.Sarif.Viewer
 
         public IDictionary<int, RunDataCache> RunIndexToRunDataCache { get; } = new Dictionary<int, RunDataCache>();
 
-        /// <summary>
-        /// Returns the last index given out by <see cref="GetNextRunIndex"/>.
-        /// </summary>
-        /// <remarks>
-        /// The internal reference is for test code.
-        /// </remarks>
-        internal int CurrentRunIndex;
+        private int _currentRunIndex;
+
+        public int CurrentRunIndex
+        {
+            get
+            {
+                return _currentRunIndex;
+            }
+
+            set
+            {
+                _currentRunIndex = value;
+            }
+        }
 
         public int GetNextRunIndex()
         {
-            return Interlocked.Increment(ref this.CurrentRunIndex);
+            return Interlocked.Increment(ref this._currentRunIndex);
         }
 
         public RunDataCache CurrentRunDataCache
@@ -316,9 +327,7 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            string solutionPath = GetSolutionPath(
-                (DTE2)Package.GetGlobalService(typeof(DTE)),
-                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
+            string solutionPath = GetSolutionPath();
 
             // File contents embedded in SARIF.
             bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
@@ -382,10 +391,6 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            string solutionPath = GetSolutionPath(
-                (DTE2)Package.GetGlobalService(typeof(DTE)),
-                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
-
             // File contents embedded in SARIF.
             bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
             string embeddedTempFilePath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
@@ -402,6 +407,8 @@ namespace Microsoft.Sarif.Viewer
 
             if (string.IsNullOrEmpty(resolvedPath))
             {
+                string solutionPath = GetSolutionPath();
+
                 // resolve path, existing file in local disk
                 resolvedPath = this.GetRebaselinedFileName(
                     uriBaseId: uriBaseId,
@@ -689,14 +696,7 @@ namespace Microsoft.Sarif.Viewer
             return null;
         }
 
-        /// <summary>
-        /// Remaps the file paths of the sarif errors using the original path and remppaed file path lists.
-        /// </summary>
-        /// <param name="sarifErrors">The sarif errors that we need to remap.</param>
-        /// <param name="originalPaths">The list of original paths.</param>
-        /// <param name="remappedPaths">The list of remapped paths.</param>
-        /// <exception cref="ArgumentException">Throws when the length of <paramref name="originalPaths"/> does not match <paramref name="remappedPaths"/>.</exception>
-        internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, IEnumerable<string> originalPaths, IEnumerable<string> remappedPaths)
+        public void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, IEnumerable<string> originalPaths, IEnumerable<string> remappedPaths)
         {
             if (originalPaths.Count() != remappedPaths.Count())
             {
@@ -723,7 +723,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        internal void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
+        public void RemapFilePaths(IList<SarifErrorListItem> sarifErrors, string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             foreach (SarifErrorListItem sarifError in sarifErrors)
@@ -1373,11 +1373,39 @@ namespace Microsoft.Sarif.Viewer
         /// <summary>
         /// Gets the path of the solution.
         /// </summary>
+        /// <returns>The file path of the root of the solution of open folder.</returns>
+        internal static string GetSolutionPath()
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
+            if (solutionPathOverride != null)
+            {
+                return solutionPathOverride;
+            }
+
+            return GetSolutionPath(
+                (DTE2)Package.GetGlobalService(typeof(DTE)),
+                ((IComponentModel)Package.GetGlobalService(typeof(SComponentModel))).GetService<IVsFolderWorkspaceService>());
+        }
+
+        /// <summary>
+        /// Gets the path of the solution.
+        /// </summary>
         /// <param name="dte">The package service.</param>
         /// <param name="workspaceService">The worsepace service.</param>
         /// <returns>The file path of the root of the solution of open folder.</returns>
         internal static string GetSolutionPath(DTE2 dte, IVsFolderWorkspaceService workspaceService)
         {
+            if (solutionPathOverride != null)
+            {
+                return solutionPathOverride;
+            }
+
             if (!SarifViewerPackage.IsUnitTesting)
             {
 #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally

@@ -24,6 +24,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "No point in naming test methods \"Async\".")]
     public class SuppressionTests
     {
+        public SuppressionTests()
+        {
+            TestUtilities.SetCodeAnalysisResultManager();
+        }
+
         [Fact]
         public async Task CodeAnalysisResultManager_AddSuppressionToSarifLog_Tests()
         {

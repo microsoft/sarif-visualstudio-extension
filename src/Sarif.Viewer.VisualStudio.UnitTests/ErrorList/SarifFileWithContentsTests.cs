@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 
 using Moq;
@@ -199,13 +200,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         private RunDataCache CurrentRunDataCache =>
-            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[this.CurrentRunIndex];
+            resultManager.RunIndexToRunDataCache[this.CurrentRunIndex];
 
         private int CurrentRunIndex =>
 
             // CodeAnalysisResultManager.Instance.CurrentRunIndex is currently an internal (instead of private)
             // member of CodeAnalysisResultManager only for this test.
-            CodeAnalysisResultManager.Instance.CurrentRunIndex;
+            resultManager.CurrentRunIndex;
 
         [Fact]
         public async Task SarifFileWithContents_SavesContents()
@@ -222,6 +223,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
+            IDictionary<int, RunDataCache> x = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
             ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
             string contents = fileDetail.GetContents();
 
@@ -271,8 +273,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             mockFileSystem
                 .Setup(fs => fs.FileSetAttributes(It.IsAny<string>(), FileAttributes.ReadOnly))
                 .Verifiable();
-            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object);
-
+            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object, solutionPath: "");
+            ErrorListService.CodeManagerInstance = CodeAnalysisResultManager.Instance;
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
             string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key8);

@@ -216,7 +216,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var mockColumnFilter = new Mock<IColumnFilterer>();
             mockColumnFilter.Setup(x => x.GetFilteredValues(StandardTableKeyNames.ErrorSeverity)).Returns(new[] { "warning", "note" });
 
-            ErrorListService.Instance.ColumnFilterer = mockColumnFilter.Object;
+            ErrorListService.ErrorListInstance.ColumnFilterer = mockColumnFilter.Object;
 
             ErrorListService.ProcessSarifLogAsync(testLog, "logId", false, false).ConfigureAwait(false);
 

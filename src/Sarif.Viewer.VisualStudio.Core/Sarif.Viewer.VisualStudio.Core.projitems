@@ -92,6 +92,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Guids.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HashHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ICodeAnalysisResultManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IToolWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogProcessedEventArgs.cs" />

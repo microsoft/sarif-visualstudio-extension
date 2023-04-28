@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
+
+using Moq;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {
@@ -51,6 +54,21 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 notification: notification,
                 logFilePath: "log.sarif",
                 projectNameCache: new ProjectNameCache(solution: null));
+        }
+
+        /// <summary>
+        /// Sets the <see cref="ICodeAnalysisResultManager"/> to the mocked version allowing for testing with elements that interact with the VS API.
+        /// </summary>
+        internal static ICodeAnalysisResultManager SetCodeAnalysisResultManager()
+        {
+            Mock<ICodeAnalysisResultManager> mock = new Mock<ICodeAnalysisResultManager>();
+            mock.Setup(x => x.RunIndexToRunDataCache)
+                .Returns(new Dictionary<int, RunDataCache>());
+            mock.Setup(x => x.CurrentRunDataCache)
+                .Returns(new RunDataCache());
+            ICodeAnalysisResultManager concreteManager = mock.Object;
+            ErrorListService.CodeManagerInstance = concreteManager;
+            return concreteManager;
         }
     }
 }
