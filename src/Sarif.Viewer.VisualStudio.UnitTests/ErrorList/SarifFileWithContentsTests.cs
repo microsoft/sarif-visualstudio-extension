@@ -222,9 +222,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         public async Task SarifFileWithContents_DecodesBinaryContents()
         {
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
-
-            IDictionary<int, RunDataCache> x = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache;
-            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
+            ErrorListService.skipRemapping = true;
+            IDictionary<int, RunDataCache> x = resultManager.RunIndexToRunDataCache;
+            ArtifactDetailsModel fileDetail = resultManager.RunIndexToRunDataCache[0].FileDetails[Key2];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);
@@ -246,13 +246,15 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             mockFileSystem
                 .Setup(fs => fs.FileSetAttributes(It.IsAny<string>(), FileAttributes.ReadOnly))
                 .Verifiable();
-            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object);
+            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object, solutionPath: "");
+            ErrorListService.CodeManagerInstance = CodeAnalysisResultManager.Instance;
+            ErrorListService.skipRemapping = true;
 
             // act
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key2);
-            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
+            string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(CodeAnalysisResultManager.Instance.CurrentRunIndex, Key2);
+            ArtifactDetailsModel fileDetail = CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails[Key2];
             string fileText = mockContent;
 
             fileDetail.Sha256Hash.Should().BeEquivalentTo(ExpectedHashValue2);
@@ -275,10 +277,11 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 .Verifiable();
             CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object, solutionPath: "");
             ErrorListService.CodeManagerInstance = CodeAnalysisResultManager.Instance;
+            ErrorListService.skipRemapping = true;
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(this.CurrentRunIndex, Key8);
-            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key8];
+            string rebaselinedFile = CodeAnalysisResultManager.Instance.CreateFileFromContents(CodeAnalysisResultManager.Instance.CurrentRunIndex, Key8);
+            ArtifactDetailsModel fileDetail = CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails[Key8];
             string fileText = mockContent;
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);

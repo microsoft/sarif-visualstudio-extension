@@ -62,10 +62,23 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         internal static ICodeAnalysisResultManager SetCodeAnalysisResultManager()
         {
             Mock<ICodeAnalysisResultManager> mock = new Mock<ICodeAnalysisResultManager>();
+            var dataCache = new Dictionary<int, RunDataCache>();
+
             mock.Setup(x => x.RunIndexToRunDataCache)
-                .Returns(new Dictionary<int, RunDataCache>());
+                .Returns(dataCache);
             mock.Setup(x => x.CurrentRunDataCache)
-                .Returns(new RunDataCache());
+                .Returns(() =>
+                {
+                    return dataCache[dataCache.Count - 1];
+                });
+            int currentIndex = 0;
+            mock.Setup(x => x.CurrentRunIndex).Returns(currentIndex);
+            mock.Setup(x => x.GetNextRunIndex()).Returns(
+                () =>
+                {
+                    currentIndex++;
+                    return currentIndex;
+                });
             ICodeAnalysisResultManager concreteManager = mock.Object;
             ErrorListService.CodeManagerInstance = concreteManager;
             return concreteManager;

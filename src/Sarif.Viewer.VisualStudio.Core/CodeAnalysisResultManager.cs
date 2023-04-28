@@ -445,6 +445,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>File path of the new file that was created.</returns>
         internal string CreateFileFromContents(int runId, string fileName)
         {
+            RunDataCache x = this.RunIndexToRunDataCache[runId];
             return this.CreateFileFromContents(this.RunIndexToRunDataCache[runId].FileDetails, fileName);
         }
 

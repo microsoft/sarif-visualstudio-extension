@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
 
 using Moq;
@@ -24,9 +25,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "No point in naming test methods \"Async\".")]
     public class SuppressionTests
     {
+        private readonly ICodeAnalysisResultManager codeAnalysisResultManager;
         public SuppressionTests()
         {
-            TestUtilities.SetCodeAnalysisResultManager();
+            codeAnalysisResultManager = TestUtilities.SetCodeAnalysisResultManager();
         }
 
         [Fact]
@@ -141,7 +143,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             mockFileSystem
                 .Setup(x => x.FileCreate(sarifLogFilePath))
                 .Returns(() => new StringBuilderFileStreamMock(transformedContents));
-            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object);
+            CodeAnalysisResultManager.Instance = new CodeAnalysisResultManager(mockFileSystem.Object, solutionPath: "");
+            ErrorListService.CodeManagerInstance = CodeAnalysisResultManager.Instance;
+            ErrorListService.skipRemapping = true;
 
             SarifLog sarifLog = CreateTestSarifLog();
             await TestUtilities.InitializeTestEnvironmentAsync(sarifLog, sarifLogFilePath);
