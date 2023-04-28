@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     public class IgnoredRegionsTests : CodeFinderUnitTestBase
     {
-        public IgnoredRegionsTests() : base(@"TestFiles\CSharp2.cs")
+        public IgnoredRegionsTests() : base(@"CodeFinding\TestFiles\CSharp2.cs")
         {
         }
 
@@ -131,27 +131,27 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             // Comment in the middle of the substring.
             substr = finder.Substring(62);
-            @"int product = 0;
-                for (int i = 0; i < var2; i++)
-                {
-                    product += var1;
-                }
+@"int product = 0;
+    for (int i = 0; i < var2; i++)
+    {
+        product += var1;
+    }
 
-                    return product;
-            }".Should().Be(substr);
+        return product;
+}".Should().Be(substr);
 
             // 2 comments in the middle of the substring.
             substr = finder.Substring(0);
-            @"int Multiply(var1, var2)
-            {
-                    int product = 0;
-                for (int i = 0; i < var2; i++)
-                {
-                    product += var1;
-                }
+@"int Multiply(var1, var2)
+{
+        int product = 0;
+    for (int i = 0; i < var2; i++)
+    {
+        product += var1;
+    }
 
-                    return product;
-            }".Should().Be(substr);
+        return product;
+}".Should().Be(substr);
 
         }
 

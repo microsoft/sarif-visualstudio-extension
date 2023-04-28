@@ -8,7 +8,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     public class CTests : CodeFinderUnitTestBase
     {
-        public CTests() : base(@"TestFiles\C1.c")
+        public CTests() : base(@"CodeFinding\TestFiles\C1.c")
         {
         }
 

@@ -6,7 +6,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {
     public class CSharpTests : CodeFinderUnitTestBase
     {
-        public CSharpTests() : base(@"TestFiles\CSharp1.cs")
+        public CSharpTests() : base(@"CodeFinding\TestFiles\CSharp1.cs")
         {
 
         }

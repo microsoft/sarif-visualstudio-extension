@@ -47,6 +47,18 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CodeFinding\TestFiles\C1.c">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CodeFinding\TestFiles\Cpp1.cpp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CodeFinding\TestFiles\Csharp2.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CodeFinding\TestFiles\Csharp1.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="CodeFinding\UnitTests\CodeFinderUnitTestBase.cs" />
     <Compile Include="CodeFinding\UnitTests\CppTests.cs" />
     <Compile Include="CodeFinding\UnitTests\CppTests2.cs" />

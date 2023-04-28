@@ -99,21 +99,21 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <summary>
         /// Tests basic file collection creation.
         /// </summary>
-        [Fact]
-        [DataRow(10, 1, 1000, 1)]
-        [DataRow(100, 1, 1000, 1)]
-        [DataRow(1000, 1, 10000, 1)]
-        [DataRow(10000, 1, 100000, 1)]
-        [DataRow(100000, 1, 1000000, 1)]
-        [DataRow(200000, 1, 1000000, 1)]
-        [DataRow(500000, 1, 1100000, 1)]
-        [DataRow(10, 500, 1500, 2)]
-        [DataRow(100, 20, 6500, 2)]
-        [DataRow(1200, 5400, 22000, 2)]
-        [DataRow(9999, 1, 100000, 2)]
-        [DataRow(100000, 1, 1000000, 2)]
-        [DataRow(200000, 1, 1000000, 2)]
-        [DataRow(500000, 1, 1100000, 2)]
+        [Theory]
+        [InlineData(10, 1, 1000, 1)]
+        [InlineData(100, 1, 1000, 1)]
+        [InlineData(1000, 1, 10000, 1)]
+        [InlineData(10000, 1, 100000, 1)]
+        [InlineData(100000, 1, 1000000, 1)]
+        [InlineData(200000, 1, 1000000, 1)]
+        [InlineData(500000, 1, 1100000, 1)]
+        [InlineData(10, 500, 1500, 2)]
+        [InlineData(100, 20, 6500, 2)]
+        [InlineData(1200, 5400, 22000, 2)]
+        [InlineData(9999, 1, 100000, 2)]
+        [InlineData(100000, 1, 1000000, 2)]
+        [InlineData(200000, 1, 1000000, 2)]
+        [InlineData(500000, 1, 1100000, 2)]
         public void TestFileCollectionCreation(int count, int rangeStart, int rangeEnd, int seed)
         {
             List<FileSpan> spans = null;
@@ -363,7 +363,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                 // If this test fails, it's not a big deal, but it's a good idea to investigate.
                 int expectedTime = Math.Min(spans.Count * 2, 1000);
                 long actualTime = stopWatch.ElapsedMilliseconds;
-                actualTime < expectedTime, $"GetNextSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.".Should().BeTrue();
+                (actualTime < expectedTime).Should().BeTrue($"GetNextSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.");
 
                 if (nextSpan != null)
                 {
@@ -385,14 +385,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <summary>
         /// Tests GetNextSpan with pseudo-randomly generated FileSpan collections.
         /// </summary>
-        [Fact]
-        [DataRow(10, 1, 1000, 1)]
-        [DataRow(100, 1, 1000, 1)]
-        [DataRow(1000, 1, 10000, 1)]
-        [DataRow(10000, 1, 100000, 1)]
-        [DataRow(100000, 1, 1000000, 1)]
-        [DataRow(200000, 1, 1000000, 1)]
-        [DataRow(500000, 1, 1100000, 1)]
+        [Theory]
+        [InlineData(10, 1, 1000, 1)]
+        [InlineData(100, 1, 1000, 1)]
+        [InlineData(1000, 1, 10000, 1)]
+        [InlineData(10000, 1, 100000, 1)]
+        [InlineData(100000, 1, 1000000, 1)]
+        [InlineData(200000, 1, 1000000, 1)]
+        [InlineData(500000, 1, 1100000, 1)]
         public void TestGetNextSpan2(int count, int rangeStart, int rangeEnd, int seed)
         {
             List<FileSpan> spans = GenerateSpans(count, rangeStart, rangeEnd, seed);
@@ -408,13 +408,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <param name="rangeStart"></param>
         /// <param name="rangeEnd"></param>
         /// <param name="seed"></param>
-        [Fact]
-        [DataRow(10, 500, 1000, 1)]
-        [DataRow(100, 500, 1000, 1)]
-        [DataRow(1000, 5000, 10000, 1)]
-        [DataRow(10000, 50000, 100000, 1)]
-        [DataRow(100000, 500000, 1000000, 1)]
-        [DataRow(10000, 900000, 1100000, 1)]
+        [Theory]
+        [InlineData(10, 500, 1000, 1)]
+        [InlineData(100, 500, 1000, 1)]
+        [InlineData(1000, 5000, 10000, 1)]
+        [InlineData(10000, 50000, 100000, 1)]
+        [InlineData(100000, 500000, 1000000, 1)]
+        [InlineData(10000, 900000, 1100000, 1)]
         public void TestGetNextSpan3(int count, int rangeStart, int rangeEnd, int seed)
         {
             List<FileSpan> spans = GenerateSpans(count, rangeStart, rangeEnd, seed);
@@ -548,7 +548,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
                 // Verify GetPreviousSpan has good performance, 1ms per span in the collection, capping at 1s.
                 int expectedTime = Math.Min(spans.Count, 1000);
                 long actualTime = stopWatch.ElapsedMilliseconds;
-                actualTime < expectedTime, $"GetPreviousSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.".Should().BeTrue();
+                (actualTime < expectedTime).Should().BeTrue($"GetPreviousSpan should take less than {expectedTime}ms, but actually took {actualTime}ms.");
 
                 if (prevSpan != null)
                 {
@@ -570,14 +570,14 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <summary>
         /// Tests GetPreviousSpan with pseudo-randomly generated FileSpan collections.
         /// </summary>
-        [Fact]
-        [DataRow(10, 1, 1000, 1)]
-        [DataRow(100, 1, 1000, 1)]
-        [DataRow(1000, 1, 10000, 1)]
-        [DataRow(10000, 1, 100000, 1)]
-        [DataRow(100000, 1, 1000000, 1)]
-        [DataRow(200000, 1, 1000000, 1)]
-        [DataRow(500000, 1, 1100000, 1)]
+        [Theory]
+        [InlineData(10, 1, 1000, 1)]
+        [InlineData(100, 1, 1000, 1)]
+        [InlineData(1000, 1, 10000, 1)]
+        [InlineData(10000, 1, 100000, 1)]
+        [InlineData(100000, 1, 1000000, 1)]
+        [InlineData(200000, 1, 1000000, 1)]
+        [InlineData(500000, 1, 1100000, 1)]
         public void TestGetPrevSpan2(int count, int rangeStart, int rangeEnd, int seed)
         {
             List<FileSpan> spans = GenerateSpans(count, rangeStart, rangeEnd, seed);
@@ -589,13 +589,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// To skew the collection we generate spans for the upper half of the range and then we
         /// insert a single span near the start of the range.
         /// </summary>
-        [Fact]
-        [DataRow(10, 500, 1000, 1)]
-        [DataRow(100, 500, 1000, 1)]
-        [DataRow(1000, 5000, 10000, 1)]
-        [DataRow(10000, 50000, 100000, 1)]
-        [DataRow(100000, 500000, 1100000, 1)]
-        [DataRow(10000, 900000, 1100000, 1)]
+        [Theory]
+        [InlineData(10, 500, 1000, 1)]
+        [InlineData(100, 500, 1000, 1)]
+        [InlineData(1000, 5000, 10000, 1)]
+        [InlineData(10000, 50000, 100000, 1)]
+        [InlineData(100000, 500000, 1100000, 1)]
+        [InlineData(10000, 900000, 1100000, 1)]
         public void TestGetPrevSpan3(int count, int rangeStart, int rangeEnd, int seed)
         {
             List<FileSpan> spans = GenerateSpans(count, rangeStart, rangeEnd, seed);
