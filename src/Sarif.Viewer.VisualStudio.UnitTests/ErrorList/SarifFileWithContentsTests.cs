@@ -43,7 +43,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         private readonly SarifLog testLog;
 
-        public SarifFileWithContentsTests()
+        public SarifFileWithContentsTests() : base(useMockedManager: false)
         {
             this.testLog = new SarifLog
             {
@@ -197,6 +197,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     },
                 },
             };
+            ErrorListService.skipRemapping = true;
         }
 
         private RunDataCache CurrentRunDataCache =>
@@ -218,13 +219,16 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             fileDetails.Should().ContainKey(Key1);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [Fact]
         public async Task SarifFileWithContents_DecodesBinaryContents()
         {
-            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
             ErrorListService.skipRemapping = true;
-            IDictionary<int, RunDataCache> x = resultManager.RunIndexToRunDataCache;
-            ArtifactDetailsModel fileDetail = resultManager.RunIndexToRunDataCache[0].FileDetails[Key2];
+            await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
+            ArtifactDetailsModel fileDetail = this.CurrentRunDataCache.FileDetails[Key2];
             string contents = fileDetail.GetContents();
 
             fileDetail.Sha256Hash.Should().Be(ExpectedHashValue2);

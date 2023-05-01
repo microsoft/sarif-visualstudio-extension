@@ -14,12 +14,19 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     {
         internal ICodeAnalysisResultManager resultManager;
 
-        public SarifViewerPackageUnitTests()
+        public SarifViewerPackageUnitTests(bool useMockedManager = true)
         {
             SarifViewerPackage.IsUnitTesting = true;
             SarifViewerGeneralOptions.InitializeForUnitTests();
 
-            resultManager = TestUtilities.SetCodeAnalysisResultManager();
+            if (useMockedManager)
+            {
+                resultManager = TestUtilities.SetCodeAnalysisResultManager();
+            }
+            else
+            {
+                resultManager = CodeAnalysisResultManager.Instance;
+            }
         }
     }
 }
