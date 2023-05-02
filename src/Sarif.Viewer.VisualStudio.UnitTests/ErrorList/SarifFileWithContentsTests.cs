@@ -219,10 +219,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             fileDetails.Should().ContainKey(Key1);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
         [Fact]
         public async Task SarifFileWithContents_DecodesBinaryContents()
         {

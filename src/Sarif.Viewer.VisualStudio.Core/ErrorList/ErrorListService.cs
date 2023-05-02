@@ -647,133 +647,125 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 #pragma warning restore VSTHRD108
             }
 
-            try
+            runIndex = CodeManagerInstance.GetNextRunIndex();
+            var dataCache = new RunDataCache(logFilePath, sarifLog);
+            CodeManagerInstance.RunIndexToRunDataCache.Add(runIndex, dataCache);
+            CodeManagerInstance.CacheUriBasePaths(run);
+
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
+
+            var projectNameCache = new ProjectNameCache(dte?.Solution);
+
+            this.StoreFileDetails(run.Artifacts);
+            if (run.Results != null)
             {
-                runIndex = CodeManagerInstance.GetNextRunIndex();
-                var dataCache = new RunDataCache(logFilePath, sarifLog);
-                CodeManagerInstance.RunIndexToRunDataCache.Add(runIndex, dataCache);
-                CodeManagerInstance.CacheUriBasePaths(run);
-
-                var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
-
-                var projectNameCache = new ProjectNameCache(dte?.Solution);
-
-                this.StoreFileDetails(run.Artifacts);
-                if (run.Results != null)
+                foreach (CodeAnalysis.Sarif.Result result in run.Results)
                 {
-                    foreach (CodeAnalysis.Sarif.Result result in run.Results)
-                    {
-                        result.Run = run;
-                        dataCache.AddSarifResult(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
-                    }
+                    result.Run = run;
+                    dataCache.AddSarifResult(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
                 }
+            }
 
-                if (run.Invocations != null)
+            if (run.Invocations != null)
+            {
+                foreach (Invocation invocation in run.Invocations)
                 {
-                    foreach (Invocation invocation in run.Invocations)
+                    if (invocation.ToolConfigurationNotifications != null)
                     {
-                        if (invocation.ToolConfigurationNotifications != null)
+                        foreach (Notification configurationNotification in invocation.ToolConfigurationNotifications)
                         {
-                            foreach (Notification configurationNotification in invocation.ToolConfigurationNotifications)
+                            var sarifError = new SarifErrorListItem(run, runIndex, configurationNotification, logFilePath, projectNameCache);
+                            dataCache.AddSarifResult(sarifError);
+                        }
+                    }
+
+                    if (invocation.ToolExecutionNotifications != null)
+                    {
+                        foreach (Notification toolNotification in invocation.ToolExecutionNotifications)
+                        {
+                            if (toolNotification.Level != FailureLevel.Note)
                             {
-                                var sarifError = new SarifErrorListItem(run, runIndex, configurationNotification, logFilePath, projectNameCache);
+                                var sarifError = new SarifErrorListItem(run, runIndex, toolNotification, logFilePath, projectNameCache);
                                 dataCache.AddSarifResult(sarifError);
                             }
                         }
-
-                        if (invocation.ToolExecutionNotifications != null)
-                        {
-                            foreach (Notification toolNotification in invocation.ToolExecutionNotifications)
-                            {
-                                if (toolNotification.Level != FailureLevel.Note)
-                                {
-                                    var sarifError = new SarifErrorListItem(run, runIndex, toolNotification, logFilePath, projectNameCache);
-                                    dataCache.AddSarifResult(sarifError);
-                                }
-                            }
-                        }
                     }
                 }
-
-                if (run.HasAbsentResults())
-                {
-                    this.ShowFilteredCategoryColumn();
-                }
-
-                if (run.HasSuppressedResults())
-                {
-                    this.ShowFilteredSuppressionStateColumn();
-                }
-
-                if (skipRemapping == false)
-                {
-                    IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
-                    IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation?.ArtifactLocation?.UriBaseId);
-
-                    // now we need to map from relative file path to absolute.
-                    string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
-
-                    // find the mapped path with codeanalysisresultmanager
-                    List<string> resolvedFilePaths = CodeManagerInstance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
-                    CodeManagerInstance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
-
-                    // remap regions and lineNumber of the sarif error list items
-                    Dictionary<string, CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
-                    foreach (SarifErrorListItem item in dataCache.SarifErrors)
-                    {
-                        List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
-                        if (queries != null)
-                        {
-                            // try to do codefinding now, then modify the existing fields so we can treat as normal
-                            for (int i = 0; i < queries.Count; i++)
-                            {
-                                (Uri filePath, MatchQuery query)? queryTuple = queries[i];
-                                string resolvedPath = queryTuple?.filePath.AbsolutePath;
-
-                                // string x = queryTuple?.filePath.AbsolutePath;
-                                // string resolvedpath = queryTuple?.filePath.ToString();
-                                MatchQuery query = queryTuple.Value.query;
-                                if (!codeFinderCache.ContainsKey(resolvedPath))
-                                {
-                                    string fileContent = SdkUIUtilities.TryGetFileContent(resolvedPath);
-                                    codeFinderCache[resolvedPath] = new CodeFinder(resolvedPath, fileContent);
-                                }
-
-                                CodeFinder finder = codeFinderCache[resolvedPath];
-                                List<MatchResult> results = finder.FindMatchesWithFunction(query);
-                                MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
-                                if (bestResult != null)
-                                {
-                                    // if it's the first, we want to change the line number of the error list item too
-                                    if (i == 0)
-                                    {
-                                        item.LineNumber = bestResult.LineNumber;
-                                        item.Region.StartLine = bestResult.LineNumber;
-                                        item.Region.EndLine = bestResult.LineNumber;
-                                    }
-
-                                    item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
-                                    item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
-
-                Trace.WriteLine($"{dataCache.SarifErrors.Count} results loaded from SARIF log file {logFilePath}");
-
-                // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
-                SarifLocationTagHelpers.RefreshTags();
-
-                return dataCache.SarifErrors.Count;
             }
-            catch (Exception e)
+
+            if (run.HasAbsentResults())
             {
-                Console.WriteLine(e.Message);
-                throw;
+                this.ShowFilteredCategoryColumn();
             }
+
+            if (run.HasSuppressedResults())
+            {
+                this.ShowFilteredSuppressionStateColumn();
+            }
+
+            if (skipRemapping == false)
+            {
+                IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
+                IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation?.ArtifactLocation?.UriBaseId);
+
+                // now we need to map from relative file path to absolute.
+                string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
+
+                // find the mapped path with codeanalysisresultmanager
+                List<string> resolvedFilePaths = CodeManagerInstance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
+                CodeManagerInstance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
+
+                // remap regions and lineNumber of the sarif error list items
+                Dictionary<string, CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
+                foreach (SarifErrorListItem item in dataCache.SarifErrors)
+                {
+                    List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
+                    if (queries != null)
+                    {
+                        // try to do codefinding now, then modify the existing fields so we can treat as normal
+                        for (int i = 0; i < queries.Count; i++)
+                        {
+                            (Uri filePath, MatchQuery query)? queryTuple = queries[i];
+                            string resolvedPath = queryTuple?.filePath.AbsolutePath;
+
+                            // string x = queryTuple?.filePath.AbsolutePath;
+                            // string resolvedpath = queryTuple?.filePath.ToString();
+                            MatchQuery query = queryTuple.Value.query;
+                            if (!codeFinderCache.ContainsKey(resolvedPath))
+                            {
+                                string fileContent = SdkUIUtilities.TryGetFileContent(resolvedPath);
+                                codeFinderCache[resolvedPath] = new CodeFinder(resolvedPath, fileContent);
+                            }
+
+                            CodeFinder finder = codeFinderCache[resolvedPath];
+                            List<MatchResult> results = finder.FindMatchesWithFunction(query);
+                            MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
+                            if (bestResult != null)
+                            {
+                                // if it's the first, we want to change the line number of the error list item too
+                                if (i == 0)
+                                {
+                                    item.LineNumber = bestResult.LineNumber;
+                                    item.Region.StartLine = bestResult.LineNumber;
+                                    item.Region.EndLine = bestResult.LineNumber;
+                                }
+
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber;
+                            }
+                        }
+                    }
+                }
+            }
+
+            SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
+
+            Trace.WriteLine($"{dataCache.SarifErrors.Count} results loaded from SARIF log file {logFilePath}");
+
+            // This causes already open "text views" to be tagged when SARIF logs are processed after a view is opened.
+            SarifLocationTagHelpers.RefreshTags();
+
+            return dataCache.SarifErrors.Count;
         }
 
         /// <summary>
