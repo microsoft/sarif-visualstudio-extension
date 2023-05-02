@@ -131,7 +131,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             // Comment in the middle of the substring.
             substr = finder.Substring(62);
-@"int product = 0;
+            @"int product = 0;
     for (int i = 0; i < var2; i++)
     {
         product += var1;
@@ -142,7 +142,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 
             // 2 comments in the middle of the substring.
             substr = finder.Substring(0);
-@"int Multiply(var1, var2)
+            @"int Multiply(var1, var2)
 {
         int product = 0;
     for (int i = 0; i < var2; i++)

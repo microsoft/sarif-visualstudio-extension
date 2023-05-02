@@ -994,7 +994,7 @@ namespace Microsoft.Sarif.Viewer
                  && Uri.TryCreate(baseUri, pathFromLogFile, out uri)
                  && uri.IsHttpScheme()) ||
 
-                 // if result location uri is an absolute http url
+                // if result location uri is an absolute http url
                  (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out uri) &&
                   uri.IsHttpScheme()))
             {
