@@ -1,8 +1,9 @@
-﻿using Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle;
+﻿using FluentAssertions;
+
 using Microsoft.Sarif.Viewer.CodeFinding;
+using Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle;
 
 using Xunit;
-using FluentAssertions;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
 {

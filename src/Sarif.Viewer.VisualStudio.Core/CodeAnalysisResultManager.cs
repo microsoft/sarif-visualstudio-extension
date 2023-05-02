@@ -269,9 +269,9 @@ namespace Microsoft.Sarif.Viewer
         {
             if (!SarifViewerPackage.IsUnitTesting)
             {
-                #pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
                 ThreadHelper.ThrowIfNotOnUIThread();
-                #pragma warning restore VSTHRD108
+#pragma warning restore VSTHRD108
             }
 
             resolvedPath = null;
@@ -994,7 +994,7 @@ namespace Microsoft.Sarif.Viewer
                  && Uri.TryCreate(baseUri, pathFromLogFile, out uri)
                  && uri.IsHttpScheme()) ||
 
-                // if result location uri is an absolute http url
+                 // if result location uri is an absolute http url
                  (Uri.TryCreate(pathFromLogFile, UriKind.Absolute, out uri) &&
                   uri.IsHttpScheme()))
             {
