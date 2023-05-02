@@ -26,6 +26,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             else
             {
                 resultManager = CodeAnalysisResultManager.Instance;
+                ErrorListService.CodeManagerInstance = CodeAnalysisResultManager.Instance;
+
             }
         }
     }
