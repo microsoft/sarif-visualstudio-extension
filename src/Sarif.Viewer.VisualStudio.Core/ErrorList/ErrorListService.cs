@@ -13,8 +13,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using CSharpFunctionalExtensions;
-
 using EnvDTE;
 
 using EnvDTE80;
@@ -703,7 +701,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 this.ShowFilteredSuppressionStateColumn();
             }
 
-            if (skipRemapping == false)
+            if (!skipRemapping && dataCache.SarifErrors.Any())
             {
                 IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
                 IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation?.ArtifactLocation?.UriBaseId);
@@ -712,11 +710,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
 
                 // find the mapped path with codeanalysisresultmanager
-                List<string> resolvedFilePaths = CodeManagerInstance.TryResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
+                List<string> resolvedFilePaths = CodeManagerInstance.ResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
                 CodeManagerInstance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
 
                 // remap regions and lineNumber of the sarif error list items
-                Dictionary<string, CodeFinder> codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
+                var codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
                 foreach (SarifErrorListItem item in dataCache.SarifErrors)
                 {
                     List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
@@ -739,7 +737,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
                             CodeFinder finder = codeFinderCache[resolvedPath];
                             List<MatchResult> results = finder.FindMatchesWithFunction(query);
-                            MatchResult bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
+                            var bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
                             if (bestResult != null)
                             {
                                 // if it's the first, we want to change the line number of the error list item too

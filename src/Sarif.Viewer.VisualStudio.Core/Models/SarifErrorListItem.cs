@@ -10,8 +10,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 
-using CSharpFunctionalExtensions;
-
 using EnvDTE;
 
 using EnvDTE80;
@@ -53,7 +51,7 @@ namespace Microsoft.Sarif.Viewer
     /// </summary>
     internal partial class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
     {
-        internal SarifErrorListItem(CodeAnalysis.Sarif.Result result)
+        internal SarifErrorListItem(Result result)
             : this()
         {
             this.SarifResult = result;
@@ -70,7 +68,7 @@ namespace Microsoft.Sarif.Viewer
             this.Properties = new ObservableCollection<KeyValuePair<string, string>>();
         }
 
-        public SarifErrorListItem(Run run, int runIndex, CodeAnalysis.Sarif.Result result, string logFilePath, ProjectNameCache projectNameCache)
+        public SarifErrorListItem(Run run, int runIndex, Result result, string logFilePath, ProjectNameCache projectNameCache)
             : this()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -120,7 +118,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.</returns>
         public List<(Uri filePath, MatchQuery query)?> GetMatchQueries()
         {
-            List<(Uri filePath, MatchQuery query)?> queries = new List<(Uri filePath, MatchQuery query)?>();
+            var queries = new List<(Uri filePath, MatchQuery query)?>();
 
             // If the physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
             if (this.SarifResult.Locations?[0].PhysicalLocation != null
@@ -133,8 +131,11 @@ namespace Microsoft.Sarif.Viewer
                     {
                         PhysicalLocation currentPhysicalLocation = l.PhysicalLocation;
                         LogicalLocation currentLogicalLocation = l.LogicalLocation;
-                        if (currentPhysicalLocation.PropertyNames.Contains("StartLine") && currentPhysicalLocation.PropertyNames.Contains("EndLine")
-                            && currentPhysicalLocation.Region?.Snippet?.Text != null && currentPhysicalLocation.ArtifactLocation?.Uri != null && this.SarifResult.Guid != null)
+                        if (currentPhysicalLocation.PropertyNames.Contains("StartLine")
+                            && currentPhysicalLocation.PropertyNames.Contains("EndLine")
+                            && currentPhysicalLocation.Region?.Snippet?.Text != null
+                            && currentPhysicalLocation.ArtifactLocation?.Uri != null
+                            && this.SarifResult.Guid != null)
                         {
                             MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code;
                             if (currentPhysicalLocation.Region.Snippet.Text == currentLogicalLocation.FullyQualifiedName)
@@ -142,12 +143,16 @@ namespace Microsoft.Sarif.Viewer
                                 typeHint = MatchQuery.MatchTypeHint.Function;
                             }
 
-                            MatchQuery query = new MatchQuery(textToFind: currentPhysicalLocation.Region.Snippet.Text,
+                            var query = new MatchQuery(textToFind: currentPhysicalLocation.Region.Snippet.Text,
                                 lineNumberHint: this.LineNumber,
                                 callingSignature: currentLogicalLocation?.FullyQualifiedName,
                                 id: this.SarifResult.Guid,
                                 typeHint: typeHint);
                             queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
+                        }
+                        else
+                        {
+                            queries.Add(null);
                         }
                     }
                     else
@@ -208,7 +213,7 @@ namespace Microsoft.Sarif.Viewer
         /// </remarks>
         public event EventHandler Disposed;
 
-        private FailureLevel GetEffectiveLevel(CodeAnalysis.Sarif.Result result)
+        private FailureLevel GetEffectiveLevel(Result result)
         {
             switch (result.Kind)
             {

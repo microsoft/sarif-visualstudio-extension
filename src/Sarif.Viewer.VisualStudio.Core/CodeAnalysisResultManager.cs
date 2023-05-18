@@ -221,7 +221,7 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        public List<string> TryResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, List<string> uriBaseIds, List<string> relativePaths)
+        public List<string> ResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, List<string> uriBaseIds, List<string> relativePaths)
         {
             List<string> resolvedPaths = new List<string>();
 

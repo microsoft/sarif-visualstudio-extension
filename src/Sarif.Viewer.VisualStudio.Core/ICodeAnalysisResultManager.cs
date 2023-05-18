@@ -11,7 +11,7 @@ namespace Microsoft.Sarif.Viewer
 {
     internal interface ICodeAnalysisResultManager
     {
-        List<string> TryResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, List<string> uriBaseIds, List<string> relativePaths);
+        List<string> ResolveFilePaths(RunDataCache dataCache, string workingDirectory, string logFilePath, List<string> uriBaseIds, List<string> relativePaths);
 
         /// <summary>
         /// Remaps the file paths of the sarif errors using the original path and remppaed file path lists.
