@@ -349,7 +349,7 @@ namespace Microsoft.Sarif.Viewer
 
         public static string TryGetFileContent(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
             {
                 return null;
             }
