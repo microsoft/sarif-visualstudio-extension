@@ -1,0 +1,3 @@
+[submodule "src/Sarif.Viewer.VisualStudio.UnitTests/sarif-visualstudio-extension"]
+	path = src/Sarif.Viewer.VisualStudio.UnitTests/sarif-visualstudio-extension
+	url = https://github.com/microsoft/sarif-visualstudio-extension.git
