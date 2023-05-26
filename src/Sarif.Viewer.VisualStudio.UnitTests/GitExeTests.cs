@@ -48,6 +48,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [InlineData("\\README.md")]
         public async Task GetRepoRootTestAsync(string fileName)
         {
+            Console.WriteLine($"demoRepoFilePath: {demoRepoFilePath}");
             GitExe gitExe = new GitExe(null);
             string repoRoot = await gitExe.GetRepoRootAsync();
             string currentlyRunningDirectory = Directory.GetCurrentDirectory();
