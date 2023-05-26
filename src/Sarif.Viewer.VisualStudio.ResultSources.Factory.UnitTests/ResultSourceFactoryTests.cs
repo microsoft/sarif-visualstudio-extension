@@ -46,8 +46,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
@@ -85,8 +85,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
