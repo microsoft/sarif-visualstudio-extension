@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 using FluentAssertions;
 
+using Microsoft.Build.Framework.XamlTypes;
 using Microsoft.Sarif.Viewer.Shell;
 
 using Xunit;
@@ -22,10 +24,28 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     public class GitExeTests
     {
         private readonly string demoRepoFilePath;
+        private readonly string thisRepoRootFilePath;
         public GitExeTests()
         {
             demoRepoFilePath = Path.Combine(System.IO.Directory.GetCurrentDirectory(), @"..\..\..\..\src\Sarif.Viewer.VisualStudio.UnitTests\sarif-visualstudio-extension");
             demoRepoFilePath = Path.GetFullPath(demoRepoFilePath);
+
+            thisRepoRootFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\.."));
+
+            var processInfo = new ProcessStartInfo()
+            {
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                Arguments = "submodule update",
+                WorkingDirectory = thisRepoRootFilePath,
+                FileName = "git.exe", // minGitPath,
+            };
+
+            using (var process = Process.Start(processInfo))
+            {
+                process.WaitForExit();
+            }
         }
         /// <summary>
         /// Tests to see if we can initialize and access the properties correctly.
