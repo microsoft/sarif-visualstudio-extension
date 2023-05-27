@@ -33,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             thisRepoRootFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\.."));
             Console.WriteLine($"thisRepoRootFilePath: {thisRepoRootFilePath}");
-            var processInfo = new ProcessStartInfo()
+            var hydrateSubmodule = new ProcessStartInfo()
             {
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
@@ -43,13 +43,28 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 FileName = "git.exe", // minGitPath,
             };
 
-            using (var process = Process.Start(processInfo))
+            using (var process = Process.Start(hydrateSubmodule))
             {
                 process.WaitForExit();
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 string output = process.StandardOutput.ReadLineAsync().GetAwaiter().GetResult();
                 Console.WriteLine(output );
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+            }
+
+            var checkoutBranch = new ProcessStartInfo()
+            {
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                Arguments = "checkout Testing-branch",
+                WorkingDirectory = $@"{thisRepoRootFilePath}\src\Sarif.Viewer.VisualStudio.UnitTests\sarif-visualstudio-extension",
+                FileName = "git.exe", // minGitPath,
+            };
+
+            using (var process = Process.Start(checkoutBranch))
+            {
+                process.WaitForExit();
             }
         }
         /// <summary>
