@@ -32,7 +32,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             demoRepoFilePath = Path.GetFullPath(demoRepoFilePath);
 
             thisRepoRootFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\.."));
-            Console.WriteLine($"thisRepoRootFilePath: {thisRepoRootFilePath}");
             var hydrateSubmodule = new ProcessStartInfo()
             {
                 CreateNoWindow = true,
@@ -48,7 +47,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 process.WaitForExit();
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 string output = process.StandardOutput.ReadLineAsync().GetAwaiter().GetResult();
-                Console.WriteLine(output );
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
             }
 
