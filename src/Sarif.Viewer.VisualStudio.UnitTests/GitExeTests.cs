@@ -13,6 +13,7 @@ using FluentAssertions;
 
 using Microsoft.Build.Framework.XamlTypes;
 using Microsoft.Sarif.Viewer.Shell;
+using Microsoft.VisualStudio.Threading;
 
 using Xunit;
 
@@ -31,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             demoRepoFilePath = Path.GetFullPath(demoRepoFilePath);
 
             thisRepoRootFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\.."));
-
+            Console.WriteLine($"thisRepoRootFilePath: {thisRepoRootFilePath}");
             var processInfo = new ProcessStartInfo()
             {
                 CreateNoWindow = true,
@@ -45,6 +46,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             using (var process = Process.Start(processInfo))
             {
                 process.WaitForExit();
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                string output = process.StandardOutput.ReadLineAsync().GetAwaiter().GetResult();
+                Console.WriteLine(output );
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
             }
         }
         /// <summary>
