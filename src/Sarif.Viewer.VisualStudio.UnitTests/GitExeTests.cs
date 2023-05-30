@@ -32,7 +32,23 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             demoRepoFilePath = Path.GetFullPath(demoRepoFilePath);
 
             thisRepoRootFilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\.."));
-            var hydrateSubmodule = new ProcessStartInfo()
+
+            var initSubmodule = new ProcessStartInfo()
+            {
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                Arguments = "submodule init",
+                WorkingDirectory = thisRepoRootFilePath,
+                FileName = "git.exe", // minGitPath,
+            };
+
+            using (var process = Process.Start(initSubmodule))
+            {
+                process.WaitForExit();
+            }
+
+            var updateSubmodule = new ProcessStartInfo()
             {
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
@@ -42,12 +58,9 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                 FileName = "git.exe", // minGitPath,
             };
 
-            using (var process = Process.Start(hydrateSubmodule))
+            using (var process = Process.Start(updateSubmodule))
             {
                 process.WaitForExit();
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                string output = process.StandardOutput.ReadLineAsync().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
             }
 
             var checkoutBranch = new ProcessStartInfo()
