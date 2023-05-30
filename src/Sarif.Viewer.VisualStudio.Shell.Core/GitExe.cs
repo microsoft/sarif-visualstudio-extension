@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.Shell;
@@ -27,31 +28,51 @@ namespace Microsoft.Sarif.Viewer.Shell
         public string RepoPath { get; set; }
 
         /// <inheritdoc cref="IGitExe.GetRepoRootAsync"/>
-        public async ValueTask<string> GetRepoRootAsync() // TODO: <string?>
+        public async ValueTask<string> GetRepoRootAsync(string filePath = null)
         {
-            return await ExecuteGitCommandAsync("rev-parse --show-toplevel");
+            return await ExecuteGitCommandAsync("rev-parse --show-toplevel", filePath);
         }
 
-        /// <inheritdoc cref="IGitExe.GetRepoUriAsync"/>
-        public async ValueTask<string> GetRepoUriAsync() // TODO: <string?>
+        /// <inheritdoc cref="IGitExe.GetRepoUriAsync()"/>
+        public async ValueTask<string> GetRepoUriAsync(string filePath = null)
         {
-            return await ExecuteGitCommandAsync("config --get remote.origin.url");
+            return await ExecuteGitCommandAsync("config --get remote.origin.url", filePath);
         }
 
         /// <inheritdoc cref="IGitExe.GetCurrentBranchAsync"/>
-        public async ValueTask<string> GetCurrentBranchAsync() // TODO: <string?>
+        public async ValueTask<string> GetCurrentBranchAsync(string filePath = null)
         {
-            return await ExecuteGitCommandAsync("symbolic-ref --short HEAD");
+            return await ExecuteGitCommandAsync("symbolic-ref --short HEAD", filePath);
         }
 
         /// <inheritdoc cref="IGitExe.GetCurrentCommitHashAsync"/>
-        public async ValueTask<string> GetCurrentCommitHashAsync() // TODO: <string?>
+        public async ValueTask<string> GetCurrentCommitHashAsync(string filePath = null)
         {
-            return await ExecuteGitCommandAsync("rev-parse HEAD");
+            return await ExecuteGitCommandAsync("rev-parse HEAD", filePath);
         }
 
-        private async ValueTask<string> ExecuteGitCommandAsync(string arguments)
+        private async ValueTask<string> ExecuteGitCommandAsync(string arguments, string filePath)
         {
+            if (filePath != null)
+            {
+                if (File.Exists(filePath) || Directory.Exists(filePath))
+                {
+                    FileAttributes attributes = File.GetAttributes(filePath);
+                    if (attributes != FileAttributes.Directory)
+                    {
+                        filePath = Path.GetDirectoryName(filePath);
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                filePath = RepoPath;
+            }
+
             await TaskScheduler.Default;
             try
             {
@@ -61,7 +82,7 @@ namespace Microsoft.Sarif.Viewer.Shell
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     Arguments = arguments,
-                    WorkingDirectory = this.RepoPath,
+                    WorkingDirectory = filePath,
                     FileName = "git.exe", // minGitPath,
                 };
 
@@ -71,8 +92,10 @@ namespace Microsoft.Sarif.Viewer.Shell
                     return await process.StandardOutput.ReadLineAsync();
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e.ToString());
+
                 // Ignore all exceptions and return default value.
             }
 
