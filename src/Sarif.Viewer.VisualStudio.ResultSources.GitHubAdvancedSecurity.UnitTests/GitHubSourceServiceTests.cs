@@ -41,7 +41,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
 
             var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), (string key) => true, null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
@@ -57,7 +57,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
 
             var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), null, null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
@@ -73,7 +73,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
 
             var gitHubSourceService = new GitHubSourceService(It.IsAny<string>(), (string key) => false, null, null, null, null, null, mockFileSystem.Object, mockGitExe.Object, null, null);
             CSharpFunctionalExtensions.Result result = await gitHubSourceService.IsActiveAsync();
@@ -149,9 +149,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
-            mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetCurrentBranchAsync(null)).Returns(new ValueTask<string>(branch));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
@@ -201,9 +201,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
-            mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetCurrentBranchAsync(null)).Returns(new ValueTask<string>(branch));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
@@ -364,9 +364,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
-            mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetCurrentBranchAsync(null)).Returns(new ValueTask<string>(branch));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
@@ -426,9 +426,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
-            mockGitExe.Setup(g => g.GetCurrentBranchAsync()).Returns(new ValueTask<string>(branch));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetCurrentBranchAsync(null)).Returns(new ValueTask<string>(branch));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();

@@ -15,25 +15,29 @@ namespace Microsoft.Sarif.Viewer.Shell
         /// <summary>
         /// Gets the root repo path of current solution.
         /// </summary>
+        /// <param name="filePath">The file path we want the repo root of.</param>
         /// <returns>The root repo path.</returns>
-        ValueTask<string> GetRepoRootAsync();
+        ValueTask<string> GetRepoRootAsync(string filePath = null);
 
         /// <summary>
         /// Gets the root repo URI of current solution.
         /// </summary>
+        /// <param name="filePath">The file path we want the repo uri of.</param>
         /// <returns>The root repo path.</returns>
-        ValueTask<string> GetRepoUriAsync();
+        ValueTask<string> GetRepoUriAsync(string filePath = null);
 
         /// <summary>
         /// Gets current repo branch name.
         /// </summary>
+        /// <param name="filePath">The file path we want the repo branch name of.</param>
         /// <returns>The current branch name.</returns>
-        ValueTask<string> GetCurrentBranchAsync();
+        ValueTask<string> GetCurrentBranchAsync(string filePath = null);
 
         /// <summary>
         /// Gets the current repo commit hash..
         /// </summary>
+        /// <param name="filePath">The file path we want the commit hash of.</param>
         /// <returns>The current commit hash.</returns>
-        ValueTask<string> GetCurrentCommitHashAsync();
+        ValueTask<string> GetCurrentCommitHashAsync(string filePath = null);
     }
 }
