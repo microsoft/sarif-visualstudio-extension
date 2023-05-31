@@ -70,6 +70,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources", "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources.csproj", "{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProject1", "TestProject1\TestProject1.csproj", "{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -284,6 +286,18 @@ Global
 		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x64.Build.0 = Release|x64
 		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x86.ActiveCfg = Release|x86
 		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}.Release|x86.Build.0 = Release|x86
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Debug|x64.Build.0 = Debug|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Debug|x86.Build.0 = Debug|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Release|x64.ActiveCfg = Release|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Release|x64.Build.0 = Release|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Release|x86.ActiveCfg = Release|Any CPU
+		{C0C9BFE1-A7AA-4AFF-936F-07B957A74BB5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
