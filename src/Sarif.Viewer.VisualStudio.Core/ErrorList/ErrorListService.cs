@@ -23,6 +23,7 @@ using Microsoft.CodeAnalysis.Sarif.Readers;
 using Microsoft.CodeAnalysis.Sarif.VersionOne;
 using Microsoft.CodeAnalysis.Sarif.Visitors;
 using Microsoft.CodeAnalysis.Sarif.Writers;
+using Microsoft.Sarif.Viewer.CodeFinding;
 using Microsoft.Sarif.Viewer.Controls;
 using Microsoft.Sarif.Viewer.FileMonitor;
 using Microsoft.Sarif.Viewer.Models;
@@ -52,9 +53,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private const int HeadSegmentLength = 200;
 
-        public static readonly ErrorListService Instance = new ErrorListService();
+        public static readonly ErrorListService ErrorListInstance = new ErrorListService();
 
         internal IColumnFilterer ColumnFilterer = new ColumnFilterer();
+
+        internal static ICodeAnalysisResultManager CodeManagerInstance { get; set; } = CodeAnalysisResultManager.Instance;
 
         static ErrorListService()
         {
@@ -62,6 +65,8 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         internal static event EventHandler<LogProcessedEventArgs> LogProcessed;
+
+        internal static bool skipRemapping = false;
 
         /// <summary>
         /// Processes a log file on a seperate thread and fills the caches responsible for different functionality.
@@ -345,21 +350,21 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 // a file name. The good news is, we never close such a log file. If in future we
                 // do need to close such a log file, we'll need to synthesize a log file name so we
                 // know which runs belong to that file.
-                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
+                runIdsToClear.AddRange(CodeManagerInstance.RunIndexToRunDataCache.
                     Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
 
-                if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                if (CodeManagerInstance.RunIndexToRunDataCache
                     .Any(kvp => kvp.Value.SarifErrors
                         .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true)))
                 {
-                    KeyValuePair<int, RunDataCache> cache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                    KeyValuePair<int, RunDataCache> cache = CodeManagerInstance.RunIndexToRunDataCache
                         .First(kvp => kvp.Value.SarifErrors
                             .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true));
                     SarifErrorListItem sarifError = cache.Value.SarifErrors.First(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
                     cache.Value.SarifErrors.Remove(sarifError);
 
-                    CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
+                    CodeManagerInstance.RunIndexToRunDataCache[cache.Key] = cache.Value;
                 }
 
                 SarifLogsMonitor.Instance.StopWatching(logFile);
@@ -367,7 +372,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             foreach (int runIdToClear in runIdsToClear)
             {
-                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
+                CodeManagerInstance.RunIndexToRunDataCache.Remove(runIdToClear);
             }
 
             SarifLocationTagHelpers.RefreshTags();
@@ -391,34 +396,34 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 // a file name. The good news is, we never close such a log file. If in future we
                 // do need to close such a log file, we'll need to synthesize a log file name so we
                 // know which runs belong to that file.
-                runIdsToClear.AddRange(CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
+                runIdsToClear.AddRange(CodeManagerInstance.RunIndexToRunDataCache.
                     Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
                     Select(runDataCacheKvp => runDataCacheKvp.Key));
 
-                if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                if (CodeManagerInstance.RunIndexToRunDataCache
                     .Any(kvp => kvp.Value.SarifErrors
                         .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true)))
                 {
-                    KeyValuePair<int, RunDataCache> cache = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache
+                    KeyValuePair<int, RunDataCache> cache = CodeManagerInstance.RunIndexToRunDataCache
                         .First(kvp => kvp.Value.SarifErrors
                             .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true));
                     SarifErrorListItem sarifError = cache.Value.SarifErrors.First(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
                     cache.Value.SarifErrors.Remove(sarifError);
 
-                    CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[cache.Key] = cache.Value;
+                    CodeManagerInstance.RunIndexToRunDataCache[cache.Key] = cache.Value;
                 }
             }
 
             foreach (int runIdToClear in runIdsToClear)
             {
-                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Remove(runIdToClear);
+                CodeManagerInstance.RunIndexToRunDataCache.Remove(runIdToClear);
             }
         }
 
         public static bool IsSarifLogOpened(string logFile)
         {
             return SarifTableDataSource.Instance.HasErrorsFromLog(logFile) ||
-                CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.
+                CodeManagerInstance.RunIndexToRunDataCache.
                     Any(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
         }
 
@@ -566,15 +571,15 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     },
                 };
 
-                if (Instance.WriteRunToErrorList(run, logFilePath, sarifLog, out int runIndex) > 0)
+                if (ErrorListInstance.WriteRunToErrorList(run, logFilePath, sarifLog, out int runIndex) > 0)
                 {
                     hasResults = true;
 
                     if (!resultsFiltered)
                     {
                         resultsFiltered = AreResultsFilteredBySeverity(
-                            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache[runIndex],
-                            Instance.ColumnFilterer);
+                            CodeManagerInstance.RunIndexToRunDataCache[runIndex],
+                            ErrorListInstance.ColumnFilterer);
                     }
                 }
             }
@@ -601,7 +606,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         public static void CleanAllErrors()
         {
             SarifTableDataSource.Instance.CleanAllErrors();
-            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Clear();
+            CodeManagerInstance.RunIndexToRunDataCache.Clear();
             SarifLocationTagHelpers.RefreshTags();
         }
 
@@ -624,12 +629,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         }
 
         /// <summary>
-        /// Adds information about the sarif errors to the <see cref="CodeAnalysisResultManager"/> cache as well as to the <see cref="SarifTableDataSource"/> instance.
+        /// Adds information about the sarif errors to the <see cref="Viewer.CodeAnalysisResultManager"/> cache as well as to the <see cref="SarifTableDataSource"/> instance.
         /// </summary>
         /// <param name="run">The run being logged.</param>
         /// <param name="logFilePath">The file path of the log.</param>
         /// <param name="sarifLog">The sarif log the run originated from.</param>
-        /// <param name="runIndex">The index of the run in the <see cref="CodeAnalysisResultManager"/>.</param>
+        /// <param name="runIndex">The index of the run in the <see cref="Viewer.CodeAnalysisResultManager"/>.</param>
         /// <returns>The number of errors in the cache item added.</returns>
         private int WriteRunToErrorList(Run run, string logFilePath, SarifLog sarifLog, out int runIndex)
         {
@@ -640,24 +645,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 #pragma warning restore VSTHRD108
             }
 
-            runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
+            runIndex = CodeManagerInstance.GetNextRunIndex();
             var dataCache = new RunDataCache(logFilePath, sarifLog);
-            CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
-            CodeAnalysisResultManager.Instance.CacheUriBasePaths(run);
+            CodeManagerInstance.RunIndexToRunDataCache.Add(runIndex, dataCache);
+            CodeManagerInstance.CacheUriBasePaths(run);
 
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
 
             var projectNameCache = new ProjectNameCache(dte?.Solution);
 
             this.StoreFileDetails(run.Artifacts);
-
             if (run.Results != null)
             {
-                foreach (Result result in run.Results)
+                foreach (CodeAnalysis.Sarif.Result result in run.Results)
                 {
                     result.Run = run;
-                    var sarifError = new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache);
-                    dataCache.AddSarifResult(sarifError);
+                    dataCache.AddSarifResult(new SarifErrorListItem(run, runIndex, result, logFilePath, projectNameCache));
                 }
             }
 
@@ -696,6 +699,61 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             if (run.HasSuppressedResults())
             {
                 this.ShowFilteredSuppressionStateColumn();
+            }
+
+            if (!skipRemapping && dataCache.SarifErrors.Any())
+            {
+                IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
+                IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation?.ArtifactLocation?.UriBaseId);
+
+                // now we need to map from relative file path to absolute.
+                string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
+
+                // find the mapped path with codeanalysisresultmanager
+                List<string> resolvedFilePaths = CodeManagerInstance.ResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
+                CodeManagerInstance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
+
+                // remap regions and lineNumber of the sarif error list items
+                var codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
+                foreach (SarifErrorListItem item in dataCache.SarifErrors)
+                {
+                    List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
+                    if (queries != null)
+                    {
+                        // try to do codefinding now, then modify the existing fields so we can treat as normal
+                        for (int i = 0; i < queries.Count; i++)
+                        {
+                            (Uri filePath, MatchQuery query)? queryTuple = queries[i];
+                            string resolvedPath = queryTuple?.filePath.AbsolutePath;
+
+                            // string x = queryTuple?.filePath.AbsolutePath;
+                            // string resolvedpath = queryTuple?.filePath.ToString();
+                            MatchQuery query = queryTuple.Value.query;
+                            if (!codeFinderCache.ContainsKey(resolvedPath))
+                            {
+                                string fileContent = SdkUIUtilities.TryGetFileContent(resolvedPath);
+                                codeFinderCache[resolvedPath] = new CodeFinder(resolvedPath, fileContent);
+                            }
+
+                            CodeFinder finder = codeFinderCache[resolvedPath];
+                            List<MatchResult> results = finder.FindMatchesWithFunction(query);
+                            var bestResult = MatchResult.GetBestMatch(results, preferStringLiterals: false);
+                            if (bestResult != null)
+                            {
+                                // if it's the first, we want to change the line number of the error list item too
+                                if (i == 0)
+                                {
+                                    item.LineNumber = bestResult.LineNumber;
+                                    item.Region.StartLine = bestResult.LineNumber;
+                                    item.Region.EndLine = bestResult.LineNumber;
+                                }
+
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber;
+                            }
+                        }
+                    }
+                }
             }
 
             SarifTableDataSource.Instance.AddErrors(dataCache.SarifErrors);
@@ -789,7 +847,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                     {
                         this.EnsureHashExists(file);
                         var fileDetails = new ArtifactDetailsModel(file);
-                        CodeAnalysisResultManager.Instance.CurrentRunDataCache.FileDetails.Add(uri.ToPath(), fileDetails);
+                        CodeManagerInstance.CurrentRunDataCache.FileDetails.Add(uri.ToPath(), fileDetails);
                     }
                 }
             }
@@ -811,7 +869,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         private static void RaiseLogProcessed(ExceptionalConditions conditions)
         {
-            LogProcessed?.Invoke(Instance, new LogProcessedEventArgs(conditions));
+            LogProcessed?.Invoke(ErrorListInstance, new LogProcessedEventArgs(conditions));
         }
 
         internal static void ErrorListService_LogProcessed(object sender, LogProcessedEventArgs e)

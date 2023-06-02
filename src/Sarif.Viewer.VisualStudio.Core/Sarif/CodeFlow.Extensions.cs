@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.VisualStudio;
-using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Sarif
 {

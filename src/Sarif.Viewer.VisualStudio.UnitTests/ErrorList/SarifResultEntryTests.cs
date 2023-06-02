@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System;
 using System.Collections.Generic;
-using System.Web.ModelBinding;
 using System.Windows.Documents;
 
 using FluentAssertions;
@@ -12,7 +10,6 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
-using Microsoft.VisualStudio.TextManager.Interop;
 
 using Xunit;
 

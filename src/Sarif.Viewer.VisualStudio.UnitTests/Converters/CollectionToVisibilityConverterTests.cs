@@ -13,7 +13,7 @@ using Microsoft.Sarif.Viewer.Converters;
 
 using Xunit;
 
-namespace Microsoft.Sarif.Viewer.VisualStudio.Converters.UnitTests
+namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.Converters
 {
     public class CollectionToVisibilityConverterTests
     {

@@ -8,6 +8,9 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Microsoft.Sarif.Viewer.Models
 {
+    /// <summary>
+    /// A wrapper on <see cref="ArtifactContent"/> allowing for decoding of the artifact.
+    /// </summary>
     public class ArtifactDetailsModel
     {
         private ArtifactContent _artifactContent;

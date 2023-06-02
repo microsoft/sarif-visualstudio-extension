@@ -25,6 +25,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
     public class MultipleRunsPerSarifTests
     {
         private readonly SarifLog testLog;
+        private readonly ICodeAnalysisResultManager resultManager;
 
         public MultipleRunsPerSarifTests()
         {
@@ -116,6 +117,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
                     },
                 },
             };
+
+            resultManager = TestUtilities.SetCodeAnalysisResultManager();
         }
 
         [Fact]
@@ -135,9 +138,10 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         [Fact]
         public async Task ErrorList_WithMultipleRuns_ManagerHasAllRows()
         {
+            ErrorListService.skipRemapping = true;
             await TestUtilities.InitializeTestEnvironmentAsync(this.testLog);
 
-            int errorCount = CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Sum(c => c.Value.SarifErrors.Count);
+            int errorCount = resultManager.RunIndexToRunDataCache.Sum(c => c.Value.SarifErrors.Count);
 
             errorCount.Should().Be(3);
         }

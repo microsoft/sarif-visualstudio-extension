@@ -5,18 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 
-using Octokit;
-
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 {

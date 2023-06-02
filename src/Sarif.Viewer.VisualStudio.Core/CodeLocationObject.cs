@@ -94,6 +94,9 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Gets or sets the base identifier for the file-path.
+        /// </summary>
         internal virtual string UriBaseId
         {
             get => this._uriBaseId;

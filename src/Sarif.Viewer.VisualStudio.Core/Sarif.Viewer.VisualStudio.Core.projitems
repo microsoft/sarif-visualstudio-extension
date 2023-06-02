@@ -15,6 +15,20 @@
     <Compile Include="$(MSBuildThisFileDirectory)CodeLocationObjectTypeDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ContentTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\CodeFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\FileSpan.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Language.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\MatchQuery.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\MatchResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\CodeFinderBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\DefaultMatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\FileSpanCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\ListExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\StringExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\CStyle\CppFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\CStyle\CSharpFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\CStyle\CStyleFinder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CodeFinding\Internals\CStyle\ScopeIdentifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\BindableTextBlock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\FeedbackControl.xaml.cs">
       <DependentUpon>FeedbackControl.xaml</DependentUpon>
@@ -78,6 +92,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)GlobalSuppressions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Guids.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HashHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ICodeAnalysisResultManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IToolWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)KeyValuePairPropertyDescriptor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LogProcessedEventArgs.cs" />

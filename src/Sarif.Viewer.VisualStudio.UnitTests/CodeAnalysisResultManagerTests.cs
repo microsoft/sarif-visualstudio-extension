@@ -14,7 +14,6 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.Models;
 using Microsoft.Sarif.Viewer.Views;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Workspace;
 using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 

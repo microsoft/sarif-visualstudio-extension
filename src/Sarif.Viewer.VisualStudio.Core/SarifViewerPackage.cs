@@ -325,7 +325,7 @@ namespace Microsoft.Sarif.Viewer
                         {
                             // Auto-load from the .sarif directory.
                             string path = Path.Combine(GetDotSarifDirectoryPath(), resultsUpdatedEventArgs.LogFileName);
-                            resultsUpdatedEventArgs.SarifLog.Save(path);
+                            resultsUpdatedEventArgs.SarifLog.Save(path); // Saving to the .sarif directory will trigger SarifFolderMonitor to cause the error list service to load the sarif log.
                         }
                         else
                         {

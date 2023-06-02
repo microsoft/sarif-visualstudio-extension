@@ -3,14 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
+
+using Moq;
 
 using Xunit;
 

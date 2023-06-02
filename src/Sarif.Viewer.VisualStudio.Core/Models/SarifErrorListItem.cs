@@ -15,16 +15,15 @@ using EnvDTE;
 using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.Sarif.Viewer.CodeFinding;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
-using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
 using Newtonsoft.Json;
@@ -111,6 +110,59 @@ namespace Microsoft.Sarif.Viewer
                 this.LineNumber = this.Region.StartLine;
                 this.ColumnNumber = this.Region.StartColumn;
             }
+        }
+
+        /// <summary>
+        ///  Gets the queries that can be used to do codefinding for this error list item.
+        /// </summary>
+        /// <returns>A list of queries for each location. If a location does not require a query, it will be inserted as null. If this item does not require a query for any, this list will be null or empty.</returns>
+        public List<(Uri filePath, MatchQuery query)?> GetMatchQueries()
+        {
+            var queries = new List<(Uri filePath, MatchQuery query)?>();
+
+            // If the physical location has a start line and end line tag, we should try to do codefinder searching to find the line to highlight even in cases of code drift
+            if (this.SarifResult.Locations?[0].PhysicalLocation != null
+                && this.SarifResult.Locations[0].PhysicalLocation.PropertyNames.Contains("StartLine")
+                && this.SarifResult.Locations[0].PhysicalLocation.PropertyNames.Contains("EndLine"))
+            {
+                foreach (Location l in this.SarifResult.Locations)
+                {
+                    if (l != null)
+                    {
+                        PhysicalLocation currentPhysicalLocation = l.PhysicalLocation;
+                        LogicalLocation currentLogicalLocation = l.LogicalLocation;
+                        if (currentPhysicalLocation.PropertyNames.Contains("StartLine")
+                            && currentPhysicalLocation.PropertyNames.Contains("EndLine")
+                            && currentPhysicalLocation.Region?.Snippet?.Text != null
+                            && currentPhysicalLocation.ArtifactLocation?.Uri != null
+                            && this.SarifResult.Guid != null)
+                        {
+                            MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code;
+                            if (currentPhysicalLocation.Region.Snippet.Text == currentLogicalLocation.FullyQualifiedName)
+                            {
+                                typeHint = MatchQuery.MatchTypeHint.Function;
+                            }
+
+                            var query = new MatchQuery(textToFind: currentPhysicalLocation.Region.Snippet.Text,
+                                lineNumberHint: this.LineNumber,
+                                callingSignature: currentLogicalLocation?.FullyQualifiedName,
+                                id: this.SarifResult.Guid,
+                                typeHint: typeHint);
+                            queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
+                        }
+                        else
+                        {
+                            queries.Add(null);
+                        }
+                    }
+                    else
+                    {
+                        queries.Add(null);
+                    }
+                }
+            }
+
+            return queries;
         }
 
         public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
@@ -279,6 +331,11 @@ namespace Microsoft.Sarif.Viewer
             set => this._lineMarker = value;
         }
 
+        /// <summary>
+        /// Remaps the file paths of this object's File name, locations, analysis steps, stack, and fixes.
+        /// </summary>
+        /// <param name="originalPath">The original path.</param>
+        /// <param name="remappedPath">The path it got re-mapped to.</param>
         internal void RemapFilePath(string originalPath, string remappedPath)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -377,6 +434,14 @@ namespace Microsoft.Sarif.Viewer
                     {
                         fileChangeModel.FilePath = remappedPath;
                     }
+                }
+            }
+
+            foreach (Location location in this.SarifResult.Locations)
+            {
+                if (location?.PhysicalLocation?.ArtifactLocation?.Uri.ToString() == originalPath)
+                {
+                    location.PhysicalLocation.ArtifactLocation.Uri = new Uri(remappedPath);
                 }
             }
 

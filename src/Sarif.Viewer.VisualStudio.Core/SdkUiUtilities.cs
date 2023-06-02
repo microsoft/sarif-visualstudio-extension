@@ -347,6 +347,16 @@ namespace Microsoft.Sarif.Viewer
             return false;
         }
 
+        public static string TryGetFileContent(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                return null;
+            }
+
+            return File.ReadAllText(filePath);
+        }
+
         public static bool TryGetFileNameFromTextBuffer(ITextBuffer textBuffer, out string filename)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
