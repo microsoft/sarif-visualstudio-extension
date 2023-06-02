@@ -81,12 +81,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public static bool IsUnitTesting { get; set; } = false;
 
         /// <inheritdoc/>
-        public async Task<Result<IResultSourceService, ErrorType>> GetResultSourceServiceAsync()
+        public async Task<Result<List<IResultSourceService>, ErrorType>> GetResultSourceServicesAsync()
         {
             var ctorArg1 = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
             var ctorArg2 = new ConstructorArgument("getOptionStateCallback", this.getOptionStateCallback, true);
             int index = -1;
 
+            List<IResultSourceService> serviceList = new List<IResultSourceService>();
             foreach (KeyValuePair<Type, (int, int)> kvp in this.resultSources)
             {
                 index++;
@@ -101,14 +102,21 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                             sourceService.FirstMenuId = kvp.Value.Item1;
                             sourceService.FirstCommandId = kvp.Value.Item2;
                             sourceService.GetOptionStateCallback = this.getOptionStateCallback;
-                            return Result.Success<IResultSourceService, ErrorType>(sourceService);
+                            serviceList.Add(sourceService);
                         }
                         catch (Exception) { }
                     }
                 }
             }
 
-            return Result.Failure<IResultSourceService, ErrorType>(ErrorType.PlatformNotSupported);
+            if (serviceList.Count == 0)
+            {
+                return Result.Failure<List<IResultSourceService>, ErrorType>(ErrorType.PlatformNotSupported);
+            }
+            else
+            {
+                return Result.Success<List<IResultSourceService>, ErrorType>(serviceList);
+            }
         }
     }
 }
