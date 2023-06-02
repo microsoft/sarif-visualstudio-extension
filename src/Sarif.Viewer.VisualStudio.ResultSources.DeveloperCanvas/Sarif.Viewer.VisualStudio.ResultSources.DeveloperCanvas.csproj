@@ -14,7 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj" />
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.csproj" />
-    <ProjectReference Include="..\Sarif.Viewer.VisualStudio\Sarif.Viewer.VisualStudio.csproj" />
   </ItemGroup>
 
   <ItemGroup>

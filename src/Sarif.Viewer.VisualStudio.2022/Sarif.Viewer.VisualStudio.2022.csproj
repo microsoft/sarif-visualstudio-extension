@@ -142,6 +142,10 @@
       <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022.csproj">
+      <Project>{151e16fe-6cd7-42cd-91df-8134e705db5b}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022.csproj">
       <Project>{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain.2022</Name>

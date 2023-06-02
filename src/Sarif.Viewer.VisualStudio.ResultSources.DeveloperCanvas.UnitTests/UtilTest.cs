@@ -35,6 +35,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             output.Should().Be(expected);
         }
 
+        /// <summary>
+        /// Tests that we can properly parse git urls into the server-project-repo format we use.
+        /// </summary>
+        /// <param name="repoUrl">The url of the repo we need to parse.</param>
+        /// <param name="expectedServer">The server we expect to get out.</param>
+        /// <param name="expectedProject">The project we expect to get out.</param>
+        /// <param name="expectedRepo">The repo we expect to get out.</param>
         [TestMethod]
         [DataRow("https://dev.azure.com/serverName/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
         [DataRow("https://serverName.visualstudio.com/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
