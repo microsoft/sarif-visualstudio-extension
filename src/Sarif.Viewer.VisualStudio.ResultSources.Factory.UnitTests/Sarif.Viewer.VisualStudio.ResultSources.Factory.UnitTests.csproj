@@ -44,9 +44,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\SampleResultSourceService.cs" />
     <Compile Include="ResultSourceFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022.csproj">
+      <Project>{A41F6491-B821-4F3F-B00B-3BBD4D5D0D4E}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain.2022</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain\Sarif.Viewer.VisualStudio.ResultSources.Domain.csproj">
       <Project>{032bc0cb-c3cc-4e2d-b42e-efd3e07dfe0e}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain</Name>

@@ -118,5 +118,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                 return Result.Success<List<IResultSourceService>, ErrorType>(serviceList);
             }
         }
+
+        /// <summary>
+        /// Adds ta result source to the list of allowed sources.
+        /// </summary>
+        /// <param name="type">The type of result source.</param>
+        /// <param name="firstMenuId">The first menu id of the result source.</param>
+        /// <param name="firstCommandId">The first command id of the result source.</param>
+        internal void AddResultSource(Type type, int firstMenuId, int firstCommandId)
+        {
+            resultSources.Add(type, (firstMenuId, firstCommandId));
+        }
     }
 }

@@ -62,6 +62,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public static int ErrorListContextdMenuCommandsPerFlyout => 10;
 
         /// <summary>
+        /// Gets the number of services in <see cref="resultSourceServices"/>.
+        /// </summary>
+        public int ServiceCount => resultSourceServices.Count;
+
+        /// <summary>
         /// Requests analysis results from the active source service, if any.
         /// </summary>
         /// <param name="resultSourceFactory">The <see cref="IResultSourceFactory"/>.</param>
