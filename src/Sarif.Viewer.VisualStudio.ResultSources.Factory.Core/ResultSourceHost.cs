@@ -44,7 +44,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public ResultSourceHost(IResultSourceFactory resultSourceFactory)
         {
             this.resultSourceFactory = resultSourceFactory;
-            resultSourceServices = new List<IResultSourceService>();
         }
 
         /// <summary>

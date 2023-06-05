@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 using CSharpFunctionalExtensions;
 
@@ -63,11 +65,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
-            Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType > result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.GetType().Name.Should().Be("GitHubSourceService");
+            result.Value[0].GetType().Name.Should().Be("GitHubSourceService");
         }
 
         [Fact]
@@ -102,7 +104,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
-            Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType > result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Should().Be(ErrorType.PlatformNotSupported);
@@ -113,9 +115,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
         {
             var mockResultSource = new Mock<IResultSourceService>();
             mockResultSource.Setup(s => s.RequestAnalysisScanResultsAsync(null));
+            List<IResultSourceService> serviceList = new List<IResultSourceService>();
+            serviceList.Add(mockResultSource.Object);
 
             var mockResultSourceFactory = new Mock<IResultSourceFactory>();
-            mockResultSourceFactory.Setup(f => f.GetResultSourceServicesAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
+            mockResultSourceFactory.Setup(f => f.GetResultSourceServicesAsync()).Returns(Task.FromResult(Result.Success<List<IResultSourceService>, ErrorType>(serviceList)));
 
             var resultSourceHost = new ResultSourceHost(mockResultSourceFactory.Object);
             await resultSourceHost.RequestAnalysisResultsAsync();
