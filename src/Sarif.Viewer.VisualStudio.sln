@@ -70,8 +70,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources", "Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources.csproj", "{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core", "Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.shproj", "{9C686DAA-AC27-4C26-9F89-1C1AF83DAB11}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AnyCPU = Debug|AnyCPU
@@ -306,7 +304,6 @@ Global
 		{14424761-9691-45E7-9BC9-3920C1618CAC} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{00E789EC-6AD5-446F-9618-A8B46336E916} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 		{6C18770E-F2D2-4A9E-B5EC-0A3E77EF5005} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
-		{9C686DAA-AC27-4C26-9F89-1C1AF83DAB11} = {AA378098-CA39-48A2-899A-3DEBD2A3227E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {767E843F-A395-4BD3-9275-69B35841770B}
@@ -323,7 +320,6 @@ Global
 		Sarif.Viewer.VisualStudio.Core\Sarif.Viewer.VisualStudio.Core.projitems*{795cf790-d1d5-4493-a078-8d78d098dfba}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.ResultSources.Factory.Core\Sarif.Viewer.VisualStudio.ResultSources.Factory.Core.projitems*{8d7b18cf-1038-4492-aaf5-4708ba1d60cc}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.ResultSources.Factory.Core\Sarif.Viewer.VisualStudio.ResultSources.Factory.Core.projitems*{97fd92d6-b72d-4dc8-a2d9-341356505ed2}*SharedItemsImports = 4
-		Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.projitems*{9c686daa-ac27-4c26-9f89-1c1af83dab11}*SharedItemsImports = 13
 		Sarif.Viewer.VisualStudio.ResultSources.Domain.Core\Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.projitems*{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core\Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Core.projitems*{ac806514-8ccf-4471-ae70-bafc83eccbc0}*SharedItemsImports = 4
 		Sarif.Viewer.VisualStudio.Shell.Core\Sarif.Viewer.VisualStudio.Shell.Core.projitems*{c4714e68-1701-45d5-9510-e298bb227cf2}*SharedItemsImports = 4
