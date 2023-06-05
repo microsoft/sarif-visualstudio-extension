@@ -120,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         }
 
         /// <summary>
-        /// Adds ta result source to the list of allowed sources.
+        /// Adds a result source to the list of allowed sources.
         /// </summary>
         /// <param name="type">The type of result source.</param>
         /// <param name="firstMenuId">The first menu id of the result source.</param>
