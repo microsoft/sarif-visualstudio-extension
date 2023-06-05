@@ -44,6 +44,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ErrorListService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\FilteredColumnValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorList\IColumnFilterer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\ISarifErrorListEventSelectionService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ErrorList\SarifErrorListEventProcessorProvider.cs" />
@@ -95,6 +96,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\ReplacementModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\RuleModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SarifErrorListItemProperties.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\ScrollViewerWrapper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackCollection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\StackFrameModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SuppressionModel.cs" />
@@ -102,12 +105,22 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\VSSuppressionState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NotifyPropertyChangedObject.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpenLogFileCommands.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\ISarifViewerOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionPage.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControl.xaml.cs">
-      <DependentUpon>SarifViewerOptionsControl.xaml</DependentUpon>
+    <Compile Include="$(MSBuildThisFileDirectory)Options\ColorOption.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\ISarifViewerColorOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\ISarifViewerGeneralOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\LocationTextDecoration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\LocationTextDecorationCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptionsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptionsControl.xaml.cs">
+      <DependentUpon>SarifViewerColorOptionsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsControl.xaml.cs">
+      <DependentUpon>SarifViewerGeneralOptionsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Options\SelectedColorChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OutputWindowTracerListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectKind.cs" />
@@ -115,6 +128,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultTextMarker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RunDataCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RunSummary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifExplorerWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifFileAndContentDefinitions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifTextViewCreationListener.cs" />
@@ -178,6 +192,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\AdoVersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\GithubVersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\IVersionControlParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VersionControlParser\VersionControlParserFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ViewModelLocator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\AnalysisStepView.cs" />
@@ -194,9 +209,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)WeakEventHandlerManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)Data\ruleLookup.json" />
@@ -227,9 +240,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerColorOptionsControl.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerGeneralOptionsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)Options\SarifViewerOptionsControlResources.xaml">
       <Generator>MSBuild:Compile</Generator>

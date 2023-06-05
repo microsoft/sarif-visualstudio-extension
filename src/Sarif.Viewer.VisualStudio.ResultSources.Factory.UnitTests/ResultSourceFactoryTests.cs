@@ -31,7 +31,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             ResultSourceFactory.IsUnitTesting = true;
         }
 
-        [Fact(Skip = "Temporarily disabled for ADO API simulation")]
+        [Fact]
         public void GetResultSourceService_ReturnsGitHubSourceService_WhenPathContainsDotGitDirectory()
         {
             string path = @"C:\Git\MyProject";
@@ -46,8 +46,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
@@ -62,7 +62,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
@@ -85,8 +85,8 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
 
             var mockGitExe = new Mock<IGitExe>();
-            mockGitExe.Setup(g => g.GetRepoRootAsync()).Returns(new ValueTask<string>(path));
-            mockGitExe.Setup(g => g.GetRepoUriAsync()).Returns(new ValueTask<string>(uri));
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
 
             var mockInfoBarService = new Mock<IInfoBarService>();
             var mockStatusBarService = new Mock<IStatusBarService>();
@@ -101,7 +101,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
             Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeFalse();
@@ -112,7 +112,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
         public async Task RequestAnalysisResults_RequestsResultsOnce_WhenSourceActive_Async()
         {
             var mockResultSource = new Mock<IResultSourceService>();
-            mockResultSource.Setup(s => s.RequestAnalysisResultsAsync(null));
+            mockResultSource.Setup(s => s.RequestAnalysisScanResultsAsync(null));
 
             var mockResultSourceFactory = new Mock<IResultSourceFactory>();
             mockResultSourceFactory.Setup(f => f.GetResultSourceServiceAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
@@ -120,7 +120,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             var resultSourceHost = new ResultSourceHost(mockResultSourceFactory.Object);
             await resultSourceHost.RequestAnalysisResultsAsync();
 
-            mockResultSource.Verify(s => s.RequestAnalysisResultsAsync(null), Times.Once);
+            mockResultSource.Verify(s => s.RequestAnalysisScanResultsAsync(null), Times.Once);
         }
     }
 }

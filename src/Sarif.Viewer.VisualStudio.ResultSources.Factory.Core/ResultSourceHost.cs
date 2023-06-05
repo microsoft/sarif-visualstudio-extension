@@ -26,11 +26,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// </summary>
         /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
         /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
         public ResultSourceHost(
             string solutionRootPath,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            Func<string, bool> getOptionStateCallback)
         {
-            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider);
+            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider, getOptionStateCallback);
         }
 
         /// <summary>
@@ -69,7 +71,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             }
 
-            // Currently this service only supports one result source per solution.
+            // Currently this service only supports one result source at a time.
             if (this.resultSourceService == null)
             {
                 Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync();
@@ -90,7 +92,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             {
                 try
                 {
-                    await this.resultSourceService?.RequestAnalysisResultsAsync();
+                    await this.resultSourceService?.RequestAnalysisScanResultsAsync();
                 }
                 catch (Exception) { }
             }

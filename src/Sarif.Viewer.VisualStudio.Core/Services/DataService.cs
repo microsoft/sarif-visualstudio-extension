@@ -92,28 +92,26 @@ namespace Microsoft.Sarif.Viewer.Services
                 await ErrorListService.CloseSarifLogItemsAsync(new string[] { EnhancedResultDataLogName });
 
                 runIndex = CodeAnalysisResultManager.Instance.GetNextRunIndex();
-                var dataCache = new RunDataCache(runIndex, EnhancedResultDataLogName, sarifLog);
+                var dataCache = new RunDataCache(EnhancedResultDataLogName, sarifLog);
                 CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.Add(runIndex, dataCache);
 
                 var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
                 var projectNameCache = new ProjectNameCache(dte?.Solution);
-                var items = new List<SarifErrorListItem>();
                 Run run = sarifLog.Runs.First();
 
                 foreach (Result r in run.Results)
                 {
                     var sarifErrorListItem = new SarifErrorListItem(run, runIndex, r, null, projectNameCache);
                     sarifErrorListItem.PopulateAdditionalPropertiesIfNot();
-                    items.Add(sarifErrorListItem);
-                    dataCache.SarifErrors.Add(sarifErrorListItem);
+                    dataCache.AddSarifResult(sarifErrorListItem);
                 }
 
-                this.sarifErrorListEventSelectionService.NavigatedItem = items[0];
-                this.sarifErrorListEventSelectionService.SelectedItem = items[0];
+                this.sarifErrorListEventSelectionService.NavigatedItem = dataCache.SarifErrors[0];
+                this.sarifErrorListEventSelectionService.SelectedItem = dataCache.SarifErrors[0];
 
-                items[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
+                dataCache.SarifErrors[0].Locations?.FirstOrDefault()?.NavigateTo(usePreviewPane: false, moveFocusToCaretLocation: true);
 
-                this.keyEventTelemetry.TrackEvent(KeyEventTelemetry.EventNames.DisplayKeyEventData, item: items[0], pathIndex: null);
+                this.keyEventTelemetry.TrackEvent(KeyEventTelemetry.EventNames.DisplayKeyEventData, item: dataCache.SarifErrors[0], pathIndex: null);
             }
 
             SarifExplorerWindow.Find()?.Show();

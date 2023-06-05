@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
+
+using EnvDTE80;
 
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
@@ -18,7 +18,6 @@ using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Factory;
 using Microsoft.Sarif.Viewer.Services;
-using Microsoft.Sarif.Viewer.Shell;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -26,7 +25,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
-using Microsoft.VisualStudio.Workspace;
 
 using Newtonsoft.Json;
 
@@ -51,8 +49,8 @@ namespace Microsoft.Sarif.Viewer
     [ProvideService(typeof(ITextViewCaretListenerService<>))]
     [ProvideService(typeof(ISarifErrorListEventSelectionService))]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.FolderOpened_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideOptionPage(typeof(SarifViewerOptionPage), OptionCategoryName, OptionPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(SarifViewerGeneralOptionsPage), OptionCategoryName, OptionPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(SarifViewerColorOptionsPage), OptionCategoryName, ColorsPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
@@ -68,6 +66,7 @@ namespace Microsoft.Sarif.Viewer
         public const string PackageGuidString = "b97edb99-282e-444c-8f53-7de237f2ec5e";
         public const string OptionCategoryName = "SARIF Viewer";
         public const string OptionPageName = "General";
+        public const string ColorsPageName = "Colors";
         public const string OutputPaneName = "SARIF Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 
@@ -156,7 +155,8 @@ namespace Microsoft.Sarif.Viewer
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // initialize Option first since other componments may depends on options.
-            await SarifViewerOption.InitializeAsync(this).ConfigureAwait(false);
+            await SarifViewerGeneralOptions.InitializeAsync(this).ConfigureAwait(false);
+            await SarifViewerColorOptions.InitializeAsync(this).ConfigureAwait(false);
 
             if (await this.GetServiceAsync(typeof(SVsOutputWindow)).ConfigureAwait(continueOnCapturedContext: true) is IVsOutputWindow output)
             {
@@ -180,29 +180,24 @@ namespace Microsoft.Sarif.Viewer
                 // [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
                 // SolutionEvents.OnAfterBackgroundSolutionLoadComplete will not by triggered until the user opens another solution.
                 // Need to manually start monitor in this case.
-                this.sarifFolderMonitor?.StartWatch();
+                this.sarifFolderMonitor?.StartWatching();
             }
 
             SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
             SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
             SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
-            SolutionEvents.OnAfterCloseFolder += this.SolutionEvents_OnAfterCloseFolder;
-            SolutionEvents.OnAfterOpenFolder += this.SolutionEvents_OnAfterOpenFolder;
+            SolutionEvents.OnBeforeOpenProject += this.SolutionEvents_OnBeforeOpenProject;
 
             await this.InitializeResultSourceHostAsync();
             return;
         }
 
-        private void SolutionEvents_OnAfterCloseFolder(object sender, FolderEventArgs e)
+        private void SolutionEvents_OnBeforeOpenProject(object sender, EventArgs e)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            this.SolutionEvents_OnAfterCloseSolution(sender, e);
-        }
+            // start watcher when the solution is opened.
+            this.sarifFolderMonitor?.StartWatching();
 
-        private void SolutionEvents_OnAfterOpenFolder(object sender, FolderEventArgs e)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete(sender, e);
+            this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
         private void SolutionEvents_OnAfterCloseSolution(object sender, EventArgs e)
@@ -226,16 +221,18 @@ namespace Microsoft.Sarif.Viewer
         {
             if (this.resultSourceHost == null)
             {
-                string rootPath = ShellUtilities.GetSolutionDirectoryPath();
-
-                if (!string.IsNullOrWhiteSpace(rootPath) && SarifViewerOption.Instance.IsGitHubAdvancedSecurityEnabled)
+                string solutionPath = GetSolutionDirectoryPath();
+                if (!string.IsNullOrWhiteSpace(solutionPath))
                 {
-                    this.resultSourceHost = new ResultSourceHost(rootPath, this);
+                    this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.IsOptionEnabled);
                     this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
                 }
             }
 
-            await this.resultSourceHost?.RequestAnalysisResultsAsync();
+            if (this.resultSourceHost != null)
+            {
+                await this.resultSourceHost.RequestAnalysisResultsAsync();
+            }
         }
 
         private object CreateService(IServiceContainer container, Type serviceType)
@@ -286,7 +283,7 @@ namespace Microsoft.Sarif.Viewer
         private void SolutionEvents_OnBeforeCloseSolution(object sender, EventArgs e)
         {
             // stop watcher when the solution is closed.
-            this.sarifFolderMonitor?.StopWatch();
+            this.sarifFolderMonitor?.StopWatching();
 
             if (this.resultSourceHost != null)
             {
@@ -296,29 +293,27 @@ namespace Microsoft.Sarif.Viewer
 
             var fileSystem = new FileSystem();
 
-            string dotSarifPath = ShellUtilities.GetDotSarifDirectoryPath();
-            if (fileSystem.DirectoryExists(dotSarifPath))
+            try
             {
-                foreach (string path in fileSystem.DirectoryGetFiles(dotSarifPath, "*.sarif"))
-                {
-                    try
-                    {
-                        // Best effort delete, no harm if this fails.
-                        fileSystem.FileDelete(path);
-                    }
-                    catch (Exception) { }
-                }
+                // Best effort delete, no harm if this fails.
+                fileSystem.FileDelete(Path.Combine(GetDotSarifDirectoryPath(), "scan-results.sarif"));
             }
+            catch (Exception) { }
         }
 
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
             // start to watch when the solution is loaded.
-            this.sarifFolderMonitor?.StartWatch();
+            this.sarifFolderMonitor?.StartWatching();
 
             this.JoinableTaskFactory.Run(async () => await InitializeResultSourceHostAsync());
         }
 
+        /// <summary>
+        /// This event is fired when <see cref="ResultSourceHost.ServiceEvent"/> is fired.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The arguments that were passed by the method that invoked the result source host service event.</param>
         private void ResultSourceHost_ServiceEvent(object sender, ServiceEventArgs e)
         {
             switch (e.ServiceEventType)
@@ -329,7 +324,7 @@ namespace Microsoft.Sarif.Viewer
                         if (resultsUpdatedEventArgs.UseDotSarifDirectory)
                         {
                             // Auto-load from the .sarif directory.
-                            string path = Path.Combine(ShellUtilities.GetDotSarifDirectoryPath(), resultsUpdatedEventArgs.LogFileName);
+                            string path = Path.Combine(GetDotSarifDirectoryPath(), resultsUpdatedEventArgs.LogFileName);
                             resultsUpdatedEventArgs.SarifLog.Save(path);
                         }
                         else
@@ -377,33 +372,49 @@ namespace Microsoft.Sarif.Viewer
                             return menuCommand;
                         }
 
-                        using (OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>())
+                        OleMenuCommandService mcs = this.GetService<IMenuCommandService, OleMenuCommandService>();
+                        int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
+                        int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
+                        int flyoutCount = 0;
+                        int commandCount = 0;
+
+                        for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
                         {
-                            int firstMenuId = requestAddMenuCommandEventArgs.FirstMenuId;
-                            int firstCommandId = requestAddMenuCommandEventArgs.FirstCommandId;
-                            int flyoutCount = 0;
-                            int commandCount = 0;
+                            ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
+                            OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
+                            mcs.AddCommand(flyoutMenu);
+                            flyoutCount++;
 
-                            for (int f = 0; f < requestAddMenuCommandEventArgs.MenuItems.Flyouts.Count && f < ResultSourceHost.ErrorListContextdMenuChildFlyoutsPerFlyout; f++)
+                            for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
                             {
-                                ErrorListMenuFlyout flyout = requestAddMenuCommandEventArgs.MenuItems.Flyouts[f];
-                                OleMenuCommand flyoutMenu = CreateFlyoutMenu(flyout, firstMenuId + flyoutCount);
-                                mcs.AddCommand(flyoutMenu);
-                                flyoutCount++;
-
-                                for (int c = 0; c < flyout.Commands.Count && c < ResultSourceHost.ErrorListContextdMenuCommandsPerFlyout; c++)
-                                {
-                                    ErrorListMenuCommand command = flyout.Commands[c];
-                                    OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
-                                    mcs.AddCommand(menuCommand);
-                                    commandCount++;
-                                }
+                                ErrorListMenuCommand command = flyout.Commands[c];
+                                OleMenuCommand menuCommand = CreateDynamicMenuCommand(command, firstCommandId + commandCount);
+                                mcs.AddCommand(menuCommand);
+                                commandCount++;
                             }
                         }
                     }
 
                     break;
             }
+        }
+
+        private static string GetSolutionDirectoryPath()
+        {
+            var dte = (DTE2)Package.GetGlobalService(typeof(EnvDTE.DTE));
+            string solutionFilePath = dte.Solution?.FullName;
+            return !string.IsNullOrWhiteSpace(solutionFilePath)
+                ? Path.GetDirectoryName(solutionFilePath)
+                : null;
+        }
+
+        /// <summary>
+        /// Gets the .sarif directory that is used for this solution.
+        /// </summary>
+        /// <returns>A string of where the .sarif directory for this solution is.</returns>
+        private static string GetDotSarifDirectoryPath()
+        {
+            return Path.Combine(GetSolutionDirectoryPath(), ".sarif");
         }
     }
 }

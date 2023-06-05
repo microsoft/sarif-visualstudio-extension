@@ -17,6 +17,7 @@ using EnvDTE80;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ErrorList;
 using Microsoft.Sarif.Viewer.Models;
+using Microsoft.Sarif.Viewer.Options;
 using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio.ComponentModelHost;
@@ -28,43 +29,34 @@ using Microsoft.VisualStudio.Text.Tagging;
 
 using Newtonsoft.Json;
 
+using Run = Microsoft.CodeAnalysis.Sarif.Run;
 using XamlDoc = System.Windows.Documents;
 
 namespace Microsoft.Sarif.Viewer
 {
-    internal class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
+    internal enum TextRenderType
     {
-        // max length of concise text, 0 indexed
-        internal static int MaxConcisedTextLength = 150;
-
-        // Contains the result Id that will be incremented and assigned to new instances of <see cref="SarifErrorListItem"/>.
-        private static int currentResultId;
-
-        private string _fileName;
-        private ToolModel _tool;
-        private RuleModel _rule;
-        private InvocationModel _invocation;
-        private string _selectedTab;
-        private DelegateCommand _openLogFileCommand;
-        private ObservableCollection<XamlDoc.Inline> _messageInlines;
-        private ResultTextMarker _lineMarker;
-        private bool isDisposed;
+        /// <summary>
+        /// Denotes that a string should be rendered as plaintext
+        /// </summary>
+        Text,
 
         /// <summary>
-        /// This dictionary is used to map the SARIF failure level to the color of the "squiggle" shown
-        /// in Visual Studio's editor.
+        /// Denotes that a string should be rendered as markdown
         /// </summary>
-        private static readonly Dictionary<FailureLevel, string> FailureLevelToPredefinedErrorTypes = new Dictionary<FailureLevel, string>
-        {
-            { FailureLevel.Error, PredefinedErrorTypeNames.OtherError },
-            { FailureLevel.Warning, PredefinedErrorTypeNames.Warning },
-            { FailureLevel.Note, PredefinedErrorTypeNames.HintedSuggestion },
-        };
+        Markdown,
+    }
 
+    /// <summary>
+    /// This holds the functionality of the <see cref="SarifErrorListItem"/> class.
+    /// </summary>
+    internal partial class SarifErrorListItem : NotifyPropertyChangedObject, IDisposable
+    {
         internal SarifErrorListItem(Result result)
             : this()
         {
             this.SarifResult = result;
+            this.RawMessage = result.Message?.Text;
         }
 
         internal SarifErrorListItem()
@@ -121,6 +113,45 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
+            : this()
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
+
+            this.RunIndex = runIndex;
+            string ruleId = null;
+
+            if (notification.AssociatedRule != null)
+            {
+                ruleId = notification.AssociatedRule.Id;
+            }
+            else if (notification.Descriptor != null)
+            {
+                ruleId = notification.Descriptor.Id;
+            }
+
+            run.TryGetRule(ruleId, out ReportingDescriptor rule);
+            this.RawMessage = FormatNotficationText(notification);
+            (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
+
+            this.Level = notification.Level;
+            this.LogFilePath = logFilePath;
+            this.FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, this.RunIndex) ?? string.Empty;
+            this.ProjectName = projectNameCache.GetName(this.FileName);
+            this.Locations.Add(new LocationModel(resultId: this.ResultId, runIndex: this.RunIndex) { FilePath = FileName });
+
+            this.Tool = run.Tool.ToToolModel();
+            this.Rule = rule.ToRuleModel(ruleId);
+            this.Invocation = run.Invocations?[0]?.ToInvocationModel();
+            this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
+            this.HelpLink = this.Rule?.HelpUri;
+        }
+
         /// <summary>
         /// Fired when this error list item is disposed.
         /// </summary>
@@ -149,225 +180,6 @@ namespace Microsoft.Sarif.Viewer
                     return result.Level != FailureLevel.Warning ? result.Level : this.Rule.FailureLevel;
             }
         }
-
-        public SarifErrorListItem(Run run, int runIndex, Notification notification, string logFilePath, ProjectNameCache projectNameCache)
-            : this()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            this.RunIndex = runIndex;
-            string ruleId = null;
-
-            if (notification.AssociatedRule != null)
-            {
-                ruleId = notification.AssociatedRule.Id;
-            }
-            else if (notification.Descriptor != null)
-            {
-                ruleId = notification.Descriptor.Id;
-            }
-
-            run.TryGetRule(ruleId, out ReportingDescriptor rule);
-            this.RawMessage = notification.Message.Text?.Trim() ?? string.Empty;
-            (this.ShortMessage, this.Message) = SdkUIUtilities.SplitResultMessage(this.RawMessage, MaxConcisedTextLength);
-
-            this.Level = notification.Level;
-            this.LogFilePath = logFilePath;
-            this.FileName = SdkUIUtilities.GetFileLocationPath(notification.Locations?[0]?.PhysicalLocation?.ArtifactLocation, this.RunIndex) ?? string.Empty;
-            this.ProjectName = projectNameCache.GetName(this.FileName);
-            this.Locations.Add(new LocationModel(resultId: this.ResultId, runIndex: this.RunIndex) { FilePath = FileName });
-
-            this.Tool = run.Tool.ToToolModel();
-            this.Rule = rule.ToRuleModel(ruleId);
-            this.Invocation = run.Invocations?[0]?.ToInvocationModel();
-            this.WorkingDirectory = Path.Combine(Path.GetTempPath(), this.RunIndex.ToString());
-            this.HelpLink = this.Rule?.HelpUri;
-        }
-
-        /// <summary>
-        /// Gets the result ID that uniquely identifies this result for this Visual Studio session.
-        /// </summary>
-        /// <remarks>
-        /// This property is used by the tagger to perform queries over the SARIF errors whereas the
-        /// <see cref="RunIndex"/> property is not yet used.
-        /// </remarks>
-        public int ResultId { get; }
-
-        /// <summary>
-        /// Gets the Sarif result's guid. Can be null.
-        /// </summary>
-        /// <remarks>
-        /// In Key Event scenario, it is used to identify each unique warning and log to telemetry.
-        /// </remarks>
-        public string ResultGuid { get; }
-
-        /// <summary>
-        /// Gets reference to corresponding <see cref="SarifLog.Result" /> object.
-        /// </summary>
-        public Result SarifResult { get; }
-
-        public int RunIndex { get; }
-
-        [Browsable(false)]
-        public string MimeType { get; set; }
-
-        [Browsable(false)]
-        public Region Region { get; set; }
-
-        [Browsable(false)]
-        public string FileName
-        {
-            get => this._fileName;
-
-            set
-            {
-                if (value == this._fileName) { return; }
-                this._fileName = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        [Browsable(false)]
-        public string ProjectName { get; set; }
-
-        [Browsable(false)]
-        public bool RegionPopulated { get; set; }
-
-        [Browsable(false)]
-        public string WorkingDirectory { get; set; }
-
-        [Browsable(false)]
-        public string ShortMessage { get; set; }
-
-        [Browsable(false)]
-        public string Message { get; set; }
-
-        [Browsable(false)]
-        public string RawMessage { get; set; }
-
-        [Browsable(false)]
-        public string PlainMessage => !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
-                                      SdkUIUtilities.GetPlainText(this.MessageInlines) :
-                                      this.RawMessage;
-
-        [Browsable(false)]
-        public ObservableCollection<XamlDoc.Inline> MessageInlines => this._messageInlines ??=
-            new ObservableCollection<XamlDoc.Inline>(SdkUIUtilities.GetMessageInlines(this.RawMessage, this.MessageInlineLink_Click));
-
-        [Browsable(false)]
-        public bool HasEmbeddedLinks => this.MessageInlines.Any();
-
-        [Browsable(false)]
-        public bool HasDetailsContent =>
-            !string.IsNullOrWhiteSpace(this.Message)
-            && this.Message != this.ShortMessage;
-
-        [Browsable(false)]
-        public SnapshotSpan Span { get; set; }
-
-        [Browsable(false)]
-        public int LineNumber { get; set; }
-
-        [Browsable(false)]
-        public int ColumnNumber { get; set; }
-
-        [Browsable(false)]
-        public string Category { get; set; }
-
-        [ReadOnly(true)]
-        public FailureLevel Level { get; set; }
-
-        [Browsable(false)]
-        public string HelpLink { get; set; }
-
-        [DisplayName("Suppression status")]
-        [ReadOnly(true)]
-        public VSSuppressionState VSSuppressionState { get; set; }
-
-        [DisplayName("Log file")]
-        [ReadOnly(true)]
-        public string LogFilePath { get; set; }
-
-        [Browsable(false)]
-        public ToolModel Tool
-        {
-            get => this._tool;
-
-            set
-            {
-                this._tool = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        [Browsable(false)]
-        public RuleModel Rule
-        {
-            get => this._rule;
-
-            set
-            {
-                this._rule = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        [Browsable(false)]
-        public InvocationModel Invocation
-        {
-            get => this._invocation;
-
-            set
-            {
-                this._invocation = value;
-                this.NotifyPropertyChanged();
-            }
-        }
-
-        [Browsable(false)]
-        public string SelectedTab
-        {
-            get => this._selectedTab;
-
-            set
-            {
-                ThreadHelper.ThrowIfNotOnUIThread();
-                this._selectedTab = value;
-
-                // If a new tab is selected, reset the Properties window.
-                SarifExplorerWindow.Find()?.ResetSelection();
-            }
-        }
-
-        [Browsable(false)]
-        public LocationCollection Locations { get; }
-
-        [Browsable(false)]
-        public LocationCollection RelatedLocations { get; }
-
-        [Browsable(false)]
-        public AnalysisStepCollection AnalysisSteps { get; }
-
-        [Browsable(false)]
-        public ObservableCollection<StackCollection> Stacks { get; }
-
-        [Browsable(false)]
-        public ObservableCollection<FixModel> Fixes { get; }
-
-        [Browsable(false)]
-        public ObservableCollection<KeyValuePair<string, string>> Properties { get; }
-
-        [Browsable(false)]
-        public bool HasDetails => this.SarifResult?.Fixes?.Any() == true ||
-                                  this.SarifResult?.Stacks?.Any() == true ||
-                                  this.SarifResult?.CodeFlows?.Any() == true ||
-                                  this.SarifResult?.Locations?.Any() == true ||
-                                  this.SarifResult?.RelatedLocations?.Any() == true;
-
-        [Browsable(false)]
-        public int LocationsCount => this.Locations.Count + this.RelatedLocations.DeepCount;
-
-        [Browsable(false)]
-        public bool HasMultipleLocations => this.LocationsCount > 1;
 
         [Browsable(false)]
         public DelegateCommand OpenLogFileCommand => this._openLogFileCommand ??= new DelegateCommand(() =>
@@ -438,6 +250,9 @@ namespace Microsoft.Sarif.Viewer
             return this.Message;
         }
 
+        /// <summary>
+        /// Gets or sets the line marker for highlighting that represents the primary region of this item.
+        /// </summary>
         [Browsable(false)]
         public ResultTextMarker LineMarker
         {
@@ -445,8 +260,6 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (this._lineMarker == null && this.Region?.StartLine > 0)
                 {
-                    FailureLevelToPredefinedErrorTypes.TryGetValue(this.Level, out string predefinedErrorType);
-
                     this._lineMarker = new ResultTextMarker(
                         runIndex: this.RunIndex,
                         resultId: this.ResultId,
@@ -455,8 +268,8 @@ namespace Microsoft.Sarif.Viewer
                         fullFilePath: this.FileName,
                         nonHighlightedColor: ResultTextMarker.DEFAULT_SELECTION_COLOR,
                         highlightedColor: ResultTextMarker.HOVER_SELECTION_COLOR,
-                        errorType: predefinedErrorType,
-                        tooltipContent: this.PlainMessage,
+                        failureLevel: this.Level,
+                        tooltipContent: this.Content,
                         context: this);
                 }
 
@@ -573,14 +386,17 @@ namespace Microsoft.Sarif.Viewer
             SarifLocationTagHelpers.RefreshTags();
         }
 
+        /// <summary>
+        /// Populates the <see cref="Fixes"/> field from the <see cref="SarifResult.Fixes"/>.
+        /// </summary>
         internal void PopulateFixModelsIfNot()
         {
-            // populate FixModels if they are not
+            // Populate FixModels if they are not populated
             if (this.SarifResult?.Fixes?.Any() == true && this.Fixes?.Any() == false)
             {
                 if (CodeAnalysisResultManager.Instance.RunIndexToRunDataCache.TryGetValue(this.RunIndex, out RunDataCache runDataCache))
                 {
-                    foreach (Fix fix in this.SarifResult?.Fixes)
+                    foreach (Fix fix in this.SarifResult.Fixes)
                     {
                         var fixModel = fix.ToFixModel(runDataCache.OriginalUriBasePaths, FileRegionsCache.Instance);
                         foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
@@ -593,14 +409,18 @@ namespace Microsoft.Sarif.Viewer
                 }
                 else
                 {
-                    foreach (Fix fix in this.SarifResult?.Fixes)
+                    foreach (Fix fix in this.SarifResult.Fixes)
                     {
-                        this.Fixes.Add(fix.ToFixModel(this.SarifResult?.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
+                        this.Fixes.Add(fix.ToFixModel(this.SarifResult.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Populates the <see cref="Locations"/> , <see cref="RelatedLocations"/>, <see cref="CodeFlows"/>, <see cref="Stacks"/>, and <see cref="Properties"/> fields from <see cref="SarifResult"/>.
+        /// Only callable from the UI thread.
+        /// </summary>
         internal void PopulateAdditionalPropertiesIfNot()
         {
             if (!SarifViewerPackage.IsUnitTesting)
@@ -610,33 +430,33 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
-            if (this.SarifResult?.Locations?.Any() == true && this.Locations?.Any() == false)
+            if (this.SarifResult.Locations?.Any() == true && this.Locations?.Any() == false)
             {
                 // Adding in reverse order will make them display in the correct order in the UI.
                 for (int i = this.SarifResult.Locations.Count - 1; i >= 0; --i)
                 {
-                    this.Locations.Add(this.SarifResult?.Locations[i].ToLocationModel(this.SarifResult?.Run, resultId: this.ResultId, runIndex: this.RunIndex));
+                    this.Locations.Add(this.SarifResult.Locations[i].ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 
-            if (this.SarifResult?.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
+            if (this.SarifResult.RelatedLocations?.Any() == true && this.RelatedLocations?.Any() == false)
             {
                 this.BuildRelatedLocationsTree();
             }
 
-            if (this.SarifResult?.Stacks?.Any() == true && this.Stacks?.Any() == false)
+            if (this.SarifResult.Stacks?.Any() == true && this.Stacks?.Any() == false)
             {
-                foreach (Stack stack in this.SarifResult?.Stacks)
+                foreach (Stack stack in this.SarifResult.Stacks)
                 {
                     this.Stacks.Add(stack.ToStackCollection(resultId: this.ResultId, runIndex: this.RunIndex));
                 }
             }
 
-            if (this.SarifResult?.CodeFlows?.Any() == true && this.AnalysisSteps?.Any() == false)
+            if (this.SarifResult.CodeFlows?.Any() == true && this.AnalysisSteps?.Any() == false)
             {
-                foreach (CodeFlow codeFlow in this.SarifResult?.CodeFlows)
+                foreach (CodeFlow codeFlow in this.SarifResult.CodeFlows)
                 {
-                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult?.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
+                    var analysisStep = codeFlow.ToAnalysisStep(this.SarifResult.Run, sarifErrorListItem: this, runIndex: this.RunIndex);
                     if (analysisStep != null)
                     {
                         this.AnalysisSteps.Add(analysisStep);
@@ -647,14 +467,14 @@ namespace Microsoft.Sarif.Viewer
                 this.AnalysisSteps.IntelligentExpand();
             }
 
-            if (this.SarifResult?.PropertyNames?.Any() == true && this.Properties?.Any() == false)
+            if (this.SarifResult.PropertyNames?.Any() == true && this.Properties?.Any() == false)
             {
-                foreach (string propertyName in this.SarifResult?.PropertyNames)
+                foreach (string propertyName in this.SarifResult.PropertyNames)
                 {
                     this.Properties.Add(
                         new KeyValuePair<string, string>(
                             propertyName,
-                            this.SarifResult?.GetSerializedPropertyValue(propertyName)));
+                            this.SarifResult.GetSerializedPropertyValue(propertyName)));
                 }
             }
         }
@@ -664,9 +484,9 @@ namespace Microsoft.Sarif.Viewer
             LocationModel lastNode = null;
             int lastLevel = -1;
 
-            foreach (Location location in this.SarifResult?.RelatedLocations)
+            foreach (Location location in this.SarifResult.RelatedLocations)
             {
-                var locationModel = location.ToLocationModel(this.SarifResult?.Run, resultId: this.ResultId, runIndex: this.RunIndex);
+                var locationModel = location.ToLocationModel(this.SarifResult.Run, resultId: this.ResultId, runIndex: this.RunIndex);
                 int levelChange = locationModel.NestingLevel - lastLevel;
 
                 while (levelChange++ <= 0)
@@ -707,10 +527,18 @@ namespace Microsoft.Sarif.Viewer
         /// </summary>
         public bool IsFixed { get; set; }
 
+        /// <summary>
+        /// Builds the tags that are to be used in code highglighting and popups.
+        /// </summary>
+        /// <typeparam name="T">Type that the result text marker should use.</typeparam>
+        /// <param name="textBuffer">The textbuffer representing the file the tags are being built for.</param>
+        /// <param name="persistentSpanFactory">The span factory that is to actually create the spans.</param>
+        /// <param name="includeChildTags">True will set it to include child tags in the location tags returned.</param>
+        /// <param name="includeResultTag">True will set it to include result tags in the location tags returned.</param>
+        /// <returns>The list of <see cref="ISarifLocationTag"/> that are used to display highlights and popups in the VS editor window.</returns>
         public IEnumerable<ISarifLocationTag> GetTags<T>(ITextBuffer textBuffer, IPersistentSpanFactory persistentSpanFactory, bool includeChildTags, bool includeResultTag)
             where T : ITag
         {
-            IEnumerable<ISarifLocationTag> tags = Enumerable.Empty<ISarifLocationTag>();
             IEnumerable<ResultTextMarker> resultTextMarkers = this.CollectResultTextMarkers(includeChildTags: includeChildTags, includeResultTag: includeResultTag);
 
             return resultTextMarkers.SelectMany(resultTextMarker => resultTextMarker.GetTags<T>(textBuffer, persistentSpanFactory));
@@ -854,6 +682,7 @@ namespace Microsoft.Sarif.Viewer
                 // look in Result.CodeFlows or Result.Stacks.
                 LocationModel location = this.RelatedLocations.Concat(this.Locations)
                                                               .FirstOrDefault(l => l.Id == id);
+
                 if (location == null)
                 {
                     return;
@@ -898,8 +727,11 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
-        // Generates an unique hash value using the properties affect content of error list item.
-        // If any of these properties changes, needs to refresh error list item.
+        /// <summary>
+        /// Generates an unique hash value using the properties affect content of error list item.
+        /// If any of these properties changes, needs to refresh error list item.
+        /// </summary>
+        /// <returns>The hash of the error list item object.</returns>
         internal int GetIdentity()
         {
             int hashCode = -509415362;
@@ -924,6 +756,52 @@ namespace Microsoft.Sarif.Viewer
             hashCode = (hashCode * hashFactor) + EqualityComparer<RuleModel>.Default.GetHashCode(this.Rule);
 
             return hashCode;
+        }
+
+        private static string FormatNotficationText(Notification notification)
+        {
+            string message = notification.Message.Text?.Trim() ?? string.Empty;
+
+            string kind = notification.Exception?.Kind?.Trim();
+            if (!string.IsNullOrWhiteSpace(kind))
+            {
+                message += Environment.NewLine + $"[Exception type: {kind}]";
+            }
+
+            string exceptionMessage = notification.Exception?.Message?.Trim();
+            if (!string.IsNullOrWhiteSpace(exceptionMessage))
+            {
+                message += Environment.NewLine + $"[Exception message: {exceptionMessage}]";
+            }
+
+            return message;
+        }
+
+        /// <summary>
+        /// Creates the content that goes into the ToolTipContent that gets rendered on hover.
+        /// Will attempt to render markdown first, however if it fails it will fall back to plaintext.
+        /// </summary>
+        /// <returns>ToolTipContent to render.</returns>
+        private List<(string strContent, TextRenderType renderType)> CreateContent()
+        {
+            if (_content == null)
+            {
+                _content = new List<(string strContent, TextRenderType renderType)>();
+                if (!string.IsNullOrWhiteSpace(this.SarifResult?.Message?.Markdown))
+                {
+                    _content.Add((this.SarifResult.Message.Markdown, TextRenderType.Markdown));
+                }
+
+                string textContent = !string.IsNullOrWhiteSpace(this.RawMessage) && this.HasEmbeddedLinks ?
+                                          SdkUIUtilities.GetPlainText(this.MessageInlines) :
+                                          this.RawMessage;
+                _content.Add((textContent, TextRenderType.Text));
+                return _content;
+            }
+            else
+            {
+                return _content;
+            }
         }
     }
 }

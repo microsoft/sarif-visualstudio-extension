@@ -136,6 +136,8 @@ namespace Microsoft.Sarif.Viewer.Models
         {
             get
             {
+                (string strContent, TextRenderType renderType) tooltipConent = (AnalysisStepNodeToTextConverter.MakeDisplayString(this), TextRenderType.Text);
+
                 // Not all locations have regions. Don't try to mark the locations that don't.
                 if (this._lineMarker == null
                     && this.Region != null)
@@ -148,8 +150,8 @@ namespace Microsoft.Sarif.Viewer.Models
                         fullFilePath: this.FilePath,
                         nonHighlightedColor: this.DefaultSourceHighlightColor,
                         highlightedColor: this.SelectedSourceHighlightColor,
-                        errorType: PredefinedErrorTypeNames.Suggestion, // Suggestion => no squiggle
-                        tooltipContent: AnalysisStepNodeToTextConverter.MakeDisplayString(this),
+                        failureLevel: null, // Suggestion => no squiggle
+                        tooltipContent: new List<(string strContent, TextRenderType renderType)>() { tooltipConent },
                         context: this);
                 }
 

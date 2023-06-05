@@ -90,6 +90,12 @@ namespace Microsoft.Sarif.Viewer.Controls
 
             await AddInfoBarIfRequiredAsync(
                 conditions,
+                ExceptionalConditions.ResultsFiltered,
+                Resources.WarningResultsHaveBeenFiltered,
+                KnownMonikers.StatusWarning);
+
+            await AddInfoBarIfRequiredAsync(
+                conditions,
                 ExceptionalConditions.NoResults,
                 Resources.InfoNoResultsInLog,
                 KnownMonikers.StatusInformation);

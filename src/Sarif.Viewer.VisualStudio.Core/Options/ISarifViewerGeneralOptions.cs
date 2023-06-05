@@ -3,7 +3,7 @@
 
 namespace Microsoft.Sarif.Viewer.Options
 {
-    internal interface ISarifViewerOptions
+    internal interface ISarifViewerGeneralOptions
     {
         bool ShouldMonitorSarifFolder { get; }
 

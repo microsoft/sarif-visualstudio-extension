@@ -26,9 +26,7 @@ $Projects.Library = @(
 	"Sarif.Viewer.VisualStudio.ResultSources.Factory",
 	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022",
 	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity",
-	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources"
-	"Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps.2022",
-	"Sarif.Viewer.VisualStudio.ResultSources.AzureDevOps")
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources")
 $Projects.Product = $Projects.Vsix + $Projects.NuGet
 $Projects.Test = @(
 	"Sarif.Viewer.VisualStudio.UnitTests",

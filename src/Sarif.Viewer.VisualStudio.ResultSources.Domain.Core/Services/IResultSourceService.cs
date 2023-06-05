@@ -31,6 +31,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         int FirstCommandId { get; set; }
 
         /// <summary>
+        /// Gets or sets the callback method to get the option state for the specified key.
+        /// </summary>
+        Func<string, bool> GetOptionStateCallback { get; set; }
+
+        /// <summary>
         /// Initializes the service instance.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
@@ -43,10 +48,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         Task<Result> IsActiveAsync();
 
         /// <summary>
-        /// Gets the latest analysis results for the current branch.
+        /// Gets the latest code scan results for the current branch.
         /// </summary>
         /// <param name="data">A data object.</param>
         /// <returns>True if the request succeeded; otherwise, an error.</returns>
-        Task<Result<bool, ErrorType>> RequestAnalysisResultsAsync(object data = null);
+        Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null);
     }
 }

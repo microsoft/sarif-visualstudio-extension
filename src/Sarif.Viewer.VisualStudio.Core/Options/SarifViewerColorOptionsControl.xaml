@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="Microsoft.Sarif.Viewer.Options.SarifViewerColorOptionsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0" xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             Foreground="{DynamicResource {x:Static vsui:EnvironmentColors.DialogTextBrushKey}}"
+             Background="Transparent">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="SarifViewerOptionsControlResources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid x:Name="OuterColorGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <GroupBox x:Name="ColorGroupBox"
+                  Style="{StaticResource ColorOptionsGroupBoxStyle}">
+            <GroupBox.Header>
+                <Label x:Name="ColorGroupBoxLabel"
+                       Content="{StaticResource SarifViewerOptionsControl_ColorBoxHeader}"
+                       AutomationProperties.AutomationId="ColorGroupBoxLabel" />
+            </GroupBox.Header>
+                <ItemsControl ItemsSource="{Binding Decorations}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Style="{StaticResource DecorationStackPanelStyle}">
+                                <TextBlock Grid.Column="0"
+                                       Text="{Binding Label}"
+                                       Style="{StaticResource DecorationLabel}" />
+                                <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding ColorOptions, Mode=OneTime}"
+                                      SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                                      Style="{StaticResource DecorationComboBox}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Style="{StaticResource DecorationComboBoxItemStackPanel}">
+                                                <Rectangle Fill="{Binding ColorName}" Style="{StaticResource DecorationComboBoxItemColorSwatch}" />
+                                                <TextBlock Text="{Binding Text}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+        </GroupBox>
+    </Grid>
+</UserControl>
