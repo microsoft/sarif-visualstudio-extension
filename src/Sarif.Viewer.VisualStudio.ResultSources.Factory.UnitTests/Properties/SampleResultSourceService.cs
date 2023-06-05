@@ -78,7 +78,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests.Properties
 
         public Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null)
         {
-            return Task.Run(() => { return Result.Success<bool, ErrorType>(true) ; });
+            return Task.Run(() => { return Result.Success<bool, ErrorType>(true); });
         }
     }
 }

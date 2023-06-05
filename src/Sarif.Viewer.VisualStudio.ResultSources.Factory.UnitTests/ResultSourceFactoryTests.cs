@@ -17,6 +17,7 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests.Properties;
 using Microsoft.Sarif.Viewer.Shell;
+
 using Moq;
 
 using Ninject;
@@ -68,7 +69,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
-            Result<List<IResultSourceService>, ErrorType > result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
@@ -107,7 +108,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
-            Result<List<IResultSourceService>, ErrorType > result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Should().Be(ErrorType.PlatformNotSupported);
@@ -163,7 +164,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IGitExe>().ToConstant(mockGitExe.Object);
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
-            
+
             ResultSourceFactory factory = new ResultSourceFactory("/solutionRoot", standardKernel, (string s) => true);
             factory.AddResultSource(new SampleResultSourceService().GetType(), 1, 1);
             ResultSourceHost resultSourceHost = new ResultSourceHost(factory);
