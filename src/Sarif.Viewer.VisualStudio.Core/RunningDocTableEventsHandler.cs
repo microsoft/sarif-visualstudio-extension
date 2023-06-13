@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-
-using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models;
 
 namespace Sarif.Viewer.VisualStudio.Core
 {

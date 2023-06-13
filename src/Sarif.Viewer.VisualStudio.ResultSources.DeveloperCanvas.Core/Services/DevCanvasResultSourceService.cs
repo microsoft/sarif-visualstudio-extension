@@ -287,7 +287,12 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 // Display the result message (e.g. "Cached X insights for file Y")
                 Trace.WriteLine(resultMessage.ToString());
 
-                // TODO: Fire event for masterLog to the sarif viewer package to load into memory from.
+                RaiseServiceEvent(new ResultsUpdatedEventArgs()
+                {
+                    SarifLog = masterLog,
+                    LogFileName = "",
+                    UseDotSarifDirectory = false
+                });
             }
             catch (Exception)
             {
@@ -344,6 +349,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     {
                         result.Message.SetProperty<string>(XamlMessageKey, "");
                     }
+                    result.Rule = null;
                 }
             }
             return log;
@@ -359,6 +365,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             SarifLog masterLog = new SarifLog();
             masterLog.Runs = logs.SelectMany(l => l.Runs).ToList();
             return masterLog;
+        }
+
+        private void RaiseServiceEvent(ServiceEventArgs eventArgs = null)
+        {
+            ServiceEvent?.Invoke(this, eventArgs);
         }
     }
 }

@@ -260,8 +260,13 @@ namespace Microsoft.Sarif.Viewer
             }
         }
 
+        /// <summary>
+        /// Listens to the events fired from a <see cref="RunningDocTableEventsHandler"/> instance.
+        /// </summary>
+        /// <param name="sender">The class that fired the event.</param>
+        /// <param name="e">The event args that were passed.</param>
 #pragma warning disable VSTHRD100 // Avoid async void methods
-        private async void DocEventsHandler_ServiceEvent(object sender, global::Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models.FilesOpenedEventArgs e)
+        private async void DocEventsHandler_ServiceEvent(object sender, FilesOpenedEventArgs e)
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
             try
