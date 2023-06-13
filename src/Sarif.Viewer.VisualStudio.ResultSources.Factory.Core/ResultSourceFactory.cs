@@ -18,6 +18,8 @@ using Microsoft.Sarif.Viewer.Shell;
 using Ninject;
 using Ninject.Parameters;
 
+using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services;
+
 using Result = CSharpFunctionalExtensions.Result;
 
 namespace Microsoft.Sarif.Viewer.ResultSources.Factory
@@ -34,6 +36,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         private readonly Dictionary<Type, (int, int)> resultSources = new Dictionary<Type, (int firstMenuId, int firstCommandId)>
         {
             { typeof(GitHubSourceService), (firstMenuId: 0x5000, firstCommandId: 0x8B67) },
+            { typeof(DevCanvasResultSourceService), (firstMenuId: 0x9000, firstCommandId: 0xAB67) },
         };
 
         /// <summary>

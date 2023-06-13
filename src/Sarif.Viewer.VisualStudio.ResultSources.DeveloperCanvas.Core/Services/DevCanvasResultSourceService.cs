@@ -40,7 +40,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public int FirstCommandId { get; set; }
         public Func<string, bool> GetOptionStateCallback { get; set; }
 
+#pragma warning disable CS0067 // The event 'DevCanvasResultSourceService.ServiceEvent' is never used
         public event EventHandler<ServiceEventArgs> ServiceEvent;
+#pragma warning restore CS0067 // The event 'DevCanvasResultSourceService.ServiceEvent' is never used
 
         private readonly IServiceProvider serviceProvider;
         private readonly IHttpClientAdapter httpClientAdapter;
@@ -136,12 +138,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             {
                 if (!filesQueriedCache.Contains(filePath))
                 {
-                    // TODO: make sure that the file paths are absolute
-                    // get the vc details for the file
                     filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(60));
-                    // build the FileCacheEntry object
-                    // Download insights for the file
-                    this.statusBarService.SetStatusTextAsync($"Retrieving results from DevCanvas for {filePath}...");
+                    DownloadInsights(filePath);
+                    await this.statusBarService.SetStatusTextAsync($"Retrieving results from DevCanvas for {filePath}...");
 
                 }
             }
@@ -180,7 +179,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// process the query queue, scheduling another work item if necessary.
         /// </summary>
         /// <param name="state">A <see cref="RolledUpCacheItem"/> object.</param>
+#pragma warning disable VSTHRD100 // Avoid async void methods
         private async void QueryInsights(object state)
+#pragma warning restore VSTHRD100 // Avoid async void methods
         {
             try
             {
@@ -245,7 +246,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 {
                     DevCanvasRequestV1 requestObject = new DevCanvasRequestV1(generator.Name, repoRootedFilePath, vcDetails);
 
-                    SarifLog log = await accessor.GetSarifLogV1(requestObject);
+                    SarifLog log = await accessor.GetSarifLogV1Async(requestObject);
                     // filter out the xaml presentation since we cant render it here
                     log = TrimLog(log);
                     logs.Add(log);
@@ -313,7 +314,12 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             string correctedAbsPath = absoluteFilePath.Replace("/", "\\");
             if (correctedAbsPath.StartsWith(gitRepoRoot))
             {
-                return correctedAbsPath.Substring(gitRepoRoot.Length);
+                string rootedFilePath = correctedAbsPath.Substring(gitRepoRoot.Length);
+                if (rootedFilePath.StartsWith("\\"))
+                {
+                    rootedFilePath = rootedFilePath.Substring(1);
+                }
+                return rootedFilePath;
             }
             else
             {

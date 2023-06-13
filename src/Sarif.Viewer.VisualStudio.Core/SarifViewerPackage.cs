@@ -8,6 +8,9 @@ using System.Configuration;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
+
+using EnvDTE;
 
 using EnvDTE80;
 
@@ -21,12 +24,17 @@ using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.Workspace.Logging;
 
 using Newtonsoft.Json;
+
+using Sarif.Viewer.VisualStudio.Core;
 
 using ResultSourcesConstants = Microsoft.Sarif.Viewer.ResultSources.Domain.Models.Constants;
 
@@ -72,7 +80,7 @@ namespace Microsoft.Sarif.Viewer
 
         public static bool IsUnitTesting { get; set; } = false;
 
-        public static Configuration AppConfig { get; private set; }
+        public static System.Configuration.Configuration AppConfig { get; private set; }
 
         private struct ServiceInformation
         {
@@ -183,10 +191,10 @@ namespace Microsoft.Sarif.Viewer
                 this.sarifFolderMonitor?.StartWatching();
             }
 
-            SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
-            SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
-            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
-            SolutionEvents.OnBeforeOpenProject += this.SolutionEvents_OnBeforeOpenProject;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnBeforeOpenProject += this.SolutionEvents_OnBeforeOpenProject;
 
             await this.InitializeResultSourceHostAsync();
             return;
@@ -232,6 +240,95 @@ namespace Microsoft.Sarif.Viewer
             if (this.resultSourceHost != null)
             {
                 await this.resultSourceHost.RequestAnalysisResultsAsync();
+            }
+
+            try
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                IVsRunningDocumentTable runningDocTable = await this.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
+                if (runningDocTable != null)
+                {
+                    uint cookie;
+                    RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(runningDocTable);
+                    runningDocTable.AdviseRunningDocTableEvents(docEventsHandler, out cookie);
+                    docEventsHandler.ServiceEvent += this.DocEventsHandler_ServiceEvent;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private async void DocEventsHandler_ServiceEvent(object sender, global::Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models.FilesOpenedEventArgs e)
+#pragma warning restore VSTHRD100 // Avoid async void methods
+        {
+            try
+            {
+                string[] filesOpened = new string[1] { e.FileOpened };
+                await this.resultSourceHost.RequestAnalysisResultsForFileAsync(filesOpened);
+            }
+            catch (Exception)
+            {
+                // swallow, we don't want to throw an exception and crash the extension.
+            }
+        }
+
+        /// <summary>
+        /// Reports any un-reported files that were found and ensures the open file is in the collection
+        /// Fires when a file is opened.
+        /// </summary>
+        /// <param name="document">Document that was opened.</param>
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private async void OnDocumentOpened(Document document)
+#pragma warning restore VSTHRD100 // Avoid async void methods
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+            try
+            {
+                string filePath = string.Empty;
+                string docPath = string.Empty;
+                string docName = string.Empty;
+                string docType = string.Empty;
+                try
+                {
+                    filePath = document.FullName;
+                    docPath = document.Path;
+                    docName = document.Name;
+                    docType = document.Type;
+                }
+                catch
+                {
+                    // Swallow any exceptions that may occur when we try to access Document members.
+                }
+
+                // Ctrl+clicking an object can open a decompiled assembly, which will be temporarily stored in a users %APPDATA%/local folder.
+                // We do not want to search for insights for these files as they have no repository to link back to.
+                string appdataLocalPath = null;
+                try
+                {
+                    appdataLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                }
+                catch (Exception)
+                {
+                    // swallow exception, appdata may not be available (ex: linux machine).
+                }
+
+                if (string.IsNullOrEmpty(appdataLocalPath) || !filePath.StartsWith(appdataLocalPath))
+                {
+                    // This callback happens on the main thread. We don't necessarily need it so switch away from it.
+                    await TaskScheduler.Default;
+
+                    if (string.IsNullOrWhiteSpace(filePath) == false)
+                    {
+                        await this.resultSourceHost.RequestAnalysisResultsForFileAsync(new string[] { filePath });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Swallow. In the future, log.
             }
         }
 

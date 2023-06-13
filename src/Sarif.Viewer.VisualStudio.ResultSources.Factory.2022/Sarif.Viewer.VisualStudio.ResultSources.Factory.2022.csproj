@@ -60,6 +60,10 @@
       <Project>{14424761-9691-45e7-9bc9-3920c1618cac}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.ACL.2022</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022.csproj">
+      <Project>{151e16fe-6cd7-42cd-91df-8134e705db5b}</Project>
+      <Name>Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022\Sarif.Viewer.VisualStudio.ResultSources.Domain.2022.csproj">
       <Project>{a41f6491-b821-4f3f-b00b-3bbd4d5d0d4e}</Project>
       <Name>Sarif.Viewer.VisualStudio.ResultSources.Domain.2022</Name>

@@ -20,6 +20,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <returns>A list of genertors and the type of insights they can provide</returns>
         Task<List<DevCanvasGeneratorInfo>> GetGeneratorsAsync();
 
-        Task<SarifLog> GetSarifLogV1(DevCanvasRequestV1 request);
+        Task<SarifLog> GetSarifLogV1Async(DevCanvasRequestV1 request);
     }
 }

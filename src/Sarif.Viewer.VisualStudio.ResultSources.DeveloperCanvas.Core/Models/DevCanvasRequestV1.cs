@@ -7,6 +7,7 @@ using System.Text;
 
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
+using Newtonsoft.Json;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
@@ -21,7 +22,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         {
             this.ToolComponentName = toolComponentName;
             this.FilePath = filePath;
-            this.VcDetails = vcDetails;
+            this.SourceInformation = vcDetails;
         }
 
         /// <summary>
@@ -37,17 +38,20 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         /// <summary>
         /// String indicating which type of client is requesting the insights.
         /// </summary>
-        public const string ClientType = "Sarif Viewer VisualStudio";
+        /// TODO: update string value to "Sarif Viewer VisualStudio" once allowed by the DevCanvas API
+        [JsonProperty]
+        public const string ClientType = "Other";
 
         /// <summary>
         /// Version of the client which is requesting insight.
         /// </summary>
+        [JsonProperty]
         public static string ClientVersion => Util.ExtensionVersion;
 
         /// <summary>
         /// Version Control information used to find the repository that the file is a part of and find the content of the file.
         /// </summary>
-        public DevCanvasVersionControlDetails VcDetails { get; set; }
+        public DevCanvasVersionControlDetails SourceInformation { get; set; }
 
     }
 }

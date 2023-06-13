@@ -53,5 +53,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <param name="data">A data object.</param>
         /// <returns>True if the request succeeded; otherwise, an error.</returns>
         Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null);
+
+        /// <summary>
+        /// Fired when a document or a set of documents are loaded.
+        /// </summary>
+        /// <param name="filePaths">List of files that were loaded.</param>
+        /// <returns>True if succeeded, otherwise an error.</returns>
+        Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths);
     }
 }
