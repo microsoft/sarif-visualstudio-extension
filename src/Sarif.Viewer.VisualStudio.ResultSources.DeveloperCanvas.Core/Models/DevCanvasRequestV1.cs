@@ -38,9 +38,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         /// <summary>
         /// String indicating which type of client is requesting the insights.
         /// </summary>
-        /// TODO: update string value to "Sarif Viewer VisualStudio" once allowed by the DevCanvas API
         [JsonProperty]
-        public const string ClientType = "Other";
+        public const string ClientType = "SarifViewerVisualStudio";
 
         /// <summary>
         /// Version of the client which is requesting insight.

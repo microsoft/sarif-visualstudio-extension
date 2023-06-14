@@ -241,6 +241,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 // Now query the server for insights.
                 Trace.WriteLine($"Querying for insights for {absoluteFilePath}");
 
+
                 List<SarifLog> logs = new List<SarifLog>();
                 foreach (DevCanvasGeneratorInfo generator in allGenerators)
                 {
@@ -341,15 +342,18 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <returns></returns>
         private SarifLog TrimLog(SarifLog log)
         {
-            foreach (Run run in log.Runs)
+            if (log.Runs != null)
             {
-                foreach (Microsoft.CodeAnalysis.Sarif.Result result in run.Results)
+                foreach (Run run in log.Runs)
                 {
-                    if (result.Message.PropertyNames.Contains(XamlMessageKey))
+                    foreach (Microsoft.CodeAnalysis.Sarif.Result result in run.Results)
                     {
-                        result.Message.SetProperty<string>(XamlMessageKey, "");
+                        if (result.Message.PropertyNames.Contains(XamlMessageKey))
+                        {
+                            result.Message.SetProperty<string>(XamlMessageKey, "");
+                        }
+                        //result.Rule = null;
                     }
-                    result.Rule = null;
                 }
             }
             return log;
