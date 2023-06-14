@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows.Documents;
 
 using CSharpFunctionalExtensions;
 
@@ -78,7 +77,6 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             }
 
-            // Currently this service only supports one result source at a time.
             if (this.resultSourceServices == null)
             {
                 Result<List<IResultSourceService>, ErrorType> result = await resultSourceFactory.GetResultSourceServicesAsync();

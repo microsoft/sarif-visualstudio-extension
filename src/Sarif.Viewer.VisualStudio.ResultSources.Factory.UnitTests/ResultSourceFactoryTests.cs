@@ -22,8 +22,6 @@ using Moq;
 
 using Ninject;
 
-using Octokit.Internal;
-
 using Xunit;
 
 using Result = CSharpFunctionalExtensions.Result;

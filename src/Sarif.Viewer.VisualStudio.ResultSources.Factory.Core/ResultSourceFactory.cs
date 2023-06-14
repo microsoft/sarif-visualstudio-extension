@@ -87,7 +87,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             var ctorArg2 = new ConstructorArgument("getOptionStateCallback", this.getOptionStateCallback, true);
             int index = -1;
 
-            List<IResultSourceService> serviceList = new List<IResultSourceService>();
+            var serviceList = new List<IResultSourceService>();
             foreach (KeyValuePair<Type, (int, int)> kvp in this.resultSources)
             {
                 index++;
