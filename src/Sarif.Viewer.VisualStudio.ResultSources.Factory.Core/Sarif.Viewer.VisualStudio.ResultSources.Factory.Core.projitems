@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IResultSourceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultSourceFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultSourceHost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SampleResultSourceService.cs" />
   </ItemGroup>
 </Project>

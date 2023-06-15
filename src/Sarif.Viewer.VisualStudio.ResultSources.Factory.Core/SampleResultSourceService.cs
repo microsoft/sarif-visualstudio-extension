@@ -19,21 +19,15 @@ using Microsoft.Sarif.Viewer.Shell;
 
 using Result = CSharpFunctionalExtensions.Result;
 
-namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests.Properties
+namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 {
     /// <summary>
     /// A sample result source service for testing purposes.
     /// </summary>
     internal class SampleResultSourceService : IResultSourceService
     {
-        public int FirstMenuId { get; set; }
-        public int FirstCommandId { get; set; }
-        public Func<string, bool> GetOptionStateCallback { get; set; }
-
-        public event EventHandler<ServiceEventArgs> ServiceEvent;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="GitHubSourceService"/> class.
+        /// Initializes a new instance of the <see cref="SampleResultSourceService"/> class.
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
@@ -48,7 +42,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests.Properties
         /// <param name="statusBarService">The <see cref="IStatusBarService"/>.</param>
         public SampleResultSourceService(
 #pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable SA1114 // Parameter list should follow declaration
             string solutionRootPath,
+#pragma warning restore SA1114 // Parameter list should follow declaration
             Func<string, bool> getOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
@@ -65,6 +61,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests.Properties
         }
 
         public SampleResultSourceService() { }
+
+        public event EventHandler<ServiceEventArgs> ServiceEvent;
+
+        public int FirstMenuId { get; set; }
+
+        public int FirstCommandId { get; set; }
+
+        public Func<string, bool> GetOptionStateCallback { get; set; }
 
         public Task InitializeAsync()
         {
