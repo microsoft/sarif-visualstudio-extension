@@ -20,6 +20,7 @@ using Microsoft.Sarif.Viewer.Shell;
 using Moq;
 
 using Ninject;
+
 using Xunit;
 
 using Result = CSharpFunctionalExtensions.Result;
