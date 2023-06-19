@@ -17,6 +17,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private readonly IPublicClientApplication publicClientApplication;
 
         private const string existingClientIdApproved = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
+        //private readonly string[] scopes = new string[0];
         private readonly string[] scopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;

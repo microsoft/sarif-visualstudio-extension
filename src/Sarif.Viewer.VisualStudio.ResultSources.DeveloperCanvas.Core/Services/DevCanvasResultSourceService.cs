@@ -367,7 +367,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private SarifLog CombineLogs(List<SarifLog> logs)
         {
             SarifLog masterLog = new SarifLog();
-            masterLog.Runs = logs.SelectMany(l => l.Runs).ToList();
+            masterLog.Runs = logs.SelectMany(l => l.Runs ?? new List<Run>()).ToList();
             return masterLog;
         }
 

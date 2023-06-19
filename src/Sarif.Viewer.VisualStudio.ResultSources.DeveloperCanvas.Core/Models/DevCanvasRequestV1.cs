@@ -39,7 +39,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         /// String indicating which type of client is requesting the insights.
         /// </summary>
         [JsonProperty]
-        public const string ClientType = "SarifViewerVisualStudio";
+        public const string ClientType = "Other";
+        //public const string ClientType = "SarifViewerVisualStudio";
 
         /// <summary>
         /// Version of the client which is requesting insight.

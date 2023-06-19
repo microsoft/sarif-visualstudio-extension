@@ -53,9 +53,12 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private const string prodServer = "insightwebv2.azurewebsites.net";
         private const string devServer = "insightwebv2-dev.azurewebsites.net";
 
+        private readonly string currentServer;
+
         internal DevCanvasAccessor(IAuthManager authManager = null)
         {
             this.authManager = authManager ?? new AuthManager();
+            currentServer = prodServer;
         }
 
 
@@ -110,7 +113,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <returns>A list of genertors and the type of insights they can provide</returns>
         private async Task<List<DevCanvasGeneratorInfo>> TryGetGeneratorsFromWebApiAsync()
         {
-            string sarifUrl = $"https://{prodServer}/api/v{version}/SarifInsight/SarifInsightProviders";
+            string sarifUrl = $"https://{currentServer}/api/v{version}/SarifInsight/SarifInsightProviders";
             HttpClient client = await authManager.GetHttpClientAsync();
             if (client != null)
             {
@@ -134,7 +137,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         public async Task<SarifLog> GetSarifLogV1Async(DevCanvasRequestV1 request)
         {
-            string Url = $"https://{prodServer}/api/v{version}/SarifInsight/SarifInsightsForFile";
+            string Url = $"https://{currentServer}/api/v{version}/SarifInsight/SarifInsightsForFile";
 
             HttpClient client = await authManager.GetHttpClientAsync();
             if (client != null)
