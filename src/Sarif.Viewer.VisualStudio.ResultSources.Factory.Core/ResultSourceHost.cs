@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using CSharpFunctionalExtensions;
@@ -111,13 +110,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 
         public async Task RequestAnalysisResultsForFileAsync(string[] filePaths)
         {
-            if (this.resultSourceService != null)
+            if (this.resultSourceServices != null)
             {
-                try
+                foreach (IResultSourceService service in this.resultSourceServices)
                 {
-                    await this.resultSourceService?.OnDocumentEventAsync(filePaths);
+                    try
+                    {
+                        await service.OnDocumentEventAsync(filePaths);
+                    }
+                    catch (Exception) { }
                 }
-                catch (Exception) { }
             }
         }
 
