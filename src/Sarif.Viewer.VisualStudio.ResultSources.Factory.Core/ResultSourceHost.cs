@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 
 using CSharpFunctionalExtensions;
 
@@ -19,7 +20,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
     public class ResultSourceHost
     {
         private readonly IResultSourceFactory resultSourceFactory;
-        private IResultSourceService resultSourceService;
+        private List<IResultSourceService> resultSourceServices;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResultSourceHost"/> class.
@@ -60,6 +61,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public static int ErrorListContextdMenuCommandsPerFlyout => 10;
 
         /// <summary>
+        /// Gets the number of services in <see cref="resultSourceServices"/>.
+        /// </summary>
+        public int ServiceCount => resultSourceServices.Count;
+
+        /// <summary>
         /// Requests analysis results from the active source service, if any.
         /// </summary>
         /// <param name="resultSourceFactory">The <see cref="IResultSourceFactory"/>.</param>
@@ -71,28 +77,32 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             }
 
-            // Currently this service only supports one result source at a time.
-            if (this.resultSourceService == null)
+            if (this.resultSourceServices == null)
             {
-                Result<IResultSourceService, ErrorType> result = await resultSourceFactory.GetResultSourceServiceAsync();
+                Result<List<IResultSourceService>, ErrorType> result = await resultSourceFactory.GetResultSourceServicesAsync();
 
                 if (result.IsSuccess)
                 {
                     // We have an active results service.
-                    this.resultSourceService = result.Value;
+                    this.resultSourceServices = result.Value;
 
                     // Hook up the service event handler.
-                    this.resultSourceService.ServiceEvent += this.ResultSourceService_ServiceEvent;
-
-                    await this.resultSourceService.InitializeAsync();
+                    foreach (IResultSourceService service in this.resultSourceServices)
+                    {
+                        service.ServiceEvent += this.ResultSourceService_ServiceEvent;
+                        await service.InitializeAsync();
+                    }
                 }
             }
 
-            if (this.resultSourceService != null)
+            if (this.resultSourceServices != null)
             {
                 try
                 {
-                    await this.resultSourceService?.RequestAnalysisScanResultsAsync();
+                    foreach (IResultSourceService service in this.resultSourceServices)
+                    {
+                        await service.RequestAnalysisScanResultsAsync();
+                    }
                 }
                 catch (Exception) { }
             }

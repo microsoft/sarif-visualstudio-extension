@@ -2,7 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 using CSharpFunctionalExtensions;
 
@@ -63,11 +66,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
-            Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.GetType().Name.Should().Be("GitHubSourceService");
+            result.Value[0].GetType().Name.Should().Be("GitHubSourceService");
         }
 
         [Fact]
@@ -102,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
-            Result<IResultSourceService, ErrorType> result = resultSourceFactory.GetResultSourceServiceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeFalse();
             result.Error.Should().Be(ErrorType.PlatformNotSupported);
@@ -113,14 +116,57 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
         {
             var mockResultSource = new Mock<IResultSourceService>();
             mockResultSource.Setup(s => s.RequestAnalysisScanResultsAsync(null));
+            List<IResultSourceService> serviceList = new List<IResultSourceService>();
+            serviceList.Add(mockResultSource.Object);
 
             var mockResultSourceFactory = new Mock<IResultSourceFactory>();
-            mockResultSourceFactory.Setup(f => f.GetResultSourceServiceAsync()).Returns(Task.FromResult(Result.Success<IResultSourceService, ErrorType>(mockResultSource.Object)));
+            mockResultSourceFactory.Setup(f => f.GetResultSourceServicesAsync()).Returns(Task.FromResult(Result.Success<List<IResultSourceService>, ErrorType>(serviceList)));
 
             var resultSourceHost = new ResultSourceHost(mockResultSourceFactory.Object);
             await resultSourceHost.RequestAnalysisResultsAsync();
 
             mockResultSource.Verify(s => s.RequestAnalysisScanResultsAsync(null), Times.Once);
+        }
+
+        /// <summary>
+        /// Determines that we are able to get multiple result source services when there are multiple that are applicable to a repository.
+        /// </summary>
+        [Fact]
+        public async Task GetMultipleResultSourceServicesAsync()
+        {
+            string path = @"C:\Git\MyProject";
+            string uri = "https://github.com/user/myproject.git";
+
+            var mockServiceProvider = new Mock<IServiceProvider>();
+            var mockHttpClientAdapter = new Mock<IHttpClientAdapter>();
+            var mockSecretStoreRepository = new Mock<ISecretStoreRepository>();
+            var mockFileWatcher = new Mock<IFileWatcher>();
+
+            var mockFileSystem = new Mock<IFileSystem>();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
+
+            var mockGitExe = new Mock<IGitExe>();
+            mockGitExe.Setup(g => g.GetRepoRootAsync(null)).Returns(new ValueTask<string>(path));
+            mockGitExe.Setup(g => g.GetRepoUriAsync(null)).Returns(new ValueTask<string>(uri));
+
+            var mockInfoBarService = new Mock<IInfoBarService>();
+            var mockStatusBarService = new Mock<IStatusBarService>();
+
+            var standardKernel = new StandardKernel();
+            standardKernel.Bind<IServiceProvider>().ToConstant(mockServiceProvider.Object);
+            standardKernel.Bind<IHttpClientAdapter>().ToConstant(mockHttpClientAdapter.Object);
+            standardKernel.Bind<ISecretStoreRepository>().ToConstant(mockSecretStoreRepository.Object);
+            standardKernel.Bind<IFileWatcher>().ToConstant(mockFileWatcher.Object);
+            standardKernel.Bind<IFileSystem>().ToConstant(mockFileSystem.Object);
+            standardKernel.Bind<IGitExe>().ToConstant(mockGitExe.Object);
+            standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
+            standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
+
+            ResultSourceFactory factory = new ResultSourceFactory("/solutionRoot", standardKernel, (string s) => true);
+            factory.AddResultSource(new SampleResultSourceService().GetType(), 1, 1);
+            ResultSourceHost resultSourceHost = new ResultSourceHost(factory);
+            await resultSourceHost.RequestAnalysisResultsAsync();
+            resultSourceHost.ServiceCount.Should().Be(2);
         }
     }
 }
