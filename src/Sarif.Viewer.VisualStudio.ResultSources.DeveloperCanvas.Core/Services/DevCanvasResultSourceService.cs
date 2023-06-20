@@ -27,7 +27,6 @@ using Microsoft.VisualStudio.Threading;
 
 using Newtonsoft.Json;
 
-using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Caching;
 using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models;
 
 using Result = CSharpFunctionalExtensions.Result;
