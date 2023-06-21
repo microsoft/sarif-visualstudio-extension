@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core
 {
@@ -163,7 +165,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core
                         }
 
                         // If the server looks like git@github.com, extract the github.com part.
-                        if (gitServer.Contains('@'))
+                        if (gitServer.Contains("@"))
                         {
                             parts = gitServer.Split('@');
                             gitServer = parts.Length == 2 ? parts[1] : gitServer;

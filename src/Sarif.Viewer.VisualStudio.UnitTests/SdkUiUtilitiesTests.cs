@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Documents;
@@ -13,6 +14,7 @@ using System.Windows.Documents;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Shell.Interop;
 
 using Moq;
 
@@ -594,6 +596,17 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             allowedList.Contains(pdbFileExt).Should().BeTrue();
             allowedList.Contains(pdbFileExtUpperCase).Should().BeTrue();
 
+        }
+
+        /// <summary>
+        /// <see cref="SdkUIUtilities.OpenDocument"/> sometimes encounters a problem in debugging where it fails to load the method itself. This validates we get the correct error.
+        /// </summary>
+        [Fact]
+        public void TestOpenDocument()
+        {
+            Action a = () => { SdkUIUtilities.OpenDocument(null, null, default(bool), default(bool)); };
+            a.Should().Throw<COMException>();
+            IVsWindowFrame var = new Mock<IVsWindowFrame>().Object;
         }
 
         private static void VerifyTextRun(Inline expected, Inline actual)

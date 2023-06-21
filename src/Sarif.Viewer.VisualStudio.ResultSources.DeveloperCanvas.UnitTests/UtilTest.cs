@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 using FluentAssertions;
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests

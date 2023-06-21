@@ -26,7 +26,7 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Moq" Version="4.14.7" />
     <!-- Necessary to resolve version conflict on Newtonsoft.Json: -->
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
@@ -119,10 +119,6 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sarif.Viewer.VisualStudio.2022\Sarif.Viewer.VisualStudio.2022.csproj">
-      <Project>{d6b31477-4e53-47fa-b9fe-8d751c503564}</Project>
-      <Name>Sarif.Viewer.VisualStudio.2022</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.Shell\Sarif.Viewer.VisualStudio.Shell.csproj">
       <Project>{c4714e68-1701-45d5-9510-e298bb227cf2}</Project>
       <Name>Sarif.Viewer.VisualStudio.Shell</Name>
