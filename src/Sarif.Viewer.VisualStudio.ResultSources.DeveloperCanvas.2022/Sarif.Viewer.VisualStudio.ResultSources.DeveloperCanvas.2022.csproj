@@ -27,4 +27,10 @@
 
   <Import Project="..\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.projitems" Label="Shared" />
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>DynamicProxyGenAssembly2</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  
 </Project>

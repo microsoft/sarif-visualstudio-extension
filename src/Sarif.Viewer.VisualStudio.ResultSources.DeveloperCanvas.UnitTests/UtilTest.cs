@@ -15,6 +15,9 @@ using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
 {
+    /// <summary>
+    /// Tests the <see cref="Util"/> class.
+    /// </summary>
     [TestClass]
     public class UtilTest
     {

@@ -9,6 +9,9 @@ using Microsoft.CodeAnalysis.Sarif;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
+    /// <summary>
+    /// Describes the generator that produced an insight.
+    /// </summary>
     public class DevCanvasGeneratorInfo : ToolComponent
     {
         private const string InsightDisplayNameKey = "InsightDisplayName";

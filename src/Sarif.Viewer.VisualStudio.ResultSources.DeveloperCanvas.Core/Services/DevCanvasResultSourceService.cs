@@ -36,7 +36,7 @@ using Result = CSharpFunctionalExtensions.Result;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
-    public class DevCanvasResultSourceService : IDevCanvasResultSourceService, IResultSourceService
+    public class DevCanvasResultSourceService : IResultSourceService
     {
         public int FirstMenuId { get; set; }
         public int FirstCommandId { get; set; }
@@ -122,18 +122,20 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             accessor = new DevCanvasAccessor();
         }
 
-
+        /// <inheritdoc/>
         public async System.Threading.Tasks.Task InitializeAsync()
         {
             string repoPath = await gitExe.GetRepoRootAsync();
             string repoUrl = await gitExe.GetRepoUriAsync();
         }
 
+        /// <inheritdoc/>
         public async Task<Result> IsActiveAsync()
         {
             return Result.Success();
         }
 
+        /// <inheritdoc/>
         public async Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths)
         {
             foreach (string filePath in filePaths)
@@ -151,7 +153,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         /// <summary>
         /// Prepares to download insights for the given cache item. Note that actual download occurs in a separate thread and the
-        /// request to download insights may be queued. The <see cref="InsightsChanged"/> event will be fired when
+        /// request to download insights may be queued. The <see cref="ServiceEvent"/> event will be fired when
         /// insights have finally been downloaded.
         /// </summary>
         /// <param name="filePath">Cached information related to a file such as insights, download status, and any exceptions that ocurred relating to this file.</param>
@@ -302,6 +304,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             }
         }
 
+        /// <inheritdoc/>
         public async Task<Result<bool, ErrorType>> RequestAnalysisScanResultsAsync(object data = null)
         {
             // called from result source host's RequestAnalysisResultsAsync
@@ -364,8 +367,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <summary>
         /// Combines logs together to create a single log representing the output for a file.
         /// </summary>
-        /// <param name="logs"></param>
-        /// <returns></returns>
+        /// <param name="logs">List of logs to combine.</param>
+        /// <returns>One log that holds all the runs of the individual <see cref="SarifLog"/>s</returns>
         private SarifLog CombineLogs(List<SarifLog> logs)
         {
             SarifLog masterLog = new SarifLog();

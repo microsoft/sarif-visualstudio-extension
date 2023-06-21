@@ -34,10 +34,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 .Create(existingClientIdApproved)
                 .WithAuthority(AzureCloudInstance.AzurePublic, tenantToTry)
                 .WithDefaultRedirectUri()
-                //.WithAuthority(authorityUrl)
-                //.WithRedirectUri("https://insightsapi.devcanvas.trafficmanager.net/.auth/login/aad/callback")
-                //.WithRedirectUri("https://insightwebv2.azurewebsites.net/.auth/login/aad/callback")
-                //.WithRedirectUri(@"https://insightwebv2.azurewebsites.net")
                 .Build();
         }
 
@@ -47,7 +43,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             {
                 IEnumerable<IAccount> accounts = await this.publicClientApplication.GetAccountsAsync();
                 return await this.publicClientApplication
-                    //.AcquireTokenSilent(new List<string>(), accounts.FirstOrDefault())
                     .AcquireTokenSilent(this.ppeScopes, accounts.FirstOrDefault())
                     .ExecuteAsync();
             }
@@ -57,7 +52,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 {
                     // If the token has expired or the cache was empty, display a login prompt
                     return await this.publicClientApplication
-                       //.AcquireTokenInteractive(new List<string>())
                        .AcquireTokenInteractive(this.ppeScopes)
                        .WithClaims(ex.Claims)
                        .ExecuteAsync();

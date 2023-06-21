@@ -108,6 +108,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             }
         }
 
+        /// <summary>
+        /// Fires the <see cref="IResultSourceService.OnDocumentEventAsync(string[])"/> event when a file is opened.
+        /// </summary>
+        /// <param name="filePaths">Aboslute path of files that were opened.</param>
+        /// <returns>An async task that tracks progress.</returns>
         public async Task RequestAnalysisResultsForFileAsync(string[] filePaths)
         {
             if (this.resultSourceServices != null)
@@ -123,6 +128,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             }
         }
 
+        /// <summary>
+        /// Fires the service event of this class.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
         private void ResultSourceService_ServiceEvent(object sender, ServiceEventArgs e)
         {
             ServiceEvent?.Invoke(this, e);

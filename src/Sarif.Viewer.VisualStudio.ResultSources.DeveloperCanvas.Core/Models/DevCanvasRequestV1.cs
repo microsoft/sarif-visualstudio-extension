@@ -16,8 +16,17 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
     /// </summary>
     public class DevCanvasRequestV1
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public DevCanvasRequestV1() { }
 
+        /// <summary>
+        /// Constructs an instnace of <see cref="DevCanvasRequestV1"/>
+        /// </summary>
+        /// <param name="toolComponentName">Name of the generator to query from.</param>
+        /// <param name="filePath">Repo rooted file path of the file that we are interested in.</param>
+        /// <param name="vcDetails">Information about the repo the file is a part of.</param>
         public DevCanvasRequestV1(string toolComponentName, string filePath, DevCanvasVersionControlDetails vcDetails)
         {
             this.ToolComponentName = toolComponentName;

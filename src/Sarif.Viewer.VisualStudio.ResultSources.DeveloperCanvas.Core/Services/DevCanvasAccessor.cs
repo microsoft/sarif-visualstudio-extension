@@ -54,9 +54,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// TODO: Change this prod once we have validated that it is functioning. 
         /// The server that we want to request information from.
         /// </summary>
-        private const string prodServer = "insightwebv2.azurewebsites.net";
-        private const string devServer = "insightwebv2-dev.azurewebsites.net";
-        private const string ppeServer = "insightwebv2-ppe.azurewebsites.net";
+        public const string prodServer = "insightwebv2.azurewebsites.net";
+        public const string devServer = "insightwebv2-dev.azurewebsites.net";
+        public const string ppeServer = "insightwebv2-ppe.azurewebsites.net";
 
         private readonly string currentServer;
 
@@ -66,7 +66,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             currentServer = ppeServer;
         }
 
-
+        /// <inhertidoc/>
         public async Task<List<DevCanvasGeneratorInfo>> GetGeneratorsAsync()
         {
             var generatorList = new List<DevCanvasGeneratorInfo>();
@@ -112,10 +112,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             return generatorList;
         }
 
-        /// <summary>
-        /// Gets a list of the generators with their metadata as well as type of insight they can provide.
-        /// </summary>
-        /// <returns>A list of genertors and the type of insights they can provide</returns>
+        /// <inheritdoc/>
         private async Task<List<DevCanvasGeneratorInfo>> TryGetGeneratorsFromWebApiAsync()
         {
             string sarifUrl = $"https://{currentServer}/api/v{version}/SarifInsight/SarifInsightProviders";
@@ -137,8 +134,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     return new List<DevCanvasGeneratorInfo>();
                 }
             }
+            else
+            {
+                // TODO log that we dont have auth
+            }
             return new List<DevCanvasGeneratorInfo>();
         }
+
 
         public async Task<SarifLog> GetSarifLogV1Async(DevCanvasRequestV1 request)
         {
@@ -164,10 +166,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     // we want to swallow and return an empty list
                     return new SarifLog();
                 }
-
             }
             else
             {
+                // TODO log that we dont have auth
                 return new SarifLog();
             }
         }

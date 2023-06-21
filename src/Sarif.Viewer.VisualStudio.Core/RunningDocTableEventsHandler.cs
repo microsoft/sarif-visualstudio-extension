@@ -13,8 +13,14 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Sarif.Viewer.VisualStudio.Core
 {
+    /// <summary>
+    /// The class handles and listens to files being opened and fires events.
+    /// </summary>
     public class RunningDocTableEventsHandler : IVsRunningDocTableEvents
     {
+        /// <summary>
+        /// Event that gets fired when files are opened in the VS editor window.
+        /// </summary>
         public event EventHandler<FilesOpenedEventArgs> ServiceEvent;
 
         private readonly IVsRunningDocumentTable runningDocTable;
@@ -26,7 +32,7 @@ namespace Sarif.Viewer.VisualStudio.Core
 
         public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            /*ThreadHelper.ThrowIfNotOnUIThread();
             if (runningDocTable != null)
             {
                 IVsHierarchy hierarchy;
@@ -43,7 +49,7 @@ namespace Sarif.Viewer.VisualStudio.Core
 
                 // Now you have the file name of the document that was opened
             }
-
+*/
             // This method is called when a document is opened in the editor
             return VSConstants.S_OK;
         }
@@ -65,12 +71,24 @@ namespace Sarif.Viewer.VisualStudio.Core
 
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
         {
-            // DocHandler_Service_Event(this, new FilesOpenedEventArgs() { FileOpened = pFrame.});
-/*            var x = pFrame.
-            if (pFrame is Microsoft.VisualStudio.PlatformUI.WindowManagment.WindowFrame.MarshalingWindowFrame windowFrame)
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (runningDocTable != null)
             {
-                var x = windowFrame.DocumentMoniker;
-            }*/
+                IVsHierarchy hierarchy;
+                uint itemId;
+                IntPtr docData;
+                string fileName = null;
+
+                int hr = runningDocTable.GetDocumentInfo(docCookie, out uint a, out uint b, out uint c, out string pbstrMkDocument, out hierarchy, out itemId, out docData);
+                if (hr == VSConstants.S_OK && hierarchy != null)
+                {
+                    hierarchy.GetCanonicalName(itemId, out fileName);
+                    DocHandler_Service_Event(fileName);
+                }
+
+                // Now you have the file name of the document that was opened
+            }
+
             return VSConstants.S_OK;
         }
 
