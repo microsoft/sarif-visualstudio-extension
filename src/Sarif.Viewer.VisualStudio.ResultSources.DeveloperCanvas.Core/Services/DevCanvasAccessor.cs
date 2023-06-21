@@ -56,13 +56,14 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// </summary>
         private const string prodServer = "insightwebv2.azurewebsites.net";
         private const string devServer = "insightwebv2-dev.azurewebsites.net";
+        private const string ppeServer = "insightwebv2-ppe.azurewebsites.net";
 
         private readonly string currentServer;
 
         internal DevCanvasAccessor(IAuthManager authManager = null)
         {
             this.authManager = authManager ?? new AuthManager();
-            currentServer = prodServer;
+            currentServer = ppeServer;
         }
 
 
