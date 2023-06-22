@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Identity.Client;
@@ -25,6 +26,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         //private readonly string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
+        private readonly SemaphoreSlim slimSemaphore;
 
         public AuthManager()
         {
@@ -35,29 +37,39 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 .WithAuthority(AzureCloudInstance.AzurePublic, tenantToTry)
                 .WithDefaultRedirectUri()
                 .Build();
+            slimSemaphore = new SemaphoreSlim(1);
         }
 
         public async Task<AuthenticationResult> AuthenticateAsync()
         {
             try
             {
-                IEnumerable<IAccount> accounts = await this.publicClientApplication.GetAccountsAsync();
-                return await this.publicClientApplication
-                    .AcquireTokenSilent(this.ppeScopes, accounts.FirstOrDefault())
-                    .ExecuteAsync();
-            }
-            catch (MsalUiRequiredException ex)
-            {
+                slimSemaphore.WaitAsync();
                 try
                 {
-                    // If the token has expired or the cache was empty, display a login prompt
+                    IEnumerable<IAccount> accounts = await this.publicClientApplication.GetAccountsAsync();
                     return await this.publicClientApplication
-                       .AcquireTokenInteractive(this.ppeScopes)
-                       .WithClaims(ex.Claims)
-                       .ExecuteAsync();
+                        .AcquireTokenSilent(this.ppeScopes, accounts.FirstOrDefault())
+                        .ExecuteAsync();
                 }
-                catch (Exception) { }
+                catch (MsalUiRequiredException ex)
+                {
+                    try
+                    {
+                        // If the token has expired or the cache was empty, display a login prompt
+                        return await this.publicClientApplication
+                           .AcquireTokenInteractive(this.ppeScopes)
+                           .WithClaims(ex.Claims)
+                           .ExecuteAsync();
+                    }
+                    catch (Exception) { }
+                }
             }
+            finally
+            {
+                slimSemaphore.Release();
+            }
+
             return null;
         }
 
