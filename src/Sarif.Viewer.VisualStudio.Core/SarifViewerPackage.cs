@@ -30,6 +30,7 @@ using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.Workspace.Indexing;
 using Microsoft.VisualStudio.Workspace.Logging;
 
 using Newtonsoft.Json;
@@ -245,12 +246,12 @@ namespace Microsoft.Sarif.Viewer
             try
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                IVsRunningDocumentTable runningDocTable = await this.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
-                if (runningDocTable != null)
+                IVsRunningDocumentTable ivsRunningDocTable = await this.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
+                if (ivsRunningDocTable != null)
                 {
-                    uint cookie;
-                    RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(runningDocTable);
-                    runningDocTable.AdviseRunningDocTableEvents(docEventsHandler, out cookie);
+                    DTE dte = (DTE)Package.GetGlobalService(typeof(DTE));
+                    RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable, dte);
+                    ivsRunningDocTable.AdviseRunningDocTableEvents(docEventsHandler, out uint cookie);
                     docEventsHandler.ServiceEvent += this.DocEventsHandler_ServiceEvent;
                 }
             }
