@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
 using EnvDTE;
+
+using EnvDTE80;
 
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.VisualStudio;
@@ -33,7 +36,7 @@ namespace Sarif.Viewer.VisualStudio.Core
 
         private readonly DTE dte;
 
-        private readonly Timer pollTimer;
+        private Timer pollTimer;
 
         public RunningDocTableEventsHandler(IVsRunningDocumentTable ivsRunningDocTable, DTE dte)
         {
@@ -44,25 +47,6 @@ namespace Sarif.Viewer.VisualStudio.Core
 
         public int OnAfterFirstDocumentLock(uint docCookie, uint dwRDTLockType, uint dwReadLocksRemaining, uint dwEditLocksRemaining)
         {
-            /*ThreadHelper.ThrowIfNotOnUIThread();
-            if (runningDocTable != null)
-            {
-                IVsHierarchy hierarchy;
-                uint itemId;
-                IntPtr docData;
-                string fileName = null;
-
-                int hr = runningDocTable.GetDocumentInfo(docCookie, out uint a, out uint b, out uint c, out string pbstrMkDocument, out hierarchy, out itemId, out docData);
-                if (hr == VSConstants.S_OK && hierarchy != null)
-                {
-                    hierarchy.GetCanonicalName(itemId, out fileName);
-                    DocHandler_Service_Event(fileName);
-                }
-
-                // Now you have the file name of the document that was opened
-            }
-*/
-            // This method is called when a document is opened in the editor
             return VSConstants.S_OK;
         }
 
@@ -111,7 +95,12 @@ namespace Sarif.Viewer.VisualStudio.Core
 
         private void DocHandler_Service_Event(string filePath)
         {
-            DocHandler_Service_Event(new FilesOpenedEventArgs() { FileOpened = filePath });
+            DocHandler_Service_Event(new FilesOpenedEventArgs() { FileOpened = new List<string>() { filePath } });
+        }
+
+        private void DocHandler_Service_Event(List<string> filePaths)
+        {
+            DocHandler_Service_Event(new FilesOpenedEventArgs() { FileOpened = filePaths });
         }
 
         private void DocHandler_Service_Event(FilesOpenedEventArgs e)
@@ -138,27 +127,32 @@ namespace Sarif.Viewer.VisualStudio.Core
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            try
+            pollTimer = null;
+            List<string> fileNamesOpen = new List<string>();
+            DTE2 dte2 = (DTE2)this.dte;
+            foreach (Window window in dte2.Windows)
             {
-                IVsUIShell uiShell = (IVsUIShell)Package.GetGlobalService(typeof(SVsUIShell));
-                int outputCode = uiShell.GetDocumentWindowEnum(out IEnumWindowFrames windowEnumerator);
-
-                // IntPtr hwnd;
-                IVsWindowFrame[] windowFrames = new IVsWindowFrame[1];
-                while (windowEnumerator.Next(1, windowFrames, out uint fetched) == 0 && fetched == 1)
+                try
                 {
-                    Console.WriteLine(windowFrames);
-                    /*windowFrames[0].GetProperty((int)__VSFPROPID.VSFPROPID_Hwnd, out hwnd);
-                    if (hwnd != IntPtr.Zero)
+                    if (window.Document != null)
                     {
-                        // Do something with the open document
-                    }*/
+                        string fileName = window.Document.FullName;
+                        fileNamesOpen.Add(fileName);
+                    }
+                }
+                catch (Exception)
+                {
+                    // swallow, sometimes grabbing the doc from a window fails ex: it was a temp file that has been removed since last time this was opened.
                 }
             }
-            catch (Exception)
-            {
-                // Swallow to prevent the extension from crashing.
-            }
+
+            // move off of the UI thread as soon as we have the data neeed
+            ThreadPool.QueueUserWorkItem(a => FinishPollTask(fileNamesOpen));
+        }
+
+        private void FinishPollTask(List<string> filePathList)
+        {
+            DocHandler_Service_Event(filePathList);
         }
     }
 }

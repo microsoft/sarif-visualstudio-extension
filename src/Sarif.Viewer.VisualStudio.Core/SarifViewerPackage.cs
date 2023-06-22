@@ -272,7 +272,7 @@ namespace Microsoft.Sarif.Viewer
         {
             try
             {
-                string[] filesOpened = new string[1] { e.FileOpened };
+                string[] filesOpened = e.FileOpened.ToArray();
                 await this.resultSourceHost.RequestAnalysisResultsForFileAsync(filesOpened);
             }
             catch (Exception)
