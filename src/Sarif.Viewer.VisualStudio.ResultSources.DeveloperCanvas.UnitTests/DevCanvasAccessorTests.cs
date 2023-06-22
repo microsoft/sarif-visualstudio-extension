@@ -46,7 +46,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             Mock<IAuthManager> authMockWrongCredentials = new Mock<IAuthManager>();
             authMockWrongCredentials.Setup(x => x.GetHttpClientAsync())
                 .Returns(Task.FromResult<HttpClient?>(handler.GetClient()));
-            
+
             accessor = new DevCanvasAccessor(authMockWrongCredentials.Object);
             returnedValue = await accessor.GetGeneratorsAsync();
             returnedValue.Count.Should().Be(0);

@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
 
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Sarif;
+
 using Newtonsoft.Json;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models

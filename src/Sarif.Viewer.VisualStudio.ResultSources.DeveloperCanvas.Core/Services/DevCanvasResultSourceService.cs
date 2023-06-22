@@ -165,7 +165,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             {
                 Trace.WriteLine(MaxInsightErrorMessage);
             }
-            else if (outstandingQueries < maxParallelQueries )
+            else if (outstandingQueries < maxParallelQueries)
             {
                 outstandingQueries++;
                 ThreadPool.QueueUserWorkItem(QueryInsights, filePath);
