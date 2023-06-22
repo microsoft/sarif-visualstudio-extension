@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.29.4" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.54.1" />
+    <PackageReference Include="Sarif.Sdk" Version="2.4.15" />
   </ItemGroup>
 
   <ItemGroup>
