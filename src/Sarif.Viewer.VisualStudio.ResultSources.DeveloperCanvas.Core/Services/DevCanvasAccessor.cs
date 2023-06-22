@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -136,7 +137,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             }
             else
             {
-                // TODO log that we dont have auth
+                Trace.WriteLine($"Failed to access {currentServer} endpoint with supplied credentials.");
             }
             return new List<DevCanvasGeneratorInfo>();
         }
@@ -169,7 +170,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             }
             else
             {
-                // TODO log that we dont have auth
+                Trace.WriteLine($"Failed to access {currentServer} endpoint with supplied credentials.");
                 return new SarifLog();
             }
         }
