@@ -21,7 +21,7 @@ using Microsoft.VisualStudio.Workspace.Indexing;
 namespace Sarif.Viewer.VisualStudio.Core
 {
     /// <summary>
-    /// The class handles and listens to files being opened and fires events.
+    /// The class handles and listens to files being opened and fires events for result plugins to respond to.
     /// </summary>
     public class RunningDocTableEventsHandler : IVsRunningDocTableEvents
     {
@@ -121,9 +121,7 @@ namespace Sarif.Viewer.VisualStudio.Core
         /// </summary>
         /// <param name="state">State when the timer is fired.</param>
 #pragma warning disable VSTHRD100 // Avoid async void methods
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async void OnPollTimerFired(object state)
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 #pragma warning restore VSTHRD100 // Avoid async void methods
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

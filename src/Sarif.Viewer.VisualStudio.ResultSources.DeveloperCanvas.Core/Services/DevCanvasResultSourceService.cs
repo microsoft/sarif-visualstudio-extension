@@ -42,9 +42,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public int FirstCommandId { get; set; }
         public Func<string, bool> GetOptionStateCallback { get; set; }
 
-#pragma warning disable CS0067 // The event 'DevCanvasResultSourceService.ServiceEvent' is never used
         public event EventHandler<ServiceEventArgs> ServiceEvent;
-#pragma warning restore CS0067 // The event 'DevCanvasResultSourceService.ServiceEvent' is never used
 
         private readonly IServiceProvider serviceProvider;
         private readonly IHttpClientAdapter httpClientAdapter;
@@ -87,7 +85,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <summary>
         /// Handles the actual accessing of data 
         /// </summary>
-        private readonly DevCanvasAccessor accessor;
+        private readonly DevCanvasWebAPIAccessor accessor;
 
         public DevCanvasResultSourceService(
             string solutionRootPath,
@@ -119,7 +117,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
             filePathQueue = new Queue<string>();
 
-            accessor = new DevCanvasAccessor();
+            accessor = new DevCanvasWebAPIAccessor();
         }
 
         /// <inheritdoc/>
@@ -145,7 +143,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(60));
                     DownloadInsights(filePath);
                     await this.statusBarService.SetStatusTextAsync($"Retrieving results from DevCanvas for {filePath}...");
-
                 }
             }
             return Result.Success<bool, ErrorType>(true);
@@ -239,12 +236,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 // if it is part of a code base, construct a DevCanvasVersionControlDetails with appropriate details 
                 DevCanvasVersionControlDetails vcDetails = new DevCanvasVersionControlDetails(sourceControlType, server, project, repo, branch);
 
-                // Get the generators that we should query for this cache item.
+                // Get the generators (either from cache or web api) that we should query for this cache item.
                 List<DevCanvasGeneratorInfo> allGenerators = await accessor.GetGeneratorsAsync();
 
                 // Now query the server for insights.
                 Trace.WriteLine($"Querying for insights for {absoluteFilePath}");
-
 
                 List<SarifLog> logs = new List<SarifLog>();
                 foreach (DevCanvasGeneratorInfo generator in allGenerators)
@@ -253,7 +249,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
                     SarifLog log = await accessor.GetSarifLogV1Async(requestObject);
                     // filter out the xaml presentation since we cant render it here
-                    log = TrimLog(log);
+                    log = RemoveUnneededContentFromLog(log);
                     logs.Add(log);
                 }
 
@@ -345,7 +341,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// </summary>
         /// <param name="log"></param>
         /// <returns></returns>
-        private SarifLog TrimLog(SarifLog log)
+        private SarifLog RemoveUnneededContentFromLog(SarifLog log)
         {
             if (log.Runs != null)
             {

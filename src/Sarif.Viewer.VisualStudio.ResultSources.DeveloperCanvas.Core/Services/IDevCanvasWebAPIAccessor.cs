@@ -12,7 +12,7 @@ using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
-    internal interface IDevCanvasAccessor
+    internal interface IDevCanvasWebAPIAccessor
     {
         /// <summary>
         /// Returns the list of insight generators.

@@ -14,10 +14,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasVersionControlDetails.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SourceControlType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AuthManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\DevCanvasAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DevCanvasWebAPIAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\DevCanvasResultSourceService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IAuthManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\IDevCanvasAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IDevCanvasWebAPIAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util.cs" />
   </ItemGroup>
 </Project>

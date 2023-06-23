@@ -25,7 +25,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
     /// <summary>
     /// This class is responsible for the caching and accessing of data from the DevCanvas API.
     /// </summary>
-    public class DevCanvasAccessor : IDevCanvasAccessor
+    public class DevCanvasWebAPIAccessor: IDevCanvasWebAPIAccessor
     {
         // We don't need to query for the list of generators every time we want to query for
         // insights so we'll only do so periodically.
@@ -61,7 +61,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         private readonly string currentServer;
 
-        internal DevCanvasAccessor(IAuthManager authManager = null)
+        internal DevCanvasWebAPIAccessor(IAuthManager authManager = null)
         {
             this.authManager = authManager ?? new AuthManager();
             currentServer = ppeServer;

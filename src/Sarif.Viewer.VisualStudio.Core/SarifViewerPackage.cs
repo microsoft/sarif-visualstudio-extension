@@ -255,10 +255,7 @@ namespace Microsoft.Sarif.Viewer
                     docEventsHandler.ServiceEvent += this.DocEventsHandler_ServiceEvent;
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            catch (Exception) { }
         }
 
         /// <summary>

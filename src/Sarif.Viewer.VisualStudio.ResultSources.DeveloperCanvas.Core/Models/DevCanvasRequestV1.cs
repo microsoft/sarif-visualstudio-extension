@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
     /// <summary>
-    /// Class representing the new format for how the DevCanvas endpoint is queried.
+    /// Class representing the v1 format for how the DevCanvas endpoint is queried.
     /// </summary>
     public class DevCanvasRequestV1
     {
@@ -23,7 +23,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         public DevCanvasRequestV1() { }
 
         /// <summary>
-        /// Constructs an instnace of <see cref="DevCanvasRequestV1"/>
+        /// Constructs an instance of <see cref="DevCanvasRequestV1"/>
         /// </summary>
         /// <param name="toolComponentName">Name of the generator to query from.</param>
         /// <param name="filePath">Repo rooted file path of the file that we are interested in.</param>
