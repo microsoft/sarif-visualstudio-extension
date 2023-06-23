@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         {
             try
             {
-                slimSemaphore.WaitAsync();
+                await slimSemaphore.WaitAsync();
                 try
                 {
                     IEnumerable<IAccount> accounts = await this.publicClientApplication.GetAccountsAsync();
@@ -65,7 +66,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                            .WithClaims(ex.Claims)
                            .ExecuteAsync();
                     }
-                    catch (Exception) { }
+                    catch (Exception e)
+                    {
+                        Trace.WriteLine("Failed to acquire token interactively");
+                    } 
                 }
             }
             finally

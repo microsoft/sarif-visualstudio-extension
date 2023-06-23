@@ -12,6 +12,9 @@ using System.Threading;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core
 {
+    /// <summary>
+    /// Set of useful helper functions for this project.
+    /// </summary>
     internal static class Util
     {
         private const string sdIniFileName = "sd.ini";

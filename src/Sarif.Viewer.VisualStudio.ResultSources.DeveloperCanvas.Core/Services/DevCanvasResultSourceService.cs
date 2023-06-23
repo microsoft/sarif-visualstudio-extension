@@ -36,6 +36,9 @@ using Result = CSharpFunctionalExtensions.Result;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
+    /// <summary>
+    /// Is the class that handles the opening of projects and files and will start processes to properly query for the needed data from the DevCanvas web API.
+    /// </summary>
     public class DevCanvasResultSourceService : IResultSourceService
     {
         public int FirstMenuId { get; set; }
@@ -121,11 +124,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         }
 
         /// <inheritdoc/>
-        public async System.Threading.Tasks.Task InitializeAsync()
-        {
-            string repoPath = await gitExe.GetRepoRootAsync();
-            string repoUrl = await gitExe.GetRepoUriAsync();
-        }
+        public async System.Threading.Tasks.Task InitializeAsync() { }
 
         /// <inheritdoc/>
         public async Task<Result> IsActiveAsync()
@@ -142,7 +141,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 {
                     filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(60));
                     DownloadInsights(filePath);
-                    await this.statusBarService.SetStatusTextAsync($"Retrieving results from DevCanvas for {filePath}...");
                 }
             }
             return Result.Success<bool, ErrorType>(true);

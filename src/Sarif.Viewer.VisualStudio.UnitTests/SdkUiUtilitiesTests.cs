@@ -606,7 +606,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         {
             Action a = () => { SdkUIUtilities.OpenDocument(null, null, default(bool), default(bool)); };
             a.Should().Throw<COMException>();
-            IVsWindowFrame var = new Mock<IVsWindowFrame>().Object;
         }
 
         private static void VerifyTextRun(Inline expected, Inline actual)

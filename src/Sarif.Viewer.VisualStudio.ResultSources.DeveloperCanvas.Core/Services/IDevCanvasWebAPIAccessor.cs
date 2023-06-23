@@ -12,6 +12,9 @@ using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
+    /// <summary>
+    /// This interface has the methods for accessing data from the DevCanvas API.
+    /// </summary>
     internal interface IDevCanvasWebAPIAccessor
     {
         /// <summary>

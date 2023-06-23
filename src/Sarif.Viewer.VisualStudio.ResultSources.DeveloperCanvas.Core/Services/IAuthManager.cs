@@ -11,6 +11,9 @@ using Microsoft.Identity.Client;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
+    /// <summary>
+    /// Handles the credentials retreival for the user.
+    /// </summary>
     internal interface IAuthManager
     {
         /// <summary>
