@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -14,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
@@ -31,16 +33,21 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
         private readonly SemaphoreSlim slimSemaphore;
+        private readonly MsalCacheHelper cacheHelper;
 
         public AuthManager()
         {
-            string tenantToTry = msAadTenant;
-            string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, tenantToTry);
+            string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
-                .WithAuthority(AzureCloudInstance.AzurePublic, tenantToTry)
+                .WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
                 .WithDefaultRedirectUri()
                 .Build();
+
+            StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder($"{nameof(DevCanvasResultSourceService)}_MSAL_cache_{msAadTenant}.txt", MsalCacheHelper.UserRootDirectory)
+    .Build();
+            cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).GetAwaiter().GetResult();
+            cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);
             slimSemaphore = new SemaphoreSlim(1);
         }
 
