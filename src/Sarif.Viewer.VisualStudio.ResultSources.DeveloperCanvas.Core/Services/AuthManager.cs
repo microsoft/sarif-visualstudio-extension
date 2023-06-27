@@ -28,8 +28,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         private const string existingClientIdApproved = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
         private readonly string[] ppeScopes = new string[] { "api://5360327a-4e80-4925-8701-51fa2000738e/user_impersonation" };
-        //private readonly string[] devScopes = new string[] { "api://a5880bae-b129-42c5-9d6c-d8de8f305adf/user_impersonation" };
-        //private readonly string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
+        private readonly string[] devScopes = new string[] { "api://a5880bae-b129-42c5-9d6c-d8de8f305adf/user_impersonation" };
+        private readonly string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
+        private readonly string[] usedScopes;
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
         private readonly SemaphoreSlim slimSemaphore;
@@ -49,6 +50,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).GetAwaiter().GetResult();
             cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);
             slimSemaphore = new SemaphoreSlim(1);
+
+            usedScopes = ppeScopes;
         }
 
         public async Task<AuthenticationResult> AuthenticateAsync()
@@ -59,9 +62,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 try
                 {
                     IEnumerable<IAccount> accounts = await this.publicClientApplication.GetAccountsAsync();
-                    return await this.publicClientApplication
-                        .AcquireTokenSilent(this.ppeScopes, accounts.FirstOrDefault())
+                    AuthenticationResult result = await this.publicClientApplication
+                        .AcquireTokenSilent(this.usedScopes, accounts.FirstOrDefault())
                         .ExecuteAsync();
+                    Trace.WriteLine($"Using credentails of {accounts.First().Username}");
+                    return result;
                 }
                 catch (MsalUiRequiredException ex)
                 {
@@ -69,7 +74,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     {
                         // If the token has expired or the cache was empty, display a login prompt
                         return await this.publicClientApplication
-                           .AcquireTokenInteractive(this.ppeScopes)
+                           .AcquireTokenInteractive(this.usedScopes)
                            .WithClaims(ex.Claims)
                            .ExecuteAsync();
                     }

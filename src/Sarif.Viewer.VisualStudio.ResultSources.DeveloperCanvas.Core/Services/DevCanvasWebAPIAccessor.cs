@@ -130,8 +130,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     }
                     return JsonConvert.DeserializeObject<List<DevCanvasGeneratorInfo>>(responseBody); // get generators here
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Trace.WriteLine(e);
                     return new List<DevCanvasGeneratorInfo>();
                 }
             }
