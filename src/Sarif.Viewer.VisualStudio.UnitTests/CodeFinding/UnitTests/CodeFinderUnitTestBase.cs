@@ -36,18 +36,8 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding
         /// <returns></returns>
         public List<MatchResult> GetMatches(string textToFind, int lineNumberHint = 0, string functionSignature = "", MatchQuery.MatchTypeHint typeHint = MatchQuery.MatchTypeHint.Code)
         {
-            Console.WriteLine($"Finding matches for \"{textToFind}\" with function signature \"{functionSignature}\" near line {lineNumberHint}...");
-
             var query = new MatchQuery(textToFind, lineNumberHint, functionSignature, "0", typeHint);
-            List<MatchResult> results = Finder.FindMatchesWithFunction(query);
-
-            Console.WriteLine($"Found {results.Count} match(es).");
-            foreach (MatchResult result in results)
-            {
-                Console.WriteLine($"Line: {result.LineNumber}, ScopeMatchDiff: {result.ScopeMatchDiff}");
-            }
-
-            return results;
+            return Finder.FindMatchesWithFunction(query);
         }
 
         /// <summary>
