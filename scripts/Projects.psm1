@@ -26,12 +26,15 @@ $Projects.Library = @(
 	"Sarif.Viewer.VisualStudio.ResultSources.Factory",
 	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.2022",
 	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity",
-	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources")
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.Resources",
+	"Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.2022",
+	"Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas")
 $Projects.Product = $Projects.Vsix + $Projects.NuGet
 $Projects.Test = @(
 	"Sarif.Viewer.VisualStudio.UnitTests",
 	"Sarif.Viewer.VisualStudio.ResultSources.Factory.UnitTests",
-	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests")
+	"Sarif.Viewer.VisualStudio.ResultSources.GitHubAdvancedSecurity.UnitTests",
+	"Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests")
 $Projects.All = $Projects.Product + $Projects.Test + $Projects.Library
 
 Export-ModuleMember -Variable Frameworks, Projects
