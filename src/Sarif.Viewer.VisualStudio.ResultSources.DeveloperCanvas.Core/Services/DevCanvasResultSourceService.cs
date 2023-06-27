@@ -25,7 +25,6 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Shell;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 
 using Newtonsoft.Json;
@@ -83,7 +82,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private const int minutesBeforeRefresh = 60;
 
         private readonly Queue<string> filePathQueue;
-        private readonly ReaderWriterLockSlim filePathQueueLock;
 
         /// <summary>
         /// Handles the actual accessing of data 
@@ -124,16 +122,20 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         }
 
         /// <inheritdoc/>
-        public async System.Threading.Tasks.Task InitializeAsync() { }
-
-        /// <inheritdoc/>
-        public async Task<Result> IsActiveAsync()
+        public System.Threading.Tasks.Task InitializeAsync()
         {
-            return Result.Success();
+            Trace.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}");
+            return Task.FromResult(Result.Success());
         }
 
         /// <inheritdoc/>
-        public async Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths)
+        public Task<Result> IsActiveAsync()
+        {
+            return Task.FromResult(Result.Success());
+        }
+
+        /// <inheritdoc/>
+        public Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths)
         {
             foreach (string filePath in filePaths)
             {
@@ -143,7 +145,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     DownloadInsights(filePath);
                 }
             }
-            return Result.Success<bool, ErrorType>(true);
+            return Task.FromResult(Result.Success<bool, ErrorType>(true));
         }
 
         /// <summary>

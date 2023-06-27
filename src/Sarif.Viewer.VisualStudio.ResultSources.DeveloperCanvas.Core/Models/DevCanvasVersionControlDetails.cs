@@ -106,7 +106,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         /// <param name="projectName">Project the repo is in</param>
         /// <param name="repositoryName">Repository name</param>
         /// <param name="branch">branch of the repo</param>
-        public DevCanvasVersionControlDetails(SourceControlType sourceControlType, string server = null, string projectName = null, string repositoryName = null, string branch = null)
+        public DevCanvasVersionControlDetails(SourceControlType sourceControlType, string server, string projectName, string repositoryName, string branch)
         {
             this.SourceControlType = sourceControlType.ToString();
             this.SourceServer = server;

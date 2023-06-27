@@ -73,7 +73,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                            .WithClaims(ex.Claims)
                            .ExecuteAsync();
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Trace.WriteLine("Failed to acquire token interactively");
                     }

@@ -17,7 +17,6 @@
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
     <PackageReference Include="System.Net.Http.WinHttpHandler" Version="7.0.0" />
   </ItemGroup>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.csproj" />
