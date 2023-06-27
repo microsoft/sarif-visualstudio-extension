@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <Import Project="..\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core\Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.projitems" Label="Shared" />
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build2022.props))\build2022.props" />
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
