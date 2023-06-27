@@ -25,7 +25,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
     /// <summary>
     /// This class is responsible for the caching and accessing of data from the DevCanvas API.
     /// </summary>
-    public class DevCanvasWebAPIAccessor: IDevCanvasWebAPIAccessor
+    public class DevCanvasWebAPIAccessor : IDevCanvasWebAPIAccessor
     {
         // We don't need to query for the list of generators every time we want to query for
         // insights so we'll only do so periodically.
