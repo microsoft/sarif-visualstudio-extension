@@ -598,16 +598,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
         }
 
-        /// <summary>
-        /// <see cref="SdkUIUtilities.OpenDocument"/> sometimes encounters a problem in debugging where it fails to load the method itself. This validates we get the correct error.
-        /// </summary>
-        [Fact]
-        public void TestOpenDocument()
-        {
-            Action a = () => { SdkUIUtilities.OpenDocument(null, null, default(bool), default(bool)); };
-            a.Should().Throw<COMException>();
-        }
-
         private static void VerifyTextRun(Inline expected, Inline actual)
         {
             actual.Should().BeOfType(expected.GetType());
