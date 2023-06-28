@@ -48,7 +48,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="expectedRepo">The repo we expect to get out.</param>
         [Theory]
         [InlineData("https://dev.azure.com/serverName/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
-        [InlineData("https://serverName.visualstudio.com/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
+        [InlineData("https://serverName.visualstudio.com/projectName/_git/repoName", "serverName.visualstudio.com", "projectName", "repoName")]
         public void ParseGitUrl(string repoUrl, string expectedServer, string expectedProject, string expectedRepo)
         {
             Util.ParseGitUrl(repoUrl, out string serverName, out string projectName, out string repoName);

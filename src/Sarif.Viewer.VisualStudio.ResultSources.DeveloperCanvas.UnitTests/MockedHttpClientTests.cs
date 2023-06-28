@@ -281,13 +281,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             HttpClient httpClient = mockedHandler.GetClient();
 
             Func<Task> wrongMethod = async () => { await httpClient.DeleteAsync(exampleEndpoint); };
-            wrongMethod.Should().Throw<Exception>();
+            await wrongMethod.Should().ThrowAsync<Exception>();
 
             Func<Task> wrongEndpoint = async() => { await httpClient.GetAsync(@"https://wrong-endpoint.com"); };
-            wrongEndpoint.Should().Throw<Exception>();
+            await wrongEndpoint.Should().ThrowAsync<Exception>();
 
             Func<Task> noHeaders = async() => { await httpClient.GetAsync(possibleEndpoints[1]); };
-            noHeaders.Should().Throw<Exception>();
+            await noHeaders.Should().ThrowAsync<Exception>();
 
             var correctHeaderReqMessage = new HttpRequestMessage(HttpMethod.Get, possibleEndpoints[1]);
             HttpRequestHeaders headerWithValues = possibleRequestHeaders[1];
@@ -295,7 +295,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             headerList.Count.Should().Be(1);
             correctHeaderReqMessage.Headers.Add(headerList[0].Key, headerList[0].Value);
             Func<Task> correctHeaders = async() => { await httpClient.SendAsync(correctHeaderReqMessage); };
-            correctHeaders.Should().NotThrow<Exception>();
+            await correctHeaders.Should().NotThrowAsync<Exception>();
         }
 
         /// <summary>
@@ -313,11 +313,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
 
             client.DefaultRequestHeaders.Add("encountered-key", "expected-value");
             Func<Task> mismatchHeaderKeys = async() => { await client.GetAsync(exampleEndpoint); };
-            mismatchHeaderKeys.Should().Throw<Exception>();
+            await mismatchHeaderKeys.Should().ThrowAsync<Exception>();
 
             client.DefaultRequestHeaders.Add("expected-key", "expected-value");
             Func<Task> mismatchHeaderCount = async() => { await client.GetAsync(exampleEndpoint); };
-            mismatchHeaderCount.Should().Throw<Exception>();
+            await mismatchHeaderCount.Should().ThrowAsync<Exception>();
         }
 
         /// <summary>
@@ -333,9 +333,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             await mockedHandler.AddSendAsyncQueryAsync(exampleEndpoint, "POST", returnedContent, expectedPayloadContent: new StringContent(expectedPayload));
             HttpClient client = mockedHandler.GetClient();
             Func<Task> wrongPayload = async() => { await client.PostAsync(exampleEndpoint, new StringContent(seenPayload)); };
-            wrongPayload.Should().Throw<Exception>();
+            await wrongPayload.Should().ThrowAsync<Exception>();
             Func<Task> correctPayload = async () => { await client.PostAsync(exampleEndpoint, new StringContent(expectedPayload)); };
-            correctPayload.Should().NotThrow<Exception>();
+            await correctPayload.Should().NotThrowAsync<Exception>();
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
 
             // We did not set a third output, and so this will crash
             Func<Task> thirdOutput = async() => { await httpClient.GetAsync(exampleEndpoint); };
-            thirdOutput.Should().Throw<Exception>();
+            await thirdOutput.Should().ThrowAsync<Exception>();
 
         }
 

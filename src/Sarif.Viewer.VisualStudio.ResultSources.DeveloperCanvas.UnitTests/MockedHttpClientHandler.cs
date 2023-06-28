@@ -79,7 +79,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             HttpRequestHeaders requestHeaders = null, HttpResponseHeaders responseHeaders = null, Action<HttpRequestMessage, CancellationToken> callBack = null, HttpContent expectedPayloadContent = null)
         {
             callBack = callBack ?? ((HttpRequestMessage message, CancellationToken token) => { });
-            string expectedContent = await expectedPayloadContent?.ReadAsStringAsync();
+            string expectedContent = expectedPayloadContent == null ? null : await expectedPayloadContent?.ReadAsStringAsync();
 
             this.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync",
@@ -100,7 +100,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="expectedPayloadContent">The payload content to match</param>
         public async Task VerifyNumberOfCallsAsync(int numberOfCalls, string requestedEndPoint, string reqMethod, HttpRequestHeaders requestHeaders = null, HttpContent expectedPayloadContent = null)
         {
-            string expectedContent = await expectedPayloadContent?.ReadAsStringAsync();
+            string expectedContent = expectedPayloadContent == null ? null : await expectedPayloadContent?.ReadAsStringAsync();
             this.Protected().Verify("SendAsync", Times.Exactly(numberOfCalls),
                     ItExpr.Is<HttpRequestMessage>(x => RequestMatching(x, requestedEndPoint, reqMethod, requestHeaders, expectedContent)),
                     ItExpr.IsAny<CancellationToken>());
