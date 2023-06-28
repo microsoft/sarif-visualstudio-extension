@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -86,6 +87,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <inheritdoc/>
         public async Task<Result<List<IResultSourceService>, ErrorType>> GetResultSourceServicesAsync()
         {
+            Trace.WriteLine($"Start of GetResultSourceServicesAsync");
             var ctorArg1 = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
             var ctorArg2 = new ConstructorArgument("getOptionStateCallback", this.getOptionStateCallback, true);
             int index = -1;

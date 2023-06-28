@@ -20,7 +20,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
     /// <summary>
     /// A mocked http client that will allow the user to unit test code that requests data from endpoints.
     /// </summary>
-    public class MockedHttpClientHandler : Mock<WinHttpHandler>
+    public class MockedHttpClientHandler : Mock<HttpMessageHandler>
     {
         /// <summary>
         /// A constructor that sets up the mocked http client
@@ -43,7 +43,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
                 CancellationToken> callBack = null, HttpContent expectedPayloadContent = null)
         {
             callBack = callBack ?? ((HttpRequestMessage message, CancellationToken token) => { });
-            string expectedPayloadStr = expectedPayloadContent == null ? null : expectedPayloadContent.ReadAsStringAsync().Result;
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+            string expectedPayloadStr = expectedPayloadContent?.ReadAsStringAsync().Result;
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
             int currentCallNumber = 0;
 
@@ -73,11 +75,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="responseHeaders">(Optional) The header that is returned with the message. If absent, will match any set of headers</param>
         /// <param name="callBack">(Optional) A callback that the uer can provide if they want</param>
         /// <param name="expectedPayloadContent">(Optional) payload to match. If absent, will match any POST payload content</param>
-        public void AddSendAsyncQuery(string requestedEndpoint, string reqMethod, string returnedContent, HttpStatusCode statusCode = HttpStatusCode.OK,
+        public async Task AddSendAsyncQueryAsync(string requestedEndpoint, string reqMethod, string returnedContent, HttpStatusCode statusCode = HttpStatusCode.OK,
             HttpRequestHeaders requestHeaders = null, HttpResponseHeaders responseHeaders = null, Action<HttpRequestMessage, CancellationToken> callBack = null, HttpContent expectedPayloadContent = null)
         {
             callBack = callBack ?? ((HttpRequestMessage message, CancellationToken token) => { });
-            string expectedContent = expectedPayloadContent == null ? null : expectedPayloadContent.ReadAsStringAsync().Result;
+            string expectedContent = await expectedPayloadContent?.ReadAsStringAsync();
 
             this.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync",
@@ -96,9 +98,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="reqMethod">The request method for the call (Get, Post, etc)</param>
         /// <param name="requestHeaders">The request headers to match</param>
         /// <param name="expectedPayloadContent">The payload content to match</param>
-        public void VerifyNumberOfCalls(int numberOfCalls, string requestedEndPoint, string reqMethod, HttpRequestHeaders requestHeaders = null, HttpContent expectedPayloadContent = null)
+        public async Task VerifyNumberOfCallsAsync(int numberOfCalls, string requestedEndPoint, string reqMethod, HttpRequestHeaders requestHeaders = null, HttpContent expectedPayloadContent = null)
         {
-            string expectedContent = expectedPayloadContent == null ? null : expectedPayloadContent.ReadAsStringAsync().Result;
+            string expectedContent = await expectedPayloadContent?.ReadAsStringAsync();
             this.Protected().Verify("SendAsync", Times.Exactly(numberOfCalls),
                     ItExpr.Is<HttpRequestMessage>(x => RequestMatching(x, requestedEndPoint, reqMethod, requestHeaders, expectedContent)),
                     ItExpr.IsAny<CancellationToken>());
@@ -110,8 +112,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <returns>An http client that will return the appropriate values when called</returns>
         public HttpClient GetClient()
         {
-            WinHttpHandler thisHandler = this.Object;
-            thisHandler.CheckCertificateRevocationList = true;
+            HttpMessageHandler thisHandler = this.Object;
             return new HttpClient(thisHandler, disposeHandler: false); //CodeQL [SM02185] False positive, we are currently setting the check cert revocation list above. Have contacted CodeQL.
         }
 

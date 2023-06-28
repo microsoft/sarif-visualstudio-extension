@@ -9,16 +9,15 @@ using System.Threading.Tasks;
 
 using FluentAssertions;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core;
+
+using Xunit;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
 {
     /// <summary>
     /// Tests the <see cref="Util"/> class.
     /// </summary>
-    [TestClass]
     public class UtilTest
     {
         /// <summary>
@@ -27,13 +26,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="text">Original string to pluralize</param>
         /// <param name="count">Number of instances there are of <paramref name="text"/></param>
         /// <param name="expected">Expected output.</param>
-        [TestMethod]
-        [DataRow("Test", 1, "1 Test")]
-        [DataRow("Test", 2, "2 Tests")]
-        [DataRow("Test", 100, "100 Tests")]
-        [DataRow("branch", 1, "1 branch")]
-        [DataRow("branch", 2, "2 branches")]
-        [DataRow("branch", 0, "0 branches")]
+        [Theory]
+        [InlineData("Test", 1, "1 Test")]
+        [InlineData("Test", 2, "2 Tests")]
+        [InlineData("Test", 100, "100 Tests")]
+        [InlineData("branch", 1, "1 branch")]
+        [InlineData("branch", 2, "2 branches")]
+        [InlineData("branch", 0, "0 branches")]
         public void STest(string text, int count, string expected)
         {
             string output = Util.S(text, count);
@@ -47,9 +46,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="expectedServer">The server we expect to get out.</param>
         /// <param name="expectedProject">The project we expect to get out.</param>
         /// <param name="expectedRepo">The repo we expect to get out.</param>
-        [TestMethod]
-        [DataRow("https://dev.azure.com/serverName/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
-        [DataRow("https://serverName.visualstudio.com/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
+        [Theory]
+        [InlineData("https://dev.azure.com/serverName/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
+        [InlineData("https://serverName.visualstudio.com/projectName/_git/repoName", "dev.azure.com/serverName", "projectName", "repoName")]
         public void ParseGitUrl(string repoUrl, string expectedServer, string expectedProject, string expectedRepo)
         {
             Util.ParseGitUrl(repoUrl, out string serverName, out string projectName, out string repoName);

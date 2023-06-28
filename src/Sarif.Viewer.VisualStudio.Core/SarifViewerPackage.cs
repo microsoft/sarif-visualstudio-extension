@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -150,6 +151,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            Trace.WriteLine("Start of initialize async for SarifViewerPackage");
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
 
             // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
@@ -203,6 +205,8 @@ namespace Microsoft.Sarif.Viewer
 
         private void SolutionEvents_OnBeforeOpenProject(object sender, EventArgs e)
         {
+            Trace.WriteLine("Start of SolutionEvents_OnBeforeOpenProject for SarifViewerPackage");
+
             // start watcher when the solution is opened.
             this.sarifFolderMonitor?.StartWatching();
 
@@ -228,6 +232,7 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
+            Trace.WriteLine("Start of InitializeResultSourceHostAsync");
             if (this.resultSourceHost == null)
             {
                 string solutionPath = GetSolutionDirectoryPath();
@@ -403,6 +408,8 @@ namespace Microsoft.Sarif.Viewer
 
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
+            Trace.WriteLine("Start of SolutionEvents_OnAfterBackgroundSolutionLoadComplete for SarifViewerPackage");
+
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatching();
 

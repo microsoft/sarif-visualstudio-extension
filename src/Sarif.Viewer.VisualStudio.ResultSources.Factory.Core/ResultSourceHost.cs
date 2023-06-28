@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using CSharpFunctionalExtensions;
 
@@ -72,6 +73,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <returns>An asynchronous <see cref="Task"/>.</returns>
         public async Task RequestAnalysisResultsAsync()
         {
+            Trace.WriteLine("Start of RequestAnalysisResultsAsync");
             if (!ResultSourceFactory.IsUnitTesting)
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

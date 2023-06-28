@@ -92,7 +92,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             return null;
         }
 
-        public async Task<HttpClient?> GetHttpClientAsync()
+        public async Task<HttpClient> GetHttpClientAsync()
         {
             AuthenticationResult authentication = await this.AuthenticateAsync();
             if (authentication == null)

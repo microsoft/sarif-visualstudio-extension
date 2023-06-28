@@ -28,6 +28,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// Gets an <see cref="HttpClient"/> that has the credentials to interact with the DevCanvas API.
         /// </summary>
         /// <returns>A <see cref="HttpClient"/> that can be used with DevCanvas APIs if authenticated, null otherwise.</returns>
-        public Task<HttpClient?> GetHttpClientAsync();
+        public Task<HttpClient> GetHttpClientAsync();
     }
 }

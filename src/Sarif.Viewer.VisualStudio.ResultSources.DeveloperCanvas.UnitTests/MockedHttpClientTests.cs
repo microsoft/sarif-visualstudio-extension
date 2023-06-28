@@ -13,15 +13,13 @@ using System.Threading.Tasks;
 
 using FluentAssertions;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
+using Xunit;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
 {
     /// <summary>
     /// A suite of unit tests for the <see cref="MockedHttpClientHandler"/> class
     /// </summary>
-    [TestClass]
     public class MockedHttpClientTests
     {
         /// <summary>
@@ -74,11 +72,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// </summary>
         private CancellationToken? callbackCancellationToken;
 
-        /// <summary>
-        /// Logger for these tests to use.
-        /// </summary>
-        private readonly Logger logger;
-
         public MockedHttpClientTests()
         {
             possibleMethods = new List<string>() { "GET", "DELETE", "POST" };
@@ -106,8 +99,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <summary>
         /// Tests the ability for the mocked http client to make get, post, and delete requests to various endpoints
         /// </summary>
-        [TestMethod]
-        public async Task QueryTest()
+        [Fact]
+        public async Task QueryTestAsync()
         {
             foreach (string expectedMethodName in possibleMethods)
             {
@@ -124,7 +117,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
                                     if (expectedMethodName.Equals("GET"))
                                     {
                                         MockedHttpClientHandler mockedClient = new MockedHttpClientHandler();
-                                        mockedClient.AddSendAsyncQuery(expectedEndpoint, expectedMethodName, expectedReturnedContent, expectedStatusCode,
+                                        await mockedClient.AddSendAsyncQueryAsync(expectedEndpoint, expectedMethodName, expectedReturnedContent, expectedStatusCode,
                                             requestHeaders: expectedRequestHeaders,
                                             responseHeaders: expectedResponseHeaders);
                                         HttpClient client = mockedClient.GetClient();
@@ -134,13 +127,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
                                         }
                                         using (HttpResponseMessage response = await client.GetAsync(expectedEndpoint))
                                         {
-                                            ResponseMatches(response, expectedStatusCode, expectedReturnedContent, expectedResponseHeaders);
+                                            await ResponseMatchesAsync(response, expectedStatusCode, expectedReturnedContent, expectedResponseHeaders);
                                         }
                                     }
                                     else if (expectedMethodName.Equals("DELETE"))
                                     {
                                         MockedHttpClientHandler mockedClient = new MockedHttpClientHandler();
-                                        mockedClient.AddSendAsyncQuery(expectedEndpoint, expectedMethodName, expectedReturnedContent, expectedStatusCode,
+                                        await mockedClient.AddSendAsyncQueryAsync(expectedEndpoint, expectedMethodName, expectedReturnedContent, expectedStatusCode,
                                             requestHeaders: expectedRequestHeaders,
                                             responseHeaders: expectedResponseHeaders);
                                         HttpClient client = mockedClient.GetClient();
@@ -150,7 +143,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
                                         }
                                         using (HttpResponseMessage response = await client.DeleteAsync(expectedEndpoint))
                                         {
-                                            ResponseMatches(response, expectedStatusCode, expectedReturnedContent, expectedResponseHeaders);
+                                            await ResponseMatchesAsync(response, expectedStatusCode, expectedReturnedContent, expectedResponseHeaders);
                                         }
                                     }
                                     else if (expectedMethodName.Equals("POST"))
@@ -159,7 +152,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
                                         {
                                             StringContent expectedPayload = new StringContent(expectedPayloadStr);
                                             MockedHttpClientHandler mockedClient = new MockedHttpClientHandler();
-                                            mockedClient.AddSendAsyncQuery(expectedEndpoint, expectedMethodName, expectedReturnedContent, expectedStatusCode,
+                                            await mockedClient.AddSendAsyncQueryAsync(expectedEndpoint, expectedMethodName, expectedReturnedContent, expectedStatusCode,
                                                 requestHeaders: expectedRequestHeaders,
                                                 responseHeaders: expectedResponseHeaders,
                                                 expectedPayloadContent: expectedPayload);
@@ -170,7 +163,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
                                             }
                                             using (HttpResponseMessage response = await client.PostAsync(expectedEndpoint, expectedPayload))
                                             {
-                                                ResponseMatches(response, expectedStatusCode, expectedReturnedContent, expectedResponseHeaders);
+                                                await ResponseMatchesAsync(response, expectedStatusCode, expectedReturnedContent, expectedResponseHeaders);
                                             }
                                         }
                                     }
@@ -189,34 +182,34 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <summary>
         /// Checks that we are properly able to see how many times a particular query was called.
         /// </summary>
-        [TestMethod]
-        public async Task NumberOfCallsTest()
+        [Fact]
+        public async Task NumberOfCallsTestAsync()
         {
             MockedHttpClientHandler msgHandlerMock = new MockedHttpClientHandler();
-            msgHandlerMock.AddSendAsyncQuery(exampleEndpoint, "GET", "sample-content");
-            msgHandlerMock.AddSendAsyncQuery(exampleEndpoint, "DELETE", "sample-content");
+            await msgHandlerMock.AddSendAsyncQueryAsync(exampleEndpoint, "GET", "sample-content");
+            await msgHandlerMock.AddSendAsyncQueryAsync(exampleEndpoint, "DELETE", "sample-content");
             HttpClient client = msgHandlerMock.GetClient();
-            msgHandlerMock.VerifyNumberOfCalls(0, exampleEndpoint, "GET");
-            msgHandlerMock.VerifyNumberOfCalls(0, exampleEndpoint, "DELETE");
-            client.GetAsync(@"https://example.com");
-            msgHandlerMock.VerifyNumberOfCalls(1, exampleEndpoint, "GET");
+            await msgHandlerMock.VerifyNumberOfCallsAsync(0, exampleEndpoint, "GET");
+            await msgHandlerMock.VerifyNumberOfCallsAsync(0, exampleEndpoint, "DELETE");
+            await client.GetAsync(@"https://example.com");
+            await msgHandlerMock.VerifyNumberOfCallsAsync(1, exampleEndpoint, "GET");
             // Delete should not having any calls associated with it as we have not called DeleteAsync
-            msgHandlerMock.VerifyNumberOfCalls(0, exampleEndpoint, "DELETE");
+            await msgHandlerMock.VerifyNumberOfCallsAsync(0, exampleEndpoint, "DELETE");
             for (int i = 2; i < 10; i++)
             {
-                client.GetAsync(@"https://example.com");
-                msgHandlerMock.VerifyNumberOfCalls(i, exampleEndpoint, "GET");
+                await client.GetAsync(@"https://example.com");
+                await msgHandlerMock.VerifyNumberOfCallsAsync(i, exampleEndpoint, "GET");
             }
         }
 
         /// <summary>
         /// Tests to make sure that the callback receives the correct information needed
         /// </summary>
-        [TestMethod]
-        public async Task CallbackTest()
+        [Fact]
+        public async Task CallbackTestAsync()
         {
             MockedHttpClientHandler mockedHandler = new MockedHttpClientHandler();
-            mockedHandler.AddSendAsyncQuery(exampleEndpoint, "GET", "Returned-content", callBack: Callback);
+            await mockedHandler.AddSendAsyncQueryAsync(exampleEndpoint, "GET", "Returned-content", callBack: Callback);
             this.callbackRequestMessage.Should().BeNull();
             this.callbackCancellationToken.Should().BeNull();
             HttpClient client = mockedHandler.GetClient();
@@ -230,13 +223,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <summary>
         /// Makes sure we properly match urls with and without trailing slashes
         /// </summary>
-        [TestMethod]
-        public async Task UriCleaningTest()
+        [Fact]
+        public async Task UriCleaningTestAsync()
         {
             string exampleEndpointNoTrailingSlash = @"https://example.com";
             string returnedContent = "Returned-content";
             MockedHttpClientHandler mockedHandler = new MockedHttpClientHandler();
-            mockedHandler.AddSendAsyncQuery(exampleEndpointNoTrailingSlash, "GET", returnedContent);
+            await mockedHandler.AddSendAsyncQueryAsync(exampleEndpointNoTrailingSlash, "GET", returnedContent);
             HttpClient httpClient = mockedHandler.GetClient();
             HttpResponseMessage firstResponse = await httpClient.GetAsync(exampleEndpointNoTrailingSlash);
             HttpResponseMessage secondResponse = await httpClient.GetAsync(exampleEndpoint);
@@ -252,12 +245,12 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <summary>
         /// In some situations, when the using() {} block closes, it will throw out the underlying object, making it impossible to re-query for the same content.
         /// </summary>
-        [TestMethod]
-        public async Task UsingRepeatedCalls()
+        [Fact]
+        public async Task UsingRepeatedCallsAsync()
         {
             MockedHttpClientHandler mockedHandler = new MockedHttpClientHandler();
             string returnedContent = "returned-content";
-            mockedHandler.AddSendAsyncQuery(exampleEndpoint, "GET", returnedContent);
+            await mockedHandler.AddSendAsyncQueryAsync(exampleEndpoint, "GET", returnedContent);
             HttpClient httpClient = mockedHandler.GetClient();
             using (HttpResponseMessage response = await httpClient.GetAsync(exampleEndpoint))
             {
@@ -277,24 +270,23 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <summary>
         /// Tests to make sure that failures in request matching are thrown correctly, and don't run silently.
         /// </summary>
-        [TestMethod]
-        public async Task MatchingFailureTests()
+        [Fact]
+        public async Task MatchingFailureTestsAsync()
         {
             string returnedContent = "Returned-content";
-            string secondEndpoint = @"second-endpoint";
             MockedHttpClientHandler mockedHandler = new MockedHttpClientHandler();
-            mockedHandler.AddSendAsyncQuery(exampleEndpoint, "GET", returnedContent);
+            await mockedHandler.AddSendAsyncQueryAsync(exampleEndpoint, "GET", returnedContent);
 
-            mockedHandler.AddSendAsyncQuery(possibleEndpoints[1], "GET", returnedContent, requestHeaders: possibleRequestHeaders[1]);
+            await mockedHandler.AddSendAsyncQueryAsync(possibleEndpoints[1], "GET", returnedContent, requestHeaders: possibleRequestHeaders[1]);
             HttpClient httpClient = mockedHandler.GetClient();
 
-            Action wrongMethod = () => { httpClient.DeleteAsync(exampleEndpoint); };
+            Func<Task> wrongMethod = async () => { await httpClient.DeleteAsync(exampleEndpoint); };
             wrongMethod.Should().Throw<Exception>();
 
-            Action wrongEndpoint = () => { httpClient.GetAsync(@"https://wrong-endpoint.com"); };
+            Func<Task> wrongEndpoint = async() => { await httpClient.GetAsync(@"https://wrong-endpoint.com"); };
             wrongEndpoint.Should().Throw<Exception>();
 
-            Action noHeaders = () => { httpClient.GetAsync(possibleEndpoints[1]); };
+            Func<Task> noHeaders = async() => { await httpClient.GetAsync(possibleEndpoints[1]); };
             noHeaders.Should().Throw<Exception>();
 
             var correctHeaderReqMessage = new HttpRequestMessage(HttpMethod.Get, possibleEndpoints[1]);
@@ -302,55 +294,55 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             var headerList = headerWithValues.ToList();
             headerList.Count.Should().Be(1);
             correctHeaderReqMessage.Headers.Add(headerList[0].Key, headerList[0].Value);
-            Action correctHeaders = () => { httpClient.SendAsync(correctHeaderReqMessage); };
+            Func<Task> correctHeaders = async() => { await httpClient.SendAsync(correctHeaderReqMessage); };
             correctHeaders.Should().NotThrow<Exception>();
         }
 
         /// <summary>
         /// Tests to see if we are correctly matching headers
         /// </summary>
-        [TestMethod]
-        public async Task HeaderMatchingTest()
+        [Fact]
+        public async Task HeaderMatchingTestAsync()
         {
             MockedHttpClientHandler mockedHandler = new MockedHttpClientHandler();
             HttpRequestHeaders expectedHeaders = new HttpRequestMessage().Headers;
             expectedHeaders.Add("expected-key", "expected-value");
 
-            mockedHandler.AddSendAsyncQuery(exampleEndpoint, "GET", "returnedContent", requestHeaders: expectedHeaders);
+            await mockedHandler.AddSendAsyncQueryAsync(exampleEndpoint, "GET", "returnedContent", requestHeaders: expectedHeaders);
             HttpClient client = mockedHandler.GetClient();
 
             client.DefaultRequestHeaders.Add("encountered-key", "expected-value");
-            Action mismatchHeaderKeys = () => { client.GetAsync(exampleEndpoint); };
+            Func<Task> mismatchHeaderKeys = async() => { await client.GetAsync(exampleEndpoint); };
             mismatchHeaderKeys.Should().Throw<Exception>();
 
             client.DefaultRequestHeaders.Add("expected-key", "expected-value");
-            Action mismatchHeaderCount = () => { client.GetAsync(exampleEndpoint); };
+            Func<Task> mismatchHeaderCount = async() => { await client.GetAsync(exampleEndpoint); };
             mismatchHeaderCount.Should().Throw<Exception>();
         }
 
         /// <summary>
         /// Makes sure we are matching payloads correctly.
         /// </summary>
-        [TestMethod]
-        public void PayloadMatchingTest()
+        [Fact]
+        public async Task PayloadMatchingTestAsync()
         {
             string returnedContent = "returned-content";
             string expectedPayload = "expected-payload";
             string seenPayload = "seen-payload";
             MockedHttpClientHandler mockedHandler = new MockedHttpClientHandler();
-            mockedHandler.AddSendAsyncQuery(exampleEndpoint, "POST", returnedContent, expectedPayloadContent: new StringContent(expectedPayload));
+            await mockedHandler.AddSendAsyncQueryAsync(exampleEndpoint, "POST", returnedContent, expectedPayloadContent: new StringContent(expectedPayload));
             HttpClient client = mockedHandler.GetClient();
-            Action wrongPayload = () => { client.PostAsync(exampleEndpoint, new StringContent(seenPayload)); };
+            Func<Task> wrongPayload = async() => { await client.PostAsync(exampleEndpoint, new StringContent(seenPayload)); };
             wrongPayload.Should().Throw<Exception>();
-            Action correctPayload = () => { client.PostAsync(exampleEndpoint, new StringContent(expectedPayload)); };
+            Func<Task> correctPayload = async () => { await client.PostAsync(exampleEndpoint, new StringContent(expectedPayload)); };
             correctPayload.Should().NotThrow<Exception>();
         }
 
         /// <summary>
         /// Tests to see if we are properly able to get different results on multiple calls if desired
         /// </summary>
-        [TestMethod]
-        public async Task MultipleCallsDifferentResponseTest()
+        [Fact]
+        public async Task MultipleCallsDifferentResponseTestAsync()
         {
             List<string> returnedContentList = new List<string>() { "message 1", "message 2" };
 
@@ -386,7 +378,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             }
 
             // We did not set a third output, and so this will crash
-            Action thirdOutput = () => { httpClient.GetAsync(exampleEndpoint); };
+            Func<Task> thirdOutput = async() => { await httpClient.GetAsync(exampleEndpoint); };
             thirdOutput.Should().Throw<Exception>();
 
         }
@@ -398,7 +390,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
         /// <param name="expectedStatusCode">The expected status code/param>
         /// <param name="expectedResponseBody">The expected respone body</param>
         /// <param name="expectedResponseHeaders">The expected response headers</param>
-        private async void ResponseMatches(HttpResponseMessage response, HttpStatusCode expectedStatusCode, string expectedResponseBody, HttpResponseHeaders expectedResponseHeaders)
+        private async Task ResponseMatchesAsync(HttpResponseMessage response, HttpStatusCode expectedStatusCode, string expectedResponseBody, HttpResponseHeaders expectedResponseHeaders)
         {
             response.StatusCode.Should().Be(expectedStatusCode);
             string responseBody = await response.Content.ReadAsStringAsync();
