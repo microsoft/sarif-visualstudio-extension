@@ -252,8 +252,9 @@ namespace Microsoft.Sarif.Viewer
                 IVsRunningDocumentTable ivsRunningDocTable = await this.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
                 if (ivsRunningDocTable != null)
                 {
-                    DTE dte = (DTE)Package.GetGlobalService(typeof(DTE));
-                    RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable, dte);
+                    RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable);
+
+                    // RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable, dte);
                     ivsRunningDocTable.AdviseRunningDocTableEvents(docEventsHandler, out uint cookie);
                     docEventsHandler.ServiceEvent += this.DocEventsHandler_ServiceEvent;
                 }

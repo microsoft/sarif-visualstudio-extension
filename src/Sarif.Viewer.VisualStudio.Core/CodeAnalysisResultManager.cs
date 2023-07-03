@@ -364,6 +364,8 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
+            resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // User needs to locate file.
@@ -428,6 +430,8 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
+            resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // User needs to locate file.
@@ -435,6 +439,37 @@ namespace Microsoft.Sarif.Viewer
             }
 
             return resolvedPath;
+        }
+
+        /// <summary>
+        /// see if this file was opened by the user manually and not through a folder/project/solution.
+        /// </summary>
+        /// <param name="relativeFilePath">The relative path to root.</param>
+        /// <returns>The resolved absolute path. Null if it could not locate.</returns>
+        private string ResolvePathThroughOpenFiles(string relativeFilePath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+            foreach (EnvDTE.Window window in dte.Windows)
+            {
+                try
+                {
+                    if (window.Document != null)
+                    {
+                        string fileName = window.Document.FullName;
+                        if (fileName.EndsWith(relativeFilePath))
+                        {
+                            return window.Document.FullName;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // swallow, sometimes grabbing the doc from a window fails ex: it was a temp file that has been removed since last time this was opened.
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

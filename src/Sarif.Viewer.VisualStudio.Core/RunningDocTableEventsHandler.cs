@@ -38,10 +38,11 @@ namespace Sarif.Viewer.VisualStudio.Core
 
         private Timer pollTimer;
 
-        public RunningDocTableEventsHandler(IVsRunningDocumentTable ivsRunningDocTable, DTE dte)
+        public RunningDocTableEventsHandler(IVsRunningDocumentTable ivsRunningDocTable)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
             this.ivsRunningDocTable = ivsRunningDocTable;
-            this.dte = dte;
+            this.dte = (DTE)Package.GetGlobalService(typeof(DTE));
             pollTimer = new Timer(OnPollTimerFired, null, PollPeriodInMS, Timeout.Infinite);
         }
 
