@@ -131,24 +131,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public Task<Result> IsActiveAsync()
         {
-            /*
-             *             var extensionManager = (IVsExtensionManager)ServiceProvider.GlobalProvider.GetService(typeof(SVsExtensionManager));
-
-            // Get a list of all installed extensions
-            var installedExtensions = extensionManager.GetInstalledExtensions();
-
-            // Find the extension you are looking for
-            var myExtension = installedExtensions.FirstOrDefault(e => e.Header.Identifier == "DevCanvas");
-
-            if (myExtension != null)
-            {
-                return Result.Failure();
-            }
-            else
-            {
-                return Result.Success();
-            }
-            */
             return Task.FromResult(Result.Success());
         }
 

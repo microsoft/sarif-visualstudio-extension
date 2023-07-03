@@ -30,6 +30,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Workspace.Indexing;
 using Microsoft.VisualStudio.Workspace.Logging;
@@ -232,15 +233,12 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
-            Trace.WriteLine("Start of InitializeResultSourceHostAsync");
+            await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
             if (this.resultSourceHost == null)
             {
                 string solutionPath = GetSolutionDirectoryPath();
-                if (!string.IsNullOrWhiteSpace(solutionPath))
-                {
-                    this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.IsOptionEnabled);
-                    this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
-                }
+                this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.IsOptionEnabled);
+                this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
             }
 
             if (this.resultSourceHost != null)

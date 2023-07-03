@@ -153,10 +153,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             {
                 string requestJson = JsonConvert.SerializeObject(request);
                 StringContent content = new StringContent(requestJson, System.Text.Encoding.UTF8, "application/json");
-
+                HttpResponseMessage response = null;
                 try
                 {
-                    using (HttpResponseMessage response = await client.PostAsync(Url, content))
+                    using (response = await client.PostAsync(Url, content))
                     {
                         response.EnsureSuccessStatusCode();
                         string responseBody = await response.Content.ReadAsStringAsync();
@@ -166,6 +166,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 catch (Exception)
                 {
                     // we want to swallow and return an empty list
+                    Trace.WriteLine($"Failed to access {currentServer} endpoint. Received error code {response?.StatusCode}.");
                     return new SarifLog();
                 }
             }
