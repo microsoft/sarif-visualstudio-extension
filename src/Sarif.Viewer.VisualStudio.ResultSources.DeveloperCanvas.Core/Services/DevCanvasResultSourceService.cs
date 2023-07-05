@@ -169,6 +169,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             }
             else
             {
+                Trace.WriteLine($"Adding {filePath} to the queue.");
                 filePathQueue.Enqueue(filePath);
             }
         }
@@ -260,7 +261,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 }
 
                 // Add the number of cached insights to the result message that we'll display in the output window (after releasing the lock).
-                resultMessage.Append($"Cached {Util.S("insight", insightsCount)} for {absoluteFilePath}");
+                resultMessage.Append($"Cached {Util.S("insight", insightsCount)} for {absoluteFilePath}.\n estimate:{masterLog.Runs[0].Results[0].Locations[0].PhysicalLocation.Region.StartLine}, StartLine: {masterLog.Runs[0].Results[0].Locations[0].PhysicalLocation.GetProperty<int>("StartLine")}, EndLine {masterLog.Runs[0].Results[0].Locations[0].PhysicalLocation.GetProperty<int>("EndLine")}");
 
                 // Now that this query is complete, see if the number of outstanding queries is less than the max,
                 // and if so, try to run the next query in the queue (if any).
@@ -319,7 +320,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         {
             gitRepoRoot = gitRepoRoot.Replace("/", "\\");
             string correctedAbsPath = absoluteFilePath.Replace("/", "\\");
-            if (correctedAbsPath.StartsWith(gitRepoRoot))
+            if (correctedAbsPath.StartsWith(gitRepoRoot, StringComparison.OrdinalIgnoreCase))
             {
                 string rootedFilePath = correctedAbsPath.Substring(gitRepoRoot.Length);
                 if (rootedFilePath.StartsWith("\\"))

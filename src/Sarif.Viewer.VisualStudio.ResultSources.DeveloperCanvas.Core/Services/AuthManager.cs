@@ -89,6 +89,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 slimSemaphore.Release();
             }
 
+            Trace.WriteLine("Failed to acquire token at all. ");
             return null;
         }
 

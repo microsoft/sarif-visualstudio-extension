@@ -364,7 +364,10 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+            }
 
             if (string.IsNullOrEmpty(resolvedPath))
             {
@@ -430,7 +433,10 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
+                resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+            }
 
             if (string.IsNullOrEmpty(resolvedPath))
             {

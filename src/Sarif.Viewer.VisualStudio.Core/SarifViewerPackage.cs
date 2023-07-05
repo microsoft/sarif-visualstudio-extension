@@ -254,7 +254,6 @@ namespace Microsoft.Sarif.Viewer
                 {
                     RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable);
 
-                    // RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable, dte);
                     ivsRunningDocTable.AdviseRunningDocTableEvents(docEventsHandler, out uint cookie);
                     docEventsHandler.ServiceEvent += this.DocEventsHandler_ServiceEvent;
                 }
