@@ -534,8 +534,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         /// <param name="logFilePath">The file path of the log being loaded in.</param>
         /// <param name="cleanErrors">If true, will wipe previous errors from caches before processing new sarif log.</param>
         /// <param name="openInEditor">If true, will open the file in editor. </param>
+        /// <param name="processWithBanner">(Optional) If true, will process without popping any banners. Default is true.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</placeholder></returns>
-        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor)
+        internal static async Task ProcessSarifLogAsync(SarifLog sarifLog, string logFilePath, bool cleanErrors, bool openInEditor, bool processWithBanner = true)
         {
             // The creation of the data models must be done on the UI thread (for now).
             // VS's table data source constructs are indeed thread safe.
@@ -600,7 +601,14 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
             SarifLogsMonitor.Instance.StartWatching(logFilePath);
 
-            RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog, resultsFiltered));
+            if (processWithBanner)
+            {
+                RaiseLogProcessed(ExceptionalConditionsCalculator.Calculate(sarifLog, resultsFiltered));
+            }
+            else
+            {
+                RaiseLogProcessed(ExceptionalConditions.None);
+            }
         }
 
         public static void CleanAllErrors()

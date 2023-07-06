@@ -273,7 +273,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 }
 
                 // Add the number of cached insights to the result message that we'll display in the output window (after releasing the lock).
-                resultMessage.Append($"Cached {Util.S("insight", insightsCount)} for {absoluteFilePath}.\n estimate:{masterLog.Runs[0].Results[0].Locations[0].PhysicalLocation.Region.StartLine}, StartLine: {masterLog.Runs[0].Results[0].Locations[0].PhysicalLocation.GetProperty<int>("StartLine")}, EndLine {masterLog.Runs[0].Results[0].Locations[0].PhysicalLocation.GetProperty<int>("EndLine")}");
+                resultMessage.Append($"Cached {Util.S("insight", insightsCount)} for {absoluteFilePath}.");
 
                 // Now that this query is complete, see if the number of outstanding queries is less than the max,
                 // and if so, try to run the next query in the queue (if any).
@@ -305,7 +305,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 {
                     SarifLog = masterLog,
                     LogFileName = "",
-                    UseDotSarifDirectory = false
+                    UseDotSarifDirectory = false,
+                    ShowBanner = false
                 });
             }
             catch (Exception)

@@ -32,5 +32,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
         /// Gets or sets a value indicating whether the log should be written to the .sarif directory.
         /// </summary>
         public bool UseDotSarifDirectory { get; set; }
+
+        public bool ShowBanner { get; set; }
     }
 }

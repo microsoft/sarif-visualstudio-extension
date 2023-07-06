@@ -163,10 +163,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                         return JsonConvert.DeserializeObject<SarifLog>(responseBody);
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // we want to swallow and return an empty list
-                    Trace.WriteLine($"Failed to access {currentServer} endpoint. Received error code {response?.StatusCode}.");
+                    Trace.WriteLine($"Failed to access {currentServer} endpoint.\nReceived error code {response?.StatusCode}.\nException: {e}");
                     return new SarifLog();
                 }
             }

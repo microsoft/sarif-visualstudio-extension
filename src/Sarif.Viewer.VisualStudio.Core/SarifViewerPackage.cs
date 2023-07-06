@@ -439,7 +439,7 @@ namespace Microsoft.Sarif.Viewer
                                 // Load using the EnhancedResultData log name to activate key event adornments.
                                 string[] logNames = new[] { DataService.EnhancedResultDataLogName };
                                 await ErrorListService.CloseSarifLogItemsAsync(logNames);
-                                await ErrorListService.ProcessSarifLogAsync(resultsUpdatedEventArgs.SarifLog, DataService.EnhancedResultDataLogName, cleanErrors: false, openInEditor: false);
+                                await ErrorListService.ProcessSarifLogAsync(resultsUpdatedEventArgs.SarifLog, DataService.EnhancedResultDataLogName, cleanErrors: false, openInEditor: false, processWithBanner: resultsUpdatedEventArgs.ShowBanner);
                             });
                         }
                     }
