@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Runtime.CompilerServices;
+using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -25,7 +26,9 @@ using Microsoft.Sarif.Viewer.ResultSources.Domain.Abstractions;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.Sarif.Viewer.Shell;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
+using Microsoft.Win32;
 
 using Newtonsoft.Json;
 
@@ -125,13 +128,22 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public System.Threading.Tasks.Task InitializeAsync()
         {
             Trace.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}");
-            return Task.FromResult(Result.Success());
+            string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
+
+            if (userName.EndsWith("@microsoft.com"))
+            {
+                return System.Threading.Tasks.Task.FromResult(Result.Success());
+            }
+            else
+            {
+                return System.Threading.Tasks.Task.FromResult(Result.Failure("Not a MS user."));
+            }
         }
 
         /// <inheritdoc/>
         public Task<Result> IsActiveAsync()
         {
-            return Task.FromResult(Result.Success());
+            return System.Threading.Tasks.Task.FromResult(Result.Success());
         }
 
         /// <inheritdoc/>
@@ -145,7 +157,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     DownloadInsights(filePath);
                 }
             }
-            return Task.FromResult(Result.Success<bool, ErrorType>(true));
+            return System.Threading.Tasks.Task.FromResult(Result.Success<bool, ErrorType>(true));
         }
 
         /// <summary>
