@@ -463,7 +463,7 @@ namespace Microsoft.Sarif.Viewer
                     if (window.Document != null)
                     {
                         string fileName = window.Document.FullName;
-                        if (fileName.EndsWith(relativeFilePath))
+                        if (fileName.EndsWith(relativeFilePath, StringComparison.OrdinalIgnoreCase))
                         {
                             return window.Document.FullName;
                         }

@@ -33,6 +33,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
         /// </summary>
         public bool UseDotSarifDirectory { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether determines whether the service to raise this event wants to have a banner be shown related to it.
+        /// </summary>
         public bool ShowBanner { get; set; }
     }
 }
