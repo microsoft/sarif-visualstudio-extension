@@ -159,14 +159,15 @@
             <ButtonText>Suppress result in SARIF file</ButtonText>
           </Strings>
       </Button>
-      <Button guid="guidSarifErrorListCmdSet" id="cmdidIFixedThisCommand" priority="0x0100" type="Button">
+      <!--Can be used to hide an error list item until the end of the VS session.--> 
+      <!--<Button guid="guidSarifErrorListCmdSet" id="cmdidIFixedThisCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
           <ButtonText>I fixed this!!!!!</ButtonText>
         </Strings>
-      </Button>
+      </Button>-->
       
       <!-- Error List result source service #1 menu items -->
       <Button guid="guidSarifErrorListResultSourceServiceCommandSet" id="c4883543-de09-4989-83c2-16e40d105831" priority="0x1000" >
@@ -209,7 +210,7 @@
       <IDSymbol name="cmdidNonShippingCodeResultCommand" value="0x0306"/>
       <IDSymbol name="cmdidOtherResultCommand" value="0x0307"/>
       <IDSymbol name="cmdidSuppressResultCommand" value="0x0308"/>
-      <IDSymbol name="cmdidIFixedThisCommand" value="0x0309"/>
+      <!--<IDSymbol name="cmdidIFixedThisCommand" value="0x0309"/>-->
     </GuidSymbol>
 
     <GuidSymbol name="guidSarifErrorListResultSourceServiceCommandSet" value="{b04424d9-49bc-4e04-9ecc-ad5b68cce4bc}">
