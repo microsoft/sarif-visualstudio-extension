@@ -130,6 +130,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             foreach (Block block in blocks)
             {
+                block.Margin = new Thickness(0);
                 foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
                 {
                     if (blockChild is Hyperlink hyperlink)
