@@ -581,6 +581,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                                 SarifLog = getResultsResult.Value,
                                 LogFileName = "scan-results.sarif",
                                 UseDotSarifDirectory = false,
+                                ClearPrevious = true,
                             };
                             RaiseServiceEvent(eventArgs);
                             break;

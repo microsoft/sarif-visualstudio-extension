@@ -306,7 +306,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     SarifLog = masterLog,
                     LogFileName = "",
                     UseDotSarifDirectory = false,
-                    ShowBanner = false
+                    ShowBanner = false,
+                    ClearPrevious = false,
                 });
             }
             catch (Exception)
