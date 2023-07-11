@@ -79,8 +79,6 @@ namespace Microsoft.Sarif.Viewer
         [Browsable(false)]
         public string WorkingDirectory { get; set; }
 
-        private string _shortMessage;
-
         [Browsable(false)]
         public string ShortMessage { get; set; }
 
