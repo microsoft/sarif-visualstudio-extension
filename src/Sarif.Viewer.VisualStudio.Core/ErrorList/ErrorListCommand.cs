@@ -235,7 +235,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             bool visible = e.NewItem != null || (this.selectionService.SelectedItems != null && this.selectionService.SelectedItems.Any());
             this.SetCommandVisibility(ProvideFeedbackCommandId, visible);
             this.SetCommandVisibility(SuppressResultCommandId, visible);
-            this.SetCommandVisibility(IFixedThisCommandId, visible);
+            //this.SetCommandVisibility(IFixedThisCommandId, visible);
         }
 
         private void SetCommandVisibility(int cmdID, bool visible)
