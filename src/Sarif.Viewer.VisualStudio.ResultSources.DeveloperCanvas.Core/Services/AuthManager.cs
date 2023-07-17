@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
@@ -38,10 +39,14 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         public AuthManager()
         {
+            var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows);
+            brokerOpt.Title = "DevCanvas";
+
             string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
                 .WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
+                .WithBroker(brokerOpt)
                 .WithDefaultRedirectUri()
                 .Build();
 

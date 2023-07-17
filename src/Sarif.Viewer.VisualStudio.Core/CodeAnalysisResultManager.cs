@@ -372,6 +372,7 @@ namespace Microsoft.Sarif.Viewer
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // User needs to locate file.
+                Trace.WriteLine("In FindResolvedPath(RunDataCache dataCache, SarifErrorListItem sarifErrorListItem, string uriBaseId, string relativePath). Failed to find the file needed, prompting user.");
                 resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, relativePath);
             }
 
@@ -441,6 +442,7 @@ namespace Microsoft.Sarif.Viewer
             if (string.IsNullOrEmpty(resolvedPath))
             {
                 // User needs to locate file.
+                Trace.WriteLine("In FindResolvedPath(RunDataCache dataCache, string workingDirectory, string logFilePath, string uriBaseId, string relativePath). Failed to find file, prmpting user.");
                 resolvedPath = this._promptForResolvedPathWithLogPathDelegate(workingDirectory, relativePath);
             }
 
@@ -1299,6 +1301,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
+            Trace.WriteLine("In VerifyFileWithArtifactHash(SarifErrorListItem sarifErrorListItem, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath) . Failed to find file, prompting user.");
             ResolveEmbeddedFileDialogResult dialogResult = this._promptForEmbeddedFileDelegate(sarifErrorListItem.LogFilePath, hasEmbeddedContent, this.userDialogPreference);
 
             switch (dialogResult)
@@ -1360,6 +1363,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
+            Trace.WriteLine("In VerifyFileWithArtifactHash(string logFilePath, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath) . Failed to find file, prompting user.");
             ResolveEmbeddedFileDialogResult dialogResult = this._promptForEmbeddedFileDelegate(logFilePath, hasEmbeddedContent, this.userDialogPreference);
 
             switch (dialogResult)
