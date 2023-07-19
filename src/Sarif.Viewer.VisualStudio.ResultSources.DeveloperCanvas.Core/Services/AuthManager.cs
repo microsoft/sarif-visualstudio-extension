@@ -60,8 +60,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
                 .WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
-                .WithParentActivityOrWindow(GetIntPtr)
-                .WithBroker(brokerOpt)
+                // .WithParentActivityOrWindow(GetIntPtr)
+                // .WithBroker(brokerOpt)
                 .WithDefaultRedirectUri()
                 .Build();
 
@@ -98,9 +98,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                            .WithClaims(ex.Claims)
                            .ExecuteAsync();
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        Trace.WriteLine("Failed to acquire token interactively");
+                        Trace.WriteLine($"Failed to acquire token interactively.\nException: {e}");
                     }
                 }
             }
@@ -109,7 +109,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 slimSemaphore.Release();
             }
 
-            Trace.WriteLine("Failed to acquire token at all. ");
+            Trace.WriteLine("Failed to acquire token at all.");
             return null;
         }
 
