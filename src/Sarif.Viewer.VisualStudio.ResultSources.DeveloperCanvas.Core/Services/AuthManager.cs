@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,15 +38,29 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private readonly SemaphoreSlim slimSemaphore;
         private readonly MsalCacheHelper cacheHelper;
 
+        private IntPtr GetIntPtr()
+        {
+            Process[] allProcs = Process.GetProcesses();
+            Process[] handleProcs = allProcs.Where(x => x.Handle != IntPtr.Zero).ToArray();
+            //IntPtr consoleHandle = WindowsHelper.GetConsoleWindow();
+            //return consoleHandle;
+            IntPtr hwnd = Process.GetProcesses("msedge")[0].Handle;
+            return hwnd;
+        }
+
         public AuthManager()
         {
-            var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows);
-            brokerOpt.Title = "DevCanvas";
+            var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
+            {
+                Title = "Log into DevCanvas",
+                ListOperatingSystemAccounts = true
+            };
 
             string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
                 .WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
+                .WithParentActivityOrWindow(GetIntPtr)
                 .WithBroker(brokerOpt)
                 .WithDefaultRedirectUri()
                 .Build();
@@ -109,6 +124,39 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             return client;
+        }
+    }
+
+    public static class WindowsHelper
+    {
+        private enum GetAncestorFlags
+        {
+            GetParent = 1,
+            GetRoot = 2,
+            /// <summary>
+            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
+            /// </summary>
+            GetRootOwner = 3
+        }
+
+        /// <summary>
+        /// Retrieves the handle to the ancestor of the specified window.
+        /// </summary>
+        /// <param name="hwnd">A handle to the window whose ancestor is to be retrieved.
+        /// If this parameter is the desktop window, the function returns NULL. </param>
+        /// <param name="flags">The ancestor to be retrieved.</param>
+        /// <returns>The return value is the handle to the ancestor window.</returns>
+        [DllImport("user32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetConsoleWindow();
+
+        public static IntPtr GetConsoleOrTerminalWindow(IntPtr handle)
+        {
+            IntPtr parentHandle = GetAncestor(handle, GetAncestorFlags.GetRootOwner);
+
+            return parentHandle;
         }
     }
 }
