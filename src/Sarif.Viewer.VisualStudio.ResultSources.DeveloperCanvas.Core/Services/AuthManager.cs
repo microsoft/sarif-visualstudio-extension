@@ -37,36 +37,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
         private readonly SemaphoreSlim slimSemaphore;
         private readonly MsalCacheHelper cacheHelper;
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetActiveWindow();
+        
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-        private enum GetAncestorFlags
-        {
-            GetParent = 1,
-            GetRoot = 2,
-            /// <summary>
-            /// Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
-            /// </summary>
-            GetRootOwner = 3
-        }
-
-        /// <summary>
-        /// Retrieves the handle to the ancestor of the specified window.
-        /// </summary>
-        /// <param name="hwnd">A handle to the window whose ancestor is to be retrieved.
-        /// If this parameter is the desktop window, the function returns NULL. </param>
-        /// <param name="flags">The ancestor to be retrieved.</param>
-        /// <returns>The return value is the handle to the ancestor window.</returns>
-        [DllImport("user32.dll", ExactSpelling = true)]
-        private static extern IntPtr GetAncestor(IntPtr hwnd, GetAncestorFlags flags);
-
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr GetConsoleWindow();
 
         private IntPtr GetIntPtr()
         {
@@ -79,17 +52,15 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         {
             var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
             {
-                Title = "Log into DevCanvas",
+                Title = "Log into DevCanvas. https://aka.ms/devcanvas",
                 //ListOperatingSystemAccounts = true
             };
 
             string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
-                //.WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
                 .WithParentActivityOrWindow(GetIntPtr)
                 .WithBroker(brokerOpt)
-                //.WithDefaultRedirectUri()
                 .Build();
 
             StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder($"{nameof(DevCanvasResultSourceService)}_MSAL_cache_{msAadTenant}.txt", MsalCacheHelper.UserRootDirectory)

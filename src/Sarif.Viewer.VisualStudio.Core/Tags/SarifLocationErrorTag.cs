@@ -97,8 +97,8 @@ namespace Microsoft.Sarif.Viewer.Tags
                             viewer.Markdown = item.strContent;
                             ParseBlocks(viewer.Document.Blocks);
 
-                            viewer.Padding = new Thickness(0, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
-                            viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
+                            // viewer.Padding = new Thickness(0, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
+                            viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of margin that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
                             return viewer;
                         }
                         catch (NotSupportedException)

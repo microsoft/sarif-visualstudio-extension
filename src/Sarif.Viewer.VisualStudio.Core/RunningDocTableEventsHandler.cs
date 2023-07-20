@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 
@@ -16,6 +17,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Workspace.Indexing;
 
 namespace Sarif.Viewer.VisualStudio.Core
@@ -69,23 +71,9 @@ namespace Sarif.Viewer.VisualStudio.Core
         public int OnBeforeDocumentWindowShow(uint docCookie, int fFirstShow, IVsWindowFrame pFrame)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (ivsRunningDocTable != null)
-            {
-                IVsHierarchy hierarchy;
-                uint itemId;
-                IntPtr docData;
-                string fileName = null;
-
-                int hr = ivsRunningDocTable.GetDocumentInfo(docCookie, out uint a, out uint b, out uint c, out string pbstrMkDocument, out hierarchy, out itemId, out docData);
-                if (hr == VSConstants.S_OK && hierarchy != null)
-                {
-                    hierarchy.GetCanonicalName(itemId, out fileName);
-                    DocHandler_Service_Event(fileName);
-                }
-
-                // Now you have the file name of the document that was opened
-            }
-
+            string docMoniker = (string)pFrame.GetType().GetProperty("DocumentMoniker").GetValue(pFrame, null);
+            ThreadPool.QueueUserWorkItem((a) =>
+                DocHandler_Service_Event(docMoniker));
             return VSConstants.S_OK;
         }
 
