@@ -34,6 +34,8 @@ using Newtonsoft.Json;
 
 using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models;
 
+using static System.Net.Mime.MediaTypeNames;
+
 using Result = CSharpFunctionalExtensions.Result;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
@@ -82,7 +84,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <summary>
         /// The number of minutes to wait before evicting an entry from the cache.
         /// </summary>
-        private const int minutesBeforeRefresh = 60;
+        private const int minutesBeforeRefresh = 1;
 
         private readonly Queue<string> filePathQueue;
 
@@ -90,6 +92,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// Handles the actual accessing of data 
         /// </summary>
         private readonly DevCanvasWebAPIAccessor accessor;
+
+        private readonly object queryLock = new object();
 
         public DevCanvasResultSourceService(
             string solutionRootPath,
@@ -153,10 +157,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         {
             foreach (string filePath in filePaths)
             {
-                if (!filesQueriedCache.Contains(filePath))
+                lock (queryLock)
                 {
-                    filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(60));
-                    DownloadInsights(filePath);
+                    if (!filesQueriedCache.Contains(filePath))
+                    {
+                        filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(minutesBeforeRefresh));
+                        DownloadInsights(filePath);
+                    }
                 }
             }
             return System.Threading.Tasks.Task.FromResult(Result.Success<bool, ErrorType>(true));
@@ -303,13 +310,22 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 // Display the result message (e.g. "Cached X insights for file Y")
                 Trace.WriteLine(resultMessage.ToString());
 
+                string repoRootedHash = string.Empty;
+                using (var sha = new System.Security.Cryptography.SHA256Managed())
+                {
+                    byte[] textData = System.Text.Encoding.UTF8.GetBytes(repoRootedFilePath);
+                    byte[] hash = sha.ComputeHash(textData);
+                    repoRootedHash = BitConverter.ToString(hash).Replace("-", string.Empty);
+                }
+
                 RaiseServiceEvent(new ResultsUpdatedEventArgs()
                 {
                     SarifLog = masterLog,
-                    LogFileName = "",
+                    LogFileName = repoRootedHash,
                     UseDotSarifDirectory = false,
                     ShowBanner = false,
                     ClearPrevious = false,
+                    ClearPreviousForFile = true
                 });
             }
             catch (Exception)

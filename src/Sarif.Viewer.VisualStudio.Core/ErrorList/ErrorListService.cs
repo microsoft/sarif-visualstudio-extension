@@ -420,6 +420,45 @@ namespace Microsoft.Sarif.Viewer.ErrorList
             }
         }
 
+        public static async Task CloseSarifLogItemsForFileAsync(string logFile)
+        {
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            }
+
+            SarifTableDataSource.Instance.ClearErrorsForLogFiles(new List<string>() { logFile });
+
+            var runIdsToClear = new List<int>();
+
+            // The null conditional operator in the Where clause is necessary because log files
+            // that come in through the API ILoadSarifLogService.LoadSarifLog(Stream) don't have
+            // a file name. The good news is, we never close such a log file. If in future we
+            // do need to close such a log file, we'll need to synthesize a log file name so we
+            // know which runs belong to that file.
+            runIdsToClear.AddRange(CodeManagerInstance.RunIndexToRunDataCache.
+                Where(runDataCacheKvp => runDataCacheKvp.Value.LogFilePath?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true).
+                Select(runDataCacheKvp => runDataCacheKvp.Key));
+
+            if (CodeManagerInstance.RunIndexToRunDataCache
+                .Any(kvp => kvp.Value.SarifErrors
+                    .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true)))
+            {
+                KeyValuePair<int, RunDataCache> cache = CodeManagerInstance.RunIndexToRunDataCache
+                    .First(kvp => kvp.Value.SarifErrors
+                        .Any(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true));
+                SarifErrorListItem sarifError = cache.Value.SarifErrors.First(error => error.FileName?.Equals(logFile, StringComparison.OrdinalIgnoreCase) == true);
+                cache.Value.SarifErrors.Remove(sarifError);
+
+                CodeManagerInstance.RunIndexToRunDataCache[cache.Key] = cache.Value;
+            }
+
+            foreach (int runIdToClear in runIdsToClear)
+            {
+                CodeManagerInstance.RunIndexToRunDataCache.Remove(runIdToClear);
+            }
+        }
+
         public static bool IsSarifLogOpened(string logFile)
         {
             return SarifTableDataSource.Instance.HasErrorsFromLog(logFile) ||
