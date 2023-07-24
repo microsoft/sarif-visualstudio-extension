@@ -84,7 +84,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <summary>
         /// The number of minutes to wait before evicting an entry from the cache.
         /// </summary>
-        private const int minutesBeforeRefresh = 1;
+        private const int minutesBeforeRefresh = 60;
 
         private readonly Queue<string> filePathQueue;
 
@@ -131,7 +131,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            Trace.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 7/19");
+            Trace.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 7/24");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
 
             if (string.IsNullOrWhiteSpace(userName) || userName.EndsWith("@microsoft.com"))
