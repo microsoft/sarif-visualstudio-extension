@@ -156,11 +156,16 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 HttpResponseMessage response = null;
                 try
                 {
+                    Stopwatch stopwatch = Stopwatch.StartNew();
                     using (response = await client.PostAsync(Url, content))
                     {
                         response.EnsureSuccessStatusCode();
+                        stopwatch.Stop();
                         string responseBody = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<SarifLog>(responseBody);
+                        SarifLog log =  JsonConvert.DeserializeObject<SarifLog>(responseBody);
+                        int resultCount = log.Runs[0].Results.Count;
+                        Trace.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms to query for {resultCount} insights.");
+                        return log;
                     }
                 }
                 catch (Exception e)

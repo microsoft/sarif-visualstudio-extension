@@ -85,16 +85,7 @@ namespace Microsoft.Sarif.Viewer
             this.ResultId = Interlocked.Increment(ref currentResultId);
             this.ResultGuid = result.Guid;
             this.SarifResult = result;
-            ReportingDescriptor rule = null;
-            try
-            {
-                rule = result.GetRule(run);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
+            ReportingDescriptor rule = result.GetRule(run);
             this.Tool = run.Tool.ToToolModel();
             this.Rule = rule.ToRuleModel(result.RuleId);
             this.Invocation = run.Invocations?[0]?.ToInvocationModel();

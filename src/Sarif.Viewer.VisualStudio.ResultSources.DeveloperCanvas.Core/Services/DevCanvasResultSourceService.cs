@@ -131,7 +131,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            Trace.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 7/24");
+            Trace.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 7/25");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
 
             if (string.IsNullOrWhiteSpace(userName) || userName.EndsWith("@microsoft.com"))
@@ -386,7 +386,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                         {
                             result.Message.SetProperty<string>(XamlMessageKey, "");
                         }
-                        //result.Rule = null;
+                        if (result.Rule != null && result.Rule.ToolComponent != null)
+                        {
+                            result.Rule.ToolComponent = null;
+                        }
                     }
                 }
             }
