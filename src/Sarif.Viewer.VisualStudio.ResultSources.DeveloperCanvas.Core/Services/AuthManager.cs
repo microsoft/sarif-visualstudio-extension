@@ -37,7 +37,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
         private readonly SemaphoreSlim slimSemaphore;
         private readonly MsalCacheHelper cacheHelper;
-        
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
