@@ -42,7 +42,7 @@ namespace Microsoft.Sarif.Viewer
         /// <remarks>
         /// In Key Event scenario, it is used to identify each unique warning and log to telemetry.
         /// </remarks>
-        public string ResultGuid { get; }
+        public Guid? ResultGuid { get; }
 
         /// <summary>
         /// Gets reference to corresponding <see cref="SarifLog.Result" /> object.

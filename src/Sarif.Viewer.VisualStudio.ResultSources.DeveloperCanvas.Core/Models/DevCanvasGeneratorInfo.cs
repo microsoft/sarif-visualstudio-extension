@@ -23,8 +23,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         public DevCanvasGeneratorInfo() : base() { }
 
         /// <summary>
-        /// Implementation of IGeneratorFields
-        /// <inheritdoc cref="IGeneratorFields"/>
+        /// Abbreviated 6-character version of 'Name' for use in certain space-limited client-side scenarios.
+        /// Should be all-caps and simply represent 'Name' in condensed form.
         /// </summary>
         public string ShortName
         {
@@ -49,21 +49,19 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             { return $"{this.Name} {this.Version} (en-us)"; }
         }
 
-        /// <inheritdoc cref="IGeneratorFields"/>
-        public Guid Id
-        {
-            get { return new Guid(this.Guid); }
-            set { this.Guid = value.ToString(); }
-        }
 
-        /// <inheritdoc cref="IGeneratorFields"/>
+        /// <summary>
+        /// This is the about link where the end-user can get more information about the insight from insight generator.
+        /// </summary>
         public string AboutLink
         {
             get { return this.InformationUri.ToString(); }
             set { this.InformationUri = new Uri(value); }
         }
 
-        /// <inheritdoc cref="IGeneratorFields"/>
+        /// <summary>
+        /// Name of the insight in the client
+        /// </summary>
         public string InsightDisplayName
         {
             get { return this.GetProperty<string>(InsightDisplayNameKey); }

@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="16.0.206" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="Sarif.Sdk">
-      <Version>2.4.15</Version>
+      <Version>4.2.2</Version>
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.console" Version="2.4.1" />

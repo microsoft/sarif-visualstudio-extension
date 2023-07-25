@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -28,10 +29,10 @@ namespace Microsoft.Sarif.Viewer.Models
         private Thickness _textMargin;
         private DelegateCommand _navigateCommand;
         private int _index;
-        private string _resultGuid;
+        private Guid? _resultGuid;
         private string _ruleId;
 
-        public AnalysisStepNode(int resultId, int runIndex, int index = 0, string resultGuid = null, string ruleId = null)
+        public AnalysisStepNode(int resultId, int runIndex, int index = 0, Guid? resultGuid = null, string ruleId = null)
             : base(resultId, runIndex)
         {
             this._index = index;
@@ -331,18 +332,7 @@ namespace Microsoft.Sarif.Viewer.Models
             }
         }
 
-        public string ResultGuid
-        {
-            get
-            {
-                return this._resultGuid;
-            }
-
-            set
-            {
-                this._resultGuid = value;
-            }
-        }
+        public Guid? ResultGuid => this._resultGuid;
 
         public string RuleId
         {

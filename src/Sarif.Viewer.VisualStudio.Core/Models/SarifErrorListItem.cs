@@ -155,7 +155,7 @@ namespace Microsoft.Sarif.Viewer
                             var query = new MatchQuery(textToFind: currentPhysicalLocation.Region.Snippet.Text,
                                 lineNumberHint: this.LineNumber,
                                 callingSignature: currentLogicalLocation?.FullyQualifiedName,
-                                id: this.SarifResult.Guid,
+                                id: this.SarifResult.Guid.ToString(),
                                 typeHint: typeHint);
                             queries.Add((currentPhysicalLocation.ArtifactLocation?.Uri, query));
                         }
@@ -472,7 +472,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     foreach (Fix fix in this.SarifResult.Fixes)
                     {
-                        var fixModel = fix.ToFixModel(runDataCache.OriginalUriBasePaths, FileRegionsCache.Instance);
+                        FixModel fixModel = fix.ToFixModel(runDataCache.OriginalUriBasePaths, default(FileRegionsCache));
                         foreach (ArtifactChangeModel fileChangeModel in fixModel.ArtifactChanges)
                         {
                             fileChangeModel.FilePath = this.FileName;
@@ -485,7 +485,7 @@ namespace Microsoft.Sarif.Viewer
                 {
                     foreach (Fix fix in this.SarifResult.Fixes)
                     {
-                        this.Fixes.Add(fix.ToFixModel(this.SarifResult.Run.OriginalUriBaseIds, FileRegionsCache.Instance));
+                        this.Fixes.Add(fix.ToFixModel(this.SarifResult.Run.OriginalUriBaseIds, default(FileRegionsCache)));
                     }
                 }
             }

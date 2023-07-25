@@ -96,7 +96,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     generatorCache.Clear();
                     foreach (DevCanvasGeneratorInfo generator in generators)
                     {
-                        generatorCache.Add(generator.Id, generator);
+                        generatorCache.Add((Guid)generator.Guid, generator);
                     }
 
                     generatorList = generatorCache.Values.ToList();

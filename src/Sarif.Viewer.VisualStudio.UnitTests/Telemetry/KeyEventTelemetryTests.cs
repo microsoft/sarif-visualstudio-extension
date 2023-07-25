@@ -98,7 +98,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
             var run = new Run();
             var result = new Result
             {
-                Guid = Guid.NewGuid().ToString(),
+                Guid = Guid.NewGuid(),
                 Rule = new ReportingDescriptorReference { Id = "C0694" },
                 CodeFlows = new CodeFlow[]
                 {

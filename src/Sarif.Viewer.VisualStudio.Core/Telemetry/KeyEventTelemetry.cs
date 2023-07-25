@@ -115,7 +115,7 @@ namespace Microsoft.Sarif.Viewer.Telemetry
         /// <param name="result">The result of this user task.</param>
         /// <param name="properties">Custom dimensions data can be used to aggregate data.</param>
         /// <exception cref="ArgumentNullException">Throws if eventName is null.</exception>
-        public void TrackEvent(string eventName, string warningId, string warningItemId, int? pathIndex, TelemetryResult result = TelemetryResult.Success, Dictionary<string, string> properties = null)
+        public void TrackEvent(string eventName, string warningId, Guid? warningItemId, int? pathIndex, TelemetryResult result = TelemetryResult.Success, Dictionary<string, string> properties = null)
         {
             if (eventName == null)
             {
@@ -181,12 +181,12 @@ namespace Microsoft.Sarif.Viewer.Telemetry
             return userEvent;
         }
 
-        private static void PopulateContext(TelemetryEvent userEvent, string warningId, string warningItemId, int? pathIndex)
+        private static void PopulateContext(TelemetryEvent userEvent, string warningId, Guid? warningItemId, int? pathIndex)
         {
             try
             {
                 userEvent.SetValue(PropertyNames.WarningId, warningId);
-                userEvent.SetValue(PropertyNames.WarningItemId, warningItemId);
+                userEvent.SetValue(PropertyNames.WarningItemId, warningItemId.ToString());
                 userEvent.SetValue(PropertyNames.WarningPathIndex, pathIndex?.ToString());
                 userEvent.SetValue(PropertyNames.VsVersion, VsVersion);
                 userEvent.SetValue(PropertyNames.ExtVersion, ExtensionVersion);

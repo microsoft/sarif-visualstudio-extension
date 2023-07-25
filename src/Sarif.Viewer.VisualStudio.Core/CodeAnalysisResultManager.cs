@@ -934,7 +934,7 @@ namespace Microsoft.Sarif.Viewer
             {
                 if (item.SarifResult != null)
                 {
-                    item.SarifResult.Guid = guid;
+                    item.SarifResult.Guid = new Guid(guid);
                     if (runIndex == -1)
                     {
                         runIndex = item.RunIndex;
@@ -948,7 +948,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             // parition results in log
-            PartitionFunction<string> partitionFunction = (result) => result.Guid ?? null;
+            PartitionFunction<string> partitionFunction = (result) => result.Guid == null ? null : result.Guid.ToString();
             var partitioningVisitor = new PartitioningVisitor<string>(partitionFunction, deepClone: false);
             partitioningVisitor.VisitSarifLog(dataCache.SarifLog);
             Dictionary<string, SarifLog> partitions = partitioningVisitor.GetPartitionLogs();

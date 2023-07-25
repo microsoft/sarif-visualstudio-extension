@@ -70,7 +70,7 @@ namespace Microsoft.Sarif.Viewer.Sarif
                         reportingDescriptor = new ReportingDescriptor(
                             ruleId,
                             null,
-                            ruleName,
+                            default(Guid), // TODO: Change
                             null,
                             ruleName,
                             null,

@@ -431,7 +431,7 @@ namespace Microsoft.Sarif.Viewer
                         out resolvedUri)))
                 {
                     // Fill out the region's properties
-                    this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, resolvedUri, populateSnippet: true);
+                    this.fullyPopulatedRegion = default(FileRegionsCache).PopulateTextRegionProperties(this.region, resolvedUri, populateSnippet: true);
                 }
             }
 
