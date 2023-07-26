@@ -62,6 +62,7 @@ namespace Microsoft.Sarif.Viewer
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideOptionPage(typeof(SarifViewerGeneralOptionsPage), OptionCategoryName, OptionPageName, 0, 0, true)]
     [ProvideOptionPage(typeof(SarifViewerColorOptionsPage), OptionCategoryName, ColorsPageName, 0, 0, true)]
+    [ProvideOptionPage(typeof(DevCanvasOptionsPage), OptionCategoryName, DevCanvasPageName, 0, 0, true)]
     public sealed class SarifViewerPackage : AsyncPackage
     {
         private readonly List<OleMenuCommand> menuCommands = new List<OleMenuCommand>();
@@ -78,6 +79,7 @@ namespace Microsoft.Sarif.Viewer
         public const string OptionCategoryName = "SARIF Viewer";
         public const string OptionPageName = "General";
         public const string ColorsPageName = "Colors";
+        public const string DevCanvasPageName = "DevCanvas";
         public const string OutputPaneName = "SARIF Viewer";
         public static readonly Guid PackageGuid = new Guid(PackageGuidString);
 

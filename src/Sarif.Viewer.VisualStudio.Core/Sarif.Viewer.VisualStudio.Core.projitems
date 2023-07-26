@@ -122,6 +122,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)OpenLogFileCommands.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\ColorOptions\ColorOption.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\ColorOptions\ISarifViewerColorOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\DevCanvasOptions\DevCanvasOptionsControl.xaml.cs">
+      <DependentUpon>DevCanvasOptionsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Options\DevCanvasOptions\DevCanvasOptionsPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\GeneralOptions\ISarifViewerGeneralOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\ColorOptions\LocationTextDecoration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Options\ColorOptions\LocationTextDecorationCollection.cs" />
@@ -257,6 +261,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)Options\ColorOptions\SarifViewerColorOptionsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)Options\DevCanvasOptions\DevCanvasOptionsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
