@@ -324,6 +324,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             }
         }
 
+        public Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths)
+        {
+            return Task.FromResult(Result.Success<bool, ErrorType>(true));
+        }
+
         internal (string Path, string Name) ParseBranchString(string branch)
         {
             // This needs to handle goofy branch names like "//asdf///-".
@@ -576,6 +581,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
                                 SarifLog = getResultsResult.Value,
                                 LogFileName = "scan-results.sarif",
                                 UseDotSarifDirectory = false,
+                                ClearPrevious = true,
                             };
                             RaiseServiceEvent(eventArgs);
                             break;

@@ -32,5 +32,20 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Models
         /// Gets or sets a value indicating whether the log should be written to the .sarif directory.
         /// </summary>
         public bool UseDotSarifDirectory { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the service to raise this event wants to have a banner be shown related to it.
+        /// </summary>
+        public bool ShowBanner { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether we want to clear out all previously loaded SARIF data.
+        /// </summary>
+        public bool ClearPrevious { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether we want to clear out previously loaded SARIF data with the same <see cref="LogFileName"/>.
+        /// </summary>
+        public bool ClearPreviousForFile { get; set; }
     }
 }

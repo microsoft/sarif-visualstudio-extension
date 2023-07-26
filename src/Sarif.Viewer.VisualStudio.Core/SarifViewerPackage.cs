@@ -5,9 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
+
+using EnvDTE;
 
 using EnvDTE80;
 
@@ -21,12 +25,19 @@ using Microsoft.Sarif.Viewer.Services;
 using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
+using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Threading;
+using Microsoft.VisualStudio.Workspace.Indexing;
+using Microsoft.VisualStudio.Workspace.Logging;
 
 using Newtonsoft.Json;
+
+using Sarif.Viewer.VisualStudio.Core;
 
 using ResultSourcesConstants = Microsoft.Sarif.Viewer.ResultSources.Domain.Models.Constants;
 
@@ -72,7 +83,7 @@ namespace Microsoft.Sarif.Viewer
 
         public static bool IsUnitTesting { get; set; } = false;
 
-        public static Configuration AppConfig { get; private set; }
+        public static System.Configuration.Configuration AppConfig { get; private set; }
 
         private struct ServiceInformation
         {
@@ -141,6 +152,7 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            Trace.WriteLine("Start of initialize async for SarifViewerPackage");
             await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(continueOnCapturedContext: true);
 
             // Mitigation for Newtonsoft.Json v12 vulnerability GHSA-5crp-9r3c-p9vr
@@ -183,10 +195,10 @@ namespace Microsoft.Sarif.Viewer
                 this.sarifFolderMonitor?.StartWatching();
             }
 
-            SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
-            SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
-            SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
-            SolutionEvents.OnBeforeOpenProject += this.SolutionEvents_OnBeforeOpenProject;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnBeforeCloseSolution += this.SolutionEvents_OnBeforeCloseSolution;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnAfterCloseSolution += this.SolutionEvents_OnAfterCloseSolution;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnAfterBackgroundSolutionLoadComplete += this.SolutionEvents_OnAfterBackgroundSolutionLoadComplete;
+            Microsoft.VisualStudio.Shell.Events.SolutionEvents.OnBeforeOpenProject += this.SolutionEvents_OnBeforeOpenProject;
 
             await this.InitializeResultSourceHostAsync();
             return;
@@ -194,6 +206,8 @@ namespace Microsoft.Sarif.Viewer
 
         private void SolutionEvents_OnBeforeOpenProject(object sender, EventArgs e)
         {
+            Trace.WriteLine("Start of SolutionEvents_OnBeforeOpenProject for SarifViewerPackage");
+
             // start watcher when the solution is opened.
             this.sarifFolderMonitor?.StartWatching();
 
@@ -219,19 +233,108 @@ namespace Microsoft.Sarif.Viewer
 
         private async Task InitializeResultSourceHostAsync()
         {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
             if (this.resultSourceHost == null)
             {
                 string solutionPath = GetSolutionDirectoryPath();
-                if (!string.IsNullOrWhiteSpace(solutionPath))
-                {
-                    this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.IsOptionEnabled);
-                    this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
-                }
+                this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.IsOptionEnabled);
+                this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
             }
 
             if (this.resultSourceHost != null)
             {
                 await this.resultSourceHost.RequestAnalysisResultsAsync();
+            }
+
+            try
+            {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                IVsRunningDocumentTable ivsRunningDocTable = await this.GetServiceAsync(typeof(SVsRunningDocumentTable)) as IVsRunningDocumentTable;
+                if (ivsRunningDocTable != null)
+                {
+                    RunningDocTableEventsHandler docEventsHandler = new RunningDocTableEventsHandler(ivsRunningDocTable);
+
+                    ivsRunningDocTable.AdviseRunningDocTableEvents(docEventsHandler, out uint cookie);
+                    docEventsHandler.ServiceEvent += this.DocEventsHandler_ServiceEvent;
+                }
+            }
+            catch (Exception) { }
+        }
+
+        /// <summary>
+        /// Listens to the events fired from a <see cref="RunningDocTableEventsHandler"/> instance.
+        /// </summary>
+        /// <param name="sender">The class that fired the event.</param>
+        /// <param name="e">The event args that were passed.</param>
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private async void DocEventsHandler_ServiceEvent(object sender, FilesOpenedEventArgs e)
+#pragma warning restore VSTHRD100 // Avoid async void methods
+        {
+            try
+            {
+                string[] filesOpened = e.FileOpened.ToArray();
+                await this.resultSourceHost.RequestAnalysisResultsForFileAsync(filesOpened);
+            }
+            catch (Exception)
+            {
+                // swallow, we don't want to throw an exception and crash the extension.
+            }
+        }
+
+        /// <summary>
+        /// Reports any un-reported files that were found and ensures the open file is in the collection
+        /// Fires when a file is opened.
+        /// </summary>
+        /// <param name="document">Document that was opened.</param>
+#pragma warning disable VSTHRD100 // Avoid async void methods
+        private async void OnDocumentOpened(Document document)
+#pragma warning restore VSTHRD100 // Avoid async void methods
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
+            try
+            {
+                string filePath = string.Empty;
+                string docPath = string.Empty;
+                string docName = string.Empty;
+                string docType = string.Empty;
+                try
+                {
+                    filePath = document.FullName;
+                    docPath = document.Path;
+                    docName = document.Name;
+                    docType = document.Type;
+                }
+                catch
+                {
+                    // Swallow any exceptions that may occur when we try to access Document members.
+                }
+
+                // Ctrl+clicking an object can open a decompiled assembly, which will be temporarily stored in a users %APPDATA%/local folder.
+                // We do not want to search for insights for these files as they have no repository to link back to.
+                string appdataLocalPath = null;
+                try
+                {
+                    appdataLocalPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                }
+                catch (Exception)
+                {
+                    // swallow exception, appdata may not be available (ex: linux machine).
+                }
+
+                if (string.IsNullOrEmpty(appdataLocalPath) || !filePath.StartsWith(appdataLocalPath))
+                {
+                    // This callback happens on the main thread. We don't necessarily need it so switch away from it.
+                    await TaskScheduler.Default;
+
+                    if (string.IsNullOrWhiteSpace(filePath) == false)
+                    {
+                        await this.resultSourceHost.RequestAnalysisResultsForFileAsync(new string[] { filePath });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Swallow. In the future, log.
             }
         }
 
@@ -303,6 +406,8 @@ namespace Microsoft.Sarif.Viewer
 
         private void SolutionEvents_OnAfterBackgroundSolutionLoadComplete(object sender, EventArgs e)
         {
+            Trace.WriteLine("Start of SolutionEvents_OnAfterBackgroundSolutionLoadComplete for SarifViewerPackage");
+
             // start to watch when the solution is loaded.
             this.sarifFolderMonitor?.StartWatching();
 
@@ -333,8 +438,17 @@ namespace Microsoft.Sarif.Viewer
                             {
                                 // Load using the EnhancedResultData log name to activate key event adornments.
                                 string[] logNames = new[] { DataService.EnhancedResultDataLogName };
-                                await ErrorListService.CloseSarifLogItemsAsync(logNames);
-                                await ErrorListService.ProcessSarifLogAsync(resultsUpdatedEventArgs.SarifLog, DataService.EnhancedResultDataLogName, cleanErrors: false, openInEditor: false);
+
+                                if (resultsUpdatedEventArgs.ClearPrevious)
+                                {
+                                    await ErrorListService.CloseSarifLogItemsAsync(logNames);
+                                }
+                                else if (resultsUpdatedEventArgs.ClearPreviousForFile)
+                                {
+                                    await ErrorListService.CloseSarifLogItemsForFileAsync(resultsUpdatedEventArgs.LogFileName);
+                                }
+
+                                await ErrorListService.ProcessSarifLogAsync(resultsUpdatedEventArgs.SarifLog, resultsUpdatedEventArgs.LogFileName, cleanErrors: false, openInEditor: false, processWithBanner: resultsUpdatedEventArgs.ShowBanner);
                             });
                         }
                     }

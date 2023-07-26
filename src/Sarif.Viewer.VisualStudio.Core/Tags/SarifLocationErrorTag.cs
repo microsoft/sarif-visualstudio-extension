@@ -97,12 +97,12 @@ namespace Microsoft.Sarif.Viewer.Tags
                             viewer.Markdown = item.strContent;
                             ParseBlocks(viewer.Document.Blocks);
 
-                            viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
+                            viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of margin that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
                             return viewer;
                         }
                         catch (NotSupportedException)
                         {
-                            // catch and swallow silently
+                            Trace.WriteLine("Markdown failed to render properly. Contact tool owner for fixing.");
                         }
                     }
                     else if (item.renderType == TextRenderType.Text)
@@ -130,6 +130,9 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             foreach (Block block in blocks)
             {
+                // block.BorderBrush = Brushes.Red;
+                // block.BorderThickness = new Thickness(5);
+                block.Margin = new Thickness(0);
                 foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
                 {
                     if (blockChild is Hyperlink hyperlink)

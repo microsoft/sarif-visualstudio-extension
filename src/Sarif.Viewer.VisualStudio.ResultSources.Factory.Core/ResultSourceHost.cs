@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using CSharpFunctionalExtensions;
 
@@ -72,6 +73,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <returns>An asynchronous <see cref="Task"/>.</returns>
         public async Task RequestAnalysisResultsAsync()
         {
+            Trace.WriteLine("Start of RequestAnalysisResultsAsync");
             if (!ResultSourceFactory.IsUnitTesting)
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -108,6 +110,31 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             }
         }
 
+        /// <summary>
+        /// Fires the <see cref="IResultSourceService.OnDocumentEventAsync(string[])"/> event when a file is opened.
+        /// </summary>
+        /// <param name="filePaths">Aboslute path of files that were opened.</param>
+        /// <returns>An async task that tracks progress.</returns>
+        public async Task RequestAnalysisResultsForFileAsync(string[] filePaths)
+        {
+            if (this.resultSourceServices != null)
+            {
+                foreach (IResultSourceService service in this.resultSourceServices)
+                {
+                    try
+                    {
+                        await service.OnDocumentEventAsync(filePaths);
+                    }
+                    catch (Exception) { }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fires the service event of this class.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
         private void ResultSourceService_ServiceEvent(object sender, ServiceEventArgs e)
         {
             ServiceEvent?.Invoke(this, e);

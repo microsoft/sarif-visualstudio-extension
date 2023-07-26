@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 using System.Windows.Documents;
@@ -13,6 +14,7 @@ using System.Windows.Documents;
 using FluentAssertions;
 
 using Microsoft.CodeAnalysis.Sarif;
+using Microsoft.VisualStudio.Shell.Interop;
 
 using Moq;
 

@@ -19,6 +19,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuFlyout.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuItem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\ErrorListMenuItems.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\FilesOpenedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MenuCommandBeforeQueryStatusEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\MenuCommandInvokedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\NoContent.cs" />

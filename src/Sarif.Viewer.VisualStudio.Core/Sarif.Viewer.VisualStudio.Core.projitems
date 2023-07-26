@@ -143,6 +143,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Resources.Designer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ResultTextMarker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RunDataCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RunningDocTableEventsHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RunSummary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifExplorerWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SarifFileAndContentDefinitions.cs" />

@@ -62,7 +62,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public IEnumerable<string> GetFilteredValues(string columnName)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             var filter = this.ErrorListTableControl?.GetFilter(columnName) as ColumnHashSetFilter;
 

@@ -130,11 +130,9 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 ? SdkUIUtilities.GetMessageInlines(this.Error.RawMessage, this.Error.MessageInlineLink_Click)
                 : null);
 
-            this.columnKeyToContent[StandardTableKeyNames.Text] = new Lazy<object>(() =>
-                SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage));
+            this.columnKeyToContent[StandardTableKeyNames.Text] = new Lazy<object>(() => SdkUIUtilities.UnescapeBrackets(this.Error.ShortMessage));
 
-            this.columnKeyToContent[StandardTableKeyNames.FullText] = new Lazy<object>(() =>
-                this.Error.HasDetailsContent
+            this.columnKeyToContent[StandardTableKeyNames.FullText] = new Lazy<object>(() => this.Error.HasDetailsContent
                 ? SdkUIUtilities.UnescapeBrackets(this.Error.Message)
                 : null);
 

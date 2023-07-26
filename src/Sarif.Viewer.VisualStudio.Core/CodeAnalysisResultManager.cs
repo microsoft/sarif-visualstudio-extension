@@ -366,7 +366,13 @@ namespace Microsoft.Sarif.Viewer
 
             if (string.IsNullOrEmpty(resolvedPath))
             {
+                resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+            }
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
                 // User needs to locate file.
+                Trace.WriteLine("In FindResolvedPath(RunDataCache dataCache, SarifErrorListItem sarifErrorListItem, string uriBaseId, string relativePath). Failed to find the file needed, prompting user.");
                 resolvedPath = this._promptForResolvedPathDelegate(sarifErrorListItem, relativePath);
             }
 
@@ -430,11 +436,48 @@ namespace Microsoft.Sarif.Viewer
 
             if (string.IsNullOrEmpty(resolvedPath))
             {
+                resolvedPath = ResolvePathThroughOpenFiles(relativePath);
+            }
+
+            if (string.IsNullOrEmpty(resolvedPath))
+            {
                 // User needs to locate file.
+                Trace.WriteLine("In FindResolvedPath(RunDataCache dataCache, string workingDirectory, string logFilePath, string uriBaseId, string relativePath). Failed to find file, prmpting user.");
                 resolvedPath = this._promptForResolvedPathWithLogPathDelegate(workingDirectory, relativePath);
             }
 
             return resolvedPath;
+        }
+
+        /// <summary>
+        /// see if this file was opened by the user manually and not through a folder/project/solution.
+        /// </summary>
+        /// <param name="relativeFilePath">The relative path to root.</param>
+        /// <returns>The resolved absolute path. Null if it could not locate.</returns>
+        private string ResolvePathThroughOpenFiles(string relativeFilePath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            DTE2 dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+            foreach (EnvDTE.Window window in dte.Windows)
+            {
+                try
+                {
+                    if (window.Document != null)
+                    {
+                        string fileName = window.Document.FullName;
+                        if (fileName.EndsWith(relativeFilePath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return window.Document.FullName;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // swallow, sometimes grabbing the doc from a window fails ex: it was a temp file that has been removed since last time this was opened.
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1258,6 +1301,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
+            Trace.WriteLine("In VerifyFileWithArtifactHash(SarifErrorListItem sarifErrorListItem, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath) . Failed to find file, prompting user.");
             ResolveEmbeddedFileDialogResult dialogResult = this._promptForEmbeddedFileDelegate(sarifErrorListItem.LogFilePath, hasEmbeddedContent, this.userDialogPreference);
 
             switch (dialogResult)
@@ -1319,6 +1363,7 @@ namespace Microsoft.Sarif.Viewer
             }
 
             bool hasEmbeddedContent = !string.IsNullOrEmpty(embeddedTempFilePath);
+            Trace.WriteLine("In VerifyFileWithArtifactHash(string logFilePath, string pathFromLogFile, RunDataCache dataCache, string resolvedPath, string embeddedTempFilePath, out string newResolvedPath) . Failed to find file, prompting user.");
             ResolveEmbeddedFileDialogResult dialogResult = this._promptForEmbeddedFileDelegate(logFilePath, hasEmbeddedContent, this.userDialogPreference);
 
             switch (dialogResult)

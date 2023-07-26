@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 using CSharpFunctionalExtensions;
@@ -17,6 +18,8 @@ using Microsoft.Sarif.Viewer.Shell;
 
 using Ninject;
 using Ninject.Parameters;
+
+using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services;
 
 using Result = CSharpFunctionalExtensions.Result;
 
@@ -34,6 +37,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         private readonly Dictionary<Type, (int, int)> resultSources = new Dictionary<Type, (int firstMenuId, int firstCommandId)>
         {
             { typeof(GitHubSourceService), (firstMenuId: 0x5000, firstCommandId: 0x8B67) },
+            { typeof(DevCanvasResultSourceService), (firstMenuId: 0x9000, firstCommandId: 0xAB67) },
         };
 
         /// <summary>
@@ -83,6 +87,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <inheritdoc/>
         public async Task<Result<List<IResultSourceService>, ErrorType>> GetResultSourceServicesAsync()
         {
+            Trace.WriteLine($"Start of GetResultSourceServicesAsync");
             var ctorArg1 = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
             var ctorArg2 = new ConstructorArgument("getOptionStateCallback", this.getOptionStateCallback, true);
             int index = -1;

@@ -84,5 +84,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         {
             return Task.Run(() => { return Result.Success<bool, ErrorType>(true); });
         }
+
+        public Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths)
+        {
+            return Task.Run(() => { return Result.Success<bool, ErrorType>(true); });
+        }
     }
 }
