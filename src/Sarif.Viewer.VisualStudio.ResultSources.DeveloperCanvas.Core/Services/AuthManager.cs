@@ -22,7 +22,7 @@ using Microsoft.Identity.Client.Extensions.Msal;
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
     /// <summary>
-    /// Handles the credentials retreival for the user.
+    /// Handles the credentials retrieval for the user.
     /// </summary>
     internal class AuthManager : IAuthManager
     {
@@ -53,7 +53,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
             {
                 Title = "Log into DevCanvas. https://aka.ms/devcanvas",
-                //ListOperatingSystemAccounts = true
             };
 
             string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
@@ -83,7 +82,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     AuthenticationResult result = await this.publicClientApplication
                         .AcquireTokenSilent(this.usedScopes, accounts.FirstOrDefault())
                         .ExecuteAsync();
-                    Trace.WriteLine($"Automatically retrieved credentails for {accounts.First().Username}");
+                    DevCanvasTracer.WriteLine($"Automatically retrieved credentails for {accounts.First().Username}");
                     return result;
                 }
                 catch (MsalUiRequiredException ex)
@@ -99,7 +98,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     }
                     catch (Exception e)
                     {
-                        Trace.WriteLine($"Failed to acquire token interactively.\nException: {e}");
+                        DevCanvasTracer.WriteLine($"Failed to acquire token interactively.\nException: {e}");
                     }
                 }
             }
@@ -108,7 +107,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 slimSemaphore.Release();
             }
 
-            Trace.WriteLine("Failed to acquire token at all.");
+            DevCanvasTracer.WriteLine("Failed to acquire token at all.");
             return null;
         }
 

@@ -15,6 +15,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory).., build.props))\build.props" />
   <ItemGroup>
     <Compile Include="DevCanvasAccessorTests.cs" />
+    <Compile Include="DevCanvasResultServiceTest.cs" />
     <Compile Include="MockedHttpClientHandler.cs" />
     <Compile Include="MockedHttpClientTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -41,7 +42,7 @@
       <Name>Sarif.Viewer.VisualStudio.Shell</Name>
     </ProjectReference>
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
     <PackageReference Include="CSharpFunctionalExtensions">
       <Version>2.29.4</Version>
     </PackageReference>

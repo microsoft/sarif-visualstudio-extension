@@ -9,6 +9,7 @@
     <Import_RootNamespace>Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DevCanvasTracer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasGeneratorInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasRequestV1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasVersionControlDetails.cs" />

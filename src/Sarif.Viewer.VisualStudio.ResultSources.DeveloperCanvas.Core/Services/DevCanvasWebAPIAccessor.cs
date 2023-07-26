@@ -132,18 +132,18 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine(e);
+                    DevCanvasTracer.WriteLine(e.ToString());
                     return new List<DevCanvasGeneratorInfo>();
                 }
             }
             else
             {
-                Trace.WriteLine($"Failed to access {currentServer} endpoint with supplied credentials.");
+                DevCanvasTracer.WriteLine($"Failed to access {currentServer} endpoint with supplied credentials.");
             }
             return new List<DevCanvasGeneratorInfo>();
         }
 
-
+        /// <inheritdoc/>
         public async Task<SarifLog> GetSarifLogV1Async(DevCanvasRequestV1 request)
         {
             string Url = $"https://{currentServer}/api/v{version}/SarifInsight/SarifInsightsForFile";
@@ -154,9 +154,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 string requestJson = JsonConvert.SerializeObject(request);
                 StringContent content = new StringContent(requestJson, System.Text.Encoding.UTF8, "application/json");
                 HttpResponseMessage response = null;
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 try
                 {
-                    Stopwatch stopwatch = Stopwatch.StartNew();
                     using (response = await client.PostAsync(Url, content))
                     {
                         response.EnsureSuccessStatusCode();
@@ -164,20 +164,22 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                         string responseBody = await response.Content.ReadAsStringAsync();
                         SarifLog log = JsonConvert.DeserializeObject<SarifLog>(responseBody);
                         int resultCount = log.Runs[0].Results.Count;
-                        Trace.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms to query for {resultCount} insights.");
+                        DevCanvasTracer.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms to query for {resultCount} insights.");
                         return log;
                     }
                 }
                 catch (Exception e)
                 {
                     // we want to swallow and return an empty list
-                    Trace.WriteLine($"Failed to access {currentServer} endpoint.\nReceived error code {response?.StatusCode}.\nException: {e}");
+                    DevCanvasTracer.WriteLine($"Failed to access {currentServer} endpoint.\nReceived error code {response?.StatusCode}.\nException: {e}");
+                    stopwatch.Stop();
+                    DevCanvasTracer.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms to query for insights.");
                     return new SarifLog();
                 }
             }
             else
             {
-                Trace.WriteLine($"Failed to access {currentServer} endpoint with supplied credentials.");
+                DevCanvasTracer.WriteLine($"Failed to access {currentServer} endpoint with supplied credentials.");
                 return new SarifLog();
             }
         }
