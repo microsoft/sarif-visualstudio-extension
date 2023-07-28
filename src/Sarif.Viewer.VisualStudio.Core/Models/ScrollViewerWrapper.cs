@@ -102,12 +102,9 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                 {
                     IErrorTag objectToWrap = sortedObjects[i];
                     UIElement tooltip = (UIElement)objectToWrap.ToolTipContent;
-                    if (tooltip is TextBlock textBlock)
+                    if (i != 0 && tooltip is TextBlock textBlock)
                     {
-                        if (i != 0)
-                        {
-                            textBlock.Margin = new Thickness(0, 20, 0, 0);
-                        }
+                       textBlock.Margin = new Thickness(0, 20, 0, 0);
                     }
 
                     stackPanel.Children.Add(tooltip);
