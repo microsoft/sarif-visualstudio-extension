@@ -104,7 +104,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                     UIElement tooltip = (UIElement)objectToWrap.ToolTipContent;
                     if (i != 0 && tooltip is TextBlock textBlock)
                     {
-                       textBlock.Margin = new Thickness(0, 20, 0, 0);
+                        textBlock.Margin = new Thickness(0, 20, 0, 0);
                     }
 
                     stackPanel.Children.Add(tooltip);
