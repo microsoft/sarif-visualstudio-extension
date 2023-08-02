@@ -8,6 +8,9 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
+    /// <summary>
+    /// This class listens to when the color options are changed by the user, firing events when appropriate.
+    /// </summary>
     internal class SarifViewerColorOptions : ISarifViewerColorOptions
     {
         private readonly AsyncPackage package;
