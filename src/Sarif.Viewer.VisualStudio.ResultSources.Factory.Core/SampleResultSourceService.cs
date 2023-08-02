@@ -68,7 +68,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 
         public int FirstCommandId { get; set; }
 
-        public Func<string, bool> GetOptionStateCallback { get; set; }
+        public Func<string, object> GetOptionStateCallback { get; set; }
 
         public Task InitializeAsync()
         {

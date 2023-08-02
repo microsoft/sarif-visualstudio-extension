@@ -32,7 +32,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public ResultSourceHost(
             string solutionRootPath,
             IServiceProvider serviceProvider,
-            Func<string, bool> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback)
         {
             this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider, getOptionStateCallback);
         }

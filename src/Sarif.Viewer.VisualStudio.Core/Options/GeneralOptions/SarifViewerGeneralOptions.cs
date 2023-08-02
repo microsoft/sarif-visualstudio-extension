@@ -29,7 +29,7 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.optionPage = (SarifViewerGeneralOptionsPage)this.package.GetDialogPage(typeof(SarifViewerGeneralOptionsPage));
-            this.OptionStates = new Dictionary<string, bool>
+            this.OptionStates = new Dictionary<string, object>
             {
                 { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
                 { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
 
-        public readonly Dictionary<string, bool> OptionStates;
+        public readonly Dictionary<string, object> OptionStates;
 
         /// <summary>
         /// Gets the instance of the command.
@@ -70,9 +70,9 @@ namespace Microsoft.Sarif.Viewer.Options
             Instance = new SarifViewerGeneralOptions();
         }
 
-        public bool IsOptionEnabled(string optionName)
+        public object GetOption(string optionName)
         {
-            if (this.OptionStates.TryGetValue(optionName, out bool state))
+            if (this.OptionStates.TryGetValue(optionName, out object state))
             {
                 return state;
             }

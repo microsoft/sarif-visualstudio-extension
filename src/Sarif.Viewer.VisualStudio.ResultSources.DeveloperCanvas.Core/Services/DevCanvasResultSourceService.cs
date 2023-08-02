@@ -48,7 +48,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
     {
         public int FirstMenuId { get; set; }
         public int FirstCommandId { get; set; }
-        public Func<string, bool> GetOptionStateCallback { get; set; }
+        public Func<string, object> GetOptionStateCallback { get; set; }
 
         public event EventHandler<ServiceEventArgs> ServiceEvent;
 
@@ -98,7 +98,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         public DevCanvasResultSourceService(
             string solutionRootPath,
-            Func<string, bool> getOptionStateCallback,
+            Func<string, object> getOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,

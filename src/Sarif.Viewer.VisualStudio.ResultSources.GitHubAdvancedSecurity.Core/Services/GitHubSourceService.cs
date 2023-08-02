@@ -106,7 +106,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// <param name="statusBarService">The <see cref="IStatusBarService"/>.</param>
         public GitHubSourceService(
             string solutionRootPath,
-            Func<string, bool> getOptionStateCallback,
+            Func<string, object> getOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -144,7 +144,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         public int FirstCommandId { get; set; }
 
         /// <inheritdoc cref="IResultSourceService.GetOptionStateCallback"/>
-        public Func<string, bool> GetOptionStateCallback { get; set; }
+        public Func<string, object> GetOptionStateCallback { get; set; }
 
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
         public async Task InitializeAsync()
@@ -188,7 +188,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// <inheritdoc cref="IGitHubSourceService.IsActiveAsync()"/>
         public async Task<Result> IsActiveAsync()
         {
-            if (this.GetOptionStateCallback != null && this.GetOptionStateCallback("GitHubAdvancedSecurity"))
+            if (this.GetOptionStateCallback != null && (bool)this.GetOptionStateCallback("GitHubAdvancedSecurity"))
             {
                 if (string.IsNullOrWhiteSpace(this.repoPath))
                 {
