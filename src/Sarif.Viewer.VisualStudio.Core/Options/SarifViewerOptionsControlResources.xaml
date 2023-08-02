@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
-    <system:String x:Key="SarifViewerOptionsControl_GroupBoxHeader">General</system:String>
+    <system:String x:Key="SarifViewerOptionsControl_GeneralGroupBoxHeader">General</system:String>
+    <system:String x:Key="SarifViewerOptionsControl_DevCanvasGroupBoxHeader">DevCanvas</system:String>
     
     <system:String x:Key="SarifViewerOptionsControl_ColorBoxHeader">Colors</system:String>
 
