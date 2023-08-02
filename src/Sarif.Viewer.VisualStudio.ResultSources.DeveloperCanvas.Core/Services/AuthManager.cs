@@ -68,7 +68,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);
             slimSemaphore = new SemaphoreSlim(1);
 
-            usedScopes = ppeScopes;
+            usedScopes = prodScopes;
         }
 
         public async Task<AuthenticationResult> AuthenticateAsync()

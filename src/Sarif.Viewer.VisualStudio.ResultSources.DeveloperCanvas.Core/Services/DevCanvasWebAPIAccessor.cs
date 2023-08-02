@@ -64,7 +64,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         internal DevCanvasWebAPIAccessor(IAuthManager authManager = null)
         {
             this.authManager = authManager ?? new AuthManager();
-            currentServer = ppeServer;
+            currentServer = prodServer;
         }
 
         /// <inhertidoc/>
