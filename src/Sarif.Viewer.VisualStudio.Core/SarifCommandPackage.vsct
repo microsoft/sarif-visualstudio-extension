@@ -159,12 +159,13 @@
             <ButtonText>Suppress result in SARIF file</ButtonText>
           </Strings>
       </Button>
+      <!--Can be used to hide an error list item until the end of the VS session.--> 
       <Button guid="guidSarifErrorListCmdSet" id="cmdidIFixedThisCommand" priority="0x0100" type="Button">
         <Parent guid="guidSarifErrorListCmdSet" id="ErrorListContextMenuGroup" />
         <CommandFlag>DefaultInvisible</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
-          <ButtonText>I fixed this!!!!!</ButtonText>
+          <ButtonText>Hide until end of session.</ButtonText>
         </Strings>
       </Button>
       

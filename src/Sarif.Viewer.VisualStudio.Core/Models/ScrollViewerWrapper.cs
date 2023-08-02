@@ -87,7 +87,7 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                 var stackPanel = new StackPanel();
                 Dictionary<string, int> errorTypeToSeverity = GetRankDictionary();
 
-                IEnumerable<IErrorTag> sortedObjects = this.objectsToWrap.OrderBy(x =>
+                List<IErrorTag> sortedObjects = this.objectsToWrap.OrderBy(x =>
                 {
                     int rank;
                     if (!errorTypeToSeverity.TryGetValue(x.ErrorType, out rank))
@@ -96,11 +96,17 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                     }
 
                     return rank;
-                });
+                }).ToList();
 
-                foreach (IErrorTag objectToWrap in sortedObjects)
+                for (int i = 0; i < sortedObjects.Count; i++)
                 {
+                    IErrorTag objectToWrap = sortedObjects[i];
                     UIElement tooltip = (UIElement)objectToWrap.ToolTipContent;
+                    if (i != 0 && tooltip is TextBlock textBlock)
+                    {
+                        textBlock.Margin = new Thickness(0, 20, 0, 0);
+                    }
+
                     stackPanel.Children.Add(tooltip);
                 }
 

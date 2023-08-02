@@ -110,6 +110,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                         TextBlock textblock = new TextBlock() { Text = item.strContent };
                         textblock.FontSize = FontSize;
                         textblock.Foreground = TextBrush;
+                        textblock.TextWrapping = TextWrapping.Wrap;
                         return textblock;
                     }
                     else
