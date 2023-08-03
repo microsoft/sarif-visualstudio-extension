@@ -64,7 +64,7 @@
                        AutomationProperties.AutomationId="DevCanvasGroupBoxLabel" />
             </GroupBox.Header>
             <StackPanel>
-                <ComboBox SelectedIndex="{Binding SelectedSlot}">
+                <ComboBox SelectedIndex="{Binding DevCanvasServerIndex}">
                     <ComboBoxItem>Prod</ComboBoxItem>
                     <ComboBoxItem>Ppe</ComboBoxItem>
                     <ComboBoxItem>Dev</ComboBoxItem>

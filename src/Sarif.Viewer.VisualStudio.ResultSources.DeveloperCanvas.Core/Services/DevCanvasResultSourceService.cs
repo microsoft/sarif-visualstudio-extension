@@ -126,7 +126,12 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
             filePathQueue = new Queue<string>();
 
-            accessor = new DevCanvasWebAPIAccessor();
+            Func<int> serverOptionAccess = () =>
+            {
+                return (int)getOptionStateCallback("DevCanvasServer");
+            };
+
+            accessor = new DevCanvasWebAPIAccessor(serverOptionAccess);
         }
 
         /// <inheritdoc/>

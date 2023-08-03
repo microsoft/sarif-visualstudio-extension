@@ -26,7 +26,7 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool EnableKeyEventAdornment { get; set; } = true;
 
-        public int SelectedSlot { get; set; } = 0;
+        public int DevCanvasServerIndex { get; set; } = 0;
 
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.

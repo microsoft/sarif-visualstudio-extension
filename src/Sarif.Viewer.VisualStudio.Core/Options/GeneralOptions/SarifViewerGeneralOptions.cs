@@ -16,6 +16,8 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private readonly bool keyEventAdornmentEnabledDefaultValue = true;
 
+        private readonly int devCanvasServerIndexDefaultValue = 0;
+
         private readonly AsyncPackage package;
 
         private readonly SarifViewerGeneralOptionsPage optionPage;
@@ -29,12 +31,6 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.optionPage = (SarifViewerGeneralOptionsPage)this.package.GetDialogPage(typeof(SarifViewerGeneralOptionsPage));
-            this.OptionStates = new Dictionary<string, object>
-            {
-                { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
-                { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
-                { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
-            };
         }
 
         private SarifViewerGeneralOptions() { }
@@ -45,7 +41,15 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
 
-        public readonly Dictionary<string, object> OptionStates;
+        public int DevCanvasServerIndex => this.optionPage?.DevCanvasServerIndex ?? devCanvasServerIndexDefaultValue;
+
+        public Dictionary<string, object> OptionStates => new Dictionary<string, object>
+            {
+                { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
+                { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
+                { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
+                { "DevCanvasServer", this.DevCanvasServerIndex },
+            };
 
         /// <summary>
         /// Gets the instance of the command.

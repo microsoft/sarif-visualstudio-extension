@@ -33,9 +33,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
 
             // First scenario is when we fail to get credentials at all.
             Mock<IAuthManager> authMock = new Mock<IAuthManager>();
-            authMock.Setup(x => x.GetHttpClientAsync())
+            authMock.Setup(x => x.GetHttpClientAsync(0))
                 .Returns(Task.FromResult<HttpClient>(null));
-            DevCanvasWebAPIAccessor accessor = new DevCanvasWebAPIAccessor(authMock.Object);
+            DevCanvasWebAPIAccessor accessor = new DevCanvasWebAPIAccessor(() => 0, authMock.Object);
             List<DevCanvasGeneratorInfo> returnedValue = await accessor.GetGeneratorsAsync();
             returnedValue.Count.Should().Be(0);
             SarifLog sarifLog = await accessor.GetSarifLogV1Async(requestV1);
@@ -46,10 +46,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             await handler.AddSendAsyncQueryAsync(DevCanvasWebAPIAccessor.ppeServer, "GET", "", System.Net.HttpStatusCode.Unauthorized);
 
             Mock<IAuthManager> authMockWrongCredentials = new Mock<IAuthManager>();
-            authMockWrongCredentials.Setup(x => x.GetHttpClientAsync())
+            authMockWrongCredentials.Setup(x => x.GetHttpClientAsync(0))
                 .Returns(Task.FromResult<HttpClient>(handler.GetClient()));
 
-            accessor = new DevCanvasWebAPIAccessor(authMockWrongCredentials.Object);
+            accessor = new DevCanvasWebAPIAccessor(() => 0, authMockWrongCredentials.Object); ;
             returnedValue = await accessor.GetGeneratorsAsync();
             returnedValue.Count.Should().Be(0);
             sarifLog = await accessor.GetSarifLogV1Async(requestV1);
