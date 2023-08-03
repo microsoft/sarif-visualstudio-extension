@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 
 using Microsoft.VisualStudio.Shell;
+using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
@@ -27,6 +28,23 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool EnableKeyEventAdornment { get; set; } = true;
 
         public int DevCanvasServerIndex { get; set; } = 0;
+
+        /// <summary>
+        /// Gets a value indicating whether the user should be able to see the devcanvs settings. Not done for security reasons but for UI/UX reasons.
+        /// </summary>
+        public string CanSeeDevCanvas
+        {
+            get
+            {
+                string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
+                if (userName == null || !userName.EndsWith("@microsoft.com"))
+                {
+                    return "Hidden";
+                }
+
+                return "Visible";
+            }
+        }
 
         /// <summary>
         /// Gets the Windows Presentation Foundation (WPF) child element to be hosted inside the Options dialog page.

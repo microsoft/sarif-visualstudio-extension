@@ -57,7 +57,7 @@
                 </StackPanel>
             </GroupBox>
         </Grid>
-        <GroupBox x:Name="DevCanvasGroupBox">
+        <GroupBox x:Name="DevCanvasGroupBox" Visibility="{Binding CanSeeDevCanvas}">
             <GroupBox.Header>
                 <Label x:Name="DevCanvasGroupBoxLabel"
                        Content="{StaticResource SarifViewerOptionsControl_DevCanvasGroupBoxHeader}"
