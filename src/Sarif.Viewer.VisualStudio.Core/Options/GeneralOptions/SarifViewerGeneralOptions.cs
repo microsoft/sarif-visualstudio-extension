@@ -79,7 +79,7 @@ namespace Microsoft.Sarif.Viewer.Options
         /// If it fails to find an entry, returns null.
         /// </summary>
         /// <param name="optionName">Key that is being looked up.</param>
-        /// <returns></returns>
+        /// <returns>The value paired with the key in the dictionary.</returns>
         public object GetOption(string optionName)
         {
             if (this.OptionStates.TryGetValue(optionName, out object state))
