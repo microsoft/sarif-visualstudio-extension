@@ -74,6 +74,12 @@ namespace Microsoft.Sarif.Viewer.Options
             Instance = new SarifViewerGeneralOptions();
         }
 
+        /// <summary>
+        /// Callback to allow other classes to get the current state of an option from the <see cref="OptionStates"/> dict.
+        /// If it fails to find an entry, returns null.
+        /// </summary>
+        /// <param name="optionName">Key that is being looked up.</param>
+        /// <returns></returns>
         public object GetOption(string optionName)
         {
             if (this.OptionStates.TryGetValue(optionName, out object state))
