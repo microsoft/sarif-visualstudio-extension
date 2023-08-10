@@ -49,7 +49,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.UnitTests
             authMockWrongCredentials.Setup(x => x.GetHttpClientAsync(0))
                 .Returns(Task.FromResult<HttpClient>(handler.GetClient()));
 
-            accessor = new DevCanvasWebAPIAccessor(() => 0, authMockWrongCredentials.Object); ;
+            accessor = new DevCanvasWebAPIAccessor(() => 0, authMockWrongCredentials.Object);
             returnedValue = await accessor.GetGeneratorsAsync();
             returnedValue.Count.Should().Be(0);
             sarifLog = await accessor.GetSarifLogV1Async(requestV1);
