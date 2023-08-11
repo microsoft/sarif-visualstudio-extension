@@ -188,20 +188,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// <inheritdoc cref="IGitHubSourceService.IsActiveAsync()"/>
         public async Task<Result> IsActiveAsync()
         {
-            if (this.GetOptionStateCallback != null)
+            if (this.GetOptionStateCallback != null && bool.TryParse(this.GetOptionStateCallback("GitHubAdvancedSecurity").ToString(), out bool ghAsEnabled) && ghAsEnabled)
             {
-                bool.TryParse(this.GetOptionStateCallback("GitHubAdvancedSecurity").ToString(), out bool ghAsEnabled);
-                if (ghAsEnabled)
+                if (string.IsNullOrWhiteSpace(this.repoPath))
                 {
-                    if (string.IsNullOrWhiteSpace(this.repoPath))
-                    {
-                        this.repoPath = await gitExe.GetRepoRootAsync();
-                    }
+                    this.repoPath = await gitExe.GetRepoRootAsync();
+                }
 
-                    if (!string.IsNullOrWhiteSpace(this.repoPath) && fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")))
-                    {
-                        return Result.Success();
-                    }
+                if (!string.IsNullOrWhiteSpace(this.repoPath) && fileSystem.DirectoryExists(Path.Combine(this.repoPath, ".github")))
+                {
+                    return Result.Success();
                 }
             }
 
