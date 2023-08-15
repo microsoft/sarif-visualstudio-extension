@@ -65,8 +65,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (this.tagsDirty)
             {
-                this.tagsDirty = false;
-
                 IEnumerable<SarifErrorListItem> errorsInCurrentFile = CodeAnalysisResultManager
                     .Instance
                     .RunIndexToRunDataCache
@@ -98,10 +96,10 @@ namespace Microsoft.Sarif.Viewer.Tags
                 yield break;
             }
 
+            var groupedBySpan = new Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)>();
+
             foreach (SnapshotSpan span in spans)
             {
-                var groupedBySpan = new Dictionary<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)>();
-
                 foreach (ISarifLocationTag locationTag in this.currentTags.Where(currentTag => currentTag.PersistentSpan.Span != null))
                 {
                     SnapshotSpan snapshotSpan = locationTag.PersistentSpan.Span.GetSpan(span.Snapshot);
@@ -116,12 +114,12 @@ namespace Microsoft.Sarif.Viewer.Tags
                         groupedBySpan[spanKey].tagList.Add((IErrorTag)locationTag);
                     }
                 }
+            }
 
-                foreach (KeyValuePair<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedTags in groupedBySpan)
-                {
-                    List<IErrorTag> tags = groupedTags.Value.tagList;
-                    yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags, SarifViewerColorOptions.Instance));
-                }
+            foreach (KeyValuePair<(int start, int end), (List<IErrorTag> tagList, SnapshotSpan snapshotSpan)> groupedTags in groupedBySpan)
+            {
+                List<IErrorTag> tags = groupedTags.Value.tagList;
+                yield return new TagSpan<IErrorTag>(span: groupedTags.Value.snapshotSpan, tag: new ScrollViewerWrapper(tags, SarifViewerColorOptions.Instance));
             }
         }
 
