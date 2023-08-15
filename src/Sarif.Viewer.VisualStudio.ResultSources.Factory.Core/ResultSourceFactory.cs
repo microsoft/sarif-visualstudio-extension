@@ -33,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         private readonly StandardKernel standardKernel;
         private readonly string solutionRootPath;
 
-        private readonly Func<string, bool> getOptionStateCallback;
+        private readonly Func<string, object> getOptionStateCallback;
         private readonly Dictionary<Type, (int, int)> resultSources = new Dictionary<Type, (int firstMenuId, int firstCommandId)>
         {
             { typeof(GitHubSourceService), (firstMenuId: 0x5000, firstCommandId: 0x8B67) },
@@ -49,7 +49,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public ResultSourceFactory(
             string solutionRootPath,
             IServiceProvider serviceProvider,
-            Func<string, bool> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback)
         {
             this.solutionRootPath = solutionRootPath;
             this.getOptionStateCallback = getOptionStateCallback;
@@ -75,7 +75,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public ResultSourceFactory(
             string solutionRootPath,
             StandardKernel standardKernel,
-            Func<string, bool> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback)
         {
             this.solutionRootPath = solutionRootPath;
             this.standardKernel = standardKernel;

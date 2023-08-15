@@ -43,8 +43,6 @@ namespace Microsoft.Sarif.Viewer.Options
             return this.optionPage.GetSelectedColorOption(decorationName).PredefinedErrorTypeName;
         }
 
-        public readonly Dictionary<string, bool> OptionStates;
-
         /// <summary>
         /// Gets the instance of the command.
         /// </summary>
@@ -66,16 +64,6 @@ namespace Microsoft.Sarif.Viewer.Options
         public static void InitializeForUnitTests()
         {
             Instance = new SarifViewerColorOptions();
-        }
-
-        public bool IsOptionEnabled(string optionName)
-        {
-            if (this.OptionStates.TryGetValue(optionName, out bool state))
-            {
-                return state;
-            }
-
-            return false;
         }
 
         private void OnInsightSettingsChanged(EventArgs e)

@@ -56,15 +56,16 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// The server that we want to request information from.
         /// </summary>
         public const string prodServer = "insightwebv2.azurewebsites.net";
-        public const string devServer = "insightwebv2-dev.azurewebsites.net";
         public const string ppeServer = "insightwebv2-ppe.azurewebsites.net";
+        public const string devServer = "insightwebv2-dev.azurewebsites.net";
+        public readonly static string[] servers = new string[] { prodServer, ppeServer, devServer };
 
-        private readonly string currentServer;
+        private readonly Func<int> endpointIndex;
 
-        internal DevCanvasWebAPIAccessor(IAuthManager authManager = null)
+        internal DevCanvasWebAPIAccessor(Func<int> endpointIndex, IAuthManager authManager = null)
         {
+            this.endpointIndex = endpointIndex;
             this.authManager = authManager ?? new AuthManager();
-            currentServer = ppeServer;
         }
 
         /// <inhertidoc/>
@@ -116,8 +117,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         private async Task<List<DevCanvasGeneratorInfo>> TryGetGeneratorsFromWebApiAsync()
         {
+            int serverIndex = this.endpointIndex();
+            string currentServer = servers[serverIndex];
             string sarifUrl = $"https://{currentServer}/api/v{version}/SarifInsight/SarifInsightProviders";
-            HttpClient client = await authManager.GetHttpClientAsync();
+            HttpClient client = await authManager.GetHttpClientAsync(serverIndex);
             if (client != null)
             {
                 try
@@ -146,9 +149,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public async Task<SarifLog> GetSarifLogV1Async(DevCanvasRequestV1 request)
         {
+            int endpointIndex = this.endpointIndex();
+            string currentServer = servers[endpointIndex];
             string Url = $"https://{currentServer}/api/v{version}/SarifInsight/SarifInsightsForFile";
 
-            HttpClient client = await authManager.GetHttpClientAsync();
+            HttpClient client = await authManager.GetHttpClientAsync(endpointIndex);
             if (client != null)
             {
                 string requestJson = JsonConvert.SerializeObject(request);

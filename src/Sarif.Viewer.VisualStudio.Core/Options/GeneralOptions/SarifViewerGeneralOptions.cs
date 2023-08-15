@@ -16,6 +16,8 @@ namespace Microsoft.Sarif.Viewer.Options
 
         private readonly bool keyEventAdornmentEnabledDefaultValue = true;
 
+        private readonly int devCanvasServerIndexDefaultValue = 0;
+
         private readonly AsyncPackage package;
 
         private readonly SarifViewerGeneralOptionsPage optionPage;
@@ -29,12 +31,6 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.optionPage = (SarifViewerGeneralOptionsPage)this.package.GetDialogPage(typeof(SarifViewerGeneralOptionsPage));
-            this.OptionStates = new Dictionary<string, bool>
-            {
-                { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
-                { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
-                { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
-            };
         }
 
         private SarifViewerGeneralOptions() { }
@@ -45,7 +41,15 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public bool IsKeyEventAdornmentEnabled => this.optionPage?.EnableKeyEventAdornment ?? this.keyEventAdornmentEnabledDefaultValue;
 
-        public readonly Dictionary<string, bool> OptionStates;
+        public int DevCanvasServerIndex => this.optionPage?.DevCanvasServerIndex ?? devCanvasServerIndexDefaultValue;
+
+        public Dictionary<string, object> OptionStates => new Dictionary<string, object>
+            {
+                { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
+                { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
+                { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
+                { "DevCanvasServer", this.DevCanvasServerIndex },
+            };
 
         /// <summary>
         /// Gets the instance of the command.
@@ -70,9 +74,15 @@ namespace Microsoft.Sarif.Viewer.Options
             Instance = new SarifViewerGeneralOptions();
         }
 
-        public bool IsOptionEnabled(string optionName)
+        /// <summary>
+        /// Callback to allow other classes to get the current state of an option from the <see cref="OptionStates"/> dict.
+        /// If it fails to find an entry, returns null.
+        /// </summary>
+        /// <param name="optionName">Key that is being looked up.</param>
+        /// <returns>The value paired with the key in the dictionary.</returns>
+        public object GetOption(string optionName)
         {
-            if (this.OptionStates.TryGetValue(optionName, out bool state))
+            if (this.OptionStates.TryGetValue(optionName, out object state))
             {
                 return state;
             }

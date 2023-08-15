@@ -7,7 +7,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="SarifViewerOptionsControlResources.xaml" />
+                <ResourceDictionary Source="../SarifViewerOptionsControlResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style x:Key="CheckBoxStyle"
                  TargetType="CheckBox">
@@ -23,37 +23,53 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid x:Name="OuterGeneralGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <GroupBox x:Name="GeneralGroupBox">
-            <GroupBox.Header>
-                <Label x:Name="GeneralGroupBoxLabel"
-                       Content="{StaticResource SarifViewerOptionsControl_GroupBoxHeader}"
+    <StackPanel>
+        <Grid x:Name="OuterGeneralGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <GroupBox x:Name="GeneralGroupBox">
+                <GroupBox.Header>
+                    <Label x:Name="GeneralGroupBoxLabel"
+                       Content="{StaticResource SarifViewerOptionsControl_GeneralGroupBoxHeader}"
                        AutomationProperties.AutomationId="GeneralGroupBoxLabel" />
-            </GroupBox.Header>
-            <StackPanel>
-                <CheckBox x:Name="MonitorSarifFolderCheckBox"
+                </GroupBox.Header>
+                <StackPanel>
+                    <CheckBox x:Name="MonitorSarifFolderCheckBox"
                           Margin="5"
                           Style="{StaticResource CheckBoxStyle}"
                           IsChecked="{Binding MonitorSarifFolder, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_MonitorSarifFolder}"
                           AutomationProperties.AutomationId="MonitorSarifFolderCheckBox" />
-                <CheckBox x:Name="EnableGitHubAdvancedSecurityCheckBox"
+                    <CheckBox x:Name="EnableGitHubAdvancedSecurityCheckBox"
                           Margin="5"
                           Style="{StaticResource CheckBoxStyle}"
                           IsChecked="{Binding EnableGitHubAdvancedSecurity, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_EnableGitHubAdvancedSecurity}"
                           AutomationProperties.AutomationId="EnableGitHubAdvancedSecurityCheckBox" />
-                <CheckBox x:Name="EnableKeyEventAdornmentCheckBox"
+                    <CheckBox x:Name="EnableKeyEventAdornmentCheckBox"
                           Margin="5"
                           Style="{StaticResource CheckBoxStyle}"
                           IsChecked="{Binding EnableKeyEventAdornment, Mode=TwoWay}"
                           Content="{StaticResource SarifViewerOptionsControl_EnableKeyEventAdornment}"
                           AutomationProperties.AutomationId="EnableKeyEventAdornmentCheckBox" />
+                </StackPanel>
+            </GroupBox>
+        </Grid>
+        <GroupBox x:Name="DevCanvasGroupBox" Visibility="{Binding CanSeeDevCanvas}">
+            <GroupBox.Header>
+                <Label x:Name="DevCanvasGroupBoxLabel"
+                       Content="{StaticResource SarifViewerOptionsControl_DevCanvasGroupBoxHeader}"
+                       AutomationProperties.AutomationId="DevCanvasGroupBoxLabel" />
+            </GroupBox.Header>
+            <StackPanel>
+                <ComboBox SelectedIndex="{Binding DevCanvasServerIndex}">
+                    <ComboBoxItem>Prod</ComboBoxItem>
+                    <ComboBoxItem>Ppe</ComboBoxItem>
+                    <ComboBoxItem>Dev</ComboBoxItem>
+                </ComboBox>
             </StackPanel>
         </GroupBox>
-    </Grid>
+    </StackPanel>
 </UserControl>

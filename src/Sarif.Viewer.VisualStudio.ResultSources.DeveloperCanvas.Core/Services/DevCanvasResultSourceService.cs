@@ -48,7 +48,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
     {
         public int FirstMenuId { get; set; }
         public int FirstCommandId { get; set; }
-        public Func<string, bool> GetOptionStateCallback { get; set; }
+        public Func<string, object> GetOptionStateCallback { get; set; }
 
         public event EventHandler<ServiceEventArgs> ServiceEvent;
 
@@ -98,7 +98,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         public DevCanvasResultSourceService(
             string solutionRootPath,
-            Func<string, bool> getOptionStateCallback,
+            Func<string, object> getOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -126,24 +126,29 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
             filePathQueue = new Queue<string>();
 
-            accessor = new DevCanvasWebAPIAccessor();
+            Func<int> serverOptionAccess = () =>
+            {
+                return (int)getOptionStateCallback("DevCanvasServer");
+            };
+
+            accessor = new DevCanvasWebAPIAccessor(serverOptionAccess);
         }
 
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 7/25");
+            DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 8/2");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
 
-            if (string.IsNullOrWhiteSpace(userName) || userName.EndsWith("@microsoft.com"))
-            {
-                DevCanvasTracer.WriteLine($"Initialized {nameof(DevCanvasResultSourceService)}");
-                return System.Threading.Tasks.Task.FromResult(Result.Success());
-            }
-            else
+            if (string.IsNullOrWhiteSpace(userName) || !userName.EndsWith("@microsoft.com"))
             {
                 DevCanvasTracer.WriteLine($"Failed to initialize {nameof(DevCanvasResultSourceService)}");
                 return System.Threading.Tasks.Task.FromResult(Result.Failure("Not a MS user."));
+            }
+            else
+            {
+                DevCanvasTracer.WriteLine($"Initialized {nameof(DevCanvasResultSourceService)}");
+                return System.Threading.Tasks.Task.FromResult(Result.Success());
             }
         }
 

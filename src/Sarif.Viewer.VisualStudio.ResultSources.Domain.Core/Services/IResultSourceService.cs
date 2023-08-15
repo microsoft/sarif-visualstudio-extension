@@ -33,7 +33,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <summary>
         /// Gets or sets the callback method to get the option state for the specified key.
         /// </summary>
-        Func<string, bool> GetOptionStateCallback { get; set; }
+        Func<string, object> GetOptionStateCallback { get; set; }
 
         /// <summary>
         /// Initializes the service instance.

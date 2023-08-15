@@ -45,7 +45,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 #pragma warning disable SA1114 // Parameter list should follow declaration
             string solutionRootPath,
 #pragma warning restore SA1114 // Parameter list should follow declaration
-            Func<string, bool> getOptionStateCallback,
+            Func<string, object> getOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -68,7 +68,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 
         public int FirstCommandId { get; set; }
 
-        public Func<string, bool> GetOptionStateCallback { get; set; }
+        public Func<string, object> GetOptionStateCallback { get; set; }
 
         public Task InitializeAsync()
         {
