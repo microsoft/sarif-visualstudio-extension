@@ -335,6 +335,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             return Task.FromResult(Result.Success<bool, ErrorType>(true));
         }
 
+        public void Settings_ServiceEvent(object sender, SettingsEventArgs e)
+        {
+            return;
+        }
+
         internal (string Path, string Name) ParseBranchString(string branch)
         {
             // This needs to handle goofy branch names like "//asdf///-".

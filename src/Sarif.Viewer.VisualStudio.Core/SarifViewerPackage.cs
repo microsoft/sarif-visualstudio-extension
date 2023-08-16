@@ -26,6 +26,7 @@ using Microsoft.Sarif.Viewer.Tags;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Events;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -231,6 +232,16 @@ namespace Microsoft.Sarif.Viewer
             SarifExplorerWindow.Find()?.Close();
         }
 
+        /// <summary>
+        /// Listens to when a setting event is fired.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
+        public void Settings_ServiceEvent(object sender, ResultSources.Domain.Models.SettingsEventArgs e)
+        {
+            Console.WriteLine("hi");
+        }
+
         private async Task InitializeResultSourceHostAsync()
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
@@ -239,6 +250,7 @@ namespace Microsoft.Sarif.Viewer
                 string solutionPath = GetSolutionDirectoryPath();
                 this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.GetOption, SarifViewerGeneralOptions.Instance.SetOption);
                 this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
+                SarifViewerGeneralOptions.Instance.SettingsEvent += this.resultSourceHost.Settings_ServiceEvent;
             }
 
             if (this.resultSourceHost != null)

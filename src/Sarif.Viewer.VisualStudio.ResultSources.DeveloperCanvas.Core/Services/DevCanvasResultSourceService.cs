@@ -664,5 +664,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 }
             }
         }
+
+        public void Settings_ServiceEvent(object sender, SettingsEventArgs e)
+        {
+            return;
+        }
     }
 }

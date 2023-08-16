@@ -4,7 +4,7 @@
 using System;
 using System.Windows.Controls;
 
-using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models;
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
@@ -38,7 +38,7 @@ namespace Microsoft.Sarif.Viewer.Options
                 EventName = "DevCanvasLoginButtonClicked",
                 Value = true,
             };
-            SettingsEvent.Invoke(this, args);
+            SettingsEvent?.Invoke(this, args);
         }
     }
 }

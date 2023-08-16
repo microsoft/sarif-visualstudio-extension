@@ -65,5 +65,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         /// <param name="filePaths">List of files that were loaded.</param>
         /// <returns>True if succeeded, otherwise an error.</returns>
         Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths);
+
+        /// <summary>
+        /// Listens to when a setting event is fired.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
+        public void Settings_ServiceEvent(object sender, SettingsEventArgs e);
     }
 }

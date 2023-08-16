@@ -6,10 +6,9 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
-
-using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models;
 
 namespace Microsoft.Sarif.Viewer.Options
 {

@@ -96,5 +96,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         {
             return Task.Run(() => { return Result.Success<bool, ErrorType>(true); });
         }
+
+        public void Settings_ServiceEvent(object sender, SettingsEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

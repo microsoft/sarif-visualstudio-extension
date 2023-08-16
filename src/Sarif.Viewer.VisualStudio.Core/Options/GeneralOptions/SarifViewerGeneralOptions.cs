@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.VisualStudio.Shell;
-
-using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
@@ -40,7 +39,17 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.optionPage = (SarifViewerGeneralOptionsPage)this.package.GetDialogPage(typeof(SarifViewerGeneralOptionsPage));
-            this.optionPage.SettingsEvent += SettingsEvent;
+            this.optionPage.SettingsEvent += Settings_ServiceEvent;
+        }
+
+        /// <summary>
+        /// Listens to when a setting event is fired.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
+        public void Settings_ServiceEvent(object sender, ResultSources.Domain.Models.SettingsEventArgs e)
+        {
+            SettingsEvent?.Invoke(this, e);
         }
 
         private SarifViewerGeneralOptions() { }

@@ -7,6 +7,7 @@ using System.Diagnostics;
 
 using CSharpFunctionalExtensions;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.VisualStudio.Shell;
@@ -54,8 +55,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public event EventHandler<ServiceEventArgs> ServiceEvent;
 
         /// <summary>
-        /// Fired when an event is fired by the settings ui.
-        /// Some examples of this are button clicks or other listeners.
+        /// The event raised when settings fires an event.
         /// </summary>
         public event EventHandler<SettingsEventArgs> SettingsEvent;
 
@@ -73,6 +73,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// Gets the number of services in <see cref="resultSourceServices"/>.
         /// </summary>
         public int ServiceCount => resultSourceServices.Count;
+
+        /// <summary>
+        /// Listens to when a setting event is fired.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
+        public void Settings_ServiceEvent(object sender, SettingsEventArgs e)
+        {
+            SettingsEvent.Invoke(sender, e);
+        }
 
         /// <summary>
         /// Requests analysis results from the active source service, if any.
@@ -100,6 +110,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                     foreach (IResultSourceService service in this.resultSourceServices)
                     {
                         service.ServiceEvent += this.ResultSourceService_ServiceEvent;
+                        this.SettingsEvent += service.Settings_ServiceEvent;
                         await service.InitializeAsync();
                     }
                 }
