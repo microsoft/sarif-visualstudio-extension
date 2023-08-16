@@ -62,10 +62,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         private readonly Func<int> endpointIndex;
 
-        internal DevCanvasWebAPIAccessor(Func<int> endpointIndex, IAuthManager authManager = null)
+        internal DevCanvasWebAPIAccessor(Func<int> endpointIndex, IAuthManager authManager)
         {
             this.endpointIndex = endpointIndex;
-            this.authManager = authManager ?? new AuthManager();
+            this.authManager = authManager;
         }
 
         /// <inhertidoc/>

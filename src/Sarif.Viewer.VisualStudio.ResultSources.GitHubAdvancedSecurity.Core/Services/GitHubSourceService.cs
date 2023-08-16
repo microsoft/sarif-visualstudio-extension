@@ -95,6 +95,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
+        /// <param name="setOptionStateCallback">Callback to set option state.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
@@ -107,6 +108,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
         public GitHubSourceService(
             string solutionRootPath,
             Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -118,6 +120,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
             IStatusBarService statusBarService)
         {
             this.GetOptionStateCallback = getOptionStateCallback;
+            this.SetOptionStateCallback = setOptionStateCallback;
             this.serviceProvider = serviceProvider;
             this.httpClientAdapter = httpClientAdapter;
             this.secretStoreRepository = secretStoreRepository;
@@ -145,6 +148,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Services
 
         /// <inheritdoc cref="IResultSourceService.GetOptionStateCallback"/>
         public Func<string, object> GetOptionStateCallback { get; set; }
+
+        /// <inheritdoc cref="IResultSourceService.SetOptionStateCallback"/>
+        public Action<string, object> SetOptionStateCallback { get; set;  }
 
         /// <inheritdoc cref="IResultSourceService.InitializeAsync()"/>
         public async Task InitializeAsync()

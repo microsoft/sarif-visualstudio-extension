@@ -31,6 +31,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// </summary>
         /// <param name="solutionRootPath">The full path of the solution directory.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
+        /// <param name="setOptionStateCallback">Callback to set option state.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="httpClientAdapter">The <see cref="IHttpClientAdapter"/>.</param>
         /// <param name="secretStoreRepository">The <see cref="ISecretStoreRepository"/>.</param>
@@ -46,6 +47,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             string solutionRootPath,
 #pragma warning restore SA1114 // Parameter list should follow declaration
             Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -58,6 +60,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
 #pragma warning restore IDE0060 // Remove unused parameter
         {
             Console.Write(ServiceEvent);
+            this.SetOptionStateCallback = setOptionStateCallback;
         }
 
         public SampleResultSourceService() { }
@@ -69,6 +72,10 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public int FirstCommandId { get; set; }
 
         public Func<string, object> GetOptionStateCallback { get; set; }
+
+        public Action<string, object> SetOptionStateCallback { get; }
+
+        Action<string, object> IResultSourceService.SetOptionStateCallback { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public Task InitializeAsync()
         {

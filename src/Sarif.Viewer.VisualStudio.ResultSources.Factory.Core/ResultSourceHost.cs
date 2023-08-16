@@ -29,12 +29,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
+        /// <param name="setOptionStateCallback">Callback to set option state.</param>
         public ResultSourceHost(
             string solutionRootPath,
             IServiceProvider serviceProvider,
-            Func<string, object> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback)
         {
-            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider, getOptionStateCallback);
+            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider, getOptionStateCallback, setOptionStateCallback);
         }
 
         /// <summary>

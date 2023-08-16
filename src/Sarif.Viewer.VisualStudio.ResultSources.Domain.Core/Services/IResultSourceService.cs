@@ -36,6 +36,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Domain.Services
         Func<string, object> GetOptionStateCallback { get; set; }
 
         /// <summary>
+        /// Gets or sets the callback method to set the option state for the specified key.
+        /// </summary>
+        Action<string, object> SetOptionStateCallback { get; set; }
+
+        /// <summary>
         /// Initializes the service instance.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>

@@ -49,6 +49,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public int FirstMenuId { get; set; }
         public int FirstCommandId { get; set; }
         public Func<string, object> GetOptionStateCallback { get; set; }
+        public Action<string, object> SetOptionStateCallback { get; set; }
 
         public event EventHandler<ServiceEventArgs> ServiceEvent;
 
@@ -99,6 +100,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public DevCanvasResultSourceService(
             string solutionRootPath,
             Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback,
             IServiceProvider serviceProvider,
             IHttpClientAdapter httpClientAdapter,
             ISecretStoreRepository secretStoreRepository,
@@ -110,6 +112,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             IStatusBarService statusBarService)
         {
             this.GetOptionStateCallback = getOptionStateCallback;
+            this.SetOptionStateCallback = setOptionStateCallback;
             this.serviceProvider = serviceProvider;
             this.httpClientAdapter = httpClientAdapter;
             this.secretStoreRepository = secretStoreRepository;
@@ -131,7 +134,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 return (int)getOptionStateCallback("DevCanvasServer");
             };
 
-            accessor = new DevCanvasWebAPIAccessor(serverOptionAccess);
+            AuthManager authManager = new AuthManager(SetOptionStateCallback);
+            accessor = new DevCanvasWebAPIAccessor(serverOptionAccess, authManager);
 
             AuthState.Initialize();
         }

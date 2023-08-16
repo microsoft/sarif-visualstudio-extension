@@ -49,7 +49,6 @@ namespace Microsoft.Sarif.Viewer.Options
         /// </summary>
         public bool? DevCanvasLoggedIn => this.optionPage?.DevCanvasLoggedIn;
 
-
         public Dictionary<string, object> OptionStates => new Dictionary<string, object>
             {
                 { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },

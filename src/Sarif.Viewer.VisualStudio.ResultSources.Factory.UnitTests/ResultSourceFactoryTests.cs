@@ -65,7 +65,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, null);
             Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
@@ -105,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, null);
             Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.Value.Count.Should().Be(1);
@@ -164,7 +164,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            ResultSourceFactory factory = new ResultSourceFactory("/solutionRoot", standardKernel, (string s) => true);
+            ResultSourceFactory factory = new ResultSourceFactory("/solutionRoot", standardKernel, (string s) => true, null);
             factory.AddResultSource(new SampleResultSourceService().GetType(), 1, 1);
             ResultSourceHost resultSourceHost = new ResultSourceHost(factory);
             await resultSourceHost.RequestAnalysisResultsAsync();

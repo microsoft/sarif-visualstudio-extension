@@ -43,6 +43,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private readonly SemaphoreSlim slimSemaphore;
         private MsalCacheHelper cacheHelper;
 
+        private readonly Action<string, object> setOptionStateCallback;
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
@@ -53,10 +55,20 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             return hWnd;
         }
 
-        public AuthManager()
+        public AuthManager(Action<string, object> setOptionStateCallback)
         {
             slimSemaphore = new SemaphoreSlim(1);
             SetupClientApp();
+            this.setOptionStateCallback = setOptionStateCallback;
+        }
+
+        /// <summary>
+        /// Sets the text for the log in button in the settings.
+        /// </summary>
+        /// <param name="loggedIn">Whether the user is now logged in or not.</param>
+        private void setLoginMessage(bool loggedIn)
+        {
+            setOptionStateCallback("DevCanvasLoggedIn", loggedIn);
         }
 
         /// <summary>
@@ -68,6 +80,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             {
                 File.Delete(AuthState.Instance.msalCacheFilePath);
                 SetupClientApp();
+                setLoginMessage(false);
             }
             else
             {
@@ -89,6 +102,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                    .WithClaims(claims)
                    .WithUseEmbeddedWebView(true)
                    .ExecuteAsync();
+                setLoginMessage(true);
                 return res;
             }
             catch (Exception e)

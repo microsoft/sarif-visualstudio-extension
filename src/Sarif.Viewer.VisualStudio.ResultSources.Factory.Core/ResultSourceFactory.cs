@@ -34,6 +34,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         private readonly string solutionRootPath;
 
         private readonly Func<string, object> getOptionStateCallback;
+        private readonly Action<string, object> setOptionStateCallback;
         private readonly Dictionary<Type, (int, int)> resultSources = new Dictionary<Type, (int firstMenuId, int firstCommandId)>
         {
             { typeof(GitHubSourceService), (firstMenuId: 0x5000, firstCommandId: 0x8B67) },
@@ -46,13 +47,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
+        /// <param name="setOptionStateCallback">Callback to set option state.</param>
         public ResultSourceFactory(
             string solutionRootPath,
             IServiceProvider serviceProvider,
-            Func<string, object> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback)
         {
             this.solutionRootPath = solutionRootPath;
             this.getOptionStateCallback = getOptionStateCallback;
+            this.setOptionStateCallback = setOptionStateCallback;
 
             // Set up dependency injection
             this.standardKernel = new StandardKernel();
@@ -72,14 +76,17 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
         /// <param name="standardKernel">The <see cref="StandardKernel"/>.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
+        /// <param name="setOptionStateCallback">Callback to set option state.</param>
         public ResultSourceFactory(
             string solutionRootPath,
             StandardKernel standardKernel,
-            Func<string, object> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback)
         {
             this.solutionRootPath = solutionRootPath;
             this.standardKernel = standardKernel;
             this.getOptionStateCallback = getOptionStateCallback;
+            this.setOptionStateCallback = setOptionStateCallback;
         }
 
         public static bool IsUnitTesting { get; set; } = false;
@@ -90,13 +97,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
             Trace.WriteLine($"Start of GetResultSourceServicesAsync");
             var ctorArg1 = new ConstructorArgument("solutionRootPath", this.solutionRootPath, true);
             var ctorArg2 = new ConstructorArgument("getOptionStateCallback", this.getOptionStateCallback, true);
+            var ctorArg3 = new ConstructorArgument("setOptionStateCallback", this.setOptionStateCallback, true);
             int index = -1;
 
             var serviceList = new List<IResultSourceService>();
             foreach (KeyValuePair<Type, (int, int)> kvp in this.resultSources)
             {
                 index++;
-                if (this.standardKernel.Get(kvp.Key, ctorArg1, ctorArg2) is IResultSourceService sourceService)
+                if (this.standardKernel.Get(kvp.Key, ctorArg1, ctorArg2, ctorArg3) is IResultSourceService sourceService)
                 {
                     Result result = await sourceService.IsActiveAsync();
 
