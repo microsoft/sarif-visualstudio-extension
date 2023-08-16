@@ -43,16 +43,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private readonly SemaphoreSlim slimSemaphore;
         private MsalCacheHelper cacheHelper;
 
-        /// <summary>
-        /// The name of the file on the users file system that has the msal settings cached.
-        /// </summary>
-        private readonly string msalCacheFileName;
-
-        /// <summary>
-        /// The absolute path of the file on the users file system that has the msal settings cached.
-        /// </summary>
-        private readonly string msalCacheFilePath;
-
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
@@ -66,8 +56,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public AuthManager()
         {
             slimSemaphore = new SemaphoreSlim(1);
-            msalCacheFileName = $"{nameof(DevCanvasResultSourceService)}_MSAL_cache_{msAadTenant}.txt";
-            msalCacheFilePath = Path.Combine(MsalCacheHelper.UserRootDirectory, msalCacheFileName);
             SetupClientApp();
         }
 
@@ -76,14 +64,14 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// </summary>
         public void LogOutOfDevCanvas()
         {
-            if (File.Exists(msalCacheFilePath))
+            if (AuthState.Instance.IsLoggedIntoDevCanvas)
             {
-                File.Delete(msalCacheFilePath);
+                File.Delete(AuthState.Instance.msalCacheFilePath);
                 SetupClientApp();
             }
             else
             {
-                throw new FileNotFoundException();
+                throw new Exception();
             }
         }
 
@@ -101,7 +89,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                    .WithClaims(claims)
                    .WithUseEmbeddedWebView(true)
                    .ExecuteAsync();
-                AuthState.Instance.IsLoggedIntoDevCanvas = true;
                 return res;
             }
             catch (Exception e)
@@ -128,7 +115,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 .WithBroker(brokerOpt)
                 .Build();
 
-            StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(msalCacheFileName, MsalCacheHelper.UserRootDirectory)
+            StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(AuthState.msalCacheFileName, MsalCacheHelper.UserRootDirectory)
     .Build();
             cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).GetAwaiter().GetResult();
             cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);

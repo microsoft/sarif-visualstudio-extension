@@ -69,6 +69,7 @@
                     <ComboBoxItem>Ppe</ComboBoxItem>
                     <ComboBoxItem>Dev</ComboBoxItem>
                 </ComboBox>
+                <Button Content="{Binding DevCanvasLoginButtonMessage}"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>

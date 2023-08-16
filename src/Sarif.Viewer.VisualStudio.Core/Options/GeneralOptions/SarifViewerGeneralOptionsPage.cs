@@ -29,6 +29,33 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public int DevCanvasServerIndex { get; set; } = 0;
 
+        public bool? DevCanvasLoggedIn { get; set; } = null;
+
+        /// <summary>
+        /// Gets the message that the login button shows.
+        /// Empty when undecided, "Log out" when logged in, "Log in" when logged out.
+        /// </summary>
+        public string DevCanvasLoginButtonMessage
+        {
+            get
+            {
+                if (DevCanvasLoggedIn == null)
+                {
+                    return string.Empty;
+                }
+
+                bool devCanvasLoggedInNonNull = (bool)DevCanvasLoggedIn;
+                if (devCanvasLoggedInNonNull)
+                {
+                    return "Log out of DevCanvas";
+                }
+                else
+                {
+                    return "Log into DevCanvas";
+                }
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating whether the user should be able to see the devcanvs settings. Not done for security reasons but for UI/UX reasons.
         /// </summary>

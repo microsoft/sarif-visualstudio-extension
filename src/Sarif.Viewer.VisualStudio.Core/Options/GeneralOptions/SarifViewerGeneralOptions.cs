@@ -10,6 +10,7 @@ namespace Microsoft.Sarif.Viewer.Options
 {
     internal class SarifViewerGeneralOptions : ISarifViewerGeneralOptions
     {
+        private const string DevCanvasLoggedInKey = "DevCanvasLoggedIn";
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
         private readonly bool isGitHubAdvancedSecurityEnabled = false;
@@ -43,12 +44,19 @@ namespace Microsoft.Sarif.Viewer.Options
 
         public int DevCanvasServerIndex => this.optionPage?.DevCanvasServerIndex ?? devCanvasServerIndexDefaultValue;
 
+        /// <summary>
+        /// Gets true if the user is logged in, false otherwise. Null only until the result source service loads.
+        /// </summary>
+        public bool? DevCanvasLoggedIn => this.optionPage?.DevCanvasLoggedIn;
+
+
         public Dictionary<string, object> OptionStates => new Dictionary<string, object>
             {
                 { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
                 { "GitHubAdvancedSecurity", this.IsGitHubAdvancedSecurityEnabled },
                 { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
                 { "DevCanvasServer", this.DevCanvasServerIndex },
+                { DevCanvasLoggedInKey, this.DevCanvasLoggedIn },
             };
 
         /// <summary>
@@ -88,6 +96,24 @@ namespace Microsoft.Sarif.Viewer.Options
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Callback to allow other classes to set the current state of an option from the <see cref="OptionStates"/> dict.
+        /// If it fails to find an entry with the matching key, throws a new <see cref="KeyNotFoundException"/>.
+        /// </summary>
+        /// <param name="optionName">Key that is being looked up.</param>
+        /// <param name="optionValue">New value being assigned.</param>
+        public void SetOption(string optionName, object optionValue)
+        {
+            switch (optionName)
+            {
+                case DevCanvasLoggedInKey:
+                    this.optionPage.DevCanvasLoggedIn = bool.Parse(optionValue.ToString());
+                    break;
+                default:
+                    throw new KeyNotFoundException(optionName);
+            }
         }
     }
 }
