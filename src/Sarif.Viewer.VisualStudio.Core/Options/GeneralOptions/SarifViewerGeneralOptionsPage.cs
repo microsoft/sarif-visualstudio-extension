@@ -9,6 +9,8 @@ using System.Windows;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 
+using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models;
+
 namespace Microsoft.Sarif.Viewer.Options
 {
     [ComVisible(true)]
@@ -16,9 +18,20 @@ namespace Microsoft.Sarif.Viewer.Options
     {
         private readonly Lazy<SarifViewerGeneralOptionsControl> _sarifViewerOptionsControl;
 
+        /// <summary>
+        /// Fired when an event is fired by the settings ui.
+        /// Some examples of this are button clicks or other listeners.
+        /// </summary>
+        public event EventHandler<SettingsEventArgs> SettingsEvent;
+
         public SarifViewerGeneralOptionsPage()
         {
-            _sarifViewerOptionsControl = new Lazy<SarifViewerGeneralOptionsControl>(() => new SarifViewerGeneralOptionsControl(this));
+            _sarifViewerOptionsControl = new Lazy<SarifViewerGeneralOptionsControl>(() =>
+            {
+                SarifViewerGeneralOptionsControl options = new SarifViewerGeneralOptionsControl(this);
+                options.SettingsEvent += this.SettingsEvent;
+                return options;
+            });
         }
 
         public bool MonitorSarifFolder { get; set; } = true;

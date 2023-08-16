@@ -6,10 +6,18 @@ using System.Collections.Generic;
 
 using Microsoft.VisualStudio.Shell;
 
+using Sarif.Viewer.VisualStudio.ResultSources.Domain.Core.Models;
+
 namespace Microsoft.Sarif.Viewer.Options
 {
     internal class SarifViewerGeneralOptions : ISarifViewerGeneralOptions
     {
+        /// <summary>
+        /// Fired when an event is fired by the settings ui.
+        /// Some examples of this are button clicks or other listeners.
+        /// </summary>
+        public event EventHandler<SettingsEventArgs> SettingsEvent;
+
         private const string DevCanvasLoggedInKey = "DevCanvasLoggedIn";
         private readonly bool shouldMonitorSarifFolderDefaultValue = true;
 
@@ -32,6 +40,7 @@ namespace Microsoft.Sarif.Viewer.Options
         {
             this.package = package ?? throw new ArgumentNullException(nameof(package));
             this.optionPage = (SarifViewerGeneralOptionsPage)this.package.GetDialogPage(typeof(SarifViewerGeneralOptionsPage));
+            this.optionPage.SettingsEvent += SettingsEvent;
         }
 
         private SarifViewerGeneralOptions() { }

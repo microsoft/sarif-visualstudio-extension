@@ -63,13 +63,13 @@
                        Content="{StaticResource SarifViewerOptionsControl_DevCanvasGroupBoxHeader}"
                        AutomationProperties.AutomationId="DevCanvasGroupBoxLabel" />
             </GroupBox.Header>
-            <StackPanel>
+            <StackPanel Margin="5 ">
                 <ComboBox SelectedIndex="{Binding DevCanvasServerIndex}">
                     <ComboBoxItem>Prod</ComboBoxItem>
                     <ComboBoxItem>Ppe</ComboBoxItem>
                     <ComboBoxItem>Dev</ComboBoxItem>
                 </ComboBox>
-                <Button Content="{Binding DevCanvasLoginButtonMessage}"/>
+                <Button Content="{Binding DevCanvasLoginButtonMessage}" Click="OnDevCanvasLoginButtonClick"/>
             </StackPanel>
         </GroupBox>
     </StackPanel>

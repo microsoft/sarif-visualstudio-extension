@@ -54,6 +54,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public event EventHandler<ServiceEventArgs> ServiceEvent;
 
         /// <summary>
+        /// Fired when an event is fired by the settings ui.
+        /// Some examples of this are button clicks or other listeners.
+        /// </summary>
+        public event EventHandler<SettingsEventArgs> SettingsEvent;
+
+        /// <summary>
         /// Gets the maximum number of child menus per flyout in the Error List context menu.
         /// </summary>
         public static int ErrorListContextdMenuChildFlyoutsPerFlyout => 3;

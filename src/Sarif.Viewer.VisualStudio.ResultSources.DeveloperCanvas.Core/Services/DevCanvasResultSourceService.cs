@@ -52,6 +52,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public Action<string, object> SetOptionStateCallback { get; set; }
 
         public event EventHandler<ServiceEventArgs> ServiceEvent;
+        public event EventHandler<SettingsEventArgs> SettingsEvent;
 
         private readonly IServiceProvider serviceProvider;
         private readonly IHttpClientAdapter httpClientAdapter;
