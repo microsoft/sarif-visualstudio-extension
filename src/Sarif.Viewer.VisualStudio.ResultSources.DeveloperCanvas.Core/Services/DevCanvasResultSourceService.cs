@@ -132,6 +132,16 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             };
 
             accessor = new DevCanvasWebAPIAccessor(serverOptionAccess);
+
+            AuthState.Initialize();
+        }
+
+        /// <summary>
+        /// Logs out the user. Will not query for new files until the user manually logs in again.
+        /// </summary>
+        private void LogOut()
+        {
+
         }
 
         /// <inheritdoc/>
@@ -161,17 +171,21 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public Task<Result<bool, ErrorType>> OnDocumentEventAsync(string[] filePaths)
         {
-            foreach (string filePath in filePaths)
+            if (!AuthState.Instance.RefusedLogin)
             {
-                lock (queryLock)
+                foreach (string filePath in filePaths)
                 {
-                    if (!filesQueriedCache.Contains(filePath))
+                    lock (queryLock)
                     {
-                        filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(minutesBeforeRefresh));
-                        DownloadInsights(filePath);
+                        if (!filesQueriedCache.Contains(filePath))
+                        {
+                            filesQueriedCache.Add(filePath, DateTime.UtcNow, DateTime.UtcNow.AddMinutes(minutesBeforeRefresh));
+                            DownloadInsights(filePath);
+                        }
                     }
                 }
             }
+
             return System.Threading.Tasks.Task.FromResult(Result.Success<bool, ErrorType>(true));
         }
 
@@ -202,6 +216,58 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         }
 
         /// <summary>
+        /// Builds the <see cref="DevCanvasVersionControlDetails"/> for a particular file path.
+        /// </summary>
+        /// <param name="absoluteFilePath">Absolute file path of the file on disk.</param>
+        /// <returns>The information representing the repository if available, null otherwise.</returns>
+        private async Task<(DevCanvasVersionControlDetails vcDetails, string repoRootedFilePath)> BuildVcDetailsAsync(string absoluteFilePath)
+        {
+            // TODO 
+            // See if the file is part of a git repo / source depot base
+            SourceControlType sourceControlType = SourceControlType.Unknown;
+            string gitRepoRoot = await gitExe.GetRepoRootAsync(absoluteFilePath);
+            string server = "";
+            string project = "";
+            string repo = "";
+            string branch = "";
+
+            if (gitRepoRoot != null)
+            {
+                sourceControlType = SourceControlType.Git;
+                string repoUri = await gitExe.GetRepoUriAsync(absoluteFilePath);
+                ParseGitUrl(repoUri, out server, out project, out repo);
+                if (string.IsNullOrWhiteSpace(server) ||
+                    string.IsNullOrWhiteSpace(project) ||
+                    string.IsNullOrWhiteSpace(repo))
+                {
+                    sourceControlType = SourceControlType.Unknown;
+                }
+                else
+                {
+                    branch = await gitExe.GetCurrentBranchAsync(absoluteFilePath);
+                }
+            }
+            else
+            {
+                bool sdExists = IsSourceDepot(absoluteFilePath, out gitRepoRoot);
+                if (sdExists)
+                {
+                    sourceControlType = SourceControlType.SourceDepot;
+                }
+            }
+
+            string repoRootedFilePath = GetRepoRootedFilePath(gitRepoRoot, absoluteFilePath);
+
+            if (sourceControlType == SourceControlType.Unknown)
+            {
+                return (null, repoRootedFilePath);
+            }
+
+            // if it is part of a code base, construct a DevCanvasVersionControlDetails with appropriate details 
+            return (new DevCanvasVersionControlDetails(sourceControlType, server, project, repo, branch), repoRootedFilePath);
+        }
+
+        /// <summary>
         /// Queries the web server for insights for a given file.
         /// This should be called from a worker thread.
         /// When the the insights have finished downloading for the given file, this method will
@@ -214,55 +280,19 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         {
             try
             {
-                string absoluteFilePath = (string)state;
-                int insightsCount = 0;
 
                 // This will contain the message we'll display in the output window once the query is complete (and after we release the lock on cacheItem).
                 StringBuilder resultMessage = new StringBuilder();
 
-                // TODO 
-                // See if the file is part of a git repo / source depot base
-                SourceControlType sourceControlType = SourceControlType.Unknown;
-                string gitRepoRoot = await gitExe.GetRepoRootAsync(absoluteFilePath);
-                string server = "";
-                string project = "";
-                string repo = "";
-                string branch = "";
+                string absoluteFilePath = (string)state;
+                int insightsCount = 0;
 
-                if (gitRepoRoot != null)
-                {
-                    sourceControlType = SourceControlType.Git;
-                    string repoUri = await gitExe.GetRepoUriAsync(absoluteFilePath);
-                    ParseGitUrl(repoUri, out server, out project, out repo);
-                    if (string.IsNullOrWhiteSpace(server) ||
-                        string.IsNullOrWhiteSpace(project) ||
-                        string.IsNullOrWhiteSpace(repo))
-                    {
-                        sourceControlType = SourceControlType.Unknown;
-                    }
-                    else
-                    {
-                        branch = await gitExe.GetCurrentBranchAsync(absoluteFilePath);
-                    }
-                }
-                else
-                {
-                    bool sdExists = IsSourceDepot(absoluteFilePath, out gitRepoRoot);
-                    if (sdExists)
-                    {
-                        sourceControlType = SourceControlType.SourceDepot;
-                    }
-                }
-
-                if (sourceControlType == SourceControlType.Unknown)
+                // if it is part of a code base, construct a DevCanvasVersionControlDetails with appropriate details 
+                (DevCanvasVersionControlDetails vcDetails, string repoRootedFilePath) = await BuildVcDetailsAsync(absoluteFilePath);
+                if (vcDetails == null || repoRootedFilePath == null)
                 {
                     return;
                 }
-
-                string repoRootedFilePath = GetRepoRootedFilePath(gitRepoRoot, absoluteFilePath);
-
-                // if it is part of a code base, construct a DevCanvasVersionControlDetails with appropriate details 
-                DevCanvasVersionControlDetails vcDetails = new DevCanvasVersionControlDetails(sourceControlType, server, project, repo, branch);
 
                 // Get the generators (either from cache or web api) that we should query for this cache item.
                 List<DevCanvasGeneratorInfo> allGenerators = await accessor.GetGeneratorsAsync();

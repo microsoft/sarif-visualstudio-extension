@@ -19,6 +19,8 @@ using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Broker;
 using Microsoft.Identity.Client.Extensions.Msal;
 
+using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models;
+
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 {
     /// <summary>
@@ -30,22 +32,26 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         private const string existingClientIdApproved = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
         private readonly static string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
-        private readonly static string prodBrokerTitle = "Log into DevCanvas. https://aka.ms/devcanvas";
+        private readonly static string brokerTitle = "Log into DevCanvas. https://aka.ms/devcanvas";
         private readonly static string[] ppeScopes = new string[] { "api://5360327a-4e80-4925-8701-51fa2000738e/user_impersonation" };
         private readonly static string ppeBrokerTitle = "Log into DevCanvas PPE environment. https://aka.ms/devcanvas";
         private readonly static string[] devScopes = new string[] { "api://a5880bae-b129-42c5-9d6c-d8de8f305adf/user_impersonation" };
         private readonly static string devBrokerTitle = "Log into DevCanvas Developer environment. https://aka.ms/devcanvas";
         private readonly static string[][] serverScopes = new string[][] { prodScopes, ppeScopes, devScopes };
-        private readonly static string[] serverBrokerTitles = new string[] { prodBrokerTitle, ppeBrokerTitle, devBrokerTitle };
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
         private readonly SemaphoreSlim slimSemaphore;
         private MsalCacheHelper cacheHelper;
 
         /// <summary>
-        /// Denotes the last server that was accessed. Used when decided whether we need to refresh the <see cref="publicClientApplication"/>
+        /// The name of the file on the users file system that has the msal settings cached.
         /// </summary>
-        private int? previousServerIndex = null;
+        private readonly string msalCacheFileName;
+
+        /// <summary>
+        /// The absolute path of the file on the users file system that has the msal settings cached.
+        /// </summary>
+        private readonly string msalCacheFilePath;
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
@@ -60,14 +66,59 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public AuthManager()
         {
             slimSemaphore = new SemaphoreSlim(1);
+            msalCacheFileName = $"{nameof(DevCanvasResultSourceService)}_MSAL_cache_{msAadTenant}.txt";
+            msalCacheFilePath = Path.Combine(MsalCacheHelper.UserRootDirectory, msalCacheFileName);
+            SetupClientApp();
         }
 
-        private void SetupClientApp(int serverIndex)
+        /// <summary>
+        /// Wipes the cached accounts for devcanvas access, will reset the client app.
+        /// </summary>
+        public void LogOutOfDevCanvas()
+        {
+            if (File.Exists(msalCacheFilePath))
+            {
+                File.Delete(msalCacheFilePath);
+                SetupClientApp();
+            }
+            else
+            {
+                throw new FileNotFoundException();
+            }
+        }
+
+        /// <summary>
+        /// Attemptes to log into devcanvas
+        /// </summary>
+        public async Task<AuthenticationResult> LogIntoDevCanvasAsync(int endpointIndex, string claims)
+        {
+            string[] scopes = serverScopes[endpointIndex];
+            try
+            {
+                // If the token has expired or the cache was empty, display a login prompt
+                AuthenticationResult res =  await this.publicClientApplication
+                   .AcquireTokenInteractive(scopes)
+                   .WithClaims(claims)
+                   .WithUseEmbeddedWebView(true)
+                   .ExecuteAsync();
+                AuthState.Instance.IsLoggedIntoDevCanvas = true;
+                return res;
+            }
+            catch (Exception e)
+            {
+                DevCanvasTracer.WriteLine($"Failed to acquire token interactively.\nException: {e}");
+                AuthState.Instance.RefusedLogin = true;
+            }
+
+            return null;
+        }
+
+        private void SetupClientApp()
         {
             DevCanvasTracer.WriteLine("Setting up client app.");
             var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
             {
-                Title = serverBrokerTitles[serverIndex],
+                Title = brokerTitle,
             };
 
             string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
@@ -77,7 +128,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 .WithBroker(brokerOpt)
                 .Build();
 
-            StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder($"{nameof(DevCanvasResultSourceService)}_MSAL_cache_{msAadTenant}.txt", MsalCacheHelper.UserRootDirectory)
+            StorageCreationProperties storageProperties = new StorageCreationPropertiesBuilder(msalCacheFileName, MsalCacheHelper.UserRootDirectory)
     .Build();
             cacheHelper = MsalCacheHelper.CreateAsync(storageProperties).GetAwaiter().GetResult();
             cacheHelper.RegisterCache(this.publicClientApplication.UserTokenCache);
@@ -94,12 +145,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             try
             {
                 await slimSemaphore.WaitAsync();
-                DevCanvasTracer.WriteLine($"previous: {previousServerIndex} current: {endpointIndex}");
-                if (previousServerIndex == null || endpointIndex != previousServerIndex) // if this is the first server being requested or we need to change server.
-                {
-                    SetupClientApp(endpointIndex);
-                    previousServerIndex = endpointIndex;
-                }
                 string[] scopes = serverScopes[endpointIndex];
 
                 try
@@ -111,25 +156,17 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     }
 
                     AuthenticationResult result = await this.publicClientApplication
-                        .AcquireTokenSilent(scopes, accounts.FirstOrDefault())
+                        .AcquireTokenSilent(scopes, accounts.Where(acc => acc.Username.EndsWith("@microsoft.com")).FirstOrDefault())
                         .ExecuteAsync();
                     DevCanvasTracer.WriteLine($"Automatically retrieved credentails for {accounts.First().Username} to access {endpointIndex}");
                     return result;
                 }
                 catch (MsalUiRequiredException ex)
                 {
-                    try
+                    AuthenticationResult res = await LogIntoDevCanvasAsync(endpointIndex, ex.Claims);
+                    if (res != null)
                     {
-                        // If the token has expired or the cache was empty, display a login prompt
-                        return await this.publicClientApplication
-                           .AcquireTokenInteractive(scopes)
-                           .WithClaims(ex.Claims)
-                           .WithUseEmbeddedWebView(true)
-                           .ExecuteAsync();
-                    }
-                    catch (Exception e)
-                    {
-                        DevCanvasTracer.WriteLine($"Failed to acquire token interactively.\nException: {e}");
+                        return res;
                     }
                 }
             }
