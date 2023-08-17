@@ -231,6 +231,7 @@ namespace Microsoft.Sarif.Viewer
 
             SarifExplorerWindow.Find()?.Close();
         }
+
         private async Task InitializeResultSourceHostAsync()
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);
