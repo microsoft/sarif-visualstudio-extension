@@ -127,6 +127,7 @@ namespace Microsoft.Sarif.Viewer.Options
             {
                 case DevCanvasLoggedInKey:
                     this.optionPage.DevCanvasLoggedIn = bool.Parse(optionValue.ToString());
+                    this.optionPage.InvokePropertyChanged();
                     break;
                 default:
                     throw new KeyNotFoundException(optionName);

@@ -83,6 +83,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 File.Delete(AuthState.Instance.msalCacheFilePath);
                 SetupClientApp();
                 setLoginMessage(false);
+                AuthState.Instance.RefusedLogin = true;
             }
             else
             {

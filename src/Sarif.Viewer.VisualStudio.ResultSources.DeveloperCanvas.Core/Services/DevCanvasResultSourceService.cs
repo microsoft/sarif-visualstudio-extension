@@ -676,6 +676,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 }
                 else
                 {
+                    filePathQueue.Clear();
                     accessor.authManager.LogOutOfDevCanvas();
                 }
             }

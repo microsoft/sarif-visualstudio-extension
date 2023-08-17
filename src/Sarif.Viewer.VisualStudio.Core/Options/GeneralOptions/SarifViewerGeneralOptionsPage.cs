@@ -13,7 +13,7 @@ using Microsoft.Win32;
 namespace Microsoft.Sarif.Viewer.Options
 {
     [ComVisible(true)]
-    public class SarifViewerGeneralOptionsPage : UIElementDialogPage
+    public class SarifViewerGeneralOptionsPage : UIElementDialogPage, INotifyPropertyChanged
     {
         private readonly Lazy<SarifViewerGeneralOptionsControl> _sarifViewerOptionsControl;
 
@@ -22,6 +22,8 @@ namespace Microsoft.Sarif.Viewer.Options
         /// Some examples of this are button clicks or other listeners.
         /// </summary>
         public event EventHandler<SettingsEventArgs> SettingsEvent;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public SarifViewerGeneralOptionsPage()
         {
@@ -42,6 +44,14 @@ namespace Microsoft.Sarif.Viewer.Options
         public int DevCanvasServerIndex { get; set; } = 0;
 
         public bool? DevCanvasLoggedIn { get; set; } = null;
+
+        public void InvokePropertyChanged()
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
+            }
+        }
 
         /// <summary>
         /// Gets the message that the login button shows.
