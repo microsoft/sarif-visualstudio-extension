@@ -45,7 +45,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <summary>
         /// The class that handles the authentication to the endpoint.
         /// </summary>
-        private readonly IAuthManager authManager;
+        public readonly IAuthManager authManager;
 
         /// <summary>
         /// The version of the API we want to use.

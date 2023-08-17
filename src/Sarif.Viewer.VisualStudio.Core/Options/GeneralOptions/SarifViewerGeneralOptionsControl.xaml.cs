@@ -36,7 +36,7 @@ namespace Microsoft.Sarif.Viewer.Options
             SettingsEventArgs args = new SettingsEventArgs()
             {
                 EventName = "DevCanvasLoginButtonClicked",
-                Value = true,
+                Value = !this.generalOptionsPage.DevCanvasLoggedIn,
             };
             SettingsEvent?.Invoke(this, args);
         }

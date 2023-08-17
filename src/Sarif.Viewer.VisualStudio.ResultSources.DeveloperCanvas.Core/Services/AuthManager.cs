@@ -60,6 +60,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             slimSemaphore = new SemaphoreSlim(1);
             SetupClientApp();
             this.setOptionStateCallback = setOptionStateCallback;
+
+            setLoginMessage(AuthState.Instance.IsLoggedIntoDevCanvas);
         }
 
         /// <summary>

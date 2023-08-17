@@ -135,10 +135,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 return (int)getOptionStateCallback("DevCanvasServer");
             };
 
+            AuthState.Initialize();
             AuthManager authManager = new AuthManager(SetOptionStateCallback);
             accessor = new DevCanvasWebAPIAccessor(serverOptionAccess, authManager);
 
-            AuthState.Initialize();
         }
 
         /// <summary>
@@ -667,7 +667,18 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         public void Settings_ServiceEvent(object sender, SettingsEventArgs e)
         {
-            return;
+            if (e.EventName == "DevCanvasLoginButtonClicked")
+            {
+                bool turnOn = bool.Parse(e.Value.ToString());
+                if (turnOn)
+                {
+                     accessor.authManager.LogIntoDevCanvasAsync(0, string.Empty);
+                }
+                else
+                {
+                    accessor.authManager.LogOutOfDevCanvas();
+                }
+            }
         }
     }
 }
