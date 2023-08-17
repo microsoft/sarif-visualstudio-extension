@@ -231,17 +231,6 @@ namespace Microsoft.Sarif.Viewer
 
             SarifExplorerWindow.Find()?.Close();
         }
-
-        /// <summary>
-        /// Listens to when a setting event is fired.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">Payload fired.</param>
-        public void Settings_ServiceEvent(object sender, ResultSources.Domain.Models.SettingsEventArgs e)
-        {
-            Console.WriteLine("hi");
-        }
-
         private async Task InitializeResultSourceHostAsync()
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(DisposalToken);

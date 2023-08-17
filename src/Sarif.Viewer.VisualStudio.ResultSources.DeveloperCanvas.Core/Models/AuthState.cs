@@ -41,10 +41,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             }
         }
 
-        private AuthState()
-        {
-
-        }
+        private AuthState() { }
 
         public static AuthState Instance;
 
