@@ -78,10 +78,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// </summary>
         public void LogOutOfDevCanvas()
         {
+            DevCanvasTracer.WriteLine("Logging out...");
             if (AuthState.Instance.IsLoggedIntoDevCanvas)
             {
                 File.Delete(AuthState.Instance.msalCacheFilePath);
-                SetupClientApp();
                 setLoginMessage(false);
                 AuthState.Instance.RefusedLogin = true;
             }
@@ -96,6 +96,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// </summary>
         public async Task<AuthenticationResult> LogIntoDevCanvasAsync(int endpointIndex, string claims)
         {
+            DevCanvasTracer.WriteLine("Logging in...");
             string[] scopes = serverScopes[endpointIndex];
             try
             {
@@ -106,6 +107,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                    .WithUseEmbeddedWebView(true)
                    .ExecuteAsync();
                 setLoginMessage(true);
+                AuthState.Instance.RefusedLogin = false;
                 return res;
             }
             catch (Exception e)

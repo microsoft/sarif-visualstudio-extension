@@ -152,7 +152,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 8/2");
+            DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 8/17");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
 
             if (string.IsNullOrWhiteSpace(userName) || !userName.EndsWith("@microsoft.com"))
