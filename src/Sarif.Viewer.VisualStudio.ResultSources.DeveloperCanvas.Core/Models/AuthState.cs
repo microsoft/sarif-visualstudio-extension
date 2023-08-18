@@ -12,6 +12,9 @@ using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
+    /// <summary>
+    /// This class is a singleton that is the single point of truth as to if the user is logged in or not, and if they have actively refused to log in.
+    /// </summary>
     internal class AuthState
     {
         /// <summary>
