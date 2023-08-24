@@ -65,6 +65,7 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             if (this.tagsDirty)
             {
+                this.tagsDirty = false;
                 IEnumerable<SarifErrorListItem> errorsInCurrentFile = CodeAnalysisResultManager
                     .Instance
                     .RunIndexToRunDataCache
