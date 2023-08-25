@@ -46,7 +46,7 @@ namespace Microsoft.Sarif.Viewer
                         startIndex: documentSpan.iStartIndex,
                         endLine: documentSpan.iEndLine,
                         endIndex: documentSpan.iEndIndex,
-                        trackingMode: SpanTrackingMode.EdgeInclusive);
+                        trackingMode: SpanTrackingMode.EdgeExclusive);
 
             return true;
         }
