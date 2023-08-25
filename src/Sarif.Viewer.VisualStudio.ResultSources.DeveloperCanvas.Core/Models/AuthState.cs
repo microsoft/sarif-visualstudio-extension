@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.Shell;
 using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Settings;
+using Microsoft.VisualStudio.Shell.Settings;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
@@ -39,7 +40,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             }
             set
             {
-                writableSettingsStore.SetBool(nameof(AuthState), refusedLoginSettingString, value ? 0 : 1);
+                settingsStore.SetBoolean(nameof(AuthState), refusedLoginSettingString, value);
                 _refusedLogin = value;
             }
         }
@@ -65,26 +66,24 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             }
         }
 
-        private readonly IVsWritableSettingsStore writableSettingsStore;
-        
+        private readonly WritableSettingsStore settingsStore;
 
         private AuthState()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            IVsSettingsManager settingsManager = (IVsSettingsManager)ServiceProvider.GlobalProvider.GetService(typeof(SVsSettingsManager));
-            if (settingsManager != null)
+            // Get the settings manager for the current user
+            SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
+
+            // Get the writable settings store for your extension
+            settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+
+            // Save a setting
+
+            if (!settingsStore.CollectionExists(nameof(AuthState)))
             {
-                settingsManager.GetWritableSettingsStore((uint)__VsSettingsScope.SettingsScope_UserSettings, out writableSettingsStore);
-                if (writableSettingsStore != null)
-                {
-                    int returnCode = writableSettingsStore.GetBool(nameof(AuthState), refusedLoginSettingString, out int value);
-                    if (returnCode == 0)
-                    {
-                        _refusedLogin = value == 0;
-                    }
-                    DevCanvasTracer.WriteLine($"value: {value}, returnCode: {returnCode}");
-                }
+                settingsStore.CreateCollection(nameof(AuthState));
             }
+
+            _refusedLogin = settingsStore.GetBoolean(nameof(AuthState), refusedLoginSettingString, false);
         }
 
         public static AuthState Instance;
