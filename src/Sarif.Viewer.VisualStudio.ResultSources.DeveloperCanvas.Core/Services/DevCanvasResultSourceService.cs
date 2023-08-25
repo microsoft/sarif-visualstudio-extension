@@ -141,18 +141,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         }
 
-        /// <summary>
-        /// Logs out the user. Will not query for new files until the user manually logs in again.
-        /// </summary>
-        private void LogOut()
-        {
-
-        }
-
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 8/17");
+            DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 8/25");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
 
             if (string.IsNullOrWhiteSpace(userName) || !userName.EndsWith("@microsoft.com"))
@@ -285,7 +277,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         {
             try
             {
-
                 // This will contain the message we'll display in the output window once the query is complete (and after we release the lock on cacheItem).
                 StringBuilder resultMessage = new StringBuilder();
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
@@ -67,6 +68,8 @@ namespace Microsoft.Sarif.Viewer.Options
         /// </summary>
         public bool? DevCanvasLoggedIn => this.optionPage?.DevCanvasLoggedIn;
 
+        public bool? RefusedLogin;
+
         public Dictionary<string, object> OptionStates => new Dictionary<string, object>
             {
                 { "MonitorSarifFolder", this.ShouldMonitorSarifFolder },
@@ -74,6 +77,7 @@ namespace Microsoft.Sarif.Viewer.Options
                 { "KeyEventAdornment", this.IsKeyEventAdornmentEnabled },
                 { "DevCanvasServer", this.DevCanvasServerIndex },
                 { DevCanvasLoggedInKey, this.DevCanvasLoggedIn },
+                { "RefusedLogin", this.RefusedLogin },
             };
 
         /// <summary>
