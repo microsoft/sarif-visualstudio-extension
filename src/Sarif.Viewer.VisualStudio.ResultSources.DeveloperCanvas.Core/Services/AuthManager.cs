@@ -31,12 +31,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private IPublicClientApplication publicClientApplication;
 
         private const string existingClientIdApproved = "872cd9fa-d31f-45e0-9eab-6e460a02d1f1";
-        private readonly static string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
         private readonly static string brokerTitle = "Log into DevCanvas. https://aka.ms/devcanvas";
+        private readonly static string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
         private readonly static string[] ppeScopes = new string[] { "api://5360327a-4e80-4925-8701-51fa2000738e/user_impersonation" };
-        private readonly static string ppeBrokerTitle = "Log into DevCanvas PPE environment. https://aka.ms/devcanvas";
         private readonly static string[] devScopes = new string[] { "api://a5880bae-b129-42c5-9d6c-d8de8f305adf/user_impersonation" };
-        private readonly static string devBrokerTitle = "Log into DevCanvas Developer environment. https://aka.ms/devcanvas";
         private readonly static string[][] serverScopes = new string[][] { prodScopes, ppeScopes, devScopes };
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
