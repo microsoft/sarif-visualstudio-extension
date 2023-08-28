@@ -70,22 +70,27 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 
         private AuthState()
         {
-#if !DEBUG
-            // Get the settings manager for the current user
-            SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
-
-            // Get the writable settings store for your extension
-            settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
-
-            // Save a setting
-
-            if (!settingsStore.CollectionExists(nameof(AuthState)))
+            try
             {
-                settingsStore.CreateCollection(nameof(AuthState));
-            }
+                // Get the settings manager for the current user
+                SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
 
-            _refusedLogin = settingsStore.GetBoolean(nameof(AuthState), refusedLoginSettingString, false);
-#endif
+                // Get the writable settings store for your extension
+                settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+
+                // Save a setting
+
+                if (!settingsStore.CollectionExists(nameof(AuthState)))
+                {
+                    settingsStore.CreateCollection(nameof(AuthState));
+                }
+
+                _refusedLogin = settingsStore.GetBoolean(nameof(AuthState), refusedLoginSettingString, false);
+            }
+            catch (Exception)
+            { 
+                // swallow
+            }
         }
 
         public static AuthState Instance;
