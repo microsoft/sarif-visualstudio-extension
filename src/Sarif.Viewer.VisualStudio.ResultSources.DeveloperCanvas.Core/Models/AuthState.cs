@@ -70,6 +70,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 
         private AuthState()
         {
+#if !DEBUG
             // Get the settings manager for the current user
             SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
 
@@ -84,6 +85,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             }
 
             _refusedLogin = settingsStore.GetBoolean(nameof(AuthState), refusedLoginSettingString, false);
+#endif
         }
 
         public static AuthState Instance;
