@@ -34,8 +34,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         private readonly static string brokerTitle = "Log into DevCanvas. https://aka.ms/devcanvas";
         private readonly static string[] prodScopes = new string[] { "api://7ba8d231-9a00-4118-8a4d-9423b0f0a0f5/user_impersonation" };
         private readonly static string[] ppeScopes = new string[] { "api://5360327a-4e80-4925-8701-51fa2000738e/user_impersonation" };
+        private readonly static string[] localhostScopes = ppeScopes; //alias for conveience 
         private readonly static string[] devScopes = new string[] { "api://a5880bae-b129-42c5-9d6c-d8de8f305adf/user_impersonation" };
-        private readonly static string[][] serverScopes = new string[][] { prodScopes, ppeScopes, devScopes };
+        private readonly static string[][] serverScopes = new string[][] { prodScopes, ppeScopes, localhostScopes };
         private const string AadInstanceUrlFormat = "https://login.microsoftonline.com/{0}/v2.0";
         private const string msAadTenant = "72f988bf-86f1-41af-91ab-2d7cd011db47"; // GUID for the microsoft AAD tenant;
         private readonly SemaphoreSlim slimSemaphore;
@@ -106,6 +107,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                    .ExecuteAsync();
                 setLoginMessage(true);
                 AuthState.Instance.RefusedLogin = false;
+
+                DevCanvasTracer.WriteLine("Logged in");
                 return res;
             }
             catch (Exception e)
@@ -119,7 +122,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         private void SetupClientApp()
         {
-            DevCanvasTracer.WriteLine("Setting up client app.");
             var brokerOpt = new BrokerOptions(BrokerOptions.OperatingSystems.Windows)
             {
                 Title = brokerTitle,
@@ -128,6 +130,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             string authorityUrl = string.Format(CultureInfo.InvariantCulture, AadInstanceUrlFormat, msAadTenant);
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
+                .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
+                .WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
                 .WithParentActivityOrWindow(GetIntPtr)
                 .WithBroker(brokerOpt)
                 .Build();
@@ -185,13 +189,13 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
 
         public async Task<HttpClient> GetHttpClientAsync(int endpointIndex)
         {
+            HttpClient client = new HttpClient();
             AuthenticationResult authentication = await this.AuthenticateAsync(endpointIndex);
             if (authentication == null)
             {
                 return null;
             }
             string accessToken = authentication.AccessToken;
-            HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             return client;
         }

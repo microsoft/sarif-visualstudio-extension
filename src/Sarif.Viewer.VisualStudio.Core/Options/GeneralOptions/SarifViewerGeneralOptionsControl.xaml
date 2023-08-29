@@ -67,7 +67,7 @@
                 <ComboBox SelectedIndex="{Binding DevCanvasServerIndex}" Margin="0,0,0,5">
                     <ComboBoxItem>Prod</ComboBoxItem>
                     <ComboBoxItem>Ppe</ComboBoxItem>
-                    <ComboBoxItem>Dev</ComboBoxItem>
+                    <ComboBoxItem>localhost</ComboBoxItem>
                 </ComboBox>
                 <Button Content="{Binding DevCanvasLoginButtonMessage, UpdateSourceTrigger=PropertyChanged}" Click="OnDevCanvasLoginButtonClick"/>
             </StackPanel>

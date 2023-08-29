@@ -58,7 +58,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public const string prodServer = "insightwebv2.azurewebsites.net";
         public const string ppeServer = "insightwebv2-ppe.azurewebsites.net";
         public const string devServer = "insightwebv2-dev.azurewebsites.net";
-        public readonly static string[] servers = new string[] { prodServer, ppeServer, devServer };
+        public const string localServer = "localhost:44327";
+        public readonly static string[] servers = new string[] { prodServer, ppeServer, localServer };
 
         private readonly Func<int> endpointIndex;
 
