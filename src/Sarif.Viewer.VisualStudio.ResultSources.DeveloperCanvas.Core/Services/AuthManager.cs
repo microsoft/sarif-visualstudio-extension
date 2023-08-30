@@ -83,6 +83,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 File.Delete(AuthState.Instance.msalCacheFilePath);
                 setLoginMessage(false);
                 AuthState.Instance.RefusedLogin = true;
+                DevCanvasTracer.WriteLine("Logged out");
             }
             else
             {
@@ -131,7 +132,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
                 .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
-                .WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
+                //.WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
                 .WithParentActivityOrWindow(GetIntPtr)
                 .WithBroker(brokerOpt)
                 .Build();
@@ -166,7 +167,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                     AuthenticationResult result = await this.publicClientApplication
                         .AcquireTokenSilent(scopes, accounts.Where(acc => acc.Username.EndsWith("@microsoft.com")).FirstOrDefault())
                         .ExecuteAsync();
-                    DevCanvasTracer.WriteLine($"Automatically retrieved credentails for {accounts.First().Username} to access {endpointIndex}");
+                    DevCanvasTracer.WriteLine($"Automatically retrieved credentials for {accounts.First().Username}");
                     return result;
                 }
                 catch (MsalUiRequiredException ex)
