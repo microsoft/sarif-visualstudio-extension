@@ -132,6 +132,9 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             };
 
             accessor = new DevCanvasWebAPIAccessor(serverOptionAccess);
+
+            DevCanvasExtSearcher searcher = new DevCanvasExtSearcher();
+            string str = searcher.GetParentFilePath();
         }
 
         /// <inheritdoc/>

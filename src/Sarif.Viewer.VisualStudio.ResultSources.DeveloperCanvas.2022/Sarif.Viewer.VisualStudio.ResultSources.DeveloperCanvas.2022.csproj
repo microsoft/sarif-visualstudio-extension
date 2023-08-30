@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.54.1" />
     <PackageReference Include="Microsoft.Identity.Client.Broker" Version="4.54.1" />
     <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="2.31.0" />
+    <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.7.2" />
     <PackageReference Include="Sarif.Sdk" Version="2.4.15" />
   </ItemGroup>
 
