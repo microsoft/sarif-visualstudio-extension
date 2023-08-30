@@ -5,13 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-
+using System.Windows.Media;
 using EnvDTE;
-
 using EnvDTE80;
-
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Tagging;
 
 namespace Sarif.Viewer.VisualStudio.Core.Models
@@ -123,6 +122,13 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                     Content = stackPanel,
                 };
+
+/*                scrollViewer.Background = Brushes.Red;
+                scrollViewer.Foreground = Brushes.Blue;*/
+
+                // scrollViewer.Background = GetBrush(dte, vsThemeColors.vsThemeColorDesignerBackground);
+                // scrollViewer.Background = GetBrush(dte, vsThemeColors.vsThemeColorEnvironmentBackground);
+                // scrollViewer.Foreground = GetBrush(dte, vsThemeColors.vsThemeColorTitlebarActiveText);
 
                 return scrollViewer;
             }

@@ -33,11 +33,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         private const int FontSize = 16;
 
         /// <summary>
-        /// The color for text. Changes based on user theme.
-        /// </summary>
-        private static readonly SolidColorBrush TextBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SarifLocationErrorTag"/> class.
         /// </summary>
         /// <param name="persistentSpan">The persistent span for the tag within a document.</param>
@@ -98,6 +93,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                             ParseBlocks(viewer.Document.Blocks);
 
                             viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
+
                             return viewer;
                         }
                         catch (NotSupportedException)
@@ -109,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     {
                         TextBlock textblock = new TextBlock() { Text = item.strContent };
                         textblock.FontSize = FontSize;
-                        textblock.Foreground = TextBrush;
+                        textblock.Foreground = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
                         textblock.TextWrapping = TextWrapping.Wrap;
                         return textblock;
                     }
@@ -129,19 +125,20 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="blocks">A list of blocks to parse.</param>
         private void ParseBlocks(BlockCollection blocks)
         {
+            Brush textBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
+            Brush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
             foreach (Block block in blocks)
             {
                 foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
                 {
                     if (blockChild is Hyperlink hyperlink)
                     {
-                        SolidColorBrush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
                         hyperlink.Foreground = hyperlinkBrush;
                         hyperlink.MouseDown += Block_MouseDown;
                     }
                     else if (blockChild is Run runBlock)
                     {
-                        runBlock.Foreground = TextBrush;
+                        runBlock.Foreground = textBrush;
                     }
                     else if (blockChild is ListItem listBlock)
                     {
@@ -149,7 +146,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                 }
 
-                block.Foreground = TextBrush;
+                block.Foreground = textBrush;
             }
         }
 
