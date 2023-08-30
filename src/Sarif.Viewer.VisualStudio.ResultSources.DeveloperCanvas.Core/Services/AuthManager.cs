@@ -132,7 +132,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             this.publicClientApplication = PublicClientApplicationBuilder
                 .Create(existingClientIdApproved)
                 .WithRedirectUri("https://login.microsoftonline.com/common/oauth2/nativeclient")
-                //.WithAuthority(AzureCloudInstance.AzurePublic, msAadTenant)
                 .WithParentActivityOrWindow(GetIntPtr)
                 .WithBroker(brokerOpt)
                 .Build();
