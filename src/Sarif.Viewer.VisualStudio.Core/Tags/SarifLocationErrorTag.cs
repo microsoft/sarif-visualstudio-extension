@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
 using Markdig.Wpf;
 
@@ -129,6 +130,7 @@ namespace Microsoft.Sarif.Viewer.Tags
             Brush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
             foreach (Block block in blocks)
             {
+                block.Margin = new Thickness(0, 0, 0, 4);
                 foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
                 {
                     if (blockChild is Hyperlink hyperlink)
@@ -143,10 +145,38 @@ namespace Microsoft.Sarif.Viewer.Tags
                     else if (blockChild is ListItem listBlock)
                     {
                         ParseBlocks(listBlock.Blocks);
+                        block.Margin = new Thickness(0, 0, 0, 1);
+                    }
+                    else if (blockChild is InlineUIContainer inlineUIContainer)
+                    {
+                        // block.Foreground = Brushes.Red;
+                        // block.Background = Brushes.Yellow;
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.EnvironmentBackgroundBrushKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.EnvironmentBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.MainWindowSolutionNameActiveBackgroundBrushKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.MainWindowSolutionNameActiveBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.DropDownBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.DropDownBackgroundBrushKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundBrushKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarArrowBackgroundBrushKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarArrowBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.SystemBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarThumbGlyphColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarThumbBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarThumbBackgroundColorKey);
+                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarArrowGlyphColorKey);
+                        if (inlineUIContainer.Child is Line line)
+                        {
+                            line.Stroke = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
+                        }
+
+                        // inlineUIContainer.Foreground = Brushes.Blue;
+                        // inlineUIContainer.Background = Brushes.Green;
                     }
                 }
 
-                block.Foreground = textBrush;
+                // block.Foreground = textBrush;
             }
         }
 
