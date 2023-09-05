@@ -20,6 +20,8 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
+using Newtonsoft.Json;
+
 namespace Microsoft.Sarif.Viewer.Tags
 {
     /// <summary>
@@ -149,34 +151,12 @@ namespace Microsoft.Sarif.Viewer.Tags
                     }
                     else if (blockChild is InlineUIContainer inlineUIContainer)
                     {
-                        // block.Foreground = Brushes.Red;
-                        // block.Background = Brushes.Yellow;
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.EnvironmentBackgroundBrushKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.EnvironmentBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.MainWindowSolutionNameActiveBackgroundBrushKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.MainWindowSolutionNameActiveBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.DropDownBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.DropDownBackgroundBrushKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundBrushKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarArrowBackgroundBrushKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarArrowBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.SystemBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarThumbGlyphColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarThumbBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarThumbBackgroundColorKey);
-                        // block.Background = GetBrushFromThemeColor(EnvironmentColors.ScrollBarArrowGlyphColorKey);
                         if (inlineUIContainer.Child is Line line)
                         {
                             line.Stroke = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
                         }
-
-                        // inlineUIContainer.Foreground = Brushes.Blue;
-                        // inlineUIContainer.Background = Brushes.Green;
                     }
                 }
-
-                // block.Foreground = textBrush;
             }
         }
 
