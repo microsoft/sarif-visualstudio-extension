@@ -108,15 +108,18 @@ namespace Sarif.Viewer.VisualStudio.Core.Models
                 }
 
                 int maxHeight = 800;
+                int maxWidth = 1000;
                 var dte = AsyncPackage.GetGlobalService(typeof(DTE)) as DTE2;
                 if (dte != null && dte.MainWindow != null)
                 {
-                    maxHeight = dte.MainWindow.Height / 3;
+                    maxHeight = (int)(dte.MainWindow.Height / 3.5);
+                    maxWidth = dte.MainWindow.Width / 3;
                 }
 
                 var scrollViewer = new ScrollViewer()
                 {
                     MaxHeight = maxHeight,
+                    MaxWidth = maxWidth,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                     Content = stackPanel,
                 };
