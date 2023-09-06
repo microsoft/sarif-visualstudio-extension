@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+
 using EnvDTE;
+
 using EnvDTE80;
+
 using Microsoft.Sarif.Viewer.Options;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Tagging;
