@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
+using Markdig.Syntax;
 using Markdig.Wpf;
 
 using Microsoft.VisualStudio.PlatformUI;
@@ -21,6 +22,8 @@ using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
 
 using Newtonsoft.Json;
+
+using Block = System.Windows.Documents.Block;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
@@ -130,32 +133,69 @@ namespace Microsoft.Sarif.Viewer.Tags
         {
             Brush textBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
             Brush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
+            int maxRecursionDepth = 50;
+            ParseBlocksRecurs(blocks, textBrush, hyperlinkBrush, maxRecursionDepth);
+        }
+
+        private void ParseBlocksRecurs(BlockCollection blocks, Brush textBrush, Brush hyperlinkBrush, int maxDepth)
+        {
+            maxDepth--;
+            if (maxDepth == 0)
+            {
+                throw new StackOverflowException("Markdown was too deep.");
+            }
+
             foreach (Block block in blocks)
             {
                 block.Margin = new Thickness(0, 0, 0, 4);
                 foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
                 {
-                    if (blockChild is Hyperlink hyperlink)
+                    ApplyStylingRecurs(block, blockChild, textBrush, hyperlinkBrush, maxDepth);
+                }
+            }
+        }
+
+        private void ApplyStylingRecurs(Block parentBlock, object obj, Brush textBrush, Brush hyperlinkBrush, int maxDepth)
+        {
+            maxDepth--;
+            if (maxDepth == 0)
+            {
+                throw new StackOverflowException("Markdown was too deep.");
+            }
+
+            if (obj is Hyperlink hyperlink)
+            {
+                hyperlink.Foreground = hyperlinkBrush;
+                hyperlink.MouseDown += Block_MouseDown;
+            }
+            else if (obj is Run runBlock)
+            {
+                runBlock.Foreground = textBrush;
+            }
+            else if (obj is ListItem listBlock)
+            {
+                ParseBlocksRecurs(listBlock.Blocks, textBrush, hyperlinkBrush, maxDepth);
+                parentBlock.Margin = new Thickness(0, 0, 0, 1);
+            }
+            else if (obj is InlineUIContainer inlineUIContainer && inlineUIContainer.Child is Line line)
+            {
+                line.Stroke = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
+            }
+            else if (obj is TableRowGroup tableRowGroup)
+            {
+                foreach (TableRow rowElement in tableRowGroup.Rows)
+                {
+                    foreach (TableCell cell in rowElement.Cells)
                     {
-                        hyperlink.Foreground = hyperlinkBrush;
-                        hyperlink.MouseDown += Block_MouseDown;
+                        ParseBlocksRecurs(cell.Blocks, textBrush, hyperlinkBrush, maxDepth);
                     }
-                    else if (blockChild is Run runBlock)
-                    {
-                        runBlock.Foreground = textBrush;
-                    }
-                    else if (blockChild is ListItem listBlock)
-                    {
-                        ParseBlocks(listBlock.Blocks);
-                        block.Margin = new Thickness(0, 0, 0, 1);
-                    }
-                    else if (blockChild is InlineUIContainer inlineUIContainer)
-                    {
-                        if (inlineUIContainer.Child is Line line)
-                        {
-                            line.Stroke = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
-                        }
-                    }
+                }
+            }
+            else if (parentBlock is Paragraph paragraph && obj is Bold bold)
+            {
+                foreach (object inline in bold.Inlines)
+                {
+                    ApplyStylingRecurs(parentBlock, inline, textBrush, hyperlinkBrush, maxDepth);
                 }
             }
         }
