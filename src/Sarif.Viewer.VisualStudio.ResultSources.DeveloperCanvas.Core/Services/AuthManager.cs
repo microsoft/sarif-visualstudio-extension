@@ -80,7 +80,14 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
             DevCanvasTracer.WriteLine("Logging out...");
             if (AuthState.Instance.IsLoggedIntoDevCanvas)
             {
-                File.Delete(AuthState.Instance.msalCacheFilePath);
+                try
+                {
+                    File.Delete(AuthState.Instance.msalCacheFilePath);
+                }
+                catch (Exception e)
+                {
+                    DevCanvasTracer.WriteLine($"Failed to delete file.\nException:{e}");
+                }
                 setLoginMessage(false);
                 AuthState.Instance.RefusedLogin = true;
                 DevCanvasTracer.WriteLine("Logged out");
