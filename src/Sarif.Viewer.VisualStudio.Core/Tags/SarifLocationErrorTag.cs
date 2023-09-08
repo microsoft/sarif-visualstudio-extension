@@ -10,7 +10,9 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 
+using Markdig.Syntax;
 using Markdig.Wpf;
 
 using Microsoft.VisualStudio.PlatformUI;
@@ -18,6 +20,10 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Adornments;
 using Microsoft.VisualStudio.Text.Tagging;
+
+using Newtonsoft.Json;
+
+using Block = System.Windows.Documents.Block;
 
 namespace Microsoft.Sarif.Viewer.Tags
 {
@@ -31,11 +37,6 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// The default fontsize for text components.
         /// </summary>
         private const int FontSize = 16;
-
-        /// <summary>
-        /// The color for text. Changes based on user theme.
-        /// </summary>
-        private static readonly SolidColorBrush TextBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifLocationErrorTag"/> class.
@@ -97,7 +98,8 @@ namespace Microsoft.Sarif.Viewer.Tags
                             viewer.Markdown = item.strContent;
                             ParseBlocks(viewer.Document.Blocks);
 
-                            viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of margin that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
+                            viewer.Margin = new Thickness(-15, -15, 0, 0); // There is a small amount of padding that MarkdownViewer comes with that makes it awkward when a textfield is put alongside it.
+
                             return viewer;
                         }
                         catch (NotSupportedException)
@@ -109,7 +111,7 @@ namespace Microsoft.Sarif.Viewer.Tags
                     {
                         TextBlock textblock = new TextBlock() { Text = item.strContent };
                         textblock.FontSize = FontSize;
-                        textblock.Foreground = TextBrush;
+                        textblock.Foreground = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
                         textblock.TextWrapping = TextWrapping.Wrap;
                         return textblock;
                     }
@@ -129,30 +131,72 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="blocks">A list of blocks to parse.</param>
         private void ParseBlocks(BlockCollection blocks)
         {
+            Brush textBrush = GetBrushFromThemeColor(EnvironmentColors.ToolWindowTextColorKey);
+            Brush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
+            int maxRecursionDepth = 50;
+            ParseBlocksRecurs(blocks, textBrush, hyperlinkBrush, maxRecursionDepth);
+        }
+
+        private void ParseBlocksRecurs(BlockCollection blocks, Brush textBrush, Brush hyperlinkBrush, int maxDepth)
+        {
+            maxDepth--;
+            if (maxDepth == 0)
+            {
+                throw new StackOverflowException("Markdown was too deep.");
+            }
+
             foreach (Block block in blocks)
             {
-                // block.BorderBrush = Brushes.Red;
-                // block.BorderThickness = new Thickness(5);
-                block.Margin = new Thickness(0);
+                block.Margin = new Thickness(0, 0, 0, 4);
                 foreach (object blockChild in LogicalTreeHelper.GetChildren(block))
                 {
-                    if (blockChild is Hyperlink hyperlink)
+                    ApplyStylingRecurs(block, blockChild, textBrush, hyperlinkBrush, maxDepth);
+                }
+            }
+        }
+
+        private void ApplyStylingRecurs(Block parentBlock, object obj, Brush textBrush, Brush hyperlinkBrush, int maxDepth)
+        {
+            maxDepth--;
+            if (maxDepth == 0)
+            {
+                throw new StackOverflowException("Markdown was too deep.");
+            }
+
+            if (obj is Hyperlink hyperlink)
+            {
+                hyperlink.Foreground = hyperlinkBrush;
+                hyperlink.MouseDown += Block_MouseDown;
+            }
+            else if (obj is Run runBlock)
+            {
+                runBlock.Foreground = textBrush;
+            }
+            else if (obj is ListItem listBlock)
+            {
+                ParseBlocksRecurs(listBlock.Blocks, textBrush, hyperlinkBrush, maxDepth);
+                parentBlock.Margin = new Thickness(0, 0, 0, 1);
+            }
+            else if (obj is InlineUIContainer inlineUIContainer && inlineUIContainer.Child is Line line)
+            {
+                line.Stroke = GetBrushFromThemeColor(EnvironmentColors.FileTabBackgroundColorKey);
+            }
+            else if (obj is TableRowGroup tableRowGroup)
+            {
+                foreach (TableRow rowElement in tableRowGroup.Rows)
+                {
+                    foreach (TableCell cell in rowElement.Cells)
                     {
-                        SolidColorBrush hyperlinkBrush = GetBrushFromThemeColor(EnvironmentColors.PanelHyperlinkColorKey);
-                        hyperlink.Foreground = hyperlinkBrush;
-                        hyperlink.MouseDown += Block_MouseDown;
-                    }
-                    else if (blockChild is Run runBlock)
-                    {
-                        runBlock.Foreground = TextBrush;
-                    }
-                    else if (blockChild is ListItem listBlock)
-                    {
-                        ParseBlocks(listBlock.Blocks);
+                        ParseBlocksRecurs(cell.Blocks, textBrush, hyperlinkBrush, maxDepth);
                     }
                 }
-
-                block.Foreground = TextBrush;
+            }
+            else if (parentBlock is Paragraph paragraph && obj is Bold bold)
+            {
+                foreach (object inline in bold.Inlines)
+                {
+                    ApplyStylingRecurs(parentBlock, inline, textBrush, hyperlinkBrush, maxDepth);
+                }
             }
         }
 
