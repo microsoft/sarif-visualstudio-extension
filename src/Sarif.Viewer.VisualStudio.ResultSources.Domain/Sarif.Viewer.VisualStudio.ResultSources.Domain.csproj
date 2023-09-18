@@ -47,7 +47,7 @@
       <Version>16.0.206</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.1</Version>
+      <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="Sarif.Sdk">
       <Version>2.4.15</Version>

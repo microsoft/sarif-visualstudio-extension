@@ -237,8 +237,8 @@ namespace Microsoft.Sarif.Viewer
             if (this.resultSourceHost == null)
             {
                 string solutionPath = GetSolutionDirectoryPath();
-                this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.GetOption);
-                this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
+                // this.resultSourceHost = new ResultSourceHost(solutionPath, this, SarifViewerGeneralOptions.Instance.GetOption);
+                // this.resultSourceHost.ServiceEvent += this.ResultSourceHost_ServiceEvent;
             }
 
             if (this.resultSourceHost != null)
