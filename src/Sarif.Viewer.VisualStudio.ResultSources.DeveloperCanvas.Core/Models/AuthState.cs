@@ -90,6 +90,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             catch (Exception)
             { 
                 // swallow
+                // TODO: send telemetry when this happens to prevent.
             }
         }
 
