@@ -848,5 +848,21 @@ namespace Microsoft.Sarif.Viewer {
                 return ResourceManager.GetString("WarningResultsHaveBeenFiltered", resourceCulture);
             }
         }
+
+        public static string SarifViewerOptionsControl_DevCanvasLogOut
+        {
+            get
+            {
+                return ResourceManager.GetString("SarifViewerOptionsControl_DevCanvasLogOut", resourceCulture);
+            }
+        }
+
+        public static string SarifViewerOptionsControl_DevCanvasLogIn
+        {
+            get
+            {
+                return ResourceManager.GetString("SarifViewerOptionsControl_DevCanvasLogIn", resourceCulture);
+            }
+        }
     }
 }

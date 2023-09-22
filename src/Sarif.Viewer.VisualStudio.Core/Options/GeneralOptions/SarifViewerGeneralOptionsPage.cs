@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
+using Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Resources;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 
@@ -69,11 +70,11 @@ namespace Microsoft.Sarif.Viewer.Options
                 bool devCanvasLoggedInNonNull = (bool)DevCanvasLoggedIn;
                 if (devCanvasLoggedInNonNull)
                 {
-                    return "Log out of DevCanvas";
+                    return Resources.SarifViewerOptionsControl_DevCanvasLogOut;
                 }
                 else
                 {
-                    return "Log into DevCanvas";
+                    return Resources.SarifViewerOptionsControl_DevCanvasLogIn;
                 }
             }
         }

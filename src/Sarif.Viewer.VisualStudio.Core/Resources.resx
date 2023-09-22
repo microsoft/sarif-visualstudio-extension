@@ -417,4 +417,10 @@ Do you want to open this file in Visual Studio?</value>
   <data name="OptionsDialog_Colors_DecorationLabel_WarningUnderline" xml:space="preserve">
     <value>Underline warning results with a:</value>
   </data>
+  <data name="SarifViewerOptionsControl_DevCanvasLogOut" xml:space="preserve">
+    <value>Log out of DevCanvas</value>
+  </data>
+  <data name="SarifViewerOptionsControl_DevCanvasLogIn" xml:space="preserve">
+    <value>Log into DevCanvas</value>
+  </data>
 </root>
