@@ -56,7 +56,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         public readonly string msalCacheFilePath = Path.Combine(MsalCacheHelper.UserRootDirectory, msalCacheFileName);
 
         /// <summary>
-        /// Determines if the user is logged in with a @microsoft.com account
+        /// Determines if the user is logged in with a @microsoft.com account.
         /// </summary>
         public bool IsLoggedIntoDevCanvas
         { 
