@@ -5,9 +5,6 @@
     <system:String x:Key="SarifViewerOptionsControl_GeneralGroupBoxHeader">General</system:String>
     <system:String x:Key="SarifViewerOptionsControl_DevCanvasGroupBoxHeader">DevCanvas</system:String>
     
-    <system:String x:Key="SarifViewerOptionsControl_DevCanvasLogOut">Log out of DevCanvas</system:String>
-    <system:String x:Key="SarifViewerOptionsControl_DevCanvasLogIn">Log Into DevCanvas</system:String>
-    
     <system:String x:Key="SarifViewerOptionsControl_ColorBoxHeader">Colors</system:String>
 
     <system:String x:Key="SarifViewerOptionsControl_MonitorSarifFolder">Load .sarif files from the .sarif folder automatically</system:String>
