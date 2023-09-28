@@ -7,6 +7,7 @@ using System.Diagnostics;
 
 using CSharpFunctionalExtensions;
 
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
 using Microsoft.Sarif.Viewer.ResultSources.Domain.Services;
 using Microsoft.VisualStudio.Shell;
@@ -29,12 +30,14 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// <param name="solutionRootPath">The local root path of the current project/solution.</param>
         /// <param name="serviceProvider">The service provider.</param>
         /// <param name="getOptionStateCallback">Callback <see cref="Func{T, TResult}"/> to retrieve option state.</param>
+        /// <param name="setOptionStateCallback">Callback to set option state.</param>
         public ResultSourceHost(
             string solutionRootPath,
             IServiceProvider serviceProvider,
-            Func<string, object> getOptionStateCallback)
+            Func<string, object> getOptionStateCallback,
+            Action<string, object> setOptionStateCallback)
         {
-            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider, getOptionStateCallback);
+            this.resultSourceFactory = new ResultSourceFactory(solutionRootPath, serviceProvider, getOptionStateCallback, setOptionStateCallback);
         }
 
         /// <summary>
@@ -52,6 +55,11 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         public event EventHandler<ServiceEventArgs> ServiceEvent;
 
         /// <summary>
+        /// The event raised when settings fires an event.
+        /// </summary>
+        public event EventHandler<SettingsEventArgs> SettingsEvent;
+
+        /// <summary>
         /// Gets the maximum number of child menus per flyout in the Error List context menu.
         /// </summary>
         public static int ErrorListContextdMenuChildFlyoutsPerFlyout => 3;
@@ -65,6 +73,16 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
         /// Gets the number of services in <see cref="resultSourceServices"/>.
         /// </summary>
         public int ServiceCount => resultSourceServices.Count;
+
+        /// <summary>
+        /// Listens to when a setting event is fired.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">Payload fired.</param>
+        public void Settings_ServiceEvent(object sender, SettingsEventArgs e)
+        {
+            SettingsEvent.Invoke(sender, e);
+        }
 
         /// <summary>
         /// Requests analysis results from the active source service, if any.
@@ -92,6 +110,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory
                     foreach (IResultSourceService service in this.resultSourceServices)
                     {
                         service.ServiceEvent += this.ResultSourceService_ServiceEvent;
+                        this.SettingsEvent += service.Settings_ServiceEvent;
                         await service.InitializeAsync();
                     }
                 }

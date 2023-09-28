@@ -6,19 +6,34 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 
+using Microsoft.Sarif.Viewer.ResultSources.Domain.Models;
+using Microsoft.Sarif.Viewer.ResultSources.GitHubAdvancedSecurity.Resources;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.Win32;
 
 namespace Microsoft.Sarif.Viewer.Options
 {
     [ComVisible(true)]
-    public class SarifViewerGeneralOptionsPage : UIElementDialogPage
+    public class SarifViewerGeneralOptionsPage : UIElementDialogPage, INotifyPropertyChanged
     {
         private readonly Lazy<SarifViewerGeneralOptionsControl> _sarifViewerOptionsControl;
 
+        /// <summary>
+        /// Fired when an event is fired by the settings ui.
+        /// Some examples of this are button clicks or other listeners.
+        /// </summary>
+        public event EventHandler<SettingsEventArgs> SettingsEvent;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public SarifViewerGeneralOptionsPage()
         {
-            _sarifViewerOptionsControl = new Lazy<SarifViewerGeneralOptionsControl>(() => new SarifViewerGeneralOptionsControl(this));
+            _sarifViewerOptionsControl = new Lazy<SarifViewerGeneralOptionsControl>(() =>
+            {
+                SarifViewerGeneralOptionsControl options = new SarifViewerGeneralOptionsControl(this);
+                options.SettingsEvent += this.SettingsEvent;
+                return options;
+            });
         }
 
         public bool MonitorSarifFolder { get; set; } = true;
@@ -28,6 +43,41 @@ namespace Microsoft.Sarif.Viewer.Options
         public bool EnableKeyEventAdornment { get; set; } = true;
 
         public int DevCanvasServerIndex { get; set; } = 0;
+
+        public bool? DevCanvasLoggedIn { get; set; } = null;
+
+        public void InvokePropertyChanged()
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(string.Empty));
+            }
+        }
+
+        /// <summary>
+        /// Gets the message that the login button shows.
+        /// Empty when undecided, "Log out" when logged in, "Log in" when logged out.
+        /// </summary>
+        public string DevCanvasLoginButtonMessage
+        {
+            get
+            {
+                if (DevCanvasLoggedIn == null)
+                {
+                    return string.Empty;
+                }
+
+                bool devCanvasLoggedInNonNull = (bool)DevCanvasLoggedIn;
+                if (devCanvasLoggedInNonNull)
+                {
+                    return Resources.SarifViewerOptionsControl_DevCanvasLogOut;
+                }
+                else
+                {
+                    return Resources.SarifViewerOptionsControl_DevCanvasLogIn;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the user should be able to see the devcanvs settings. Not done for security reasons but for UI/UX reasons.

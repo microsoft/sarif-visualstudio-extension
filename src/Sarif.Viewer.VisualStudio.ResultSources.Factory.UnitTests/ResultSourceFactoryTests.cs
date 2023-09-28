@@ -65,7 +65,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, SetOptionStateCallback);
             Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.IsSuccess.Should().BeTrue();
@@ -105,7 +105,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true);
+            var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, SetOptionStateCallback);
             Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
             result.Value.Count.Should().Be(1);
@@ -128,6 +128,13 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             await resultSourceHost.RequestAnalysisResultsAsync();
 
             mockResultSource.Verify(s => s.RequestAnalysisScanResultsAsync(null), Times.Once);
+        }
+
+#pragma warning disable IDE0060 // Remove unused parameter
+        private void SetOptionStateCallback(string s, object o)
+#pragma warning restore IDE0060 // Remove unused parameter
+        {
+            return;
         }
 
         /// <summary>
@@ -164,7 +171,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IInfoBarService>().ToConstant(mockInfoBarService.Object);
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
-            ResultSourceFactory factory = new ResultSourceFactory("/solutionRoot", standardKernel, (string s) => true);
+            ResultSourceFactory factory = new ResultSourceFactory("/solutionRoot", standardKernel, (string s) => true, SetOptionStateCallback);
             factory.AddResultSource(new SampleResultSourceService().GetType(), 1, 1);
             ResultSourceHost resultSourceHost = new ResultSourceHost(factory);
             await resultSourceHost.RequestAnalysisResultsAsync();
