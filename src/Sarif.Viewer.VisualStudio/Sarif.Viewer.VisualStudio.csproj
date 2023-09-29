@@ -99,6 +99,7 @@
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
       <LastGenOutput>VSPackage.resx</LastGenOutput>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +116,7 @@
     </Content>
     <Resource Include="Triskele.ico">
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <VSCTCompile Include="..\Sarif.Viewer.VisualStudio.Core\SarifCommandPackage.vsct">
       <Link>SarifCommandPackage.vsct</Link>
@@ -207,6 +209,7 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

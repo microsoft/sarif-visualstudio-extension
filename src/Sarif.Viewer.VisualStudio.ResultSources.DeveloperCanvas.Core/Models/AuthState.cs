@@ -22,7 +22,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
     /// </summary>
     internal class AuthState
     {
-        private const string refusedLoginSettingString = $"{nameof(DevCanvasResultSourceService)}-refusedLogin";
+        private const string refusedLoginSettingString = "DevCanvasResultSourceService-refusedLogin";
         private bool? _refusedLogin;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         /// <summary>
         /// The name of the file on the users file system that has the msal settings cached.
         /// </summary>
-        public const string msalCacheFileName = $"{nameof(DevCanvasResultSourceService)}_MSAL_cache.txt";
+        public const string msalCacheFileName = "DevCanvasResultSourceService_MSAL_cache.txt";
 
         /// <summary>
         /// The absolute path of the file on the users file system that has the msal settings cached.
