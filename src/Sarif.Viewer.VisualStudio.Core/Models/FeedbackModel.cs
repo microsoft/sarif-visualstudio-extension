@@ -67,6 +67,7 @@ namespace Microsoft.Sarif.Viewer.Models
                     canExecute: (obj) => true,
                     jtf: null);
 #else
+#pragma warning disable VSTHRD012 // Provide JoinableTaskFactory where allowed
                     this.sendFeedbackCommand = new Microsoft.VisualStudio.PlatformUI.DelegateCommand(
                         execute: (param) =>
                         {
@@ -76,6 +77,7 @@ namespace Microsoft.Sarif.Viewer.Models
                             dialogWindow.Close();
                             ErrorListService.SendFeedback(this);
                         });
+#pragma warning restore VSTHRD012 // Provide JoinableTaskFactory where allowed
 #endif
                 }
 
