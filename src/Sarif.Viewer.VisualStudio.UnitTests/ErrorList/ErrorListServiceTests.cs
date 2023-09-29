@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 using FluentAssertions;
 
@@ -84,7 +85,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
         }
 
         [Fact]
-        public void ErrorListService_ProcessSarifLogAsync_InvalidJson()
+        public async Task ErrorListService_ProcessSarifLogAsync_InvalidJsonAsync()
         {
             // unhook original event handler and hook test event
             ErrorListService.LogProcessed -= ErrorListService.ErrorListService_LogProcessed;
@@ -111,13 +112,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 ";
             int numberOfException = numberOfExceptionLogged;
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidJson));
-            ErrorListService.ProcessSarifLogAsync(stream, "logId", false, false).ConfigureAwait(false);
+            await ErrorListService.ProcessSarifLogAsync(stream, "logId", false, false).ConfigureAwait(false);
             // 1 exception logged
             numberOfExceptionLogged.Should().Be(numberOfException + 1);
         }
 
         [Fact]
-        public void ErrorListService_ProcessSarifLogAsync_JsonNotCompatibleWithSarifShema()
+        public async Task ErrorListService_ProcessSarifLogAsync_JsonNotCompatibleWithSarifShemaAsync()
         {
             // unhook original event handler and hook test event
             ErrorListService.LogProcessed -= ErrorListService.ErrorListService_LogProcessed;
@@ -152,13 +153,13 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 ";
             int numberOfException = this.numberOfExceptionLogged;
             using var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonNotCompatible));
-            ErrorListService.ProcessSarifLogAsync(stream, "logId", false, false).ConfigureAwait(false);
+            await ErrorListService.ProcessSarifLogAsync(stream, "logId", false, false).ConfigureAwait(false);
             // 1 exception logged
             this.numberOfExceptionLogged.Should().Be(numberOfException + 1);
         }
 
         [Fact]
-        public void ProcessSarifLogAsync_ResultsFiltered_ShouldShowNotification()
+        public async Task ProcessSarifLogAsync_ResultsFiltered_ShouldShowNotificationAsync()
         {
             // unhook original event handler and hook test event
             ErrorListService.LogProcessed -= ErrorListService.ErrorListService_LogProcessed;
@@ -218,7 +219,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests
 
             ErrorListService.ErrorListInstance.ColumnFilterer = mockColumnFilter.Object;
 
-            ErrorListService.ProcessSarifLogAsync(testLog, "logId", false, false).ConfigureAwait(false);
+            await ErrorListService.ProcessSarifLogAsync(testLog, "logId", false, false).ConfigureAwait(false);
 
             this.logExceptionalConditions.HasFlag(ExceptionalConditions.ResultsFiltered).Should().BeTrue();
         }
