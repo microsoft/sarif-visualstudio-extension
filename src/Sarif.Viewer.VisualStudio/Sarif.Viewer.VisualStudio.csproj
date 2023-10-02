@@ -52,6 +52,9 @@
     <PackageReference Include="Microsoft.VisualStudio.SDK">
       <Version>17.4.33103.184</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0">
+      <Version>17.4.33103.184</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Telemetry">
       <Version>16.5.24</Version>
     </PackageReference>
