@@ -25,7 +25,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
         {
             get
             {
-                ThreadHelper.ThrowIfNotOnUIThread();
+                if (!SarifViewerPackage.IsUnitTesting)
+                {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                    ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+                }
 
                 if (this.errorListTableControl == null)
                 {
@@ -42,7 +47,12 @@ namespace Microsoft.Sarif.Viewer.ErrorList
 
         public void FilterOut(string columnName, string filteredValue)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            if (!SarifViewerPackage.IsUnitTesting)
+            {
+#pragma warning disable VSTHRD108 // Assert thread affinity unconditionally
+                ThreadHelper.ThrowIfNotOnUIThread();
+#pragma warning restore VSTHRD108
+            }
 
             var filteredColumnValue = new FilteredColumnValue(columnName, filteredValue);
             if (!this.filteredColumnValues.Contains(filteredColumnValue))
