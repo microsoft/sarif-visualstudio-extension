@@ -207,10 +207,18 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="e">The event of being clicked.</param>
         private void Block_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is Hyperlink hyperlink)
+            try
             {
-                Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
-                e.Handled = true;
+                if (sender is Hyperlink hyperlink)
+                {
+                    Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
+                    e.Handled = true;
+                }
+            }
+            catch (Exception)
+            {
+                // in case that we cannot navigate to the uri for whatever reason we want to swallow as we do not want to crash VS as a whole.
+                Console.Write("hi");
             }
         }
 

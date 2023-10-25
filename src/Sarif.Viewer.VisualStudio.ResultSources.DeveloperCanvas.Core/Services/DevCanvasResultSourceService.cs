@@ -254,6 +254,11 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 }
             }
 
+            if (sourceControlType == SourceControlType.Unknown) // file in question is not a file that is part of a codebase, skip over.
+            {
+                return (null, null); 
+            }
+
             string repoRootedFilePath = GetRepoRootedFilePath(gitRepoRoot, absoluteFilePath);
 
             if (sourceControlType == SourceControlType.Unknown)
