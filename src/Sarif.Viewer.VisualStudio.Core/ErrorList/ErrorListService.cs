@@ -748,21 +748,22 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 this.ShowFilteredSuppressionStateColumn();
             }
 
-            if (!skipRemapping && dataCache.SarifErrors.Any())
+            var sarifResults = dataCache.SarifErrors.Where(r => r.SarifResult != null).ToList();
+            if (!skipRemapping && sarifResults.Any())
             {
-                IEnumerable<string> relativeFilePaths = dataCache.SarifErrors.Select(x => x.FileName);
-                IEnumerable<string> uriBaseIds = dataCache.SarifErrors.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation?.ArtifactLocation?.UriBaseId);
+                IEnumerable<string> relativeFilePaths = sarifResults.Select(x => x.FileName);
+                IEnumerable<string> uriBaseIds = sarifResults.Select(x => x.SarifResult.Locations?.FirstOrDefault()?.PhysicalLocation?.ArtifactLocation?.UriBaseId);
 
                 // now we need to map from relative file path to absolute.
-                string workingDirectory = dataCache.SarifErrors.FirstOrDefault().WorkingDirectory;
+                string workingDirectory = sarifResults.FirstOrDefault().WorkingDirectory;
 
                 // find the mapped path with codeanalysisresultmanager
                 List<string> resolvedFilePaths = CodeManagerInstance.ResolveFilePaths(dataCache, workingDirectory, logFilePath, uriBaseIds.ToList(), relativeFilePaths.ToList());
-                CodeManagerInstance.RemapFilePaths(dataCache.SarifErrors, relativeFilePaths.ToList(), resolvedFilePaths);
+                CodeManagerInstance.RemapFilePaths(sarifResults, relativeFilePaths.ToList(), resolvedFilePaths);
 
                 // remap regions and lineNumber of the sarif error list items
                 var codeFinderCache = new Dictionary<string, CodeFinder>(); // local file path -> codefinder
-                foreach (SarifErrorListItem item in dataCache.SarifErrors)
+                foreach (SarifErrorListItem item in sarifResults)
                 {
                     List<(Uri filePath, MatchQuery query)?> queries = item.GetMatchQueries();
                     if (queries != null)

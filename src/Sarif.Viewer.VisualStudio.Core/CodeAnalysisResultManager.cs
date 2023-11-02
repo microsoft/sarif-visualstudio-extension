@@ -397,6 +397,11 @@ namespace Microsoft.Sarif.Viewer
 #pragma warning restore VSTHRD108
             }
 
+            if (Path.IsPathRooted(relativePath))
+            {
+                return relativePath;
+            }
+
             // File contents embedded in SARIF.
             bool hasHash = dataCache.FileDetails.TryGetValue(relativePath, out ArtifactDetailsModel model) && !string.IsNullOrEmpty(model?.Sha256Hash);
             string embeddedTempFilePath = this.CreateFileFromContents(dataCache.FileDetails, relativePath);
