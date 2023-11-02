@@ -430,7 +430,15 @@ namespace Microsoft.Sarif.Viewer
                         out resolvedUri)))
                 {
                     // Fill out the region's properties
-                    this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, resolvedUri, populateSnippet: true);
+                    try
+                    {
+                        this.fullyPopulatedRegion = FileRegionsCache.Instance.PopulateTextRegionProperties(this.region, resolvedUri, populateSnippet: true);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        // in the case there is a mismatch between the file opened on the users device and the file used to create the insight, this can throw an error due to one being larger than the other.
+                        return false;
+                    }
                 }
             }
 
