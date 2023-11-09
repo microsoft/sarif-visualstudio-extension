@@ -750,6 +750,7 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                 }
 
                                 item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.Snippet.Text
                                 item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber;
                             }
                         }
