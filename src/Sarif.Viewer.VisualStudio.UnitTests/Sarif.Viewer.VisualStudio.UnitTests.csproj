@@ -62,6 +62,7 @@
     <Compile Include="CodeFinding\UnitTests\CodeFinderUnitTestBase.cs" />
     <Compile Include="CodeFinding\UnitTests\CppTests.cs" />
     <Compile Include="CodeFinding\UnitTests\CppTests2.cs" />
+    <Compile Include="CodeFinding\UnitTests\CsharpTestMultiLine.cs" />
     <Compile Include="CodeFinding\UnitTests\CsharpTests.cs" />
     <Compile Include="CodeFinding\UnitTests\CTests.cs" />
     <Compile Include="CodeFinding\UnitTests\CTests2.cs" />

@@ -14,9 +14,9 @@ namespace Microsoft.Sarif.Viewer.CodeFinding
         public string Id { get; }
 
         /// <summary>
-        /// Gets the text to search for.
+        /// Gets or sets the text to search for.
         /// </summary>
-        public string TextToFind { get; }
+        public string TextToFind { get; set; }
 
         /// <summary>
         /// Gets optional function signature.
@@ -94,6 +94,26 @@ namespace Microsoft.Sarif.Viewer.CodeFinding
             LineNumberHint = lineNumberHint;
             TypeHint = typeHint;
             MatchWholeTokens = matchWholeTokens;
+        }
+
+        /// <summary>
+        /// Changes the line endings in the text to find to make matching simpler. Automatically tries to detect the line endings being used in the text.
+        /// </summary>
+        /// <param name="newLineEndings">The new line endings that we will use.</param>
+        public void ChangeLineEndings(string newLineEndings)
+        {
+            if (this.TextToFind.Contains("\r\n"))
+            {
+                this.TextToFind = this.TextToFind.Replace("\r\n", newLineEndings);
+            }
+            else if (this.TextToFind.Contains("\r"))
+            {
+                this.TextToFind = this.TextToFind.Replace("\r", newLineEndings);
+            }
+            else
+            {
+                this.TextToFind = this.TextToFind.Replace("\n", newLineEndings);
+            }
         }
     }
 }
