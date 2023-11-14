@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
+
 namespace Microsoft.Sarif.Viewer.CodeFinding
 {
     /// <summary>
@@ -74,6 +76,28 @@ namespace Microsoft.Sarif.Viewer.CodeFinding
         /// Gets a value indicating whether only whole tokens will be matched. Not supported by <see cref="CodeFinder.FindMatches(MatchQuery)"/>.
         /// </summary>
         public bool MatchWholeTokens { get; }
+
+        /// <summary>
+        /// Gets the number of lines we are searching for with this query.
+        /// </summary>
+        public int LineNumbers
+        {
+            get
+            {
+                if (this.TextToFind.Contains("\r\n"))
+                {
+                    return this.TextToFind.Split(new string[] { "\r\n" }, System.StringSplitOptions.None).Count();
+                }
+                else if (this.TextToFind.Contains("\r"))
+                {
+                    return this.TextToFind.Split('\r').Count();
+                }
+                else
+                {
+                    return this.TextToFind.Split('\n').Count();
+                }
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MatchQuery"/> class.

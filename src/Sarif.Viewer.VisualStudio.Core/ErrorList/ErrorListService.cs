@@ -746,11 +746,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                 {
                                     item.LineNumber = bestResult.LineNumber;
                                     item.Region.StartLine = bestResult.LineNumber;
-                                    item.Region.EndLine = bestResult.LineNumber;
+                                    item.Region.EndLine = bestResult.LineNumber + query.LineNumbers;
                                 }
 
                                 item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
-                                item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber;
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber + query.LineNumbers;
                             }
                         }
                     }
