@@ -327,8 +327,10 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                 (SarifLog log, string outputPath) logTuple = await ConvertLogsToSarifStableAsync(toolFormat, filePath, promptOnLogConversions);
                 await ProcessSarifLogAsync(logTuple.log, logTuple.outputPath, cleanErrors: cleanErrors, openInEditor: openInEditor).ConfigureAwait(continueOnCapturedContext: false);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Trace.WriteLine($"Failed to process log file. Reason: {e.Message}");
+
                 // swallow to prevent crashing.
             }
         }
@@ -746,11 +748,11 @@ namespace Microsoft.Sarif.Viewer.ErrorList
                                 {
                                     item.LineNumber = bestResult.LineNumber;
                                     item.Region.StartLine = bestResult.LineNumber;
-                                    item.Region.EndLine = bestResult.LineNumber + query.LineNumbers;
+                                    item.Region.EndLine = bestResult.LineNumber + query.LineNumbers - 1;
                                 }
 
                                 item.SarifResult.Locations[i].PhysicalLocation.Region.StartLine = bestResult.LineNumber;
-                                item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber + query.LineNumbers;
+                                item.SarifResult.Locations[i].PhysicalLocation.Region.EndLine = bestResult.LineNumber + query.LineNumbers - 1;
                             }
                         }
                     }
