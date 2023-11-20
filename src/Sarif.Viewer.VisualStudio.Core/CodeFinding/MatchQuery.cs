@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Linq;
+
 namespace Microsoft.Sarif.Viewer.CodeFinding
 {
     /// <summary>
@@ -14,9 +16,9 @@ namespace Microsoft.Sarif.Viewer.CodeFinding
         public string Id { get; }
 
         /// <summary>
-        /// Gets the text to search for.
+        /// Gets or sets the text to search for.
         /// </summary>
-        public string TextToFind { get; }
+        public string TextToFind { get; set; }
 
         /// <summary>
         /// Gets optional function signature.
@@ -76,6 +78,28 @@ namespace Microsoft.Sarif.Viewer.CodeFinding
         public bool MatchWholeTokens { get; }
 
         /// <summary>
+        /// Gets the number of lines we are searching for with this query.
+        /// </summary>
+        public int LineNumbers
+        {
+            get
+            {
+                if (this.TextToFind.Contains("\r\n"))
+                {
+                    return this.TextToFind.Split(new string[] { "\r\n" }, System.StringSplitOptions.None).Count();
+                }
+                else if (this.TextToFind.Contains("\r"))
+                {
+                    return this.TextToFind.Split('\r').Count();
+                }
+                else
+                {
+                    return this.TextToFind.Split('\n').Count();
+                }
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MatchQuery"/> class.
         /// Creates a MatchQuery object.
         /// </summary>
@@ -94,6 +118,26 @@ namespace Microsoft.Sarif.Viewer.CodeFinding
             LineNumberHint = lineNumberHint;
             TypeHint = typeHint;
             MatchWholeTokens = matchWholeTokens;
+        }
+
+        /// <summary>
+        /// Changes the line endings in the text to find to make matching simpler. Automatically tries to detect the line endings being used in the text.
+        /// </summary>
+        /// <param name="newLineEndings">The new line endings that we will use.</param>
+        public void ChangeLineEndings(string newLineEndings)
+        {
+            if (this.TextToFind.Contains("\r\n"))
+            {
+                this.TextToFind = this.TextToFind.Replace("\r\n", newLineEndings);
+            }
+            else if (this.TextToFind.Contains("\r"))
+            {
+                this.TextToFind = this.TextToFind.Replace("\r", newLineEndings);
+            }
+            else
+            {
+                this.TextToFind = this.TextToFind.Replace("\n", newLineEndings);
+            }
         }
     }
 }
