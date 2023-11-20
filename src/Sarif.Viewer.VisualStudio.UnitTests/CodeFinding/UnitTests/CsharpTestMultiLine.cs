@@ -25,7 +25,7 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding.UnitTests
         [InlineData("\r\n")]
         [InlineData("\n")]
         public void TestMultiLine(string lineEndings)
-        {
+        { 
             string filePath = @"CodeFinding\TestFiles\CSharp2.cs";
             CodeFinder codeFinder = new CodeFinder(filePath);
 
