@@ -14,6 +14,12 @@ namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
     internal abstract class CodeFinderBase
     {
         /// <summary>
+        /// The character or sequence of characters that designate a line end.
+        /// Either will be \r\n, \r, or \n.
+        /// </summary>
+        protected string lineEndings;
+
+        /// <summary>
         /// The complete contents of the file.
         /// </summary>
         protected string fileContents;
@@ -47,6 +53,19 @@ namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
             lineCount = GetLineNumber(endOfFile);
 
             IgnoredSpans = GetIgnoredSpans();
+
+            if (fileContents.Contains("\r\n"))
+            {
+                lineEndings = "\r\n";
+            }
+            else if (fileContents.Contains("\r"))
+            {
+                lineEndings = "\r";
+            }
+            else
+            {
+                lineEndings = "\n";
+            }
         }
 
         /// <summary>
@@ -96,6 +115,8 @@ namespace Microsoft.Sarif.Viewer.CodeFinding.Internal
         /// <returns>The list of possible matches.</returns>
         private List<MatchResult> FindMatchesBasic(MatchQuery query)
         {
+            query.ChangeLineEndings(lineEndings);
+
             var matches = new List<MatchResult>();
 
             // Find all instances of the given text.

@@ -175,6 +175,7 @@ namespace Microsoft.Sarif.Viewer.CodeFinding.Internal.CStyle
         /// <returns>The list of matching results.</returns>
         public override List<MatchResult> FindMatchesWithFunction(MatchQuery query)
         {
+            query.ChangeLineEndings(lineEndings);
             string textToFind = query.TextToFind;
 
             // Because curly braces define scopes, they present an interesting challenge to this
