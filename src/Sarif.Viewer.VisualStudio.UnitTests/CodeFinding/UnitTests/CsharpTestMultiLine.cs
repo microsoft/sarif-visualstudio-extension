@@ -14,7 +14,7 @@ using Microsoft.Sarif.Viewer.CodeFinding;
 using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding.UnitTests
-{
+{a
     public class CSharpTestMultiLine
     {
         /// <summary>
