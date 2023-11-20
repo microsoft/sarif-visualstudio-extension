@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding.UnitTests
 {
-    public class CsharpTestMultiLine
+    public class CSharpTestMultiLine
     {
         /// <summary>
         /// Tests if we are able to match multi line snippets
@@ -25,7 +25,6 @@ namespace Microsoft.Sarif.Viewer.VisualStudio.UnitTests.CodeFinding.UnitTests
         [InlineData("\r\n")]
         [InlineData("\n")]
         public void TestMultiLine(string lineEndings)
-
         {
             string filePath = @"CodeFinding\TestFiles\CSharp2.cs";
             CodeFinder codeFinder = new CodeFinder(filePath);
