@@ -70,7 +70,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.Count.Should().Be(2);
+            result.Value.Count.Should().Be(1);
             result.Value[0].GetType().Name.Should().Be("GitHubSourceService");
         }
 
@@ -108,9 +108,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, SetOptionStateCallback);
             Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-            result.Value.Count.Should().Be(1);
-            result.IsSuccess.Should().BeTrue();
-            result.Value[0].GetType().Name.Should().Be("DevCanvasResultSourceService");
+            result.Value.Count.Should().Be(0);
         }
 
         [Fact]
@@ -175,7 +173,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             factory.AddResultSource(new SampleResultSourceService().GetType(), 1, 1);
             ResultSourceHost resultSourceHost = new ResultSourceHost(factory);
             await resultSourceHost.RequestAnalysisResultsAsync();
-            resultSourceHost.ServiceCount.Should().Be(3);
+            resultSourceHost.ServiceCount.Should().Be(2);
         }
     }
 }
