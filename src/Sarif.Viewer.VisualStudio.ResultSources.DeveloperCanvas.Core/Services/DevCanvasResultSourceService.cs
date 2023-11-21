@@ -144,6 +144,15 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
+            try
+            {
+                RegistryKey devCanvasKey = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\VisualStudio\devcanvas", false);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
             // TODO: Remove this when merging into main.
             DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 11/20");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
