@@ -144,13 +144,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            try
+            string devcanvasKey = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio\\devcanvas", "sampleKey", null);
+            if (string.IsNullOrEmpty(devcanvasKey))
             {
-                RegistryKey devCanvasKey = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\VisualStudio\devcanvas", false);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                return System.Threading.Tasks.Task.FromResult(Result.Failure("Not a DevCanvas user."));
             }
 
             // TODO: Remove this when merging into main.
