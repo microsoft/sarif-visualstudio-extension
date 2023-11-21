@@ -75,7 +75,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
         }
 
         [Fact]
-        public void GetResultSourceService_ReturnsPlatformNotSupported_WhenPathDoesNotContainsDotGitDirectory()
+        public async Task GetResultSourceService_ReturnsPlatformNotSupported_WhenPathDoesNotContainsDotGitDirectoryAsync()
         {
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
@@ -106,9 +106,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, SetOptionStateCallback);
-            Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType> result = await resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false);
 
-            result.Value.Count.Should().Be(0);
+            result.Error.Should().Be(ErrorType.PlatformNotSupported);
         }
 
         [Fact]
