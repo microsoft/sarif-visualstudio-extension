@@ -23,6 +23,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
     /// </summary>
     internal class AuthState
     {
+        private const string collectionPath = "Extensions\\b97edb99-282e-444c-8f53-7de237f2ec5e";
         private const string refusedLoginSettingString = $"{nameof(DevCanvasResultSourceService)}-refusedLogin";
         private bool? _refusedLogin;
 
@@ -41,7 +42,7 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
             }
             set
             {
-                settingsStore.SetBoolean(nameof(AuthState), refusedLoginSettingString, value);
+                settingsStore.SetBoolean(collectionPath, refusedLoginSettingString, value);
                 _refusedLogin = value;
             }
         }
@@ -73,21 +74,42 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         {
             try
             {
-                // IVsSettingsManager settingsManager = (IVsSettingsManager)ServiceProvider.GlobalProvider.GetService(typeof(SVsSettingsManager));
-                string collectionPath = string.Format("Extensions\\{0}\\{1}", "b97edb99-282e-444c-8f53-7de237f2ec5e", "AuthState");
-                // settingsManager.CreateCollection(collectionPath);
+                IVsSettingsManager settingsManager = (IVsSettingsManager)ServiceProvider.GlobalProvider.GetService(typeof(SVsSettingsManager));
+                // string collectionPath = "AuthState";
 
                 // Get the settings manager for the current user
-                SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
+                SettingsManager shellSettingsManager = new ShellSettingsManager(settingsManager);
 
                 // Get the writable settings store for your extension
-                settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+                settingsStore = shellSettingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
+
+                try
+                {
+                    DevCanvasTracer.WriteLine($"settingsStore.GetSubCollectionCount(collectionPath): {settingsStore.GetSubCollectionCount(collectionPath)}");
+                }
+                catch (Exception e)
+                {
+                    DevCanvasTracer.WriteLine($"line 92 fail: {e}");
+                }
 
                 // Save a setting
-
                 if (!settingsStore.CollectionExists(collectionPath))
                 {
+                    DevCanvasTracer.WriteLine("failed to find collection");
                     settingsStore.CreateCollection(collectionPath);
+                }
+                else
+                {
+                    DevCanvasTracer.WriteLine("found collection");
+                }
+
+                try
+                {
+                    DevCanvasTracer.WriteLine($"settingsStore.PropertyExists(collectionPath, refusedLoginSettingString): {settingsStore.PropertyExists(collectionPath, refusedLoginSettingString)}");
+                }
+                catch (Exception e)
+                {
+                    DevCanvasTracer.WriteLine("Fail line 113");
                 }
 
                 _refusedLogin = settingsStore.GetBoolean(collectionPath, refusedLoginSettingString, false);
