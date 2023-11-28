@@ -14,6 +14,7 @@ using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell.Settings;
+using System.Collections;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
@@ -72,6 +73,10 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         {
             try
             {
+                // IVsSettingsManager settingsManager = (IVsSettingsManager)ServiceProvider.GlobalProvider.GetService(typeof(SVsSettingsManager));
+                string collectionPath = string.Format("Extensions\\{0}\\{1}", "b97edb99-282e-444c-8f53-7de237f2ec5e", "AuthState");
+                // settingsManager.CreateCollection(collectionPath);
+
                 // Get the settings manager for the current user
                 SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
 
@@ -80,12 +85,12 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 
                 // Save a setting
 
-                if (!settingsStore.CollectionExists(nameof(AuthState)))
+                if (!settingsStore.CollectionExists(collectionPath))
                 {
-                    settingsStore.CreateCollection(nameof(AuthState));
+                    settingsStore.CreateCollection(collectionPath);
                 }
 
-                _refusedLogin = settingsStore.GetBoolean(nameof(AuthState), refusedLoginSettingString, false);
+                _refusedLogin = settingsStore.GetBoolean(collectionPath, refusedLoginSettingString, false);
             }
             catch (Exception)
             { 
