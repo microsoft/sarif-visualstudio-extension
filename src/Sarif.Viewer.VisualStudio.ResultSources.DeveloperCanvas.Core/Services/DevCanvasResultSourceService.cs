@@ -151,8 +151,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         public Task<Result> IsActiveAsync()
         {
             // TODO: remove below to release to general users.
-            string devcanvasKey = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio\\devcanvas", "sampleKey", null);
-            if (string.IsNullOrEmpty(devcanvasKey))
+            string devcanvasKey = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio\\devcanvas", "DevCanvasInsider", null);
+            if (devcanvasKey != "True")
             {
                 return System.Threading.Tasks.Task.FromResult(Result.Failure("Not a DevCanvas user."));
             }
