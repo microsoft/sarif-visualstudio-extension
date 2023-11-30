@@ -14,6 +14,8 @@ using Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Settings;
 using Microsoft.VisualStudio.Shell.Settings;
+using EnvDTE;
+using EnvDTE80;
 
 namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
 {
@@ -72,20 +74,8 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Models
         {
             try
             {
-                // Get the settings manager for the current user
-                SettingsManager settingsManager = new ShellSettingsManager(ServiceProvider.GlobalProvider);
-
-                // Get the writable settings store for your extension
-                settingsStore = settingsManager.GetWritableSettingsStore(SettingsScope.UserSettings);
-
-                // Save a setting
-
-                if (!settingsStore.CollectionExists(nameof(AuthState)))
-                {
-                    settingsStore.CreateCollection(nameof(AuthState));
-                }
-
-                _refusedLogin = settingsStore.GetBoolean(nameof(AuthState), refusedLoginSettingString, false);
+                var dte = (DTE2)Package.GetGlobalService(typeof(DTE));
+                dte.
             }
             catch (Exception)
             { 

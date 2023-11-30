@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DevCanvasTracer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\AuthState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\AuthStateDialogPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasGeneratorInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasRequestV1.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\DevCanvasVersionControlDetails.cs" />
