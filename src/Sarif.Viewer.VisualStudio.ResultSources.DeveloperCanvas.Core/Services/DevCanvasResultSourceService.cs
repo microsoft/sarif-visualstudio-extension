@@ -144,7 +144,19 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
         /// <inheritdoc/>
         public System.Threading.Tasks.Task InitializeAsync()
         {
-            // TODO: Remove this when merging into main.
+            return IsActiveAsync();
+        }
+
+        /// <inheritdoc/>
+        public Task<Result> IsActiveAsync()
+        {
+            // TODO: remove below to release to general users.
+            string devcanvasKey = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VisualStudio\\devcanvas", "DevCanvasInsider", null);
+            if (devcanvasKey != "True")
+            {
+                return System.Threading.Tasks.Task.FromResult(Result.Failure("Not a DevCanvas user."));
+            }
+
             DevCanvasTracer.WriteLine($"Initializing {nameof(DevCanvasResultSourceService)}. Version 11/20");
             string userName = (string)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\VSCommon\\ConnectedUser\\IdeUserV4\\Cache", "EmailAddress", null);
 
@@ -158,12 +170,6 @@ namespace Sarif.Viewer.VisualStudio.ResultSources.DeveloperCanvas.Core.Services
                 DevCanvasTracer.WriteLine($"Initialized {nameof(DevCanvasResultSourceService)}");
                 return System.Threading.Tasks.Task.FromResult(Result.Success());
             }
-        }
-
-        /// <inheritdoc/>
-        public Task<Result> IsActiveAsync()
-        {
-            return System.Threading.Tasks.Task.FromResult(Result.Success());
         }
 
         /// <inheritdoc/>

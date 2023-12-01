@@ -70,12 +70,12 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
 
             result.IsSuccess.Should().BeTrue();
             result.Value.Should().NotBeNull();
-            result.Value.Count.Should().Be(2);
+            result.Value.Count.Should().Be(1);
             result.Value[0].GetType().Name.Should().Be("GitHubSourceService");
         }
 
         [Fact]
-        public void GetResultSourceService_ReturnsPlatformNotSupported_WhenPathDoesNotContainsDotGitDirectory()
+        public async Task GetResultSourceService_ReturnsPlatformNotSupported_WhenPathDoesNotContainsDotGitDirectoryAsync()
         {
             string path = @"C:\Git\MyProject";
             string uri = "https://github.com/user/myproject.git";
@@ -106,11 +106,9 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             standardKernel.Bind<IStatusBarService>().ToConstant(mockStatusBarService.Object);
 
             var resultSourceFactory = new ResultSourceFactory(path, standardKernel, (string key) => true, SetOptionStateCallback);
-            Result<List<IResultSourceService>, ErrorType> result = resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            Result<List<IResultSourceService>, ErrorType> result = await resultSourceFactory.GetResultSourceServicesAsync().ConfigureAwait(false);
 
-            result.Value.Count.Should().Be(1);
-            result.IsSuccess.Should().BeTrue();
-            result.Value[0].GetType().Name.Should().Be("DevCanvasResultSourceService");
+            result.Error.Should().Be(ErrorType.PlatformNotSupported);
         }
 
         [Fact]
@@ -175,7 +173,7 @@ namespace Microsoft.Sarif.Viewer.ResultSources.Factory.UnitTests
             factory.AddResultSource(new SampleResultSourceService().GetType(), 1, 1);
             ResultSourceHost resultSourceHost = new ResultSourceHost(factory);
             await resultSourceHost.RequestAnalysisResultsAsync();
-            resultSourceHost.ServiceCount.Should().Be(3);
+            resultSourceHost.ServiceCount.Should().Be(2);
         }
     }
 }
