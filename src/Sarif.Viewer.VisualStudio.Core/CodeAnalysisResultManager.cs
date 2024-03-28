@@ -826,6 +826,10 @@ namespace Microsoft.Sarif.Viewer
         /// <returns>The common suffix of the two file paths.</returns>
         private static string GetCommonSuffix(string firstPath, string secondPath)
         {
+            // Normalize file paths before doing comparison.
+            firstPath = NormalizeFilePath(firstPath);
+            secondPath = NormalizeFilePath(secondPath);
+
             string commonSuffix = null;
 
             int firstSuffixOffset = firstPath.Length;
@@ -1084,9 +1088,15 @@ namespace Microsoft.Sarif.Viewer
                     pathFromLogFile = new Uri(originalBaseUri, pathFromLogFile).LocalPath;
                 }
 
+                // Note: _fileSystem.FileExists is a wrapper around File.Exists.
+                // If File.Exists is passed a relative path, which is possible in this scenario,
+                // it is interpreted as relative to the current working directory.
+                // https://learn.microsoft.com/en-us/dotnet/api/system.io.file.exists?view=net-8.0#remarks
                 if (this._fileSystem.FileExists(pathFromLogFile))
                 {
-                    resolvedPath = pathFromLogFile;
+                    // If the path is rooted, return as is.
+                    // Otherwise if relative, make sure to return the fully resolved and normalized path combined with the current directory.
+                    resolvedPath = Path.IsPathRooted(pathFromLogFile) ? pathFromLogFile : NormalizeFilePath(Path.Combine(this._fileSystem.EnvironmentCurrentDirectory, pathFromLogFile));
                     return true;
                 }
             }
@@ -1197,7 +1207,7 @@ namespace Microsoft.Sarif.Viewer
                 }
             }
 
-            string commonSuffix = GetCommonSuffix(NormalizeFilePath(pathFromLogFile), resolvedPath);
+            string commonSuffix = GetCommonSuffix(pathFromLogFile, resolvedPath);
             if (commonSuffix == null)
             {
                 return false;
