@@ -1091,7 +1091,7 @@ namespace Microsoft.Sarif.Viewer
                 // Note: _fileSystem.FileExists is a wrapper around File.Exists.
                 // If File.Exists is passed a relative path, which is possible in this scenario,
                 // it is interpreted as relative to the current working directory.
-                // https://learn.microsoft.com/en-us/dotnet/api/system.io.file.exists?view=net-8.0#remarks
+                // https://learn.microsoft.com/en-us/dotnet/api/system.io.file.exists?view=netframework-4.8#remarks
                 if (this._fileSystem.FileExists(pathFromLogFile))
                 {
                     // If the path is rooted, return as is.
