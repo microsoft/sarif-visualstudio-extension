@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Security;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +17,7 @@ using System.Windows.Shapes;
 using Markdig.Syntax;
 using Markdig.Wpf;
 
+using Microsoft.Sarif.Viewer.Sarif;
 using Microsoft.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
@@ -38,6 +41,8 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         private const int FontSize = 16;
 
+        private readonly Func<string, int, bool> openExternalUrl;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SarifLocationErrorTag"/> class.
         /// </summary>
@@ -47,7 +52,8 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// <param name="errorType">The Visual Studio error type to display. Must be from the <see cref="PredefinedErrorTypeNames"/> or will only display red underline.</param>
         /// <param name="content">The content to use when displaying a tool tip for this error. This parameter may be null.</param>
         /// <param name="context">Gets the data context for this tag.</param>
-        public SarifLocationErrorTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string errorType, List<(string strContent, TextRenderType renderType)> content, object context)
+        /// <param name="openExternalUrl">The consent-gated external URL navigator and its display-length limit.</param>
+        public SarifLocationErrorTag(IPersistentSpan persistentSpan, int runIndex, int resultId, string errorType, List<(string strContent, TextRenderType renderType)> content, object context, Func<string, int, bool> openExternalUrl = null)
             : base(persistentSpan, runIndex: runIndex, resultId: resultId, context: context)
         {
             if (errorType != PredefinedErrorTypeNames.SyntaxError &&
@@ -62,6 +68,7 @@ namespace Microsoft.Sarif.Viewer.Tags
 
             this.ErrorType = errorType;
             this.content = content;
+            this.openExternalUrl = openExternalUrl ?? SdkUIUtilities.OpenExternalUrl;
         }
 
         /// <summary>
@@ -205,19 +212,32 @@ namespace Microsoft.Sarif.Viewer.Tags
         /// </summary>
         /// <param name="sender">The object that was clicked.</param>
         /// <param name="e">The event of being clicked.</param>
-        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
+        internal void Block_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (!(sender is Hyperlink hyperlink))
+            {
+                return;
+            }
+
+            e.Handled = true;
             try
             {
-                if (sender is Hyperlink hyperlink)
+                Uri uri = hyperlink.NavigateUri;
+                if (uri == null || !uri.IsAbsoluteUri || !uri.IsHttpScheme())
                 {
-                    Process.Start(new ProcessStartInfo(hyperlink.NavigateUri.AbsoluteUri));
-                    e.Handled = true;
+                    Trace.TraceWarning("Blocked a non-HTTP(S) SARIF tooltip hyperlink.");
+                    return;
                 }
+
+                // Keep the full tooltip URL in both the confirmation and navigation.
+                string absoluteUri = uri.AbsoluteUri;
+                this.openExternalUrl(absoluteUri, absoluteUri.Length);
             }
-            catch (Exception)
+            catch (Exception ex) when (ex is Win32Exception ||
+                                       ex is InvalidOperationException ||
+                                       ex is SecurityException)
             {
-                // in case that we cannot navigate to the uri for whatever reason we want to swallow as we do not want to crash VS as a whole.
+                Trace.TraceError("Unable to open a SARIF tooltip hyperlink: {0}", ex);
             }
         }
 
