@@ -104,6 +104,7 @@
     <Compile Include="SpanHelperTests.cs" />
     <Compile Include="StringBuilderFileStreamMock.cs" />
     <Compile Include="SuppressionTests.cs" />
+    <Compile Include="Tags\SarifLocationErrorTagTests.cs" />
     <EmbeddedResource Include="TestData\BinaryTestFiles\NonBinaries\csharpfile.cs" />
     <Compile Include="Telemetry\KeyEventTelemetryTests.cs" />
     <Compile Include="TestTraits.cs" />
