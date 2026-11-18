@@ -40,6 +40,23 @@ extends:
           submodules: recursive
           fetchDepth: 0
           fetchTags: false
+        - task: NuGetAuthenticate@1
+          displayName: Authenticate with internal NuGet feed
+        - task: PowerShell@2
+          displayName: Configure internal NuGet source
+          inputs:
+            targetType: inline
+            script: |
+              # Keep this feed configuration scoped to the pipeline checkout.
+              @'
+              <?xml version="1.0" encoding="utf-8"?>
+              <configuration>
+                <packageSources>
+                  <clear />
+                  <add key="Security-Detections-Build-Deps" value="https://pkgs.dev.azure.com/mseng/1ES/_packaging/Security-Detections-Build-Deps/nuget/v3/index.json" />
+                </packageSources>
+              </configuration>
+              '@ | Set-Content -Path "$(Build.SourcesDirectory)\NuGet.Config" -Encoding UTF8
         - task: BatchScript@1
           displayName: Run VsDevCmd.bat
           inputs:
